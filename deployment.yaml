@@ -1,0 +1,118 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Template to deploy the LPCalendar application
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 10
+    MemorySize: 128
+    Runtime: dotnet8
+  Api:
+    TracingEnabled: true
+    Cors:
+      AllowMethods: "'POST, GET'"
+      AllowOrigin: "'*'"
+      #MaxAge: "'600'"
+
+Resources:
+  # Database
+  ConcertsDynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Concerts
+      AttributeDefinitions:
+        - AttributeName: Id
+          AttributeType: S
+        #- AttributeName: PostedStartTime
+        #  AttributeType: S
+        #- AttributeName: Country
+        #  AttributeType: S
+        #- AttributeName: State
+        #  AttributeType: S
+        #- AttributeName: City
+        #  AttributeType: S
+        #- AttributeName: Venue
+        #  AttributeType: S
+      KeySchema:
+        - AttributeName: Id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+  
+  # Access Roles
+  ConcertsWriteLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaDynamoDBAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:DescribeTable
+                Resource: !GetAtt ConcertsDynamoDBTable.Arn
+  ConcertsReadLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaDynamoDBAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:DescribeTable
+                Resource: !GetAtt ConcertsDynamoDBTable.Arn
+    
+  # Lambda functions
+  AddConcertFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: Lambda.AddConcert::Lambda.AddConcert.Function::FunctionHandler
+      Role: !GetAtt ConcertsWriteLambdaExecutionRole.Arn
+      Description: .NET function to add calendar entries
+      CodeUri: ./Lambda.AddConcert/src/Lambda.AddConcert/bin/Release/net8.0/Lambda.AddConcert.zip
+      Architectures:
+        - arm64
+      Tracing: Active
+      Events:
+        PutAddConcert:
+          Type: Api
+          Properties:
+            Path: /addConcert
+            Method: put
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  #GetCalendar:
+  #  Description: "Function to read the calendar"
+  #  Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/getCalendar/"
+  AddConcertFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt AddConcertFunction.Arn
+  #AddConcertFunctionRole:
+  #  Description: "Implicit IAM Role created for Hello World function"
+  #  Value: !GetAtt AddConcertFunctionRole.Arn
