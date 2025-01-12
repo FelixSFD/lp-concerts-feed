@@ -159,6 +159,18 @@ Resources:
       Domain: !Sub ${AWS::StackName}-${AWS::AccountId}
       UserPoolId: !Ref CognitoAuthorizerUserPool
   
+  # REST API that is secured by cognito
+  ConcertsApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors: "'*'"
+      Auth:
+        DefaultAuthorizer: ConcertsCognitoAuthorizer
+        Authorizers:
+          ConcertsCognitoAuthorizer:
+            UserPoolArn: !GetAtt CognitoAuthorizerUserPool.Arn
+  
   # Lambda functions
   AddConcertFunction:
     Type: AWS::Serverless::Function
@@ -174,6 +186,7 @@ Resources:
         PutAddConcert:
           Type: Api
           Properties:
+            RestApiId: !Ref ConcertsApi
             Path: /addConcert
             Method: put
             
@@ -191,6 +204,7 @@ Resources:
         ListConcerts:
           Type: Api
           Properties:
+            RestApiId: !Ref ConcertsApi
             Path: /concerts
             Method: get
 
