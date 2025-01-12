@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Template to deploy the LPCalendar application
+  Application to manage Linkin Park Concert dates
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
@@ -16,6 +16,11 @@ Globals:
       AllowOrigin: "'*'"
       #MaxAge: "'600'"
 
+
+Parameters:
+  CallbackUrl:
+    Type: String
+    
 Resources:
   # Database
   ConcertsDynamoDBTable:
@@ -85,7 +90,75 @@ Resources:
                   - dynamodb:DescribeTable
                   - dynamodb:Scan
                 Resource: !GetAtt ConcertsDynamoDBTable.Arn
-    
+  
+  CognitoAuthorizerUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: cognito-user-pool-userpool
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+          RequireUppercase: true
+          TemporaryPasswordValidityDays: 7
+      AutoVerifiedAttributes:
+        - email
+      UsernameConfiguration:
+        CaseSensitive: true
+      UsernameAttributes:
+        - email
+      Schema:
+        - AttributeDataType: String
+          Mutable: true
+          Name: email
+          #Required: true
+        - AttributeDataType: String
+          Mutable: true
+          Name: first_name
+          #Required: true
+        - AttributeDataType: String
+          Mutable: true
+          Name: last_name
+          #Required: true
+  
+  CognitoAuthorizerUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      AllowedOAuthFlows:
+        - implicit
+      AllowedOAuthFlowsUserPoolClient: True
+      AllowedOAuthScopes:
+        - email
+        - openid
+        - profile
+      CallbackURLs:
+        - !Ref CallbackUrl
+      ClientName: cognito-user-pool-client
+      SupportedIdentityProviders:
+        - COGNITO
+      UserPoolId: !Ref CognitoAuthorizerUserPool
+      GenerateSecret: true
+  
+  CognitoAuthorizerUserPoolResourceServer:
+    Type: AWS::Cognito::UserPoolResourceServer
+    Properties:
+      Identifier: LpConcertsAuthServer
+      Name: LpConcertsAuthServer
+      Scopes:
+        - ScopeDescription: "Allow access to application"
+          ScopeName: user_access
+      UserPoolId: !Ref CognitoAuthorizerUserPool
+  
+  CognitoAuthorizerUserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: !Sub ${AWS::StackName}-${AWS::AccountId}
+      UserPoolId: !Ref CognitoAuthorizerUserPool
+  
   # Lambda functions
   AddConcertFunction:
     Type: AWS::Serverless::Function
@@ -122,15 +195,35 @@ Resources:
             Method: get
 
 Outputs:
+  HostedUi:
+    Description: Hosted UI
+    Value: !Sub "https://${CognitoAuthorizerUserPoolDomain}.auth.${AWS::Region}.amazoncognito.com/login?client_id=${CognitoAuthorizerUserPoolClient}&response_type=token&scope=email+openid+profile&redirect_uri=${CallbackUrl}"
+
+  UserPoolId:
+    Description: "UserPool ID"
+    Value: !Ref CognitoAuthorizerUserPool
+    Export:
+      Name: 'UserPoolId'
+
+  UserPoolClientId:
+    Description: "UserPoolClient ID"
+    Value: !Ref CognitoAuthorizerUserPoolClient
+    Export:
+      Name: 'UserPoolClientId'
+
+  #UserPoolClientIdSecret:
+  #  Value:
+  #    !GetAtt CognitoAuthorizerUserPoolClient.ClientSecret
+  
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   #GetCalendar:
   #  Description: "Function to read the calendar"
   #  Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/getCalendar/"
-  AddConcertFunction:
-    Description: "Hello World Lambda Function ARN"
-    Value: !GetAtt AddConcertFunction.Arn
+  #AddConcertFunction:
+  #  Description: "Hello World Lambda Function ARN"
+  #  Value: !GetAtt AddConcertFunction.Arn
   #AddConcertFunctionRole:
   #  Description: "Implicit IAM Role created for Hello World function"
   #  Value: !GetAtt AddConcertFunctionRole.Arn
