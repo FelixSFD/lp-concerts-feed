@@ -187,7 +187,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref ConcertsApi
-            Path: /addConcert
+            Path: /concerts
             Method: put
             
   FindConcertFunction:
@@ -207,6 +207,8 @@ Resources:
             RestApiId: !Ref ConcertsApi
             Path: /concerts
             Method: get
+            Auth:
+              Authorizer: NONE
 
 Outputs:
   HostedUi:
