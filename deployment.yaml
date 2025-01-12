@@ -83,6 +83,7 @@ Resources:
                 Action:
                   - dynamodb:GetItem
                   - dynamodb:DescribeTable
+                  - dynamodb:Scan
                 Resource: !GetAtt ConcertsDynamoDBTable.Arn
     
   # Lambda functions
@@ -102,6 +103,23 @@ Resources:
           Properties:
             Path: /addConcert
             Method: put
+            
+  FindConcertFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: Lambda.ListConcerts::Lambda.ListConcerts.Function::FunctionHandler
+      Role: !GetAtt ConcertsReadLambdaExecutionRole.Arn
+      Description: .NET function to read calendar entries
+      CodeUri: ./Lambda.ListConcerts/src/Lambda.ListConcerts/bin/Release/net8.0/Lambda.ListConcerts.zip
+      Architectures:
+        - arm64
+      Tracing: Active
+      Events:
+        ListConcerts:
+          Type: Api
+          Properties:
+            Path: /concerts
+            Method: get
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function

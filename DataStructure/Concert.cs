@@ -28,7 +28,7 @@ public class Concert
     [JsonPropertyName("postedStartTime")]
     public string? PostedStartTime
     {
-        get => _postedStartTime.ToString(); // Serialize to ISO 8601 string
+        get => _postedStartTime?.ToString("o"); // Serialize to ISO 8601 string
         set => _postedStartTime = string.IsNullOrEmpty(value) ? null : DateTimeOffset.Parse(value);
     }
 
