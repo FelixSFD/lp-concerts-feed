@@ -18,9 +18,14 @@
         </li>
       </ul>
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-        <ng-template [ngIf]="isAuthenticated$">
+        <ng-template [ngIf]="!isAuthenticated$">
           <li class="nav-item">
             <button type="button" class="btn btn-outline-primary" (click)="login()">Login</button>
+          </li>
+        </ng-template>
+        <ng-template [ngIf]="isAuthenticated$">
+          <li class="nav-item">
+            <button type="button" class="btn btn-outline-danger" (click)="logout()">Logout</button>
           </li>
         </ng-template>
       </ul>

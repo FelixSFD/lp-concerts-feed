@@ -1,6 +1,8 @@
 import {LogLevel, PassedInitialConfig} from 'angular-auth-oidc-client';
 import {provideHttpClient} from '@angular/common/http';
 
+export const logoutRedirectUrl = "http://localhost:4200/"
+
 export const authConfig: PassedInitialConfig = {
   config: {
     authority: 'https://cognito-idp.eu-central-1.amazonaws.com/eu-central-1_KPfToYS9T', // Replace with your Cognito domain

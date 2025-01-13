@@ -141,6 +141,8 @@ Resources:
         - http://localhost:4200
         - http://localhost:4200/
         - http://localhost:4200/home
+      LogoutURLs:
+        - !Ref CallbackUrl
       ClientName: cognito-user-pool-client
       SupportedIdentityProviders:
         - COGNITO
