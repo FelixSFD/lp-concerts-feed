@@ -44,7 +44,12 @@ public class Function
         var response = new APIGatewayProxyResponse()
         {
             StatusCode = 200,
-            Body = $"Successfully created concert in '{concert.City}' at '{concert.PostedStartTime.ToString()}'"
+            Body = $"Successfully created concert in '{concert.City}' at '{concert.PostedStartTime.ToString()}'",
+            Headers = new Dictionary<string, string>
+            {
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, GET, POST" }
+            }
         };
 
         return response;

@@ -170,9 +170,10 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
-      Cors: "'*'"
+      Cors:
+        AllowMethods: "'POST, GET, PUT'"
+        AllowOrigin: "'*'"
       Auth:
-        DefaultAuthorizer: ConcertsCognitoAuthorizer
         Authorizers:
           ConcertsCognitoAuthorizer:
             UserPoolArn: !GetAtt CognitoAuthorizerUserPool.Arn
@@ -195,6 +196,8 @@ Resources:
             RestApiId: !Ref ConcertsApi
             Path: /concerts
             Method: put
+            Auth:
+              Authorizer: ConcertsCognitoAuthorizer
             
   FindConcertFunction:
     Type: AWS::Serverless::Function
@@ -213,8 +216,6 @@ Resources:
             RestApiId: !Ref ConcertsApi
             Path: /concerts
             Method: get
-            Auth:
-              Authorizer: NONE
 
 Outputs:
   HostedUi:
