@@ -1,0 +1,23 @@
+<h2>List of concerts</h2>
+
+<table class="table table-striped align-middle">
+  <thead>
+  <tr>
+    <th scope="col">Date</th>
+    <th scope="col">Location</th>
+  </tr>
+  </thead>
+  <tbody class="table-group-divider">
+  <tr *ngFor="let concert of concerts$">
+    <td>
+      {{ concert.postedStartTime |  date: 'short' }}
+      <!-- TODO: different timezones? -->
+    </td>
+    <td>
+      <b>{{ concert.venue }}</b>
+      <br/>
+      <small>{{ concert.city }}, {{ concert.state }}, {{ concert.country }}</small>
+    </td>
+  </tr>
+  </tbody>
+</table>
