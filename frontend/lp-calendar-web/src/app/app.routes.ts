@@ -10,6 +10,11 @@ export const routes: Routes = [
     title: 'Startpage',
   },
   {
+    path: 'home',
+    component: HomeComponent,
+    title: 'Startpage',
+  },
+  {
     path: 'profile',
     component: UserProfileComponent,
     title: 'User Profile',

@@ -1,5 +1,5 @@
 import {Component, inject} from '@angular/core';
-import {RouterLink, RouterOutlet} from '@angular/router';
+import {RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {AsyncPipe, JsonPipe, NgIf} from '@angular/common';
@@ -7,7 +7,7 @@ import {authConfig, logoutRedirectUrl} from './auth/auth.config';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NgbModule, NgIf, AsyncPipe, JsonPipe, RouterLink],
+  imports: [RouterOutlet, NgbModule, NgIf, AsyncPipe, JsonPipe, RouterLink, RouterLinkActive],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
