@@ -1,0 +1,13 @@
+<p>View your profile information. At the moment, changing your profile is not possible.</p>
+
+<form>
+  <div class="mb-3">
+    <label for="userIdInput" class="form-label">ID</label>
+    <input type="text" class="form-control" id="userIdInput" disabled [value]="userId$">
+  </div>
+  <div class="mb-3">
+    <label for="emailInput" class="form-label">Email address</label>
+    <input type="email" class="form-control" id="emailInput" disabled [value]="email$">
+  </div>
+</form>
+

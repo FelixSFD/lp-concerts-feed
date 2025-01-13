@@ -1,12 +1,12 @@
 import {Component, inject} from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import {RouterLink, RouterOutlet} from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {AsyncPipe, JsonPipe, NgIf} from '@angular/common';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NgbModule, NgIf, AsyncPipe, JsonPipe],
+  imports: [RouterOutlet, NgbModule, NgIf, AsyncPipe, JsonPipe, RouterLink],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
