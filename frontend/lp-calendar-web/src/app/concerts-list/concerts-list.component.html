@@ -1,5 +1,84 @@
 <h2>List of concerts</h2>
 
+<!-- Button to add concert -->
+<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addConcertModal">
+  Add concert
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="addConcertModal" tabindex="-1" aria-labelledby="addConcertModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="addConcertModalLabel">Add new concert</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form #form="ngForm" [formGroup]="addConcertForm" (ngSubmit)="onCreateFormSubmit()" class="form">
+          <div class="card mt-3">
+            <div class="card-body">
+              <!-- Date -->
+              <div class="form-group">
+                <label for="postedStartTime">Start time (according to ticket vendor)</label>
+                <input id="postedStartTime" type="datetime-local" formControlName="postedStartTime" class="form-control"
+                       [ngClass]="{ 'is-invalid': addConcertForm.controls.postedStartTime.invalid }">
+                <div *ngIf="addConcertForm.controls.postedStartTime.invalid" class="text-danger">
+                  <small *ngIf="addConcertForm.controls.postedStartTime.errors">Start time is required.</small>
+                </div>
+              </div>
+              <!-- Venue -->
+              <div class="form-group">
+                <label for="venue">Venue Name</label>
+                <input id="venue" type="text" formControlName="venue" class="form-control"
+                       [ngClass]="{ 'is-invalid': addConcertForm.controls.venue.invalid }">
+                <div *ngIf="addConcertForm.controls.venue.invalid" class="text-danger">
+                  <small *ngIf="addConcertForm.controls.venue.errors">Venue name is required.</small>
+                </div>
+              </div>
+              <!-- City -->
+              <div class="form-group">
+                <label for="city">City</label>
+                <input id="city" type="text" formControlName="city" class="form-control"
+                       [ngClass]="{ 'is-invalid': addConcertForm.controls.city.invalid }">
+                <div *ngIf="addConcertForm.controls.city.invalid" class="text-danger">
+                  <small *ngIf="addConcertForm.controls.city.errors">City is required.</small>
+                </div>
+              </div>
+              <!-- State -->
+              <div class="form-group">
+                <label for="state">State (optional)</label>
+                <input id="state" type="text" formControlName="state" class="form-control"
+                       [ngClass]="{ 'is-invalid': addConcertForm.controls.state.invalid }">
+                <div *ngIf="addConcertForm.controls.state.invalid" class="text-danger">
+                  <small *ngIf="addConcertForm.controls.state.errors">State is invalid.</small>
+                </div>
+              </div>
+              <!-- Country -->
+              <div class="form-group">
+                <label for="country">Country</label>
+                <input id="country" type="text" formControlName="country" class="form-control"
+                       [ngClass]="{ 'is-invalid': addConcertForm.controls.country.invalid }">
+                <div *ngIf="addConcertForm.controls.country.invalid" class="text-danger">
+                  <small *ngIf="addConcertForm.controls.country.errors">Country is required.</small>
+                </div>
+              </div>
+              <br/>
+              <div class="form-group">
+                <button type="submit" class="btn btn-success">Save</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- List of all concerts -->
 <table class="table table-striped align-middle">
   <thead>
   <tr>

@@ -14,6 +14,7 @@ Globals:
     Cors:
       AllowMethods: "'POST, GET'"
       AllowOrigin: "'*'"
+      AllowHeaders: "'*'"
       #MaxAge: "'600'"
 
 
@@ -173,6 +174,7 @@ Resources:
       Cors:
         AllowMethods: "'POST, GET, PUT'"
         AllowOrigin: "'*'"
+        AllowHeaders: "'*'"
       Auth:
         Authorizers:
           ConcertsCognitoAuthorizer:

@@ -15,4 +15,10 @@ export class ConcertsService {
     let url = "https://o1qqdpvb23.execute-api.eu-central-1.amazonaws.com/Prod/concerts";
     return this.httpClient.get<Concert[]>(url);
   }
+
+
+  addConcert(concert: Concert) {
+    let url = "https://o1qqdpvb23.execute-api.eu-central-1.amazonaws.com/Prod/concerts";
+    return this.httpClient.put(url, concert);
+  }
 }
