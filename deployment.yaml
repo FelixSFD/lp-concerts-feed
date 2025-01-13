@@ -130,6 +130,7 @@ Resources:
     Properties:
       AllowedOAuthFlows:
         - implicit
+        - code
       AllowedOAuthFlowsUserPoolClient: True
       AllowedOAuthScopes:
         - email
@@ -137,11 +138,14 @@ Resources:
         - profile
       CallbackURLs:
         - !Ref CallbackUrl
+        - http://localhost:4200
+        - http://localhost:4200/
+        - http://localhost:4200/home
       ClientName: cognito-user-pool-client
       SupportedIdentityProviders:
         - COGNITO
       UserPoolId: !Ref CognitoAuthorizerUserPool
-      GenerateSecret: true
+      GenerateSecret: false
   
   CognitoAuthorizerUserPoolResourceServer:
     Type: AWS::Cognito::UserPoolResourceServer
