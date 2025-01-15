@@ -92,7 +92,7 @@
     <td>
       <b>{{ concert.venue }}</b>
       <br/>
-      <small>{{ concert.city }}, {{ concert.state }}, {{ concert.country }}</small>
+      <small>{{ concert.city }}{{ (concert.state?.length ?? 0) > 0 ? ", " + concert.state : ""}}, {{ concert.country }}</small>
     </td>
   </tr>
   </tbody>
