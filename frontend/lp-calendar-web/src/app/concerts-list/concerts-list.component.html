@@ -1,12 +1,7 @@
 <h2>List of concerts</h2>
 
-<!-- Button to add concert -->
-<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addConcertModal">
-  Add concert
-</button>
-
 <!-- Modal -->
-<div class="modal fade" id="addConcertModal" tabindex="-1" aria-labelledby="addConcertModalLabel" aria-hidden="true">
+<ng-template #addConcertContent let-addConcertModal>
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -75,7 +70,12 @@
       </div>
     </div>
   </div>
-</div>
+</ng-template>
+
+<!-- Button to add concert -->
+<button type="button" class="btn btn-outline-primary" (click)="onCreateConcertClicked(addConcertContent)">
+  Add concert
+</button>
 
 <!-- List of all concerts -->
 <table class="table table-striped align-middle">

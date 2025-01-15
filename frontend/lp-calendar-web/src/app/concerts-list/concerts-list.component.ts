@@ -1,9 +1,9 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, inject, OnInit, signal, TemplateRef, WritableSignal} from '@angular/core';
 import {ConcertsService} from '../services/concerts.service';
 import {DatePipe, NgClass, NgForOf, NgIf} from '@angular/common';
 import {Concert} from '../data/concert';
-import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {NgbCalendar, NgbDatepicker, NgbDateStruct, NgbInputDatepicker} from '@ng-bootstrap/ng-bootstrap';
+import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
+import {ModalDismissReasons, NgbCalendar, NgbDateStruct, NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-concerts-list',
@@ -13,15 +13,14 @@ import {NgbCalendar, NgbDatepicker, NgbDateStruct, NgbInputDatepicker} from '@ng
     ReactiveFormsModule,
     NgClass,
     NgIf,
-    NgbDatepicker,
-    FormsModule,
-    NgbInputDatepicker
+    FormsModule
   ],
   templateUrl: './concerts-list.component.html',
   styleUrl: './concerts-list.component.css'
 })
 export class ConcertsListComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
+  private modalService = inject(NgbModal);
 
   concerts$: Concert[] = [];
   addConcertForm = this.formBuilder.group({
@@ -34,6 +33,9 @@ export class ConcertsListComponent implements OnInit {
 
   // property to show whether the form is currently being sent to the server
   addConcertFormSaving$ = false;
+
+  // if open, the modal is referenced here
+  openAddConcertModal: NgbModalRef | undefined;
 
   // properties for datepicker
   today = inject(NgbCalendar).getToday();
@@ -55,6 +57,16 @@ export class ConcertsListComponent implements OnInit {
   }
 
 
+  openModal(content: TemplateRef<any>) {
+    return this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
+  }
+
+
+  onCreateConcertClicked(content: TemplateRef<any>) {
+    this.openAddConcertModal = this.openModal(content);
+  }
+
+
   onCreateFormSubmit() {
     this.addConcertFormSaving$ = true;
     console.log("Submitting concert...");
@@ -72,6 +84,7 @@ export class ConcertsListComponent implements OnInit {
       console.log("Update concert request finished");
       console.log(result);
 
+      this.openAddConcertModal?.dismiss();
       this.addConcertFormSaving$ = false;
       this.reloadConcertList();
     });
