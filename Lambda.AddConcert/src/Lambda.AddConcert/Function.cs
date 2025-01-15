@@ -30,7 +30,7 @@ public class Function
             return new APIGatewayProxyResponse()
             {
                 StatusCode = (int)HttpStatusCode.BadRequest,
-                Body = "Body not found",
+                Body = "{\"message\": \"Request body not found\"}",
                 Headers = new Dictionary<string, string>
                 {
                     { "Access-Control-Allow-Origin", "*" },
@@ -48,8 +48,7 @@ public class Function
         
         var response = new APIGatewayProxyResponse()
         {
-            StatusCode = 200,
-            Body = $"Successfully created concert in '{concert.City}' at '{concert.PostedStartTime.ToString()}'",
+            StatusCode = (int)HttpStatusCode.Created,
             Headers = new Dictionary<string, string>
             {
                 { "Access-Control-Allow-Origin", "*" },
