@@ -30,7 +30,12 @@ public class Function
             return new APIGatewayProxyResponse()
             {
                 StatusCode = (int)HttpStatusCode.BadRequest,
-                Body = "Body not found"
+                Body = "Body not found",
+                Headers = new Dictionary<string, string>
+                {
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, GET, POST" }
+                }
             };
         }
         

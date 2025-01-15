@@ -137,6 +137,7 @@ Resources:
         - email
         - openid
         - profile
+        - LpConcertsAuthServer/user_access
       CallbackURLs:
         - !Ref CallbackUrl
         - http://localhost:4200
@@ -179,6 +180,9 @@ Resources:
         Authorizers:
           ConcertsCognitoAuthorizer:
             UserPoolArn: !GetAtt CognitoAuthorizerUserPool.Arn
+            IdentitySource: method.request.header.Authorization
+            Scopes:
+              - LpConcertsAuthServer/user_access
   
   # Lambda functions
   AddConcertFunction:
@@ -200,6 +204,8 @@ Resources:
             Method: put
             Auth:
               Authorizer: ConcertsCognitoAuthorizer
+              AuthorizationScopes:
+                - LpConcertsAuthServer/user_access
             
   FindConcertFunction:
     Type: AWS::Serverless::Function
