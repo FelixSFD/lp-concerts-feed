@@ -14,7 +14,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form #form="ngForm" [formGroup]="addConcertForm" (ngSubmit)="onCreateFormSubmit()" class="form">
+        <form #form="ngForm" [formGroup]="addConcertForm" class="form">
           <div class="card mt-3">
             <div class="card-body">
               <!-- Date -->
@@ -62,17 +62,16 @@
                   <small *ngIf="addConcertForm.controls.country.errors">Country is required.</small>
                 </div>
               </div>
-              <br/>
-              <div class="form-group">
-                <button type="submit" class="btn btn-success">Save</button>
-              </div>
             </div>
           </div>
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" [disabled]="addConcertFormSaving$">Close</button>
+        <button type="button" class="btn btn-success" id="createFormSubmitBtn" (click)="onCreateFormSubmit()" [disabled]="!addConcertForm.valid || addConcertFormSaving$">
+          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!addConcertFormSaving$"></span>
+          <span class="sr-only">{{ addConcertFormSaving$ ? "Adding..." : "Add" }}</span>
+        </button>
       </div>
     </div>
   </div>

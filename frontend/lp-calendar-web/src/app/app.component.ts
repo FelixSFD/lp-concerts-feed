@@ -30,10 +30,6 @@ export class AppComponent {
       this.oidcSecurityService.getAccessToken().subscribe(at => {
         console.log("ACCESS_TOKEN: " + at);
       });
-
-      this.oidcSecurityService.getIdToken().subscribe(at => {
-        console.log("ID_TOKEN: " + at);
-      });
     });
   }
 

@@ -32,14 +32,15 @@ export class ConcertsListComponent implements OnInit {
     postedStartTime: new FormControl('', [Validators.required])
   });
 
+  // property to show whether the form is currently being sent to the server
+  addConcertFormSaving$ = false;
+
   // properties for datepicker
   today = inject(NgbCalendar).getToday();
   postedStartDateModel: NgbDateStruct | undefined;
 
   constructor(private concertsService: ConcertsService) {
-    concertsService.getConcerts().subscribe(result => {
-      this.concerts$ = result;
-    })
+    this.reloadConcertList()
   }
 
 
@@ -47,7 +48,15 @@ export class ConcertsListComponent implements OnInit {
   }
 
 
+  private reloadConcertList() {
+    this.concertsService.getConcerts().subscribe(result => {
+      this.concerts$ = result;
+    })
+  }
+
+
   onCreateFormSubmit() {
+    this.addConcertFormSaving$ = true;
     console.log("Submitting concert...");
     let newConcert = new Concert();
     newConcert.venue = this.addConcertForm.value.venue?.valueOf();
@@ -62,6 +71,9 @@ export class ConcertsListComponent implements OnInit {
     this.concertsService.addConcert(newConcert).subscribe(result => {
       console.log("Update concert request finished");
       console.log(result);
+
+      this.addConcertFormSaving$ = false;
+      this.reloadConcertList();
     });
   }
 }
