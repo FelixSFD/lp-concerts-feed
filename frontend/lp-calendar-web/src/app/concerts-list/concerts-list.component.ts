@@ -4,6 +4,7 @@ import {DatePipe, NgClass, NgForOf, NgIf} from '@angular/common';
 import {Concert} from '../data/concert';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {ModalDismissReasons, NgbCalendar, NgbDateStruct, NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import {OidcSecurityService} from 'angular-auth-oidc-client';
 
 @Component({
   selector: 'app-concerts-list',
@@ -41,8 +42,26 @@ export class ConcertsListComponent implements OnInit {
   today = inject(NgbCalendar).getToday();
   postedStartDateModel: NgbDateStruct | undefined;
 
+  // property to show whether the concert is currently being deleted
+  concertDeleting$ = false;
+
+  // if open, the modal is referenced here
+  deleteConcertModal: NgbModalRef | undefined;
+
+  // ID that will be deleted. Is used to store the ID for the confirmation modal
+  private concertIdToDelete: string | undefined;
+
+  // Service to check auth information
+  private readonly oidcSecurityService = inject(OidcSecurityService);
+
+  hasWriteAccess$ = false;
+
   constructor(private concertsService: ConcertsService) {
-    this.reloadConcertList()
+    this.reloadConcertList();
+
+    this.oidcSecurityService.checkAuth().subscribe(({ isAuthenticated }) => {
+      this.hasWriteAccess$ = isAuthenticated;
+    });
   }
 
 
@@ -88,5 +107,42 @@ export class ConcertsListComponent implements OnInit {
       this.addConcertFormSaving$ = false;
       this.reloadConcertList();
     });
+  }
+
+
+  onDeleteConcertClicked(content: TemplateRef<any>, concertId: string | undefined) {
+    this.concertIdToDelete = concertId;
+
+    if (this.concertIdToDelete == null) {
+      return;
+    }
+
+    this.deleteConcertModal = this.openModal(content);
+  }
+
+
+  onDeleteConcertConfirm() {
+    this.concertDeleting$ = true;
+    if (this.concertIdToDelete == null) {
+      this.deleteConcertModal?.dismiss();
+      return;
+    }
+
+    let id = this.concertIdToDelete!;
+    console.log("Will delete concert: " + id);
+
+    this.concertsService.deleteConcert(id).subscribe(result => {
+      console.log("DELETE concert request finished");
+      console.log(result);
+
+      this.deleteConcertModal?.dismiss();
+      this.concertDeleting$ = false;
+      this.reloadConcertList();
+    });
+  }
+
+
+  dismissConcertConfirmModal() {
+    this.deleteConcertModal?.dismiss();
   }
 }

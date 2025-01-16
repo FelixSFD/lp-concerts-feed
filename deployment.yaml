@@ -12,7 +12,7 @@ Globals:
   Api:
     TracingEnabled: true
     Cors:
-      AllowMethods: "'POST, GET'"
+      AllowMethods: "'POST, GET, PUT, DELETE'"
       AllowOrigin: "'*'"
       AllowHeaders: "'*'"
       #MaxAge: "'600'"
@@ -173,7 +173,7 @@ Resources:
     Properties:
       StageName: Prod
       Cors:
-        AllowMethods: "'POST, GET, PUT'"
+        AllowMethods: "'POST, GET, PUT, DELETE'"
         AllowOrigin: "'*'"
         AllowHeaders: "'*'"
       Auth:

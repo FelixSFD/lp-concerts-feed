@@ -1,6 +1,6 @@
 <h2>List of concerts</h2>
 
-<!-- Modal -->
+<!-- AddConcert Modal -->
 <ng-template #addConcertContent let-addConcertModal>
   <div class="modal-content">
     <div class="modal-header">
@@ -70,8 +70,29 @@
   </div>
 </ng-template>
 
+<!-- DeleteConcert confirmation modal -->
+<ng-template #deleteConcertContent let-deleteConcertModal>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h1 class="modal-title fs-5" id="deleteConcertModalLabel">Delete concert?</h1>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <p>Do you really want to delete this concert?</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" [disabled]="concertDeleting$" (click)="dismissConcertConfirmModal()">Cancel</button>
+      <button type="button" class="btn btn-danger" id="deleteConcertConfirmBtn" (click)="onDeleteConcertConfirm()" [disabled]="concertDeleting$">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!concertDeleting$"></span>
+        <span class="sr-only">{{ addConcertFormSaving$ ? "Deleting..." : "Delete" }}</span>
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+
 <!-- Button to add concert -->
-<button type="button" class="btn btn-outline-primary" (click)="onCreateConcertClicked(addConcertContent)">
+<button type="button" class="btn btn-outline-primary" [disabled]="!hasWriteAccess$" (click)="onCreateConcertClicked(addConcertContent)">
   Add concert
 </button>
 
@@ -81,6 +102,7 @@
   <tr>
     <th scope="col">Date</th>
     <th scope="col">Location</th>
+    <th></th><!-- Action buttons -->
   </tr>
   </thead>
   <tbody class="table-group-divider">
@@ -93,6 +115,11 @@
       <b>{{ concert.venue }}</b>
       <br/>
       <small>{{ concert.city }}{{ (concert.state?.length ?? 0) > 0 ? ", " + concert.state : ""}}, {{ concert.country }}</small>
+    </td>
+    <td style="text-align: right">
+      <button type="button" class="btn btn-outline-danger" [disabled]="!hasWriteAccess$" (click)="onDeleteConcertClicked(deleteConcertContent, concert.id)">
+        Delete
+      </button>
     </td>
   </tr>
   </tbody>
