@@ -15,6 +15,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.ListConcerts", "Lamb
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.ListConcerts.Tests", "Lambda.ListConcerts\test\Lambda.ListConcerts.Tests\Lambda.ListConcerts.Tests.csproj", "{5F972789-72F2-471B-A390-544BECFB746D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.DeleteConcert", "Lambda.DeleteConcert\src\Lambda.DeleteConcert\Lambda.DeleteConcert.csproj", "{8BAB8F18-C80B-4029-83AF-8EBDC2B58E4A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.DeleteConcert.Tests", "Lambda.DeleteConcert\test\Lambda.DeleteConcert.Tests\Lambda.DeleteConcert.Tests.csproj", "{3942AB16-B10F-4484-8C62-85C18260F762}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,5 +45,13 @@ Global
 		{5F972789-72F2-471B-A390-544BECFB746D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F972789-72F2-471B-A390-544BECFB746D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F972789-72F2-471B-A390-544BECFB746D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BAB8F18-C80B-4029-83AF-8EBDC2B58E4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BAB8F18-C80B-4029-83AF-8EBDC2B58E4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BAB8F18-C80B-4029-83AF-8EBDC2B58E4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BAB8F18-C80B-4029-83AF-8EBDC2B58E4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3942AB16-B10F-4484-8C62-85C18260F762}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3942AB16-B10F-4484-8C62-85C18260F762}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3942AB16-B10F-4484-8C62-85C18260F762}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3942AB16-B10F-4484-8C62-85C18260F762}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
