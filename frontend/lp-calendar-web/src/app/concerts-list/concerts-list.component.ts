@@ -5,6 +5,8 @@ import {Concert} from '../data/concert';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgbCalendar, NgbDateStruct, NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
+import { LuxonModule } from 'luxon-angular';
+import { DateTime } from 'luxon';
 import timezones from 'timezones-list';
 
 @Component({
@@ -91,24 +93,27 @@ export class ConcertsListComponent implements OnInit {
   onCreateFormSubmit() {
     this.addConcertFormSaving$ = true;
     console.log("Submitting concert...");
+
+    const postedStartTime = this.addConcertForm.value.postedStartTime!;
     let newConcert = new Concert();
     newConcert.venue = this.addConcertForm.value.venue?.valueOf();
     newConcert.city = this.addConcertForm.value.city?.valueOf();
     newConcert.state = this.addConcertForm.value.state?.valueOf();
     newConcert.country = this.addConcertForm.value.country?.valueOf()
-    newConcert.postedStartTime = this.addConcertForm.value.postedStartTime?.valueOf();
+    //newConcert.postedStartTime = this.addConcertForm.value.postedStartTime?.valueOf();
 
-    // add timezone to start time
-    let selectedTimezone = this.addConcertForm.value.timezone?.valueOf();
-    console.log("Selected TZ: " + selectedTimezone);
-    if (selectedTimezone != null) {
-      let selectedTimezoneObj = timezones.find((tz, index, tzArray) => tz.tzCode == selectedTimezone);
-      console.log("Found timezone");
-      console.log(selectedTimezoneObj);
-      newConcert.postedStartTime += "" + selectedTimezoneObj?.utc
-    }
+    // Read the datetime-local value and selected timezone
+    const selectedTimezone = this.addConcertForm.value.timezone?.valueOf(); // e.g., "America/Los_Angeles"
+
+    // Convert to the selected timezone
+    const localDateTime = DateTime.fromISO(postedStartTime); // Interpret as local datetime
+    const zonedDateTime = localDateTime.setZone(selectedTimezone, {keepLocalTime: true});
+
+    console.log('Original datetime-local value:', postedStartTime);
+    console.log('Converted datetime in selected timezone:', zonedDateTime.toString());
 
     newConcert.timeZoneId = selectedTimezone;
+    newConcert.postedStartTime = zonedDateTime.toISO()!;
 
     console.log("Created concert object: ");
     console.log(newConcert);
