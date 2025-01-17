@@ -16,6 +16,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
+    - uses: aws-actions/setup-sam@v2
+      with:
+        use-installer: true
+    
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
@@ -47,13 +52,15 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: eu-central-1
-        
-    - name: Deploy to AWS CloudFormation
-      uses: aws-actions/aws-cloudformation-github-deploy@v1
-      with:
-        name: lp-concert-calendar-prod
-        template: deployment.yaml
-        capabilities: "CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND"
-        no-fail-on-empty-changeset: "1"
-        parameter-overrides: >-
-          CallbackUrl=https://lpcalendar.felixsfd.de/
+
+    - run: sam build -t deployment.yaml
+    - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name lp-concert-calendar-prod --resolve-s3 --s3-prefix "lp-concert-calendar-prod-lambdas" --region eu-central-1 --capabilities CAPABILITY_IAM
+    #- name: Deploy to AWS CloudFormation
+    #  uses: aws-actions/aws-cloudformation-github-deploy@v1
+    #  with:
+    #    name: lp-concert-calendar-prod
+    #    template: deployment.yaml
+    #    capabilities: "CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND"
+    #    no-fail-on-empty-changeset: "1"
+    #    parameter-overrides: >-
+    #      CallbackUrl=https://lpcalendar.felixsfd.de/
