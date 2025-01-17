@@ -1,1 +1,28 @@
-<p>home works!</p>
+<h1>LP Concert Calendar</h1>
+
+<p>Want too keep track of the From Zero World Tour? Subscribe to the iCal-feed that contains all the concerts, so you never miss a show.</p>
+
+
+<div class="row row-cols-2">
+  <div class="col-sm-3">
+    <div class="card" style="width: 18rem;">
+      <div class="card-body">
+        <h5 class="card-title">Subscribe to calendar feed</h5>
+        <p class="card-text">
+          To subscribe to the calendar, you need to use the following URL: <code>https://blablabla.loc/feed</code>
+          <br/>
+          You can enter this URL in most calendar applications. The application will periodically refresh the calendar to get any changes in the schedule.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-3">
+    <div class="card" style="width: 18rem;">
+      <div class="card-body">
+        <h5 class="card-title">View concert list</h5>
+        <p class="card-text">You can check out the list of all concerts we currently track on this website. Please note that this is <b>maintained by fans</b> and is <b>not official information</b>!</p>
+        <a [routerLink]="['/concerts']" class="btn btn-outline-info">Check concert list</a>
+      </div>
+    </div>
+  </div>
+</div>
