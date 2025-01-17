@@ -108,6 +108,8 @@ export class ConcertsListComponent implements OnInit {
       newConcert.postedStartTime += "" + selectedTimezoneObj?.utc
     }
 
+    newConcert.timeZoneId = selectedTimezone;
+
     console.log("Created concert object: ");
     console.log(newConcert);
 

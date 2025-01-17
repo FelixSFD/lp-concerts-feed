@@ -64,7 +64,7 @@ public class Function
         if (concert.PostedStartTimeValue == null)
             return null;
         
-        var date = new CalDateTime(concert.PostedStartTimeValue.Value.DateTime, "Europe/Berlin"); // TODO: maybe extension method?
+        var date = new CalDateTime(concert.PostedStartTimeValue.Value.DateTime, concert.TimeZoneId); // TODO: maybe extension method?
         var calendarEvent = new CalendarEvent
         {
             // If Name property is used, it MUST be RFC 5545 compliant

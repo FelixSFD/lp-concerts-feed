@@ -119,7 +119,9 @@
   <tbody class="table-group-divider">
   <tr *ngFor="let concert of concerts$">
     <td>
-      {{ concert.postedStartTime |  date: 'short' }}
+      Your timezone: {{ concert.postedStartTime |  date: 'short' }}
+      <br/>
+      Venue timezone: TODO
       <!-- TODO: different timezones? -->
     </td>
     <td>

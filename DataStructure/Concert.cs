@@ -45,6 +45,13 @@ public class Concert
     }
     
     /// <summary>
+    /// Timezone of the venue
+    /// </summary>
+    [DynamoDBProperty]
+    [JsonPropertyName("timeZoneId")]
+    public string TimeZoneId { get; set; }
+    
+    /// <summary>
     /// Country of the venue
     /// </summary>
     [DynamoDBProperty]
