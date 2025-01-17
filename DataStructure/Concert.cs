@@ -6,9 +6,10 @@ namespace LPCalendar.DataStructure;
 /// <summary>
 /// Represents a concert of Linkin Park
 /// </summary>
-[DynamoDBTable("Concerts")]
+[DynamoDBTable(ConcertTableName)]
 public class Concert
 {
+    public const string ConcertTableName = "Concerts";
     /// <summary>
     /// UUID of the concert
     /// </summary>

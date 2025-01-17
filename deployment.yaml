@@ -246,6 +246,24 @@ Resources:
             RestApiId: !Ref ConcertsApi
             Path: /concerts
             Method: get
+  
+  ConcertCalendarFeedFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: Lambda.CalendarFeed::Lambda.CalendarFeed.Function::FunctionHandler
+      Role: !GetAtt ConcertsReadLambdaExecutionRole.Arn
+      Description: .NET function to read calendar entries as iCal to create a feed
+      CodeUri: ./Lambda.CalendarFeed/src/Lambda.CalendarFeed/bin/Release/net8.0/Lambda.CalendarFeed.zip
+      Architectures:
+        - arm64
+      Tracing: Active
+      Events:
+        ListConcerts:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ConcertsApi
+            Path: /feed/ical
+            Method: get
 
 Outputs:
   HostedUi:
