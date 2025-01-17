@@ -5,8 +5,8 @@ import {Concert} from '../data/concert';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgbCalendar, NgbDateStruct, NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
-import { LuxonModule } from 'luxon-angular';
-import { DateTime } from 'luxon';
+import {LuxonModule} from 'luxon-angular';
+import {DateTime} from 'luxon';
 import timezones from 'timezones-list';
 
 @Component({
@@ -17,7 +17,8 @@ import timezones from 'timezones-list';
     ReactiveFormsModule,
     NgClass,
     NgIf,
-    FormsModule
+    FormsModule,
+    LuxonModule
   ],
   templateUrl: './concerts-list.component.html',
   styleUrl: './concerts-list.component.css'
@@ -165,5 +166,16 @@ export class ConcertsListComponent implements OnInit {
     this.deleteConcertModal?.dismiss();
   }
 
+
+  public getDateTime(inputDate: string) {
+    return DateTime.fromISO(inputDate, {setZone: false});
+  }
+
+
+  public getDateTimeInTimezone(inputDate: string) {
+    return DateTime.fromISO(inputDate, {setZone: true});
+  }
+
   protected readonly timezones = timezones;
+  protected readonly DateTime = DateTime;
 }

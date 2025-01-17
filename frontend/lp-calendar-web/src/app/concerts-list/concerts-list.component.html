@@ -119,10 +119,16 @@
   <tbody class="table-group-divider">
   <tr *ngFor="let concert of concerts$">
     <td>
-      Your timezone: {{ concert.postedStartTime |  date: 'short' }}
-      <br/>
-      Venue timezone: TODO
-      <!-- TODO: different timezones? -->
+      <table>
+        <tr>
+          <td>Your timezone:</td>
+          <td>{{getDateTime(concert.postedStartTime!).toLocaleString(DateTime. DATETIME_SHORT)}}</td>
+        </tr>
+        <tr *ngIf="concert.timeZoneId != undefined">
+          <td>Venue timezone:</td>
+          <td>{{getDateTimeInTimezone(concert.postedStartTime!).toLocaleString(DateTime. DATETIME_SHORT)}}</td>
+        </tr>
+      </table>
     </td>
     <td>
       <b>{{ concert.venue }}</b>
