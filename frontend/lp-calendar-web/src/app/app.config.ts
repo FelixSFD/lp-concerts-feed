@@ -9,3 +9,6 @@ import {provideHttpClient, withInterceptors} from '@angular/common/http';
 export const appConfig: ApplicationConfig = {
   providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes), provideAuth(authConfig), provideHttpClient(withInterceptors([authInterceptor()]))]
 };
+
+
+export const apiBaseUrl = "https://d1pwzjk6lcvg96.cloudfront.net";

@@ -1,5 +1,6 @@
 import {LogLevel, PassedInitialConfig} from 'angular-auth-oidc-client';
 import {provideHttpClient} from '@angular/common/http';
+import {apiBaseUrl} from '../app.config';
 
 export const logoutRedirectUrl = "http://localhost:4200/"
 
@@ -12,7 +13,7 @@ export const authConfig: PassedInitialConfig = {
     responseType: 'code', // Authorization Code Flow
     silentRenew: true, // Enable silent token renewal
     useRefreshToken: true, // Use refresh tokens to maintain the session
-    secureRoutes: ['https://o1qqdpvb23.execute-api.eu-central-1.amazonaws.com/Prod/concerts', 'https://o1qqdpvb23.execute-api.eu-central-1.amazonaws.com/Prod/timezones'],
+    secureRoutes: [apiBaseUrl + '/Prod/concerts', apiBaseUrl + '/Prod/timezones'],
     logLevel: LogLevel.Debug // Enable detailed logs for debugging
   }
 }

@@ -3,6 +3,7 @@ import { Concert } from '../data/concert';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {DeleteConcertRequest} from '../data/delete-concert-request';
+import {apiBaseUrl} from '../app.config';
 
 @Injectable({
   providedIn: 'root'
@@ -13,13 +14,13 @@ export class ConcertsService {
 
 
   getConcerts() : Observable<Concert[]> {
-    let url = "https://o1qqdpvb23.execute-api.eu-central-1.amazonaws.com/Prod/concerts";
+    let url = apiBaseUrl + "/Prod/concerts";
     return this.httpClient.get<Concert[]>(url);
   }
 
 
   addConcert(concert: Concert) {
-    let url = "https://o1qqdpvb23.execute-api.eu-central-1.amazonaws.com/Prod/concerts";
+    let url = apiBaseUrl + "/Prod/concerts";
     return this.httpClient.put(url, concert);
   }
 
@@ -35,7 +36,7 @@ export class ConcertsService {
       body: deleteRequest,
     };
 
-    let url = "https://o1qqdpvb23.execute-api.eu-central-1.amazonaws.com/Prod/concerts";
+    let url = apiBaseUrl + "/Prod/concerts";
     return this.httpClient.delete(url, options);
   }
 }
