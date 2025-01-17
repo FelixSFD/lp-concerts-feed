@@ -21,7 +21,9 @@ Globals:
 Parameters:
   CallbackUrl:
     Type: String
-    
+  UserPoolId:
+    Type: String
+      
 Resources:
   # Database
   ConcertsDynamoDBTable:
@@ -95,7 +97,7 @@ Resources:
   CognitoAuthorizerUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
-      UserPoolName: cognito-user-pool-userpool
+      UserPoolName: !Sub ${UserPoolId}-userpool
       AdminCreateUserConfig:
         AllowAdminCreateUserOnly: false
       Policies:
@@ -145,7 +147,7 @@ Resources:
         - http://localhost:4200/home
       LogoutURLs:
         - !Ref CallbackUrl
-      ClientName: cognito-user-pool-client
+      ClientName: !Sub ${UserPoolId}-client
       SupportedIdentityProviders:
         - COGNITO
       UserPoolId: !Ref CognitoAuthorizerUserPool
