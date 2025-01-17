@@ -38,3 +38,19 @@ jobs:
     - name: Build Lambda.CalendarFeed
       working-directory: Lambda.CalendarFeed/src/Lambda.CalendarFeed
       run: dotnet lambda package -farch arm64
+
+    # AWS DEPLOY
+    - name: Configure AWS credentials
+      id: creds
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-central-1
+        
+    - name: Deploy to AWS CloudFormation
+      uses: aws-actions/aws-cloudformation-github-deploy@v1
+      with:
+        name: lp-concert-calendar-prod
+        template: deployment.yaml
+        no-fail-on-empty-changeset: "1"
