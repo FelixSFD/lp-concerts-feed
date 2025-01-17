@@ -53,6 +53,7 @@ jobs:
       with:
         name: lp-concert-calendar-prod
         template: deployment.yaml
+        capabilities: "CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND"
         no-fail-on-empty-changeset: "1"
         parameter-overrides: >-
           CallbackUrl=https://lpcalendar.felixsfd.de/
