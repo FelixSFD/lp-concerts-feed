@@ -54,3 +54,5 @@ jobs:
         name: lp-concert-calendar-prod
         template: deployment.yaml
         no-fail-on-empty-changeset: "1"
+        parameter-overrides: >-
+          CallbackUrl=https://lpcalendar.felixsfd.de/
