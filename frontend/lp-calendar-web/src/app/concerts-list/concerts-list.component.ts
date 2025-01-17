@@ -1,10 +1,11 @@
-import {Component, inject, OnInit, signal, TemplateRef, WritableSignal} from '@angular/core';
+import {Component, inject, OnInit, TemplateRef} from '@angular/core';
 import {ConcertsService} from '../services/concerts.service';
 import {DatePipe, NgClass, NgForOf, NgIf} from '@angular/common';
 import {Concert} from '../data/concert';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {ModalDismissReasons, NgbCalendar, NgbDateStruct, NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import {NgbCalendar, NgbDateStruct, NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
+import timezones from 'timezones-list';
 
 @Component({
   selector: 'app-concerts-list',
@@ -26,6 +27,7 @@ export class ConcertsListComponent implements OnInit {
   concerts$: Concert[] = [];
   addConcertForm = this.formBuilder.group({
     venue: new FormControl('', [Validators.min(3), Validators.required]),
+    timezone: new FormControl('', [Validators.minLength(1)]),
     city: new FormControl('', [Validators.required]),
     state: new FormControl('', []),
     country: new FormControl('', [Validators.required]),
@@ -145,4 +147,6 @@ export class ConcertsListComponent implements OnInit {
   dismissConcertConfirmModal() {
     this.deleteConcertModal?.dismiss();
   }
+
+  protected readonly timezones = timezones;
 }

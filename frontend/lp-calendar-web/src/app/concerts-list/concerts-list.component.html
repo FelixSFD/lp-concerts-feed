@@ -20,6 +20,17 @@
                 <small *ngIf="addConcertForm.controls.postedStartTime.errors">Start time is required.</small>
               </div>
             </div>
+            <!-- Timezone -->
+            <div class="form-group">
+              <label for="timezoneSelect">Venue timezone</label>
+              <select id="timezoneSelect" class="form-select" aria-label="Select timezone of concert">
+                <option selected disabled>--- Select timezone of venue ---</option>
+                <option *ngFor="let tz of timezones" value="{{tz.tzCode}}">{{tz.label}}</option>
+              </select>
+              <div *ngIf="addConcertForm.controls.timezone.invalid" class="text-danger">
+                <small *ngIf="addConcertForm.controls.timezone.errors">Timezone is required.</small>
+              </div>
+            </div>
             <!-- Venue -->
             <div class="form-group">
               <label for="venue">Venue Name</label>
