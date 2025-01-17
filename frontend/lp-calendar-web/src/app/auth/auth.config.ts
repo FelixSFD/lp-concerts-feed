@@ -12,7 +12,7 @@ export const authConfig: PassedInitialConfig = {
     responseType: 'code', // Authorization Code Flow
     silentRenew: true, // Enable silent token renewal
     useRefreshToken: true, // Use refresh tokens to maintain the session
-    secureRoutes: ['https://o1qqdpvb23.execute-api.eu-central-1.amazonaws.com/Prod/concerts'],
+    secureRoutes: ['https://o1qqdpvb23.execute-api.eu-central-1.amazonaws.com/Prod/concerts', 'https://o1qqdpvb23.execute-api.eu-central-1.amazonaws.com/Prod/timezones'],
     logLevel: LogLevel.Debug // Enable detailed logs for debugging
   }
 }

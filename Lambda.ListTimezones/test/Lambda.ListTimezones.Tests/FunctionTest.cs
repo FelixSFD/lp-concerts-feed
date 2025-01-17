@@ -2,7 +2,7 @@ using Xunit;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.TestUtilities;
 
-namespace Lambda.CalendarFeed.Tests;
+namespace Lambda.ListTimezones.Tests;
 
 public class FunctionTest
 {
@@ -13,8 +13,8 @@ public class FunctionTest
         // Invoke the lambda function and confirm the string was upper cased.
         var function = new Function();
         var context = new TestLambdaContext();
-        var upperCase = function.FunctionHandler("hello world", context);
+        var response = function.FunctionHandler(null, context);
 
-        Assert.Equal("HELLO WORLD", upperCase);
+        Assert.Equal("HELLO WORLD", response.Body);
     }
 }
