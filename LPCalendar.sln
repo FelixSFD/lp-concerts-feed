@@ -23,10 +23,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.CalendarFeed", "Lamb
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.CalendarFeed.Tests", "Lambda.CalendarFeed\test\Lambda.CalendarFeed.Tests\Lambda.CalendarFeed.Tests.csproj", "{0BA265C5-2197-4477-8971-6E3BA81366AC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.ListTimezones", "Lambda.ListTimezones\src\Lambda.ListTimezones\Lambda.ListTimezones.csproj", "{9DEE7CE4-0E92-44F3-AE21-910B25098216}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.ListTimezones.Tests", "Lambda.ListTimezones\test\Lambda.ListTimezones.Tests\Lambda.ListTimezones.Tests.csproj", "{F7F4731A-0421-47E9-80D5-4613C54D579E}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,13 +65,5 @@ Global
 		{0BA265C5-2197-4477-8971-6E3BA81366AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0BA265C5-2197-4477-8971-6E3BA81366AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0BA265C5-2197-4477-8971-6E3BA81366AC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9DEE7CE4-0E92-44F3-AE21-910B25098216}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9DEE7CE4-0E92-44F3-AE21-910B25098216}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9DEE7CE4-0E92-44F3-AE21-910B25098216}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9DEE7CE4-0E92-44F3-AE21-910B25098216}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F7F4731A-0421-47E9-80D5-4613C54D579E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F7F4731A-0421-47E9-80D5-4613C54D579E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F7F4731A-0421-47E9-80D5-4613C54D579E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F7F4731A-0421-47E9-80D5-4613C54D579E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -264,29 +264,7 @@ Resources:
             RestApiId: !Ref ConcertsApi
             Path: /feed/ical
             Method: get
-  
-  ListAvailableTimeZonesFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: Lambda.ListTimezones::Lambda.ListTimezones.Function::FunctionHandler
-      Role: !GetAtt ConcertsReadLambdaExecutionRole.Arn
-      Description: .NET function to read calendar entries as iCal to create a feed
-      CodeUri: ./Lambda.ListTimezones/src/Lambda.ListTimezones/bin/Release/net8.0/Lambda.ListTimezones.zip
-      Architectures:
-        - arm64
-      Tracing: Active
-      Timeout: 60 # Custom timeout of 20 seconds. It's slow sometimes
-      Events:
-        ListTimezones:
-          Type: Api
-          Properties:
-            RestApiId: !Ref ConcertsApi
-            Path: /timezones
-            Method: get
-            Auth:
-              Authorizer: ConcertsCognitoAuthorizer
-              AuthorizationScopes:
-                - LpConcertsAuthServer/user_access
+
 
 Outputs:
   HostedUi:
