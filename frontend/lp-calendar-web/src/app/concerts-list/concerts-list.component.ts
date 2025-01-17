@@ -27,7 +27,7 @@ export class ConcertsListComponent implements OnInit {
   concerts$: Concert[] = [];
   addConcertForm = this.formBuilder.group({
     venue: new FormControl('', [Validators.min(3), Validators.required]),
-    timezone: new FormControl('', [Validators.minLength(1)]),
+    timezone: new FormControl('', [Validators.required]),
     city: new FormControl('', [Validators.required]),
     state: new FormControl('', []),
     country: new FormControl('', [Validators.required]),
@@ -97,6 +97,16 @@ export class ConcertsListComponent implements OnInit {
     newConcert.state = this.addConcertForm.value.state?.valueOf();
     newConcert.country = this.addConcertForm.value.country?.valueOf()
     newConcert.postedStartTime = this.addConcertForm.value.postedStartTime?.valueOf();
+
+    // add timezone to start time
+    let selectedTimezone = this.addConcertForm.value.timezone?.valueOf();
+    console.log("Selected TZ: " + selectedTimezone);
+    if (selectedTimezone != null) {
+      let selectedTimezoneObj = timezones.find((tz, index, tzArray) => tz.tzCode == selectedTimezone);
+      console.log("Found timezone");
+      console.log(selectedTimezoneObj);
+      newConcert.postedStartTime += "" + selectedTimezoneObj?.utc
+    }
 
     console.log("Created concert object: ");
     console.log(newConcert);
