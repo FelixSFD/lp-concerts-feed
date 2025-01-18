@@ -327,14 +327,14 @@ Outputs:
   UserPoolId:
     Description: "UserPool ID"
     Value: !Ref CognitoAuthorizerUserPool
-    Export:
-      Name: 'UserPoolId'
+    #Export:
+    #  Name: !Sub "${UserPoolId}UserPoolId"
 
   UserPoolClientId:
     Description: "UserPoolClient ID"
     Value: !Ref CognitoAuthorizerUserPoolClient
-    Export:
-      Name: 'UserPoolClientId'
+    #Export:
+    #  Name: !Sub "${UserPoolId}UserPoolClientId"
 
   #UserPoolClientIdSecret:
   #  Value:
