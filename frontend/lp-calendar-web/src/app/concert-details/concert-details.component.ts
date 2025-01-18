@@ -4,11 +4,13 @@ import {Concert} from '../data/concert';
 import { ActivatedRoute } from '@angular/router';
 import {DateTime} from 'luxon';
 import {NgIf} from '@angular/common';
+import {CountdownComponent} from '../countdown/countdown.component';
 
 @Component({
   selector: 'app-concert-details',
   imports: [
-    NgIf
+    NgIf,
+    CountdownComponent
   ],
   templateUrl: './concert-details.component.html',
   styleUrl: './concert-details.component.css'

@@ -1,0 +1,10 @@
+<ng-container *ngIf="differenceMillis$ >= 0">
+  <p>{{ days$ }} days</p>
+  <p>{{ hours$ }} hours</p>
+  <p>{{ minutes$ }} minutes</p>
+  <p>{{ seconds$ }} seconds</p>
+</ng-container>
+
+<ng-container *ngIf="differenceMillis$ < 0">
+  <h2>It's showtime!</h2>
+</ng-container>
