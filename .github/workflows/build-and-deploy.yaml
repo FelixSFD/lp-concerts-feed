@@ -81,18 +81,14 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: 23
+        node-version: '23.6.x'
 
     - name: Install dependencies
       working-directory: frontend/lp-calendar-web
-      run: npm install
-
-    #- name: Run tests
-    #  run: npm run test:headless
-
-    - name: Build
+      run: npm ci # Use npm ci for faster installs and CI consistency
+    - name: Build Angular project
       working-directory: frontend/lp-calendar-web
-      run: npm run build
+      run: npm run build -- --configuration production
 
     - name: Deploy
       if: success()
