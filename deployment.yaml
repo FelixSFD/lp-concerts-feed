@@ -284,7 +284,7 @@ Resources:
     Properties:
       CachePolicyConfig:
         Name: !Sub ${AWS::StackName}_DefaultCachePolicy
-        DefaultTTL: 3600
+        DefaultTTL: 120
         MaxTTL: 86400
         MinTTL: 60
         ParametersInCacheKeyAndForwardedToOrigin:
