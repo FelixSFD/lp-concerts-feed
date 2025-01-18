@@ -133,7 +133,7 @@ Resources:
     Properties:
       UserPoolName: !Sub ${UserPoolId}-userpool
       AdminCreateUserConfig:
-        AllowAdminCreateUserOnly: false
+        AllowAdminCreateUserOnly: true
       Policies:
         PasswordPolicy:
           MinimumLength: 8
