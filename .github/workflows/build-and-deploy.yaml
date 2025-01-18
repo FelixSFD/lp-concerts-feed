@@ -92,7 +92,7 @@ jobs:
 
     - name: Build
       working-directory: frontend/lp-calendar-web
-      run: npm run build:prod
+      run: npm run build -c production
 
     - name: Deploy
       if: success()
