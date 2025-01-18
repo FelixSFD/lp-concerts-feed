@@ -12,7 +12,7 @@ export const authConfig: PassedInitialConfig = {
     authority: environment.cognitoBaseUrl, // Replace with your Cognito domain
     redirectUrl: environment.cognitoRedirectUrl,
     clientId: environment.cognitoClientId,
-    scope: 'email openid profile lpcalendar-dev_LpConcertsAuthServer/user_access', // Scopes allowed in the App Client
+    scope: 'email openid profile', // Scopes allowed in the App Client
     responseType: 'code', // Authorization Code Flow
     silentRenew: true, // Enable silent token renewal
     useRefreshToken: true, // Use refresh tokens to maintain the session
