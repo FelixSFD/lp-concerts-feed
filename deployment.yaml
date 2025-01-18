@@ -191,7 +191,7 @@ Resources:
     Type: AWS::CloudFront::CachePolicy
     Properties:
       CachePolicyConfig:
-        Name: "DefaultCachePolicy"
+        Name: !Sub ${AWS::StackName}_DefaultCachePolicy
         DefaultTTL: 3600
         MaxTTL: 86400
         MinTTL: 60
