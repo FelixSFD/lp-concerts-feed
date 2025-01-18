@@ -8,6 +8,7 @@ import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {LuxonModule} from 'luxon-angular';
 import {DateTime} from 'luxon';
 import timezones from 'timezones-list';
+import {RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-concerts-list',
@@ -17,7 +18,8 @@ import timezones from 'timezones-list';
     NgClass,
     NgIf,
     FormsModule,
-    LuxonModule
+    LuxonModule,
+    RouterLink
   ],
   templateUrl: './concerts-list.component.html',
   styleUrl: './concerts-list.component.css'

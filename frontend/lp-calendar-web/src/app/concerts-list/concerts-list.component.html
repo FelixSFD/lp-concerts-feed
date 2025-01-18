@@ -136,6 +136,10 @@
       <small>{{ concert.city }}{{ (concert.state?.length ?? 0) > 0 ? ", " + concert.state : ""}}, {{ concert.country }}</small>
     </td>
     <td style="text-align: right">
+      <button type="button" class="btn btn-outline-info" [routerLink]="['/concerts/' + concert.id]">
+        Details
+      </button>
+      &nbsp;
       <button type="button" class="btn btn-outline-danger" [disabled]="!hasWriteAccess$" (click)="onDeleteConcertClicked(deleteConcertContent, concert.id)">
         Delete
       </button>

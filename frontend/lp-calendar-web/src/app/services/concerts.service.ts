@@ -20,6 +20,12 @@ export class ConcertsService {
   }
 
 
+  getConcert(concertId: string) : Observable<Concert> {
+    let url = environment.apiCachedBaseUrl + "/Prod/concerts?id=" + concertId;
+    return this.httpClient.get<Concert>(url);
+  }
+
+
   addConcert(concert: Concert) {
     let url = environment.apiNoCacheBaseUrl + "/Prod/addConcert";
     return this.httpClient.put(url, concert);
