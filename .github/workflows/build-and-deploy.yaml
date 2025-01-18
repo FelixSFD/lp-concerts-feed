@@ -93,4 +93,4 @@ jobs:
     - name: Deploy
       if: success()
       working-directory: frontend/lp-calendar-web
-      run: aws s3 sync ./dist/lp-calendar-web s3://lp-concert-calendar-prod-web-frontend-bucket
+      run: aws s3 sync ./dist/lp-calendar-web/browser s3://lp-concert-calendar-prod-web-frontend-bucket
