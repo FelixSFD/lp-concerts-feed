@@ -139,10 +139,12 @@
       <button type="button" class="btn btn-outline-info" [routerLink]="['/concerts/' + concert.id]">
         Details
       </button>
-      &nbsp;
-      <button type="button" class="btn btn-outline-danger" [disabled]="!hasWriteAccess$" (click)="onDeleteConcertClicked(deleteConcertContent, concert.id)">
-        Delete
-      </button>
+      <ng-container *ngIf="hasWriteAccess$"> <!-- Only show delete button if user can write data -->
+        &nbsp;
+        <button type="button" class="btn btn-outline-danger" (click)="onDeleteConcertClicked(deleteConcertContent, concert.id)">
+          Delete
+        </button>
+      </ng-container>
     </td>
   </tr>
   </tbody>
