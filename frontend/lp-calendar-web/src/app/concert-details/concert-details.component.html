@@ -1,39 +1,49 @@
-<h1>
-  {{ concert$?.venue }}
-</h1>
-<p>{{ concert$?.city }}{{ (concert$?.state?.length ?? 0) > 0 ? ", " + concert$?.state : ""}}, {{ concert$?.country }}</p>
+<ng-template *ngIf="concert$ == null; then loadingSpinner; else details;" />
 
-<div class="row row-cols-2" *ngIf="concert$ != null">
-  <div class="col-sm-3">
-    <div class="card" style="width: 18rem;">
-      <div class="card-body">
-        <h5 class="card-title">Your start time</h5>
-        <h3 class="card-text">{{getDateTime(concert$.postedStartTime!).toLocaleString(DateTime. DATETIME_SHORT)}}</h3>
+<ng-template #loadingSpinner>
+  <div style="text-align: center">
+    <h2><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading concert details...</h2>
+  </div>
+</ng-template>
+
+<ng-template #details>
+  <h1>
+    {{ concert$?.venue }}
+  </h1>
+  <p>{{ concert$?.city }}{{ (concert$?.state?.length ?? 0) > 0 ? ", " + concert$?.state : ""}}, {{ concert$?.country }}</p>
+
+  <div class="row row-cols-2">
+    <div class="col-sm-3">
+      <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">Your start time</h5>
+          <h3 class="card-text">{{getDateTime(concert$?.postedStartTime!).toLocaleString(DateTime. DATETIME_SHORT)}}</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Responsive break -->
+    <div class="w-100 d-lg-none"></div>
+
+    <div class="col-sm-3">
+      <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">Venue start time</h5>
+          <h3 class="card-text">{{getDateTimeInTimezone(concert$?.postedStartTime!).toLocaleString(DateTime. DATETIME_SHORT)}}</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Responsive break -->
+    <div class="w-100 d-lg-none"></div>
+
+    <div class="col-sm-3">
+      <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">Countdown <s>from</s>to zero</h5>
+          <app-countdown [countdownToDate]="concert$?.postedStartTime!"></app-countdown>
+        </div>
       </div>
     </div>
   </div>
-
-  <!-- Responsive break -->
-  <div class="w-100 d-lg-none"></div>
-
-  <div class="col-sm-3">
-    <div class="card" style="width: 18rem;">
-      <div class="card-body">
-        <h5 class="card-title">Venue start time</h5>
-        <h3 class="card-text">{{getDateTimeInTimezone(concert$.postedStartTime!).toLocaleString(DateTime. DATETIME_SHORT)}}</h3>
-      </div>
-    </div>
-  </div>
-
-  <!-- Responsive break -->
-  <div class="w-100 d-lg-none"></div>
-
-  <div class="col-sm-3">
-    <div class="card" style="width: 18rem;">
-      <div class="card-body">
-        <h5 class="card-title">Countdown <s>from</s>to zero</h5>
-        <app-countdown [countdownToDate]="concert$.postedStartTime!"></app-countdown>
-      </div>
-    </div>
-  </div>
-</div>
+</ng-template>
