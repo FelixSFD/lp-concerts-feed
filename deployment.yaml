@@ -191,7 +191,7 @@ Resources:
     Type: AWS::CloudFront::OriginRequestPolicy
     Properties:
       OriginRequestPolicyConfig:
-        Name: "CORSOriginRequestPolicy"
+        Name: !Sub ${AWS::StackName}_CORSOriginRequestPolicy
         HeadersConfig:
           HeaderBehavior: whitelist
           Headers:
@@ -207,7 +207,7 @@ Resources:
     Type: AWS::CloudFront::ResponseHeadersPolicy
     Properties:
       ResponseHeadersPolicyConfig:
-        Name: "CORSResponseHeadersPolicy"
+        Name: !Sub ${AWS::StackName}_CORSResponseHeadersPolicy
         Comment: "Add CORS headers to the response"
         CorsConfig:
           AccessControlAllowCredentials: false
