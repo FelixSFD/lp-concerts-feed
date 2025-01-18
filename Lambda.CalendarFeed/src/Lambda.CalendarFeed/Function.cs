@@ -72,11 +72,11 @@ public class Function
         var calendarEvent = new CalendarEvent
         {
             // If Name property is used, it MUST be RFC 5545 compliant
-            Summary = $"Linkin Park {concert.Venue} (TODO: Tour etc.)", // Should always be present
-            Description = "Linkin Park Concert description", // optional
+            Summary = $"Linkin Park: {concert.Venue}", // Should always be present
+            Description = "Linkin Park Concert (TODO: Tour information)", // optional
             Location = $"{concert.Venue}, {concert.City}, {concert.Country}",
             Start = date,
-            Duration = TimeSpan.FromHours(2),
+            Duration = TimeSpan.FromHours(3),
             IsAllDay = false
         };
 
