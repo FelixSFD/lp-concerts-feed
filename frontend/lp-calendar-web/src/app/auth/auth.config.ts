@@ -9,9 +9,9 @@ export const logoutRedirectUrl = "http://localhost:4200/"
 
 export const authConfig: PassedInitialConfig = {
   config: {
-    authority: 'https://cognito-idp.eu-central-1.amazonaws.com/eu-central-1_KPfToYS9T', // Replace with your Cognito domain
-    redirectUrl: 'http://localhost:4200/',
-    clientId: '1epkncdmjoklpcoa77pl17jatj',
+    authority: environment.cognitoBaseUrl, // Replace with your Cognito domain
+    redirectUrl: environment.cognitoRedirectUrl,
+    clientId: environment.cognitoClientId,
     scope: 'email openid profile lpcalendar-dev_LpConcertsAuthServer/user_access', // Scopes allowed in the App Client
     responseType: 'code', // Authorization Code Flow
     silentRenew: true, // Enable silent token renewal
