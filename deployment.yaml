@@ -139,7 +139,7 @@ Resources:
         - email
         - openid
         - profile
-        - !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
+        #- !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
       CallbackURLs:
         - !Ref CallbackUrl
         - http://localhost:4200
@@ -184,7 +184,7 @@ Resources:
             UserPoolArn: !GetAtt CognitoAuthorizerUserPool.Arn
             IdentitySource: method.request.header.Authorization
             Scopes:
-              - !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
+              - openid
   
   # Cloudfront caching
   DefaultCachePolicy:
@@ -258,7 +258,7 @@ Resources:
             Auth:
               Authorizer: ConcertsCognitoAuthorizer
               AuthorizationScopes:
-                - !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
+                - openid
   
   DeleteConcertFunction:
     Type: AWS::Serverless::Function
@@ -280,7 +280,7 @@ Resources:
             Auth:
               Authorizer: ConcertsCognitoAuthorizer
               AuthorizationScopes:
-                - !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
+                - openid
   
   FindConcertFunction:
     Type: AWS::Serverless::Function
