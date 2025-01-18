@@ -10,7 +10,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  backend:
 
     runs-on: ubuntu-latest
 
@@ -64,3 +64,31 @@ jobs:
     #    no-fail-on-empty-changeset: "1"
     #    parameter-overrides: >-
     #      CallbackUrl=https://lpcalendar.felixsfd.de/
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Configure AWS credentials
+      id: creds
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-central-1
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 14
+
+    - name: Install dependencies
+      run: npm install
+
+    #- name: Run tests
+    #  run: npm run test:headless
+
+    - name: Build
+      run: npm run build:prod
+
+    - name: Deploy
+      if: success()
+      run: aws s3 sync ./dist/lp-concert-calendar-prod s3://lp-concert-calendar-prod-web-frontend-bucket
