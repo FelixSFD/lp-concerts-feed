@@ -9,6 +9,7 @@ import {LuxonModule} from 'luxon-angular';
 import {DateTime} from 'luxon';
 import timezones from 'timezones-list';
 import {RouterLink} from '@angular/router';
+import {listOfTours} from '../app.config';
 
 @Component({
   selector: 'app-concerts-list',
@@ -30,6 +31,7 @@ export class ConcertsListComponent implements OnInit {
 
   concerts$: Concert[] = [];
   addConcertForm = this.formBuilder.group({
+    tourName: new FormControl('', []),
     venue: new FormControl('', [Validators.min(3), Validators.required]),
     timezone: new FormControl('', [Validators.required]),
     city: new FormControl('', [Validators.required]),
@@ -98,6 +100,7 @@ export class ConcertsListComponent implements OnInit {
 
     const postedStartTime = this.addConcertForm.value.postedStartTime!;
     let newConcert = new Concert();
+    newConcert.tourName = this.addConcertForm.value.tourName?.valueOf();
     newConcert.venue = this.addConcertForm.value.venue?.valueOf();
     newConcert.city = this.addConcertForm.value.city?.valueOf();
     newConcert.state = this.addConcertForm.value.state?.valueOf();
@@ -179,4 +182,5 @@ export class ConcertsListComponent implements OnInit {
 
   protected readonly timezones = timezones;
   protected readonly DateTime = DateTime;
+  protected readonly listOfTours = listOfTours;
 }

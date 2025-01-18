@@ -16,6 +16,10 @@ public class Concert
     [DynamoDBHashKey]
     [JsonPropertyName("id")]
     public string Id { get; set; }
+    
+    [DynamoDBProperty]
+    [JsonPropertyName("tourName")]
+    public string? TourName { get; set; }
 
     /// <summary>
     /// Time when the concert starts according to Ticketmaster.

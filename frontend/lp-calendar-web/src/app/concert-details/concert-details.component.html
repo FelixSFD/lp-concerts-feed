@@ -11,10 +11,17 @@
 </ng-template>
 
 <ng-template #details>
-  <h1>
-    {{ concert$?.venue }}
+  <h1 *ngIf="concert$?.tourName != undefined">
+    {{ concert$?.tourName }}: {{ concert$?.city }}
   </h1>
-  <p>{{ concert$?.city }}{{ (concert$?.state?.length ?? 0) > 0 ? ", " + concert$?.state : ""}}, {{ concert$?.country }}</p>
+  <h1 *ngIf="concert$?.tourName == undefined">
+    Linkin Park Concert: {{ concert$?.city }}
+  </h1>
+  <p>
+    <b>{{ concert$?.venue }}</b>
+    <br />
+    <i>{{ concert$?.city }}{{ (concert$?.state?.length ?? 0) > 0 ? ", " + concert$?.state : ""}}, {{ concert$?.country }}</i>
+  </p>
 
   <div class="row row-cols-2">
     <div class="col-sm-3">

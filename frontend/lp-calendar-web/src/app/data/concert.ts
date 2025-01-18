@@ -7,4 +7,6 @@ export class Concert {
   state: string | undefined;
   city: string | undefined;
   venue: string | undefined;
+
+  tourName: string | undefined;
 }

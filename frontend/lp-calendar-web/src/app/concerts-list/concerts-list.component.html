@@ -11,6 +11,16 @@
       <form #form="ngForm" [formGroup]="addConcertForm" class="form">
         <div class="card mt-3">
           <div class="card-body">
+            <!-- Timezone -->
+            <div class="form-group">
+              <label for="tourName">Venue timezone</label>
+              <select id="tourName" formControlName="tourName" class="form-select" aria-label="Select tour">
+                <option disabled>--- Select timezone of venue ---</option>
+                <option value="">Not part of a tour</option>
+                <option *ngFor="let tour of listOfTours" [value]="tour">{{tour}}</option>
+              </select>
+            </div>
+
             <!-- Date -->
             <div class="form-group">
               <label for="postedStartTime">Start time (according to ticket vendor)</label>
