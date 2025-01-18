@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {ConcertsService} from '../services/concerts.service';
 import {Concert} from '../data/concert';
-import { ActivatedRoute } from '@angular/router';
+import {ActivatedRoute, RouterLink} from '@angular/router';
 import {DateTime} from 'luxon';
 import {NgIf} from '@angular/common';
 import {CountdownComponent} from '../countdown/countdown.component';
@@ -10,7 +10,8 @@ import {CountdownComponent} from '../countdown/countdown.component';
   selector: 'app-concert-details',
   imports: [
     NgIf,
-    CountdownComponent
+    CountdownComponent,
+    RouterLink
   ],
   templateUrl: './concert-details.component.html',
   styleUrl: './concert-details.component.css'

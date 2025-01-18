@@ -1,3 +1,7 @@
+<a [routerLink]="['../']">back</a>
+<br />
+<br />
+
 <ng-template *ngIf="concert$ == null; then loadingSpinner; else details;" />
 
 <ng-template #loadingSpinner>
