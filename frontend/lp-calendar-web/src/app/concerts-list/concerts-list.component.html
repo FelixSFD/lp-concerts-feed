@@ -103,7 +103,7 @@
 
 
 <!-- Button to add concert -->
-<button type="button" class="btn btn-outline-primary" [disabled]="!hasWriteAccess$" (click)="onCreateConcertClicked(addConcertContent)">
+<button type="button" class="btn btn-outline-primary" *ngIf="hasWriteAccess$" [disabled]="!hasWriteAccess$" (click)="onCreateConcertClicked(addConcertContent)">
   Add concert
 </button>
 
@@ -116,7 +116,12 @@
     <th></th><!-- Action buttons -->
   </tr>
   </thead>
-  <tbody class="table-group-divider">
+  <tbody class="table-group-divider" *ngIf="concerts$.length == 0">
+  <tr>
+    <td colspan="3" style="text-align: center"><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading concerts...</td>
+  </tr>
+  </tbody>
+  <tbody class="table-group-divider" *ngIf="concerts$.length > 0">
   <tr *ngFor="let concert of concerts$">
     <td>
       <table>
