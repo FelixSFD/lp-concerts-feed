@@ -53,9 +53,14 @@ public class Function
     
     private async Task<APIGatewayProxyResponse> ReturnAllConcerts()
     {
-        var concerts = await _dynamoDbContext
-            .ScanAsync<Concert>(new List<ScanCondition>(), _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName())
+        var concertsUnsorted = await _dynamoDbContext
+            .ScanAsync<Concert>(new List<ScanCondition>(),
+                _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName())
             .GetRemainingAsync();
+
+        var concerts = concertsUnsorted
+            .OrderBy(c => c.PostedStartTimeValue)
+            .ToArray();
         
         var concertJson = JsonSerializer.Serialize(concerts);
         return new APIGatewayProxyResponse()
