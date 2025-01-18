@@ -3,7 +3,8 @@ import { Concert } from '../data/concert';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {DeleteConcertRequest} from '../data/delete-concert-request';
-import {apiCachedBaseUrl, apiNoCacheBaseUrl, authConfig} from '../auth/auth.config';
+import {authConfig} from '../auth/auth.config';
+import {environment} from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -14,13 +15,13 @@ export class ConcertsService {
 
 
   getConcerts() : Observable<Concert[]> {
-    let url = apiCachedBaseUrl + "/Prod/concerts";
+    let url = environment.apiCachedBaseUrl + "/Prod/concerts";
     return this.httpClient.get<Concert[]>(url);
   }
 
 
   addConcert(concert: Concert) {
-    let url = apiNoCacheBaseUrl + "/Prod/addConcert";
+    let url = environment.apiNoCacheBaseUrl + "/Prod/addConcert";
     return this.httpClient.put(url, concert);
   }
 
@@ -31,7 +32,7 @@ export class ConcertsService {
 
     console.log(authConfig);
 
-    let url = apiNoCacheBaseUrl + "/Prod/deleteConcert/" + concertId;
+    let url = environment.apiNoCacheBaseUrl + "/Prod/deleteConcert/" + concertId;
     //let url = "https://o1qqdpvb23.execute-api.eu-central-1.amazonaws.com/Prod/concerts/" + concertId + "/delete";
     return this.httpClient.delete(url);
   }
