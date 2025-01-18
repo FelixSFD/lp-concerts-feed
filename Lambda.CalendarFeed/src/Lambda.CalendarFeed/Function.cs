@@ -34,12 +34,7 @@ public class Function
         
         var calendar = new Ical.Net.Calendar();
         calendar.AddTimeZone(new VTimeZone("Europe/Berlin")); // TODO: Get correct timezone
-
-        /*await GetItemsAsync<Concert>(Concert.ConcertTableName)
-            .Select(GetCalendarEventFor)
-            .Where(o => o != null)
-            .Select(o => o!)
-            .ForEachAsync(calendar.Events.Add, cancellationToken: cts.Token);*/
+        
         var concerts = await _dynamoDbContext
             .ScanAsync<Concert>(new List<ScanCondition>(), _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName())
             .GetRemainingAsync(cts.Token);
@@ -63,17 +58,20 @@ public class Function
     }
 
 
-    private CalendarEvent? GetCalendarEventFor(Concert concert)
+    private static CalendarEvent? GetCalendarEventFor(Concert concert)
     {
         if (concert.PostedStartTimeValue == null)
             return null;
+
+        var tourName = concert.TourName ?? "Linkin Park";
+        var description = concert.TourName != null ? $"Concert of the Linkin Park {concert.TourName}" : "Linkin Park Concert";
         
         var date = new CalDateTime(concert.PostedStartTimeValue.Value.DateTime, concert.TimeZoneId); // TODO: maybe extension method?
         var calendarEvent = new CalendarEvent
         {
             // If Name property is used, it MUST be RFC 5545 compliant
-            Summary = $"Linkin Park: {concert.Venue}", // Should always be present
-            Description = "Linkin Park Concert (TODO: Tour information)", // optional
+            Summary = $"{tourName}: {concert.City}",
+            Description = description,
             Location = $"{concert.Venue}, {concert.City}, {concert.Country}",
             Start = date,
             Duration = TimeSpan.FromHours(3),
