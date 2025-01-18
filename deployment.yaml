@@ -156,8 +156,8 @@ Resources:
   CognitoAuthorizerUserPoolResourceServer:
     Type: AWS::Cognito::UserPoolResourceServer
     Properties:
-      Identifier: LpConcertsAuthServer
-      Name: LpConcertsAuthServer
+      Identifier: !Sub ${AWS::StackName}_LpConcertsAuthServer
+      Name: !Sub ${AWS::StackName}_LpConcertsAuthServer
       Scopes:
         - ScopeDescription: "Allow access to application"
           ScopeName: user_access
@@ -184,7 +184,7 @@ Resources:
             UserPoolArn: !GetAtt CognitoAuthorizerUserPool.Arn
             IdentitySource: method.request.header.Authorization
             Scopes:
-              - LpConcertsAuthServer/user_access
+              - !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
   
   # Cloudfront caching
   DefaultCachePolicy:
@@ -258,7 +258,7 @@ Resources:
             Auth:
               Authorizer: ConcertsCognitoAuthorizer
               AuthorizationScopes:
-                - LpConcertsAuthServer/user_access
+                - !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
   
   DeleteConcertFunction:
     Type: AWS::Serverless::Function
@@ -280,7 +280,7 @@ Resources:
             Auth:
               Authorizer: ConcertsCognitoAuthorizer
               AuthorizationScopes:
-                - LpConcertsAuthServer/user_access
+                - !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
   
   FindConcertFunction:
     Type: AWS::Serverless::Function
