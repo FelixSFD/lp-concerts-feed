@@ -68,6 +68,9 @@ jobs:
   frontend:
     runs-on: ubuntu-latest
     steps:
+    
+    - uses: actions/checkout@v4
+    
     - name: Configure AWS credentials
       id: creds
       uses: aws-actions/configure-aws-credentials@v1
