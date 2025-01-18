@@ -19,6 +19,7 @@ public class Function
 {
     private readonly IAmazonDynamoDB _dynamoDbClient = new AmazonDynamoDBClient();
     private readonly IDynamoDBContext _dynamoDbContext;
+    private readonly DBOperationConfigProvider _dbOperationConfigProvider = new();
 
     public Function()
     {
@@ -50,7 +51,7 @@ public class Function
             return response;
         }
 
-        await _dynamoDbContext.DeleteAsync<Concert>(deleteRequest.ConcertId);
+        await _dynamoDbContext.DeleteAsync<Concert>(deleteRequest.ConcertId, _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName());
 
         response.StatusCode = (int)HttpStatusCode.NoContent;
 

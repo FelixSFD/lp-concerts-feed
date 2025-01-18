@@ -19,6 +19,7 @@ public class Function
 {
     private readonly IAmazonDynamoDB _dynamoDbClient = new AmazonDynamoDBClient();
     private readonly IDynamoDBContext _dynamoDbContext;
+    private readonly DBOperationConfigProvider _dbOperationConfigProvider = new();
 
     public Function()
     {
@@ -39,7 +40,10 @@ public class Function
             .Where(o => o != null)
             .Select(o => o!)
             .ForEachAsync(calendar.Events.Add, cancellationToken: cts.Token);*/
-        var concerts = await _dynamoDbContext.ScanAsync<Concert>(new List<ScanCondition>()).GetRemainingAsync(cts.Token);
+        var concerts = await _dynamoDbContext
+            .ScanAsync<Concert>(new List<ScanCondition>(), _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName())
+            .GetRemainingAsync(cts.Token);
+        
         calendar.Events.AddRange(concerts.Select(GetCalendarEventFor));
         var serializer = new CalendarSerializer();
         var serializedCalendar = serializer.SerializeToString(calendar);
@@ -77,24 +81,6 @@ public class Function
         };
 
         return calendarEvent;
-    }
-    
-    
-    private async IAsyncEnumerable<T> GetItemsAsync<T>(string tableName) where T : class
-    {
-        // Create a paginator for scanning the table
-        var paginator = _dynamoDbClient.Paginators.Scan(new ScanRequest
-        {
-            TableName = tableName
-        });
-
-        await foreach (var page in paginator.Responses)
-        {
-            foreach (var item in page.Items)
-            {
-                yield return ParseItemToObject<T>(item);
-            }
-        }
     }
 
 

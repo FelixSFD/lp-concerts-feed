@@ -16,6 +16,7 @@ public class Function
 {
     private readonly IAmazonDynamoDB _dynamoDbClient = new AmazonDynamoDBClient();
     private readonly IDynamoDBContext _dynamoDbContext;
+    private readonly DBOperationConfigProvider _dbOperationConfigProvider = new();
 
     public Function()
     {
@@ -71,6 +72,6 @@ public class Function
 
     private async Task SaveConcert(Concert concert)
     {
-        await _dynamoDbContext.SaveAsync(concert);
+        await _dynamoDbContext.SaveAsync(concert, _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName());
     }
 }

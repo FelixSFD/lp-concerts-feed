@@ -14,6 +14,7 @@ public class Function
 {
     private readonly IAmazonDynamoDB _dynamoDbClient = new AmazonDynamoDBClient();
     private readonly IDynamoDBContext _dynamoDbContext;
+    private readonly DBOperationConfigProvider _dbOperationConfigProvider = new();
 
     public Function()
     {
@@ -40,7 +41,7 @@ public class Function
 
     private async Task<APIGatewayProxyResponse> ReturnSingleConcert(string id)
     {
-        var concert = await _dynamoDbContext.LoadAsync<Concert>(id);
+        var concert = await _dynamoDbContext.LoadAsync<Concert>(id, _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName());
         var concertJson = JsonSerializer.Serialize(concert);
         return new APIGatewayProxyResponse()
         {
@@ -52,7 +53,10 @@ public class Function
     
     private async Task<APIGatewayProxyResponse> ReturnAllConcerts()
     {
-        var concerts = await _dynamoDbContext.ScanAsync<Concert>(new List<ScanCondition>()).GetRemainingAsync();
+        var concerts = await _dynamoDbContext
+            .ScanAsync<Concert>(new List<ScanCondition>(), _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName())
+            .GetRemainingAsync();
+        
         var concertJson = JsonSerializer.Serialize(concerts);
         return new APIGatewayProxyResponse()
         {
