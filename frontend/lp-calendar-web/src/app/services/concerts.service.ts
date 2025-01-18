@@ -3,7 +3,7 @@ import { Concert } from '../data/concert';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {DeleteConcertRequest} from '../data/delete-concert-request';
-import {apiBaseUrl} from '../app.config';
+import {apiCachedBaseUrl, apiNoCacheBaseUrl, authConfig} from '../auth/auth.config';
 
 @Injectable({
   providedIn: 'root'
@@ -14,13 +14,13 @@ export class ConcertsService {
 
 
   getConcerts() : Observable<Concert[]> {
-    let url = apiBaseUrl + "/Prod/concerts";
+    let url = apiCachedBaseUrl + "/Prod/concerts";
     return this.httpClient.get<Concert[]>(url);
   }
 
 
   addConcert(concert: Concert) {
-    let url = apiBaseUrl + "/Prod/concerts";
+    let url = apiNoCacheBaseUrl + "/Prod/addConcert";
     return this.httpClient.put(url, concert);
   }
 
@@ -29,14 +29,10 @@ export class ConcertsService {
     let deleteRequest = new DeleteConcertRequest();
     deleteRequest.concertId = concertId;
 
-    const options = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-      }),
-      body: deleteRequest,
-    };
+    console.log(authConfig);
 
-    let url = apiBaseUrl + "/Prod/concerts";
-    return this.httpClient.delete(url, options);
+    let url = apiNoCacheBaseUrl + "/Prod/deleteConcert/" + concertId;
+    //let url = "https://o1qqdpvb23.execute-api.eu-central-1.amazonaws.com/Prod/concerts/" + concertId + "/delete";
+    return this.httpClient.delete(url);
   }
 }

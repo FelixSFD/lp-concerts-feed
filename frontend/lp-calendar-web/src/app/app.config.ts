@@ -11,4 +11,5 @@ export const appConfig: ApplicationConfig = {
 };
 
 
-export const apiBaseUrl = "https://d1pwzjk6lcvg96.cloudfront.net";
+//export const apiCachedBaseUrl = "https://d1pwzjk6lcvg96.cloudfront.net";
+//export const apiNoCacheBaseUrl = "https://o1qqdpvb23.execute-api.eu-central-1.amazonaws.com";

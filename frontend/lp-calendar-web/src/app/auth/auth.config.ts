@@ -1,19 +1,21 @@
 import {LogLevel, PassedInitialConfig} from 'angular-auth-oidc-client';
 import {provideHttpClient} from '@angular/common/http';
-import {apiBaseUrl} from '../app.config';
 
 export const logoutRedirectUrl = "http://localhost:4200/"
+
+export const apiCachedBaseUrl = "https://d1pwzjk6lcvg96.cloudfront.net";
+export const apiNoCacheBaseUrl = "https://o1qqdpvb23.execute-api.eu-central-1.amazonaws.com";
 
 export const authConfig: PassedInitialConfig = {
   config: {
     authority: 'https://cognito-idp.eu-central-1.amazonaws.com/eu-central-1_KPfToYS9T', // Replace with your Cognito domain
     redirectUrl: 'http://localhost:4200/',
     clientId: '1epkncdmjoklpcoa77pl17jatj',
-    scope: 'email openid profile LpConcertsAuthServer/user_access', // Scopes allowed in the App Client
+    scope: 'email openid profile lpcalendar-dev_LpConcertsAuthServer/user_access', // Scopes allowed in the App Client
     responseType: 'code', // Authorization Code Flow
     silentRenew: true, // Enable silent token renewal
     useRefreshToken: true, // Use refresh tokens to maintain the session
-    secureRoutes: [apiBaseUrl + '/Prod/concerts', apiBaseUrl + '/Prod/timezones'],
+    secureRoutes: [apiNoCacheBaseUrl + '/Prod/deleteConcert/', apiNoCacheBaseUrl + '/Prod/addConcert'],
     logLevel: LogLevel.Debug // Enable detailed logs for debugging
   }
 }

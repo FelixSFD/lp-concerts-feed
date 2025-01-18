@@ -128,6 +128,16 @@ Resources:
           Name: last_name
           #Required: true
   
+  CognitoAuthorizerUserPoolResourceServer:
+    Type: AWS::Cognito::UserPoolResourceServer
+    Properties:
+      Identifier: !Sub ${AWS::StackName}_LpConcertsAuthServer
+      Name: !Sub ${AWS::StackName}_LpConcertsAuthServer
+      Scopes:
+        - ScopeDescription: "Allow access to application"
+          ScopeName: user_access
+      UserPoolId: !Ref CognitoAuthorizerUserPool
+  
   CognitoAuthorizerUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
@@ -139,7 +149,7 @@ Resources:
         - email
         - openid
         - profile
-        #- !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
+        - !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
       CallbackURLs:
         - !Ref CallbackUrl
         - http://localhost:4200
@@ -152,16 +162,6 @@ Resources:
         - COGNITO
       UserPoolId: !Ref CognitoAuthorizerUserPool
       GenerateSecret: false
-  
-  CognitoAuthorizerUserPoolResourceServer:
-    Type: AWS::Cognito::UserPoolResourceServer
-    Properties:
-      Identifier: !Sub ${AWS::StackName}_LpConcertsAuthServer
-      Name: !Sub ${AWS::StackName}_LpConcertsAuthServer
-      Scopes:
-        - ScopeDescription: "Allow access to application"
-          ScopeName: user_access
-      UserPoolId: !Ref CognitoAuthorizerUserPool
   
   CognitoAuthorizerUserPoolDomain:
     Type: AWS::Cognito::UserPoolDomain
@@ -184,7 +184,65 @@ Resources:
             UserPoolArn: !GetAtt CognitoAuthorizerUserPool.Arn
             IdentitySource: method.request.header.Authorization
             Scopes:
-              - openid
+              - !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
+  
+  # CORS Cloudfront
+  CORSOriginRequestPolicy:
+    Type: AWS::CloudFront::OriginRequestPolicy
+    Properties:
+      OriginRequestPolicyConfig:
+        Name: "CORSOriginRequestPolicy"
+        HeadersConfig:
+          HeaderBehavior: whitelist
+          Headers:
+            - Origin
+            - Access-Control-Request-Headers
+            - Access-Control-Request-Method
+        QueryStringsConfig:
+          QueryStringBehavior: all
+        CookiesConfig:
+          CookieBehavior: none
+  
+  CORSResponseHeadersPolicy:
+    Type: AWS::CloudFront::ResponseHeadersPolicy
+    Properties:
+      ResponseHeadersPolicyConfig:
+        Name: "CORSResponseHeadersPolicy"
+        Comment: "Add CORS headers to the response"
+        CorsConfig:
+          AccessControlAllowCredentials: false
+          AccessControlAllowHeaders:
+            Items:
+              - '*'
+          AccessControlAllowMethods:
+            Items:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - POST
+              - PATCH
+              - DELETE
+          AccessControlAllowOrigins:
+            Items:
+              - '*'
+          AccessControlExposeHeaders:
+            Items:
+              - '*'
+          OriginOverride: true
+        SecurityHeadersConfig:
+          ContentTypeOptions:
+            Override: true
+          FrameOptions:
+            FrameOption: SAMEORIGIN
+            Override: true
+          ReferrerPolicy:
+            ReferrerPolicy: no-referrer
+            Override: true
+          StrictTransportSecurity:
+            AccessControlMaxAgeSec: 31536000
+            IncludeSubdomains: true
+            Override: true
   
   # Cloudfront caching
   DefaultCachePolicy:
@@ -201,7 +259,9 @@ Resources:
           EnableAcceptEncodingBrotli: false
           EnableAcceptEncodingGzip: false
           HeadersConfig:
-            HeaderBehavior: none
+            HeaderBehavior: whitelist
+            Headers:
+              - Authorization
           QueryStringsConfig:
             QueryStringBehavior: all
   
@@ -232,6 +292,8 @@ Resources:
             - HEAD
             - OPTIONS
           CachePolicyId: !Ref DefaultCachePolicy
+          OriginRequestPolicyId: !Ref CORSOriginRequestPolicy
+          ResponseHeadersPolicyId: !Ref CORSResponseHeadersPolicy
         Enabled: true
         Comment: "LP Concerts CloudFront Distribution"
         PriceClass: PriceClass_100
@@ -256,12 +318,13 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref ConcertsApi
-            Path: /concerts
+            Path: /addConcert
             Method: put
             Auth:
               Authorizer: ConcertsCognitoAuthorizer
               AuthorizationScopes:
                 - openid
+                #- !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
   
   DeleteConcertFunction:
     Type: AWS::Serverless::Function
@@ -281,12 +344,13 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref ConcertsApi
-            Path: /concerts
+            Path: /deleteConcert/{concertId}
             Method: delete
             Auth:
               Authorizer: ConcertsCognitoAuthorizer
               AuthorizationScopes:
                 - openid
+                #- !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
   
   FindConcertFunction:
     Type: AWS::Serverless::Function

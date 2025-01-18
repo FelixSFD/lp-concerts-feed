@@ -37,12 +37,22 @@ public class Function
                 { "Access-Control-Allow-Methods", "OPTIONS, GET, POST, DELETE" }
             }
         };
+        
+        if (!request.PathParameters.ContainsKey("concertId"))
+        {
+            response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return response;
+        }
+
+        var concertId = request.PathParameters["concertId"]!;
 
         DeleteConcertRequest deleteRequest;
         try
         {
-            deleteRequest = GetRequestFromJson(request.Body) ??
-                            throw new JsonException("Failed to parse JSON request. Parser returned null.");
+            deleteRequest = new DeleteConcertRequest
+            {
+                ConcertId = concertId
+            };
         }
         catch (Exception e)
         {

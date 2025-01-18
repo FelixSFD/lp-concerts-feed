@@ -1,6 +1,6 @@
 import {Component, inject, OnInit, TemplateRef} from '@angular/core';
 import {ConcertsService} from '../services/concerts.service';
-import {DatePipe, NgClass, NgForOf, NgIf} from '@angular/common';
+import {NgClass, NgForOf, NgIf} from '@angular/common';
 import {Concert} from '../data/concert';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgbCalendar, NgbDateStruct, NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
@@ -12,7 +12,6 @@ import timezones from 'timezones-list';
 @Component({
   selector: 'app-concerts-list',
   imports: [
-    DatePipe,
     NgForOf,
     ReactiveFormsModule,
     NgClass,
