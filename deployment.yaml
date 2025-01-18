@@ -139,7 +139,7 @@ Resources:
         - email
         - openid
         - profile
-        - LpConcertsAuthServer/user_access
+        - !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
       CallbackURLs:
         - !Ref CallbackUrl
         - http://localhost:4200
