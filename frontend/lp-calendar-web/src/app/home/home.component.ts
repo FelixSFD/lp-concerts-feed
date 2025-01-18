@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import {RouterLink} from '@angular/router';
+import {environment} from '../../environments/environment';
 
 @Component({
   selector: 'app-home',
@@ -11,4 +12,5 @@ import {RouterLink} from '@angular/router';
 })
 export class HomeComponent {
 
+  protected readonly environment = environment;
 }
