@@ -253,6 +253,7 @@ Resources:
           AccessControlAllowHeaders:
             Items:
               - '*'
+              - Authorization
           AccessControlAllowMethods:
             Items:
               - GET
