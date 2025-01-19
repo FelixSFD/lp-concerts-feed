@@ -65,7 +65,7 @@ export class ConcertsListComponent implements OnInit {
   hasWriteAccess$ = false;
 
   constructor(private concertsService: ConcertsService) {
-    this.reloadConcertList();
+    this.reloadConcertList(true);
 
     this.oidcSecurityService.checkAuth().subscribe(({ isAuthenticated }) => {
       this.hasWriteAccess$ = isAuthenticated;
@@ -77,8 +77,8 @@ export class ConcertsListComponent implements OnInit {
   }
 
 
-  private reloadConcertList() {
-    this.concertsService.getConcerts().subscribe(result => {
+  private reloadConcertList(cache: boolean) {
+    this.concertsService.getConcerts(cache).subscribe(result => {
       this.concerts$ = result;
     })
   }
@@ -129,7 +129,7 @@ export class ConcertsListComponent implements OnInit {
 
       this.openAddConcertModal?.dismiss();
       this.addConcertFormSaving$ = false;
-      this.reloadConcertList();
+      this.reloadConcertList(false);
     });
   }
 
@@ -161,7 +161,7 @@ export class ConcertsListComponent implements OnInit {
 
       this.deleteConcertModal?.dismiss();
       this.concertDeleting$ = false;
-      this.reloadConcertList();
+      this.reloadConcertList(false);
     });
   }
 

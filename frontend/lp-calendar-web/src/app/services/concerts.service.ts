@@ -14,8 +14,23 @@ export class ConcertsService {
   constructor(private httpClient: HttpClient) { }
 
 
-  getConcerts() : Observable<Concert[]> {
+  getConcerts(cached: boolean) : Observable<Concert[]> {
     let url = environment.apiCachedBaseUrl + "/Prod/concerts";
+
+    if (!cached) {
+      // disable caching
+      const httpHeaders: HttpHeaders = new HttpHeaders({
+        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0'
+      });
+
+      console.log("Headers:");
+      console.log(httpHeaders);
+
+      return this.httpClient.get<Concert[]>(url, {
+        headers: httpHeaders
+      });
+    }
+
     return this.httpClient.get<Concert[]>(url);
   }
 

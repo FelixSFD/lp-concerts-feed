@@ -292,7 +292,7 @@ Resources:
         Name: !Sub ${AWS::StackName}_DefaultCachePolicy
         DefaultTTL: 120
         MaxTTL: 86400
-        MinTTL: 60
+        MinTTL: 0
         ParametersInCacheKeyAndForwardedToOrigin:
           CookiesConfig:
             CookieBehavior: all
