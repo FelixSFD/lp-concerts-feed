@@ -23,6 +23,11 @@ Parameters:
     Type: String
   UserPoolId:
     Type: String
+  RootDomain:
+    Type: String
+  CertificateArn:
+    Type: String
+    
       
 Resources:
   # S3 bucket for Angular frontend
@@ -311,6 +316,11 @@ Resources:
               OriginProtocolPolicy: https-only
               OriginSSLProtocols:
                 - TLSv1.2
+        Aliases: # info about CNAMEs (alternate domain names), if any, for this distribution
+          - !Sub 'api.${RootDomain}'
+        ViewerCertificate:
+          AcmCertificateArn: !Ref CertificateArn
+          SslSupportMethod: sni-only
         DefaultCacheBehavior:
           TargetOriginId: ApiGatewayOrigin
           ViewerProtocolPolicy: redirect-to-https
