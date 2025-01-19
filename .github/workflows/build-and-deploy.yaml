@@ -54,7 +54,7 @@ jobs:
         aws-region: eu-central-1
 
     - run: sam build -t deployment.yaml
-    - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name lp-concert-calendar-prod --resolve-s3 --s3-prefix "lp-concert-calendar-prod" --region eu-central-1 --capabilities CAPABILITY_IAM --parameter-overrides CallbackUrl=https://lpcalendar.felixsfd.de/ UserPoolId=lp-calendar-prod-userpool RootDomain=${{ vars.API_DOMAIN_PROD }} CertificateArn=${{ vars.API_CERTIFICATE_ARN_PROD }}
+    - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name lp-concert-calendar-prod --resolve-s3 --s3-prefix "lp-concert-calendar-prod" --region eu-central-1 --capabilities CAPABILITY_IAM --parameter-overrides CallbackUrl=https://lpcalendar.felixsfd.de/ UserPoolId=lp-calendar-prod-userpool RootDomain=${{ vars.ROOT_DOMAIN_PROD }} CertificateArn=${{ vars.API_CERTIFICATE_ARN_PROD }}
     #- name: Deploy to AWS CloudFormation
     #  uses: aws-actions/aws-cloudformation-github-deploy@v1
     #  with:
