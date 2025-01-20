@@ -27,7 +27,14 @@ Parameters:
     Type: String
   CertificateArn:
     Type: String
-    
+  HighUseLambdaProvisionedConcurrency:
+    Type: Number
+    Default: 0
+
+
+Conditions:
+  HasProvisionedConcurrency: !Not [ !Equals [ !Ref HighUseLambdaProvisionedConcurrency, '0' ] ]
+   
       
 Resources:
   # S3 bucket for Angular frontend
@@ -98,6 +105,8 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
             Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Policies:
         - PolicyName: LambdaDynamoDBAccess
           PolicyDocument:
@@ -121,6 +130,8 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
             Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Policies:
         - PolicyName: LambdaDynamoDBAccess
           PolicyDocument:
@@ -418,6 +429,15 @@ Resources:
             RestApiId: !Ref ConcertsApi
             Path: /concerts
             Method: get
+  # Version for provisioned concurrency
+  FindConcertFunctionVersion:
+    Type: AWS::Lambda::Version
+    Condition: HasProvisionedConcurrency
+    Properties:
+      FunctionName: !Ref FindConcertFunction
+      ProvisionedConcurrencyConfig:
+        ProvisionedConcurrentExecutions: !Ref HighUseLambdaProvisionedConcurrency
+  
   
   ConcertCalendarFeedFunction:
     Type: AWS::Serverless::Function
