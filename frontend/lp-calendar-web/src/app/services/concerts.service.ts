@@ -35,8 +35,14 @@ export class ConcertsService {
   }
 
 
+  getNextConcert() : Observable<Concert> {
+    let url = environment.apiCachedBaseUrl + "/Prod/concerts/next";
+    return this.httpClient.get<Concert>(url);
+  }
+
+
   getConcert(concertId: string) : Observable<Concert> {
-    let url = environment.apiCachedBaseUrl + "/Prod/concerts?id=" + concertId;
+    let url = environment.apiCachedBaseUrl + "/Prod/concerts/" + concertId;
     return this.httpClient.get<Concert>(url);
   }
 

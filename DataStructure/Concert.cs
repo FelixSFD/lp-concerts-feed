@@ -14,11 +14,11 @@ public class Concert
     /// UUID of the concert
     /// </summary>
     [DynamoDBHashKey]
+    [DynamoDBGlobalSecondaryIndexHashKey]
     [JsonPropertyName("id")]
     public string Id { get; set; }
     
     [DynamoDBProperty]
-    [DynamoDBRangeKey]
     [JsonPropertyName("tourName")]
     public string? TourName { get; set; }
 
@@ -31,6 +31,7 @@ public class Concert
     /// Time when the concert starts according to Ticketmaster. As string for DynamoDB. Use <see cref="PostedStartTimeValue"/> to get the date-object.
     /// </summary>
     [DynamoDBProperty]
+    [DynamoDBGlobalSecondaryIndexRangeKey]
     [JsonPropertyName("postedStartTime")]
     public string? PostedStartTime
     {

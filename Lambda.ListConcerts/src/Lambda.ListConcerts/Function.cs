@@ -27,8 +27,11 @@ public class Function
     }
 
 
-    public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayHttpApiV2ProxyRequest request, ILambdaContext context)
+    public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
+        context.Logger.LogInformation($"Path: {request.Path}");
+        context.Logger.LogInformation($"Request: {JsonSerializer.Serialize(request)}");
+        
         if (request.QueryStringParameters != null)
         {
             var idParamFound = request.QueryStringParameters.TryGetValue("id", out var searchId);
@@ -39,14 +42,21 @@ public class Function
             }
         }
         
-        if (request.PathParameters.TryGetValue("id", out var idParameter))
+        if (request.Path == "/concerts/next")
         {
-            return await ReturnSingleConcert(idParameter);
+            context.Logger.LogInformation("Requested next concert");
+            return await ReturnNextConcert(context);
         }
-
-        if (request.RawPath == "/concerts/next")
+        
+        if (request.PathParameters != null && request.PathParameters.TryGetValue("id", out var idParameter))
         {
-            return await ReturnNextConcert();
+            context.Logger.LogInformation("Requested ID: {id}", idParameter);
+            if (idParameter == "next")
+            {
+                return await ReturnNextConcert(context);
+            }
+
+            return await ReturnSingleConcert(idParameter);
         }
         
         // List all concerts
@@ -54,24 +64,24 @@ public class Function
     }
 
 
-    private async Task<APIGatewayProxyResponse> ReturnNextConcert()
+    private async Task<APIGatewayProxyResponse> ReturnNextConcert(ILambdaContext context)
     {
         var now = new DateTimeOffset();
         var dateNowStr = now.ToString("O");
         
+        context.Logger.LogInformation("Search concerts after: {time}", dateNowStr);
+        
         var queryConditions = new List<ScanCondition>
         {
-            new("Id", ScanOperator.GreaterThanOrEqual, dateNowStr)
+            new("PostedStartTime", ScanOperator.GreaterThanOrEqual, dateNowStr)
         };
 
-        var config = new DynamoDBOperationConfig
-        {
-            BackwardQuery = false,
-            IndexName = "PostedStartTimeIndex"
-        };
+        var config = _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName();
+        config.BackwardQuery = false;
+        config.IndexName = "PostedStartTimeIndex";
 
-        var concerts = await _dynamoDbContext.QueryAsync<Concert>(queryConditions, config).GetRemainingAsync();
-        if (concerts.Count == 0)
+        var concerts = await _dynamoDbContext.ScanAsync<Concert>(queryConditions, config).GetRemainingAsync();
+        if (concerts == null || concerts.Count == 0)
         {
             return new APIGatewayProxyResponse
             {
