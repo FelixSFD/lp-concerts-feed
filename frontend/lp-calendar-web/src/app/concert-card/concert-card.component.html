@@ -1,0 +1,15 @@
+<div class="card" style="width: 18rem;">
+  <div class="card-header">
+    Next concert
+  </div>
+  <div class="card-body">
+    <h5 class="card-title">{{concert$?.venue}}</h5>
+    <p class="card-text">
+      <i>{{ concert$?.city }}{{ (concert$?.state?.length ?? 0) > 0 ? ", " + concert$?.state : ""}}, {{ concert$?.country }}</i>
+    </p>
+    <app-countdown *ngIf="concert$ != null && concert$?.postedStartTime != undefined" [countdownToDate]="concert$!.postedStartTime!" />
+  </div>
+  <div class="card-footer text-end">
+    <button class="btn btn-info " [routerLink]="['/concerts', concert$?.id]">Details</button>
+  </div>
+</div>
