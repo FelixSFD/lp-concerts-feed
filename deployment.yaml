@@ -98,6 +98,7 @@ Resources:
   ConcertsWriteLambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
+      Description: "Execution role for Lambda that writes to the DB"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -123,6 +124,7 @@ Resources:
   ConcertsReadLambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
+      Description: "Execution role for Lambda that reads from the DB"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -362,7 +364,7 @@ Resources:
     Properties:
       Handler: Lambda.AddConcert::Lambda.AddConcert.Function::FunctionHandler
       Role: !GetAtt ConcertsWriteLambdaExecutionRole.Arn
-      Description: .NET function to add calendar entries
+      Description: .NET function to add Concerts to the calendar
       CodeUri: ./Lambda.AddConcert/src/Lambda.AddConcert/bin/Release/net8.0/Lambda.AddConcert.zip
       Architectures:
         - arm64
@@ -388,7 +390,7 @@ Resources:
     Properties:
       Handler: Lambda.DeleteConcert::Lambda.DeleteConcert.Function::FunctionHandler
       Role: !GetAtt ConcertsWriteLambdaExecutionRole.Arn
-      Description: .NET function to remove calendar entries
+      Description: .NET function to remove Concerts from calendar
       CodeUri: ./Lambda.DeleteConcert/src/Lambda.DeleteConcert/bin/Release/net8.0/Lambda.DeleteConcert.zip
       Architectures:
         - arm64
@@ -414,7 +416,7 @@ Resources:
     Properties:
       Handler: Lambda.ListConcerts::Lambda.ListConcerts.Function::FunctionHandler
       Role: !GetAtt ConcertsReadLambdaExecutionRole.Arn
-      Description: .NET function to read calendar entries
+      Description: .NET function to read Concert entries
       CodeUri: ./Lambda.ListConcerts/src/Lambda.ListConcerts/bin/Release/net8.0/Lambda.ListConcerts.zip
       Architectures:
         - arm64
@@ -444,7 +446,7 @@ Resources:
     Properties:
       Handler: Lambda.CalendarFeed::Lambda.CalendarFeed.Function::FunctionHandler
       Role: !GetAtt ConcertsReadLambdaExecutionRole.Arn
-      Description: .NET function to read calendar entries as iCal to create a feed
+      Description: .NET function to convert calendar entries to the iCal format as a feed
       CodeUri: ./Lambda.CalendarFeed/src/Lambda.CalendarFeed/bin/Release/net8.0/Lambda.CalendarFeed.zip
       Architectures:
         - arm64
