@@ -1,6 +1,8 @@
 using System.Text.Json;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.DocumentModel;
+using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using LPCalendar.DataStructure;
@@ -16,8 +18,11 @@ public class Function
     private readonly IDynamoDBContext _dynamoDbContext;
     private readonly DBOperationConfigProvider _dbOperationConfigProvider = new();
 
+    private readonly string TableName;
+
     public Function()
     {
+        TableName = _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName().OverrideTableName;
         _dynamoDbContext = new DynamoDBContext(_dynamoDbClient);
     }
 
@@ -34,8 +39,64 @@ public class Function
             }
         }
         
+        if (request.PathParameters.TryGetValue("id", out var idParameter))
+        {
+            return await ReturnSingleConcert(idParameter);
+        }
+
+        if (request.RawPath == "/concerts/next")
+        {
+            return await ReturnNextConcert();
+        }
+        
         // List all concerts
         return await ReturnAllConcerts();
+    }
+
+
+    private async Task<APIGatewayProxyResponse> ReturnNextConcert()
+    {
+        var now = new DateTimeOffset();
+        var dateNowStr = now.ToString("O");
+        
+        var queryConditions = new List<ScanCondition>
+        {
+            new("Id", ScanOperator.GreaterThanOrEqual, dateNowStr)
+        };
+
+        var config = new DynamoDBOperationConfig
+        {
+            BackwardQuery = false,
+            IndexName = "PostedStartTimeIndex"
+        };
+
+        var concerts = await _dynamoDbContext.QueryAsync<Concert>(queryConditions, config).GetRemainingAsync();
+        if (concerts.Count == 0)
+        {
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = 404,
+                Body = "{\"message\": \"No concerts found.\"}",
+                Headers = new Dictionary<string, string>
+                {
+                    { "Content-Type", "application/json" },
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                }
+            };
+        }
+
+        return new APIGatewayProxyResponse
+        {
+            StatusCode = 200,
+            Body = JsonSerializer.Serialize(concerts.First()),
+            Headers = new Dictionary<string, string>
+            {
+                { "Content-Type", "application/json" },
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+            }
+        };
     }
 
 

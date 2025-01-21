@@ -18,6 +18,7 @@ public class Concert
     public string Id { get; set; }
     
     [DynamoDBProperty]
+    [DynamoDBRangeKey]
     [JsonPropertyName("tourName")]
     public string? TourName { get; set; }
 

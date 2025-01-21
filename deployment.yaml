@@ -79,8 +79,8 @@ Resources:
       AttributeDefinitions:
         - AttributeName: Id
           AttributeType: S
-        #- AttributeName: PostedStartTime
-        #  AttributeType: S
+        - AttributeName: PostedStartTime
+          AttributeType: S
         #- AttributeName: Country
         #  AttributeType: S
         #- AttributeName: State
@@ -92,6 +92,15 @@ Resources:
       KeySchema:
         - AttributeName: Id
           KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: PostedStartTimeIndex
+          KeySchema:
+            - AttributeName: Id
+              KeyType: HASH
+            - AttributeName: PostedStartTime
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
       BillingMode: PAY_PER_REQUEST
   
   # Access Roles
@@ -426,11 +435,23 @@ Resources:
         Variables:
           CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
       Events:
+        GetSingleConcert:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ConcertsApi
+            Path: /concerts/{id}
+            Method: get
         ListConcerts:
           Type: Api
           Properties:
             RestApiId: !Ref ConcertsApi
             Path: /concerts
+            Method: get
+        NextConcert:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ConcertsApi
+            Path: /concerts/next
             Method: get
   # Version for provisioned concurrency
   FindConcertFunctionVersion:
