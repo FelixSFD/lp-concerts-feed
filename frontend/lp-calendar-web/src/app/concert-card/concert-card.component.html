@@ -4,11 +4,11 @@
   </div>
   <div class="card-body">
     <ng-template [ngIf]="concert$ != null" #concertTemplate>
-      <h5 class="card-title">{{concert$?.venue}}</h5>
+      <h5 class="card-title">{{concert$.venue}}</h5>
       <p class="card-text">
-        <i>{{ concert$?.city }}{{ (concert$?.state?.length ?? 0) > 0 ? ", " + concert$?.state : ""}}, {{ concert$?.country }}</i>
+        <i>{{ concert$.city }}{{ (concert$.state?.length ?? 0) > 0 ? ", " + concert$.state : ""}}, {{ concert$.country }}</i>
       </p>
-      <app-countdown *ngIf="concert$?.postedStartTime != undefined" [countdownToDate]="concert$!.postedStartTime!" />
+      <app-countdown *ngIf="concert$.postedStartTime != undefined" [countdownToDate]="concert$.postedStartTime!" />
     </ng-template>
 
     <ng-template [ngIf]="concert$ == null" #concertLoadingSpinner>
