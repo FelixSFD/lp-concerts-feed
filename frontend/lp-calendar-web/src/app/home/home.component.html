@@ -8,8 +8,14 @@
     <app-concert-card [concert]="nextConcert" />
   </div>
 
+  <!-- Responsive break -->
+  <div class="w-100 d-lg-none"></div>
+
   <div class="col-sm-3">
     <div class="card" style="width: 18rem;">
+      <div class="card-header">
+        Calendar feed
+      </div>
       <div class="card-body">
         <h5 class="card-title">Subscribe to calendar feed</h5>
         <p class="card-text">
@@ -17,6 +23,9 @@
           <br/>
           You can enter this URL in most calendar applications. The application will periodically refresh the calendar to get any changes in the schedule.
         </p>
+      </div>
+      <div class="card-footer text-end">
+        <button class="btn btn-info " (click)="subscribeBtnClicked()"><i class="bi bi-calendar-plus"></i> Add to calendar</button>
       </div>
     </div>
   </div>
@@ -26,6 +35,9 @@
 
   <div class="col-sm-3">
     <div class="card" style="width: 18rem;">
+      <div class="card-header">
+        Concerts
+      </div>
       <div class="card-body">
         <h5 class="card-title">View concert list</h5>
         <p class="card-text">You can check out the list of all concerts we currently track on this website. Please note that this is <b>maintained by fans</b> and is <b>not official information</b>!</p>

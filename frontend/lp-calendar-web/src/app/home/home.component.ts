@@ -28,4 +28,11 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
     this.concertsService.getNextConcert().subscribe(result => this.nextConcert = result);
   }
+
+
+  subscribeBtnClicked() {
+    let calendarUrl = environment.apiCachedBaseUrl + "/Prod/feed/ical";
+    calendarUrl = calendarUrl.replace("https", "webcal");
+    window.open(calendarUrl);
+  }
 }

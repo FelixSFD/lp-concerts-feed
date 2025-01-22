@@ -3,13 +3,25 @@
     Next concert
   </div>
   <div class="card-body">
-    <h5 class="card-title">{{concert$?.venue}}</h5>
-    <p class="card-text">
-      <i>{{ concert$?.city }}{{ (concert$?.state?.length ?? 0) > 0 ? ", " + concert$?.state : ""}}, {{ concert$?.country }}</i>
-    </p>
-    <app-countdown *ngIf="concert$ != null && concert$?.postedStartTime != undefined" [countdownToDate]="concert$!.postedStartTime!" />
+    <ng-template [ngIf]="concert$ != null" #concertTemplate>
+      <h5 class="card-title">{{concert$?.venue}}</h5>
+      <p class="card-text">
+        <i>{{ concert$?.city }}{{ (concert$?.state?.length ?? 0) > 0 ? ", " + concert$?.state : ""}}, {{ concert$?.country }}</i>
+      </p>
+      <app-countdown *ngIf="concert$?.postedStartTime != undefined" [countdownToDate]="concert$!.postedStartTime!" />
+    </ng-template>
+
+    <ng-template [ngIf]="concert$ == null" #concertLoadingSpinner>
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading concert...
+    </ng-template>
+
+    <ng-template #concertLoadingError>
+      <div class="alert alert-danger" role="alert">
+        Failed to load information about the next concert!
+      </div>
+    </ng-template>
   </div>
   <div class="card-footer text-end">
-    <button class="btn btn-info " [routerLink]="['/concerts', concert$?.id]">Details</button>
+    <button class="btn btn-outline-info" [routerLink]="['/concerts', concert$?.id]"><i class="bi bi-info-circle"></i> Details</button>
   </div>
 </div>

@@ -151,13 +151,13 @@
       <small>{{ concert.city }}{{ (concert.state?.length ?? 0) > 0 ? ", " + concert.state : ""}}, {{ concert.country }}</small>
     </td>
     <td style="text-align: right">
-      <button type="button" class="btn btn-outline-info" [routerLink]="['/concerts/' + concert.id]">
-        Details
+      <button type="button" class="btn btn-info" [routerLink]="['/concerts/' + concert.id]">
+        <i class="bi bi-info-circle"></i>
       </button>
       <ng-container *ngIf="hasWriteAccess$"> <!-- Only show delete button if user can write data -->
         &nbsp;
         <button type="button" class="btn btn-outline-danger" (click)="onDeleteConcertClicked(deleteConcertContent, concert.id)">
-          Delete
+          <i class="bi bi-trash"></i>
         </button>
       </ng-container>
     </td>
