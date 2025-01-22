@@ -75,7 +75,7 @@ Resources:
   ConcertsDynamoDBTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Sub ${AWS::StackName}_Concertsv2
+      TableName: !Sub ${AWS::StackName}_Concerts
       AttributeDefinitions:
         - AttributeName: Id
           AttributeType: S
