@@ -1,5 +1,6 @@
 export class Concert {
   id: string | undefined;
+  status: string = "PUBLISHED";
   postedStartTime: string | undefined;
   timeZoneId: string | undefined;
 

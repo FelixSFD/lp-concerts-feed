@@ -66,21 +66,22 @@ public class Function
 
     private async Task<APIGatewayProxyResponse> ReturnNextConcert(ILambdaContext context)
     {
-        var now = new DateTimeOffset();
+        var now = DateTimeOffset.Now;
         var dateNowStr = now.ToString("O");
         
-        context.Logger.LogInformation("Search concerts after: {time}", dateNowStr);
-        
-        var queryConditions = new List<ScanCondition>
-        {
-            new("PostedStartTime", ScanOperator.GreaterThanOrEqual, dateNowStr)
-        };
+        context.Logger.LogInformation("Query concerts after: {time}", dateNowStr);
 
         var config = _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName();
         config.BackwardQuery = false;
-        config.IndexName = "PostedStartTimeIndex";
+        config.IndexName = "PostedStartTimeGlobalIndex";
+        
+        var query = _dynamoDbContext.QueryAsync<Concert>(
+            "PUBLISHED", // PartitionKey value
+            QueryOperator.GreaterThanOrEqual,
+            [dateNowStr],
+            config);
 
-        var concerts = await _dynamoDbContext.ScanAsync<Concert>(queryConditions, config).GetRemainingAsync();
+        var concerts = await query.GetRemainingAsync();
         if (concerts == null || concerts.Count == 0)
         {
             return new APIGatewayProxyResponse

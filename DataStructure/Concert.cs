@@ -9,18 +9,25 @@ namespace LPCalendar.DataStructure;
 [DynamoDBTable(ConcertTableName)]
 public class Concert
 {
-    public const string ConcertTableName = "Concerts";
+    public const string ConcertTableName = "Concertsv2";
     /// <summary>
     /// UUID of the concert
     /// </summary>
     [DynamoDBHashKey]
-    [DynamoDBGlobalSecondaryIndexHashKey]
     [JsonPropertyName("id")]
     public string Id { get; set; }
     
     [DynamoDBProperty]
     [JsonPropertyName("tourName")]
     public string? TourName { get; set; }
+
+    /// <summary>
+    /// Status of the concert (mainly used as workaround for having a partition key that can return all concerts for now)
+    /// </summary>
+    //[DynamoDBProperty("Status")]
+    [DynamoDBGlobalSecondaryIndexHashKey("PostedStartTimeGlobalIndex")]
+    [JsonPropertyName("status")]
+    public required string Status { get; set; }
 
     /// <summary>
     /// Time when the concert starts according to Ticketmaster.
@@ -30,8 +37,8 @@ public class Concert
     /// <summary>
     /// Time when the concert starts according to Ticketmaster. As string for DynamoDB. Use <see cref="PostedStartTimeValue"/> to get the date-object.
     /// </summary>
-    [DynamoDBProperty]
-    [DynamoDBGlobalSecondaryIndexRangeKey]
+    //[DynamoDBProperty]
+    [DynamoDBGlobalSecondaryIndexRangeKey("PostedStartTimeGlobalIndex")]
     [JsonPropertyName("postedStartTime")]
     public string? PostedStartTime
     {

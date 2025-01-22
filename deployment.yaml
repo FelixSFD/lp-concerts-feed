@@ -75,11 +75,13 @@ Resources:
   ConcertsDynamoDBTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Sub ${AWS::StackName}_Concerts
+      TableName: !Sub ${AWS::StackName}_Concertsv2
       AttributeDefinitions:
         - AttributeName: Id
           AttributeType: S
         - AttributeName: PostedStartTime
+          AttributeType: S
+        - AttributeName: Status
           AttributeType: S
         #- AttributeName: Country
         #  AttributeType: S
@@ -93,9 +95,9 @@ Resources:
         - AttributeName: Id
           KeyType: HASH
       GlobalSecondaryIndexes:
-        - IndexName: PostedStartTimeIndex
+        - IndexName: PostedStartTimeGlobalIndex
           KeySchema:
-            - AttributeName: Id
+            - AttributeName: Status
               KeyType: HASH
             - AttributeName: PostedStartTime
               KeyType: RANGE
@@ -129,7 +131,9 @@ Resources:
                   - dynamodb:UpdateItem
                   - dynamodb:DeleteItem
                   - dynamodb:DescribeTable
-                Resource: !GetAtt ConcertsDynamoDBTable.Arn
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                Resource: !Sub "${ConcertsDynamoDBTable.Arn}*"
   ConcertsReadLambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -153,7 +157,8 @@ Resources:
                   - dynamodb:GetItem
                   - dynamodb:DescribeTable
                   - dynamodb:Scan
-                Resource: !GetAtt ConcertsDynamoDBTable.Arn
+                  - dynamodb:Query
+                Resource: !Sub "${ConcertsDynamoDBTable.Arn}*"
   
   CognitoAuthorizerUserPool:
     Type: AWS::Cognito::UserPool
@@ -434,6 +439,9 @@ Resources:
       Environment:
         Variables:
           CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
       Events:
         GetSingleConcert:
           Type: Api
