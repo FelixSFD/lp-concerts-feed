@@ -1,0 +1,22 @@
+<h1>About this page</h1>
+<p>This page is a project made by Linkin Park fans to keep track of all the shows in different timezones. With over 60 shows around the world in 2025, things can get confusing. That's why this project shows you all the shows in your local and also the venue's timezone.</p>
+
+<h2>Calendar feed</h2>
+<p>Many calendar applications (like on iOS, iPadOS and macOS) support calendar subscription. This project publishes a calendar feed with all the shows that you can use in your calendar app.</p>
+
+<hr />
+
+<h2>FAQ</h2>
+<h3>Who is behind this project?</h3>
+<p>This project was started by <a href="https://github.com/FelixSFD" target="_blank" class="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">FelixSFD</a> to learn new technologies and get an overview of all shows in his local timezone.</p>
+
+<h3>How can I contribute?</h3>
+<p>At the moment, the page is still in early development.</p>
+<p>In the future, select users might be added as administrators to manage the concert list. The code might be published in the future, but at the moment, it's private.</p>
+
+<h3>Can I use the data?</h3>
+<p><b>Yes!</b> The data is supposed to be public. If you have questions about the APIs (warning, they might change as they are in early development!), feel free to contact FelixSFD on Discord.</p>
+
+<h3>How does this work?</h3>
+<p>The frontend is hosted as an Angular single-page-application in CloudFlare, which is basically free for a page of this size. Also, it's quite fast.</p>
+<p>Backend logic and the database is hosted in AWS. The database is a DynamoDB while the logic for reading and writing is implemented in AWS Lambda functions running .NET 8. The API is cached by AWS CloudFront.</p>
