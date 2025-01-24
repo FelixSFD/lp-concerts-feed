@@ -1,0 +1,369 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Application to manage the backend resources for the LP Calendar project
+
+
+
+Parameters:
+  BaseProductName:
+    Description: Name of the product. Is used as prefix in the exports
+    Type: String
+  RootDomain:
+    Type: String
+  CallbackUrl:
+    Type: String
+  UserPoolId:
+    Type: String
+  HostedZoneId:
+    Type: String
+
+
+Globals:
+  Function:
+    Timeout: 15
+    MemorySize: 256
+    Runtime: dotnet8
+  Api:
+    TracingEnabled: true
+    Cors:
+      AllowMethods: "'POST, GET, PUT, DELETE'"
+      AllowOrigin: "'*'"
+      AllowHeaders: "'*'"
+      #MaxAge: "'600'"
+
+
+Resources:
+  # Database
+  ConcertsDynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${AWS::StackName}_ConcertsV2
+      AttributeDefinitions:
+        - AttributeName: Id
+          AttributeType: S
+        - AttributeName: PostedStartTime
+          AttributeType: S
+        - AttributeName: Status
+          AttributeType: S
+        #- AttributeName: Country
+        #  AttributeType: S
+        #- AttributeName: State
+        #  AttributeType: S
+        #- AttributeName: City
+        #  AttributeType: S
+        #- AttributeName: Venue
+        #  AttributeType: S
+      KeySchema:
+        - AttributeName: Id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: PostedStartTimeGlobalIndex
+          KeySchema:
+            - AttributeName: Status
+              KeyType: HASH
+            - AttributeName: PostedStartTime
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      BillingMode: PAY_PER_REQUEST
+
+  # Access Roles
+  ConcertsWriteLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: "Execution role for Lambda that writes to the DB"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: LambdaDynamoDBAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:DescribeTable
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                Resource: !Sub "${ConcertsDynamoDBTable.Arn}*"
+  ConcertsReadLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: "Execution role for Lambda that reads from the DB"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: LambdaDynamoDBAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:DescribeTable
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                Resource: !Sub "${ConcertsDynamoDBTable.Arn}*"
+
+  CognitoAuthorizerUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub ${UserPoolId}-userpool
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: true
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+          RequireUppercase: true
+          TemporaryPasswordValidityDays: 7
+      AutoVerifiedAttributes:
+        - email
+      UsernameConfiguration:
+        CaseSensitive: true
+      UsernameAttributes:
+        - email
+      Schema:
+        - AttributeDataType: String
+          Mutable: true
+          Name: email
+          #Required: true
+        - AttributeDataType: String
+          Mutable: true
+          Name: first_name
+          #Required: true
+        - AttributeDataType: String
+          Mutable: true
+          Name: last_name
+          #Required: true
+
+  CognitoAuthorizerUserPoolResourceServer:
+    Type: AWS::Cognito::UserPoolResourceServer
+    Properties:
+      Identifier: !Sub ${AWS::StackName}_LpConcertsAuthServer
+      Name: !Sub ${AWS::StackName}_LpConcertsAuthServer
+      Scopes:
+        - ScopeDescription: "Allow access to application"
+          ScopeName: user_access
+      UserPoolId: !Ref CognitoAuthorizerUserPool
+
+  CognitoAuthorizerUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    DependsOn: CognitoAuthorizerUserPoolResourceServer
+    Properties:
+      AllowedOAuthFlows:
+        - implicit
+        - code
+      AllowedOAuthFlowsUserPoolClient: True
+      AllowedOAuthScopes:
+        - email
+        - openid
+        - profile
+        - !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
+      CallbackURLs:
+        - !Ref CallbackUrl
+        - http://localhost:4200
+        - http://localhost:4200/
+        - http://localhost:4200/home
+      LogoutURLs:
+        - !Ref CallbackUrl
+      ClientName: !Sub ${UserPoolId}-client
+      SupportedIdentityProviders:
+        - COGNITO
+      UserPoolId: !Ref CognitoAuthorizerUserPool
+      GenerateSecret: false
+
+  CognitoAuthorizerUserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: !Sub ${AWS::StackName}-${AWS::AccountId}
+      UserPoolId: !Ref CognitoAuthorizerUserPool
+
+  # REST API that is secured by cognito
+  ConcertsApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowMethods: "'POST, GET, PUT, DELETE'"
+        AllowOrigin: "'*'"
+        AllowHeaders: "'*'"
+      Auth:
+        Authorizers:
+          ConcertsCognitoAuthorizer:
+            UserPoolArn: !GetAtt CognitoAuthorizerUserPool.Arn
+            IdentitySource: method.request.header.Authorization
+            Scopes:
+              - !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
+  
+  GatewaySslCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Description: TLS certificate for the application domains
+    Properties:
+      DomainName: !Sub 'api-gateway.${RootDomain}'
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: !Sub 'api-gateway.${RootDomain}'
+          HostedZoneId: !Ref HostedZoneId
+  
+  ConcertsApiDomainName:
+    Type: AWS::ApiGateway::DomainName
+    DependsOn: ConcertsApi
+    Properties:
+      DomainName: !Sub api-gateway.${RootDomain}
+      CertificateArn: !Ref GatewaySslCertificate
+
+  ConcertsApiBasePathMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      DomainName: !Ref ConcertsApiDomainName
+      RestApiId: !Ref ConcertsApi
+      BasePath: ''
+  
+  
+  # Lambda functions
+  AddConcertFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: Lambda.AddConcert::Lambda.AddConcert.Function::FunctionHandler
+      Role: !GetAtt ConcertsWriteLambdaExecutionRole.Arn
+      Description: .NET function to add Concerts to the calendar
+      CodeUri: ../Lambda.AddConcert/src/Lambda.AddConcert/bin/Release/net8.0/Lambda.AddConcert.zip
+      Architectures:
+        - arm64
+      Tracing: Active
+      Environment:
+        Variables:
+          CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
+      Events:
+        PutAddConcert:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ConcertsApi
+            Path: /addConcert
+            Method: put
+            Auth:
+              Authorizer: ConcertsCognitoAuthorizer
+              AuthorizationScopes:
+                - openid
+                #- !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
+  
+  DeleteConcertFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: Lambda.DeleteConcert::Lambda.DeleteConcert.Function::FunctionHandler
+      Role: !GetAtt ConcertsWriteLambdaExecutionRole.Arn
+      Description: .NET function to remove Concerts from calendar
+      CodeUri: ../Lambda.DeleteConcert/src/Lambda.DeleteConcert/bin/Release/net8.0/Lambda.DeleteConcert.zip
+      Architectures:
+        - arm64
+      Tracing: Active
+      Environment:
+        Variables:
+          CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
+      Events:
+        PutAddConcert:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ConcertsApi
+            Path: /deleteConcert/{concertId}
+            Method: delete
+            Auth:
+              Authorizer: ConcertsCognitoAuthorizer
+              AuthorizationScopes:
+                - openid
+                #- !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
+  
+  FindConcertFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: Lambda.ListConcerts::Lambda.ListConcerts.Function::FunctionHandler
+      Role: !GetAtt ConcertsReadLambdaExecutionRole.Arn
+      Description: .NET function to read Concert entries
+      CodeUri: ../Lambda.ListConcerts/src/Lambda.ListConcerts/bin/Release/net8.0/Lambda.ListConcerts.zip
+      Architectures:
+        - arm64
+      Tracing: Active
+      MemorySize: 384
+      Environment:
+        Variables:
+          CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
+      Events:
+        GetSingleConcert:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ConcertsApi
+            Path: /concerts/{id}
+            Method: get
+        ListConcerts:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ConcertsApi
+            Path: /concerts
+            Method: get
+        NextConcert:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ConcertsApi
+            Path: /concerts/next
+            Method: get
+
+  
+  
+  ConcertCalendarFeedFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: Lambda.CalendarFeed::Lambda.CalendarFeed.Function::FunctionHandler
+      Role: !GetAtt ConcertsReadLambdaExecutionRole.Arn
+      Description: .NET function to convert calendar entries to the iCal format as a feed
+      CodeUri: ../Lambda.CalendarFeed/src/Lambda.CalendarFeed/bin/Release/net8.0/Lambda.CalendarFeed.zip
+      Architectures:
+        - arm64
+      Tracing: Active
+      Environment:
+        Variables:
+          CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
+      Events:
+        ListConcerts: # TODO: maybe rename?
+          Type: Api
+          Properties:
+            RestApiId: !Ref ConcertsApi
+            Path: /feed/ical
+            Method: get
+
+
+Outputs:
+  ConcertsApiGatewayExport:
+    Description: 'Id of the API Gateway'
+    Value: !Ref ConcertsApi
+    Export:
+      Name: !Sub '${BaseProductName}-main-api-gateway'
+  ConcertsApiGatewayDomainExport:
+    Description: Domain of API Gateway
+    #Value: !Sub "${ConcertsApi}.execute-api.${AWS::Region}.amazonaws.com"
+    Value: !Sub api-gateway.${RootDomain}.
+    Export:
+      Name: !Sub '${BaseProductName}-main-api-gateway-domain'
