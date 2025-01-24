@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Application to manage the Frontend deployment for the LP Calendar project
+
+
+
+Parameters:
+  BaseProductName:
+    Description: Name of the product. Is used as prefix in the exports
+    Type: String
+
+
+
+Resources:
+  # S3 bucket for Angular frontend
+  FrontendS3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Sub ${BaseProductName}-web-frontend-bucket
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+  BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      PolicyDocument:
+        Id: !Sub ${AWS::StackName}_PublicS3Policy
+        Version: 2012-10-17
+        Statement:
+          - Sid: PublicReadForGetBucketObjects
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource: !Join
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref FrontendS3Bucket
+                - /*
+      Bucket: !Ref FrontendS3Bucket
+
+
+Outputs:
+  FrontendS3BucketExport:
+    Description: 'S3 Bucket for the frontend files'
+    Value: !Ref FrontendS3Bucket
+    Export:
+      Name: !Sub '${BaseProductName}-frontend-s3'
+  FrontendS3BucketArnExport:
+    Description: 'S3 Bucket for the frontend files'
+    Value: !GetAtt FrontendS3Bucket.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-frontend-s3-arn'
