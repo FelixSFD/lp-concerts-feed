@@ -185,6 +185,7 @@ Resources:
         - !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
       CallbackURLs:
         - !Ref CallbackUrl
+        - !Sub ${CallbackUrl}/
         - http://localhost:4200
         - http://localhost:4200/
         - http://localhost:4200/home
