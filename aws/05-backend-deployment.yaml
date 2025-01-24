@@ -17,6 +17,9 @@ Parameters:
     Type: String
   HostedZoneId:
     Type: String
+  GatewaySslCertificateArn:
+    Type: String
+    Description: ARN of the SSL Certificate. The certificate must be hosted in us-eat-1, which is why we have to pass it as parameter
 
 
 Globals:
@@ -216,29 +219,19 @@ Resources:
             Scopes:
               - !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
   
-  GatewaySslCertificate:
-    Type: AWS::CertificateManager::Certificate
-    Description: TLS certificate for the application domains
-    Properties:
-      DomainName: !Sub 'api-gateway.${RootDomain}'
-      ValidationMethod: DNS
-      DomainValidationOptions:
-        - DomainName: !Sub 'api-gateway.${RootDomain}'
-          HostedZoneId: !Ref HostedZoneId
-  
-  ConcertsApiDomainName:
-    Type: AWS::ApiGateway::DomainName
-    DependsOn: ConcertsApi
-    Properties:
-      DomainName: !Sub api-gateway.${RootDomain}
-      CertificateArn: !Ref GatewaySslCertificate
+  #ConcertsApiDomainName:
+  #  Type: AWS::ApiGateway::DomainName
+  #  DependsOn: ConcertsApi
+  #  Properties:
+  #    DomainName: !Sub api-gateway.${RootDomain}
+  #    CertificateArn: !Ref GatewaySslCertificateArn
 
-  ConcertsApiBasePathMapping:
-    Type: AWS::ApiGateway::BasePathMapping
-    Properties:
-      DomainName: !Ref ConcertsApiDomainName
-      RestApiId: !Ref ConcertsApi
-      BasePath: ''
+  #oncertsApiBasePathMapping:
+  #  Type: AWS::ApiGateway::BasePathMapping
+  #  Properties:
+  #    DomainName: !Ref ConcertsApiDomainName
+  #    RestApiId: !Ref ConcertsApi
+  #    BasePath: ''
   
   
   # Lambda functions
@@ -363,7 +356,7 @@ Outputs:
       Name: !Sub '${BaseProductName}-main-api-gateway'
   ConcertsApiGatewayDomainExport:
     Description: Domain of API Gateway
-    #Value: !Sub "${ConcertsApi}.execute-api.${AWS::Region}.amazonaws.com"
-    Value: !Sub api-gateway.${RootDomain}.
+    Value: !Sub "${ConcertsApi}.execute-api.${AWS::Region}.amazonaws.com"
+    #Value: !Sub api-gateway.${RootDomain}.
     Export:
       Name: !Sub '${BaseProductName}-main-api-gateway-domain'

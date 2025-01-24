@@ -24,9 +24,16 @@ Resources:
     Properties:
       HostedZoneId: !Ref HostedZoneId
       RecordSets:
+        # DNS to API in CloudFront
         - Name: !Sub 'api.${RootDomain}.'
-          TTL: 600
-          Type: CNAME
+          Type: A
           AliasTarget:
-            HostedZoneId: !Ref HostedZoneId
-            DNSName: {'Fn::ImportValue': !Sub '${BaseProductName}-main-api-gateway-domain' }
+            HostedZoneId: Z2FDTNDATAQYW2 # This is the official ID for CloudFront!
+            DNSName: {'Fn::ImportValue': !Sub '${BaseProductName}-cloudfront-domain' }
+        # DNS to API Gateway
+        - Name: !Sub 'api-gateway.${RootDomain}.'
+          Type: A
+          AliasTarget:
+            HostedZoneId: Z1U9ULNL0V5AJ3 # This is the official ID for eu-central-1! TODO: different ID for different zones?
+            #HostedZoneId: !Ref HostedZoneId
+            DNSName: { 'Fn::ImportValue': !Sub '${BaseProductName}-main-api-gateway-domain' }

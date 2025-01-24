@@ -103,11 +103,15 @@ Resources:
   # CloudFront distribution
   ApiCloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
+    DependsOn:
+      - DefaultCachePolicy
+      - CORSOriginRequestPolicy
+      - CORSResponseHeadersPolicy
     Properties:
       DistributionConfig:
         Origins:
           - Id: ApiGatewayOrigin
-            DomainName: !Sub {'Fn::ImportValue': !Sub '${BaseProductName}-main-api-gateway-domain' }
+            DomainName: {'Fn::ImportValue': !Sub '${BaseProductName}-main-api-gateway-domain' }
             CustomOriginConfig:
               OriginProtocolPolicy: https-only
               OriginSSLProtocols:
@@ -115,11 +119,12 @@ Resources:
         Aliases: # info about CNAMEs (alternate domain names), if any, for this distribution
           - !Sub 'api.${RootDomain}'
         ViewerCertificate:
-          #AcmCertificateArn: !Ref CertificateArn
-          AcmCertificateArn: {'Fn::ImportValue': !Sub '${BaseProductName}-certificate' }
+          AcmCertificateArn: !Ref CertificateArn
+          #AcmCertificateArn: {'Fn::ImportValue': !Sub '${BaseProductName}-certificate' }
           SslSupportMethod: sni-only
         DefaultCacheBehavior:
           TargetOriginId: ApiGatewayOrigin
+          #TargetOriginId: {'Fn::ImportValue': !Sub '${BaseProductName}-main-api-gateway' }
           ViewerProtocolPolicy: redirect-to-https
           AllowedMethods:
             - GET
@@ -147,3 +152,8 @@ Outputs:
     Value: !Ref ApiCloudFrontDistribution
     Export:
       Name: !Sub '${BaseProductName}-cloudfront'
+  CloudFrontDomainExport:
+    Description: 'ID of CloudFront distribution'
+    Value: !GetAtt ApiCloudFrontDistribution.DomainName
+    Export:
+      Name: !Sub '${BaseProductName}-cloudfront-domain'

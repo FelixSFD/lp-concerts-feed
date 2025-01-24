@@ -25,3 +25,20 @@ Resources:
       EndpointConfiguration:
         Types:
           - "REGIONAL"
+
+  GatewaySslCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Description: TLS certificate for the application domains
+    Properties:
+      DomainName: !Sub 'api-gateway.${RootDomain}'
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: !Sub 'api-gateway.${RootDomain}'
+          HostedZoneId: !Ref HostedZoneId
+
+  ConcertsApiDomainName:
+    Type: AWS::ApiGateway::DomainName
+    DependsOn: RestApi
+    Properties:
+      DomainName: !Sub api-gateway.${RootDomain}
+      CertificateArn: !Ref GatewaySslCertificate
