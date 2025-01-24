@@ -53,6 +53,11 @@ Outputs:
     Value: !Ref FrontendS3Bucket
     Export:
       Name: !Sub '${BaseProductName}-frontend-s3'
+  FrontendS3BucketRegionalDomainExport:
+    Description: 'S3 Bucket for the frontend files'
+    Value: !GetAtt FrontendS3Bucket.RegionalDomainName
+    Export:
+      Name: !Sub '${BaseProductName}-frontend-s3-regional-domain'
   FrontendS3BucketArnExport:
     Description: 'S3 Bucket for the frontend files'
     Value: !GetAtt FrontendS3Bucket.Arn

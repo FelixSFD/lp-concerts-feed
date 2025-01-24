@@ -24,6 +24,12 @@ Resources:
     Properties:
       HostedZoneId: !Ref HostedZoneId
       RecordSets:
+        # DNS to S3 Origin in CloudFront
+        - Name: !Sub '${RootDomain}.'
+          Type: A
+          AliasTarget:
+            HostedZoneId: Z2FDTNDATAQYW2 # This is the official ID for CloudFront!
+            DNSName: { 'Fn::ImportValue': !Sub '${BaseProductName}-frontend-cloudfront-domain' }
         # DNS to API in CloudFront
         - Name: !Sub 'api.${RootDomain}.'
           Type: A

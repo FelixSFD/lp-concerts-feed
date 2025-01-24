@@ -144,16 +144,74 @@ Resources:
         Enabled: true
         Comment: !Sub "${AWS::StackName} CloudFront Distribution"
         PriceClass: PriceClass_100
-
+  
+  FrontendCloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    DependsOn:
+      - DefaultCachePolicy
+      - CORSOriginRequestPolicy
+      - CORSResponseHeadersPolicy
+    Properties:
+      DistributionConfig:
+        Origins:
+          - Id: FrontendBucketOrigin
+            DomainName: { 'Fn::ImportValue': !Sub '${BaseProductName}-frontend-s3-regional-domain' }
+            S3OriginConfig: { }
+        Aliases: # info about CNAMEs (alternate domain names), if any, for this distribution
+          - !Sub '${RootDomain}'
+        ViewerCertificate:
+          AcmCertificateArn: !Ref CertificateArn
+          #AcmCertificateArn: {'Fn::ImportValue': !Sub '${BaseProductName}-certificate' }
+          SslSupportMethod: sni-only
+        DefaultCacheBehavior:
+          TargetOriginId: FrontendBucketOrigin
+          #TargetOriginId: {'Fn::ImportValue': !Sub '${BaseProductName}-main-api-gateway' }
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+            - PUT
+            - POST
+            - PATCH
+            - DELETE
+          CachedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachePolicyId: !Ref DefaultCachePolicy
+          OriginRequestPolicyId: !Ref CORSOriginRequestPolicy
+          ResponseHeadersPolicyId: !Ref CORSResponseHeadersPolicy
+        Enabled: true
+        Comment: !Sub "${AWS::StackName} CloudFront Distribution"
+        PriceClass: PriceClass_100
+  
+  
+  
+  #CloudFrontOriginAccessIdentity:
+  #  Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+  #  Properties:
+  #    CloudFrontOriginAccessIdentityConfig:
+  #      Comment: !Sub 'CloudFront OAI for the S3 bucket'
 
 Outputs:
   CloudFrontExport:
-    Description: 'ID of CloudFront distribution'
+    Description: 'ID of CloudFront distribution for the API'
     Value: !Ref ApiCloudFrontDistribution
     Export:
       Name: !Sub '${BaseProductName}-cloudfront'
   CloudFrontDomainExport:
-    Description: 'ID of CloudFront distribution'
+    Description: 'ID of CloudFront distribution for the API'
     Value: !GetAtt ApiCloudFrontDistribution.DomainName
     Export:
       Name: !Sub '${BaseProductName}-cloudfront-domain'
+  FrontendCloudFrontExport:
+    Description: 'ID of CloudFront distribution for the frontend'
+    Value: !Ref FrontendCloudFrontDistribution
+    Export:
+      Name: !Sub '${BaseProductName}-frontend-cloudfront'
+  FrontendCloudFrontDomainExport:
+    Description: 'ID of CloudFront distribution for the frontend'
+    Value: !GetAtt FrontendCloudFrontDistribution.DomainName
+    Export:
+      Name: !Sub '${BaseProductName}-frontend-cloudfront-domain'
