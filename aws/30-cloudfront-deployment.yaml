@@ -159,6 +159,13 @@ Resources:
             S3OriginConfig: { }
         Aliases: # info about CNAMEs (alternate domain names), if any, for this distribution
           - !Sub '${RootDomain}'
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
         ViewerCertificate:
           AcmCertificateArn: !Ref CertificateArn
           #AcmCertificateArn: {'Fn::ImportValue': !Sub '${BaseProductName}-certificate' }
