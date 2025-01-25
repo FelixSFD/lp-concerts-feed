@@ -4,14 +4,35 @@
 name: Deploy to AWS
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  #push:
+  #  branches: [ "develop" ]
+  #pull_request:
+  #  branches: [ "develop" ]
+  workflow_dispatch:
+    inputs:
+      base_name:
+        description: 'Prefix for the resources'
+        required: true
+        default: 'lpshows-test'
+      root_domain:
+        description: 'Base domain for the application'
+        required: true
+        default: 'test.lpshows.live'
+      user_pool_id:
+        description: 'ID of the cognito user pool to create'
+        required: true
+        default: 'lpshows-test-userpool'
+      hosted_zone_id:
+        description: 'ID of the hosted zone for root_domain'
+        required: true
+        default: 'Z01703772XJ8G8PR8WY7G'
+      certificate_arn:
+        description: 'ARN of the SSL certificate to use'
+        required: true
+        default: 'arn:aws:acm:us-east-1:183771145359:certificate/fb039074-05e0-40bc-8203-7bc3a3829f71'
 
 jobs:
   backend:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -53,17 +74,8 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: eu-central-1
 
-    - run: sam build -t deployment.yaml
+    - run: sam build -t 05-backend-deployment.yaml
     - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name lp-concert-calendar-prod --resolve-s3 --s3-prefix "lp-concert-calendar-prod" --region eu-central-1 --capabilities CAPABILITY_IAM --parameter-overrides CallbackUrl=https://lpcalendar.felixsfd.de/ UserPoolId=lp-calendar-prod-userpool RootDomain=${{ vars.ROOT_DOMAIN_PROD }} CertificateArn=${{ vars.API_CERTIFICATE_ARN_PROD }}
-    #- name: Deploy to AWS CloudFormation
-    #  uses: aws-actions/aws-cloudformation-github-deploy@v1
-    #  with:
-    #    name: lp-concert-calendar-prod
-    #    template: deployment.yaml
-    #    capabilities: "CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND"
-    #    no-fail-on-empty-changeset: "1"
-    #    parameter-overrides: >-
-    #      CallbackUrl=https://lpcalendar.felixsfd.de/
 
   #frontend:
   #  runs-on: ubuntu-latest
