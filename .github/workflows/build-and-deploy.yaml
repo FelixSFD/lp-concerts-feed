@@ -106,6 +106,17 @@ jobs:
         files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
         search-text: 'COGNITO_CLIENT_ID'
         replacement-text: ${{ vars.COGNITO_CLIENT_ID }}
+
+    # Get Date and write it into the environemnt.ts
+    - name: Get current date
+      id: date
+      run: echo "::set-output name=date::$(date +'%Y%m%d%H%M%S')"
+    - name: Replace BUILD
+      uses: richardrigutins/replace-in-files@v2
+      with:
+        files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
+        search-text: 'BUILD'
+        replacement-text: ${{ steps.date.outputs.date }}
     
     - name: Build Angular project
       working-directory: frontend/lp-calendar-web
