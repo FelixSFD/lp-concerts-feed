@@ -73,7 +73,9 @@ jobs:
         aws-region: eu-central-1
 
     - run: sam build -t 05-backend-deployment.yaml
+      working-directory: aws
     - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name ${{ github.event.inputs.base_name }}-backend --region eu-central-1 --capabilities CAPABILITY_IAM --parameter-overrides CallbackUrl=https://${{ github.event.inputs.root_domain }} UserPoolId=${{ github.event.inputs.user_pool_id }} RootDomain=${{ github.event.inputs.root_domain }} HostedZoneId=${{ github.event.inputs.hosted_zone_id }} CertificateArn=${{ github.event.inputs.certificate_arn }}
+      working-directory: aws
 
   frontend:
     needs: [backend]
