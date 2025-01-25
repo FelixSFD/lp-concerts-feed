@@ -4,10 +4,8 @@
 name: Deploy to AWS
 
 on:
-  #push:
-  #  branches: [ "develop" ]
-  #pull_request:
-  #  branches: [ "develop" ]
+  push:
+    branches: [ "develop" ]
   workflow_dispatch:
     inputs:
       base_name:
