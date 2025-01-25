@@ -5,7 +5,7 @@ export const environment = {
   cognitoBaseUrl: "https://COGNITO_URL",
   cognitoClientId: "COGNITO_CLIENT_ID",
   cognitoRedirectUrl: "https://ROOT_DOMAIN",
-  build: "BUILD"
+  build: "BUILD_NUMBER"
 };
 
 
