@@ -69,6 +69,8 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
       BillingMode: PAY_PER_REQUEST
 
   # Access Roles
@@ -86,6 +88,14 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Policies:
+        - PolicyName: S3ImporterBucketAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:*
+                Resource: !Sub "arn:aws:s3:::${BaseProductName}-concert-import-data*"
         - PolicyName: LambdaDynamoDBAccess
           PolicyDocument:
             Version: "2012-10-17"
@@ -129,7 +139,7 @@ Resources:
   CognitoAuthorizerUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
-      UserPoolName: !Sub ${UserPoolId}-userpool
+      UserPoolName: !Sub ${UserPoolId}
       AdminCreateUserConfig:
         AllowAdminCreateUserOnly: true
       Policies:
@@ -234,6 +244,22 @@ Resources:
   #    RestApiId: !Ref ConcertsApi
   #    BasePath: ''
   
+  ConcertImportBucket:
+    Type: "AWS::S3::Bucket"
+    DependsOn:
+      - ImportConcertsFunction
+      - ConcertImportBucketLambdaPermission
+    Properties:
+      BucketName: !Sub ${BaseProductName}-concert-import-data
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Function: !GetAtt ImportConcertsFunction.Arn
+            Event: "s3:ObjectCreated:*"
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: csv
   
   # Lambda functions
   AddConcertFunction:
@@ -261,6 +287,32 @@ Resources:
               AuthorizationScopes:
                 - openid
                 #- !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
+  
+  ImportConcertsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: Lambda.ImportConcerts::Lambda.ImportConcerts.Function::FunctionHandler
+      Role: !GetAtt ConcertsWriteLambdaExecutionRole.Arn
+      Description: .NET function to import Concerts as CSV from DynamoDB
+      CodeUri: ../Lambda.ImportConcerts/src/Lambda.ImportConcerts/bin/Release/net8.0/Lambda.ImportConcerts.zip
+      Architectures:
+        - arm64
+      Tracing: Active
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
+      Environment:
+        Variables:
+          CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
+  
+  ConcertImportBucketLambdaPermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      FunctionName: !GetAtt ImportConcertsFunction.Arn
+      Action: "lambda:InvokeFunction"
+      Principal: "s3.amazonaws.com"
+      SourceArn: !Sub arn:aws:s3:::${BaseProductName}-concert-import-data
+  
   
   DeleteConcertFunction:
     Type: AWS::Serverless::Function
