@@ -120,11 +120,9 @@ Resources:
           - !Sub 'api.${RootDomain}'
         ViewerCertificate:
           AcmCertificateArn: !Ref CertificateArn
-          #AcmCertificateArn: {'Fn::ImportValue': !Sub '${BaseProductName}-certificate' }
           SslSupportMethod: sni-only
         DefaultCacheBehavior:
           TargetOriginId: ApiGatewayOrigin
-          #TargetOriginId: {'Fn::ImportValue': !Sub '${BaseProductName}-main-api-gateway' }
           ViewerProtocolPolicy: redirect-to-https
           AllowedMethods:
             - GET
@@ -168,11 +166,9 @@ Resources:
             ResponsePagePath: /index.html
         ViewerCertificate:
           AcmCertificateArn: !Ref CertificateArn
-          #AcmCertificateArn: {'Fn::ImportValue': !Sub '${BaseProductName}-certificate' }
           SslSupportMethod: sni-only
         DefaultCacheBehavior:
           TargetOriginId: FrontendBucketOrigin
-          #TargetOriginId: {'Fn::ImportValue': !Sub '${BaseProductName}-main-api-gateway' }
           ViewerProtocolPolicy: redirect-to-https
           AllowedMethods:
             - GET
@@ -192,14 +188,7 @@ Resources:
         Enabled: true
         Comment: !Sub "${AWS::StackName} CloudFront Distribution"
         PriceClass: PriceClass_100
-  
-  
-  
-  #CloudFrontOriginAccessIdentity:
-  #  Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
-  #  Properties:
-  #    CloudFrontOriginAccessIdentityConfig:
-  #      Comment: !Sub 'CloudFront OAI for the S3 bucket'
+
 
 Outputs:
   CloudFrontExport:
