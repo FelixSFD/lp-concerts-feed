@@ -63,6 +63,7 @@ public class Function
 
             await _s3Client.DeleteObjectAsync(new DeleteObjectRequest
             {
+                BucketName = objectResult.BucketName,
                 Key = objectResult.Key
             });
 
