@@ -69,6 +69,8 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
       BillingMode: PAY_PER_REQUEST
 
   # Access Roles
@@ -129,7 +131,7 @@ Resources:
   CognitoAuthorizerUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
-      UserPoolName: !Sub ${UserPoolId}-userpool
+      UserPoolName: !Sub ${UserPoolId}
       AdminCreateUserConfig:
         AllowAdminCreateUserOnly: true
       Policies:
