@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Application to manage the TLS certificates for the LP Calendar project
+
+
+
+Parameters:
+  BaseProductName:
+    Description: Name of the product. Is used as prefix in the exports
+    Type: String
+  RootDomain:
+    Type: String
+  HostedZoneId:
+    Type: String
+    Default: ""
+
+
+
+
+Resources:
+  # Create SSL certificate for domains
+  AppSslCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Description: TLS certificate for the application domains
+    Properties:
+      DomainName: !Sub '${RootDomain}'
+      SubjectAlternativeNames:
+        - !Sub 'api.${RootDomain}'
+        - !Sub 'api-gateway.${RootDomain}'
+        - !Sub 'www.${RootDomain}'
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: !Sub '${RootDomain}'
+          HostedZoneId: !Ref HostedZoneId
+        - DomainName: !Sub 'api.${RootDomain}'
+          HostedZoneId: !Ref HostedZoneId
+        - DomainName: !Sub 'api-gateway.${RootDomain}'
+          HostedZoneId: !Ref HostedZoneId
+        - DomainName: !Sub 'www.${RootDomain}'
+          HostedZoneId: !Ref HostedZoneId
+
+
+Outputs:
+  SslCertificate:
+    Description: 'ID of the SSL certificate for the app domains'
+    Value: !Ref AppSslCertificate
+    Export:
+      Name: !Sub '${BaseProductName}-certificate'

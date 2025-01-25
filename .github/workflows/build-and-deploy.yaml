@@ -5,13 +5,18 @@ name: Deploy to AWS
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches: [ "develop" ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'The environment to deploy to'
+        type: environment
+        required: true
 
 jobs:
   backend:
-
+    environment: 
+      name: ${{ github.ref_name }}
     runs-on: ubuntu-latest
 
     steps:
@@ -53,44 +58,71 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: eu-central-1
 
-    - run: sam build -t deployment.yaml
-    - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name lp-concert-calendar-prod --resolve-s3 --s3-prefix "lp-concert-calendar-prod" --region eu-central-1 --capabilities CAPABILITY_IAM --parameter-overrides CallbackUrl=https://lpcalendar.felixsfd.de/ UserPoolId=lp-calendar-prod-userpool RootDomain=${{ vars.ROOT_DOMAIN_PROD }} CertificateArn=${{ vars.API_CERTIFICATE_ARN_PROD }}
-    #- name: Deploy to AWS CloudFormation
-    #  uses: aws-actions/aws-cloudformation-github-deploy@v1
-    #  with:
-    #    name: lp-concert-calendar-prod
-    #    template: deployment.yaml
-    #    capabilities: "CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND"
-    #    no-fail-on-empty-changeset: "1"
-    #    parameter-overrides: >-
-    #      CallbackUrl=https://lpcalendar.felixsfd.de/
+    - run: sam build -t 05-backend-deployment.yaml
+      working-directory: aws
+    - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name ${{ vars.BASE_NAME }}-backend --resolve-s3 --s3-prefix ${{ vars.BASE_NAME }}-${{ github.ref_name }} --region eu-central-1 --capabilities CAPABILITY_IAM --parameter-overrides CallbackUrl=https://${{ vars.ROOT_DOMAIN }} UserPoolId=${{ vars.BASE_NAME }}-userpool RootDomain=${{ vars.ROOT_DOMAIN }} HostedZoneId=${{ vars.HOSTED_ZONE_ID }} CertificateArn=${{ vars.SSL_CERT_ARN }}
+      working-directory: aws
 
-  #frontend:
-  #  runs-on: ubuntu-latest
-  #  steps:
-  #  
-  #  - uses: actions/checkout@v4
-  #  
-  #  - name: Configure AWS credentials
-  #    id: creds
-  #    uses: aws-actions/configure-aws-credentials@v1
-  #    with:
-  #      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #      aws-region: eu-central-1
-  #  - name: Setup Node.js
-  #    uses: actions/setup-node@v4
-  #    with:
-  #      node-version: '23.6.x'
+  frontend:
+    needs: [backend]
+    environment: 
+      name: ${{ github.ref_name }}
+    runs-on: ubuntu-latest
+    steps:
+    
+    - uses: actions/checkout@v4
+    
+    - name: Configure AWS credentials
+      id: creds
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-central-1
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '23.6.x'
 
-  #  - name: Install dependencies
-  #    working-directory: frontend/lp-calendar-web
-  #    run: npm ci # Use npm ci for faster installs and CI consistency
-  #  - name: Build Angular project
-  #    working-directory: frontend/lp-calendar-web
-  #    run: npm run build -- --configuration production
+    - name: Install dependencies
+      working-directory: frontend/lp-calendar-web
+      run: npm ci # Use npm ci for faster installs and CI consistency
+    
+    - name: Replace ROOT_DOMAIN
+      uses: richardrigutins/replace-in-files@v2
+      with:
+        files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
+        search-text: 'ROOT_DOMAIN'
+        replacement-text: ${{ vars.ROOT_DOMAIN }}
+    - name: Replace COGNITO_URL
+      uses: richardrigutins/replace-in-files@v2
+      with:
+        files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
+        search-text: 'COGNITO_URL'
+        replacement-text: ${{ vars.COGNITO_URL }}
+    - name: Replace COGNITO_CLIENT_ID
+      uses: richardrigutins/replace-in-files@v2
+      with:
+        files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
+        search-text: 'COGNITO_CLIENT_ID'
+        replacement-text: ${{ vars.COGNITO_CLIENT_ID }}
 
-  #  - name: Deploy
-  #    if: success()
-  #    working-directory: frontend/lp-calendar-web
-  #    run: aws s3 sync ./dist/lp-calendar-web/browser s3://lp-concert-calendar-prod-web-frontend-bucket
+    # Get Date and write it into the environemnt.ts
+    - name: Get current date
+      id: date
+      run: echo "::set-output name=date::$(date +'%Y%m%d%H%M%S')"
+    - name: Replace BUILD
+      uses: richardrigutins/replace-in-files@v2
+      with:
+        files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
+        search-text: 'BUILD_NUMBER'
+        replacement-text: '${{ github.ref_name }}-${{ steps.date.outputs.date }}'
+    
+    - name: Build Angular project
+      working-directory: frontend/lp-calendar-web
+      run: npm run build -- --configuration github
+
+    - name: Deploy
+      if: success()
+      working-directory: frontend/lp-calendar-web
+      run: aws s3 sync ./dist/lp-calendar-web/browser s3://${{ vars.BASE_NAME }}-web-frontend-bucket

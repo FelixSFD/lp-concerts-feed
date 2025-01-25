@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Application to manage the domains for the LP Calendar project
+
+
+
+Parameters:
+  BaseProductName:
+    Description: Name of the product. Is used as prefix in the exports
+    Type: String
+  RootDomain:
+    Type: String
+  HostedZoneId:
+    Type: String
+    Default: ""
+
+
+
+Resources:
+  # DNS entries if the zone is hosted in Route53
+  AppDnsRecordSetGroup:
+    Type: "AWS::Route53::RecordSetGroup"
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      RecordSets:
+        # DNS to S3 Origin in CloudFront
+        - Name: !Sub '${RootDomain}.'
+          Type: A
+          AliasTarget:
+            HostedZoneId: Z2FDTNDATAQYW2 # This is the official ID for CloudFront!
+            DNSName: { 'Fn::ImportValue': !Sub '${BaseProductName}-frontend-cloudfront-domain' }
+        # DNS to API in CloudFront
+        - Name: !Sub 'api.${RootDomain}.'
+          Type: A
+          AliasTarget:
+            HostedZoneId: Z2FDTNDATAQYW2 # This is the official ID for CloudFront!
+            DNSName: {'Fn::ImportValue': !Sub '${BaseProductName}-cloudfront-domain' }
+        # DNS to API Gateway
+        - Name: !Sub 'api-gateway.${RootDomain}.'
+          Type: A
+          AliasTarget:
+            HostedZoneId: Z1U9ULNL0V5AJ3 # This is the official ID for eu-central-1! TODO: different ID for different zones?
+            #HostedZoneId: !Ref HostedZoneId
+            DNSName: { 'Fn::ImportValue': !Sub '${BaseProductName}-main-api-gateway-domain' }
