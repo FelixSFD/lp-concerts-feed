@@ -77,32 +77,33 @@ jobs:
     - run: sam build -t 05-backend-deployment.yaml
     - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name ${{ github.event.inputs.base_name }}-backend --region eu-central-1 --capabilities CAPABILITY_IAM --parameter-overrides CallbackUrl=https://${{ github.event.inputs.root_domain }} UserPoolId=${{ github.event.inputs.user_pool_id }} RootDomain=${{ github.event.inputs.root_domain }} HostedZoneId=${{ github.event.inputs.hosted_zone_id }} CertificateArn=${{ github.event.inputs.certificate_arn }}
 
-  #frontend:
-  #  runs-on: ubuntu-latest
-  #  steps:
-  #  
-  #  - uses: actions/checkout@v4
-  #  
-  #  - name: Configure AWS credentials
-  #    id: creds
-  #    uses: aws-actions/configure-aws-credentials@v1
-  #    with:
-  #      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #      aws-region: eu-central-1
-  #  - name: Setup Node.js
-  #    uses: actions/setup-node@v4
-  #    with:
-  #      node-version: '23.6.x'
+  frontend:
+    needs: [backend]
+    runs-on: ubuntu-latest
+    steps:
+    
+    - uses: actions/checkout@v4
+    
+    - name: Configure AWS credentials
+      id: creds
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-central-1
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '23.6.x'
 
-  #  - name: Install dependencies
-  #    working-directory: frontend/lp-calendar-web
-  #    run: npm ci # Use npm ci for faster installs and CI consistency
-  #  - name: Build Angular project
-  #    working-directory: frontend/lp-calendar-web
-  #    run: npm run build -- --configuration production
+    - name: Install dependencies
+      working-directory: frontend/lp-calendar-web
+      run: npm ci # Use npm ci for faster installs and CI consistency
+    - name: Build Angular project
+      working-directory: frontend/lp-calendar-web
+      run: npm run build -- --configuration production
 
-  #  - name: Deploy
-  #    if: success()
-  #    working-directory: frontend/lp-calendar-web
-  #    run: aws s3 sync ./dist/lp-calendar-web/browser s3://lp-concert-calendar-prod-web-frontend-bucket
+    - name: Deploy
+      if: success()
+      working-directory: frontend/lp-calendar-web
+      run: aws s3 sync ./dist/lp-calendar-web/browser s3://${{ github.event.inputs.base_name }}-web-frontend-bucket
