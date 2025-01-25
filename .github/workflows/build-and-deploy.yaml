@@ -39,6 +39,9 @@ jobs:
     - name: Build Lambda.AddConcert
       working-directory: Lambda.AddConcert/src/Lambda.AddConcert
       run: dotnet lambda package -farch arm64
+    - name: Build Lambda.ImportConcerts
+      working-directory: Lambda.ImportConcerts/src/Lambda.ImportConcerts
+      run: dotnet lambda package -farch arm64
     - name: Build Lambda.ListConcerts
       working-directory: Lambda.ListConcerts/src/Lambda.ListConcerts
       run: dotnet lambda package -farch arm64
