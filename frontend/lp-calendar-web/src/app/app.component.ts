@@ -4,6 +4,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {AsyncPipe, JsonPipe, NgIf} from '@angular/common';
 import {authConfig, logoutRedirectUrl} from './auth/auth.config';
+import {environment} from '../environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -45,4 +46,6 @@ export class AppComponent {
 
     window.location.href = "https://lpcalendar-dev-183771145359.auth.eu-central-1.amazoncognito.com/logout?client_id=1epkncdmjoklpcoa77pl17jatj&logout_uri=" + logoutRedirectUrl;
   }
+
+  protected readonly environment = environment;
 }
