@@ -15,7 +15,8 @@ on:
 
 jobs:
   backend:
-    environment: ${{ github.event.inputs.environment }}
+    environment: 
+      name: ${GITHUB_REF##*/}
     runs-on: ubuntu-latest
 
     steps:
@@ -59,11 +60,13 @@ jobs:
 
     - run: sam build -t 05-backend-deployment.yaml
       working-directory: aws
-    - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name ${{ vars.base_name }}-backend --region eu-central-1 --capabilities CAPABILITY_IAM --parameter-overrides CallbackUrl=https://${{ vars.ROOT_DOMAIN }} UserPoolId=${{ vars.BASE_NAME }}-userpool RootDomain=${{ vars.ROOT_DOMAIN }} HostedZoneId=${{ vars.HOSTED_ZONE_ID }} CertificateArn=${{ vars.SSL_CERT_ARN }}
+    - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name ${{ vars.BASE_NAME }}-backend --region eu-central-1 --capabilities CAPABILITY_IAM --parameter-overrides CallbackUrl=https://${{ vars.ROOT_DOMAIN }} UserPoolId=${{ vars.BASE_NAME }}-userpool RootDomain=${{ vars.ROOT_DOMAIN }} HostedZoneId=${{ vars.HOSTED_ZONE_ID }} CertificateArn=${{ vars.SSL_CERT_ARN }}
       working-directory: aws
 
   frontend:
     needs: [backend]
+    environment: 
+      name: ${GITHUB_REF##*/}
     runs-on: ubuntu-latest
     steps:
     
@@ -91,4 +94,4 @@ jobs:
     - name: Deploy
       if: success()
       working-directory: frontend/lp-calendar-web
-      run: aws s3 sync ./dist/lp-calendar-web/browser s3://${{ inputs.base_name }}-web-frontend-bucket
+      run: aws s3 sync ./dist/lp-calendar-web/browser s3://${{ vars.BASE_NAME }}-web-frontend-bucket
