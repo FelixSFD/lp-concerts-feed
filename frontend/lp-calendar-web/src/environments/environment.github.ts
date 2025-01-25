@@ -4,7 +4,8 @@ export const environment = {
   apiNoCacheBaseUrl: "https://ROOT_DOMAIN",
   cognitoBaseUrl: "https://COGNITO_URL",
   cognitoClientId: "COGNITO_CLIENT_ID",
-  cognitoRedirectUrl: "https://ROOT_DOMAIN"
+  cognitoRedirectUrl: "https://ROOT_DOMAIN",
+  build: "BUILD"
 };
 
 
