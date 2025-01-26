@@ -1,9 +1,9 @@
 import {Component, inject, OnInit, TemplateRef} from '@angular/core';
 import {ConcertsService} from '../services/concerts.service';
-import {NgForOf, NgIf} from '@angular/common';
+import {NgClass, NgForOf, NgIf} from '@angular/common';
 import {Concert} from '../data/concert';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
+import {NgbCalendar, NgbDateStruct, NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {LuxonModule} from 'luxon-angular';
 import {DateTime} from 'luxon';
@@ -16,6 +16,7 @@ import {listOfTours} from '../app.config';
   imports: [
     NgForOf,
     ReactiveFormsModule,
+    NgClass,
     NgIf,
     FormsModule,
     LuxonModule,
@@ -25,12 +26,29 @@ import {listOfTours} from '../app.config';
   styleUrl: './concerts-list.component.css'
 })
 export class ConcertsListComponent implements OnInit {
+  private formBuilder = inject(FormBuilder);
   private modalService = inject(NgbModal);
 
   concerts$: Concert[] = [];
+  addConcertForm = this.formBuilder.group({
+    tourName: new FormControl('', []),
+    venue: new FormControl('', [Validators.min(3), Validators.required]),
+    timezone: new FormControl('', [Validators.required]),
+    city: new FormControl('', [Validators.required]),
+    state: new FormControl('', []),
+    country: new FormControl('', [Validators.required]),
+    postedStartTime: new FormControl('', [Validators.required])
+  });
 
   // property to show whether the form is currently being sent to the server
   addConcertFormSaving$ = false;
+
+  // if open, the modal is referenced here
+  openAddConcertModal: NgbModalRef | undefined;
+
+  // properties for datepicker
+  today = inject(NgbCalendar).getToday();
+  postedStartDateModel: NgbDateStruct | undefined;
 
   // property to show whether the concert is currently being deleted
   concertDeleting$ = false;
@@ -68,6 +86,51 @@ export class ConcertsListComponent implements OnInit {
 
   openModal(content: TemplateRef<any>) {
     return this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
+  }
+
+
+  onCreateConcertClicked(content: TemplateRef<any>) {
+    this.openAddConcertModal = this.openModal(content);
+  }
+
+
+  onCreateFormSubmit() {
+    this.addConcertFormSaving$ = true;
+    console.log("Submitting concert...");
+
+    const postedStartTime = this.addConcertForm.value.postedStartTime!;
+    let newConcert = new Concert();
+    newConcert.tourName = this.addConcertForm.value.tourName?.valueOf();
+    newConcert.venue = this.addConcertForm.value.venue?.valueOf();
+    newConcert.city = this.addConcertForm.value.city?.valueOf();
+    newConcert.state = this.addConcertForm.value.state?.valueOf();
+    newConcert.country = this.addConcertForm.value.country?.valueOf()
+    //newConcert.postedStartTime = this.addConcertForm.value.postedStartTime?.valueOf();
+
+    // Read the datetime-local value and selected timezone
+    const selectedTimezone = this.addConcertForm.value.timezone?.valueOf(); // e.g., "America/Los_Angeles"
+
+    // Convert to the selected timezone
+    const localDateTime = DateTime.fromISO(postedStartTime); // Interpret as local datetime
+    const zonedDateTime = localDateTime.setZone(selectedTimezone, {keepLocalTime: true});
+
+    console.log('Original datetime-local value:', postedStartTime);
+    console.log('Converted datetime in selected timezone:', zonedDateTime.toString());
+
+    newConcert.timeZoneId = selectedTimezone;
+    newConcert.postedStartTime = zonedDateTime.toISO()!;
+
+    console.log("Created concert object: ");
+    console.log(newConcert);
+
+    this.concertsService.addConcert(newConcert).subscribe(result => {
+      console.log("Update concert request finished");
+      console.log(result);
+
+      this.openAddConcertModal?.dismiss();
+      this.addConcertFormSaving$ = false;
+      this.reloadConcertList(false);
+    });
   }
 
 

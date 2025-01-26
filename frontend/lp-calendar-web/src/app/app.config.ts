@@ -5,15 +5,9 @@ import { routes } from './app.routes';
 import { authConfig } from './auth/auth.config';
 import {authInterceptor, provideAuth} from 'angular-auth-oidc-client';
 import {provideHttpClient, withInterceptors} from '@angular/common/http';
-import {provideToastr} from 'ngx-toastr';
 
 export const appConfig: ApplicationConfig = {
-  providers: [
-    provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes), provideAuth(authConfig),
-    provideHttpClient(withInterceptors([authInterceptor()])),
-    provideToastr()
-  ]
+  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes), provideAuth(authConfig), provideHttpClient(withInterceptors([authInterceptor()]))]
 };
 
 

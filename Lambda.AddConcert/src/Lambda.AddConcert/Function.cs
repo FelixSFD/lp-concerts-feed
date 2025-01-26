@@ -65,7 +65,7 @@ public class Function
     {
         string guid = Guid.NewGuid().ToString();
         Concert concert = JsonSerializer.Deserialize<Concert>(json) ?? throw new InvalidDataContractException("JSON could not be parsed to Concert!");
-        concert.Id = Guid.TryParse(concert.Id, out _) ? concert.Id : guid;
+        concert.Id = guid;
         return concert;
     }
 
