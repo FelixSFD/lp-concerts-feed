@@ -5,6 +5,7 @@ import {ConcertsListComponent} from './concerts-list/concerts-list.component';
 import {ConcertDetailsComponent} from './concert-details/concert-details.component';
 import {AboutPageComponent} from './about-page/about-page.component';
 import {EditConcertPageComponent} from './admin/edit-concert-page/edit-concert-page.component';
+import {AddConcertPageComponent} from './admin/add-concert-page/add-concert-page.component';
 
 let baseTitle = "LP Concerts - ";
 
@@ -31,14 +32,19 @@ export const routes: Routes = [
     title: baseTitle + 'List',
   },
   {
-    path: 'concerts/:id',
-    component: ConcertDetailsComponent,
-    title: baseTitle + 'Details',
-  },
-  {
     path: 'about',
     component: AboutPageComponent,
     title: baseTitle + 'About',
+  },
+  {
+    path: 'concerts/add',
+    component: AddConcertPageComponent,
+    title: baseTitle + 'Add concert',
+  },
+  {
+    path: 'concerts/:id',
+    component: ConcertDetailsComponent,
+    title: baseTitle + 'Details',
   },
   {
     path: 'concerts/:id/edit',

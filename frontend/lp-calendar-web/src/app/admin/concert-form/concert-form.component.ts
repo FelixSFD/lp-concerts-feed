@@ -40,6 +40,9 @@ export class ConcertFormComponent implements OnInit {
   @Input({ alias: "show-clear-button" })
   showClearButton$: boolean = false;
 
+  @Input({ alias: "is-saving" })
+  isSaving$: boolean = false;
+
   @Output('saveClicked')
   saveClicked = new EventEmitter<Concert>();
 
