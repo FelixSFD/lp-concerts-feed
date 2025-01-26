@@ -97,6 +97,7 @@ Resources:
             HeaderBehavior: whitelist
             Headers:
               - Authorization
+              - X-LP-Request-Id
           QueryStringsConfig:
             QueryStringBehavior: all
   

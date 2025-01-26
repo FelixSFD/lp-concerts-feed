@@ -5,6 +5,7 @@ import {Observable} from 'rxjs';
 import {DeleteConcertRequest} from '../data/delete-concert-request';
 import {authConfig} from '../auth/auth.config';
 import {environment} from '../../environments/environment';
+import { Guid } from 'guid-typescript';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,8 @@ export class ConcertsService {
     if (!cached) {
       // disable caching
       const httpHeaders: HttpHeaders = new HttpHeaders({
-        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0'
+        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+        'X-LP-Request-Id': Guid.create().toString()
       });
 
       console.log("Headers:");
@@ -41,8 +43,23 @@ export class ConcertsService {
   }
 
 
-  getConcert(concertId: string) : Observable<Concert> {
+  getConcert(concertId: string, cached: boolean = true) : Observable<Concert> {
     let url = environment.apiCachedBaseUrl + "/Prod/concerts/" + concertId;
+    if (!cached) {
+      // disable caching
+      const httpHeaders: HttpHeaders = new HttpHeaders({
+        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+        'X-LP-Request-Id': Guid.create().toString()
+      });
+
+      console.log("Headers:");
+      console.log(httpHeaders);
+
+      return this.httpClient.get<Concert>(url, {
+        headers: httpHeaders
+      });
+    }
+
     return this.httpClient.get<Concert>(url);
   }
 

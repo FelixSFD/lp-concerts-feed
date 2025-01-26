@@ -23,6 +23,7 @@
     "angular-auth-oidc-client": "19.0.0",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
+    "guid-typescript": "^1.0.9",
     "luxon": "^3.5.0",
     "luxon-angular": "^6.0.0",
     "ngx-toastr": "^19.0.0",
