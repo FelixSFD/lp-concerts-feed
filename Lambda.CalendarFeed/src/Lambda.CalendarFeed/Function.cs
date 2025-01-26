@@ -60,19 +60,51 @@ public class Function
 
     private static CalendarEvent? GetCalendarEventFor(Concert concert)
     {
+        return concert.TourName != null ? GetCalendarEventWithTourName(concert) : GetCalendarEventWithoutTourName(concert);
+    }
+
+
+    private static CalendarEvent? GetCalendarEventWithTourName(Concert concert)
+    {
         if (concert.PostedStartTimeValue == null)
             return null;
 
-        var tourName = concert.TourName ?? "Linkin Park";
-        var description = concert.TourName != null ? $"Concert of the Linkin Park {concert.TourName}" : "Linkin Park Concert";
+        var title = $"{concert.TourName}: {concert.City}";
+        var description = $"Concert of the Linkin Park {concert.TourName}";
+        var stateString = concert.State != null ? $", {concert.State}" : "";
         
         var date = new CalDateTime(concert.PostedStartTimeValue.Value.DateTime, concert.TimeZoneId); // TODO: maybe extension method?
         var calendarEvent = new CalendarEvent
         {
             // If Name property is used, it MUST be RFC 5545 compliant
-            Summary = $"{tourName}: {concert.City}",
+            Summary = title,
             Description = description,
-            Location = $"{concert.Venue}, {concert.City}, {concert.Country}",
+            Location = $"{concert.Venue}, {concert.City}{stateString}, {concert.Country}",
+            Start = date,
+            Duration = TimeSpan.FromHours(3),
+            IsAllDay = false
+        };
+
+        return calendarEvent;
+    }
+    
+    
+    private static CalendarEvent? GetCalendarEventWithoutTourName(Concert concert)
+    {
+        if (concert.PostedStartTimeValue == null)
+            return null;
+        
+        var title = $"Linkin Park: {concert.Venue}";
+        var description = $"Linkin Park Concert at {concert.Venue}\nThis show is not part of a tour.";
+        var stateString = concert.State != null ? $", {concert.State}" : "";
+        
+        var date = new CalDateTime(concert.PostedStartTimeValue.Value.DateTime, concert.TimeZoneId); // TODO: maybe extension method?
+        var calendarEvent = new CalendarEvent
+        {
+            // If Name property is used, it MUST be RFC 5545 compliant
+            Summary = title,
+            Description = description,
+            Location = $"{concert.City}{stateString}, {concert.Country}",
             Start = date,
             Duration = TimeSpan.FromHours(3),
             IsAllDay = false
