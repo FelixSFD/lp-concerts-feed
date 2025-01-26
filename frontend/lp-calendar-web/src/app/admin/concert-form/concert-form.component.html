@@ -68,5 +68,15 @@
         </div>
       </div>
     </div>
+    <div class="card-footer">
+      <div class="row">
+        <div class="col" *ngIf="showClearButton$">
+          <button class="btn btn-outline-secondary">Clear</button>
+        </div>
+        <div class="col text-end">
+          <button class="btn btn-success" (click)="onSaveClicked()">Save</button>
+        </div>
+      </div>
+    </div>
   </div>
 </form>

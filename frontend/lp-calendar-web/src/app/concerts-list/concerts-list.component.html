@@ -161,6 +161,10 @@
       </button>
       <ng-container *ngIf="hasWriteAccess$"> <!-- Only show delete button if user can write data -->
         &nbsp;
+        <button type="button" class="btn btn-outline-secondary" [routerLink]="['/concerts/' + concert.id] + '/edit'">
+          <i class="bi bi-pencil"></i> Edit
+        </button>
+        &nbsp;
         <button type="button" class="btn btn-outline-danger" (click)="onDeleteConcertClicked(deleteConcertContent, concert.id)">
           <i class="bi bi-trash"></i>
         </button>
