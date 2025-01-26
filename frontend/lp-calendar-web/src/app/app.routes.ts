@@ -5,35 +5,37 @@ import {ConcertsListComponent} from './concerts-list/concerts-list.component';
 import {ConcertDetailsComponent} from './concert-details/concert-details.component';
 import {AboutPageComponent} from './about-page/about-page.component';
 
+let baseTitle = "LP Concerts - ";
+
 export const routes: Routes = [
   {
     path: '',
     component: HomeComponent,
-    title: 'Startpage',
+    title: baseTitle + 'Overview',
   },
   {
     path: 'home',
     component: HomeComponent,
-    title: 'Startpage',
+    title: baseTitle + 'Overview',
   },
   {
     path: 'profile',
     component: UserProfileComponent,
-    title: 'User Profile',
+    title: baseTitle + 'User Profile',
   },
   {
     path: 'concerts',
     component: ConcertsListComponent,
-    title: 'Concerts',
+    title: baseTitle + 'List',
   },
   {
     path: 'concerts/:id',
     component: ConcertDetailsComponent,
-    title: 'Concert Details',
+    title: baseTitle + 'Details',
   },
   {
     path: 'about',
     component: AboutPageComponent,
-    title: 'About',
+    title: baseTitle + 'About',
   },
 ];
