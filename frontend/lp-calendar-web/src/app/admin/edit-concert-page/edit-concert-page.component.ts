@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 import {ConcertFormComponent} from '../concert-form/concert-form.component';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {Concert} from '../../data/concert';
