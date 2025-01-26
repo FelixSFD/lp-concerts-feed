@@ -74,7 +74,7 @@
           <button class="btn btn-outline-secondary" [disabled]="isSaving$" (click)="onClearClicked()">Clear</button>
         </div>
         <div class="col text-end">
-          <button class="btn btn-success" (click)="onSaveClicked()" [disabled]="isSaving$">
+          <button class="btn btn-success" (click)="onSaveClicked()" [disabled]="isSaving$ || !concertForm.valid">
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!isSaving$"></span>
             <span class="sr-only">{{ isSaving$ ? "Saving..." : "Save" }}</span>
           </button>
