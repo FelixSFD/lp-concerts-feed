@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
@@ -12,7 +12,7 @@ import {environment} from '../environments/environment';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'lp-calendar-web';
 
   private readonly oidcSecurityService = inject(OidcSecurityService);
@@ -32,7 +32,23 @@ export class AppComponent {
         console.log("ACCESS_TOKEN: " + at);
       });
     });
+
+    // Manage dark/light-mode
+    this.updateTheme();
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+      this.updateTheme();
+    });
   }
+
+
+  // Set theme to the user's preferred color scheme
+  private updateTheme() {
+    const colorMode = window.matchMedia("(prefers-color-scheme: dark)").matches ?
+      "dark" :
+      "light";
+    document.querySelector("html")?.setAttribute("data-bs-theme", colorMode);
+  }
+
 
   login(): void {
     this.oidcSecurityService.authorize();
