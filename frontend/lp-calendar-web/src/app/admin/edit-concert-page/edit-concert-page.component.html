@@ -1,4 +1,4 @@
 <h1>Edit concert</h1>
+<button class="btn btn-outline-info" [routerLink]="['../']">View</button>
 
-<input type="checkbox">
-<app-concert-form [concert-id]="concertId" (saveClicked)="onFormSaved($event)"></app-concert-form>
+<app-concert-form [concert-id]="concertId" [is-saving]="isSaving$" (saveClicked)="onFormSaved($event)"></app-concert-form>

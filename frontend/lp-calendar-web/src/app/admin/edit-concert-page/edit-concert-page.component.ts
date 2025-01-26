@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import {ConcertFormComponent} from '../concert-form/concert-form.component';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, RouterLink} from '@angular/router';
 import {Concert} from '../../data/concert';
 import {ConcertsService} from '../../services/concerts.service';
 import {ToastrService} from 'ngx-toastr';
@@ -8,7 +8,8 @@ import {ToastrService} from 'ngx-toastr';
 @Component({
   selector: 'app-edit-concert-page',
   imports: [
-    ConcertFormComponent
+    ConcertFormComponent,
+    RouterLink
   ],
   templateUrl: './edit-concert-page.component.html',
   styleUrl: './edit-concert-page.component.css'
