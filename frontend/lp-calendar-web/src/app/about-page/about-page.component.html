@@ -22,3 +22,4 @@
 <h3>How does this work?</h3>
 <p>The frontend is hosted as an Angular single-page-application in an AWS S3 bucket behind a CloudFront distribution for caching and having a custom domain.</p>
 <p>Backend logic and the database is hosted in AWS. The database is a DynamoDB while the logic for reading and writing is implemented in AWS Lambda functions running .NET 8. The API is cached by AWS CloudFront.</p>
+<p>To generate the calendar feed, one API endpoint creates an iCal file that contains all the concerts using the <a href="https://github.com/ical-org/ical.net" target="_blank" class="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">iCal.NET</a> library. When you subscribe to the calendar, your calendar application contacts our server regularly to get an updated file.</p>
