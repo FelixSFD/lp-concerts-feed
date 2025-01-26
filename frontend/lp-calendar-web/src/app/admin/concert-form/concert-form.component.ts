@@ -52,7 +52,7 @@ export class ConcertFormComponent implements OnInit {
     // Fetch concert data from API to prefill the form
     if (this.concertId != null) {
       this.concertForm.disable();
-      this.concertsService.getConcert(this.concertId).subscribe(c => {
+      this.concertsService.getConcert(this.concertId, false).subscribe(c => {
         this.concert$ = c;
 
         this.fillFormWithConcert(c);
