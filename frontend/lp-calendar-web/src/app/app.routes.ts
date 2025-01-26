@@ -17,6 +17,7 @@ export const routes: Routes = [
     path: 'home',
     component: HomeComponent,
     title: baseTitle + 'Overview',
+    redirectTo: ''
   },
   {
     path: 'profile',
