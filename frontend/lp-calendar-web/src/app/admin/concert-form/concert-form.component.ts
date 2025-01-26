@@ -80,6 +80,11 @@ export class ConcertFormComponent implements OnInit {
   }
 
 
+  onClearClicked() {
+    this.concertForm.reset();
+  }
+
+
   private readConcertFromForm() {
     const postedStartTime = this.concertForm.value.postedStartTime!;
     let newConcert = new Concert();

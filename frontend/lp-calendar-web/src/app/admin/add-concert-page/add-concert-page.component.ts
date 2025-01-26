@@ -3,6 +3,7 @@ import {ConcertFormComponent} from '../concert-form/concert-form.component';
 import {ActivatedRoute} from '@angular/router';
 import {Concert} from '../../data/concert';
 import {ConcertsService} from '../../services/concerts.service';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-add-concert-page',
@@ -15,7 +16,7 @@ import {ConcertsService} from '../../services/concerts.service';
 export class AddConcertPageComponent {
   isSaving$: boolean = false;
 
-  constructor(private concertsService: ConcertsService) {
+  constructor(private concertsService: ConcertsService, private toastr: ToastrService) {
   }
 
 
@@ -26,6 +27,7 @@ export class AddConcertPageComponent {
       console.log("Add concert request finished");
       console.log(result);
 
+      this.toastr.success("Saved concert!");
       this.isSaving$ = false;
     });
   }

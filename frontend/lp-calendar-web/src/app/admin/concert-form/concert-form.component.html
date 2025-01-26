@@ -71,7 +71,7 @@
     <div class="card-footer">
       <div class="row">
         <div class="col" *ngIf="showClearButton$">
-          <button class="btn btn-outline-secondary">Clear</button>
+          <button class="btn btn-outline-secondary" [disabled]="isSaving$" (click)="onClearClicked()">Clear</button>
         </div>
         <div class="col text-end">
           <button class="btn btn-success" (click)="onSaveClicked()" [disabled]="isSaving$">
