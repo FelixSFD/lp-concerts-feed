@@ -1,5 +1,6 @@
 import {AfterViewInit, Component, ElementRef, Input, ViewChild} from '@angular/core';
 import {NgIf} from '@angular/common';
+import {environment} from '../../environments/environment';
 
 @Component({
   selector: 'app-countdown',
@@ -18,6 +19,9 @@ export class CountdownComponent implements AfterViewInit {
 
   @Input()
   countdownToDate!: string;
+
+  @Input()
+  concertId: string | undefined;
 
   ngAfterViewInit() {
     setInterval(() => {
@@ -38,5 +42,28 @@ export class CountdownComponent implements AfterViewInit {
       let minutesFromMilliSeconds = difference % (60 * 1000);
       this.seconds$ = Math.floor((minutesFromMilliSeconds) / (1000));
     }, 1000);
+  }
+
+
+  onShareDiscordTsClicked() {
+    let target = new Date(this.countdownToDate);
+    let utc_timestamp = Date.UTC(target.getUTCFullYear(),target.getUTCMonth(), target.getUTCDate() ,
+      target.getUTCHours(), target.getUTCMinutes(), target.getUTCSeconds(), 0) / 1000; // divide by 1000 because discord wants seconds
+
+    let discordTimeStamp = "<t:" + utc_timestamp + ":R>";
+    console.debug("Generated timestamp: " + discordTimeStamp);
+    navigator.clipboard.writeText(discordTimeStamp)
+      .then(_ => {
+        console.debug("copied timestamp");
+      });
+  }
+
+
+  onShareLinkClicked() {
+    let link = window.location.protocol + "//" + window.location.host + "/concerts/" + this.concertId;
+    navigator.clipboard.writeText(link)
+      .then(_ => {
+        console.debug("copied link");
+      });
   }
 }
