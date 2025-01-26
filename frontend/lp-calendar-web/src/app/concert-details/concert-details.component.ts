@@ -28,7 +28,20 @@ export class ConcertDetailsComponent implements OnInit {
 
     this.concertsService
       .getConcert(this.concertId)
-      .subscribe(result => this.concert$ = result);
+      .subscribe(result => {
+        if (result != undefined) {
+          let concertDateTitleExtension = "";
+          if (result.postedStartTime != undefined) {
+            let concertDate = new Date(result.postedStartTime);
+            concertDateTitleExtension = " - " + concertDate.toLocaleDateString();
+          }
+
+          let titleInfo = result.city + ", " + result.country + concertDateTitleExtension;
+          window.document.title = window.document.title.replace("Details", titleInfo);
+        }
+
+        return this.concert$ = result;
+      });
   }
 
 
