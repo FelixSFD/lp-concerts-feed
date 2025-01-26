@@ -6,6 +6,7 @@ import {NgClass, NgForOf, NgIf} from '@angular/common';
 import {Concert} from '../../data/concert';
 import {ConcertsService} from '../../services/concerts.service';
 import {DateTime} from 'luxon';
+import {OidcSecurityService} from 'angular-auth-oidc-client';
 
 // This class represents a form for adding and editing concerts
 @Component({
@@ -47,6 +48,17 @@ export class ConcertFormComponent implements OnInit {
   saveClicked = new EventEmitter<Concert>();
 
   concert$ : Concert | null = null;
+
+  // Service to check auth information
+  private readonly oidcSecurityService = inject(OidcSecurityService);
+
+  hasWriteAccess$ = false;
+
+  constructor() {
+    this.oidcSecurityService.checkAuth().subscribe(({ isAuthenticated }) => {
+      this.hasWriteAccess$ = isAuthenticated;
+    });
+  }
 
   ngOnInit() {
     // Fetch concert data from API to prefill the form

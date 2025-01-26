@@ -1,4 +1,4 @@
-<form #form="ngForm" [formGroup]="concertForm" class="form">
+<form #form="ngForm" [formGroup]="concertForm" [hidden]="!hasWriteAccess$" class="form">
   <div class="card mt-3">
     <div class="card-body">
       <!-- Timezone -->

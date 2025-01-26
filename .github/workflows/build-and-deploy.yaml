@@ -109,6 +109,12 @@ jobs:
         files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
         search-text: 'COGNITO_CLIENT_ID'
         replacement-text: ${{ vars.COGNITO_CLIENT_ID }}
+    - name: Replace COGNITO_AUTH_SERVER
+      uses: richardrigutins/replace-in-files@v2
+      with:
+        files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
+        search-text: 'COGNITO_AUTH_SERVER'
+        replacement-text: ${{ vars.COGNITO_AUTH_SERVER }}
 
     # Get Date and write it into the environemnt.ts
     - name: Get current date

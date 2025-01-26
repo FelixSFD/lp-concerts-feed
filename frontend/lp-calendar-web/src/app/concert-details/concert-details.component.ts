@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {ConcertsService} from '../services/concerts.service';
 import {Concert} from '../data/concert';
 import {ActivatedRoute, RouterLink} from '@angular/router';
@@ -6,6 +6,7 @@ import {DateTime} from 'luxon';
 import {NgIf} from '@angular/common';
 import {CountdownComponent} from '../countdown/countdown.component';
 import {Meta} from '@angular/platform-browser';
+import {OidcSecurityService} from 'angular-auth-oidc-client';
 
 @Component({
   selector: 'app-concert-details',
@@ -21,7 +22,15 @@ export class ConcertDetailsComponent implements OnInit {
   concert$: Concert | null = null;
   concertId: string | undefined;
 
+  // Service to check auth information
+  private readonly oidcSecurityService = inject(OidcSecurityService);
+
+  hasWriteAccess$ = false;
+
   constructor(private route: ActivatedRoute, private concertsService: ConcertsService, private metaService: Meta) {
+    this.oidcSecurityService.checkAuth().subscribe(({ isAuthenticated }) => {
+      this.hasWriteAccess$ = isAuthenticated;
+    });
   }
 
   ngOnInit(): void {
