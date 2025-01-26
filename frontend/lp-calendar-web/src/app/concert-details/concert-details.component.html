@@ -52,7 +52,7 @@
       <div class="card" style="width: 18rem;">
         <div class="card-body">
           <h5 class="card-title">Countdown <s>from</s>to zero</h5>
-          <app-countdown [countdownToDate]="concert$?.postedStartTime!"></app-countdown>
+          <app-countdown [countdownToDate]="concert$?.postedStartTime!" [concertId]="concert$?.id"></app-countdown>
         </div>
       </div>
     </div>

@@ -1,8 +1,36 @@
 <ng-container *ngIf="differenceMillis$ >= 0">
-  <p>{{ days$ }} days</p>
-  <p>{{ hours$ }} hours</p>
-  <p>{{ minutes$ }} minutes</p>
-  <p>{{ seconds$ }} seconds</p>
+  <table class="lpshows-countdown-table" style="width: 100%; margin-left: 10px; margin-right: 10px;">
+    <colgroup>
+      <col style="width: 30px" />
+      <col />
+      <col style="align-content: end" />
+    </colgroup>
+    <tr>
+      <td>{{ days$ }}</td>
+      <td>days</td>
+    </tr>
+    <tr>
+      <td>{{ hours$ }}</td>
+      <td>hours</td>
+      <td rowspan="2">
+        <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="countdownShareDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="bi-share"></i> Share
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="countdownShareDropdown">
+          <li><a class="dropdown-item" href="javascript:void(0)" (click)="onShareDiscordTsClicked()"><i class="bi bi-discord"></i> Discord Timestamp</a></li>
+          <li *ngIf="(concertId?.length ?? 0) > 0"><a class="dropdown-item" href="javascript:void(0)" (click)="onShareLinkClicked()"><i class="bi bi-link"></i> Link</a></li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>{{ minutes$ }}</td>
+      <td>minutes</td>
+    </tr>
+    <tr>
+      <td>{{ seconds$ }}</td>
+      <td>seconds</td>
+    </tr>
+  </table>
 </ng-container>
 
 <ng-container *ngIf="differenceMillis$ < 0">
