@@ -148,7 +148,7 @@ Resources:
           OriginRequestPolicyId: !Ref CORSOriginRequestPolicy
           ResponseHeadersPolicyId: !Ref CORSResponseHeadersPolicy
         Enabled: true
-        Comment: !Sub "${AWS::StackName} CloudFront Distribution"
+        Comment: !Sub "${AWS::StackName} API"
         PriceClass: PriceClass_100
   
   FrontendCloudFrontDistribution:
@@ -201,7 +201,7 @@ Resources:
           OriginRequestPolicyId: !Ref CORSOriginRequestPolicy
           ResponseHeadersPolicyId: !Ref CORSResponseHeadersPolicy
         Enabled: true
-        Comment: !Sub "${AWS::StackName} CloudFront Distribution"
+        Comment: !Sub "${AWS::StackName} Frontend"
         PriceClass: PriceClass_100
 
 
