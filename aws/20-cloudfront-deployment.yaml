@@ -109,6 +109,13 @@ Resources:
       - CORSOriginRequestPolicy
       - CORSResponseHeadersPolicy
     Properties:
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "api"
       DistributionConfig:
         Origins:
           - Id: ApiGatewayOrigin
@@ -151,6 +158,13 @@ Resources:
       - CORSOriginRequestPolicy
       - CORSResponseHeadersPolicy
     Properties:
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "frontend"
       DistributionConfig:
         Origins:
           - Id: FrontendBucketOrigin
