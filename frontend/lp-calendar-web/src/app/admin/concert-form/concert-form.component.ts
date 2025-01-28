@@ -86,10 +86,10 @@ export class ConcertFormComponent implements OnInit {
     this.concertForm.controls.city.setValue(concert.city ?? null);
     this.concertForm.controls.state.setValue(concert.state ?? null);
     this.concertForm.controls.country.setValue(concert.country ?? null);
-    this.concertForm.controls.postedStartTime.setValue(concert.postedStartTime ?? null);
+    this.concertForm.controls.postedStartTime.setValue(concert.postedStartTime?.substring(0, concert.postedStartTime?.length - 6) ?? null);
     this.concertForm.controls.timezone.setValue(concert.timeZoneId ?? null);
     this.concertForm.controls.lpuEarlyEntryConfirmed.setValue(concert.lpuEarlyEntryConfirmed);
-    this.concertForm.controls.lpuEarlyEntryTime.setValue(concert.lpuEarlyEntryTime ?? null);
+    this.concertForm.controls.lpuEarlyEntryTime.setValue(concert.lpuEarlyEntryTime?.substring(11, concert.lpuEarlyEntryTime?.length - 9) ?? null);
   }
 
 
