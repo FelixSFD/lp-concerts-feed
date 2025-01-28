@@ -7,6 +7,7 @@ import {Concert} from '../../data/concert';
 import {ConcertsService} from '../../services/concerts.service';
 import {DateTime} from 'luxon';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
+import {ActivatedRoute, Router} from "@angular/router";
 
 // This class represents a form for adding and editing concerts
 @Component({
@@ -132,7 +133,16 @@ export class ConcertFormComponent implements OnInit {
     newConcert.postedStartTime = zonedDateTime.toISO()!;
 
     // LPU data
-    newConcert.lpuEarlyEntryConfirmed = this.concertForm.value.lpuEarlyEntryConfirmed ?? false;
+    newConcert.lpuEarlyEntryConfirmed = this.concertForm.value.lpuEarlyEntryConfirmed?.valueOf() ?? false;
+    let lpuEarlyEntryTime = this.concertForm.value.lpuEarlyEntryTime?.valueOf();
+    if (lpuEarlyEntryTime != null) {
+      console.log("Local LPU EE time: " + lpuEarlyEntryTime);
+
+      let lpuEarlyEntryDateTime = zonedDateTime.set(DateTime.fromFormat(lpuEarlyEntryTime, 'hh:mm').toObject());
+      newConcert.lpuEarlyEntryTime = lpuEarlyEntryDateTime.toISO()!;
+    }
+
+    console.log(newConcert);
 
     return newConcert;
   }
