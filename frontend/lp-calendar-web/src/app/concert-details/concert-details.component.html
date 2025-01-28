@@ -21,6 +21,9 @@
   <h1 *ngIf="concert$?.tourName == undefined">
     Linkin Park Concert: {{ concert$?.city }}
   </h1>
+  <div style="margin-bottom: 10px">
+    <app-concert-badges [concert]="concert$"></app-concert-badges>
+  </div>
   <p>
     <b>{{ concert$?.venue }}</b>
     <br />

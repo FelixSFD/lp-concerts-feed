@@ -4,6 +4,12 @@ export class Concert {
   postedStartTime: string | undefined;
   timeZoneId: string | undefined;
 
+  lpuEarlyEntryConfirmed: boolean = false;
+
+  lpuEarlyEntryTime: string | undefined;
+  doorsTime: string | undefined;
+  mainStageTime: string | undefined;
+
   country: string | undefined;
   state: string | undefined;
   city: string | undefined;

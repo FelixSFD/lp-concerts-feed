@@ -10,6 +10,7 @@ import {DateTime} from 'luxon';
 import timezones from 'timezones-list';
 import {RouterLink} from '@angular/router';
 import {listOfTours} from '../app.config';
+import {ConcertBadgesComponent} from '../concert-badges/concert-badges.component';
 
 @Component({
   selector: 'app-concerts-list',
@@ -19,7 +20,8 @@ import {listOfTours} from '../app.config';
     NgIf,
     FormsModule,
     LuxonModule,
-    RouterLink
+    RouterLink,
+    ConcertBadgesComponent
   ],
   templateUrl: './concerts-list.component.html',
   styleUrl: './concerts-list.component.css'

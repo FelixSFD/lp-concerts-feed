@@ -40,6 +40,38 @@ public class Concert
     
     
     /// <summary>
+    /// true, if LPU early entry has been confirmed for the show. Not all shows are guaranteed to have early entry.
+    /// </summary>
+    [DynamoDBProperty]
+    [JsonPropertyName("lpuEarlyEntryConfirmed")]
+    public bool LpuEarlyEntryConfirmed { get; set; }
+    
+    
+    /// <summary>
+    /// Time when doors will open for LPU early entry. If null, the time is probably not announced yet.
+    /// </summary>
+    [DynamoDBProperty]
+    [JsonPropertyName("lpuEarlyEntryTime")]
+    public DateTimeOffset? LpuEarlyEntryTime { get; set; }
+    
+    
+    /// <summary>
+    /// Time when the doors will open. If null, the time is probably not announced yet
+    /// </summary>
+    [DynamoDBProperty]
+    [JsonPropertyName("doorsTime")]
+    public DateTimeOffset? DoorsTime { get; set; }
+    
+    
+    /// <summary>
+    /// Time when Linkin Park is expected to enter the stage. If null, the time is probably not announced yet
+    /// </summary>
+    [DynamoDBProperty]
+    [JsonPropertyName("mainStageTime")]
+    public DateTimeOffset? MainStageTime { get; set; }
+    
+    
+    /// <summary>
     /// Timezone of the venue
     /// </summary>
     [DynamoDBProperty]
