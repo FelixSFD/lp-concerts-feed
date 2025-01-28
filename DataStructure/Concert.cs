@@ -28,34 +28,16 @@ public class Concert
     [DynamoDBGlobalSecondaryIndexHashKey("PostedStartTimeGlobalIndex")]
     [JsonPropertyName("status")]
     public required string Status { get; set; }
+    
 
     /// <summary>
     /// Time when the concert starts according to Ticketmaster.
     /// </summary>
-    private DateTimeOffset? _postedStartTime;
-
-    /// <summary>
-    /// Time when the concert starts according to Ticketmaster. As string for DynamoDB. Use <see cref="PostedStartTimeValue"/> to get the date-object.
-    /// </summary>
-    //[DynamoDBProperty]
     [DynamoDBGlobalSecondaryIndexRangeKey("PostedStartTimeGlobalIndex")]
+    [DynamoDBProperty("PostedStartTime")]
     [JsonPropertyName("postedStartTime")]
-    public string? PostedStartTime
-    {
-        get => _postedStartTime?.ToString("o"); // Serialize to ISO 8601 string
-        set => _postedStartTime = string.IsNullOrEmpty(value) ? null : DateTimeOffset.Parse(value);
-    }
-
-    /// <summary>
-    /// Time when the concert starts according to Ticketmaster.
-    /// </summary>
-    [DynamoDBIgnore]
-    [JsonIgnore]
-    public DateTimeOffset? PostedStartTimeValue
-    {
-        get => _postedStartTime;
-        set => _postedStartTime = value;
-    }
+    public DateTimeOffset? PostedStartTime { get; set; }
+    
     
     /// <summary>
     /// Timezone of the venue

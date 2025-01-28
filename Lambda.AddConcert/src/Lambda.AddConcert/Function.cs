@@ -6,6 +6,7 @@ using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using LPCalendar.DataStructure;
+using LPCalendar.DataStructure.Converters;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -15,12 +16,13 @@ namespace Lambda.AddConcert;
 public class Function
 {
     private readonly IAmazonDynamoDB _dynamoDbClient = new AmazonDynamoDBClient();
-    private readonly IDynamoDBContext _dynamoDbContext;
+    private readonly DynamoDBContext _dynamoDbContext;
     private readonly DBOperationConfigProvider _dbOperationConfigProvider = new();
 
     public Function()
     {
         _dynamoDbContext = new DynamoDBContext(_dynamoDbClient);
+        _dynamoDbContext.RegisterCustomConverters();
     }
 
 

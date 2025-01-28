@@ -15,7 +15,7 @@ public class CsvToConcertsConverter
             {
                 QuoteAllHeaders = true
             },
-            IgnoredFields = { "PostedStartTimeValue" },
+            //IgnoredFields = { "PostedStartTimeValue" },
             IgnoreFieldValueMode = ChoIgnoreFieldValueMode.Any,
             ColumnCountStrict = false,
             ObjectValidationMode = ChoObjectValidationMode.Off,

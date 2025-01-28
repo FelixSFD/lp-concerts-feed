@@ -18,7 +18,7 @@ public class CsvToConcertsConverterTest
             {
                 Status = "PUBLISHED",
                 Id = "a1d1e58f-1843-416d-ae08-9404308d67a2",
-                PostedStartTime = "2025-07-01T18:00:00.0000000+02:00",
+                PostedStartTime = DateTimeOffset.Parse("2025-07-01T18:00:00.0000000+02:00"),
                 TourName = "FROM ZERO WORLD TOUR 2025",
                 Venue = "Merkur Spiel Arena",
                 City = "Düsseldorf",
@@ -30,7 +30,7 @@ public class CsvToConcertsConverterTest
             {
                 Status = "PUBLISHED",
                 Id = "57d21142-518c-40e0-8eb1-0472f6ced3c4",
-                PostedStartTime = "2025-02-03T21:00:00.0000000-06:00",
+                PostedStartTime = DateTimeOffset.Parse("2025-02-03T21:00:00.0000000-06:00"),
                 TourName = "FROM ZERO WORLD TOUR 2025",
                 Venue = "Estadio 3 de Marzo",
                 City = "Guadalajara",
