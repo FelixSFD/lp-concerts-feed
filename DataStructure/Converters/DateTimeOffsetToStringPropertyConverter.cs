@@ -8,12 +8,7 @@ public class DateTimeOffsetToStringPropertyConverter : IPropertyConverter
     public DynamoDBEntry ToEntry(object value)
     {
         var dateTimeValue = value as DateTimeOffset?;
-        if (dateTimeValue == null)
-        {
-            throw new ArgumentOutOfRangeException();
-        }
-
-        var dateTimeString = dateTimeValue.Value.ToString("o");
+        var dateTimeString = dateTimeValue?.ToString("o");
         var entry = new Primitive
         {
             Value = dateTimeString,
@@ -25,9 +20,9 @@ public class DateTimeOffsetToStringPropertyConverter : IPropertyConverter
     public object FromEntry(DynamoDBEntry entry)
     {
         var primitive = entry as Primitive;
-        if (primitive is not { Value: string dateTimeString } || string.IsNullOrEmpty(dateTimeString))
+        if (primitive is not { Value: string dateTimeString })
         {
-            throw new ArgumentOutOfRangeException();
+            throw new DateTimeConverterException("DB entry is not a string!");
         }
 
         var dateTimeValue = DateTimeOffset.Parse(dateTimeString);
