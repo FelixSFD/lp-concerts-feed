@@ -63,3 +63,16 @@ However, the CloudFront doesn't have to be in that zone. The restriction is just
 
 The hosted zone that was created manually doesn't contain the DNS entries to CloudFront yet as this requires CF and S3 to already be created.
 With the deployment `30-dns-deployment.yaml`, all remaining DNS records are created and the application should now be accessible.
+
+
+# Tagging
+
+Resources in the stacks are tagged.
+These are the tags used:
+
+| TagKey      | Description                                                                                       | Possible values                  |
+|-------------|---------------------------------------------------------------------------------------------------|----------------------------------|
+| ProductName | Name of the application/product. This is the same across all stacks and installations of this app | `lpcalendar`                     |
+| Stage       | Name of the system/stage                                                                          | `prod`, `test`, ...              |
+| Category    | Type of resource                                                                                  | `storage`, `compute`, `api`, ... |
+

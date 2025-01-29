@@ -48,7 +48,8 @@
   <tbody class="table-group-divider" *ngIf="concerts$.length > 0">
   <tr *ngFor="let concert of concerts$">
     <td>
-      <table>
+      <app-concert-badges [concert]="concert"></app-concert-badges>
+      <table class="align-bottom">
         <tr>
           <td>Your timezone:</td>
           <td>{{getDateTime(concert.postedStartTime!).toLocaleString(DateTime. DATETIME_SHORT)}}</td>

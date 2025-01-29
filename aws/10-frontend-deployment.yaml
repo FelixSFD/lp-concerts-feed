@@ -18,6 +18,13 @@ Resources:
     Type: 'AWS::S3::Bucket'
     Properties:
       BucketName: !Sub ${BaseProductName}-web-frontend-bucket
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "frontend"
       PublicAccessBlockConfiguration:
         BlockPublicAcls: false
         BlockPublicPolicy: false

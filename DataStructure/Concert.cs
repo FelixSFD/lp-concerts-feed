@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using Amazon.DynamoDBv2.DataModel;
+using LPCalendar.DataStructure.Converters;
 
 namespace LPCalendar.DataStructure;
 
@@ -28,34 +29,48 @@ public class Concert
     [DynamoDBGlobalSecondaryIndexHashKey("PostedStartTimeGlobalIndex")]
     [JsonPropertyName("status")]
     public required string Status { get; set; }
+    
 
     /// <summary>
     /// Time when the concert starts according to Ticketmaster.
     /// </summary>
-    private DateTimeOffset? _postedStartTime;
-
-    /// <summary>
-    /// Time when the concert starts according to Ticketmaster. As string for DynamoDB. Use <see cref="PostedStartTimeValue"/> to get the date-object.
-    /// </summary>
-    //[DynamoDBProperty]
     [DynamoDBGlobalSecondaryIndexRangeKey("PostedStartTimeGlobalIndex")]
+    [DynamoDBProperty("PostedStartTime", typeof(DateTimeOffsetToStringPropertyConverter))]
     [JsonPropertyName("postedStartTime")]
-    public string? PostedStartTime
-    {
-        get => _postedStartTime?.ToString("o"); // Serialize to ISO 8601 string
-        set => _postedStartTime = string.IsNullOrEmpty(value) ? null : DateTimeOffset.Parse(value);
-    }
-
+    public DateTimeOffset? PostedStartTime { get; set; }
+    
+    
     /// <summary>
-    /// Time when the concert starts according to Ticketmaster.
+    /// true, if LPU early entry has been confirmed for the show. Not all shows are guaranteed to have early entry.
     /// </summary>
-    [DynamoDBIgnore]
-    [JsonIgnore]
-    public DateTimeOffset? PostedStartTimeValue
-    {
-        get => _postedStartTime;
-        set => _postedStartTime = value;
-    }
+    [DynamoDBProperty]
+    [JsonPropertyName("lpuEarlyEntryConfirmed")]
+    public bool LpuEarlyEntryConfirmed { get; set; }
+    
+    
+    /// <summary>
+    /// Time when doors will open for LPU early entry. If null, the time is probably not announced yet.
+    /// </summary>
+    [DynamoDBProperty(typeof(DateTimeOffsetToStringPropertyConverter))]
+    [JsonPropertyName("lpuEarlyEntryTime")]
+    public DateTimeOffset? LpuEarlyEntryTime { get; set; }
+    
+    
+    /// <summary>
+    /// Time when the doors will open. If null, the time is probably not announced yet
+    /// </summary>
+    [DynamoDBProperty(typeof(DateTimeOffsetToStringPropertyConverter))]
+    [JsonPropertyName("doorsTime")]
+    public DateTimeOffset? DoorsTime { get; set; }
+    
+    
+    /// <summary>
+    /// Time when Linkin Park is expected to enter the stage. If null, the time is probably not announced yet
+    /// </summary>
+    [DynamoDBProperty(typeof(DateTimeOffsetToStringPropertyConverter))]
+    [JsonPropertyName("mainStageTime")]
+    public DateTimeOffset? MainStageTime { get; set; }
+    
     
     /// <summary>
     /// Timezone of the venue

@@ -27,6 +27,10 @@ Globals:
     Timeout: 15
     MemorySize: 256
     Runtime: dotnet8
+    Tags:
+      ProductName: "lpcalendar"
+      Stage: !Ref BaseProductName
+      Category: "compute"
   Api:
     TracingEnabled: true
     Cors:
@@ -42,6 +46,13 @@ Resources:
     Type: AWS::DynamoDB::Table
     Properties:
       TableName: !Sub ${AWS::StackName}_ConcertsV2
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "storage"
       AttributeDefinitions:
         - AttributeName: Id
           AttributeType: S
@@ -251,6 +262,13 @@ Resources:
       - ConcertImportBucketLambdaPermission
     Properties:
       BucketName: !Sub ${BaseProductName}-concert-import-data
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "storage"
       NotificationConfiguration:
         LambdaConfigurations:
           - Function: !GetAtt ImportConcertsFunction.Arn

@@ -6,6 +6,7 @@ using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using LPCalendar.DataStructure;
+using LPCalendar.DataStructure.Converters;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -14,16 +15,22 @@ namespace Lambda.ListConcerts;
 
 public class Function
 {
-    private readonly IAmazonDynamoDB _dynamoDbClient = new AmazonDynamoDBClient();
-    private readonly IDynamoDBContext _dynamoDbContext;
+    private readonly IAmazonDynamoDB _dynamoDbClient;
+    private readonly DynamoDBContext _dynamoDbContext;
     private readonly DBOperationConfigProvider _dbOperationConfigProvider = new();
-
-    private readonly string TableName;
 
     public Function()
     {
-        TableName = _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName().OverrideTableName;
+        AmazonDynamoDBConfig config = new AmazonDynamoDBConfig
+        {
+            LogMetrics = true,
+            LogResponse = true
+        };
+
+        _dynamoDbClient = new AmazonDynamoDBClient(config);
+
         _dynamoDbContext = new DynamoDBContext(_dynamoDbClient);
+        //_dynamoDbContext.RegisterCustomConverters();
     }
 
 
@@ -78,7 +85,7 @@ public class Function
         var query = _dynamoDbContext.QueryAsync<Concert>(
             "PUBLISHED", // PartitionKey value
             QueryOperator.GreaterThanOrEqual,
-            [dateNowStr],
+            [new AttributeValue { S = dateNowStr }],
             config);
 
         var concerts = await query.GetRemainingAsync();
@@ -115,7 +122,7 @@ public class Function
     {
         var concert = await _dynamoDbContext.LoadAsync<Concert>(id, _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName());
         var concertJson = JsonSerializer.Serialize(concert);
-        return new APIGatewayProxyResponse()
+        return new APIGatewayProxyResponse
         {
             StatusCode = 200,
             Body = concertJson
@@ -131,11 +138,11 @@ public class Function
             .GetRemainingAsync();
 
         var concerts = concertsUnsorted
-            .OrderBy(c => c.PostedStartTimeValue)
+            .OrderBy(c => c.PostedStartTime)
             .ToArray();
         
         var concertJson = JsonSerializer.Serialize(concerts);
-        return new APIGatewayProxyResponse()
+        return new APIGatewayProxyResponse
         {
             StatusCode = 200,
             Body = concertJson,

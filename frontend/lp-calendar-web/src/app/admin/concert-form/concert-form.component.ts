@@ -7,6 +7,7 @@ import {Concert} from '../../data/concert';
 import {ConcertsService} from '../../services/concerts.service';
 import {DateTime} from 'luxon';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
+import {ActivatedRoute, Router} from "@angular/router";
 
 // This class represents a form for adding and editing concerts
 @Component({
@@ -32,7 +33,9 @@ export class ConcertFormComponent implements OnInit {
     city: new FormControl('', [Validators.required]),
     state: new FormControl('', []),
     country: new FormControl('', [Validators.required]),
-    postedStartTime: new FormControl('', [Validators.required])
+    postedStartTime: new FormControl('', [Validators.required]),
+    lpuEarlyEntryConfirmed: new FormControl(false, []),
+    lpuEarlyEntryTime: new FormControl('', [])
   });
 
   @Input({ alias: "concert-id" })
@@ -46,6 +49,9 @@ export class ConcertFormComponent implements OnInit {
 
   @Output('saveClicked')
   saveClicked = new EventEmitter<Concert>();
+
+  // Name of the form-tab that is open at the moment
+  activeTabName$: string = "main";
 
   concert$ : Concert | null = null;
 
@@ -80,8 +86,10 @@ export class ConcertFormComponent implements OnInit {
     this.concertForm.controls.city.setValue(concert.city ?? null);
     this.concertForm.controls.state.setValue(concert.state ?? null);
     this.concertForm.controls.country.setValue(concert.country ?? null);
-    this.concertForm.controls.postedStartTime.setValue(concert.postedStartTime ?? null);
+    this.concertForm.controls.postedStartTime.setValue(concert.postedStartTime?.substring(0, concert.postedStartTime?.length - 6) ?? null);
     this.concertForm.controls.timezone.setValue(concert.timeZoneId ?? null);
+    this.concertForm.controls.lpuEarlyEntryConfirmed.setValue(concert.lpuEarlyEntryConfirmed);
+    this.concertForm.controls.lpuEarlyEntryTime.setValue(concert.lpuEarlyEntryTime?.substring(11, concert.lpuEarlyEntryTime?.length - 9) ?? null);
   }
 
 
@@ -94,6 +102,11 @@ export class ConcertFormComponent implements OnInit {
 
   onClearClicked() {
     this.concertForm.reset();
+  }
+
+
+  openTab(tabName: string) {
+    this.activeTabName$ = tabName;
   }
 
 
@@ -118,6 +131,18 @@ export class ConcertFormComponent implements OnInit {
 
     newConcert.timeZoneId = selectedTimezone;
     newConcert.postedStartTime = zonedDateTime.toISO()!;
+
+    // LPU data
+    newConcert.lpuEarlyEntryConfirmed = this.concertForm.value.lpuEarlyEntryConfirmed?.valueOf() ?? false;
+    let lpuEarlyEntryTime = this.concertForm.value.lpuEarlyEntryTime?.valueOf();
+    if (lpuEarlyEntryTime != null && lpuEarlyEntryTime.length > 0) {
+      console.log("Local LPU EE time: " + lpuEarlyEntryTime);
+
+      let lpuEarlyEntryDateTime = zonedDateTime.set(DateTime.fromFormat(lpuEarlyEntryTime, 'hh:mm').toObject());
+      newConcert.lpuEarlyEntryTime = lpuEarlyEntryDateTime.toISO()!;
+    }
+
+    console.log(newConcert);
 
     return newConcert;
   }

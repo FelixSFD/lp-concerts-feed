@@ -21,7 +21,7 @@
       </div>
     </ng-template>
   </div>
-  <div class="card-footer text-end">
+  <div class="card-footer text-end" *ngIf="concert$?.id != null">
     <button class="btn btn-outline-info" [routerLink]="['/concerts', concert$?.id]"><i class="bi bi-info-circle"></i> Details</button>
   </div>
 </div>

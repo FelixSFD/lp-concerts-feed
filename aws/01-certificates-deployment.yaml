@@ -24,6 +24,13 @@ Resources:
     Type: AWS::CertificateManager::Certificate
     Description: TLS certificate for the application domains
     Properties:
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "domain"
       DomainName: !Sub '${RootDomain}'
       SubjectAlternativeNames:
         - !Sub 'api.${RootDomain}'

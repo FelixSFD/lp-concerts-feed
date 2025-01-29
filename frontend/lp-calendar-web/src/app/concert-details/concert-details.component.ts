@@ -7,13 +7,15 @@ import {NgIf} from '@angular/common';
 import {CountdownComponent} from '../countdown/countdown.component';
 import {Meta} from '@angular/platform-browser';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
+import {ConcertBadgesComponent} from '../concert-badges/concert-badges.component';
 
 @Component({
   selector: 'app-concert-details',
   imports: [
     NgIf,
     CountdownComponent,
-    RouterLink
+    RouterLink,
+    ConcertBadgesComponent
   ],
   templateUrl: './concert-details.component.html',
   styleUrl: './concert-details.component.css'

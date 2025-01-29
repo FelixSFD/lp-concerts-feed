@@ -109,6 +109,13 @@ Resources:
       - CORSOriginRequestPolicy
       - CORSResponseHeadersPolicy
     Properties:
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "api"
       DistributionConfig:
         Origins:
           - Id: ApiGatewayOrigin
@@ -141,7 +148,7 @@ Resources:
           OriginRequestPolicyId: !Ref CORSOriginRequestPolicy
           ResponseHeadersPolicyId: !Ref CORSResponseHeadersPolicy
         Enabled: true
-        Comment: !Sub "${AWS::StackName} CloudFront Distribution"
+        Comment: !Sub "${AWS::StackName} API"
         PriceClass: PriceClass_100
   
   FrontendCloudFrontDistribution:
@@ -151,6 +158,13 @@ Resources:
       - CORSOriginRequestPolicy
       - CORSResponseHeadersPolicy
     Properties:
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "frontend"
       DistributionConfig:
         Origins:
           - Id: FrontendBucketOrigin
@@ -187,7 +201,7 @@ Resources:
           OriginRequestPolicyId: !Ref CORSOriginRequestPolicy
           ResponseHeadersPolicyId: !Ref CORSResponseHeadersPolicy
         Enabled: true
-        Comment: !Sub "${AWS::StackName} CloudFront Distribution"
+        Comment: !Sub "${AWS::StackName} Frontend"
         PriceClass: PriceClass_100
 
 
