@@ -135,7 +135,7 @@ export class ConcertFormComponent implements OnInit {
     // LPU data
     newConcert.lpuEarlyEntryConfirmed = this.concertForm.value.lpuEarlyEntryConfirmed?.valueOf() ?? false;
     let lpuEarlyEntryTime = this.concertForm.value.lpuEarlyEntryTime?.valueOf();
-    if (lpuEarlyEntryTime != null) {
+    if (lpuEarlyEntryTime != null && lpuEarlyEntryTime.length > 0) {
       console.log("Local LPU EE time: " + lpuEarlyEntryTime);
 
       let lpuEarlyEntryDateTime = zonedDateTime.set(DateTime.fromFormat(lpuEarlyEntryTime, 'hh:mm').toObject());
