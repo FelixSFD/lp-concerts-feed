@@ -15,14 +15,22 @@ namespace Lambda.ListConcerts;
 
 public class Function
 {
-    private readonly IAmazonDynamoDB _dynamoDbClient = new AmazonDynamoDBClient();
+    private readonly IAmazonDynamoDB _dynamoDbClient;
     private readonly DynamoDBContext _dynamoDbContext;
     private readonly DBOperationConfigProvider _dbOperationConfigProvider = new();
 
     public Function()
     {
+        AmazonDynamoDBConfig config = new AmazonDynamoDBConfig
+        {
+            LogMetrics = true,
+            LogResponse = true
+        };
+
+        _dynamoDbClient = new AmazonDynamoDBClient(config);
+
         _dynamoDbContext = new DynamoDBContext(_dynamoDbClient);
-        _dynamoDbContext.RegisterCustomConverters();
+        //_dynamoDbContext.RegisterCustomConverters();
     }
 
 
@@ -77,7 +85,7 @@ public class Function
         var query = _dynamoDbContext.QueryAsync<Concert>(
             "PUBLISHED", // PartitionKey value
             QueryOperator.GreaterThanOrEqual,
-            [dateNowStr],
+            [new AttributeValue { S = dateNowStr }],
             config);
 
         var concerts = await query.GetRemainingAsync();

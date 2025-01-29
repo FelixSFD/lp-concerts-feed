@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using Amazon.DynamoDBv2.DataModel;
+using LPCalendar.DataStructure.Converters;
 
 namespace LPCalendar.DataStructure;
 
@@ -34,7 +35,7 @@ public class Concert
     /// Time when the concert starts according to Ticketmaster.
     /// </summary>
     [DynamoDBGlobalSecondaryIndexRangeKey("PostedStartTimeGlobalIndex")]
-    [DynamoDBProperty("PostedStartTime")]
+    [DynamoDBProperty("PostedStartTime", typeof(DateTimeOffsetToStringPropertyConverter))]
     [JsonPropertyName("postedStartTime")]
     public DateTimeOffset? PostedStartTime { get; set; }
     
@@ -50,15 +51,16 @@ public class Concert
     /// <summary>
     /// Time when doors will open for LPU early entry. If null, the time is probably not announced yet.
     /// </summary>
-    [DynamoDBProperty]
+    [DynamoDBProperty(typeof(DateTimeOffsetToStringPropertyConverter))]
     [JsonPropertyName("lpuEarlyEntryTime")]
+    [DynamoDBIgnore]
     public DateTimeOffset? LpuEarlyEntryTime { get; set; }
     
     
     /// <summary>
     /// Time when the doors will open. If null, the time is probably not announced yet
     /// </summary>
-    [DynamoDBProperty]
+    [DynamoDBProperty(typeof(DateTimeOffsetToStringPropertyConverter))]
     [JsonPropertyName("doorsTime")]
     public DateTimeOffset? DoorsTime { get; set; }
     
@@ -66,7 +68,7 @@ public class Concert
     /// <summary>
     /// Time when Linkin Park is expected to enter the stage. If null, the time is probably not announced yet
     /// </summary>
-    [DynamoDBProperty]
+    [DynamoDBProperty(typeof(DateTimeOffsetToStringPropertyConverter))]
     [JsonPropertyName("mainStageTime")]
     public DateTimeOffset? MainStageTime { get; set; }
     
