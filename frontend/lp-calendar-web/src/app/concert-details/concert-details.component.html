@@ -30,36 +30,51 @@
     <i>{{ concert$?.city }}{{ (concert$?.state?.length ?? 0) > 0 ? ", " + concert$?.state : ""}}, {{ concert$?.country }}</i>
   </p>
 
-  <div class="row row-cols-2">
-    <div class="col-sm-3">
-      <div class="card" style="width: 18rem;">
-        <div class="card-body">
-          <h5 class="card-title">Your start time</h5>
-          <h3 class="card-text">{{getDateTime(concert$?.postedStartTime!).toLocaleString(DateTime. DATETIME_SHORT)}}</h3>
+  <div class="container">
+    <div class="row row-cols-xxl-4 row-cols-xl-3 row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-xs-1 gy-4 gx-4">
+      <ng-template [ngIf]="concert$?.lpuEarlyEntryTime != undefined" #lpuEarlyEntryCard>
+        <div class="col">
+          <div class="card" style="width: 18rem;">
+            <div class="card-header">
+              LPU Early Entry
+            </div>
+            <div class="card-body text-center">
+              <h4 class="card-text">{{getDateTime(concert$?.lpuEarlyEntryTime!).toLocaleString(DateTime.TIME_SIMPLE)}}</h4>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
+      <div class="col">
+        <div class="card" style="width: 18rem;">
+          <div class="card-header">
+            Your start time
+          </div>
+          <div class="card-body text-center">
+            <h4 class="card-text">{{getDateTime(concert$?.postedStartTime!).toLocaleString(DateTime. DATETIME_SHORT)}}</h4>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Responsive break -->
-    <div class="w-100 d-lg-none"></div>
-
-    <div class="col-sm-3">
-      <div class="card" style="width: 18rem;">
-        <div class="card-body">
-          <h5 class="card-title">Venue start time</h5>
-          <h3 class="card-text">{{getDateTimeInTimezone(concert$?.postedStartTime!).toLocaleString(DateTime. DATETIME_SHORT)}}</h3>
+      <div class="col">
+        <div class="card" style="width: 18rem;">
+          <div class="card-header">
+            Venue start time
+          </div>
+          <div class="card-body text-center">
+            <h4 class="card-text">{{getDateTimeInTimezone(concert$?.postedStartTime!).toLocaleString(DateTime. DATETIME_SHORT)}}</h4>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Responsive break -->
-    <div class="w-100 d-lg-none"></div>
-
-    <div class="col-sm-3">
-      <div class="card" style="width: 18rem;">
-        <div class="card-body">
-          <h5 class="card-title">Countdown <s>from</s>to zero</h5>
-          <app-countdown [countdownToDate]="concert$?.postedStartTime!" [concertId]="concert$?.id"></app-countdown>
+      <div class="col">
+        <div class="card" style="width: 18rem;">
+          <div class="card-header">
+            Countdown <s>from</s>to zero
+          </div>
+          <div class="card-body">
+            <app-countdown [countdownToDate]="concert$?.postedStartTime!" [concertId]="concert$?.id"></app-countdown>
+          </div>
         </div>
       </div>
     </div>
