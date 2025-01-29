@@ -3,10 +3,10 @@
       <div class="card-header">
           <ul class="nav nav-tabs card-header-tabs link-secondary">
               <li class="nav-item">
-                  <a class="nav-link {{ activeTabName$ == 'main' ? 'active' : 'link-light' }}" (click)="openTab('main')" href="javascript:void(0)">General information</a>
+                  <a class="nav-link {{ activeTabName$ == 'main' ? 'active' : '' }}" (click)="openTab('main')" href="javascript:void(0)">General information</a>
               </li>
               <li class="nav-item">
-                  <a class="nav-link {{ activeTabName$ == 'lpu' ? 'active' : 'link-light' }}" (click)="openTab('lpu')" href="javascript:void(0)">LPU</a>
+                  <a class="nav-link {{ activeTabName$ == 'lpu' ? 'active' : '' }}" (click)="openTab('lpu')" href="javascript:void(0)">LPU</a>
               </li>
           </ul>
       </div>
