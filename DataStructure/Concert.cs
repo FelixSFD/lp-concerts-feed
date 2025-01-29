@@ -53,7 +53,6 @@ public class Concert
     /// </summary>
     [DynamoDBProperty(typeof(DateTimeOffsetToStringPropertyConverter))]
     [JsonPropertyName("lpuEarlyEntryTime")]
-    [DynamoDBIgnore]
     public DateTimeOffset? LpuEarlyEntryTime { get; set; }
     
     
