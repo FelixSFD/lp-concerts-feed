@@ -1,1 +1,7 @@
-<span *ngIf="concert$?.lpuEarlyEntryConfirmed" class="badge bg-success" style="margin-right: 3px;" title="LPU Early Entry has been confirmed for this show">LPU Early Entry</span>
+<ng-container *ngIf="concert$?.lpuEarlyEntryConfirmed && concert$?.lpuEarlyEntryTime == undefined">
+  <span class="badge bg-info" style="margin-right: 3px;" title="LPU Early Entry has been confirmed for this show but no time has been published yet">LPU Early Entry</span>
+</ng-container>
+
+<ng-container *ngIf="concert$?.lpuEarlyEntryConfirmed && concert$?.lpuEarlyEntryTime != undefined">
+  <span class="badge bg-success" style="margin-right: 3px;" title="LPU Early Entry time has been confirmed for this show">LPU Early Entry</span>
+</ng-container>
