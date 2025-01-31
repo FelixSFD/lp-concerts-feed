@@ -126,54 +126,71 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
         zoom: 2, maxZoom: 18,
       }),
     });
+  }
 
-    // Create a marker feature
-    this.marker = new Feature({
-      geometry: new Point(fromLonLat([0, 0])), // Initial position
-    });
 
-    // has to be done in a separate call. Otherwise, the image won't load
-    this.marker.setStyle(new Style({
-      image: new Icon({
-        color: "red",
-        anchor: [0.5, 1],
-        src: './map/icon.png',
-        scale: 0.59
-      })
-    }));
+  private addOrMoveMarker(lon: number, lat: number) {
+    const newCoords = fromLonLat([lon, lat]); // Convert to EPSG:3857
+    console.log("Set marker at: " + newCoords.toString())
 
-    // Add marker to vector layer
-    const vectorSource = new VectorSource({
-      features: [this.marker]
-    });
+    if (this.marker == undefined) {
+      // Create a marker feature
+      this.marker = new Feature({
+        geometry: new Point(newCoords), // Initial position
+      });
 
-    const vectorLayer = new VectorLayer({
-      source: vectorSource
-    });
+      this.marker.setStyle(new Style({
+        image: new Icon({
+          color: "red",
+          anchor: [0.5, 1],
+          src: './map/icon.png',
+          scale: 0.59
+        })
+      }));
 
-    this.venueMap.addLayer(vectorLayer);
+      // Add marker to vector layer
+      const vectorSource = new VectorSource({
+        features: [this.marker]
+      });
 
-    // Add drag interaction
-    const translate = new Translate({
-      features: new Collection([this.marker])
-    });
+      const vectorLayer = new VectorLayer({
+        source: vectorSource
+      });
 
-    this.venueMap.addInteraction(translate);
+      this.venueMap?.addLayer(vectorLayer);
 
-    // Listen for movement
-    translate.on('translateend', (event) => {
-      const point = (event.features.item(0) as Feature).getGeometry() as Point;
-      const coords = point.getCoordinates();
-      console.log('Marker moved to:', coords);
+      // Add drag interaction
+      const translate = new Translate({
+        features: new Collection([this.marker])
+      });
 
-      if (coords) {
-        const [lon, lat] = toLonLat(coords); // Convert to lat/lon
-        console.log('Corrected Coordinates:', { latitude: lat, longitude: lon });
+      this.venueMap?.addInteraction(translate);
 
-        this.concertForm.controls.venueLong.setValue(lon);
-        this.concertForm.controls.venueLat.setValue(lat);
-      }
-    });
+      // Listen for movement
+      translate.on('translateend', (event) => {
+        const point = (event.features.item(0) as Feature).getGeometry() as Point;
+        const coords = point.getCoordinates();
+        console.log('Marker moved to:', coords);
+
+        if (coords) {
+          const [lon, lat] = toLonLat(coords); // Convert to lat/lon
+          console.log('Corrected Coordinates:', { latitude: lat, longitude: lon });
+
+          this.concertForm.controls.venueLong.setValue(lon);
+          this.concertForm.controls.venueLat.setValue(lat);
+        }
+      });
+    } else {
+      (this.marker.getGeometry() as Point).setCoordinates(newCoords);
+    }
+
+    this.zoomToCoordinates(lon, lat);
+  }
+
+
+  private zoomToCoordinates(lon: number, lat: number) {
+    this.venueMap?.getView().setCenter(fromLonLat([lon, lat]));
+    this.venueMap?.getView().setZoom(11);
   }
 
 
@@ -189,6 +206,8 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
     this.concertForm.controls.lpuEarlyEntryTime.setValue(concert.lpuEarlyEntryTime?.substring(11, concert.lpuEarlyEntryTime?.length - 9) ?? null);
     this.concertForm.controls.venueLat.setValue(concert.venueLatitude ?? 0)
     this.concertForm.controls.venueLong.setValue(concert.venueLongitude ?? 0)
+
+    this.addOrMoveMarker(concert.venueLongitude ?? 0, concert.venueLatitude ?? 0);
   }
 
 
