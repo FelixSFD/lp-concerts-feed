@@ -182,6 +182,8 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
     this.concertForm.controls.timezone.setValue(concert.timeZoneId ?? null);
     this.concertForm.controls.lpuEarlyEntryConfirmed.setValue(concert.lpuEarlyEntryConfirmed);
     this.concertForm.controls.lpuEarlyEntryTime.setValue(concert.lpuEarlyEntryTime?.substring(11, concert.lpuEarlyEntryTime?.length - 9) ?? null);
+    this.concertForm.controls.venueLat.setValue(concert.venueLatitude ?? 0)
+    this.concertForm.controls.venueLong.setValue(concert.venueLongitude ?? 0)
   }
 
 
@@ -248,6 +250,10 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
       let lpuEarlyEntryDateTime = zonedDateTime.set(DateTime.fromFormat(lpuEarlyEntryTime, 'hh:mm').toObject());
       newConcert.lpuEarlyEntryTime = lpuEarlyEntryDateTime.toISO()!;
     }
+
+    // Venue coordinates
+    newConcert.venueLatitude = this.concertForm.value.venueLat ?? 0;
+    newConcert.venueLongitude = this.concertForm.value.venueLong ?? 0;
 
     console.log(newConcert);
 

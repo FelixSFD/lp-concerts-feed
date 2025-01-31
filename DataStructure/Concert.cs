@@ -106,4 +106,20 @@ public class Concert
     [DynamoDBProperty]
     [JsonPropertyName("venue")]
     public string? Venue { get; set; }
+
+
+    /// <summary>
+    /// Latitude of the venue
+    /// </summary>
+    [DynamoDBProperty]
+    [JsonPropertyName("venueLatitude")]
+    public decimal VenueLatitude { get; set; }
+    
+    
+    /// <summary>
+    /// Longitude of the venue
+    /// </summary>
+    [DynamoDBProperty]
+    [JsonPropertyName("venueLongitude")]
+    public decimal VenueLongitude { get; set; }
 }
