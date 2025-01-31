@@ -102,6 +102,12 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   }
 
 
+  private zoomToCoordinates(lon: number, lat: number) {
+    this.venueMap?.getView().setCenter(fromLonLat([lon, lat]));
+    this.venueMap?.getView().setZoom(11);
+  }
+
+
   private addOrMoveMarker(lon: number, lat: number) {
     const newCoords = fromLonLat([lon, lat]); // Convert to EPSG:3857
     console.log("Set marker at: " + newCoords.toString())
@@ -134,6 +140,8 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
     } else {
       (this.marker.getGeometry() as Point).setCoordinates(newCoords);
     }
+
+    this.zoomToCoordinates(lon, lat);
   }
 
 
