@@ -103,11 +103,27 @@
             </div>
         </ng-container>
 
-        <ng-container *ngIf="activeTabName$ == 'map'" #tabMap>
-            <div class="container">
-                <h3>Venue location</h3>
-                <div id="venueMap" class="concert-form-map"></div>
+        <ng-container *ngIf="activeTabName$ == 'map'" class="container" #tabMap>
+            <h3>Venue location</h3>
+            <div class="form-group">
+                <label for="venueLat">Latitude</label>
+                <input id="venueLat" type="number" formControlName="venueLat" class="form-control"
+                       [ngClass]="{ 'is-invalid': concertForm.controls.venueLat.invalid }">
+                <div *ngIf="concertForm.controls.venueLat.invalid" class="text-danger">
+                    <small *ngIf="concertForm.controls.venueLat.errors">Latitude is invalid.</small>
+                </div>
+
+                <label for="venueLong">Longitude</label>
+                <input id="venueLong" type="number" formControlName="venueLong" class="form-control"
+                       [ngClass]="{ 'is-invalid': concertForm.controls.venueLong.invalid }">
+                <div *ngIf="concertForm.controls.venueLong.invalid" class="text-danger">
+                    <small *ngIf="concertForm.controls.venueLong.errors">Longitude is invalid.</small>
+                </div>
             </div>
+
+            <br />
+
+            <div id="venueMap" class="concert-form-map"></div>
         </ng-container>
     </div>
     <div class="card-footer">

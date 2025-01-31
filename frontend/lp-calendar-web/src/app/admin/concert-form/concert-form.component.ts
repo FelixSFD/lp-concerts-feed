@@ -2,12 +2,10 @@ import {
   AfterViewInit,
   Component, ElementRef,
   EventEmitter,
-  Inject,
   inject,
   Input,
   OnInit,
   Output,
-  output,
   ViewChild
 } from '@angular/core';
 import timezones from 'timezones-list';
@@ -18,11 +16,19 @@ import {Concert} from '../../data/concert';
 import {ConcertsService} from '../../services/concerts.service';
 import {DateTime} from 'luxon';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
-import {ActivatedRoute, Router} from "@angular/router";
-import Map from "ol/Map";
-import TileLayer from "ol/layer/Tile";
-import {OSM} from "ol/source";
-import View from "ol/View";
+import Map from 'ol/Map';
+import View from 'ol/View';
+import TileLayer from 'ol/layer/Tile';
+import OSM from 'ol/source/OSM';
+import { fromLonLat } from 'ol/proj';
+import Feature from 'ol/Feature';
+import Point from 'ol/geom/Point';
+import VectorLayer from 'ol/layer/Vector';
+import VectorSource from 'ol/source/Vector';
+import Style from 'ol/style/Style';
+import Icon from 'ol/style/Icon';
+import { Translate } from 'ol/interaction';
+import {Collection} from "ol";
 
 // This class represents a form for adding and editing concerts
 @Component({
@@ -50,7 +56,9 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
     country: new FormControl('', [Validators.required]),
     postedStartTime: new FormControl('', [Validators.required]),
     lpuEarlyEntryConfirmed: new FormControl(false, []),
-    lpuEarlyEntryTime: new FormControl('', [])
+    lpuEarlyEntryTime: new FormControl('', []),
+    venueLat: new FormControl(0, []),
+    venueLong: new FormControl(0, [])
   });
 
   @Input({ alias: "concert-id" })
@@ -72,6 +80,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
 
   // Map of the location of the concert
   private venueMap: Map | undefined;
+  private marker: Feature | undefined;
 
   // Service to check auth information
   private readonly oidcSecurityService = inject(OidcSecurityService);
@@ -89,8 +98,6 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
     // Fetch concert data from API to prefill the form
     if (this.concertId != null) {
       this.concertForm.disable();
-
-
 
       this.concertsService.getConcert(this.concertId, false).subscribe(c => {
         this.concert$ = c;
@@ -118,6 +125,49 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
         center: [0, 0],
         zoom: 2, maxZoom: 18,
       }),
+    });
+
+    // Create a marker feature
+    this.marker = new Feature({
+      geometry: new Point(fromLonLat([0, 0])), // Initial position
+    });
+
+    // has to be done in a separate call. Otherwise, the image won't load
+    this.marker.setStyle(new Style({
+      image: new Icon({
+        color: "red",
+        anchor: [0.5, 1],
+        src: './map/icon.png',
+        scale: 0.59
+      })
+    }));
+
+    // Add marker to vector layer
+    const vectorSource = new VectorSource({
+      features: [this.marker]
+    });
+
+    const vectorLayer = new VectorLayer({
+      source: vectorSource
+    });
+
+    this.venueMap.addLayer(vectorLayer);
+
+    // Add drag interaction
+    const translate = new Translate({
+      features: new Collection([this.marker])
+    });
+
+    this.venueMap.addInteraction(translate);
+
+    // Listen for movement
+    translate.on('translateend', (event) => {
+      const point = (event.features.item(0) as Feature).getGeometry() as Point;
+      const coords = point.getCoordinates();
+      console.log('Marker moved to:', coords);
+
+      this.concertForm.controls.venueLat.setValue(coords[0]);
+      this.concertForm.controls.venueLong.setValue(coords[1]);
     });
   }
 
@@ -164,9 +214,6 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
 
   openTab(tabName: string) {
     this.activeTabName$ = tabName;
-    if (tabName != "map") {
-      //this.venueMap?.setTarget("");
-    }
   }
 
 
