@@ -6,6 +6,7 @@ import {ConcertDetailsComponent} from './concert-details/concert-details.compone
 import {AboutPageComponent} from './about-page/about-page.component';
 import {EditConcertPageComponent} from './admin/edit-concert-page/edit-concert-page.component';
 import {AddConcertPageComponent} from './admin/add-concert-page/add-concert-page.component';
+import {TourMapPageComponent} from './tour-map-page/tour-map-page.component';
 
 let baseTitle = "LP Concerts - ";
 
@@ -30,6 +31,11 @@ export const routes: Routes = [
     path: 'concerts',
     component: ConcertsListComponent,
     title: baseTitle + 'List',
+  },
+  {
+    path: 'map',
+    component: TourMapPageComponent,
+    title: baseTitle + 'Map',
   },
   {
     path: 'about',
