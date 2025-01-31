@@ -20,7 +20,7 @@ import Map from 'ol/Map';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
-import { fromLonLat } from 'ol/proj';
+import {fromLonLat, toLonLat} from 'ol/proj';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import VectorLayer from 'ol/layer/Vector';
@@ -166,8 +166,13 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
       const coords = point.getCoordinates();
       console.log('Marker moved to:', coords);
 
-      this.concertForm.controls.venueLat.setValue(coords[0]);
-      this.concertForm.controls.venueLong.setValue(coords[1]);
+      if (coords) {
+        const [lon, lat] = toLonLat(coords); // Convert to lat/lon
+        console.log('Corrected Coordinates:', { latitude: lat, longitude: lon });
+
+        this.concertForm.controls.venueLong.setValue(lon);
+        this.concertForm.controls.venueLat.setValue(lat);
+      }
     });
   }
 

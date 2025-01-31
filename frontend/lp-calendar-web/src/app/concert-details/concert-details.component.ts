@@ -1,4 +1,4 @@
-import {Component, ElementRef, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ConcertsService} from '../services/concerts.service';
 import {Concert} from '../data/concert';
 import {ActivatedRoute, RouterLink} from '@angular/router';
@@ -12,6 +12,15 @@ import TileLayer from 'ol/layer/Tile';
 import {OSM} from 'ol/source';
 import Map from 'ol/Map';
 import View from 'ol/View';
+import Feature from 'ol/Feature';
+import Point from 'ol/geom/Point';
+import {fromLonLat} from 'ol/proj';
+import Style from 'ol/style/Style';
+import Icon from 'ol/style/Icon';
+import VectorSource from 'ol/source/Vector';
+import VectorLayer from 'ol/layer/Vector';
+import {Translate} from 'ol/interaction';
+import {Collection} from 'ol';
 
 @Component({
   selector: 'app-concert-details',
@@ -24,12 +33,13 @@ import View from 'ol/View';
   templateUrl: './concert-details.component.html',
   styleUrl: './concert-details.component.css'
 })
-export class ConcertDetailsComponent implements OnInit {
+export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   concert$: Concert | null = null;
   concertId: string | undefined;
 
   // Map of the location of the concert
   private venueMap: Map | undefined;
+  private marker: Feature | undefined;
 
   // Service to check auth information
   private readonly oidcSecurityService = inject(OidcSecurityService);
@@ -61,39 +71,84 @@ export class ConcertDetailsComponent implements OnInit {
           this.updateMetaInfo(result);
         }
 
+        // Set coordinates in map
+        console.log(result);
+        if (result.venueLongitude != undefined && result.venueLatitude != undefined) {
+          this.addOrMoveMarker(result.venueLongitude, result.venueLatitude);
+        }
+
         return this.concert$ = result;
       });
   }
 
 
-  @ViewChild('details')
-  set watch(template: ElementRef) {
-    if (template) {
-      console.log("template exists, do something!");
-      this.initVenueMap();
-    }
+  ngAfterViewInit() {
+    this.initVenueMap();
   }
 
 
   private initVenueMap() {
-    console.log("Initialize map...");
-    if (this.venueMap != undefined) {
-      console.log("Map already created. Don't add it again.");
-      return;
-    }
-
     this.venueMap = new Map({
       layers: [
         new TileLayer({
           source: new OSM(),
         }),
       ],
-      target: 'venueMap',
       view: new View({
         center: [0, 0],
         zoom: 2, maxZoom: 18,
       }),
     });
+  }
+
+
+  private addOrMoveMarker(lon: number, lat: number) {
+    const newCoords = fromLonLat([lon, lat]); // Convert to EPSG:3857
+    console.log("Set marker at: " + newCoords.toString())
+
+    if (this.marker == undefined) {
+      // Create a marker feature
+      this.marker = new Feature({
+        geometry: new Point(newCoords), // Initial position
+      });
+
+      this.marker.setStyle(new Style({
+        image: new Icon({
+          color: "red",
+          anchor: [0.5, 1],
+          src: './map/icon.png',
+          scale: 0.59
+        })
+      }));
+
+      // Add marker to vector layer
+      const vectorSource = new VectorSource({
+        features: [this.marker]
+      });
+
+      const vectorLayer = new VectorLayer({
+        source: vectorSource
+      });
+
+      this.venueMap?.addLayer(vectorLayer);
+    } else {
+      (this.marker.getGeometry() as Point).setCoordinates(newCoords);
+    }
+  }
+
+
+  @ViewChild('details')
+  set detailsRendered(element: ElementRef | undefined) {
+    // is called when tab rendered or destroyed
+    if (element) {
+      if (this.venueMap) {
+        console.log("Set target");
+        this.venueMap.setTarget("venueMap");
+      }
+    } else {
+      console.log("Map tab destroyed");
+      this.venueMap?.setTarget("");
+    }
   }
 
 
