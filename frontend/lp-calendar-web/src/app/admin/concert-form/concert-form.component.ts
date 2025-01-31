@@ -1,4 +1,15 @@
-import {Component, EventEmitter, Inject, inject, Input, OnInit, Output, output} from '@angular/core';
+import {
+  AfterViewInit,
+  Component, ElementRef,
+  EventEmitter,
+  Inject,
+  inject,
+  Input,
+  OnInit,
+  Output,
+  output,
+  ViewChild
+} from '@angular/core';
 import timezones from 'timezones-list';
 import {listOfTours} from '../../app.config';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
@@ -8,6 +19,10 @@ import {ConcertsService} from '../../services/concerts.service';
 import {DateTime} from 'luxon';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {ActivatedRoute, Router} from "@angular/router";
+import Map from "ol/Map";
+import TileLayer from "ol/layer/Tile";
+import {OSM} from "ol/source";
+import View from "ol/View";
 
 // This class represents a form for adding and editing concerts
 @Component({
@@ -22,7 +37,7 @@ import {ActivatedRoute, Router} from "@angular/router";
   templateUrl: './concert-form.component.html',
   styleUrl: './concert-form.component.css'
 })
-export class ConcertFormComponent implements OnInit {
+export class ConcertFormComponent implements OnInit, AfterViewInit {
   private formBuilder = inject(FormBuilder);
   private concertsService = inject(ConcertsService);
 
@@ -55,6 +70,9 @@ export class ConcertFormComponent implements OnInit {
 
   concert$ : Concert | null = null;
 
+  // Map of the location of the concert
+  private venueMap: Map | undefined;
+
   // Service to check auth information
   private readonly oidcSecurityService = inject(OidcSecurityService);
 
@@ -66,10 +84,14 @@ export class ConcertFormComponent implements OnInit {
     });
   }
 
+
   ngOnInit() {
     // Fetch concert data from API to prefill the form
     if (this.concertId != null) {
       this.concertForm.disable();
+
+
+
       this.concertsService.getConcert(this.concertId, false).subscribe(c => {
         this.concert$ = c;
 
@@ -77,6 +99,26 @@ export class ConcertFormComponent implements OnInit {
         this.concertForm.enable();
       });
     }
+  }
+
+
+  ngAfterViewInit() {
+    this.initVenueMap();
+  }
+
+
+  private initVenueMap() {
+    this.venueMap = new Map({
+      layers: [
+        new TileLayer({
+          source: new OSM(),
+        }),
+      ],
+      view: new View({
+        center: [0, 0],
+        zoom: 2, maxZoom: 18,
+      }),
+    });
   }
 
 
@@ -105,8 +147,26 @@ export class ConcertFormComponent implements OnInit {
   }
 
 
+  @ViewChild('tabMap')
+  set tabMapRendered(element: ElementRef | undefined) {
+    // is called when tab rendered or destroyed
+    if (element) {
+      if (this.venueMap) {
+        console.log("Set target");
+        this.venueMap.setTarget("venueMap");
+      }
+    } else {
+      console.log("Map tab destroyed");
+      this.venueMap?.setTarget("");
+    }
+  }
+
+
   openTab(tabName: string) {
     this.activeTabName$ = tabName;
+    if (tabName != "map") {
+      //this.venueMap?.setTarget("");
+    }
   }
 
 
