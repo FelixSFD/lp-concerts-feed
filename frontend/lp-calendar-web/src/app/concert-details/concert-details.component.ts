@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, ElementRef, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ConcertsService} from '../services/concerts.service';
 import {Concert} from '../data/concert';
 import {ActivatedRoute, RouterLink} from '@angular/router';
@@ -8,6 +8,10 @@ import {CountdownComponent} from '../countdown/countdown.component';
 import {Meta} from '@angular/platform-browser';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {ConcertBadgesComponent} from '../concert-badges/concert-badges.component';
+import TileLayer from 'ol/layer/Tile';
+import {OSM} from 'ol/source';
+import Map from 'ol/Map';
+import View from 'ol/View';
 
 @Component({
   selector: 'app-concert-details',
@@ -23,6 +27,9 @@ import {ConcertBadgesComponent} from '../concert-badges/concert-badges.component
 export class ConcertDetailsComponent implements OnInit {
   concert$: Concert | null = null;
   concertId: string | undefined;
+
+  // Map of the location of the concert
+  private venueMap: Map | undefined;
 
   // Service to check auth information
   private readonly oidcSecurityService = inject(OidcSecurityService);
@@ -56,6 +63,37 @@ export class ConcertDetailsComponent implements OnInit {
 
         return this.concert$ = result;
       });
+  }
+
+
+  @ViewChild('details')
+  set watch(template: ElementRef) {
+    if (template) {
+      console.log("template exists, do something!");
+      this.initVenueMap();
+    }
+  }
+
+
+  private initVenueMap() {
+    console.log("Initialize map...");
+    if (this.venueMap != undefined) {
+      console.log("Map already created. Don't add it again.");
+      return;
+    }
+
+    this.venueMap = new Map({
+      layers: [
+        new TileLayer({
+          source: new OSM(),
+        }),
+      ],
+      target: 'venueMap',
+      view: new View({
+        center: [0, 0],
+        zoom: 2, maxZoom: 18,
+      }),
+    });
   }
 
 
