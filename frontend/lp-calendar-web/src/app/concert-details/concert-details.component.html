@@ -80,7 +80,9 @@
     </div>
   </div>
 
-  <h3>Venue location</h3>
-  <div id="venueMap" class="map"></div>
+  <ng-container *ngIf="concert$?.venueLatitude != 0 && concert$?.venueLongitude != 0">
+    <h3>Venue location</h3>
+    <div id="venueMap" class="map"></div>
+  </ng-container>
 </ng-template>
 
