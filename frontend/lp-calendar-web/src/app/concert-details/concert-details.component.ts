@@ -19,6 +19,9 @@ import Style from 'ol/style/Style';
 import Icon from 'ol/style/Icon';
 import VectorSource from 'ol/source/Vector';
 import VectorLayer from 'ol/layer/Vector';
+import {Attribution} from 'ol/control';
+import {defaults as defaultControls} from 'ol/control/defaults.js';
+import {mapAttribution} from '../app.config';
 
 @Component({
   selector: 'app-concert-details',
@@ -86,7 +89,13 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
 
 
   private initVenueMap() {
+    const attribution = new Attribution({
+      collapsible: false,
+      attributions: mapAttribution,
+    });
+
     this.venueMap = new Map({
+      controls: defaultControls({attribution: false}).extend([attribution]),
       layers: [
         new TileLayer({
           source: new OSM(),
