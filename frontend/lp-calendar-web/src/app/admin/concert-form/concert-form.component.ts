@@ -195,15 +195,24 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
 
 
   private fillFormWithConcert(concert: Concert) {
+    let postedStartDateTimeUtc = concert.postedStartTime == undefined ? null : DateTime.fromISO(concert.postedStartTime);
+    let postedStartDateTime = postedStartDateTimeUtc?.setZone(concert.timeZoneId!, {keepLocalTime: false})
+    let postedStartDateTimeIsoStr = postedStartDateTime?.toISO();
+
+    let lpuEarlyEntryDateTimeUtc = concert.lpuEarlyEntryTime == undefined ? null : DateTime.fromISO(concert.lpuEarlyEntryTime);
+    let lpuEarlyEntryDateTime = lpuEarlyEntryDateTimeUtc?.setZone(concert.timeZoneId!, {keepLocalTime: false})
+    let lpuEarlyEntryDateTimeIsoStr = lpuEarlyEntryDateTime?.toISOTime();
+    console.log("LPU EE: " + lpuEarlyEntryDateTimeIsoStr);
+
     this.concertForm.controls.tourName.setValue(concert.tourName ?? null);
     this.concertForm.controls.venue.setValue(concert.venue ?? null);
     this.concertForm.controls.city.setValue(concert.city ?? null);
     this.concertForm.controls.state.setValue(concert.state ?? null);
     this.concertForm.controls.country.setValue(concert.country ?? null);
-    this.concertForm.controls.postedStartTime.setValue(concert.postedStartTime?.substring(0, concert.postedStartTime?.length - 6) ?? null);
+    this.concertForm.controls.postedStartTime.setValue(postedStartDateTimeIsoStr?.substring(0, postedStartDateTimeIsoStr?.length - 6) ?? null);
     this.concertForm.controls.timezone.setValue(concert.timeZoneId ?? null);
     this.concertForm.controls.lpuEarlyEntryConfirmed.setValue(concert.lpuEarlyEntryConfirmed);
-    this.concertForm.controls.lpuEarlyEntryTime.setValue(concert.lpuEarlyEntryTime?.substring(11, concert.lpuEarlyEntryTime?.length - 9) ?? null);
+    this.concertForm.controls.lpuEarlyEntryTime.setValue(lpuEarlyEntryDateTimeIsoStr?.substring(0, 5) ?? null);
     this.concertForm.controls.venueLat.setValue(concert.venueLatitude ?? 0)
     this.concertForm.controls.venueLong.setValue(concert.venueLongitude ?? 0)
 
@@ -269,9 +278,9 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
     newConcert.lpuEarlyEntryConfirmed = this.concertForm.value.lpuEarlyEntryConfirmed?.valueOf() ?? false;
     let lpuEarlyEntryTime = this.concertForm.value.lpuEarlyEntryTime?.valueOf();
     if (lpuEarlyEntryTime != null && lpuEarlyEntryTime.length > 0) {
-      console.log("Local LPU EE time: " + lpuEarlyEntryTime);
-
       let lpuEarlyEntryDateTime = zonedDateTime.set(DateTime.fromFormat(lpuEarlyEntryTime, 'hh:mm').toObject());
+      // weird timezone issues can cause the LPU time to be on the next day. That's why we need to fix the date just to be sure
+      lpuEarlyEntryDateTime = lpuEarlyEntryDateTime.set({day: localDateTime.day, month: localDateTime.month, year: localDateTime.year});
       newConcert.lpuEarlyEntryTime = lpuEarlyEntryDateTime.toISO()!;
     }
 
