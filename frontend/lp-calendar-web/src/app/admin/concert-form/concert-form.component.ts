@@ -1,4 +1,13 @@
-import {Component, EventEmitter, Inject, inject, Input, OnInit, Output, output} from '@angular/core';
+import {
+  AfterViewInit,
+  Component, ElementRef,
+  EventEmitter,
+  inject,
+  Input,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
 import timezones from 'timezones-list';
 import {listOfTours} from '../../app.config';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
@@ -7,7 +16,19 @@ import {Concert} from '../../data/concert';
 import {ConcertsService} from '../../services/concerts.service';
 import {DateTime} from 'luxon';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
-import {ActivatedRoute, Router} from "@angular/router";
+import Map from 'ol/Map';
+import View from 'ol/View';
+import TileLayer from 'ol/layer/Tile';
+import OSM from 'ol/source/OSM';
+import {fromLonLat, toLonLat} from 'ol/proj';
+import Feature from 'ol/Feature';
+import Point from 'ol/geom/Point';
+import VectorLayer from 'ol/layer/Vector';
+import VectorSource from 'ol/source/Vector';
+import Style from 'ol/style/Style';
+import Icon from 'ol/style/Icon';
+import { Translate } from 'ol/interaction';
+import {Collection} from "ol";
 
 // This class represents a form for adding and editing concerts
 @Component({
@@ -22,7 +43,7 @@ import {ActivatedRoute, Router} from "@angular/router";
   templateUrl: './concert-form.component.html',
   styleUrl: './concert-form.component.css'
 })
-export class ConcertFormComponent implements OnInit {
+export class ConcertFormComponent implements OnInit, AfterViewInit {
   private formBuilder = inject(FormBuilder);
   private concertsService = inject(ConcertsService);
 
@@ -35,7 +56,9 @@ export class ConcertFormComponent implements OnInit {
     country: new FormControl('', [Validators.required]),
     postedStartTime: new FormControl('', [Validators.required]),
     lpuEarlyEntryConfirmed: new FormControl(false, []),
-    lpuEarlyEntryTime: new FormControl('', [])
+    lpuEarlyEntryTime: new FormControl('', []),
+    venueLat: new FormControl(0, []),
+    venueLong: new FormControl(0, [])
   });
 
   @Input({ alias: "concert-id" })
@@ -55,6 +78,10 @@ export class ConcertFormComponent implements OnInit {
 
   concert$ : Concert | null = null;
 
+  // Map of the location of the concert
+  private venueMap: Map | undefined;
+  private marker: Feature | undefined;
+
   // Service to check auth information
   private readonly oidcSecurityService = inject(OidcSecurityService);
 
@@ -66,10 +93,12 @@ export class ConcertFormComponent implements OnInit {
     });
   }
 
+
   ngOnInit() {
     // Fetch concert data from API to prefill the form
     if (this.concertId != null) {
       this.concertForm.disable();
+
       this.concertsService.getConcert(this.concertId, false).subscribe(c => {
         this.concert$ = c;
 
@@ -80,16 +109,114 @@ export class ConcertFormComponent implements OnInit {
   }
 
 
+  ngAfterViewInit() {
+    this.initVenueMap();
+  }
+
+
+  private initVenueMap() {
+    this.venueMap = new Map({
+      layers: [
+        new TileLayer({
+          source: new OSM(),
+        }),
+      ],
+      view: new View({
+        center: [0, 0],
+        zoom: 2, maxZoom: 18,
+      }),
+    });
+  }
+
+
+  private addOrMoveMarker(lon: number, lat: number) {
+    const newCoords = fromLonLat([lon, lat]); // Convert to EPSG:3857
+    console.log("Set marker at: " + newCoords.toString())
+
+    if (this.marker == undefined) {
+      // Create a marker feature
+      this.marker = new Feature({
+        geometry: new Point(newCoords), // Initial position
+      });
+
+      this.marker.setStyle(new Style({
+        image: new Icon({
+          color: "red",
+          anchor: [0.5, 1],
+          src: './map/icon.png',
+          scale: 0.59
+        })
+      }));
+
+      // Add marker to vector layer
+      const vectorSource = new VectorSource({
+        features: [this.marker]
+      });
+
+      const vectorLayer = new VectorLayer({
+        source: vectorSource
+      });
+
+      this.venueMap?.addLayer(vectorLayer);
+
+      // Add drag interaction
+      const translate = new Translate({
+        features: new Collection([this.marker])
+      });
+
+      this.venueMap?.addInteraction(translate);
+
+      // Listen for movement
+      translate.on('translateend', (event) => {
+        const point = (event.features.item(0) as Feature).getGeometry() as Point;
+        const coords = point.getCoordinates();
+        console.log('Marker moved to:', coords);
+
+        if (coords) {
+          const [lon, lat] = toLonLat(coords); // Convert to lat/lon
+          console.log('Corrected Coordinates:', { latitude: lat, longitude: lon });
+
+          this.concertForm.controls.venueLong.setValue(lon);
+          this.concertForm.controls.venueLat.setValue(lat);
+        }
+      });
+    } else {
+      (this.marker.getGeometry() as Point).setCoordinates(newCoords);
+    }
+
+    this.zoomToCoordinates(lon, lat);
+  }
+
+
+  private zoomToCoordinates(lon: number, lat: number) {
+    this.venueMap?.getView().setCenter(fromLonLat([lon, lat]));
+    this.venueMap?.getView().setZoom(11);
+  }
+
+
   private fillFormWithConcert(concert: Concert) {
+    let postedStartDateTimeUtc = concert.postedStartTime == undefined ? null : DateTime.fromISO(concert.postedStartTime);
+    let postedStartDateTime = postedStartDateTimeUtc?.setZone(concert.timeZoneId!, {keepLocalTime: false})
+    let postedStartDateTimeIsoStr = postedStartDateTime?.toISO();
+
+    let lpuEarlyEntryDateTimeUtc = concert.lpuEarlyEntryTime == undefined ? null : DateTime.fromISO(concert.lpuEarlyEntryTime);
+    let lpuEarlyEntryDateTime = lpuEarlyEntryDateTimeUtc?.setZone(concert.timeZoneId!, {keepLocalTime: false})
+    let lpuEarlyEntryDateTimeIsoStr = lpuEarlyEntryDateTime?.toISOTime();
+    console.log("LPU EE: " + lpuEarlyEntryDateTimeIsoStr);
+
     this.concertForm.controls.tourName.setValue(concert.tourName ?? null);
     this.concertForm.controls.venue.setValue(concert.venue ?? null);
     this.concertForm.controls.city.setValue(concert.city ?? null);
     this.concertForm.controls.state.setValue(concert.state ?? null);
     this.concertForm.controls.country.setValue(concert.country ?? null);
-    this.concertForm.controls.postedStartTime.setValue(concert.postedStartTime?.substring(0, concert.postedStartTime?.length - 6) ?? null);
+    this.concertForm.controls.postedStartTime.setValue(postedStartDateTimeIsoStr?.substring(0, postedStartDateTimeIsoStr?.length - 6) ?? null);
     this.concertForm.controls.timezone.setValue(concert.timeZoneId ?? null);
     this.concertForm.controls.lpuEarlyEntryConfirmed.setValue(concert.lpuEarlyEntryConfirmed);
-    this.concertForm.controls.lpuEarlyEntryTime.setValue(concert.lpuEarlyEntryTime?.substring(11, concert.lpuEarlyEntryTime?.length - 9) ?? null);
+    this.concertForm.controls.lpuEarlyEntryTime.setValue(lpuEarlyEntryDateTimeIsoStr?.substring(0, 5) ?? null);
+    this.concertForm.controls.venueLat.setValue(concert.venueLatitude ?? 0)
+    this.concertForm.controls.venueLong.setValue(concert.venueLongitude ?? 0)
+
+    this.addOrMoveMarker(concert.venueLongitude ?? 0, concert.venueLatitude ?? 0);
   }
 
 
@@ -102,6 +229,21 @@ export class ConcertFormComponent implements OnInit {
 
   onClearClicked() {
     this.concertForm.reset();
+  }
+
+
+  @ViewChild('tabMap')
+  set tabMapRendered(element: ElementRef | undefined) {
+    // is called when tab rendered or destroyed
+    if (element) {
+      if (this.venueMap) {
+        console.log("Set target");
+        this.venueMap.setTarget("venueMap");
+      }
+    } else {
+      console.log("Map tab destroyed");
+      this.venueMap?.setTarget("");
+    }
   }
 
 
@@ -136,11 +278,15 @@ export class ConcertFormComponent implements OnInit {
     newConcert.lpuEarlyEntryConfirmed = this.concertForm.value.lpuEarlyEntryConfirmed?.valueOf() ?? false;
     let lpuEarlyEntryTime = this.concertForm.value.lpuEarlyEntryTime?.valueOf();
     if (lpuEarlyEntryTime != null && lpuEarlyEntryTime.length > 0) {
-      console.log("Local LPU EE time: " + lpuEarlyEntryTime);
-
       let lpuEarlyEntryDateTime = zonedDateTime.set(DateTime.fromFormat(lpuEarlyEntryTime, 'hh:mm').toObject());
+      // weird timezone issues can cause the LPU time to be on the next day. That's why we need to fix the date just to be sure
+      lpuEarlyEntryDateTime = lpuEarlyEntryDateTime.set({day: localDateTime.day, month: localDateTime.month, year: localDateTime.year});
       newConcert.lpuEarlyEntryTime = lpuEarlyEntryDateTime.toISO()!;
     }
+
+    // Venue coordinates
+    newConcert.venueLatitude = this.concertForm.value.venueLat ?? 0;
+    newConcert.venueLongitude = this.concertForm.value.venueLong ?? 0;
 
     console.log(newConcert);
 

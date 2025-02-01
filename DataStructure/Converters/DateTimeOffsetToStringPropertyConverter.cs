@@ -33,6 +33,6 @@ public class DateTimeOffsetToStringPropertyConverter : IPropertyConverter
         if (value.GetType() != typeof(DateTimeOffset) && value.GetType() != typeof(DateTimeOffset?))
             throw new ArgumentException($"value parameter must be a DateTimeOffset or a Nullable<DateTimeOffset>. But it is '{value.GetType()}'!", nameof(value));
         
-        return ((DateTimeOffset)value).ToString("O");
+        return ((DateTimeOffset)value).UtcDateTime.ToString("O");
     }
 }

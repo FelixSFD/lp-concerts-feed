@@ -39,7 +39,7 @@
               LPU Early Entry
             </div>
             <div class="card-body text-center">
-              <h4 class="card-text">{{getDateTime(concert$?.lpuEarlyEntryTime!).toLocaleString(DateTime.TIME_SIMPLE)}}</h4>
+              <h4 class="card-text">{{getDateTimeInTimezone(concert$?.lpuEarlyEntryTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE)}}</h4>
             </div>
           </div>
         </div>
@@ -62,7 +62,7 @@
             Venue start time
           </div>
           <div class="card-body text-center">
-            <h4 class="card-text">{{getDateTimeInTimezone(concert$?.postedStartTime!).toLocaleString(DateTime. DATETIME_SHORT)}}</h4>
+            <h4 class="card-text">{{getDateTimeInTimezone(concert$?.postedStartTime!, concert$?.timeZoneId!).toLocaleString(DateTime. DATETIME_SHORT)}}</h4>
           </div>
         </div>
       </div>
@@ -79,4 +79,10 @@
       </div>
     </div>
   </div>
+
+  <ng-container *ngIf="concert$?.venueLatitude != 0 && concert$?.venueLongitude != 0">
+    <h3>Venue location</h3>
+    <div id="venueMap" class="map"></div>
+  </ng-container>
 </ng-template>
+

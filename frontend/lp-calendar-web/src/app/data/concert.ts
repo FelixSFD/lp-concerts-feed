@@ -16,4 +16,8 @@ export class Concert {
   venue: string | undefined;
 
   tourName: string | undefined;
+
+  // Location of the venue
+  venueLatitude: number | undefined;
+  venueLongitude: number | undefined;
 }
