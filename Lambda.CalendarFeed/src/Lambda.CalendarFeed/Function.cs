@@ -74,7 +74,7 @@ public class Function
         var description = $"Concert of the Linkin Park {concert.TourName}";
         var stateString = concert.State != null ? $", {concert.State}" : "";
         
-        var date = new CalDateTime(concert.PostedStartTime.Value.DateTime, concert.TimeZoneId); // TODO: maybe extension method?
+        var date = GetCalDateTimeFromDateTimeOffset(concert.PostedStartTime.Value, concert.TimeZoneId);
         var calendarEvent = new CalendarEvent
         {
             // If Name property is used, it MUST be RFC 5545 compliant
@@ -98,8 +98,8 @@ public class Function
         var title = $"Linkin Park: {concert.Venue}";
         var description = $"Linkin Park Concert at {concert.Venue}\nThis show is not part of a tour.";
         var stateString = concert.State != null ? $", {concert.State}" : "";
-        
-        var date = new CalDateTime(concert.PostedStartTime.Value.DateTime, concert.TimeZoneId); // TODO: maybe extension method?
+
+        var date = GetCalDateTimeFromDateTimeOffset(concert.PostedStartTime.Value, concert.TimeZoneId);
         var calendarEvent = new CalendarEvent
         {
             // If Name property is used, it MUST be RFC 5545 compliant
@@ -112,6 +112,19 @@ public class Function
         };
 
         return calendarEvent;
+    }
+
+
+    private static CalDateTime GetCalDateTimeFromDateTimeOffset(DateTimeOffset dateTimeOffset, string tzId)
+    {
+        return new CalDateTime(DateToTimeZone(dateTimeOffset, tzId).DateTime, tzId);
+    }
+
+
+    private static DateTimeOffset DateToTimeZone(DateTimeOffset dateTimeOffset, string tzId)
+    {
+        var targetTz = TimeZoneInfo.FindSystemTimeZoneById(tzId);
+        return TimeZoneInfo.ConvertTime(dateTimeOffset, targetTz);
     }
 
 
