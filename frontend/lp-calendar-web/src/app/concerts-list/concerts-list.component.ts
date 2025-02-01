@@ -115,8 +115,8 @@ export class ConcertsListComponent implements OnInit {
   }
 
 
-  public getDateTimeInTimezone(inputDate: string) {
-    return DateTime.fromISO(inputDate, {setZone: true});
+  public getDateTimeInTimezone(inputDate: string, timeZoneId: string) {
+    return DateTime.fromISO(inputDate, {zone: timeZoneId});
   }
 
   protected readonly timezones = timezones;

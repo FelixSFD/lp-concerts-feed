@@ -56,7 +56,7 @@
         </tr>
         <tr *ngIf="concert.timeZoneId != undefined">
           <td>Venue timezone:</td>
-          <td>{{getDateTimeInTimezone(concert.postedStartTime!).toLocaleString(DateTime. DATETIME_SHORT)}}</td>
+          <td>{{getDateTimeInTimezone(concert.postedStartTime!, concert.timeZoneId).toLocaleString(DateTime. DATETIME_SHORT)}}</td>
         </tr>
       </table>
     </td>

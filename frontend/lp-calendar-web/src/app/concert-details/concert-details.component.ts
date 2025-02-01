@@ -209,8 +209,8 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   }
 
 
-  public getDateTimeInTimezone(inputDate: string) {
-    return DateTime.fromISO(inputDate, {setZone: true});
+  public getDateTimeInTimezone(inputDate: string, timeZoneId: string) {
+    return DateTime.fromISO(inputDate, {zone: timeZoneId});
   }
 
 
