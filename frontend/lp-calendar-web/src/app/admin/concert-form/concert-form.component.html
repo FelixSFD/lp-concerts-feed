@@ -6,6 +6,9 @@
                   <a class="nav-link {{ activeTabName$ == 'main' ? 'active' : '' }}" (click)="openTab('main')" href="javascript:void(0)">General information</a>
               </li>
               <li class="nav-item">
+                  <a class="nav-link {{ activeTabName$ == 'timing-details' ? 'active' : '' }}" (click)="openTab('timing-details')" href="javascript:void(0)">Timing Details</a>
+              </li>
+              <li class="nav-item">
                   <a class="nav-link {{ activeTabName$ == 'lpu' ? 'active' : '' }}" (click)="openTab('lpu')" href="javascript:void(0)">LPU</a>
               </li>
               <li class="nav-item">
@@ -79,6 +82,18 @@
                        [ngClass]="{ 'is-invalid': concertForm.controls.country.invalid }">
                 <div *ngIf="concertForm.controls.country.invalid" class="text-danger">
                     <small *ngIf="concertForm.controls.country.errors">Country is required.</small>
+                </div>
+            </div>
+        </ng-container>
+
+        <ng-container *ngIf="activeTabName$ == 'timing-details'">
+            <!-- Official Doors Time -->
+            <div class="form-group">
+                <label for="doorsTime">Confirmed doors time (normal entry)</label>
+                <input id="doorsTime" type="time" formControlName="doorsTime" class="form-control"
+                       [ngClass]="{ 'is-invalid': concertForm.controls.doorsTime.invalid }">
+                <div *ngIf="concertForm.controls.doorsTime.invalid" class="text-danger">
+                    <small *ngIf="concertForm.controls.doorsTime.errors">Time is invalid.</small>
                 </div>
             </div>
         </ng-container>
