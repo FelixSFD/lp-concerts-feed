@@ -45,6 +45,19 @@
         </div>
       </ng-template>
 
+      <ng-template [ngIf]="concert$?.doorsTime != undefined" #doorsTimeCard>
+        <div class="col">
+          <div class="card" style="width: 18rem;">
+            <div class="card-header">
+              Doors open at
+            </div>
+            <div class="card-body text-center">
+              <h4 class="card-text">{{getDateTimeInTimezone(concert$?.doorsTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE)}}</h4>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
       <div class="col">
         <div class="card" style="width: 18rem;">
           <div class="card-header">
