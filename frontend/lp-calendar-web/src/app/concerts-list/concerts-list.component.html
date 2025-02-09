@@ -52,11 +52,11 @@
       <table class="align-bottom">
         <tr>
           <td>Your timezone:</td>
-          <td>{{getDateTime(concert.postedStartTime!).toLocaleString(DateTime. DATETIME_SHORT)}}</td>
+          <td>{{getDateTime(concert.mainStageTime ?? concert.postedStartTime!).toLocaleString(DateTime. DATETIME_SHORT)}}</td>
         </tr>
         <tr *ngIf="concert.timeZoneId != undefined">
           <td>Venue timezone:</td>
-          <td>{{getDateTimeInTimezone(concert.postedStartTime!, concert.timeZoneId).toLocaleString(DateTime. DATETIME_SHORT)}}</td>
+          <td>{{getDateTimeInTimezone(concert.mainStageTime ?? concert.postedStartTime!, concert.timeZoneId).toLocaleString(DateTime. DATETIME_SHORT)}}</td>
         </tr>
       </table>
     </td>
