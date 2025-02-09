@@ -32,6 +32,32 @@
 
   <div class="container">
     <div class="row row-cols-xxl-4 row-cols-xl-3 row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-xs-1 gy-4 gx-4">
+      <ng-template [ngIf]="concert$?.mainStageTime != undefined" #lpStageTimeCards>
+        <div class="col">
+          <div class="card" style="width: 18rem;">
+            <div class="card-header">
+              Linkin Park stage time
+            </div>
+            <div class="card-body text-center">
+              <h4 class="card-text">{{getDateTimeInTimezone(concert$?.mainStageTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE)}}</h4>
+              <small>Venue's timezone ({{ concert$?.timeZoneId ?? "" }})</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="card" style="width: 18rem;">
+            <div class="card-header">
+              Linkin Park stage time
+            </div>
+            <div class="card-body text-center">
+              <h4 class="card-text">{{getDateTime(concert$?.mainStageTime!).toLocaleString(DateTime. DATETIME_SHORT)}}</h4>
+              <small>Your timezone</small>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
       <ng-template [ngIf]="concert$?.lpuEarlyEntryTime != undefined" #lpuEarlyEntryCard>
         <div class="col">
           <div class="card" style="width: 18rem;">
@@ -40,6 +66,7 @@
             </div>
             <div class="card-body text-center">
               <h4 class="card-text">{{getDateTimeInTimezone(concert$?.lpuEarlyEntryTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE)}}</h4>
+              <small>Venue's timezone ({{ concert$?.timeZoneId ?? "" }})</small>
             </div>
           </div>
         </div>
@@ -53,6 +80,7 @@
             </div>
             <div class="card-body text-center">
               <h4 class="card-text">{{getDateTimeInTimezone(concert$?.doorsTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE)}}</h4>
+              <small>Venue's timezone ({{ concert$?.timeZoneId ?? "" }})</small>
             </div>
           </div>
         </div>
