@@ -86,27 +86,31 @@
         </div>
       </ng-template>
 
-      <div class="col">
-        <div class="card w-100" style="width: 18rem;">
-          <div class="card-header">
-            Your start time
-          </div>
-          <div class="card-body text-center">
-            <h4 class="card-text">{{getDateTime(concert$?.postedStartTime!).toLocaleString(DateTime. DATETIME_SHORT)}}</h4>
+      <ng-template [ngIf]="concert$?.mainStageTime == undefined">
+        <div class="col">
+          <div class="card w-100" style="width: 18rem;">
+            <div class="card-header">
+              Your start time
+            </div>
+            <div class="card-body text-center">
+              <h4 class="card-text">{{getDateTime(concert$?.postedStartTime!).toLocaleString(DateTime. DATETIME_SHORT)}}</h4>
+            </div>
           </div>
         </div>
-      </div>
+      </ng-template>
 
-      <div class="col">
-        <div class="card w-100" style="width: 18rem;">
-          <div class="card-header">
-            Venue start time
-          </div>
-          <div class="card-body text-center">
-            <h4 class="card-text">{{getDateTimeInTimezone(concert$?.postedStartTime!, concert$?.timeZoneId!).toLocaleString(DateTime. DATETIME_SHORT)}}</h4>
+      <ng-template [ngIf]="concert$?.mainStageTime == undefined">
+        <div class="col">
+          <div class="card w-100" style="width: 18rem;">
+            <div class="card-header">
+              Venue start time
+            </div>
+            <div class="card-body text-center">
+              <h4 class="card-text">{{getDateTimeInTimezone(concert$?.postedStartTime!, concert$?.timeZoneId!).toLocaleString(DateTime. DATETIME_SHORT)}}</h4>
+            </div>
           </div>
         </div>
-      </div>
+      </ng-template>
 
       <div class="col">
         <div class="card w-100" style="width: 18rem;">
