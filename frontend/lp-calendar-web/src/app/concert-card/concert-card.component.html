@@ -8,7 +8,9 @@
       <p class="card-text">
         <i>{{ concert$.city }}{{ (concert$.state?.length ?? 0) > 0 ? ", " + concert$.state : ""}}, {{ concert$.country }}</i>
       </p>
-      <app-countdown *ngIf="concert$.postedStartTime != undefined" [countdownToDate]="concert$.postedStartTime!" [concertId]="concert$.id" />
+      <app-countdown *ngIf="concert$.postedStartTime != undefined || concert$.mainStageTime != undefined" [countdownToDate]="concert$.mainStageTime ?? concert$.postedStartTime!" [concertId]="concert$.id" />
+      <small *ngIf="concert$.mainStageTime == undefined">Based on start time on ticket</small>
+      <small *ngIf="concert$.mainStageTime != undefined">Based on Linkin Park stage time</small>
     </ng-template>
 
     <ng-template [ngIf]="concert$ == null" #concertLoadingSpinner>
