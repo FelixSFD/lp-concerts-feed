@@ -16,6 +16,7 @@ export const authConfig: PassedInitialConfig = {
     responseType: 'code', // Authorization Code Flow
     silentRenew: true, // Enable silent token renewal
     useRefreshToken: true, // Use refresh tokens to maintain the session
+    allowUnsafeReuseRefreshToken: true,
     secureRoutes: [environment.apiNoCacheBaseUrl + '/Prod/deleteConcert/', environment.apiNoCacheBaseUrl + '/Prod/addConcert'],
     logLevel: LogLevel.Debug // Enable detailed logs for debugging
   }

@@ -58,6 +58,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
     lpuEarlyEntryConfirmed: new FormControl(false, []),
     lpuEarlyEntryTime: new FormControl('', []),
     doorsTime: new FormControl('', []),
+    lpStageTime: new FormControl('', []),
     venueLat: new FormControl(0, []),
     venueLong: new FormControl(0, [])
   });
@@ -210,6 +211,11 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
     let doorsDateTimeIsoStr = doorsDateTime?.toISOTime();
     console.log("Doors at: " + doorsDateTimeIsoStr);
 
+    let lpStageDateTimeUtc = concert.mainStageTime == undefined ? null : DateTime.fromISO(concert.mainStageTime);
+    let lpStageDateTime = lpStageDateTimeUtc?.setZone(concert.timeZoneId!, {keepLocalTime: false})
+    let lpStageDateTimeIsoStr = lpStageDateTime?.toISOTime();
+    console.log("LP on stage at: " + lpStageDateTimeIsoStr);
+
     this.concertForm.controls.tourName.setValue(concert.tourName ?? null);
     this.concertForm.controls.venue.setValue(concert.venue ?? null);
     this.concertForm.controls.city.setValue(concert.city ?? null);
@@ -220,6 +226,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
     this.concertForm.controls.lpuEarlyEntryConfirmed.setValue(concert.lpuEarlyEntryConfirmed);
     this.concertForm.controls.lpuEarlyEntryTime.setValue(lpuEarlyEntryDateTimeIsoStr?.substring(0, 5) ?? null);
     this.concertForm.controls.doorsTime.setValue(doorsDateTimeIsoStr?.substring(0, 5) ?? null);
+    this.concertForm.controls.lpStageTime.setValue(lpStageDateTimeIsoStr?.substring(0, 5) ?? null);
     this.concertForm.controls.venueLat.setValue(concert.venueLatitude ?? 0)
     this.concertForm.controls.venueLong.setValue(concert.venueLongitude ?? 0)
 
@@ -298,6 +305,15 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
       // weird timezone issues can cause the LPU time to be on the next day. That's why we need to fix the date just to be sure
       doorsDateTime = doorsDateTime.set({day: localDateTime.day, month: localDateTime.month, year: localDateTime.year});
       newConcert.doorsTime = doorsDateTime.toISO()!;
+    }
+
+    // LP stage time
+    let lpStageTime = this.concertForm.value.lpStageTime?.valueOf();
+    if (lpStageTime != null && lpStageTime.length > 0) {
+      let lpStageDateTime = zonedDateTime.set(DateTime.fromFormat(lpStageTime, 'hh:mm').toObject());
+      // weird timezone issues can cause the LPU time to be on the next day. That's why we need to fix the date just to be sure
+      lpStageDateTime = lpStageDateTime.set({day: localDateTime.day, month: localDateTime.month, year: localDateTime.year});
+      newConcert.mainStageTime = lpStageDateTime.toISO()!;
     }
 
     // Venue coordinates

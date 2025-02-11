@@ -96,6 +96,16 @@
                     <small *ngIf="concertForm.controls.doorsTime.errors">Time is invalid.</small>
                 </div>
             </div>
+
+            <!-- Linkin Park Stage Time -->
+            <div class="form-group">
+                <label for="lpStageTime">Confirmed Linkin Park stage time</label>
+                <input id="lpStageTime" type="time" formControlName="lpStageTime" class="form-control"
+                       [ngClass]="{ 'is-invalid': concertForm.controls.lpStageTime.invalid }">
+                <div *ngIf="concertForm.controls.lpStageTime.invalid" class="text-danger">
+                    <small *ngIf="concertForm.controls.lpStageTime.errors">Time is invalid.</small>
+                </div>
+            </div>
         </ng-container>
 
         <ng-container *ngIf="activeTabName$ == 'lpu'">
