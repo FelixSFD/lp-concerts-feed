@@ -68,6 +68,8 @@ Resources:
         #  AttributeType: S
         #- AttributeName: Venue
         #  AttributeType: S
+        #- AttributeName: ScheduleImageFile
+        #  AttributeType: S
       KeySchema:
         - AttributeName: Id
           KeyType: HASH
@@ -279,6 +281,25 @@ Resources:
                   - Name: suffix
                     Value: csv
   
+  # Bucket to store the images
+  ConcertImagesBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: !Sub ${BaseProductName}-concert-images
+      #AccessControl: PublicRead
+      #PublicAccessBlockConfiguration:
+      #  BlockPublicAcls: false
+      #  BlockPublicPolicy: false
+      #  IgnorePublicAcls: false
+      #  RestrictPublicBuckets: false
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "storage"
+  
   # Lambda functions
   AddConcertFunction:
     Type: AWS::Serverless::Function
@@ -331,6 +352,32 @@ Resources:
       Principal: "s3.amazonaws.com"
       SourceArn: !Sub arn:aws:s3:::${BaseProductName}-concert-import-data
   
+  GetS3UploadUrlFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: Lambda.GetS3UploadUrl::Lambda.GetS3UploadUrl.Function::FunctionHandler
+      Role: !GetAtt ConcertsWriteLambdaExecutionRole.Arn
+      Description: .NET function to request an URL to upload files to S3
+      CodeUri: ../Lambda.GetS3UploadUrl/src/Lambda.GetS3UploadUrl/bin/Release/net8.0/Lambda.GetS3UploadUrl.zip
+      Architectures:
+        - arm64
+      Tracing: Active
+      Environment:
+        Variables:
+          CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
+          CONCERT_IMG_BUCKET_NAME: !Ref ConcertImagesBucket
+      Events:
+        PutAddConcert:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ConcertsApi
+            Path: /requestFileUpload
+            Method: put
+            Auth:
+              Authorizer: ConcertsCognitoAuthorizer
+              AuthorizationScopes:
+                - openid
+                #- !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
   
   DeleteConcertFunction:
     Type: AWS::Serverless::Function

@@ -24,15 +24,17 @@ public class Function
     private readonly DynamoDBContext _dynamoDbContext;
     private readonly DBOperationConfigProvider _dbOperationConfigProvider = new();
     private readonly IAmazonS3 _s3Client;
+    private readonly IGuidService _guidService;
     
-    public Function() : this(new AmazonS3Client())
+    public Function() : this(new AmazonS3Client(), new GuidService())
     {
     }
     
     
-    internal Function(IAmazonS3 s3Client)
+    internal Function(IAmazonS3 s3Client, IGuidService guidService)
     {
         _s3Client = s3Client;
+        _guidService = guidService;
         _dynamoDbContext = new DynamoDBContext(_dynamoDbClient);
         _dynamoDbContext.RegisterCustomConverters();
     }
@@ -53,9 +55,16 @@ public class Function
             };
         }
 
-        BaseUploadRequester requester = GetRequester();
+        var uploadUrlRequest = GetRequestObjectFromJsonBody(request.Body);
+        
+        // init requester class
+        var requester = uploadUrlRequest.Type switch
+        {
+            GetS3UploadUrlRequest.FileType.ConcertSchedule => new ConcertScheduleUploadRequester(uploadUrlRequest, _guidService, _s3Client),
+            _ => throw new NotImplementedException($"Type '{uploadUrlRequest.Type} not implemented!")
+        };
 
-        GetS3UploadUrlResponse response = new GetS3UploadUrlResponse
+        var response = new GetS3UploadUrlResponse
         {
             UploadUrl = requester.GetUploadUrl()
         };
@@ -74,27 +83,8 @@ public class Function
     }
     
     
-    private GetS3UploadUrlRequest GetRequestObjectFromJsonBody(string json)
+    private static GetS3UploadUrlRequest GetRequestObjectFromJsonBody(string json)
     {
         return JsonSerializer.Deserialize<GetS3UploadUrlRequest>(json) ?? throw new InvalidDataContractException("JSON could not be parsed to Concert!");
-    }
-
-
-    private BaseUploadRequester GetRequester()
-    {
-        return null;
-    }
-
-
-    private string GetUploadUrl(string bucketName, string contentType, string concertId, string subDir, string fileExtension, TimeSpan? validity = null)
-    {
-        var fileId = Guid.NewGuid().ToString();
-        return _s3Client.GetPreSignedURL(new GetPreSignedUrlRequest()
-        {
-            BucketName = bucketName,
-            Key = $"{concertId}/{subDir}/{fileId}.{fileExtension}",
-            ContentType = contentType,
-            Expires = DateTime.UtcNow.Add(validity ?? TimeSpan.FromMinutes(15))
-        });
     }
 }

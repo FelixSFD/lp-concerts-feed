@@ -19,7 +19,7 @@ public abstract class BaseUploadRequester(IAmazonS3 s3Client)
     /// Key of the file in S3
     /// </summary>
     /// <returns></returns>
-    protected abstract string GetFileKey();
+    public abstract string GetFileKey();
 
 
     /// <summary>

@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace LPCalendar.DataStructure.Requests;
 
 public class GetS3UploadUrlRequest
@@ -13,6 +15,7 @@ public class GetS3UploadUrlRequest
     /// Type of the file to upload. (not the MIME-type)
     /// This tells the lambda function for example, which S3 bucket or folder to use
     /// </summary>
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public FileType Type { get; set; }
 
 
