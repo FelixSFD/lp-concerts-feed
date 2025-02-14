@@ -72,6 +72,9 @@ public class Function
         };
         
         context.Logger.LogDebug("Generated URL: {url}", response.UploadUrl);
+
+        await requester.UpdateConcert(uploadUrlRequest.ConcertId, _dynamoDbContext, _dbOperationConfigProvider);
+        context.Logger.LogDebug("Updated concert...");
         
         return new APIGatewayProxyResponse
         {

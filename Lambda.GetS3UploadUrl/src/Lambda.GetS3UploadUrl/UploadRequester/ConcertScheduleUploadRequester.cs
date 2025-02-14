@@ -34,6 +34,6 @@ public class ConcertScheduleUploadRequester(GetS3UploadUrlRequest uploadUrlReque
 
         concert.ScheduleImageFile = GetFileKey();
 
-        await dbContext.SaveAsync(concert);
+        await dbContext.SaveAsync(concert, dbOperationConfigProvider.GetConcertsConfigWithEnvTableName());
     }
 }

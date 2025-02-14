@@ -132,7 +132,9 @@ Resources:
                   - dynamodb:DescribeTable
                   - dynamodb:Scan
                   - dynamodb:Query
-                Resource: !Sub "${ConcertsDynamoDBTable.Arn}*"
+                Resource:
+                  - !Sub "${ConcertsDynamoDBTable.Arn}"
+                  - !Sub "${ConcertsDynamoDBTable.Arn}*"
   ConcertsReadLambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
