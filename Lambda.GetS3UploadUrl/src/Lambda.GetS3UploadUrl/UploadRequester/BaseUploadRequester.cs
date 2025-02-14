@@ -6,9 +6,6 @@ namespace Lambda.GetS3UploadUrl.UploadRequester;
 
 public abstract class BaseUploadRequester(IAmazonS3 s3Client)
 {
-    private readonly IAmazonS3 _s3Client = s3Client;
-
-
     /// <summary>
     /// Name of the bucket to use
     /// </summary>
@@ -44,11 +41,12 @@ public abstract class BaseUploadRequester(IAmazonS3 s3Client)
     /// <returns></returns>
     public string GetUploadUrl(TimeSpan validity)
     {
-        return _s3Client.GetPreSignedURL(new GetPreSignedUrlRequest()
+        return s3Client.GetPreSignedURL(new GetPreSignedUrlRequest()
         {
             BucketName = GetBucketName(),
             Key = GetFileKey(),
             ContentType = GetContentType(),
+            Verb = HttpVerb.PUT,
             Expires = DateTime.UtcNow.Add(validity)
         });
     }

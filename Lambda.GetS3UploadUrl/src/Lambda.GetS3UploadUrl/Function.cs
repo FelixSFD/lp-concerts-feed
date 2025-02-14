@@ -50,10 +50,12 @@ public class Function
                 Headers = new Dictionary<string, string>
                 {
                     { "Access-Control-Allow-Origin", "*" },
-                    { "Access-Control-Allow-Methods", "OPTIONS, GET, POST" }
+                    { "Access-Control-Allow-Methods", "OPTIONS, GET, PUT, POST" }
                 }
             };
         }
+        
+        context.Logger.LogDebug("Requested URL: {req}", request.Body);
 
         var uploadUrlRequest = GetRequestObjectFromJsonBody(request.Body);
         
@@ -69,6 +71,8 @@ public class Function
             UploadUrl = requester.GetUploadUrl()
         };
         
+        context.Logger.LogDebug("Generated URL: {url}", response.UploadUrl);
+        
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
@@ -77,7 +81,7 @@ public class Function
             {
                 { "Content-Type", "application/json" },
                 { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                { "Access-Control-Allow-Methods", "OPTIONS, GET, PUT, POST" }
             }
         };
     }

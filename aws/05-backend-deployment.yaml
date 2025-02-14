@@ -109,6 +109,16 @@ Resources:
                 Action:
                   - s3:*
                 Resource: !Sub "arn:aws:s3:::${BaseProductName}-concert-import-data*"
+        - PolicyName: S3ConcertImgBucketAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                Resource:
+                  - !Sub "arn:aws:s3:::${BaseProductName}-concert-images"
+                  - !Sub "arn:aws:s3:::${BaseProductName}-concert-images/*"
         - PolicyName: LambdaDynamoDBAccess
           PolicyDocument:
             Version: "2012-10-17"
@@ -286,12 +296,31 @@ Resources:
     Type: "AWS::S3::Bucket"
     Properties:
       BucketName: !Sub ${BaseProductName}-concert-images
-      #AccessControl: PublicRead
-      #PublicAccessBlockConfiguration:
-      #  BlockPublicAcls: false
-      #  BlockPublicPolicy: false
-      #  IgnorePublicAcls: false
-      #  RestrictPublicBuckets: false
+      AccessControl: PublicRead
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - GET
+            AllowedOrigins:
+              - '*'
+            Id: concertImgCorsRuleGet
+            MaxAge: 3600
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - PUT
+              - POST
+            AllowedOrigins:
+              - '*'
+            Id: concertImgCorsRulePut
+            MaxAge: 3600
       Tags:
         - Key: "ProductName"
           Value: "lpcalendar"
@@ -362,6 +391,9 @@ Resources:
       Architectures:
         - arm64
       Tracing: Active
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
       Environment:
         Variables:
           CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
