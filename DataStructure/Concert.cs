@@ -122,4 +122,13 @@ public class Concert
     [DynamoDBProperty]
     [JsonPropertyName("venueLongitude")]
     public decimal VenueLongitude { get; set; }
+    
+    
+    /// <summary>
+    /// Filename of the image that contains the show's schedule.
+    /// It's possible that the name is set, but the image doesn't exist. In that case, the file was not uploaded (yet)
+    /// </summary>
+    [DynamoDBProperty]
+    [JsonPropertyName("scheduleImageFile")]
+    public string? ScheduleImageFile { get; set; }
 }
