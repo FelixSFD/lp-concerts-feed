@@ -101,6 +101,10 @@
                 <div *ngIf="concertForm.controls.scheduleImg.invalid" class="text-danger">
                     <small *ngIf="concertForm.controls.scheduleImg.errors">File is invalid.</small>
                 </div>
+                <small><b>Note:</b> To save the image, click the upload button. This is separate from saving the concert details.</small>
+
+                <br />
+                <img *ngIf="concert$?.scheduleImageFile != undefined" width="35%" src="{{ environment.imageBaseUrl + '/' + concert$?.scheduleImageFile! }}" alt="Uploaded image" />
             </div>
 
             <br/><br/>

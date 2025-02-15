@@ -30,6 +30,7 @@ import Icon from 'ol/style/Icon';
 import { Translate } from 'ol/interaction';
 import {Collection} from "ol";
 import {Observable} from "rxjs";
+import {environment} from "../../../environments/environment";
 
 // This class represents a form for adding and editing concerts
 @Component({
@@ -352,4 +353,5 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
 
   protected readonly timezones = timezones;
   protected readonly listOfTours = listOfTours;
+  protected readonly environment = environment;
 }
