@@ -59,12 +59,14 @@ public class Function
     }
 
 
+    [Obsolete]
     private static CalendarEvent? GetCalendarEventFor(Concert concert)
     {
         return concert.TourName != null ? GetCalendarEventWithTourName(concert) : GetCalendarEventWithoutTourName(concert);
     }
 
 
+    [Obsolete]
     private static CalendarEvent? GetCalendarEventWithTourName(Concert concert)
     {
         if (concert.PostedStartTime == null)
@@ -90,6 +92,7 @@ public class Function
     }
     
     
+    [Obsolete]
     private static CalendarEvent? GetCalendarEventWithoutTourName(Concert concert)
     {
         if (concert.PostedStartTime == null)
@@ -115,22 +118,17 @@ public class Function
     }
 
 
+    [Obsolete]
     private static CalDateTime GetCalDateTimeFromDateTimeOffset(DateTimeOffset dateTimeOffset, string tzId)
     {
         return new CalDateTime(DateToTimeZone(dateTimeOffset, tzId).DateTime, tzId);
     }
 
 
+    [Obsolete]
     private static DateTimeOffset DateToTimeZone(DateTimeOffset dateTimeOffset, string tzId)
     {
         var targetTz = TimeZoneInfo.FindSystemTimeZoneById(tzId);
         return TimeZoneInfo.ConvertTime(dateTimeOffset, targetTz);
-    }
-
-
-    private static T ParseItemToObject<T>(Dictionary<string, AttributeValue> attributes) where T : class
-    {
-        string json = JsonSerializer.Serialize(attributes);
-        return JsonSerializer.Deserialize<T>(json) ?? throw new JsonException("Failed to parse database item!");
     }
 }
