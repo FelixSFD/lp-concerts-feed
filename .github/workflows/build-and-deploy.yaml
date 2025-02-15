@@ -72,7 +72,7 @@ jobs:
   frontend:
     needs: [backend]
     environment: 
-      name: ${{ github.ref_name }}
+      name: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     steps:
     
