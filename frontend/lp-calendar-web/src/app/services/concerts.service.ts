@@ -88,7 +88,7 @@ export class ConcertsService {
     let requestUrl = environment.apiNoCacheBaseUrl + "/Prod/requestFileUpload";
     let getUrlRequest = new GetS3UploadUrlRequest();
     getUrlRequest.concertId = concertId;
-    getUrlRequest.contentType = "image/png";
+    getUrlRequest.contentType = imageFile.type;
     getUrlRequest.type = "ConcertSchedule";
 
     return this.httpClient.put<GetS3UploadUrlResponse>(requestUrl, getUrlRequest)
