@@ -299,6 +299,9 @@ Resources:
     Properties:
       BucketName: !Sub ${BaseProductName}-concert-images
       AccessControl: PublicRead
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
       PublicAccessBlockConfiguration:
         BlockPublicAcls: false
         BlockPublicPolicy: false
