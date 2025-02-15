@@ -3,7 +3,7 @@ import {ConcertsService} from '../services/concerts.service';
 import {Concert} from '../data/concert';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {DateTime} from 'luxon';
-import {NgIf} from '@angular/common';
+import {NgIf, NgOptimizedImage} from '@angular/common';
 import {CountdownComponent} from '../countdown/countdown.component';
 import {Meta} from '@angular/platform-browser';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
@@ -22,6 +22,7 @@ import VectorLayer from 'ol/layer/Vector';
 import {Attribution} from 'ol/control';
 import {defaults as defaultControls} from 'ol/control/defaults.js';
 import {mapAttribution} from '../app.config';
+import {environment} from '../../environments/environment';
 
 @Component({
   selector: 'app-concert-details',
@@ -29,7 +30,8 @@ import {mapAttribution} from '../app.config';
     NgIf,
     CountdownComponent,
     RouterLink,
-    ConcertBadgesComponent
+    ConcertBadgesComponent,
+    NgOptimizedImage
   ],
   templateUrl: './concert-details.component.html',
   styleUrl: './concert-details.component.css'
@@ -215,4 +217,5 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
 
 
   protected readonly DateTime = DateTime;
+  protected readonly environment = environment;
 }
