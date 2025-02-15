@@ -331,6 +331,24 @@ Resources:
         - Key: "Category"
           Value: "storage"
   
+  BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      PolicyDocument:
+        Id: !Sub ${AWS::StackName}_PublicS3ConcertImgPolicy
+        Version: 2012-10-17
+        Statement:
+          - Sid: PublicReadForGetBucketObjects
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource: !Join
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref ConcertImagesBucket
+                - /*
+      Bucket: !Ref ConcertImagesBucket
+  
   # Lambda functions
   AddConcertFunction:
     Type: AWS::Serverless::Function
@@ -512,3 +530,8 @@ Outputs:
     #Value: !Sub api-gateway.${RootDomain}.
     Export:
       Name: !Sub '${BaseProductName}-main-api-gateway-domain'
+  ConcertImgBucketExport:
+    Description: 'Bucket that stores concert related images'
+    Value: !GetAtt ConcertImagesBucket.RegionalDomainName
+    Export:
+      Name: !Sub '${BaseProductName}-concert-image-s3-regional-domain'

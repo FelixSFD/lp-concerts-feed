@@ -101,6 +101,27 @@ Resources:
           QueryStringsConfig:
             QueryStringBehavior: all
   
+  ExtraLongCachePolicy:
+    Type: AWS::CloudFront::CachePolicy
+    Properties:
+      CachePolicyConfig:
+        Name: !Sub ${AWS::StackName}_ExtraLongCachePolicy
+        DefaultTTL: 3600
+        MaxTTL: 86400
+        MinTTL: 300
+        ParametersInCacheKeyAndForwardedToOrigin:
+          CookiesConfig:
+            CookieBehavior: all
+          EnableAcceptEncodingBrotli: false
+          EnableAcceptEncodingGzip: false
+          HeadersConfig:
+            HeaderBehavior: whitelist
+            Headers:
+              - Authorization
+              - X-LP-Request-Id
+          QueryStringsConfig:
+            QueryStringBehavior: all
+  
   # CloudFront distribution
   ApiCloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
@@ -203,6 +224,48 @@ Resources:
         Enabled: true
         Comment: !Sub "${AWS::StackName} Frontend"
         PriceClass: PriceClass_100
+  
+  ConcertImagesCloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    DependsOn:
+      - ExtraLongCachePolicy
+      - CORSOriginRequestPolicy
+      - CORSResponseHeadersPolicy
+    Properties:
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "frontend"
+      DistributionConfig:
+        Origins:
+          - Id: ImageBucketOrigin
+            DomainName: { 'Fn::ImportValue': !Sub '${BaseProductName}-concert-image-s3-regional-domain' }
+            S3OriginConfig: { }
+        Aliases: # info about CNAMEs (alternate domain names), if any, for this distribution
+          - !Sub 'img.${RootDomain}'
+        ViewerCertificate:
+          AcmCertificateArn: !Ref CertificateArn
+          SslSupportMethod: sni-only
+        DefaultCacheBehavior:
+          TargetOriginId: ImageBucketOrigin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachePolicyId: !Ref ExtraLongCachePolicy
+          OriginRequestPolicyId: !Ref CORSOriginRequestPolicy
+          ResponseHeadersPolicyId: !Ref CORSResponseHeadersPolicy
+        Enabled: true
+        Comment: !Sub "${AWS::StackName} Image host"
+        PriceClass: PriceClass_100
 
 
 Outputs:
@@ -226,3 +289,8 @@ Outputs:
     Value: !GetAtt FrontendCloudFrontDistribution.DomainName
     Export:
       Name: !Sub '${BaseProductName}-frontend-cloudfront-domain'
+  ConcertImagesCloudFrontDomainExport:
+    Description: 'Domain of CloudFront distribution for the concert images'
+    Value: !GetAtt ConcertImagesCloudFrontDistribution.DomainName
+    Export:
+      Name: !Sub '${BaseProductName}-concert-img-cloudfront-domain'
