@@ -39,10 +39,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{0D4F
 		publishAllDotnetLambdas.sh = publishAllDotnetLambdas.sh
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.GetS3UploadUrl", "Lambda.GetS3UploadUrl\src\Lambda.GetS3UploadUrl\Lambda.GetS3UploadUrl.csproj", "{6A4EE69F-AD35-45F4-83C7-CCBF904046FE}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.GetS3UploadUrl.Tests", "Lambda.GetS3UploadUrl\test\Lambda.GetS3UploadUrl.Tests\Lambda.GetS3UploadUrl.Tests.csproj", "{723B07BB-A88F-431E-9851-83EE28872438}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,13 +93,5 @@ Global
 		{B5A29AD2-0375-4CA1-9E11-A989B7B09005}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5A29AD2-0375-4CA1-9E11-A989B7B09005}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B5A29AD2-0375-4CA1-9E11-A989B7B09005}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6A4EE69F-AD35-45F4-83C7-CCBF904046FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6A4EE69F-AD35-45F4-83C7-CCBF904046FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6A4EE69F-AD35-45F4-83C7-CCBF904046FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6A4EE69F-AD35-45F4-83C7-CCBF904046FE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{723B07BB-A88F-431E-9851-83EE28872438}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{723B07BB-A88F-431E-9851-83EE28872438}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{723B07BB-A88F-431E-9851-83EE28872438}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{723B07BB-A88F-431E-9851-83EE28872438}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

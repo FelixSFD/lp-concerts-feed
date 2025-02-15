@@ -20,7 +20,4 @@ export class Concert {
   // Location of the venue
   venueLatitude: number | undefined;
   venueLongitude: number | undefined;
-
-  // images
-  scheduleImageFile: string | undefined;
 }
