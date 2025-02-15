@@ -298,15 +298,14 @@ Resources:
     Type: "AWS::S3::Bucket"
     Properties:
       BucketName: !Sub ${BaseProductName}-concert-images
-      AccessControl: PublicRead
-      OwnershipControls:
-        Rules:
-          - ObjectOwnership: ObjectWriter
       PublicAccessBlockConfiguration:
         BlockPublicAcls: false
         BlockPublicPolicy: false
         IgnorePublicAcls: false
         RestrictPublicBuckets: false
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: ObjectWriter
       CorsConfiguration:
         CorsRules:
           - AllowedHeaders:
