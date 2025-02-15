@@ -87,6 +87,28 @@
         </ng-container>
 
         <ng-container *ngIf="activeTabName$ == 'timing-details'">
+            <!-- Schedule upload -->
+            <div class="form-group">
+                <label for="scheduleImg">Schedule image</label>
+                <div class="input-group">
+                    <input id="scheduleImg" type="file" formControlName="scheduleImg" class="form-control"
+                           [ngClass]="{ 'is-invalid': concertForm.controls.scheduleImg.invalid }" (change)="onScheduleFileSelected($event)">
+                    <button class="btn btn-outline-success" (click)="uploadFileClicked()" [disabled]="scheduleIsUploading$ || this.selectedScheduleFile == undefined">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!scheduleIsUploading$"></span>
+                        <span class="sr-only"><i *ngIf="!scheduleIsUploading$" class="bi-upload"></i>{{ scheduleIsUploading$ ? "Uploading..." : " Upload" }}</span>
+                    </button>
+                </div>
+                <div *ngIf="concertForm.controls.scheduleImg.invalid" class="text-danger">
+                    <small *ngIf="concertForm.controls.scheduleImg.errors">File is invalid.</small>
+                </div>
+                <small><b>Note:</b> To save the image, click the upload button. This is separate from saving the concert details.</small>
+
+                <br />
+                <img *ngIf="concert$?.scheduleImageFile != undefined" width="35%" src="{{ environment.imageBaseUrl + '/' + concert$?.scheduleImageFile! }}" alt="Uploaded image" />
+            </div>
+
+            <br/><br/>
+
             <!-- Official Doors Time -->
             <div class="form-group">
                 <label for="doorsTime">Confirmed doors time (normal entry)</label>

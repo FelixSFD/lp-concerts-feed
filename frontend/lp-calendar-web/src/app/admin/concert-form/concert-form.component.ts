@@ -29,6 +29,8 @@ import Style from 'ol/style/Style';
 import Icon from 'ol/style/Icon';
 import { Translate } from 'ol/interaction';
 import {Collection} from "ol";
+import {Observable} from "rxjs";
+import {environment} from "../../../environments/environment";
 
 // This class represents a form for adding and editing concerts
 @Component({
@@ -60,7 +62,8 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
     doorsTime: new FormControl('', []),
     lpStageTime: new FormControl('', []),
     venueLat: new FormControl(0, []),
-    venueLong: new FormControl(0, [])
+    venueLong: new FormControl(0, []),
+    scheduleImg: new FormControl('', [])
   });
 
   @Input({ alias: "concert-id" })
@@ -84,10 +87,14 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
   private venueMap: Map | undefined;
   private marker: Feature | undefined;
 
+  // Selected schedule-file
+  protected selectedScheduleFile: File | undefined;
+
   // Service to check auth information
   private readonly oidcSecurityService = inject(OidcSecurityService);
 
   hasWriteAccess$ = false;
+  scheduleIsUploading$ = false;
 
   constructor() {
     this.oidcSecurityService.checkAuth().subscribe(({ isAuthenticated }) => {
@@ -326,6 +333,25 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
   }
 
 
+  onScheduleFileSelected(event: any){
+    this.selectedScheduleFile = <File> event.target.files[0];
+  }
+
+
+  uploadFileClicked() {
+    if (this.selectedScheduleFile == undefined) {
+      return;
+    }
+
+    this.scheduleIsUploading$ = true;
+    this.concertsService.uploadConcertSchedule(this.concertId!, this.selectedScheduleFile)
+        .subscribe(() => {
+          this.scheduleIsUploading$ = false;
+        })
+  }
+
+
   protected readonly timezones = timezones;
   protected readonly listOfTours = listOfTours;
+  protected readonly environment = environment;
 }

@@ -51,6 +51,9 @@ jobs:
     - name: Build Lambda.CalendarFeed
       working-directory: Lambda.CalendarFeed/src/Lambda.CalendarFeed
       run: dotnet lambda package -farch arm64
+    - name: Build Lambda.GetS3UploadUrl
+      working-directory: Lambda.GetS3UploadUrl/src/Lambda.GetS3UploadUrl
+      run: dotnet lambda package -farch arm64
 
     # AWS DEPLOY
     - name: Configure AWS credentials
@@ -115,6 +118,12 @@ jobs:
         files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
         search-text: 'COGNITO_AUTH_SERVER'
         replacement-text: ${{ vars.COGNITO_AUTH_SERVER }}
+    - name: Replace IMAGE_BASE_URL
+      uses: richardrigutins/replace-in-files@v2
+      with:
+        files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
+        search-text: 'IMAGE_BASE_URL'
+        replacement-text: ${{ vars.IMAGE_BASE_URL }}
 
     # Get Date and write it into the environemnt.ts
     - name: Get current date

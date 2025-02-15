@@ -113,8 +113,19 @@ public class Function
     }
 
 
+    private async Task FixNonOverridableFields(Concert concert)
+    {
+        var existing = await _dynamoDbContext.LoadAsync<Concert>(concert.Id, _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName());
+        if (existing != null)
+        {
+            concert.ScheduleImageFile = existing.ScheduleImageFile;
+        }
+    }
+
+
     private async Task SaveConcert(Concert concert)
     {
+        await FixNonOverridableFields(concert);
         await _dynamoDbContext.SaveAsync(concert, _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName());
     }
 }
