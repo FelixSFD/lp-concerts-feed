@@ -36,7 +36,6 @@ Resources:
         - !Sub 'api.${RootDomain}'
         - !Sub 'api-gateway.${RootDomain}'
         - !Sub 'www.${RootDomain}'
-        - !Sub 'img.${RootDomain}'
       ValidationMethod: DNS
       DomainValidationOptions:
         - DomainName: !Sub '${RootDomain}'
@@ -46,8 +45,6 @@ Resources:
         - DomainName: !Sub 'api-gateway.${RootDomain}'
           HostedZoneId: !Ref HostedZoneId
         - DomainName: !Sub 'www.${RootDomain}'
-          HostedZoneId: !Ref HostedZoneId
-        - DomainName: !Sub 'img.${RootDomain}'
           HostedZoneId: !Ref HostedZoneId
 
 

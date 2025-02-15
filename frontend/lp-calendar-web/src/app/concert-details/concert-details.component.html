@@ -123,21 +123,6 @@
         </div>
       </div>
     </div>
-
-    <ng-template [ngIf]="concert$?.scheduleImageFile != undefined">
-      <div class="row justify-content-center mt-4 mb-5">
-        <div class="col-xxl-8 col-xl-9 col-lg-10 col-md-12 col-sm-12 col-xs-12">
-          <div class="card w-100" style="width: 18rem;">
-            <div class="card-header">
-              Official Schedule
-            </div>
-            <div class="card-body text-center">
-              <img width="100%" src="{{ environment.imageBaseUrl + '/' + concert$?.scheduleImageFile! }}" alt="Official schedule announcement" />
-            </div>
-          </div>
-        </div>
-      </div>
-    </ng-template>
   </div>
 
   <br />
