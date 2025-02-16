@@ -29,6 +29,7 @@ jobs:
       if: ${{ always() }}
     - name: Generate test report
       uses: bibipkins/dotnet-test-reporter@v1.4.0
+      if: ${{ always() }}
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         comment-title: 'Unit Test Results'
