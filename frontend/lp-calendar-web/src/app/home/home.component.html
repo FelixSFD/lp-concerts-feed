@@ -14,14 +14,25 @@
       </div>
       <div class="card-body">
         <h5 class="card-title">Subscribe to calendar feed</h5>
-        <p class="card-text">
-          To subscribe to the calendar, you need to use the following URL: <code>{{environment.apiCachedBaseUrl}}/Prod/feed/ical</code>
-          <br/>
-          You can enter this URL in most calendar applications. The application will periodically refresh the calendar to get any changes in the schedule.
-        </p>
+        You can build your custom calendar subscription. This will generate a feed that your calendar app can subscribe to, so you'll always see the Linkin Park shows in your calendar.
+
+        <hr/>
+        <app-calendar-feed-builder (feed-url)="onFeedUrlUpdated($event)"></app-calendar-feed-builder>
       </div>
       <div class="card-footer text-end">
-        <button class="btn btn-info " (click)="subscribeBtnClicked()"><i class="bi bi-calendar-plus"></i> Add to calendar</button>
+        <div class="btn-group" role="group">
+          <button class="btn btn-info" (click)="subscribeCustomBtnClicked()">
+            <i class="bi bi-calendar-plus"></i> Add to calendar
+          </button>
+          <div class="btn-group" role="group">
+            <button class="btn btn-info dropdown-toggle" id="iCalFeedDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="iCalFeedDropdownBtn">
+              <li><a class="dropdown-item" href="javascript:void(0)" (click)="subscribeCustomBtnClicked()">Subscribe</a></li>
+              <li><a class="dropdown-item" href="javascript:void(0)" (click)="copyFeedUrlBtnClicked()">Copy Link</a></li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   </div>

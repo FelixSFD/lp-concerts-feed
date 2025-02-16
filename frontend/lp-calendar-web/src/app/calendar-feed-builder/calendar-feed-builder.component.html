@@ -1,0 +1,11 @@
+<form #form="ngForm" [formGroup]="feedBuilderForm" class="form">
+  <div class="form-check form-switch">
+    <input class="form-check-input" type="checkbox" id="doorsTimeSwitch" [checked]="feedBuilderForm.controls.doorsTimeSwitch.value" formControlName="doorsTimeSwitch">
+    <label class="form-check-label" for="doorsTimeSwitch">Doors time</label>
+  </div>
+
+  <div class="form-check form-switch">
+    <input class="form-check-input" type="checkbox" id="lpStageTimeSwitch" [checked]="feedBuilderForm.controls.lpStageTimeSwitch.value" formControlName="lpStageTimeSwitch">
+    <label class="form-check-label" for="lpStageTimeSwitch">Linkin Park stage time</label>
+  </div>
+</form>
