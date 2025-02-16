@@ -7,14 +7,14 @@ namespace Lambda.CalendarFeed;
 public enum ConcertSubEventCategory
 {
     // just put everything in one event (this is the behavior of the old feed)
-    AsOneSingleEvent = 0,
+    AsOneSingleEvent = 1 << 0,
     
     // include Linkin Park show
-    LinkinPark = 1 << 0,
+    LinkinPark = 1 << 2,
     
     // include Doors time
-    Doors = 1 << 1,
+    Doors = 1 << 3,
     
     // include support acts if available
-    SupportAct = 1 << 2
+    SupportAct = 1 << 4
 }

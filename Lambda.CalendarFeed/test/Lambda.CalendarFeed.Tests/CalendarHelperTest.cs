@@ -1,3 +1,4 @@
+using Ical.Net.CalendarComponents;
 using Ical.Net.DataTypes;
 using JetBrains.Annotations;
 using LPCalendar.DataStructure;
@@ -155,5 +156,184 @@ public class CalendarHelperTest
         Assert.Equal(expectedLocation, fullEvent.Location);
         Assert.Equal(expectedDuration, fullEvent.Duration);
         Assert.Equal(expectedStart, fullEvent.Start);
+    }
+
+    
+    /// <summary>
+    /// Test-data for <see cref="ToCalendarEvents"/>
+    /// </summary>
+    public static IEnumerable<object[]> ToCalendarEventsData =>
+        new List<object[]>
+        {
+            // Test with Doors + Stage time
+            new object[]
+            {
+                new[]
+                {
+                    new Concert
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Status = "PUBLISHED",
+                        TourName = "FZ WORLD TOUR 2024",
+                        Venue = "Barclays Arena",
+                        City = "Hamburg",
+                        Country = "Germany",
+                        TimeZoneId = "Europe/Berlin",
+                        LpuEarlyEntryConfirmed = false,
+                        PostedStartTime = new DateTimeOffset(2024, 9, 22, 18, 0, 0, TimeSpan.FromHours(2)),
+                        DoorsTime = new DateTimeOffset(2024, 9, 22, 18, 30, 0, TimeSpan.FromHours(2)),
+                        MainStageTime= new DateTimeOffset(2024, 9, 22, 20, 40, 0, TimeSpan.FromHours(2))
+                    }
+                },
+                ConcertSubEventCategory.LinkinPark | ConcertSubEventCategory.Doors,
+                new[]
+                {
+                    new CalendarEvent
+                    {
+                        Summary = "Doors open: Linkin Park in Hamburg",
+                        Description = "Doors open at Barclays Arena for the Linkin Park concert",
+                        Location = "Barclays Arena, Hamburg, Germany",
+                        Start = new CalDateTime(2024, 9, 22, 18, 30, 0, "Europe/Berlin"),
+                        End = new CalDateTime(2024, 9, 22, 20, 40, 0, "Europe/Berlin"),
+                        IsAllDay = false
+                    },
+                    new CalendarEvent
+                    {
+                        Summary = "Linkin Park: Hamburg",
+                        Description = "Stage time for Linkin Park at Barclays Arena",
+                        Location = "Barclays Arena, Hamburg, Germany",
+                        Start = new CalDateTime(2024, 9, 22, 20, 40, 0, "Europe/Berlin"),
+                        End = new CalDateTime(2024, 9, 22, 22, 40, 0, "Europe/Berlin"),
+                        IsAllDay = false
+                    }
+                }
+            },
+            // Test with Stage Time only
+            new object[]
+            {
+                new[]
+                {
+                    new Concert
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Status = "PUBLISHED",
+                        TourName = "FZ WORLD TOUR 2024",
+                        Venue = "Barclays Arena",
+                        City = "Hamburg",
+                        Country = "Germany",
+                        TimeZoneId = "Europe/Berlin",
+                        LpuEarlyEntryConfirmed = false,
+                        PostedStartTime = new DateTimeOffset(2024, 9, 22, 18, 0, 0, TimeSpan.FromHours(2)),
+                        DoorsTime = new DateTimeOffset(2024, 9, 22, 18, 30, 0, TimeSpan.FromHours(2)),
+                        MainStageTime= new DateTimeOffset(2024, 9, 22, 20, 40, 0, TimeSpan.FromHours(2))
+                    }
+                },
+                ConcertSubEventCategory.LinkinPark,
+                new[]
+                {
+                    new CalendarEvent
+                    {
+                        Summary = "Linkin Park: Hamburg",
+                        Description = "Stage time for Linkin Park at Barclays Arena",
+                        Location = "Barclays Arena, Hamburg, Germany",
+                        Start = new CalDateTime(2024, 9, 22, 20, 40, 0, "Europe/Berlin"),
+                        End = new CalDateTime(2024, 9, 22, 22, 40, 0, "Europe/Berlin"),
+                        IsAllDay = false
+                    }
+                }
+            },
+            // Test with Doors only
+            new object[]
+            {
+                new[]
+                {
+                    new Concert
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Status = "PUBLISHED",
+                        TourName = "FZ WORLD TOUR 2024",
+                        Venue = "Barclays Arena",
+                        City = "Hamburg",
+                        Country = "Germany",
+                        TimeZoneId = "Europe/Berlin",
+                        LpuEarlyEntryConfirmed = false,
+                        PostedStartTime = new DateTimeOffset(2024, 9, 22, 18, 0, 0, TimeSpan.FromHours(2)),
+                        DoorsTime = new DateTimeOffset(2024, 9, 22, 18, 30, 0, TimeSpan.FromHours(2)),
+                        MainStageTime= new DateTimeOffset(2024, 9, 22, 20, 40, 0, TimeSpan.FromHours(2))
+                    }
+                },
+                ConcertSubEventCategory.Doors,
+                new[]
+                {
+                    new CalendarEvent
+                    {
+                        Summary = "Doors open: Linkin Park in Hamburg",
+                        Description = "Doors open at Barclays Arena for the Linkin Park concert",
+                        Location = "Barclays Arena, Hamburg, Germany",
+                        Start = new CalDateTime(2024, 9, 22, 18, 30, 0, "Europe/Berlin"),
+                        End = null,
+                        IsAllDay = false
+                    }
+                }
+            },
+            // Test with concert as single event
+            new object[]
+            {
+                new[]
+                {
+                    new Concert
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Status = "PUBLISHED",
+                        TourName = "FZ WORLD TOUR 2024",
+                        Venue = "Barclays Arena",
+                        City = "Hamburg",
+                        Country = "Germany",
+                        TimeZoneId = "Europe/Berlin",
+                        LpuEarlyEntryConfirmed = false,
+                        PostedStartTime = new DateTimeOffset(2024, 9, 22, 18, 0, 0, TimeSpan.FromHours(2)),
+                        DoorsTime = new DateTimeOffset(2024, 9, 22, 18, 30, 0, TimeSpan.FromHours(2)),
+                        MainStageTime= new DateTimeOffset(2024, 9, 22, 20, 40, 0, TimeSpan.FromHours(2))
+                    }
+                },
+                ConcertSubEventCategory.AsOneSingleEvent,
+                new[]
+                {
+                    new CalendarEvent
+                    {
+                        Summary = "FZ WORLD TOUR 2024: Hamburg",
+                        Description = "Concert of the Linkin Park FZ WORLD TOUR 2024",
+                        Location = "Barclays Arena, Hamburg, Germany",
+                        Start = new CalDateTime(2024, 9, 22, 20, 40, 0, "Europe/Berlin"),
+                        End = new CalDateTime(2024, 9, 22, 22, 40, 0, "Europe/Berlin"),
+                        IsAllDay = false
+                    }
+                }
+            }
+        };
+    
+
+    [Theory]
+    [MemberData(nameof(ToCalendarEventsData))]
+    public void ToCalendarEvents(Concert[] concerts, ConcertSubEventCategory categoryFlags, CalendarEvent[] expectedEvents)
+    {
+        var calendarEvents = concerts.ToCalendarEvents(categoryFlags).ToArray();
+        
+        Assert.Equal(expectedEvents.Length, calendarEvents.Length);
+        
+        var i = 0;
+        foreach (var calendarEvent in calendarEvents)
+        {
+            var expectedEvent = expectedEvents[i];
+            
+            Assert.Equal(expectedEvent.Summary, calendarEvent.Summary);
+            Assert.Equal(expectedEvent.Description, calendarEvent.Description);
+            Assert.Equal(expectedEvent.Location, calendarEvent.Location);
+            Assert.Equal(expectedEvent.Start, calendarEvent.Start);
+            Assert.Equal(expectedEvent.End, calendarEvent.End);
+            Assert.Equal(expectedEvent.Duration, calendarEvent.Duration);
+            
+            i++;
+        }
     }
 }
