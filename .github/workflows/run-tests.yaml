@@ -19,11 +19,17 @@ jobs:
     - name: Build
       run: dotnet build
     - name: Test with dotnet
-      run: dotnet test --logger trx --results-directory "TestResults-8.0.x"
+      run: dotnet test --logger trx --results-directory "TestResults"
     - name: Upload dotnet test results
       uses: actions/upload-artifact@v4
       with:
-        name: dotnet-results-8.0.x
-        path: TestResults-8.0.x
+        name: dotnet-results
+        path: TestResults
       # Use always() to always run this step to publish test results when there are test failures
       if: ${{ always() }}
+    - name: Generate test report
+      uses: bibipkins/dotnet-test-reporter@v1.4.0
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        comment-title: 'Unit Test Results'
+        results-path: ./TestResults/*.trx
