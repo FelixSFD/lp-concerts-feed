@@ -1,0 +1,37 @@
+name: Run tests
+
+on:
+  push:
+    branches: [ "*" ]
+
+jobs:
+  test_backend:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+        
+    - name: Install dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build
+    - name: Test with dotnet
+      # TODO: Fix runsettings
+      run: dotnet test --logger trx --results-directory "TestResults" --settings:"Lambda.GetS3UploadUrl/test/Lambda.GetS3UploadUrl.Tests/test.runsettings"
+    - name: Upload dotnet test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: dotnet-results
+        path: TestResults
+      # Use always() to always run this step to publish test results when there are test failures
+      if: ${{ always() }}
+    - name: Generate test report
+      uses: bibipkins/dotnet-test-reporter@v1.4.0
+      if: ${{ always() }}
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        comment-title: 'Unit Test Results'
+        results-path: ./TestResults/*.trx
