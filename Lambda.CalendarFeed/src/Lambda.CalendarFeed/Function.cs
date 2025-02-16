@@ -48,11 +48,13 @@ public class Function
         ConcertSubEventCategory eventCategories;
         if (eventCategoriesFlags != null)
         {
+            context.Logger.LogInformation("Requested event categories: {cat}", eventCategoriesFlags);
             eventCategories = GetCategoryFlagsFromQueryParam(eventCategoriesFlags);
         }
         else
         {
-            eventCategories = ConcertSubEventCategory.AsOneSingleEvent;
+            context.Logger.LogInformation("Requested default categories.");
+            eventCategories = ConcertSubEventCategory.LinkinPark;
         }
         
         var calendar = new Ical.Net.Calendar();
@@ -63,6 +65,8 @@ public class Function
             .GetRemainingAsync(cts.Token);
         
         calendar.Events.AddRange(concerts.ToCalendarEvents(eventCategories));
+        context.Logger.LogDebug("Generated {i} events.", calendar.Events.Count);
+        
         var serializer = new CalendarSerializer();
         var serializedCalendar = serializer.SerializeToString(calendar);
         
