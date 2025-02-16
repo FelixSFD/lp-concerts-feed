@@ -20,11 +20,20 @@ public class Function
     private readonly IAmazonDynamoDB _dynamoDbClient = new AmazonDynamoDBClient();
     private readonly DynamoDBContext _dynamoDbContext;
     private readonly DBOperationConfigProvider _dbOperationConfigProvider = new();
+    private readonly ICalendarGenerator _calendarGenerator;
 
-    public Function()
+    
+    public Function() : this(new CalendarGenerator())
+    {
+        
+    }
+    
+    
+    public Function(ICalendarGenerator calendarGenerator)
     {
         _dynamoDbContext = new DynamoDBContext(_dynamoDbClient);
         _dynamoDbContext.RegisterCustomConverters();
+        _calendarGenerator = calendarGenerator;
     }
     
     

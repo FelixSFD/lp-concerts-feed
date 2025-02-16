@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text;
+using System.Text.Json.Serialization;
 using Amazon.DynamoDBv2.DataModel;
 using LPCalendar.DataStructure.Converters;
 
@@ -106,6 +107,30 @@ public class Concert
     [DynamoDBProperty]
     [JsonPropertyName("venue")]
     public string? Venue { get; set; }
+
+
+    /// <summary>
+    /// Long version of the location string (includes Venue, City, State, Country if available)
+    /// </summary>
+    [DynamoDBIgnore]
+    [JsonPropertyName("locationLong")]
+    public string LocationLong => LocationStringBuilder.GetLocationString(Venue, City, State, Country);
+
+    
+    /// <summary>
+    /// Short version of the location string (includes Venue, City, Country if available)
+    /// </summary>
+    [DynamoDBIgnore]
+    [JsonPropertyName("locationMedium")]
+    public string LocationMedium => LocationStringBuilder.GetLocationString(Venue, City, null, Country);
+    
+    
+    /// <summary>
+    /// Short version of the location string (includes City, Country if available)
+    /// </summary>
+    [DynamoDBIgnore]
+    [JsonPropertyName("locationShort")]
+    public string LocationShort => LocationStringBuilder.GetLocationString(null, City, null, Country);
 
 
     /// <summary>
