@@ -19,7 +19,8 @@ jobs:
     - name: Build
       run: dotnet build
     - name: Test with dotnet
-      run: dotnet test --logger trx --results-directory "TestResults"
+      # TODO: Fix runsettings
+      run: dotnet test --logger trx --results-directory "TestResults" --settings:"Lambda.GetS3UploadUrl/test/Lambda.GetS3UploadUrl.Tests/test.runsettings"
     - name: Upload dotnet test results
       uses: actions/upload-artifact@v4
       with:
