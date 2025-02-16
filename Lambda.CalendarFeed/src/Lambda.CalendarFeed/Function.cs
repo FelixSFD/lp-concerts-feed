@@ -17,6 +17,8 @@ namespace Lambda.CalendarFeed;
 
 public class Function
 {
+    private static string QueryParamEventCatFlags = "event_categories";
+    
     private readonly IAmazonDynamoDB _dynamoDbClient = new AmazonDynamoDBClient();
     private readonly DynamoDBContext _dynamoDbContext;
     private readonly DBOperationConfigProvider _dbOperationConfigProvider = new();
@@ -42,6 +44,17 @@ public class Function
         // Source to cancel the request after timeout
         using var cts = new CancellationTokenSource(context.RemainingTime);
         
+        _ = request.QueryStringParameters.TryGetValue(QueryParamEventCatFlags, out string? eventCategoriesFlags);
+        ConcertSubEventCategory eventCategories;
+        if (eventCategoriesFlags != null)
+        {
+            eventCategories = GetCategoryFlagsFromQueryParam(eventCategoriesFlags);
+        }
+        else
+        {
+            eventCategories = ConcertSubEventCategory.AsOneSingleEvent;
+        }
+        
         var calendar = new Ical.Net.Calendar();
         calendar.AddTimeZone(new VTimeZone("Europe/Berlin")); // TODO: Get correct timezone
         
@@ -49,10 +62,9 @@ public class Function
             .ScanAsync<Concert>(new List<ScanCondition>(), _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName())
             .GetRemainingAsync(cts.Token);
         
-        calendar.Events.AddRange(concerts.Select(GetCalendarEventFor));
+        calendar.Events.AddRange(concerts.ToCalendarEvents(eventCategories));
         var serializer = new CalendarSerializer();
         var serializedCalendar = serializer.SerializeToString(calendar);
-        Console.WriteLine(serializedCalendar);
         
         return new APIGatewayProxyResponse()
         {
@@ -65,6 +77,25 @@ public class Function
                 { "Access-Control-Allow-Methods", "OPTIONS, GET" }
             }
         };
+    }
+
+
+    /// <summary>
+    /// Reads a param string with flags to a combined <see cref="ConcertSubEventCategory"/>
+    /// </summary>
+    /// <param name="param">comma-separated string of enum options</param>
+    /// <returns></returns>
+    private ConcertSubEventCategory GetCategoryFlagsFromQueryParam(string param)
+    {
+        var eventCategories = param.Split(',')
+            .Select(catStr =>
+            {
+                _ = Enum.TryParse(catStr, out ConcertSubEventCategory flag);
+                return flag;
+            });
+
+        return eventCategories
+            .Aggregate<ConcertSubEventCategory, ConcertSubEventCategory>(default, (current, flag) => current | flag);
     }
 
 
