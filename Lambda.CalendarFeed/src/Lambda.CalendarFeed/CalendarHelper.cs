@@ -150,7 +150,21 @@ public static class CalendarHelper
         var title = $"{concert.TourName}: {concert.City}";
         var description = $"Concert of the Linkin Park {concert.TourName}";
 
-        var date = concert.PostedStartTime?.ToCalDateTime(concert.TimeZoneId);
+        CalDateTime? date;
+        TimeSpan duration;
+        if (concert.MainStageTime != null)
+        {
+            // if available, use main stage time. In that case, decrease the duration of the event
+            date = concert.MainStageTime?.ToCalDateTime(concert.TimeZoneId);
+            duration = TimeSpan.FromHours(2);
+        }
+        else
+        {
+            // only start time from ticket available
+            date = concert.PostedStartTime?.ToCalDateTime(concert.TimeZoneId);
+            duration = TimeSpan.FromHours(3);
+        }
+        
         var calendarEvent = new CalendarEvent
         {
             // If Name property is used, it MUST be RFC 5545 compliant
@@ -158,7 +172,7 @@ public static class CalendarHelper
             Description = description,
             Location = $"{concert.LocationLong}",
             Start = date,
-            Duration = TimeSpan.FromHours(3),
+            Duration = duration,
             IsAllDay = false
         };
 
@@ -174,7 +188,21 @@ public static class CalendarHelper
         var title = $"Linkin Park: {concert.Venue}";
         var description = $"Linkin Park Concert at {concert.Venue}\nThis show is not part of a tour.";
 
-        var date = concert.PostedStartTime?.ToCalDateTime(concert.TimeZoneId);
+        CalDateTime? date;
+        TimeSpan duration;
+        if (concert.MainStageTime != null)
+        {
+            // if available, use main stage time. In that case, decrease the duration of the event
+            date = concert.MainStageTime?.ToCalDateTime(concert.TimeZoneId);
+            duration = TimeSpan.FromHours(2);
+        }
+        else
+        {
+            // only start time from ticket available
+            date = concert.PostedStartTime?.ToCalDateTime(concert.TimeZoneId);
+            duration = TimeSpan.FromHours(3);
+        }
+        
         var calendarEvent = new CalendarEvent
         {
             // If Name property is used, it MUST be RFC 5545 compliant
@@ -182,7 +210,7 @@ public static class CalendarHelper
             Description = description,
             Location = $"{concert.LocationMedium}",
             Start = date,
-            Duration = TimeSpan.FromHours(3),
+            Duration = duration,
             IsAllDay = false
         };
 
