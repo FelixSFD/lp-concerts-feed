@@ -5,6 +5,7 @@ import {ConcertCardComponent} from '../concert-card/concert-card.component';
 import {ConcertsService} from '../services/concerts.service';
 import {Concert} from '../data/concert';
 import {CalendarFeedBuilderComponent} from '../calendar-feed-builder/calendar-feed-builder.component';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-home',
@@ -25,7 +26,7 @@ export class HomeComponent implements OnInit {
   iCalFeedUrl$: string = "";
 
 
-  constructor(private concertsService: ConcertsService) {
+  constructor(private concertsService: ConcertsService, private toastrService: ToastrService) {
   }
 
 
@@ -58,6 +59,7 @@ export class HomeComponent implements OnInit {
     navigator.clipboard.writeText(calendarUrl)
       .then(_ => {
         console.debug("copied iCal URL: " + calendarUrl);
+        this.toastrService.success("Copied URL to clipboard!")
       });
   }
 
