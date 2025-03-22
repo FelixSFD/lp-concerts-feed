@@ -47,6 +47,8 @@ public class CalendarHelperTest
                     Venue = "Hogwarts Quidditch Stadium",
                     City = "Hogsmeade",
                     Country = "Scotland",
+                    VenueLatitude =  51.6888588m,
+                    VenueLongitude = -0.4177057m,
                     TimeZoneId = "Europe/London",
                     LpuEarlyEntryConfirmed = false,
                     PostedStartTime = new DateTimeOffset(2024, 9, 23, 17, 0, 0, TimeSpan.FromHours(1))
@@ -88,6 +90,8 @@ public class CalendarHelperTest
                     Venue = "Hogwarts Quidditch Stadium",
                     City = "Hogsmeade",
                     Country = "Scotland",
+                    VenueLatitude =  51.6888588m,
+                    VenueLongitude = -0.4177057m,
                     TimeZoneId = "Europe/London",
                     LpuEarlyEntryConfirmed = false,
                     PostedStartTime = new DateTimeOffset(2024, 9, 23, 17, 0, 0, TimeSpan.FromHours(1))
@@ -335,5 +339,43 @@ public class CalendarHelperTest
             
             i++;
         }
+    }
+
+
+    [Theory]
+    [InlineData(12.325322, 89.999444, 12.325322, 89.999444)]
+    [InlineData(47.911419, 12.818190, 47.911419, 12.818190)]
+    [InlineData(42.3456, 0, 42.3456, 0)]
+    [InlineData(0, 0.0001, 0, 0.0001)]
+    public void GetGeoLocation(decimal testLat, decimal testLong, double expectedLat, double expectedLong)
+    {
+        var testConcert = new Concert
+        {
+            Status = "TEST",
+            TourName = "TEST Tour",
+            VenueLatitude = testLat,
+            VenueLongitude = testLong
+        };
+
+        var geoLocation = testConcert.GetGeoLocation();
+        Assert.NotNull(geoLocation);
+        Assert.Equal(expectedLat, geoLocation.Latitude);
+        Assert.Equal(expectedLong, geoLocation.Longitude);
+    }
+    
+    
+    [Fact]
+    public void GetGeoLocation_Null()
+    {
+        var testConcert = new Concert
+        {
+            Status = "TEST",
+            TourName = "TEST Tour",
+            VenueLatitude = 0.0m,
+            VenueLongitude = 0.0m
+        };
+
+        var geoLocation = testConcert.GetGeoLocation();
+        Assert.Null(geoLocation);
     }
 }

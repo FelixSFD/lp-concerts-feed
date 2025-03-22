@@ -23,6 +23,28 @@ public static class CalendarHelper
 
 
     /// <summary>
+    /// Returns the coordinates of the venue as <see cref="GeographicLocation"/>
+    /// </summary>
+    /// <param name="concert"></param>
+    /// <returns>Geographic location or null, if the coordinates are not set in the <see cref="Concert"/></returns>
+    internal static GeographicLocation? GetGeoLocation(this Concert concert)
+    {
+        if (concert.VenueLatitude != 0 || concert.VenueLongitude != 0)
+        {
+            // coordinates exist -> return location
+            return new GeographicLocation
+            {
+                Latitude = (double)concert.VenueLatitude,
+                Longitude = (double)concert.VenueLongitude
+            };
+        }
+
+        // coordinates were not set, so we can't return a location
+        return null;
+    }
+
+
+    /// <summary>
     /// Converts the <see cref="Concert"/>s from the enumerable to one or more <see cref="CalendarEvent"/>s each.
     /// </summary>
     /// <param name="concerts">input concerts</param>
@@ -104,6 +126,7 @@ public static class CalendarHelper
             Summary = title,
             Description = description,
             Location = $"{concert.LocationLong}",
+            GeographicLocation = concert.GetGeoLocation(),
             Start = date,
             Duration = TimeSpan.FromHours(2),
             IsAllDay = false
@@ -133,6 +156,7 @@ public static class CalendarHelper
             Summary = title,
             Description = description,
             Location = $"{concert.LocationLong}",
+            GeographicLocation = concert.GetGeoLocation(),
             Start = date,
             End = nextEventStart,
             IsAllDay = false
@@ -171,6 +195,7 @@ public static class CalendarHelper
             Summary = title,
             Description = description,
             Location = $"{concert.LocationLong}",
+            GeographicLocation = concert.GetGeoLocation(),
             Start = date,
             Duration = duration,
             IsAllDay = false
@@ -209,6 +234,7 @@ public static class CalendarHelper
             Summary = title,
             Description = description,
             Location = $"{concert.LocationMedium}",
+            GeographicLocation = concert.GetGeoLocation(),
             Start = date,
             Duration = duration,
             IsAllDay = false
