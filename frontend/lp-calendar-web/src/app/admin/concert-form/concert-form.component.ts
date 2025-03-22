@@ -31,6 +31,7 @@ import { Translate } from 'ol/interaction';
 import {Collection} from "ol";
 import {Observable} from "rxjs";
 import {environment} from "../../../environments/environment";
+import {ToastrService} from 'ngx-toastr';
 
 // This class represents a form for adding and editing concerts
 @Component({
@@ -48,6 +49,7 @@ import {environment} from "../../../environments/environment";
 export class ConcertFormComponent implements OnInit, AfterViewInit {
   private formBuilder = inject(FormBuilder);
   private concertsService = inject(ConcertsService);
+  private toastrService = inject(ToastrService);
 
   concertForm = this.formBuilder.group({
     tourName: new FormControl('', []),
@@ -340,6 +342,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
 
   uploadFileClicked() {
     if (this.selectedScheduleFile == undefined) {
+      this.toastrService.error("No file was selected.", "File upload failed!");
       return;
     }
 
@@ -347,6 +350,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
     this.concertsService.uploadConcertSchedule(this.concertId!, this.selectedScheduleFile)
         .subscribe(() => {
           this.scheduleIsUploading$ = false;
+          this.toastrService.success("Schedule successfully uploaded!");
         })
   }
 

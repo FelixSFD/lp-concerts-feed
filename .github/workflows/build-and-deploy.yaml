@@ -5,7 +5,7 @@ name: Deploy to AWS
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "main" ]
   workflow_dispatch:
     inputs:
       environment:
