@@ -280,6 +280,38 @@ public class CalendarHelperTest
                     }
                 }
             },
+            // Test without any detailed information
+            new object[]
+            {
+                new[]
+                {
+                    new Concert
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Status = "PUBLISHED",
+                        Venue = "Allianz Arena",
+                        City = "München",
+                        State = "Bavaria",
+                        Country = "Germany",
+                        TimeZoneId = "Europe/Berlin",
+                        LpuEarlyEntryConfirmed = false,
+                        PostedStartTime = new DateTimeOffset(2025, 5, 31, 20, 45, 0, TimeSpan.FromHours(2)),
+                    }
+                },
+                ConcertSubEventCategory.LinkinPark,
+                new[]
+                {
+                    new CalendarEvent
+                    {
+                        Summary = "Linkin Park: Allianz Arena",
+                        Description = "Linkin Park Concert at Allianz Arena\nThis show is not part of a tour.",
+                        Location = "Allianz Arena, München, Germany",
+                        Start = new CalDateTime(2025, 5, 31, 20, 45, 0, "Europe/Berlin"),
+                        End = new CalDateTime(2025, 5, 31, 23, 45, 0, "Europe/Berlin"),
+                        IsAllDay = false
+                    }
+                }
+            },
             // Test with concert as single event
             new object[]
             {

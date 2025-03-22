@@ -89,8 +89,17 @@ public static class CalendarHelper
                 doorsTimeEvent = GetEventForDoorsTime(concert, lpStageTimeEvent?.Start);
             }
 
-            yield return doorsTimeEvent;
-            yield return lpStageTimeEvent;
+            if (lpStageTimeEvent == null && doorsTimeEvent == null)
+            {
+                // no detailed information seem to be available -> return full event. Otherwise, the cal would be empty
+                yield return GetFullEventFor(concert);
+            }
+            else
+            {
+                // details seem to be available -> return detailed events
+                yield return doorsTimeEvent;
+                yield return lpStageTimeEvent;
+            }
         }
     }
     
