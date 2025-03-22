@@ -17,8 +17,12 @@ export class ConcertsService {
   constructor(private httpClient: HttpClient) { }
 
 
-  getConcerts(cached: boolean) : Observable<Concert[]> {
+  getConcerts(cached: boolean, onlyFuture: boolean) : Observable<Concert[]> {
     let url = environment.apiCachedBaseUrl + "/Prod/concerts";
+
+    if (onlyFuture) {
+      url += "?only_future=true"
+    }
 
     if (!cached) {
       // disable caching

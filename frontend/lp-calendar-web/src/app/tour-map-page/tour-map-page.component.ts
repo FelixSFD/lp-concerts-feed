@@ -31,7 +31,7 @@ export class TourMapPageComponent implements OnInit, AfterViewInit {
 
 
   ngOnInit() {
-    this.concertsService.getConcerts(true)
+    this.concertsService.getConcerts(true, false)
       .subscribe(results => {
         results.forEach(r => {
           if (r.venueLongitude != undefined && r.venueLongitude != 0 && r.venueLatitude != undefined && r.venueLatitude != 0) {

@@ -47,6 +47,13 @@ public class Function
                 // Find one concert
                 return await ReturnSingleConcert(searchId);
             }
+
+            var onlyFutureParamFound = request.QueryStringParameters.TryGetValue("only_future", out var onlyFutureStr);
+            if (onlyFutureParamFound && onlyFutureStr != null)
+            {
+                // list all future concerts
+                return await ReturnAllConcerts(context, bool.Parse(onlyFutureStr));
+            }
         }
         
         if (request.Path == "/concerts/next")
@@ -67,7 +74,7 @@ public class Function
         }
         
         // List all concerts
-        return await ReturnAllConcerts();
+        return await ReturnAllConcerts(context);
     }
 
 
@@ -130,16 +137,24 @@ public class Function
     }
     
     
-    private async Task<APIGatewayProxyResponse> ReturnAllConcerts()
+    private async Task<APIGatewayProxyResponse> ReturnAllConcerts(ILambdaContext context, bool onlyFuture = false)
     {
-        var concertsUnsorted = await _dynamoDbContext
-            .ScanAsync<Concert>(new List<ScanCondition>(),
-                _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName())
-            .GetRemainingAsync();
+        var searchStartDate = onlyFuture ? DateTimeOffset.Now : DateTimeOffset.MinValue;
+        var searchStartDateStr = searchStartDate.ToString("O");
+            
+        context.Logger.LogInformation("Query concerts after: {time}", searchStartDateStr);
 
-        var concerts = concertsUnsorted
-            .OrderBy(c => c.PostedStartTime)
-            .ToArray();
+        var config = _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName();
+        config.BackwardQuery = false;
+        config.IndexName = "PostedStartTimeGlobalIndex";
+        
+        var query = _dynamoDbContext.QueryAsync<Concert>(
+            "PUBLISHED", // PartitionKey value
+            QueryOperator.GreaterThanOrEqual,
+            [new AttributeValue { S = searchStartDateStr }],
+            config);
+
+        var concerts = await query.GetRemainingAsync() ?? [];
         
         var concertJson = JsonSerializer.Serialize(concerts);
         return new APIGatewayProxyResponse
