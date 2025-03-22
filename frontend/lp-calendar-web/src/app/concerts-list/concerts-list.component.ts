@@ -31,6 +31,12 @@ export class ConcertsListComponent implements OnInit {
 
   concerts$: Concert[] = [];
 
+  // status if the table is currently loading
+  isLoading$ = false;
+
+  // property to indicate if all concerts or only future should be displayed
+  showHistoricConcerts$ = false;
+
   // property to show whether the form is currently being sent to the server
   addConcertFormSaving$ = false;
 
@@ -62,14 +68,22 @@ export class ConcertsListComponent implements OnInit {
 
 
   private reloadConcertList(cache: boolean) {
-    this.concertsService.getConcerts(cache).subscribe(result => {
+    this.isLoading$ = true;
+    this.concertsService.getConcerts(cache, !this.showHistoricConcerts$).subscribe(result => {
       this.concerts$ = result;
+      this.isLoading$ = false;
     })
   }
 
 
   openModal(content: TemplateRef<any>) {
     return this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
+  }
+
+
+  onShowHistoricSwitchChanged() {
+    this.reloadConcertList(true);
+    console.log("Show historic: " + this.showHistoricConcerts$)
   }
 
 
