@@ -10,6 +10,7 @@ on:
     inputs:
       environment:
         description: 'The environment to deploy to'
+        default: "develop"
         type: environment
         required: true
 
