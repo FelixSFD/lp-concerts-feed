@@ -10,14 +10,14 @@ on:
     inputs:
       environment:
         description: 'The environment to deploy to'
-        default: "develop"
+        default: "test"
         type: environment
         required: true
 
 jobs:
   backend:
     environment: 
-      name: ${{ inputs.environment }}
+      name: ${{ inputs.environment || 'test' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -73,7 +73,7 @@ jobs:
   frontend:
     needs: [backend]
     environment: 
-      name: ${{ inputs.environment }}
+      name: ${{ inputs.environment || 'test' }}
     runs-on: ubuntu-latest
     steps:
     
