@@ -41,8 +41,10 @@ public class Function
     {
         // Source to cancel the request after timeout
         using var cts = new CancellationTokenSource(context.RemainingTime);
-        
-        _ = request.QueryStringParameters.TryGetValue(QueryParamEventCatFlags, out string? eventCategoriesFlags);
+
+        // even though it's not marked as nullable, QueryStringParameters can be null on runtime in some cases
+        IDictionary<string, string> safeQueryStringParams = request.QueryStringParameters ?? new Dictionary<string, string>();
+        _ = safeQueryStringParams.TryGetValue(QueryParamEventCatFlags, out string? eventCategoriesFlags);
         ConcertSubEventCategory eventCategories;
         if (eventCategoriesFlags != null)
         {
