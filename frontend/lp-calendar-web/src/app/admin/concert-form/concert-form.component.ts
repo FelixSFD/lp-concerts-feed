@@ -9,7 +9,7 @@ import {
   ViewChild
 } from '@angular/core';
 import timezones from 'timezones-list';
-import {listOfTours} from '../../app.config';
+import {listOfTours, listOfShowTypes} from '../../app.config';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgClass, NgForOf, NgIf} from '@angular/common';
 import {Concert} from '../../data/concert';
@@ -52,6 +52,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
   private toastrService = inject(ToastrService);
 
   concertForm = this.formBuilder.group({
+    showType: new FormControl('', []),
     tourName: new FormControl('', []),
     venue: new FormControl('', [Validators.min(3), Validators.required]),
     timezone: new FormControl('', [Validators.required]),
@@ -356,6 +357,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
 
 
   protected readonly timezones = timezones;
+  protected readonly listOfShowTypes = listOfShowTypes;
   protected readonly listOfTours = listOfTours;
   protected readonly environment = environment;
 }

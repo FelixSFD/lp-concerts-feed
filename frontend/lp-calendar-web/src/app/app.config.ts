@@ -22,6 +22,7 @@ export const appConfig: ApplicationConfig = {
 };
 
 
+export const listOfShowTypes: string[] = ["Linkin Park Show", "Festival", "Other performance"];
 export const listOfTours: string[] = ["FROM ZERO WORLD TOUR 2025"];
 
 export const mapAttribution: string = `<a href="${window.location.protocol}//${window.location.host}/about">Concert data by LPShows.live</a>`;

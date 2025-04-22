@@ -19,6 +19,23 @@ public class Concert
     [JsonPropertyName("id")]
     public string Id { get; set; }
     
+    
+    /// <summary>
+    /// Type of show (like LP show, festival, ...)
+    /// </summary>
+    [DynamoDBProperty]
+    [JsonPropertyName("showType")]
+    public string ShowType { get; set; }
+    
+    
+    /// <summary>
+    /// Optional text to override the title of the show to display in the calendar
+    /// </summary>
+    [DynamoDBProperty]
+    [JsonPropertyName("customTitle")]
+    public string? CustomTitle { get; set; }
+    
+    
     [DynamoDBProperty]
     [JsonPropertyName("tourName")]
     public string? TourName { get; set; }

@@ -18,7 +18,16 @@
       </div>
     <div class="card-body">
         <ng-container *ngIf="activeTabName$ == 'main'">
-            <!-- Timezone -->
+          <!-- Show Type -->
+          <div class="form-group">
+            <label for="showType">Type of show</label>
+            <select id="showType" formControlName="showType" class="form-select" aria-label="Select show type">
+              <option disabled>--- Select type of show ---</option>
+              <option *ngFor="let tour of listOfShowTypes" [value]="tour">{{tour}}</option>
+            </select>
+          </div>
+
+            <!-- Tour -->
             <div class="form-group">
                 <label for="tourName">Tour</label>
                 <select id="tourName" formControlName="tourName" class="form-select" aria-label="Select tour">
