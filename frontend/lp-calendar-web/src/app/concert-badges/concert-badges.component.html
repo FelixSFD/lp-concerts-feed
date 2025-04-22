@@ -1,3 +1,9 @@
+<ng-container *ngIf="concert$?.showType != undefined && concert$?.showType != defaultShowType">
+  <span class="badge bg-secondary" style="margin-right: 3px;" title="Type of the show">
+    <i class="bi-info-circle"></i> {{ concert$?.showType }}
+  </span>
+</ng-container>
+
 <ng-container *ngIf="concert$?.mainStageTime != undefined">
   <span class="badge bg-primary" style="margin-right: 3px;" title="Linkin Park stage time has been confirmed">
     <i class="bi-clock"></i> LP Stage Time confirmed

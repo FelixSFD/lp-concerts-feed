@@ -28,6 +28,8 @@
     <b>{{ concert$?.venue }}</b>
     <br />
     <i>{{ concert$?.city }}{{ (concert$?.state?.length ?? 0) > 0 ? ", " + concert$?.state : ""}}, {{ concert$?.country }}</i>
+    <br />
+    {{ concert$?.showType }}
   </p>
 
   <div class="container">
