@@ -54,6 +54,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
   concertForm = this.formBuilder.group({
     showType: new FormControl('', [Validators.required]),
     tourName: new FormControl('', []),
+    customTitle: new FormControl('', []),
     venue: new FormControl('', [Validators.min(3), Validators.required]),
     timezone: new FormControl('', [Validators.required]),
     city: new FormControl('', [Validators.required]),
@@ -228,6 +229,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
 
     this.concertForm.controls.showType.setValue(concert.showType ?? null);
     this.concertForm.controls.tourName.setValue(concert.tourName ?? null);
+    this.concertForm.controls.customTitle.setValue(concert.customTitle ?? null);
     this.concertForm.controls.venue.setValue(concert.venue ?? null);
     this.concertForm.controls.city.setValue(concert.city ?? null);
     this.concertForm.controls.state.setValue(concert.state ?? null);
@@ -282,6 +284,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
     let newConcert = new Concert();
     newConcert.showType = this.concertForm.value.showType?.valueOf();
     newConcert.tourName = this.concertForm.value.tourName?.valueOf();
+    newConcert.customTitle = this.concertForm.value.customTitle?.valueOf();
     newConcert.venue = this.concertForm.value.venue?.valueOf();
     newConcert.city = this.concertForm.value.city?.valueOf();
     newConcert.state = this.concertForm.value.state?.valueOf();

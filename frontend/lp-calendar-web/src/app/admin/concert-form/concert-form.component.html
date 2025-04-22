@@ -16,16 +16,19 @@
               </li>
           </ul>
       </div>
-    <div class="card-body">
+    <div class="card-body edit-form-card">
         <ng-container *ngIf="activeTabName$ == 'main'">
-          <!-- Show Type -->
-          <div class="form-group">
-            <label for="showType">Type of show</label>
-            <select id="showType" formControlName="showType" class="form-select" aria-label="Select show type">
-              <option disabled>--- Select type of show ---</option>
-              <option *ngFor="let tour of listOfShowTypes" [value]="tour">{{tour}}</option>
-            </select>
-          </div>
+            <!-- Show Type -->
+            <div class="form-group">
+              <label for="showType">Type of show</label>
+              <select id="showType" formControlName="showType" class="form-select" aria-label="Select show type">
+                <option disabled>--- Select type of show ---</option>
+                <option *ngFor="let tour of listOfShowTypes" [value]="tour">{{tour}}</option>
+              </select>
+              <div *ngIf="concertForm.controls.showType.invalid" class="text-danger">
+                <small *ngIf="concertForm.controls.showType.errors">Type of show is required.</small>
+              </div>
+            </div>
 
             <!-- Tour -->
             <div class="form-group">
@@ -35,6 +38,16 @@
                     <option value="">Not part of a tour</option>
                     <option *ngFor="let tour of listOfTours" [value]="tour">{{tour}}</option>
                 </select>
+            </div>
+
+            <!-- Custom title -->
+            <div class="form-group">
+              <label for="customTitle">Custom title (only used for special cases)</label>
+              <input id="customTitle" type="text" formControlName="customTitle" class="form-control"
+                     [ngClass]="{ 'is-invalid': concertForm.controls.customTitle.invalid }">
+              <div *ngIf="concertForm.controls.customTitle.invalid" class="text-danger">
+                <small *ngIf="concertForm.controls.customTitle.errors">Title name is invalid.</small>
+              </div>
             </div>
 
             <!-- Date -->

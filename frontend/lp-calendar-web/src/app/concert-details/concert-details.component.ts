@@ -23,6 +23,7 @@ import {Attribution} from 'ol/control';
 import {defaults as defaultControls} from 'ol/control/defaults.js';
 import {mapAttribution} from '../app.config';
 import {environment} from '../../environments/environment';
+import {ConcertTitleGenerator} from '../data/concert-title-generator';
 
 @Component({
   selector: 'app-concert-details',
@@ -218,4 +219,5 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
 
   protected readonly DateTime = DateTime;
   protected readonly environment = environment;
+  protected readonly ConcertTitleGenerator = ConcertTitleGenerator;
 }

@@ -2,3 +2,8 @@
   width: 100%;
   height: 600px;
 }
+
+
+.edit-form-card .form-group {
+  margin-bottom: 15px;
+}
