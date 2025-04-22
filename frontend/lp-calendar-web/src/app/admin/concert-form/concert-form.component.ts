@@ -52,7 +52,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
   private toastrService = inject(ToastrService);
 
   concertForm = this.formBuilder.group({
-    showType: new FormControl('', []),
+    showType: new FormControl('', [Validators.required]),
     tourName: new FormControl('', []),
     venue: new FormControl('', [Validators.min(3), Validators.required]),
     timezone: new FormControl('', [Validators.required]),
@@ -226,6 +226,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
     let lpStageDateTimeIsoStr = lpStageDateTime?.toISOTime();
     console.log("LP on stage at: " + lpStageDateTimeIsoStr);
 
+    this.concertForm.controls.showType.setValue(concert.showType ?? null);
     this.concertForm.controls.tourName.setValue(concert.tourName ?? null);
     this.concertForm.controls.venue.setValue(concert.venue ?? null);
     this.concertForm.controls.city.setValue(concert.city ?? null);
@@ -279,6 +280,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
   private readConcertFromForm() {
     const postedStartTime = this.concertForm.value.postedStartTime!;
     let newConcert = new Concert();
+    newConcert.showType = this.concertForm.value.showType?.valueOf();
     newConcert.tourName = this.concertForm.value.tourName?.valueOf();
     newConcert.venue = this.concertForm.value.venue?.valueOf();
     newConcert.city = this.concertForm.value.city?.valueOf();
