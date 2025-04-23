@@ -132,9 +132,8 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
 
       this.marker.setStyle(new Style({
         image: new Icon({
-          color: "red",
           anchor: [0.5, 1],
-          src: './map/icon.png',
+          src: './map/map-pin-50-black.png',
           scale: 0.59
         })
       }));
