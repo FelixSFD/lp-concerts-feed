@@ -137,7 +137,7 @@ public static class CalendarHelper
             Location = $"{concert.LocationLong}",
             GeographicLocation = concert.GetGeoLocation(),
             Start = date,
-            Duration = TimeSpan.FromHours(2),
+            Duration = TimeSpan.FromMinutes(concert.ExpectedSetDuration ?? 120),
             IsAllDay = false
         };
 

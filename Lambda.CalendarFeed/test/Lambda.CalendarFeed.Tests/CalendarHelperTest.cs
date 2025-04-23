@@ -214,7 +214,8 @@ public class CalendarHelperTest
                         LpuEarlyEntryConfirmed = false,
                         PostedStartTime = new DateTimeOffset(2024, 9, 22, 18, 0, 0, TimeSpan.FromHours(2)),
                         DoorsTime = new DateTimeOffset(2024, 9, 22, 18, 30, 0, TimeSpan.FromHours(2)),
-                        MainStageTime= new DateTimeOffset(2024, 9, 22, 20, 40, 0, TimeSpan.FromHours(2))
+                        MainStageTime= new DateTimeOffset(2024, 9, 22, 20, 40, 0, TimeSpan.FromHours(2)),
+                        ExpectedSetDuration = 120
                     }
                 },
                 ConcertSubEventCategory.LinkinPark | ConcertSubEventCategory.Doors,
@@ -258,7 +259,8 @@ public class CalendarHelperTest
                         LpuEarlyEntryConfirmed = false,
                         PostedStartTime = new DateTimeOffset(2024, 9, 22, 18, 0, 0, TimeSpan.FromHours(2)),
                         DoorsTime = new DateTimeOffset(2024, 9, 22, 18, 30, 0, TimeSpan.FromHours(2)),
-                        MainStageTime= new DateTimeOffset(2024, 9, 22, 20, 40, 0, TimeSpan.FromHours(2))
+                        MainStageTime= new DateTimeOffset(2024, 9, 22, 20, 40, 0, TimeSpan.FromHours(2)),
+                        ExpectedSetDuration = 45
                     }
                 },
                 ConcertSubEventCategory.LinkinPark,
@@ -270,7 +272,7 @@ public class CalendarHelperTest
                         Description = "Stage time for Linkin Park at Barclays Arena.\nType of show: Linkin Park Show",
                         Location = "Barclays Arena, Hamburg, Germany",
                         Start = new CalDateTime(2024, 9, 22, 20, 40, 0, "Europe/Berlin"),
-                        End = new CalDateTime(2024, 9, 22, 22, 40, 0, "Europe/Berlin"),
+                        End = new CalDateTime(2024, 9, 22, 21, 25, 0, "Europe/Berlin"),
                         IsAllDay = false
                     }
                 }
