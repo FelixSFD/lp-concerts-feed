@@ -9,6 +9,7 @@ export class Concert {
   lpuEarlyEntryTime: string | undefined;
   doorsTime: string | undefined;
   mainStageTime: string | undefined;
+  expectedSetDuration: number | undefined;
 
   country: string | undefined;
   state: string | undefined;

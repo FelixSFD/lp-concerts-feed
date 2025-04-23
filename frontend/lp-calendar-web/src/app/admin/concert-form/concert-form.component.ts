@@ -65,6 +65,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
     lpuEarlyEntryTime: new FormControl('', []),
     doorsTime: new FormControl('', []),
     lpStageTime: new FormControl('', []),
+    expectedSetDuration: new FormControl('', []),
     venueLat: new FormControl(0, []),
     venueLong: new FormControl(0, []),
     scheduleImg: new FormControl('', [])
@@ -227,6 +228,13 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
     let lpStageDateTimeIsoStr = lpStageDateTime?.toISOTime();
     console.log("LP on stage at: " + lpStageDateTimeIsoStr);
 
+    let setDurationStr;
+    if (concert.expectedSetDuration != undefined) {
+      let setDurationMinutes = concert.expectedSetDuration % 60;
+      let setDurationHours = (concert.expectedSetDuration - setDurationMinutes) % 60;
+      setDurationStr = (setDurationHours < 10 ? "0" : "") + setDurationHours.toString() + ":" + (setDurationMinutes < 10 ? "0" : "") + setDurationMinutes.toString();
+    }
+
     this.concertForm.controls.showType.setValue(concert.showType ?? null);
     this.concertForm.controls.tourName.setValue(concert.tourName ?? null);
     this.concertForm.controls.customTitle.setValue(concert.customTitle ?? null);
@@ -240,6 +248,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
     this.concertForm.controls.lpuEarlyEntryTime.setValue(lpuEarlyEntryDateTimeIsoStr?.substring(0, 5) ?? null);
     this.concertForm.controls.doorsTime.setValue(doorsDateTimeIsoStr?.substring(0, 5) ?? null);
     this.concertForm.controls.lpStageTime.setValue(lpStageDateTimeIsoStr?.substring(0, 5) ?? null);
+    this.concertForm.controls.expectedSetDuration.setValue(setDurationStr ?? null);
     this.concertForm.controls.venueLat.setValue(concert.venueLatitude ?? 0)
     this.concertForm.controls.venueLong.setValue(concert.venueLongitude ?? 0)
 
@@ -331,6 +340,9 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
       newConcert.mainStageTime = lpStageDateTime.toISO()!;
     }
 
+    // Expected set duration
+    newConcert.expectedSetDuration = this.convertH2M(this.concertForm.value.expectedSetDuration?.valueOf() ?? "00:00");
+
     // Venue coordinates
     newConcert.venueLatitude = this.concertForm.value.venueLat ?? 0;
     newConcert.venueLongitude = this.concertForm.value.venueLong ?? 0;
@@ -338,6 +350,12 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
     console.log(newConcert);
 
     return newConcert;
+  }
+
+
+  private convertH2M(timeInHour: string){
+    let timeParts = timeInHour.split(":");
+    return Number(timeParts[0]) * 60 + Number(timeParts[1]);
   }
 
 

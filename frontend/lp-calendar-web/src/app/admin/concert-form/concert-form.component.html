@@ -150,6 +150,16 @@
                     <small *ngIf="concertForm.controls.lpStageTime.errors">Time is invalid.</small>
                 </div>
             </div>
+
+            <!-- Expected set duration -->
+            <div class="form-group">
+              <label for="expectedSetDuration">Expected set duration</label>
+              <input id="expectedSetDuration" type="time" formControlName="expectedSetDuration" class="form-control"
+                     [ngClass]="{ 'is-invalid': concertForm.controls.expectedSetDuration.invalid }">
+              <div *ngIf="concertForm.controls.expectedSetDuration.invalid" class="text-danger">
+                <small *ngIf="concertForm.controls.expectedSetDuration.errors">Duration is invalid.</small>
+              </div>
+            </div>
         </ng-container>
 
         <ng-container *ngIf="activeTabName$ == 'lpu'">

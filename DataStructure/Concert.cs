@@ -88,7 +88,14 @@ public class Concert
     [DynamoDBProperty(typeof(DateTimeOffsetToStringPropertyConverter))]
     [JsonPropertyName("mainStageTime")]
     public DateTimeOffset? MainStageTime { get; set; }
-    
+
+
+    /// <summary>
+    /// Expected duration in minutes of the Linkin Park set during this event
+    /// </summary>
+    [JsonPropertyName("expectedSetDuration")]
+    public short? ExpectedSetDuration { get; set; }
+
     
     /// <summary>
     /// Timezone of the venue
