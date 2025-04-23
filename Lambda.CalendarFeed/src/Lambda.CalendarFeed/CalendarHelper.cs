@@ -125,8 +125,8 @@ public static class CalendarHelper
         if (concert.MainStageTime == null) 
             return null;
         
-        var title = $"Linkin Park: {concert.City}";
-        var description = $"Stage time for Linkin Park at {concert.Venue}";
+        var title = GetStageTimeTitle(concert);
+        var description = $"Stage time for Linkin Park at {concert.Venue}.\nType of show: {concert.ShowType}";
 
             
         var date = concert.MainStageTime.Value.ToCalDateTime(concert.TimeZoneId);
@@ -180,7 +180,7 @@ public static class CalendarHelper
         if (concert.PostedStartTime == null)
             return null;
 
-        var title = $"{concert.TourName}: {concert.City}";
+        var title = GetConcertTitle(concert);
         var description = $"Concert of the Linkin Park {concert.TourName}";
 
         CalDateTime? date;
@@ -219,7 +219,7 @@ public static class CalendarHelper
         if (concert.PostedStartTime == null)
             return null;
         
-        var title = $"Linkin Park: {concert.Venue}";
+        var title = GetConcertTitle(concert);
         var description = $"Linkin Park Concert at {concert.Venue}\nThis show is not part of a tour.";
 
         CalDateTime? date;
@@ -250,5 +250,47 @@ public static class CalendarHelper
         };
 
         return calendarEvent;
+    }
+
+
+    /// <summary>
+    /// Returns the title of the concert
+    /// </summary>
+    /// <param name="concert"></param>
+    /// <returns></returns>
+    private static string GetConcertTitle(Concert concert)
+    {
+        if (!string.IsNullOrEmpty(concert.CustomTitle))
+        {
+            return concert.CustomTitle;
+        }
+
+        if (concert.ShowType == "Linkin Park Show" && !string.IsNullOrEmpty(concert.TourName))
+        {
+            return $"{concert.TourName}: {concert.City}";
+        }
+
+        return $"Linkin Park: {concert.Venue}";
+    }
+    
+    
+    /// <summary>
+    /// Returns the title of the concert
+    /// </summary>
+    /// <param name="concert"></param>
+    /// <returns></returns>
+    private static string GetStageTimeTitle(Concert concert)
+    {
+        if (!string.IsNullOrEmpty(concert.CustomTitle))
+        {
+            return concert.CustomTitle;
+        }
+
+        if (concert.ShowType == "Linkin Park Show" && !string.IsNullOrEmpty(concert.TourName))
+        {
+            return $"{concert.TourName}: {concert.City} (Stage Time)";
+        }
+
+        return $"Linkin Park: {concert.City} (Stage Time)";
     }
 }

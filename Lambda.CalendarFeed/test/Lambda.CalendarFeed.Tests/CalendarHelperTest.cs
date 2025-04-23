@@ -43,6 +43,7 @@ public class CalendarHelperTest
                 new Concert
                 {
                     Id = Guid.NewGuid().ToString(),
+                    ShowType = "Linkin Park Show",
                     Status = "PUBLISHED",
                     Venue = "Hogwarts Quidditch Stadium",
                     City = "Hogsmeade",
@@ -64,6 +65,7 @@ public class CalendarHelperTest
                 new Concert
                 {
                     Id = Guid.NewGuid().ToString(),
+                    ShowType = "Festival",
                     Status = "PUBLISHED",
                     Venue = "Barclays Arena",
                     City = "Hamburg",
@@ -85,6 +87,7 @@ public class CalendarHelperTest
                 new Concert
                 {
                     Id = Guid.NewGuid().ToString(),
+                    ShowType = "Linkin Park Show",
                     Status = "PUBLISHED",
                     TourName = "FZ WORLD TOUR 2024",
                     Venue = "Hogwarts Quidditch Stadium",
@@ -107,6 +110,7 @@ public class CalendarHelperTest
                 new Concert
                 {
                     Id = Guid.NewGuid().ToString(),
+                    ShowType = "Linkin Park Show",
                     Status = "PUBLISHED",
                     TourName = "FZ WORLD TOUR 2024",
                     Venue = "Barclays Arena",
@@ -123,6 +127,29 @@ public class CalendarHelperTest
                 "Barclays Arena, Hamburg, Germany",
                 new CalDateTime(2024, 9, 22, 20, 40, 0, "Europe/Berlin"),
                 TimeSpan.FromHours(2)
+            },
+            new object[]
+            {
+                new Concert
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    ShowType = "Linkin Park Show",
+                    Status = "PUBLISHED",
+                    CustomTitle = "Triwizard Tournament 1994",
+                    Venue = "Hogwarts Quidditch Stadium",
+                    City = "Hogsmeade",
+                    Country = "Scotland",
+                    VenueLatitude =  51.6888588m,
+                    VenueLongitude = -0.4177057m,
+                    TimeZoneId = "Europe/London",
+                    LpuEarlyEntryConfirmed = false,
+                    PostedStartTime = new DateTimeOffset(2024, 9, 23, 17, 0, 0, TimeSpan.FromHours(1))
+                },
+                "Triwizard Tournament 1994",
+                "Linkin Park Concert at Hogwarts Quidditch Stadium\nThis show is not part of a tour.",
+                "Hogwarts Quidditch Stadium, Hogsmeade, Scotland",
+                new CalDateTime(2024, 9, 23, 17, 0, 0, "Europe/London"),
+                TimeSpan.FromHours(3)
             },
         };
 
@@ -176,7 +203,8 @@ public class CalendarHelperTest
                 {
                     new Concert
                     {
-                        Id = Guid.NewGuid().ToString(),
+                        Id = "1",
+                        ShowType = "Linkin Park Show",
                         Status = "PUBLISHED",
                         TourName = "FZ WORLD TOUR 2024",
                         Venue = "Barclays Arena",
@@ -203,8 +231,8 @@ public class CalendarHelperTest
                     },
                     new CalendarEvent
                     {
-                        Summary = "Linkin Park: Hamburg",
-                        Description = "Stage time for Linkin Park at Barclays Arena",
+                        Summary = "FZ WORLD TOUR 2024: Hamburg (Stage Time)",
+                        Description = "Stage time for Linkin Park at Barclays Arena.\nType of show: Linkin Park Show",
                         Location = "Barclays Arena, Hamburg, Germany",
                         Start = new CalDateTime(2024, 9, 22, 20, 40, 0, "Europe/Berlin"),
                         End = new CalDateTime(2024, 9, 22, 22, 40, 0, "Europe/Berlin"),
@@ -219,7 +247,8 @@ public class CalendarHelperTest
                 {
                     new Concert
                     {
-                        Id = Guid.NewGuid().ToString(),
+                        Id = "2",
+                        ShowType = "Linkin Park Show",
                         Status = "PUBLISHED",
                         TourName = "FZ WORLD TOUR 2024",
                         Venue = "Barclays Arena",
@@ -237,8 +266,77 @@ public class CalendarHelperTest
                 {
                     new CalendarEvent
                     {
-                        Summary = "Linkin Park: Hamburg",
-                        Description = "Stage time for Linkin Park at Barclays Arena",
+                        Summary = "FZ WORLD TOUR 2024: Hamburg (Stage Time)",
+                        Description = "Stage time for Linkin Park at Barclays Arena.\nType of show: Linkin Park Show",
+                        Location = "Barclays Arena, Hamburg, Germany",
+                        Start = new CalDateTime(2024, 9, 22, 20, 40, 0, "Europe/Berlin"),
+                        End = new CalDateTime(2024, 9, 22, 22, 40, 0, "Europe/Berlin"),
+                        IsAllDay = false
+                    }
+                }
+            },
+            // Stage time only, but for festival
+            new object[]
+            {
+                new[]
+                {
+                    new Concert
+                    {
+                        Id = "2.1",
+                        ShowType = "Festival",
+                        Status = "PUBLISHED",
+                        Venue = "Barclays Arena",
+                        City = "Hamburg",
+                        Country = "Germany",
+                        TimeZoneId = "Europe/Berlin",
+                        LpuEarlyEntryConfirmed = false,
+                        PostedStartTime = new DateTimeOffset(2024, 9, 22, 18, 0, 0, TimeSpan.FromHours(2)),
+                        DoorsTime = new DateTimeOffset(2024, 9, 22, 18, 30, 0, TimeSpan.FromHours(2)),
+                        MainStageTime= new DateTimeOffset(2024, 9, 22, 20, 40, 0, TimeSpan.FromHours(2))
+                    }
+                },
+                ConcertSubEventCategory.LinkinPark,
+                new[]
+                {
+                    new CalendarEvent
+                    {
+                        Summary = "Linkin Park: Hamburg (Stage Time)",
+                        Description = "Stage time for Linkin Park at Barclays Arena.\nType of show: Festival",
+                        Location = "Barclays Arena, Hamburg, Germany",
+                        Start = new CalDateTime(2024, 9, 22, 20, 40, 0, "Europe/Berlin"),
+                        End = new CalDateTime(2024, 9, 22, 22, 40, 0, "Europe/Berlin"),
+                        IsAllDay = false
+                    }
+                }
+            },
+            // Stage time only, but for festival AND tourName
+            new object[]
+            {
+                new[]
+                {
+                    new Concert
+                    {
+                        Id = "2.2",
+                        ShowType = "Festival",
+                        TourName = "Some Weird Tour",
+                        Status = "PUBLISHED",
+                        Venue = "Barclays Arena",
+                        City = "Hamburg",
+                        Country = "Germany",
+                        TimeZoneId = "Europe/Berlin",
+                        LpuEarlyEntryConfirmed = false,
+                        PostedStartTime = new DateTimeOffset(2024, 9, 22, 18, 0, 0, TimeSpan.FromHours(2)),
+                        DoorsTime = new DateTimeOffset(2024, 9, 22, 18, 30, 0, TimeSpan.FromHours(2)),
+                        MainStageTime= new DateTimeOffset(2024, 9, 22, 20, 40, 0, TimeSpan.FromHours(2))
+                    }
+                },
+                ConcertSubEventCategory.LinkinPark,
+                new[]
+                {
+                    new CalendarEvent
+                    {
+                        Summary = "Linkin Park: Hamburg (Stage Time)",
+                        Description = "Stage time for Linkin Park at Barclays Arena.\nType of show: Festival",
                         Location = "Barclays Arena, Hamburg, Germany",
                         Start = new CalDateTime(2024, 9, 22, 20, 40, 0, "Europe/Berlin"),
                         End = new CalDateTime(2024, 9, 22, 22, 40, 0, "Europe/Berlin"),
@@ -253,7 +351,8 @@ public class CalendarHelperTest
                 {
                     new Concert
                     {
-                        Id = Guid.NewGuid().ToString(),
+                        Id = "3",
+                        ShowType = "Linkin Park Show",
                         Status = "PUBLISHED",
                         TourName = "FZ WORLD TOUR 2024",
                         Venue = "Barclays Arena",
@@ -287,7 +386,7 @@ public class CalendarHelperTest
                 {
                     new Concert
                     {
-                        Id = Guid.NewGuid().ToString(),
+                        Id = "4",
                         Status = "PUBLISHED",
                         Venue = "Allianz Arena",
                         City = "München",
@@ -319,7 +418,8 @@ public class CalendarHelperTest
                 {
                     new Concert
                     {
-                        Id = Guid.NewGuid().ToString(),
+                        Id = "5",
+                        ShowType = "Linkin Park Show",
                         Status = "PUBLISHED",
                         TourName = "FZ WORLD TOUR 2024",
                         Venue = "Barclays Arena",
