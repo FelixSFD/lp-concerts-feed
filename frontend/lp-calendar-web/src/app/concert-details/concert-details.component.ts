@@ -24,6 +24,7 @@ import {defaults as defaultControls} from 'ol/control/defaults.js';
 import {mapAttribution} from '../app.config';
 import {environment} from '../../environments/environment';
 import {ConcertTitleGenerator} from '../data/concert-title-generator';
+import {TimeSpanPipe} from '../data/time-span-pipe';
 
 @Component({
   selector: 'app-concert-details',
@@ -32,7 +33,8 @@ import {ConcertTitleGenerator} from '../data/concert-title-generator';
     CountdownComponent,
     RouterLink,
     ConcertBadgesComponent,
-    NgOptimizedImage
+    NgOptimizedImage,
+    TimeSpanPipe
   ],
   templateUrl: './concert-details.component.html',
   styleUrl: './concert-details.component.css'
@@ -204,6 +206,31 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
       property: "og:description",
       content: description
     });
+  }
+
+
+  public getSetDurationText(duration: number) {
+    console.log("duration: " + duration);
+    let m = duration % 60;
+    let h = (duration - m) % 60;
+
+    let txt = "";
+    if (h == 1) {
+      txt += h + " hour";
+    } else if (h > 1) {
+      txt += h + " hours";
+    }
+
+    if (m > 0) {
+      txt += " " + m + " ";
+    }
+    if (m == 1) {
+      txt += "minutes";
+    } else if (m > 1) {
+      txt += "minutes";
+    }
+
+    return txt;
   }
 
 
