@@ -7,7 +7,7 @@ export class ConcertTitleGenerator {
       return concert.customTitle;
     } else {
       if (concert.tourName != undefined) {
-        return concert.tourName + ":" + concert.city;
+        return concert.tourName + ": " + concert.city;
       } else {
         return "Linkin Park Concert: " + concert.city
       }
