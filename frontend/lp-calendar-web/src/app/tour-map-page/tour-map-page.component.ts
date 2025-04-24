@@ -12,7 +12,7 @@ import VectorSource from 'ol/source/Vector';
 import VectorLayer from 'ol/layer/Vector';
 import {ConcertsService} from '../services/concerts.service';
 import {Attribution} from 'ol/control';
-import {mapAttribution} from '../app.config';
+import {defaultShowType, mapAttribution} from '../app.config';
 import {defaults as defaultControls} from 'ol/control/defaults';
 
 @Component({
@@ -35,7 +35,11 @@ export class TourMapPageComponent implements OnInit, AfterViewInit {
       .subscribe(results => {
         results.forEach(r => {
           if (r.venueLongitude != undefined && r.venueLongitude != 0 && r.venueLatitude != undefined && r.venueLatitude != 0) {
-            this.addMarker(r.venueLongitude, r.venueLatitude);
+            let markerColor = "black";
+            if (r.showType != defaultShowType && r.showType != undefined) {
+              markerColor = "red";
+            }
+            this.addMarker(r.venueLongitude, r.venueLatitude, markerColor);
             console.log("Long: " + r.venueLongitude + "; Lat: " + r.venueLatitude);
             console.log(r);
           }
@@ -71,7 +75,7 @@ export class TourMapPageComponent implements OnInit, AfterViewInit {
   }
 
 
-  private addMarker(lon: number, lat: number) {
+  private addMarker(lon: number, lat: number, color: string) {
     const newCoords = fromLonLat([lon, lat]); // Convert to EPSG:3857
     console.log("Set marker at: " + newCoords.toString())
 
@@ -82,9 +86,8 @@ export class TourMapPageComponent implements OnInit, AfterViewInit {
 
     marker.setStyle(new Style({
       image: new Icon({
-        color: "red",
         anchor: [0.5, 1],
-        src: './map/icon.png',
+        src: './map/map-pin-50-' + color + '.png',
         scale: 0.59
       })
     }));

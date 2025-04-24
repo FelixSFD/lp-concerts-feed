@@ -4,6 +4,7 @@ import {Concert} from '../data/concert';
 import {ConcertsService} from '../services/concerts.service';
 import {NgIf} from '@angular/common';
 import {RouterLink} from '@angular/router';
+import {ConcertTitleGenerator} from '../data/concert-title-generator';
 
 @Component({
   selector: 'app-concert-card',
@@ -32,4 +33,6 @@ export class ConcertCardComponent implements OnInit{
 
   ngOnInit(): void {
   }
+
+  protected readonly ConcertTitleGenerator = ConcertTitleGenerator;
 }

@@ -15,11 +15,8 @@
 </ng-template>
 
 <ng-template #details>
-  <h1 *ngIf="concert$?.tourName != undefined">
-    {{ concert$?.tourName }}: {{ concert$?.city }}
-  </h1>
-  <h1 *ngIf="concert$?.tourName == undefined">
-    Linkin Park Concert: {{ concert$?.city }}
+  <h1>
+    {{ ConcertTitleGenerator.getTitleFor(concert$!) }}
   </h1>
   <div style="margin-bottom: 10px">
     <app-concert-badges [concert]="concert$"></app-concert-badges>
@@ -28,6 +25,8 @@
     <b>{{ concert$?.venue }}</b>
     <br />
     <i>{{ concert$?.city }}{{ (concert$?.state?.length ?? 0) > 0 ? ", " + concert$?.state : ""}}, {{ concert$?.country }}</i>
+    <br />
+    {{ concert$?.showType }}
   </p>
 
   <div class="container">
@@ -122,6 +121,19 @@
           </div>
         </div>
       </div>
+
+      <ng-template [ngIf]="(concert$?.expectedSetDuration ?? 0) > 0">
+        <div class="col">
+          <div class="card w-100" style="width: 18rem;">
+            <div class="card-header">
+              Expected set duration
+            </div>
+            <div class="card-body text-center">
+              <h4 class="card-text">{{ concert$?.expectedSetDuration ?? 0 | timeSpan }}</h4>
+            </div>
+          </div>
+        </div>
+      </ng-template>
     </div>
 
     <ng-template [ngIf]="concert$?.scheduleImageFile != undefined">

@@ -23,6 +23,8 @@ import {Attribution} from 'ol/control';
 import {defaults as defaultControls} from 'ol/control/defaults.js';
 import {mapAttribution} from '../app.config';
 import {environment} from '../../environments/environment';
+import {ConcertTitleGenerator} from '../data/concert-title-generator';
+import {TimeSpanPipe} from '../data/time-span-pipe';
 
 @Component({
   selector: 'app-concert-details',
@@ -31,7 +33,8 @@ import {environment} from '../../environments/environment';
     CountdownComponent,
     RouterLink,
     ConcertBadgesComponent,
-    NgOptimizedImage
+    NgOptimizedImage,
+    TimeSpanPipe
   ],
   templateUrl: './concert-details.component.html',
   styleUrl: './concert-details.component.css'
@@ -129,9 +132,8 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
 
       this.marker.setStyle(new Style({
         image: new Icon({
-          color: "red",
           anchor: [0.5, 1],
-          src: './map/icon.png',
+          src: './map/map-pin-50-black.png',
           scale: 0.59
         })
       }));
@@ -218,4 +220,5 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
 
   protected readonly DateTime = DateTime;
   protected readonly environment = environment;
+  protected readonly ConcertTitleGenerator = ConcertTitleGenerator;
 }

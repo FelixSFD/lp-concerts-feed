@@ -9,7 +9,7 @@ import {
   ViewChild
 } from '@angular/core';
 import timezones from 'timezones-list';
-import {listOfTours} from '../../app.config';
+import {listOfTours, listOfShowTypes} from '../../app.config';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgClass, NgForOf, NgIf} from '@angular/common';
 import {Concert} from '../../data/concert';
@@ -52,7 +52,9 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
   private toastrService = inject(ToastrService);
 
   concertForm = this.formBuilder.group({
+    showType: new FormControl('', [Validators.required]),
     tourName: new FormControl('', []),
+    customTitle: new FormControl('', []),
     venue: new FormControl('', [Validators.min(3), Validators.required]),
     timezone: new FormControl('', [Validators.required]),
     city: new FormControl('', [Validators.required]),
@@ -63,6 +65,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
     lpuEarlyEntryTime: new FormControl('', []),
     doorsTime: new FormControl('', []),
     lpStageTime: new FormControl('', []),
+    expectedSetDuration: new FormControl('', []),
     venueLat: new FormControl(0, []),
     venueLong: new FormControl(0, []),
     scheduleImg: new FormControl('', [])
@@ -152,9 +155,8 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
 
       this.marker.setStyle(new Style({
         image: new Icon({
-          color: "red",
           anchor: [0.5, 1],
-          src: './map/icon.png',
+          src: './map/map-pin-50-black.png',
           scale: 0.59
         })
       }));
@@ -225,7 +227,16 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
     let lpStageDateTimeIsoStr = lpStageDateTime?.toISOTime();
     console.log("LP on stage at: " + lpStageDateTimeIsoStr);
 
+    let setDurationStr;
+    if (concert.expectedSetDuration != undefined) {
+      let setDurationMinutes = concert.expectedSetDuration % 60;
+      let setDurationHours = (concert.expectedSetDuration - setDurationMinutes) % 60;
+      setDurationStr = (setDurationHours < 10 ? "0" : "") + setDurationHours.toString() + ":" + (setDurationMinutes < 10 ? "0" : "") + setDurationMinutes.toString();
+    }
+
+    this.concertForm.controls.showType.setValue(concert.showType ?? null);
     this.concertForm.controls.tourName.setValue(concert.tourName ?? null);
+    this.concertForm.controls.customTitle.setValue(concert.customTitle ?? null);
     this.concertForm.controls.venue.setValue(concert.venue ?? null);
     this.concertForm.controls.city.setValue(concert.city ?? null);
     this.concertForm.controls.state.setValue(concert.state ?? null);
@@ -236,6 +247,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
     this.concertForm.controls.lpuEarlyEntryTime.setValue(lpuEarlyEntryDateTimeIsoStr?.substring(0, 5) ?? null);
     this.concertForm.controls.doorsTime.setValue(doorsDateTimeIsoStr?.substring(0, 5) ?? null);
     this.concertForm.controls.lpStageTime.setValue(lpStageDateTimeIsoStr?.substring(0, 5) ?? null);
+    this.concertForm.controls.expectedSetDuration.setValue(setDurationStr ?? null);
     this.concertForm.controls.venueLat.setValue(concert.venueLatitude ?? 0)
     this.concertForm.controls.venueLong.setValue(concert.venueLongitude ?? 0)
 
@@ -278,7 +290,9 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
   private readConcertFromForm() {
     const postedStartTime = this.concertForm.value.postedStartTime!;
     let newConcert = new Concert();
+    newConcert.showType = this.concertForm.value.showType?.valueOf();
     newConcert.tourName = this.concertForm.value.tourName?.valueOf();
+    newConcert.customTitle = this.concertForm.value.customTitle?.valueOf();
     newConcert.venue = this.concertForm.value.venue?.valueOf();
     newConcert.city = this.concertForm.value.city?.valueOf();
     newConcert.state = this.concertForm.value.state?.valueOf();
@@ -325,6 +339,9 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
       newConcert.mainStageTime = lpStageDateTime.toISO()!;
     }
 
+    // Expected set duration
+    newConcert.expectedSetDuration = this.convertH2M(this.concertForm.value.expectedSetDuration?.valueOf() ?? "00:00");
+
     // Venue coordinates
     newConcert.venueLatitude = this.concertForm.value.venueLat ?? 0;
     newConcert.venueLongitude = this.concertForm.value.venueLong ?? 0;
@@ -332,6 +349,12 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
     console.log(newConcert);
 
     return newConcert;
+  }
+
+
+  private convertH2M(timeInHour: string){
+    let timeParts = timeInHour.split(":");
+    return Number(timeParts[0]) * 60 + Number(timeParts[1]);
   }
 
 
@@ -356,6 +379,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
 
 
   protected readonly timezones = timezones;
+  protected readonly listOfShowTypes = listOfShowTypes;
   protected readonly listOfTours = listOfTours;
   protected readonly environment = environment;
 }
