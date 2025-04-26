@@ -2,6 +2,7 @@ export class Concert {
   id: string | undefined;
   status: string = "PUBLISHED";
   postedStartTime: string | undefined;
+  isPast: boolean | undefined;
   timeZoneId: string | undefined;
 
   lpuEarlyEntryConfirmed: boolean = false;

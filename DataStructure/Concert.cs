@@ -180,4 +180,13 @@ public class Concert
     [DynamoDBProperty]
     [JsonPropertyName("scheduleImageFile")]
     public string? ScheduleImageFile { get; set; }
+
+
+    /// <summary>
+    /// true, if the show was in the past (at the time of reading this property)
+    /// A show is considered as "past", when the posted start time was more than 4 hour ago
+    /// </summary>
+    [DynamoDBIgnore]
+    [JsonPropertyName("isPast")]
+    public bool IsPast => PostedStartTime != null && PostedStartTime < DateTimeOffset.Now.AddHours(-4);
 }

@@ -36,8 +36,89 @@
   <label class="form-check-label" for="showHistoricSwitch">Show past concerts</label>
 </div>
 
+<div class="form-check form-switch">
+  <input class="form-check-input" type="checkbox" id="useNewTableSwitch" [(ngModel)]="useNewTable$" (change)="onUseNewTableSwitchChanged()">
+  <label class="form-check-label" for="useNewTableSwitch">Use new table</label>
+</div>
+
 <!-- List of all concerts -->
-<table class="table table-striped align-middle">
+<div class="container" *ngIf="useNewTable$">
+  <ng-template *ngIf="isLoading$; then loadingSpinner; else concertsListContent" />
+
+  <!-- Loading spinner while API request is running -->
+  <ng-template #loadingSpinner>
+    <div class="text-center">
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading concerts...
+    </div>
+  </ng-template>
+
+  <!-- List of concerts -->
+  <ng-template #concertsListContent >
+    <div class="row w-auto justify-content-center">
+      <div class="col col-10 col-xs-10 col-sm-10 col-md-11 col-lg-9 col-xl-8 col-xxl-7">
+        <div class="card m-2 m-xs-2 m-sm-2 m-md-3 m-lg-3 m-xl-4 m-xxl-4" *ngFor="let concert of concerts$">
+          <div class="card-body">
+            <h5 class="card-title">
+              <a class="link-body-emphasis link-underline-opacity-0" [routerLink]="['/concerts/' + concert.id]">{{ ConcertTitleGenerator.getTitleFor(concert) }}</a>
+            </h5>
+            <h6 class="card-subtitle mb-2 text-muted">{{ concert.venue }}, {{ concert.city }}{{ (concert.state?.length ?? 0) > 0 ? ", " + concert.state : ""}}, {{ concert.country }}</h6>
+            <div class="row">
+              <div class="col">
+                <table>
+                  <tr>
+                    <td class="fw-bold">Your timezone:</td>
+                    <td>&nbsp;</td>
+                    <td>{{getDateTime(concert.mainStageTime ?? concert.postedStartTime!).toLocaleString(DateTime. DATETIME_SHORT)}}</td>
+                  </tr>
+                  <tr *ngIf="concert.timeZoneId != undefined">
+                    <td class="fw-bold">Venue timezone:</td>
+                    <td>&nbsp;</td>
+                    <td>{{getDateTimeInTimezone(concert.mainStageTime ?? concert.postedStartTime!, concert.timeZoneId).toLocaleString(DateTime. DATETIME_SHORT)}}</td>
+                  </tr>
+                </table>
+
+                <app-concert-badges [concert]="concert"></app-concert-badges>
+              </div>
+
+              <div *ngIf="!concert.isPast" class="col d-none d-md-inline d-xl-inline d-xxl-inline" style="max-width: 250px;">
+                <app-countdown [countdownToDate]="concert.mainStageTime ?? concert.postedStartTime!"></app-countdown>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="row justify-content-between">
+              <!-- Info about the timings -->
+              <div class="col col-6">
+                <span class="countdown-description align-bottom" *ngIf="concert.mainStageTime == undefined">Based on start time on ticket</span>
+                <span class="countdown-description align-bottom" *ngIf="concert.mainStageTime != undefined">Based on Linkin Park stage time</span>
+              </div>
+
+              <!-- Some buttons -->
+              <div class="text-end col col-6">
+                <div class="btn-group" role="group" aria-label="Basic example">
+                  <button type="button" class="btn btn-info" [routerLink]="['/concerts/' + concert.id]">
+                    <i class="bi bi-info-circle"></i>
+                  </button>
+                  <ng-container *ngIf="hasWriteAccess$"> <!-- Only show delete button if user can write data -->
+                    <button type="button" class="btn btn-outline-secondary" [routerLink]="['/concerts/' + concert.id] + '/edit'">
+                      <i class="bi bi-pencil"></i> Edit
+                    </button>
+                    <button type="button" class="btn btn-outline-danger" (click)="onDeleteConcertClicked(deleteConcertContent, concert.id)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </ng-container>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</div>
+
+<!-- OLD TABLE -->
+<table class="table table-striped align-middle" *ngIf="!useNewTable$">
   <thead>
   <tr>
     <th scope="col">Date</th>

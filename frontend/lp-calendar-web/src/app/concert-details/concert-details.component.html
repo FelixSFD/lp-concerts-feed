@@ -111,7 +111,7 @@
         </div>
       </ng-template>
 
-      <div class="col">
+      <div class="col" *ngIf="!concert$?.isPast">
         <div class="card w-100" style="width: 18rem;">
           <div class="card-header">
             Countdown <s>from</s>to zero
