@@ -27,7 +27,7 @@
 
 
 <!-- Button to add concert -->
-<button type="button" class="btn btn-outline-primary" *ngIf="hasWriteAccess$" [disabled]="!hasWriteAccess$" [routerLink]="['/concerts/add']">
+<button type="button" class="btn btn-outline-primary mb-2" *ngIf="hasWriteAccess$" [disabled]="!hasWriteAccess$" [routerLink]="['/concerts/add']">
   Add concert
 </button>
 
@@ -38,7 +38,7 @@
 
 <div class="form-check form-switch">
   <input class="form-check-input" type="checkbox" id="useNewTableSwitch" [(ngModel)]="useNewTable$" (change)="onUseNewTableSwitchChanged()">
-  <label class="form-check-label" for="useNewTableSwitch">Use new table</label>
+  <label class="form-check-label" for="useNewTableSwitch">Use new list design</label>
 </div>
 
 <!-- List of all concerts -->
@@ -54,14 +54,20 @@
 
   <!-- List of concerts -->
   <ng-template #concertsListContent >
-    <div class="row w-auto justify-content-center">
-      <div class="col col-10 col-xs-10 col-sm-10 col-md-11 col-lg-9 col-xl-8 col-xxl-7">
+    <div class="row w-100 justify-content-center">
+      <div class="col col-12 col-xs-12 col-sm-12 col-md-11 col-lg-9 col-xl-8 col-xxl-7">
         <div class="card m-2 m-xs-2 m-sm-2 m-md-3 m-lg-3 m-xl-4 m-xxl-4" *ngFor="let concert of concerts$">
           <div class="card-body">
             <h5 class="card-title">
-              <a class="link-body-emphasis link-underline-opacity-0" [routerLink]="['/concerts/' + concert.id]">{{ ConcertTitleGenerator.getTitleFor(concert) }}</a>
+              <a class="link-body-emphasis link-underline-opacity-0" [routerLink]="['/concerts/' + concert.id]">
+                {{ ConcertTitleGenerator.getTitleFor(concert) }}
+              </a>
             </h5>
-            <h6 class="card-subtitle mb-2 text-muted">{{ concert.venue }}, {{ concert.city }}{{ (concert.state?.length ?? 0) > 0 ? ", " + concert.state : ""}}, {{ concert.country }}</h6>
+            <h6 class="card-subtitle mb-2 text-muted">
+              <a class="link-secondary link-underline-opacity-0" [routerLink]="['/concerts/' + concert.id]">
+                {{ concert.venue }}, {{ concert.city }}{{ (concert.state?.length ?? 0) > 0 ? ", " + concert.state : ""}}, {{ concert.country }}
+              </a>
+            </h6>
             <div class="row">
               <div class="col">
                 <table>
@@ -101,7 +107,7 @@
                   </button>
                   <ng-container *ngIf="hasWriteAccess$"> <!-- Only show delete button if user can write data -->
                     <button type="button" class="btn btn-outline-secondary" [routerLink]="['/concerts/' + concert.id] + '/edit'">
-                      <i class="bi bi-pencil"></i> Edit
+                      <i class="bi bi-pencil"></i><span class="d-none d-xs-none d-sm-none d-md-inline">&nbsp;Edit</span>
                     </button>
                     <button type="button" class="btn btn-outline-danger" (click)="onDeleteConcertClicked(deleteConcertContent, concert.id)">
                       <i class="bi bi-trash"></i>
