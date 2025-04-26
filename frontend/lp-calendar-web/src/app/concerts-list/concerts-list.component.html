@@ -80,24 +80,34 @@
               </div>
 
               <div *ngIf="!concert.isPast" class="col d-none d-md-inline d-xl-inline d-xxl-inline" style="max-width: 250px;">
-                <app-countdown [countdownToDate]="concert.postedStartTime!"></app-countdown>
+                <app-countdown [countdownToDate]="concert.mainStageTime ?? concert.postedStartTime!"></app-countdown>
               </div>
             </div>
           </div>
-          <div class="card-footer text-end">
-            <!-- Some buttons -->
-            <div class="btn-group" role="group" aria-label="Basic example">
-              <button type="button" class="btn btn-info" [routerLink]="['/concerts/' + concert.id]">
-                <i class="bi bi-info-circle"></i>
-              </button>
-              <ng-container *ngIf="hasWriteAccess$"> <!-- Only show delete button if user can write data -->
-                <button type="button" class="btn btn-outline-secondary" [routerLink]="['/concerts/' + concert.id] + '/edit'">
-                  <i class="bi bi-pencil"></i> Edit
-                </button>
-                <button type="button" class="btn btn-outline-danger" (click)="onDeleteConcertClicked(deleteConcertContent, concert.id)">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </ng-container>
+          <div class="card-footer">
+            <div class="row justify-content-between">
+              <!-- Info about the timings -->
+              <div class="col col-4">
+                <span class="countdown-description align-bottom" *ngIf="concert.mainStageTime == undefined">Based on start time on ticket</span>
+                <span class="countdown-description align-bottom" *ngIf="concert.mainStageTime != undefined">Based on Linkin Park stage time</span>
+              </div>
+
+              <!-- Some buttons -->
+              <div class="col col-4 text-end">
+                <div class="btn-group" role="group" aria-label="Basic example">
+                  <button type="button" class="btn btn-info" [routerLink]="['/concerts/' + concert.id]">
+                    <i class="bi bi-info-circle"></i>
+                  </button>
+                  <ng-container *ngIf="hasWriteAccess$"> <!-- Only show delete button if user can write data -->
+                    <button type="button" class="btn btn-outline-secondary" [routerLink]="['/concerts/' + concert.id] + '/edit'">
+                      <i class="bi bi-pencil"></i> Edit
+                    </button>
+                    <button type="button" class="btn btn-outline-danger" (click)="onDeleteConcertClicked(deleteConcertContent, concert.id)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </ng-container>
+                </div>
+              </div>
             </div>
           </div>
         </div>
