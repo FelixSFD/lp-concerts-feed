@@ -38,7 +38,7 @@
 
 <div class="form-check form-switch">
   <input class="form-check-input" type="checkbox" id="useNewTableSwitch" [(ngModel)]="useNewTable$" (change)="onUseNewTableSwitchChanged()">
-  <label class="form-check-label" for="useNewTableSwitch">Use new table</label>
+  <label class="form-check-label" for="useNewTableSwitch">Use new list design</label>
 </div>
 
 <!-- List of all concerts -->
@@ -54,8 +54,8 @@
 
   <!-- List of concerts -->
   <ng-template #concertsListContent >
-    <div class="row w-auto justify-content-center">
-      <div class="col col-10 col-xs-10 col-sm-10 col-md-11 col-lg-9 col-xl-8 col-xxl-7">
+    <div class="row w-100 justify-content-center">
+      <div class="col col-12 col-xs-12 col-sm-12 col-md-11 col-lg-9 col-xl-8 col-xxl-7">
         <div class="card m-2 m-xs-2 m-sm-2 m-md-3 m-lg-3 m-xl-4 m-xxl-4" *ngFor="let concert of concerts$">
           <div class="card-body">
             <h5 class="card-title">
