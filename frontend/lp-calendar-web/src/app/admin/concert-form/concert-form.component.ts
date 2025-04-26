@@ -227,12 +227,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
     let lpStageDateTimeIsoStr = lpStageDateTime?.toISOTime();
     console.log("LP on stage at: " + lpStageDateTimeIsoStr);
 
-    let setDurationStr;
-    if (concert.expectedSetDuration != undefined) {
-      let setDurationMinutes = concert.expectedSetDuration % 60;
-      let setDurationHours = (concert.expectedSetDuration - setDurationMinutes) % 60;
-      setDurationStr = (setDurationHours < 10 ? "0" : "") + setDurationHours.toString() + ":" + (setDurationMinutes < 10 ? "0" : "") + setDurationMinutes.toString();
-    }
+    let setDurationStr = this.convertMinutesToString(concert.expectedSetDuration);
 
     this.concertForm.controls.showType.setValue(concert.showType ?? null);
     this.concertForm.controls.tourName.setValue(concert.tourName ?? null);
@@ -358,6 +353,17 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
   }
 
 
+  private convertMinutesToString(minutes: number | undefined){
+    if (minutes != undefined) {
+      let setDurationMinutes = minutes % 60;
+      let setDurationHours = (minutes - setDurationMinutes) / 60;
+      return (setDurationHours < 10 ? "0" : "") + setDurationHours.toString() + ":" + (setDurationMinutes < 10 ? "0" : "") + setDurationMinutes.toString();
+    }
+
+    return undefined;
+  }
+
+
   onScheduleFileSelected(event: any){
     this.selectedScheduleFile = <File> event.target.files[0];
   }
@@ -375,6 +381,16 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
           this.scheduleIsUploading$ = false;
           this.toastrService.success("Schedule successfully uploaded!");
         })
+  }
+
+
+  /**
+   * Sets the field expectedSetDuration based on minutes
+   * @param minutes
+   */
+  setExpectedSetDuration(minutes: number) {
+    let str = this.convertMinutesToString(minutes);
+    this.concertForm.controls.expectedSetDuration.setValue(str ?? null);
   }
 
 
