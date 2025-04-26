@@ -77,6 +77,8 @@
                     <td>{{getDateTimeInTimezone(concert.mainStageTime ?? concert.postedStartTime!, concert.timeZoneId).toLocaleString(DateTime. DATETIME_SHORT)}}</td>
                   </tr>
                 </table>
+
+                <app-concert-badges [concert]="concert"></app-concert-badges>
               </div>
 
               <div *ngIf="!concert.isPast" class="col d-none d-md-inline d-xl-inline d-xxl-inline" style="max-width: 250px;">
