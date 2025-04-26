@@ -227,13 +227,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
     let lpStageDateTimeIsoStr = lpStageDateTime?.toISOTime();
     console.log("LP on stage at: " + lpStageDateTimeIsoStr);
 
-    let setDurationStr;
-    let expectedSetDurationNum = concert.expectedSetDuration;
-    if (expectedSetDurationNum != undefined) {
-      let setDurationMinutes = expectedSetDurationNum % 60;
-      let setDurationHours = (expectedSetDurationNum - setDurationMinutes) / 60;
-      setDurationStr = (setDurationHours < 10 ? "0" : "") + setDurationHours.toString() + ":" + (setDurationMinutes < 10 ? "0" : "") + setDurationMinutes.toString();
-    }
+    let setDurationStr = this.convertMinutesToString(concert.expectedSetDuration);
 
     this.concertForm.controls.showType.setValue(concert.showType ?? null);
     this.concertForm.controls.tourName.setValue(concert.tourName ?? null);
