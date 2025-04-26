@@ -359,6 +359,17 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
   }
 
 
+  private convertMinutesToString(minutes: number | undefined){
+    if (minutes != undefined) {
+      let setDurationMinutes = minutes % 60;
+      let setDurationHours = (minutes - setDurationMinutes) / 60;
+      return (setDurationHours < 10 ? "0" : "") + setDurationHours.toString() + ":" + (setDurationMinutes < 10 ? "0" : "") + setDurationMinutes.toString();
+    }
+
+    return undefined;
+  }
+
+
   onScheduleFileSelected(event: any){
     this.selectedScheduleFile = <File> event.target.files[0];
   }
@@ -376,6 +387,16 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
           this.scheduleIsUploading$ = false;
           this.toastrService.success("Schedule successfully uploaded!");
         })
+  }
+
+
+  /**
+   * Sets the field expectedSetDuration based on minutes
+   * @param minutes
+   */
+  setExpectedSetDuration(minutes: number) {
+    let str = this.convertMinutesToString(minutes);
+    this.concertForm.controls.expectedSetDuration.setValue(str ?? null);
   }
 
 

@@ -154,8 +154,16 @@
             <!-- Expected set duration -->
             <div class="form-group">
               <label for="expectedSetDuration">Expected set duration</label>
-              <input id="expectedSetDuration" type="time" formControlName="expectedSetDuration" class="form-control"
-                     [ngClass]="{ 'is-invalid': concertForm.controls.expectedSetDuration.invalid }">
+              <div class="input-group mb-3">
+                <input id="expectedSetDuration" type="time" formControlName="expectedSetDuration" class="form-control"
+                       [ngClass]="{ 'is-invalid': concertForm.controls.expectedSetDuration.invalid }">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Set standard</button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li><a class="dropdown-item" (click)="setExpectedSetDuration(120)" href="javascript:void(0)">2 hours</a></li>
+                  <li><a class="dropdown-item" (click)="setExpectedSetDuration(90)" href="javascript:void(0)">90 minutes</a></li>
+                  <li><a class="dropdown-item" (click)="setExpectedSetDuration(59+1)" href="javascript:void(0)">1 hour</a></li>
+                </ul>
+              </div>
               <div *ngIf="concertForm.controls.expectedSetDuration.invalid" class="text-danger">
                 <small *ngIf="concertForm.controls.expectedSetDuration.errors">Duration is invalid.</small>
               </div>
