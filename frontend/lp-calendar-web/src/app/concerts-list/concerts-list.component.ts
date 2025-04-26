@@ -11,6 +11,8 @@ import timezones from 'timezones-list';
 import {RouterLink} from '@angular/router';
 import {listOfTours} from '../app.config';
 import {ConcertBadgesComponent} from '../concert-badges/concert-badges.component';
+import {ConcertTitleGenerator} from '../data/concert-title-generator';
+import {CountdownComponent} from '../countdown/countdown.component';
 
 @Component({
   selector: 'app-concerts-list',
@@ -21,7 +23,8 @@ import {ConcertBadgesComponent} from '../concert-badges/concert-badges.component
     FormsModule,
     LuxonModule,
     RouterLink,
-    ConcertBadgesComponent
+    ConcertBadgesComponent,
+    CountdownComponent
   ],
   templateUrl: './concerts-list.component.html',
   styleUrl: './concerts-list.component.css'
@@ -54,6 +57,8 @@ export class ConcertsListComponent implements OnInit {
 
   hasWriteAccess$ = false;
 
+  useNewTable$: boolean = true;
+
   constructor(private concertsService: ConcertsService) {
     this.reloadConcertList(true);
 
@@ -84,6 +89,12 @@ export class ConcertsListComponent implements OnInit {
   onShowHistoricSwitchChanged() {
     this.reloadConcertList(true);
     console.log("Show historic: " + this.showHistoricConcerts$)
+  }
+
+
+  onUseNewTableSwitchChanged() {
+    //this.reloadConcertList(true);
+    console.log("use new table: " + this.useNewTable$)
   }
 
 
@@ -136,4 +147,5 @@ export class ConcertsListComponent implements OnInit {
   protected readonly timezones = timezones;
   protected readonly DateTime = DateTime;
   protected readonly listOfTours = listOfTours;
+  protected readonly ConcertTitleGenerator = ConcertTitleGenerator;
 }
