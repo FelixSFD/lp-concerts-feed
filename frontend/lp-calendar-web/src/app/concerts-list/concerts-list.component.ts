@@ -145,12 +145,6 @@ export class ConcertsListComponent implements OnInit {
   }
 
 
-  showHappenedInThePast(concert: Concert): boolean {
-    let dateTimeInTimezone = this.getDateTimeInTimezone(concert.postedStartTime!, concert.timeZoneId!);
-    let diff = dateTimeInTimezone.diffNow(['hours']);
-    return diff.hours < -3;
-  }
-
   protected readonly timezones = timezones;
   protected readonly DateTime = DateTime;
   protected readonly listOfTours = listOfTours;
