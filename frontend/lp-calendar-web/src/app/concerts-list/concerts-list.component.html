@@ -58,7 +58,9 @@
       <div class="col col-10 col-xs-10 col-sm-10 col-md-11 col-lg-9 col-xl-8 col-xxl-7">
         <div class="card m-2 m-xs-2 m-sm-2 m-md-3 m-lg-3 m-xl-4 m-xxl-4" *ngFor="let concert of concerts$">
           <div class="card-body">
-            <h5 class="card-title">{{ ConcertTitleGenerator.getTitleFor(concert) }}</h5>
+            <h5 class="card-title">
+              <a class="link-body-emphasis link-underline-opacity-0" [routerLink]="['/concerts/' + concert.id]">{{ ConcertTitleGenerator.getTitleFor(concert) }}</a>
+            </h5>
             <h6 class="card-subtitle mb-2 text-muted">{{ concert.city }}{{ (concert.state?.length ?? 0) > 0 ? ", " + concert.state : ""}}, {{ concert.country }}</h6>
             <div class="row">
               <div class="col">
