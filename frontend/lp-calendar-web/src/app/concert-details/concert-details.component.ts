@@ -43,7 +43,6 @@ import {AdjacentConcertIdsResponse} from '../data/adjacent-concert-ids-response'
     CountdownComponent,
     RouterLink,
     ConcertBadgesComponent,
-    NgOptimizedImage,
     TimeSpanPipe
   ],
   templateUrl: './concert-details.component.html',
