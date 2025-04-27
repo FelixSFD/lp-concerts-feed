@@ -2,10 +2,10 @@
 <button class="btn btn-outline-secondary" [routerLink]="['../']"><i class="bi bi-arrow-left"></i> Concerts list</button>
 &nbsp;
 <div class="btn-group" role="group" aria-label="Navigation">
-  <button class="btn btn-outline-secondary" [disabled]="adjacentConcertData$?.previous == null" [routerLink]="['../', adjacentConcertData$?.previous]" (click)="loadDataForId(adjacentConcertData$?.previous)">
+  <button class="btn btn-outline-secondary" [disabled]="adjacentConcertData$?.previous == null" [routerLink]="['../', adjacentConcertData$?.previous]">
     <i class="bi bi-arrow-left"></i>
   </button>
-  <button class="btn btn-outline-secondary" [disabled]="adjacentConcertData$?.next == null" [routerLink]="['../', adjacentConcertData$?.next]" (click)="loadDataForId(adjacentConcertData$?.next)">
+  <button class="btn btn-outline-secondary" [disabled]="adjacentConcertData$?.next == null" [routerLink]="['../', adjacentConcertData$?.next]">
     <i class="bi bi-arrow-right"></i>
   </button>
 </div>
@@ -163,7 +163,7 @@
 
   <br />
 
-  <ng-container *ngIf="concert$?.venueLatitude != 0 && concert$?.venueLongitude != 0">
+  <ng-container #mapContainer *ngIf="concert$?.venueLatitude != 0 && concert$?.venueLongitude != 0">
     <h3>Venue location</h3>
     <div id="venueMap" class="map"></div>
   </ng-container>

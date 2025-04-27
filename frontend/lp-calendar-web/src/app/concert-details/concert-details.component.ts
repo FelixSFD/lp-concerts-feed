@@ -1,4 +1,13 @@
-import {AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {
+  AfterRenderRef,
+  AfterViewInit,
+  Component,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  ViewChild
+} from '@angular/core';
 import {ConcertsService} from '../services/concerts.service';
 import {Concert} from '../data/concert';
 import {ActivatedRoute, RouterLink} from '@angular/router';
@@ -60,8 +69,11 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
     });
   }
 
+
   ngOnInit(): void {
-    this.loadDataForId(this.route.snapshot.paramMap.get('id')!);
+    this.route.params.subscribe(params => {
+      this.loadDataForId(params['id']);
+    })
   }
 
 
@@ -106,7 +118,8 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
 
         // Set coordinates in map
         console.log(result);
-        if (result.venueLongitude != undefined && result.venueLatitude != undefined) {
+        if (result.venueLongitude != undefined && result.venueLatitude != undefined
+        && result.venueLongitude != 0 && result.venueLatitude != 0) {
           this.addOrMoveMarker(result.venueLongitude, result.venueLatitude);
         }
 
@@ -178,7 +191,7 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   }
 
 
-  @ViewChild('details')
+  @ViewChild('mapContainer')
   set detailsRendered(element: ElementRef | undefined) {
     // is called when tab rendered or destroyed
     if (element) {
