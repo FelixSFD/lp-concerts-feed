@@ -8,6 +8,7 @@ import {environment} from '../../environments/environment';
 import { Guid } from 'guid-typescript';
 import {GetS3UploadUrlRequest} from '../data/get-s3-upload-url-request';
 import {GetS3UploadUrlResponse} from '../data/get-s3-upload-url-response';
+import {AdjacentConcertIdsResponse} from '../data/adjacent-concert-ids-response';
 
 @Injectable({
   providedIn: 'root'
@@ -101,5 +102,15 @@ export class ConcertsService {
           return this.httpClient.put(response.uploadUrl!, imageFile);
         })
       )
+  }
+
+
+  /**
+   * Returns the previous and next ID based on the ID passed into the method
+   * @param currentId ID of the current concert
+   */
+  getAdjacentConcerts(currentId: string) : Observable<AdjacentConcertIdsResponse> {
+    let url = environment.apiCachedBaseUrl + "/Prod/concerts/" + currentId + "/adjacent";
+    return this.httpClient.get<AdjacentConcertIdsResponse>(url);
   }
 }

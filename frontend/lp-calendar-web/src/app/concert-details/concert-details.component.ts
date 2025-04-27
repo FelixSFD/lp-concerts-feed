@@ -25,6 +25,7 @@ import {mapAttribution} from '../app.config';
 import {environment} from '../../environments/environment';
 import {ConcertTitleGenerator} from '../data/concert-title-generator';
 import {TimeSpanPipe} from '../data/time-span-pipe';
+import {AdjacentConcertIdsResponse} from '../data/adjacent-concert-ids-response';
 
 @Component({
   selector: 'app-concert-details',
@@ -41,6 +42,7 @@ import {TimeSpanPipe} from '../data/time-span-pipe';
 })
 export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   concert$: Concert | null = null;
+  adjacentConcertData$: AdjacentConcertIdsResponse | null = null;
   concertId: string | undefined;
 
   // Map of the location of the concert
@@ -59,7 +61,32 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.concertId = this.route.snapshot.paramMap.get('id')!;
+    this.loadDataForId(this.route.snapshot.paramMap.get('id')!);
+  }
+
+
+  ngAfterViewInit() {
+    this.initVenueMap();
+  }
+
+
+  loadDataForId(id: string | undefined) {
+    console.log("loadDataForId: " + id);
+    if (id == undefined) {
+      this.concertId = undefined;
+      this.concert$ = null;
+      this.adjacentConcertData$ = null;
+      return;
+    }
+
+    this.concertId = id!;
+
+    this.concertsService.getAdjacentConcerts(this.concertId)
+      .subscribe(adjacentConcerts => {
+        if (adjacentConcerts != undefined) {
+          this.adjacentConcertData$ = adjacentConcerts;
+        }
+      });
 
     this.concertsService
       .getConcert(this.concertId)
@@ -85,11 +112,6 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
 
         return this.concert$ = result;
       });
-  }
-
-
-  ngAfterViewInit() {
-    this.initVenueMap();
   }
 
 

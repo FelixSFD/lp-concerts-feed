@@ -1,6 +1,15 @@
 
 <button class="btn btn-outline-secondary" [routerLink]="['../']"><i class="bi bi-arrow-left"></i> Concerts list</button>
 &nbsp;
+<div class="btn-group" role="group" aria-label="Navigation">
+  <button class="btn btn-outline-secondary" [disabled]="adjacentConcertData$?.previous == null" [routerLink]="['../', adjacentConcertData$?.previous]" (click)="loadDataForId(adjacentConcertData$?.previous)">
+    <i class="bi bi-arrow-left"></i>
+  </button>
+  <button class="btn btn-outline-secondary" [disabled]="adjacentConcertData$?.next == null" [routerLink]="['../', adjacentConcertData$?.next]" (click)="loadDataForId(adjacentConcertData$?.next)">
+    <i class="bi bi-arrow-right"></i>
+  </button>
+</div>
+
 <button class="btn btn-outline-info" [routerLink]="['./edit']" [hidden]="!hasWriteAccess$"><i class="bi bi-pencil"></i> Edit</button>
 
 <br />
