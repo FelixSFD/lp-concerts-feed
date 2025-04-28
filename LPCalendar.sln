@@ -45,6 +45,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.GetS3UploadUrl.Tests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataStructure.Tests", "DataStructure.Tests\DataStructure.Tests.csproj", "{C19C1438-0660-4D97-8CA0-71461E7003FC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.AdjacentConcerts", "Lambda.AdjacentConcerts\src\Lambda.AdjacentConcerts\Lambda.AdjacentConcerts.csproj", "{C9B0B6BF-A181-4C6F-81B9-0E4671339AEE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.AdjacentConcerts.Tests", "Lambda.AdjacentConcerts\test\Lambda.AdjacentConcerts.Tests\Lambda.AdjacentConcerts.Tests.csproj", "{D75039E7-F1BF-49CE-A03B-AD882D37BB78}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -111,5 +115,13 @@ Global
 		{C19C1438-0660-4D97-8CA0-71461E7003FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C19C1438-0660-4D97-8CA0-71461E7003FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C19C1438-0660-4D97-8CA0-71461E7003FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9B0B6BF-A181-4C6F-81B9-0E4671339AEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9B0B6BF-A181-4C6F-81B9-0E4671339AEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9B0B6BF-A181-4C6F-81B9-0E4671339AEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9B0B6BF-A181-4C6F-81B9-0E4671339AEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D75039E7-F1BF-49CE-A03B-AD882D37BB78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D75039E7-F1BF-49CE-A03B-AD882D37BB78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D75039E7-F1BF-49CE-A03B-AD882D37BB78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D75039E7-F1BF-49CE-A03B-AD882D37BB78}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

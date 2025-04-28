@@ -1,7 +1,26 @@
+<div class="row justify-content-between">
+  <div class="col-auto">
+    <button class="btn btn-outline-secondary" [routerLink]="['../']"><i class="bi bi-arrow-left"></i> Concerts list</button>
+    &nbsp;
+    <div class="btn-group" role="group" aria-label="Navigation">
+      <button class="btn btn-outline-secondary" [disabled]="adjacentConcertData$?.previous == null" [routerLink]="['../', adjacentConcertData$?.previous]">
+        <i class="bi bi-arrow-left"></i>
+      </button>
+      <button class="btn btn-outline-secondary" [disabled]="adjacentConcertData$?.next == null" [routerLink]="['../', adjacentConcertData$?.next]">
+        <i class="bi bi-arrow-right"></i>
+      </button>
+    </div>
+    &nbsp;
+    <button class="btn btn-outline-info" [routerLink]="['./edit']" [hidden]="!hasWriteAccess$"><i class="bi bi-pencil"></i> Edit</button>
+    &nbsp;
+  </div>
+  <div class="col-auto align-content-end">
+    <button class="btn btn-outline-info" (click)="openLinkinpediaClicked()" placement="bottom" ngbTooltip="Search details on Linkinpedia">
+      <i class="bi bi-box-arrow-up-right"></i><span class="d-none d-sm-none d-md-inline ms-2">Open Linkinpedia</span>
+    </button>
+  </div>
+</div>
 
-<button class="btn btn-outline-secondary" [routerLink]="['../']"><i class="bi bi-arrow-left"></i> Concerts list</button>
-&nbsp;
-<button class="btn btn-outline-info" [routerLink]="['./edit']" [hidden]="!hasWriteAccess$"><i class="bi bi-pencil"></i> Edit</button>
 
 <br />
 <br />
@@ -15,6 +34,7 @@
 </ng-template>
 
 <ng-template #details>
+  <h6>{{ concert$?.postedStartTime | date : "fullDate" }}</h6>
   <h1>
     {{ ConcertTitleGenerator.getTitleFor(concert$!) }}
   </h1>
@@ -154,7 +174,7 @@
 
   <br />
 
-  <ng-container *ngIf="concert$?.venueLatitude != 0 && concert$?.venueLongitude != 0">
+  <ng-container #mapContainer *ngIf="concert$?.venueLatitude != 0 && concert$?.venueLongitude != 0">
     <h3>Venue location</h3>
     <div id="venueMap" class="map"></div>
   </ng-container>

@@ -3,9 +3,9 @@ import {
   Component, ElementRef,
   EventEmitter,
   inject,
-  Input,
+  Input, OnChanges,
   OnInit,
-  Output,
+  Output, SimpleChanges,
   ViewChild
 } from '@angular/core';
 import timezones from 'timezones-list';
@@ -46,7 +46,7 @@ import {ToastrService} from 'ngx-toastr';
   templateUrl: './concert-form.component.html',
   styleUrl: './concert-form.component.css'
 })
-export class ConcertFormComponent implements OnInit, AfterViewInit {
+export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
   private formBuilder = inject(FormBuilder);
   private concertsService = inject(ConcertsService);
   private toastrService = inject(ToastrService);
@@ -109,6 +109,24 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
 
 
   ngOnInit() {
+    this.loadConcertForId(this.concertId);
+  }
+
+
+  ngAfterViewInit() {
+    this.initVenueMap();
+  }
+
+
+  ngOnChanges(changes: SimpleChanges) {
+    // only update if ID changed
+    if (changes.hasOwnProperty("concertId")) {
+      this.loadConcertForId(this.concertId);
+    }
+  }
+
+
+  private loadConcertForId(id: string | null) {
     // Fetch concert data from API to prefill the form
     if (this.concertId != null) {
       this.concertForm.disable();
@@ -120,11 +138,6 @@ export class ConcertFormComponent implements OnInit, AfterViewInit {
         this.concertForm.enable();
       });
     }
-  }
-
-
-  ngAfterViewInit() {
-    this.initVenueMap();
   }
 
 

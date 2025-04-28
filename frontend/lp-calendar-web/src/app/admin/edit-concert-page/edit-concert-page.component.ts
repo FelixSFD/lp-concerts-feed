@@ -6,6 +6,7 @@ import {ConcertsService} from '../../services/concerts.service';
 import {ToastrService} from 'ngx-toastr';
 import {ErrorResponse} from "../../data/error-response";
 import {HttpErrorResponse} from "@angular/common/http";
+import {AdjacentConcertIdsResponse} from '../../data/adjacent-concert-ids-response';
 
 @Component({
   selector: 'app-edit-concert-page',
@@ -18,11 +19,29 @@ import {HttpErrorResponse} from "@angular/common/http";
 })
 export class EditConcertPageComponent {
   concertId: string | null;
+  adjacentConcertData$: AdjacentConcertIdsResponse | null = null;
 
   isSaving$: boolean = false;
 
   constructor(private route: ActivatedRoute, private concertsService: ConcertsService, private toastr: ToastrService) {
     this.concertId = this.route.snapshot.paramMap.get('id');
+    this.route.params.subscribe(params => {
+      this.loadDataForId(params['id']);
+    })
+  }
+
+
+  loadDataForId(id: string) {
+    this.concertId = id;
+
+    console.log('loadDataForId', id);
+
+    this.concertsService.getAdjacentConcerts(this.concertId)
+      .subscribe(adjacentConcerts => {
+        if (adjacentConcerts != undefined) {
+          this.adjacentConcertData$ = adjacentConcerts;
+        }
+      });
   }
 
 

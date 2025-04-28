@@ -495,6 +495,31 @@ Resources:
             RestApiId: !Ref ConcertsApi
             Path: /concerts/next
             Method: get
+  
+  AdjacentConcertsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: Lambda.AdjacentConcerts::Lambda.AdjacentConcerts.Function::FunctionHandler
+      Role: !GetAtt ConcertsReadLambdaExecutionRole.Arn
+      Description: .NET function to read the next and/or previous Concert IDs
+      CodeUri: ../Lambda.AdjacentConcerts/src/Lambda.AdjacentConcerts/bin/Release/net8.0/Lambda.AdjacentConcerts.zip
+      Architectures:
+        - arm64
+      Tracing: Active
+      MemorySize: 384
+      Environment:
+        Variables:
+          CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
+      Events:
+        GetAdjacentConcerts:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ConcertsApi
+            Path: /concerts/{id}/adjacent
+            Method: get
 
   
   

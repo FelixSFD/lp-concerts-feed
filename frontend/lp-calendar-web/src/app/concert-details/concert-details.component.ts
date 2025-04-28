@@ -1,9 +1,18 @@
-import {AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {
+  AfterRenderRef,
+  AfterViewInit,
+  Component,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  ViewChild
+} from '@angular/core';
 import {ConcertsService} from '../services/concerts.service';
 import {Concert} from '../data/concert';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {DateTime} from 'luxon';
-import {NgIf, NgOptimizedImage} from '@angular/common';
+import {DatePipe, NgIf, NgOptimizedImage} from '@angular/common';
 import {CountdownComponent} from '../countdown/countdown.component';
 import {Meta} from '@angular/platform-browser';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
@@ -25,6 +34,8 @@ import {mapAttribution} from '../app.config';
 import {environment} from '../../environments/environment';
 import {ConcertTitleGenerator} from '../data/concert-title-generator';
 import {TimeSpanPipe} from '../data/time-span-pipe';
+import {AdjacentConcertIdsResponse} from '../data/adjacent-concert-ids-response';
+import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-concert-details',
@@ -33,14 +44,16 @@ import {TimeSpanPipe} from '../data/time-span-pipe';
     CountdownComponent,
     RouterLink,
     ConcertBadgesComponent,
-    NgOptimizedImage,
-    TimeSpanPipe
+    TimeSpanPipe,
+    DatePipe,
+    NgbTooltip
   ],
   templateUrl: './concert-details.component.html',
   styleUrl: './concert-details.component.css'
 })
 export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   concert$: Concert | null = null;
+  adjacentConcertData$: AdjacentConcertIdsResponse | null = null;
   concertId: string | undefined;
 
   // Map of the location of the concert
@@ -58,8 +71,39 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
     });
   }
 
+
   ngOnInit(): void {
-    this.concertId = this.route.snapshot.paramMap.get('id')!;
+    this.route.params.subscribe(params => {
+      this.loadDataForId(params['id']);
+    })
+  }
+
+
+  ngAfterViewInit() {
+    this.initVenueMap();
+  }
+
+
+  loadDataForId(id: string | undefined) {
+    console.log("loadDataForId: " + id);
+    if (id == undefined) {
+      this.concertId = undefined;
+      this.concert$ = null;
+      this.adjacentConcertData$ = null;
+      return;
+    }
+
+    this.concertId = id!;
+
+    // delete current concert data to show a loading spinner
+    this.concert$ = null;
+
+    this.concertsService.getAdjacentConcerts(this.concertId)
+      .subscribe(adjacentConcerts => {
+        if (adjacentConcerts != undefined) {
+          this.adjacentConcertData$ = adjacentConcerts;
+        }
+      });
 
     this.concertsService
       .getConcert(this.concertId)
@@ -79,17 +123,13 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
 
         // Set coordinates in map
         console.log(result);
-        if (result.venueLongitude != undefined && result.venueLatitude != undefined) {
+        if (result.venueLongitude != undefined && result.venueLatitude != undefined
+        && result.venueLongitude != 0 && result.venueLatitude != 0) {
           this.addOrMoveMarker(result.venueLongitude, result.venueLatitude);
         }
 
         return this.concert$ = result;
       });
-  }
-
-
-  ngAfterViewInit() {
-    this.initVenueMap();
   }
 
 
@@ -156,7 +196,7 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   }
 
 
-  @ViewChild('details')
+  @ViewChild('mapContainer')
   set detailsRendered(element: ElementRef | undefined) {
     // is called when tab rendered or destroyed
     if (element) {
@@ -208,6 +248,16 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   }
 
 
+  openLinkinpediaClicked() {
+    if (this.concert$ == undefined) {
+      return;
+    }
+
+    let dt = this.getDateTimeInTimezone(this.concert$!.postedStartTime!, this.concert$.timeZoneId!);
+    window.open("https://linkinpedia.com/wiki/Live:" + dt.toFormat("yyyyMMdd"), "_blank");
+  }
+
+
   public getDateTime(inputDate: string) {
     return DateTime.fromISO(inputDate, {setZone: false});
   }
@@ -221,4 +271,5 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   protected readonly DateTime = DateTime;
   protected readonly environment = environment;
   protected readonly ConcertTitleGenerator = ConcertTitleGenerator;
+  protected readonly window = window;
 }
