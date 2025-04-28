@@ -37,24 +37,27 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Build Lambda.AddConcert
-      working-directory: Lambda.AddConcert/src/Lambda.AddConcert
-      run: dotnet lambda package -farch arm64
-    - name: Build Lambda.ImportConcerts
-      working-directory: Lambda.ImportConcerts/src/Lambda.ImportConcerts
-      run: dotnet lambda package -farch arm64
-    - name: Build Lambda.ListConcerts
-      working-directory: Lambda.ListConcerts/src/Lambda.ListConcerts
-      run: dotnet lambda package -farch arm64
-    - name: Build Lambda.DeleteConcert
-      working-directory: Lambda.DeleteConcert/src/Lambda.DeleteConcert
-      run: dotnet lambda package -farch arm64
-    - name: Build Lambda.CalendarFeed
-      working-directory: Lambda.CalendarFeed/src/Lambda.CalendarFeed
-      run: dotnet lambda package -farch arm64
-    - name: Build Lambda.GetS3UploadUrl
-      working-directory: Lambda.GetS3UploadUrl/src/Lambda.GetS3UploadUrl
-      run: dotnet lambda package -farch arm64
+    - name: Build all lambdas
+      run: sh publishAllDotnetLambdas.sh
+
+    #- name: Build Lambda.AddConcert
+    #  working-directory: Lambda.AddConcert/src/Lambda.AddConcert
+    #  run: dotnet lambda package -farch arm64
+    #- name: Build Lambda.ImportConcerts
+    #  working-directory: Lambda.ImportConcerts/src/Lambda.ImportConcerts
+    #  run: dotnet lambda package -farch arm64
+    #- name: Build Lambda.ListConcerts
+    #  working-directory: Lambda.ListConcerts/src/Lambda.ListConcerts
+    #  run: dotnet lambda package -farch arm64
+    #- name: Build Lambda.DeleteConcert
+    #  working-directory: Lambda.DeleteConcert/src/Lambda.DeleteConcert
+    #  run: dotnet lambda package -farch arm64
+    #- name: Build Lambda.CalendarFeed
+    #  working-directory: Lambda.CalendarFeed/src/Lambda.CalendarFeed
+    #  run: dotnet lambda package -farch arm64
+    #- name: Build Lambda.GetS3UploadUrl
+    #  working-directory: Lambda.GetS3UploadUrl/src/Lambda.GetS3UploadUrl
+    #  run: dotnet lambda package -farch arm64
 
     # AWS DEPLOY
     - name: Configure AWS credentials
