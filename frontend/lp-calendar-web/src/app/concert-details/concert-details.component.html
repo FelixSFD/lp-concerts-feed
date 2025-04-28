@@ -24,6 +24,7 @@
 </ng-template>
 
 <ng-template #details>
+  <h6>{{ concert$?.postedStartTime | date : "fullDate" }}</h6>
   <h1>
     {{ ConcertTitleGenerator.getTitleFor(concert$!) }}
   </h1>

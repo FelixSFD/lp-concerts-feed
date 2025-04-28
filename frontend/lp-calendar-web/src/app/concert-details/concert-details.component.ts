@@ -12,7 +12,7 @@ import {ConcertsService} from '../services/concerts.service';
 import {Concert} from '../data/concert';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {DateTime} from 'luxon';
-import {NgIf, NgOptimizedImage} from '@angular/common';
+import {DatePipe, NgIf, NgOptimizedImage} from '@angular/common';
 import {CountdownComponent} from '../countdown/countdown.component';
 import {Meta} from '@angular/platform-browser';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
@@ -43,7 +43,8 @@ import {AdjacentConcertIdsResponse} from '../data/adjacent-concert-ids-response'
     CountdownComponent,
     RouterLink,
     ConcertBadgesComponent,
-    TimeSpanPipe
+    TimeSpanPipe,
+    DatePipe
   ],
   templateUrl: './concert-details.component.html',
   styleUrl: './concert-details.component.css'
