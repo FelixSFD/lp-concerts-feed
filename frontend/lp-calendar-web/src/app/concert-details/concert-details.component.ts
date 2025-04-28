@@ -35,6 +35,7 @@ import {environment} from '../../environments/environment';
 import {ConcertTitleGenerator} from '../data/concert-title-generator';
 import {TimeSpanPipe} from '../data/time-span-pipe';
 import {AdjacentConcertIdsResponse} from '../data/adjacent-concert-ids-response';
+import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-concert-details',
@@ -44,7 +45,8 @@ import {AdjacentConcertIdsResponse} from '../data/adjacent-concert-ids-response'
     RouterLink,
     ConcertBadgesComponent,
     TimeSpanPipe,
-    DatePipe
+    DatePipe,
+    NgbTooltip
   ],
   templateUrl: './concert-details.component.html',
   styleUrl: './concert-details.component.css'
@@ -246,6 +248,16 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   }
 
 
+  openLinkinpediaClicked() {
+    if (this.concert$ == undefined) {
+      return;
+    }
+
+    let dt = this.getDateTimeInTimezone(this.concert$!.postedStartTime!, this.concert$.timeZoneId!);
+    window.open("https://linkinpedia.com/wiki/Live:" + dt.toFormat("yyyyMMdd"), "_blank");
+  }
+
+
   public getDateTime(inputDate: string) {
     return DateTime.fromISO(inputDate, {setZone: false});
   }
@@ -259,4 +271,5 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   protected readonly DateTime = DateTime;
   protected readonly environment = environment;
   protected readonly ConcertTitleGenerator = ConcertTitleGenerator;
+  protected readonly window = window;
 }
