@@ -93,6 +93,9 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
 
     this.concertId = id!;
 
+    // delete current concert data to show a loading spinner
+    this.concert$ = null;
+
     this.concertsService.getAdjacentConcerts(this.concertId)
       .subscribe(adjacentConcerts => {
         if (adjacentConcerts != undefined) {
