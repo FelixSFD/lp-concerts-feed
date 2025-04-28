@@ -499,10 +499,10 @@ Resources:
   AdjacentConcertsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: Lambda.OneByOneNavigator::Lambda.OneByOneNavigator.Function::FunctionHandler
+      Handler: Lambda.AdjacentConcerts::Lambda.AdjacentConcerts.Function::FunctionHandler
       Role: !GetAtt ConcertsReadLambdaExecutionRole.Arn
       Description: .NET function to read the next and/or previous Concert IDs
-      CodeUri: ../Lambda.OneByOneNavigator/src/Lambda.OneByOneNavigator/bin/Release/net8.0/Lambda.OneByOneNavigator.zip
+      CodeUri: ../Lambda.AdjacentConcerts/src/Lambda.AdjacentConcerts/bin/Release/net8.0/Lambda.AdjacentConcerts.zip
       Architectures:
         - arm64
       Tracing: Active
