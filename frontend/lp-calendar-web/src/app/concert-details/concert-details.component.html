@@ -34,7 +34,7 @@
 </ng-template>
 
 <ng-template #details>
-  <h6>{{ concert$?.postedStartTime | date : "fullDate" }}</h6>
+  <h6>{{ getDateTimeInTimezone(concert$?.postedStartTime!, concert$?.timeZoneId!).toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY) }}</h6>
   <h1>
     {{ ConcertTitleGenerator.getTitleFor(concert$!) }}
   </h1>
@@ -125,7 +125,7 @@
               Venue start time
             </div>
             <div class="card-body text-center">
-              <h4 class="card-text">{{getDateTimeInTimezone(concert$?.postedStartTime!, concert$?.timeZoneId!).toLocaleString(DateTime. DATETIME_SHORT)}}</h4>
+              <h4 class="card-text">{{getDateTimeInTimezone(concert$?.postedStartTime!, concert$?.timeZoneId!).toLocaleString(DateTime. TIME_SIMPLE)}}</h4>
             </div>
           </div>
         </div>
