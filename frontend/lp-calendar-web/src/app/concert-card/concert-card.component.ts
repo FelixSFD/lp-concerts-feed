@@ -1,10 +1,13 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, inject, Input, OnInit, TemplateRef} from '@angular/core';
 import {CountdownComponent} from '../countdown/countdown.component';
 import {Concert} from '../data/concert';
 import {ConcertsService} from '../services/concerts.service';
 import {NgIf} from '@angular/common';
 import {RouterLink} from '@angular/router';
 import {ConcertTitleGenerator} from '../data/concert-title-generator';
+import * as htmlToImage from 'html-to-image';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import download from 'downloadjs';
 
 @Component({
   selector: 'app-concert-card',
@@ -23,6 +26,8 @@ export class ConcertCardComponent implements OnInit{
   @Input("concert")
   concert$: Concert | null = null;
 
+  private modalService = inject(NgbModal);
+
   // if no concert is set, use distant past as placeholder for countdown
   pastPlaceholderDate = new Date(2024, 9, 5, 15, 0).toISOString();
 
@@ -32,6 +37,23 @@ export class ConcertCardComponent implements OnInit{
 
 
   ngOnInit(): void {
+  }
+
+
+  openModal(content: TemplateRef<any>) {
+    return this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
+  }
+
+
+  shareImage(content: TemplateRef<any>) {
+    this.openModal(content);
+  }
+
+
+  generateImage(){
+    htmlToImage
+      .toPng(document.getElementById('shareCountdownModalBody')!)
+      .then((dataUrl) => download(dataUrl, 'my-node.png'));
   }
 
   protected readonly ConcertTitleGenerator = ConcertTitleGenerator;

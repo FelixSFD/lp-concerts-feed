@@ -2,8 +2,8 @@
   <table class="lpshows-countdown-table" style="width: 100%; margin-left: 10px; margin-right: 10px;">
     <colgroup>
       <col style="width: 30px" />
-      <col />
-      <col style="align-content: end" />
+      <col *ngIf="showShareBtn" />
+      <col *ngIf="showShareBtn" style="align-content: end" />
     </colgroup>
     <tr>
       <td>{{ days$ }}</td>
@@ -12,7 +12,7 @@
     <tr>
       <td>{{ hours$ }}</td>
       <td>hours</td>
-      <td rowspan="2">
+      <td rowspan="2" *ngIf="showShareBtn">
         <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="countdownShareDropdown" data-bs-toggle="dropdown" aria-expanded="false">
           <i class="bi-share"></i> Share
         </button>

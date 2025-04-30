@@ -1,3 +1,19 @@
 .card-body small {
   font-size: x-small;
 }
+
+
+#shareCountdownModalBody {
+  max-height: 500px;
+  max-width: 500px;
+  aspect-ratio: 1 / 1;
+  background: url("/backgrounds/countdown-bg.jpg") center;
+  background-size: cover;
+  font-weight: bolder !important;
+  text-shadow: black 0 0 15px;
+}
+
+
+#shareCountdownModalBody app-countdown {
+  color: white !important;
+}

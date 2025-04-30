@@ -21,6 +21,9 @@ export class CountdownComponent implements AfterViewInit {
   countdownToDate!: string;
 
   @Input()
+  showShareBtn: boolean = true;
+
+  @Input()
   concertId: string | undefined;
 
   ngAfterViewInit() {

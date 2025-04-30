@@ -1,4 +1,4 @@
-<div class="card w-100">
+<div [id]="'card-' + concert$?.id" class="card w-100">
   <div class="card-header">
     Next concert
   </div>
@@ -24,6 +24,35 @@
     </ng-template>
   </div>
   <div class="card-footer text-end" *ngIf="concert$?.id != null">
+    <button class="btn btn-primary" (click)="shareImage(shareCountdownContent)"><i class="bi bi-camera"></i> Share</button>
+    &nbsp;
     <button class="btn btn-outline-info" [routerLink]="['/concerts', concert$?.id]"><i class="bi bi-info-circle"></i> Details</button>
   </div>
 </div>
+
+
+<!-- Share countdown modal -->
+<ng-template #shareCountdownContent let-shareCountdownModal>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h1 class="modal-title fs-5" id="shareCountdownModalLabel">Share countdown</h1>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <div id="shareCountdownModalBody" class="p-3">
+        <p class="h2 mt-3" style="text-align: center; color: whitesmoke;">
+          {{concert$?.venue}}
+        </p>
+        <p class="mt" style="text-align: center; color: whitesmoke;">
+          {{concert$?.city}}, {{concert$?.country}}
+        </p>
+
+        <app-countdown [countdownToDate]="concert$?.mainStageTime ?? concert$!.postedStartTime!" [showShareBtn]="false" />
+
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="generateImage()"><i class="bi bi-download"></i> Save image</button>
+    </div>
+  </div>
+</ng-template>
