@@ -1,6 +1,5 @@
-import {AfterViewInit, Component, ElementRef, Input, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, Input, output, Output} from '@angular/core';
 import {NgIf} from '@angular/common';
-import {environment} from '../../environments/environment';
 
 @Component({
   selector: 'app-countdown',
@@ -25,6 +24,9 @@ export class CountdownComponent implements AfterViewInit {
 
   @Input()
   concertId: string | undefined;
+
+  @Output('onShareImgClicked')
+  onShareImageClicked = new EventEmitter<void>();
 
   ngAfterViewInit() {
     setInterval(() => {
@@ -68,5 +70,10 @@ export class CountdownComponent implements AfterViewInit {
       .then(_ => {
         console.debug("copied link");
       });
+  }
+
+
+  onShareImageLinkClicked() {
+    this.onShareImageClicked.emit();
   }
 }

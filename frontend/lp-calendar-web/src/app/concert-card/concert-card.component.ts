@@ -17,7 +17,8 @@ import download from 'downloadjs';
     RouterLink
   ],
   templateUrl: './concert-card.component.html',
-  styleUrl: './concert-card.component.css'
+  styleUrl: './concert-card.component.css',
+  standalone: true
 })
 export class ConcertCardComponent implements OnInit{
   // how the concert is displayed. "countdown" is default
@@ -46,7 +47,13 @@ export class ConcertCardComponent implements OnInit{
 
 
   shareImage(content: TemplateRef<any>) {
+    console.log("shareImage", content);
     this.openModal(content);
+  }
+
+
+  onShareRequested() {
+    console.log("onShareRequested");
   }
 
 
@@ -57,4 +64,5 @@ export class ConcertCardComponent implements OnInit{
   }
 
   protected readonly ConcertTitleGenerator = ConcertTitleGenerator;
+  protected readonly alert = alert;
 }
