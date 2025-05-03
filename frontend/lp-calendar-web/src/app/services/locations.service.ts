@@ -3,6 +3,7 @@ import {HttpClient} from '@angular/common/http';
 import {first, map, Observable} from 'rxjs';
 import {OsmCity} from '../data/osm/osm-city';
 import {Coordinates} from '../data/location/coordinates';
+import {environment} from '../../environments/environment';
 
 /**
  * Service to retrieve location data like coordinates and timezones
@@ -34,5 +35,13 @@ export class LocationsService {
         }
       )
     );
+  }
+
+
+  getTimeZoneForCoordinates(lat: number, lon: number): Observable<string> {
+    let url = `${environment.apiCachedBaseUrl}/Prod//timeZone/byCoordinates?lat=${lat}&lon=${lon}`;
+    return this.httpClient.get<any>(url).pipe(
+      map(responseObj => responseObj["timeZoneId"])
+    )
   }
 }

@@ -33,6 +33,7 @@ import {Observable} from "rxjs";
 import {environment} from "../../../environments/environment";
 import {ToastrService} from 'ngx-toastr';
 import {LocationsService} from '../../services/locations.service';
+import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 
 // This class represents a form for adding and editing concerts
 @Component({
@@ -42,7 +43,8 @@ import {LocationsService} from '../../services/locations.service';
     NgForOf,
     NgIf,
     ReactiveFormsModule,
-    NgClass
+    NgClass,
+    NgbTooltip
   ],
   templateUrl: './concert-form.component.html',
   styleUrl: './concert-form.component.css'
@@ -102,6 +104,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
 
   hasWriteAccess$ = false;
   scheduleIsUploading$ = false;
+  timeZoneIsLoading$ = false;
 
   constructor() {
     this.oidcSecurityService.checkAuth().subscribe(({ isAuthenticated }) => {
@@ -289,6 +292,36 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
     this.locationsService.getCoordinatesFor(city, state ? state : null, country)
       .subscribe(coordinates => {
         this.zoomToCoordinates(coordinates?.longitude ?? 0, coordinates?.latitude ?? 0);
+      });
+  }
+
+
+  onUpdateTimeZoneClicked() {
+    this.timeZoneIsLoading$ = true;
+
+    let city = this.concertForm.value.city;
+    let state = this.concertForm.value.state;
+    let country = this.concertForm.value.country;
+
+    if (city == null || country == null) {
+      return;
+    }
+
+    this.locationsService.getCoordinatesFor(city, state ? state : null, country)
+      .subscribe(coordinates => {
+        console.log("Found coordinates: ", coordinates);
+        this.locationsService.getTimeZoneForCoordinates(coordinates?.latitude ?? 0, coordinates?.longitude ?? 0)
+          .subscribe(tz => {
+            console.log("Found timezone: ", tz);
+            this.timeZoneIsLoading$ = false;
+
+            if (timezones.map(t => t.tzCode).indexOf(tz, 0) >= 0) {
+              this.concertForm.controls.timezone.setValue(tz);
+            } else {
+              console.error("Invalid timezone returned: ", tz);
+              this.toastrService.error(`Timezone '${tz}' found, but it is invalid.`, "Could not load timezone");
+            }
+          });
       });
   }
 

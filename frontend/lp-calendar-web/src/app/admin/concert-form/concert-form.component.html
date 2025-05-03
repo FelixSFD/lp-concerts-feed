@@ -62,10 +62,15 @@
             <!-- Timezone -->
             <div class="form-group">
                 <label for="timezone">Venue timezone</label>
-                <select id="timezone" formControlName="timezone" class="form-select" aria-label="Select timezone of concert">
+                <div class="input-group">
+                  <select id="timezone" formControlName="timezone" class="form-select" aria-label="Select timezone of concert">
                     <option disabled>--- Select timezone of venue ---</option>
                     <option *ngFor="let tz of timezones" [value]="tz.tzCode">{{tz.label}}</option>
-                </select>
+                  </select>
+                  <button class="btn btn-outline-primary" placement="auto" ngbTooltip="Fetches the timezone based on the location" [disabled]="timeZoneIsLoading$" (click)="onUpdateTimeZoneClicked()">
+                    <i class="bi bi-arrow-clockwise"></i> Load Timezone
+                  </button>
+                </div>
                 <div *ngIf="concertForm.controls.timezone.invalid" class="text-danger">
                     <small *ngIf="concertForm.controls.timezone.errors">Timezone is required.</small>
                 </div>
