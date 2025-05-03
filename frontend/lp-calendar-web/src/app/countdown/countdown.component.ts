@@ -1,6 +1,7 @@
-import {AfterViewInit, Component, ElementRef, Input, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, inject, Input, ViewChild} from '@angular/core';
 import {NgIf} from '@angular/common';
 import {environment} from '../../environments/environment';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-countdown',
@@ -11,6 +12,8 @@ import {environment} from '../../environments/environment';
   styleUrl: './countdown.component.css'
 })
 export class CountdownComponent implements AfterViewInit {
+  private toastrService = inject(ToastrService);
+
   differenceMillis$: number = 0;
   days$: number = 0;
   hours$: number = 0;
@@ -45,16 +48,16 @@ export class CountdownComponent implements AfterViewInit {
   }
 
 
-  onShareDiscordTsClicked() {
+  onShareDiscordTsClicked(type: string) {
     let target = new Date(this.countdownToDate);
     let utc_timestamp = Date.UTC(target.getUTCFullYear(),target.getUTCMonth(), target.getUTCDate() ,
       target.getUTCHours(), target.getUTCMinutes(), target.getUTCSeconds(), 0) / 1000; // divide by 1000 because discord wants seconds
 
-    let discordTimeStamp = "<t:" + utc_timestamp + ":R>";
+    let discordTimeStamp = `<t:${utc_timestamp}:${type}>`;
     console.debug("Generated timestamp: " + discordTimeStamp);
     navigator.clipboard.writeText(discordTimeStamp)
       .then(_ => {
-        console.debug("copied timestamp");
+        this.toastrService.success("Copied to clipboard!");
       });
   }
 
@@ -63,7 +66,7 @@ export class CountdownComponent implements AfterViewInit {
     let link = window.location.protocol + "//" + window.location.host + "/concerts/" + this.concertId;
     navigator.clipboard.writeText(link)
       .then(_ => {
-        console.debug("copied link");
+        this.toastrService.success("Copied link to clipboard!");
       });
   }
 }
