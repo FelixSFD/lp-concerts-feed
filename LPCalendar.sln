@@ -49,6 +49,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.AdjacentConcerts", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.AdjacentConcerts.Tests", "Lambda.AdjacentConcerts\test\Lambda.AdjacentConcerts.Tests\Lambda.AdjacentConcerts.Tests.csproj", "{D75039E7-F1BF-49CE-A03B-AD882D37BB78}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.GetTimeZone", "Lambda.GetTimeZone\src\Lambda.GetTimeZone\Lambda.GetTimeZone.csproj", "{F5489EBC-A908-4F6D-AC1D-3831985733CE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.GetTimeZone.Tests", "Lambda.GetTimeZone\test\Lambda.GetTimeZone.Tests\Lambda.GetTimeZone.Tests.csproj", "{293D7CB9-BF6C-42DF-9677-55BD914B888C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -123,5 +127,13 @@ Global
 		{D75039E7-F1BF-49CE-A03B-AD882D37BB78}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D75039E7-F1BF-49CE-A03B-AD882D37BB78}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D75039E7-F1BF-49CE-A03B-AD882D37BB78}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5489EBC-A908-4F6D-AC1D-3831985733CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5489EBC-A908-4F6D-AC1D-3831985733CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5489EBC-A908-4F6D-AC1D-3831985733CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5489EBC-A908-4F6D-AC1D-3831985733CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{293D7CB9-BF6C-42DF-9677-55BD914B888C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{293D7CB9-BF6C-42DF-9677-55BD914B888C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{293D7CB9-BF6C-42DF-9677-55BD914B888C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{293D7CB9-BF6C-42DF-9677-55BD914B888C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

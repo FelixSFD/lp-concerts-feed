@@ -29,9 +29,10 @@ import Style from 'ol/style/Style';
 import Icon from 'ol/style/Icon';
 import { Translate } from 'ol/interaction';
 import {Collection} from "ol";
-import {Observable} from "rxjs";
 import {environment} from "../../../environments/environment";
 import {ToastrService} from 'ngx-toastr';
+import {LocationsService} from '../../services/locations.service';
+import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 
 // This class represents a form for adding and editing concerts
 @Component({
@@ -41,7 +42,8 @@ import {ToastrService} from 'ngx-toastr';
     NgForOf,
     NgIf,
     ReactiveFormsModule,
-    NgClass
+    NgClass,
+    NgbTooltip
   ],
   templateUrl: './concert-form.component.html',
   styleUrl: './concert-form.component.css'
@@ -49,6 +51,7 @@ import {ToastrService} from 'ngx-toastr';
 export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
   private formBuilder = inject(FormBuilder);
   private concertsService = inject(ConcertsService);
+  private locationsService = inject(LocationsService);
   private toastrService = inject(ToastrService);
 
   concertForm = this.formBuilder.group({
@@ -100,6 +103,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
 
   hasWriteAccess$ = false;
   scheduleIsUploading$ = false;
+  timeZoneIsLoading$ = false;
 
   constructor() {
     this.oidcSecurityService.checkAuth().subscribe(({ isAuthenticated }) => {
@@ -272,6 +276,62 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
 
   onClearClicked() {
     this.concertForm.reset();
+  }
+
+
+  onGoToCityClicked() {
+    let city = this.concertForm.value.city;
+    let state = this.concertForm.value.state;
+    let country = this.concertForm.value.country;
+
+    if (city == null || country == null) {
+      return;
+    }
+
+    this.locationsService.getCoordinatesFor(city, state ? state : null, country)
+      .subscribe(coordinates => {
+        this.zoomToCoordinates(coordinates?.longitude ?? 0, coordinates?.latitude ?? 0);
+      });
+  }
+
+
+  onSetPinClicked() {
+    let center = this.venueMap?.getView().getCenter();
+    let coordinateFinal = toLonLat(center!);
+
+    this.addOrMoveMarker(coordinateFinal[0], coordinateFinal[1]);
+    this.concertForm.controls.venueLong.setValue(coordinateFinal[0]);
+    this.concertForm.controls.venueLat.setValue(coordinateFinal[1]);
+  }
+
+
+  onUpdateTimeZoneClicked() {
+    this.timeZoneIsLoading$ = true;
+
+    let city = this.concertForm.value.city;
+    let state = this.concertForm.value.state;
+    let country = this.concertForm.value.country;
+
+    if (city == null || country == null) {
+      return;
+    }
+
+    this.locationsService.getCoordinatesFor(city, state ? state : null, country)
+      .subscribe(coordinates => {
+        console.log("Found coordinates: ", coordinates);
+        this.locationsService.getTimeZoneForCoordinates(coordinates?.latitude ?? 0, coordinates?.longitude ?? 0)
+          .subscribe(tz => {
+            console.log("Found timezone: ", tz);
+            this.timeZoneIsLoading$ = false;
+
+            if (timezones.map(t => t.tzCode).indexOf(tz, 0) >= 0) {
+              this.concertForm.controls.timezone.setValue(tz);
+            } else {
+              console.error("Invalid timezone returned: ", tz);
+              this.toastrService.error(`Timezone '${tz}' found, but it is invalid.`, "Could not load timezone");
+            }
+          });
+      });
   }
 
 
