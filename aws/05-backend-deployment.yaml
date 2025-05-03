@@ -20,6 +20,9 @@ Parameters:
   GatewaySslCertificateArn:
     Type: String
     Description: ARN of the SSL Certificate. The certificate must be hosted in us-eat-1, which is why we have to pass it as parameter
+  TimeZoneApiKey:
+    Type: String
+    Description: Key for the TimezoneDB API
 
 
 Globals:
@@ -519,6 +522,32 @@ Resources:
           Properties:
             RestApiId: !Ref ConcertsApi
             Path: /concerts/{id}/adjacent
+            Method: get
+    
+  
+  GetTimeZoneFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: Lambda.GetTimeZone::Lambda.GetTimeZone.Function::FunctionHandler
+      Role: !GetAtt ConcertsReadLambdaExecutionRole.Arn
+      Description: .NET function to search for the timezone at a given location
+      CodeUri: ../Lambda.GetTimeZone/src/Lambda.GetTimeZone/bin/Release/net8.0/Lambda.GetTimeZone.zip
+      Architectures:
+        - arm64
+      Tracing: Active
+      MemorySize: 384
+      Environment:
+        Variables:
+          TZDB_API_KEY: !Ref TimeZoneApiKey
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
+      Events:
+        GetTimeZone:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ConcertsApi
+            Path: /timeZone/byCoordinates
             Method: get
 
   

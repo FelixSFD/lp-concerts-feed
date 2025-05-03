@@ -11,12 +11,13 @@ import {Coordinates} from '../data/location/coordinates';
   providedIn: 'root'
 })
 export class LocationsService {
+  private osmApiBaseUrl = "https://nominatim.openstreetmap.org";
 
   constructor(private httpClient: HttpClient) { }
 
 
   getCoordinatesFor(city: string, state: string | null, country: string): Observable<Coordinates | undefined> {
-    let osmUrl = "https://nominatim.openstreetmap.org/search.php?format=jsonv2&city=" + encodeURIComponent(city) + "&country=" + encodeURIComponent(country);
+    let osmUrl = this.osmApiBaseUrl + "/search.php?format=jsonv2&city=" + encodeURIComponent(city) + "&country=" + encodeURIComponent(country);
     if (state != null) {
       osmUrl = osmUrl + "&state=" + encodeURIComponent(state);
     }
