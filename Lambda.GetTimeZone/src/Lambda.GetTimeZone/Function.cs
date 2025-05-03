@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using LPCalendar.DataStructure.Requests;
@@ -9,23 +10,29 @@ using LPCalendar.DataStructure.Responses;
 
 namespace Lambda.GetTimeZone;
 
-public class Function(HttpClient httpClient)
+public class Function
 {
     private const string TzApiBaseUrl = "https://api.timezonedb.com/v2.1";
     private readonly string _apiKey = Environment.GetEnvironmentVariable("TZDB_API_KEY") ?? throw new Exception("Environment variable TZDB_API_KEY not found!");
+    
+    private readonly HttpClient _httpClient = new HttpClient();
+
+
+    public Function()
+    {
+    }
     
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         context.Logger.LogInformation($"Path: {request.Path}");
         context.Logger.LogInformation($"Request: {JsonSerializer.Serialize(request)}");
-        
-        var getTzRequest = JsonSerializer.Deserialize<GetTimeZoneByCoordinatesRequest>(request.Body);
-        if (getTzRequest == null)
+
+        if (!request.QueryStringParameters.TryGetValue("lat", out var lat))
         {
             return new APIGatewayProxyResponse
             {
                 StatusCode = 400,
-                Body = "{\"message\": \"Could not parse request JSON.\"}",
+                Body = "{\"message\": \"Parameter 'lat' missing!\"}",
                 Headers = new Dictionary<string, string>
                 {
                     { "Content-Type", "application/json" },
@@ -35,15 +42,31 @@ public class Function(HttpClient httpClient)
             };
         }
         
-        var uri = new Uri($"{TzApiBaseUrl}/get-time-zone?key={_apiKey}&by=position&lat={getTzRequest.Latitude}&lng={getTzRequest.Longitude}&format=json");
-        var httpResponseMessage = await httpClient.GetAsync(uri);
+        if (!request.QueryStringParameters.TryGetValue("lon", out var lon))
+        {
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = 400,
+                Body = "{\"message\": \"Parameter 'lon' missing!\"}",
+                Headers = new Dictionary<string, string>
+                {
+                    { "Content-Type", "application/json" },
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                }
+            };
+        }
+        
+        var uri = new Uri($"{TzApiBaseUrl}/get-time-zone?key={_apiKey}&by=position&lat={lat}&lng={lon}&format=json");
+        var httpResponseMessage = await _httpClient.GetAsync(uri);
         var responseJson = await httpResponseMessage.Content.ReadAsStringAsync();
-        var responseDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(responseJson);
-        if (responseDictionary?.TryGetValue("zoneName", out var zoneName) ?? false)
+        var responseObj = JsonSerializer.Deserialize<JsonObject>(responseJson);
+        
+        if (responseObj?.TryGetPropertyValue("zoneName", out var zoneNode) ?? false)
         {
             GetTimeZoneByCoordinatesResponse response = new()
             {
-                TimeZoneId = zoneName
+                TimeZoneId = zoneNode!.GetValue<string>()
             };
             
             return new APIGatewayProxyResponse
