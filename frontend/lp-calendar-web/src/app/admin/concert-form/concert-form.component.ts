@@ -32,6 +32,7 @@ import {Collection} from "ol";
 import {Observable} from "rxjs";
 import {environment} from "../../../environments/environment";
 import {ToastrService} from 'ngx-toastr';
+import {LocationsService} from '../../services/locations.service';
 
 // This class represents a form for adding and editing concerts
 @Component({
@@ -49,6 +50,7 @@ import {ToastrService} from 'ngx-toastr';
 export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
   private formBuilder = inject(FormBuilder);
   private concertsService = inject(ConcertsService);
+  private locationsService = inject(LocationsService);
   private toastrService = inject(ToastrService);
 
   concertForm = this.formBuilder.group({
@@ -272,6 +274,22 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
 
   onClearClicked() {
     this.concertForm.reset();
+  }
+
+
+  onGoToCityClicked() {
+    let city = this.concertForm.value.city;
+    let state = this.concertForm.value.state;
+    let country = this.concertForm.value.country;
+
+    if (city == null || country == null) {
+      return;
+    }
+
+    this.locationsService.getCoordinatesFor(city, state ? state : null, country)
+      .subscribe(coordinates => {
+        this.zoomToCoordinates(coordinates?.longitude ?? 0, coordinates?.latitude ?? 0);
+      });
   }
 
 
