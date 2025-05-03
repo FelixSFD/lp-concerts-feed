@@ -29,7 +29,6 @@ import Style from 'ol/style/Style';
 import Icon from 'ol/style/Icon';
 import { Translate } from 'ol/interaction';
 import {Collection} from "ol";
-import {Observable} from "rxjs";
 import {environment} from "../../../environments/environment";
 import {ToastrService} from 'ngx-toastr';
 import {LocationsService} from '../../services/locations.service';
@@ -293,6 +292,16 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
       .subscribe(coordinates => {
         this.zoomToCoordinates(coordinates?.longitude ?? 0, coordinates?.latitude ?? 0);
       });
+  }
+
+
+  onSetPinClicked() {
+    let center = this.venueMap?.getView().getCenter();
+    let coordinateFinal = toLonLat(center!);
+
+    this.addOrMoveMarker(coordinateFinal[0], coordinateFinal[1]);
+    this.concertForm.controls.venueLong.setValue(coordinateFinal[0]);
+    this.concertForm.controls.venueLat.setValue(coordinateFinal[1]);
   }
 
 
