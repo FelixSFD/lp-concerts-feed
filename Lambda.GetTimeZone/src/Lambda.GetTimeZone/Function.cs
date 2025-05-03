@@ -10,18 +10,15 @@ using LPCalendar.DataStructure.Responses;
 
 namespace Lambda.GetTimeZone;
 
-public class Function
+public class Function(HttpClient httpClient, string apiKey)
 {
     private const string TzApiBaseUrl = "https://api.timezonedb.com/v2.1";
-    private readonly string _apiKey = Environment.GetEnvironmentVariable("TZDB_API_KEY") ?? throw new Exception("Environment variable TZDB_API_KEY not found!");
-    
-    private readonly HttpClient _httpClient = new HttpClient();
 
-
-    public Function()
+    public Function() : this(new HttpClient(), Environment.GetEnvironmentVariable("TZDB_API_KEY") ?? throw new Exception("Environment variable TZDB_API_KEY not found!"))
     {
     }
-    
+
+
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         context.Logger.LogInformation($"Path: {request.Path}");
@@ -57,8 +54,8 @@ public class Function
             };
         }
         
-        var uri = new Uri($"{TzApiBaseUrl}/get-time-zone?key={_apiKey}&by=position&lat={lat}&lng={lon}&format=json");
-        var httpResponseMessage = await _httpClient.GetAsync(uri);
+        var uri = new Uri($"{TzApiBaseUrl}/get-time-zone?key={apiKey}&by=position&lat={lat}&lng={lon}&format=json");
+        var httpResponseMessage = await httpClient.GetAsync(uri);
         var responseJson = await httpResponseMessage.Content.ReadAsStringAsync();
         var responseObj = JsonSerializer.Deserialize<JsonObject>(responseJson);
         
