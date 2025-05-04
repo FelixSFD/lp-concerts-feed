@@ -12,6 +12,7 @@ import {
   NgcStatusChangeEvent
 } from 'ngx-cookieconsent';
 import {Subscription} from 'rxjs';
+import {MatomoTracker} from 'ngx-matomo-client';
 
 @Component({
   selector: 'app-root',
@@ -24,6 +25,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private readonly oidcSecurityService = inject(OidcSecurityService);
   private cookieService = inject(NgcCookieConsentService);
+  private readonly tracker = inject(MatomoTracker);
 
   //keep refs to subscriptions to be able to unsubscribe later
   private popupOpenSubscription!: Subscription;
@@ -51,6 +53,12 @@ export class AppComponent implements OnInit, OnDestroy {
       this.oidcSecurityService.getAccessToken().subscribe(at => {
         console.log("ACCESS_TOKEN: " + at);
       });
+
+      // Set user ID for Matomo tracker
+      this.oidcSecurityService.userData$.subscribe((usr) => {
+        console.debug("User -->", usr);
+        this.tracker.setUserId(usr.userData["username"]);
+      })
     });
 
     // Manage dark/light-mode
@@ -123,11 +131,15 @@ export class AppComponent implements OnInit, OnDestroy {
     this.statusChangeSubscription = this.cookieService.statusChange$.subscribe(
       (event: NgcStatusChangeEvent) => {
         // you can use this.cookieService.getConfig() to do stuff...
+        if (event.status != "deny" && !event.chosenBefore) {
+          this.tracker.forgetUserOptOut();
+        }
       });
 
     this.revokeChoiceSubscription = this.cookieService.revokeChoice$.subscribe(
       () => {
         // you can use this.cookieService.getConfig() to do stuff...
+        this.tracker.optUserOut();
       });
 
     this.noCookieLawSubscription = this.cookieService.noCookieLaw$.subscribe(
