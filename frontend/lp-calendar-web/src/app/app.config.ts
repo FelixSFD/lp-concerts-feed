@@ -55,7 +55,9 @@ export const appConfig: ApplicationConfig = {
         siteId: environment.trackingSiteId,
         trackerUrl: environment.trackingUrl,
       },
-      withRouter(),
+      withRouter({
+        delay: 1000
+      }),
     ),
     provideNgcCookieConsent(cookieConfig)
   ]
