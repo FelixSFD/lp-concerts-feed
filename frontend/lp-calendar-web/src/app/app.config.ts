@@ -12,19 +12,32 @@ import {environment} from '../environments/environment';
 import {NgcCookieConsentConfig, provideNgcCookieConsent} from 'ngx-cookieconsent';
 
 const cookieConfig:NgcCookieConsentConfig = {
-  cookie: {
-    domain: 'localhost' // or 'your.domain.com' // it is mandatory to set a domain, for cookies to work properly (see https://goo.gl/S2Hy2A)
+  "cookie": {
+    "domain": window.location.hostname
   },
-  palette: {
-    popup: {
-      background: '#000'
+  "position": "bottom",
+  "theme": "classic",
+  "palette": {
+    "popup": {
+      "background": "#000000",
+      "text": "#ffffff",
+      "link": "#ffffff"
     },
-    button: {
-      background: '#f1d600'
+    "button": {
+      "background": "#bc00a1",
+      "text": "#000000",
+      "border": "transparent"
     }
   },
-  theme: 'edgeless',
-  type: 'opt-out'
+  "type": "opt-out",
+  "content": {
+    "message": "This website uses cookies to ensure you get the best experience on our website and to be able to improve the website based on anonymous web analytics.",
+    "dismiss": "Got it!",
+    "deny": "Refuse cookies",
+    "link": "Learn more",
+    "href": "/privacy",
+    "policy": "Cookie Policy"
+  }
 };
 
 export const appConfig: ApplicationConfig = {
