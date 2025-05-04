@@ -36,6 +36,7 @@ import {ConcertTitleGenerator} from '../data/concert-title-generator';
 import {TimeSpanPipe} from '../data/time-span-pipe';
 import {AdjacentConcertIdsResponse} from '../data/adjacent-concert-ids-response';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {MatomoTracker} from 'ngx-matomo-client';
 
 @Component({
   selector: 'app-concert-details',
@@ -52,6 +53,8 @@ import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
   styleUrl: './concert-details.component.css'
 })
 export class ConcertDetailsComponent implements OnInit, AfterViewInit {
+  tracker = inject(MatomoTracker);
+
   concert$: Concert | null = null;
   adjacentConcertData$: AdjacentConcertIdsResponse | null = null;
   concertId: string | undefined;
@@ -254,7 +257,10 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
     }
 
     let dt = this.getDateTimeInTimezone(this.concert$!.postedStartTime!, this.concert$.timeZoneId!);
-    window.open("https://linkinpedia.com/wiki/Live:" + dt.toFormat("yyyyMMdd"), "_blank");
+    let wikiLink = "https://linkinpedia.com/wiki/Live:" + dt.toFormat("yyyyMMdd");
+
+    this.tracker.trackLink(wikiLink, "link");
+    window.open(wikiLink, "_blank");
   }
 
 
