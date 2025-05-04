@@ -2,11 +2,13 @@ import {AfterViewInit, Component, ElementRef, inject, Input, ViewChild} from '@a
 import {NgIf} from '@angular/common';
 import {environment} from '../../environments/environment';
 import {ToastrService} from 'ngx-toastr';
+import {MatomoTrackClickDirective} from 'ngx-matomo-client';
 
 @Component({
   selector: 'app-countdown',
   imports: [
-    NgIf
+    NgIf,
+    MatomoTrackClickDirective
   ],
   templateUrl: './countdown.component.html',
   styleUrl: './countdown.component.css'

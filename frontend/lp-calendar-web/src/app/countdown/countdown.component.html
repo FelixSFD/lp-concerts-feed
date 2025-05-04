@@ -17,9 +17,34 @@
           <i class="bi-share"></i> Share
         </button>
         <ul class="dropdown-menu" aria-labelledby="countdownShareDropdown">
-          <li><a class="dropdown-item" href="javascript:void(0)" (click)="onShareDiscordTsClicked('F')"><i class="bi bi-discord"></i> Discord Timestamp</a></li>
-          <li><a class="dropdown-item" href="javascript:void(0)" (click)="onShareDiscordTsClicked('R')"><i class="bi bi-discord"></i> Discord Countdown</a></li>
-          <li *ngIf="(concertId?.length ?? 0) > 0"><a class="dropdown-item" href="javascript:void(0)" (click)="onShareLinkClicked()"><i class="bi bi-link"></i> Link</a></li>
+          <li><a class="dropdown-item"
+                 href="javascript:void(0)"
+                 (click)="onShareDiscordTsClicked('F')"
+                 matomoClickCategory="share_countdown"
+                 matomoClickAction="Discord Timestamp"
+                 matomoClickName="Full Datetime"
+                 [matomoClickValue]="1">
+            <i class="bi bi-discord"></i> Discord Timestamp</a>
+          </li>
+          <li><a class="dropdown-item"
+                 href="javascript:void(0)"
+                 (click)="onShareDiscordTsClicked('R')"
+                 matomoClickCategory="share_countdown"
+                 matomoClickAction="Discord Timestamp"
+                 matomoClickName="Relative"
+                 [matomoClickValue]="1">
+            <i class="bi bi-discord"></i> Discord Countdown</a>
+          </li>
+          <li *ngIf="(concertId?.length ?? 0) > 0">
+            <a class="dropdown-item"
+               href="javascript:void(0)"
+               (click)="onShareLinkClicked()"
+               matomoClickCategory="share_countdown"
+               matomoClickAction="Link"
+               matomoClickName="Link to Details"
+               [matomoClickValue]="1">
+              <i class="bi bi-link"></i> Link</a>
+          </li>
         </ul>
       </td>
     </tr>
