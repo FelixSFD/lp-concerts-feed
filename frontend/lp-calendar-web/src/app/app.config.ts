@@ -7,6 +7,8 @@ import {authInterceptor, provideAuth} from 'angular-auth-oidc-client';
 import {provideHttpClient, withInterceptors} from '@angular/common/http';
 import {provideToastr, ToastrModule} from 'ngx-toastr';
 import {BrowserAnimationsModule, provideAnimations} from '@angular/platform-browser/animations';
+import {provideMatomo, withRouter} from 'ngx-matomo-client';
+import {environment} from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -17,7 +19,14 @@ export const appConfig: ApplicationConfig = {
     provideToastr({
       positionClass: "toast-bottom-right",
       newestOnTop: false
-    })
+    }),
+    provideMatomo(
+      {
+        siteId: environment.trackingSiteId,
+        trackerUrl: environment.trackingUrl,
+      },
+      withRouter(),
+    )
   ]
 };
 

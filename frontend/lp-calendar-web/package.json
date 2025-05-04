@@ -26,6 +26,7 @@
     "guid-typescript": "^1.0.9",
     "luxon": "^3.5.0",
     "luxon-angular": "^6.0.0",
+    "ngx-matomo-client": "^7.0.1",
     "ngx-toastr": "^19.0.0",
     "ol": "^10.4.0",
     "rxjs": "~7.8.0",
