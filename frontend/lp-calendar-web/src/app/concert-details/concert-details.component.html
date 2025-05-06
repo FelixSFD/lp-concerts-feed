@@ -137,7 +137,7 @@
             Countdown <s>from</s>to zero
           </div>
           <div class="card-body">
-            <app-countdown [countdownToDate]="concert$?.postedStartTime!" [concertId]="concert$?.id"></app-countdown>
+            <app-countdown [countdownToDate]="concert$?.mainStageTime ?? concert$?.postedStartTime!" [concertId]="concert$?.id"></app-countdown>
           </div>
         </div>
       </div>
