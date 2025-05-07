@@ -57,7 +57,9 @@ export class AppComponent implements OnInit, OnDestroy {
       // Set user ID for Matomo tracker
       this.oidcSecurityService.userData$.subscribe((usr) => {
         console.debug("User -->", usr);
-        this.tracker.setUserId(usr.userData["username"]);
+        if (usr?.userData?.hasOwnProperty("username")) {
+          this.tracker.setUserId(usr.userData["username"]);
+        }
       })
     });
 
