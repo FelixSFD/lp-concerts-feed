@@ -7,6 +7,38 @@ import {authInterceptor, provideAuth} from 'angular-auth-oidc-client';
 import {provideHttpClient, withInterceptors} from '@angular/common/http';
 import {provideToastr, ToastrModule} from 'ngx-toastr';
 import {BrowserAnimationsModule, provideAnimations} from '@angular/platform-browser/animations';
+import {provideMatomo, withRouter} from 'ngx-matomo-client';
+import {environment} from '../environments/environment';
+import {NgcCookieConsentConfig, provideNgcCookieConsent} from 'ngx-cookieconsent';
+
+const cookieConfig:NgcCookieConsentConfig = {
+  "cookie": {
+    "domain": window.location.hostname
+  },
+  "position": "bottom",
+  "theme": "classic",
+  "palette": {
+    "popup": {
+      "background": "#000000",
+      "text": "#ffffff",
+      "link": "#ffffff"
+    },
+    "button": {
+      "background": "#bc00a1",
+      "text": "#000000",
+      "border": "transparent"
+    }
+  },
+  "type": "opt-out",
+  "content": {
+    "message": "This website uses cookies to ensure you get the best experience on our website and to be able to improve the website based on anonymous web analytics.",
+    "dismiss": "Got it!",
+    "deny": "Refuse cookies",
+    "link": "Learn more",
+    "href": "/privacy",
+    "policy": "Cookie Policy"
+  }
+};
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -17,7 +49,17 @@ export const appConfig: ApplicationConfig = {
     provideToastr({
       positionClass: "toast-bottom-right",
       newestOnTop: false
-    })
+    }),
+    provideMatomo(
+      {
+        siteId: environment.trackingSiteId,
+        trackerUrl: environment.trackingUrl,
+      },
+      withRouter({
+        delay: 1000
+      }),
+    ),
+    provideNgcCookieConsent(cookieConfig)
   ]
 };
 

@@ -48,8 +48,11 @@
 </div>
 
 
-<footer id="main-footer">
+<footer id="main-footer" class="mb-4">
   <small>This is a fan-site and not affiliated with Linkin Park!</small>
   <br />
-  <small>Build: {{ environment.build }}</small>
+  <small>
+    <a class="link-secondary link-underline-opacity-0 link-underline-opacity-100-hover" [routerLink]="['/', 'privacy']">Privacy Policy</a>
+  </small>
+  <small>&nbsp;|&nbsp;Build: {{ environment.build }}</small>
 </footer>

@@ -7,5 +7,15 @@ export const environment = {
   cognitoRedirectUrl: "https://test.lpshows.live/",
   cognitoLogoutUrl: "https://lpshows-dev-backend-183771145359.auth.eu-central-1.amazoncognito.com/logout?client_id=1f6u21ft41ekessh66n72amom5&logout_uri=https://" + window.document.location.host,
   imageBaseUrl: "",
-  build: ""
+  build: "",
+  trackingUrl: "",
+  trackingSiteId: 0,
+  imprintData: {
+    name: "",
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    country: "",
+    email: ""
+  }
 };

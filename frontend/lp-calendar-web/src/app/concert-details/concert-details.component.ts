@@ -1,10 +1,8 @@
 import {
-  AfterRenderRef,
   AfterViewInit,
   Component,
   ElementRef,
   inject,
-  OnDestroy,
   OnInit,
   ViewChild
 } from '@angular/core';
@@ -12,7 +10,7 @@ import {ConcertsService} from '../services/concerts.service';
 import {Concert} from '../data/concert';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {DateTime} from 'luxon';
-import {DatePipe, NgIf, NgOptimizedImage} from '@angular/common';
+import {NgIf} from '@angular/common';
 import {CountdownComponent} from '../countdown/countdown.component';
 import {Meta} from '@angular/platform-browser';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
@@ -36,6 +34,7 @@ import {ConcertTitleGenerator} from '../data/concert-title-generator';
 import {TimeSpanPipe} from '../data/time-span-pipe';
 import {AdjacentConcertIdsResponse} from '../data/adjacent-concert-ids-response';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {MatomoTracker} from 'ngx-matomo-client';
 
 @Component({
   selector: 'app-concert-details',
@@ -45,13 +44,14 @@ import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
     RouterLink,
     ConcertBadgesComponent,
     TimeSpanPipe,
-    DatePipe,
     NgbTooltip
   ],
   templateUrl: './concert-details.component.html',
   styleUrl: './concert-details.component.css'
 })
 export class ConcertDetailsComponent implements OnInit, AfterViewInit {
+  tracker = inject(MatomoTracker);
+
   concert$: Concert | null = null;
   adjacentConcertData$: AdjacentConcertIdsResponse | null = null;
   concertId: string | undefined;
@@ -254,7 +254,10 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
     }
 
     let dt = this.getDateTimeInTimezone(this.concert$!.postedStartTime!, this.concert$.timeZoneId!);
-    window.open("https://linkinpedia.com/wiki/Live:" + dt.toFormat("yyyyMMdd"), "_blank");
+    let wikiLink = "https://linkinpedia.com/wiki/Live:" + dt.toFormat("yyyyMMdd");
+
+    this.tracker.trackLink(wikiLink, "link");
+    window.open(wikiLink, "_blank");
   }
 
 

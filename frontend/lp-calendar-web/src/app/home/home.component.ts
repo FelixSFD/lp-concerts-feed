@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, inject, Input, OnInit} from '@angular/core';
 import {RouterLink} from '@angular/router';
 import {environment} from '../../environments/environment';
 import {ConcertCardComponent} from '../concert-card/concert-card.component';
@@ -6,6 +6,7 @@ import {ConcertsService} from '../services/concerts.service';
 import {Concert} from '../data/concert';
 import {CalendarFeedBuilderComponent} from '../calendar-feed-builder/calendar-feed-builder.component';
 import {ToastrService} from 'ngx-toastr';
+import {MatomoTracker} from 'ngx-matomo-client';
 
 @Component({
   selector: 'app-home',
@@ -20,6 +21,8 @@ import {ToastrService} from 'ngx-toastr';
 export class HomeComponent implements OnInit {
 
   protected readonly environment = environment;
+
+  private readonly tracker = inject(MatomoTracker);
 
   nextConcert: Concert | null = null;
 
@@ -43,6 +46,7 @@ export class HomeComponent implements OnInit {
 
   subscribeCustomBtnClicked() {
     let calendarUrl = this.getCalFeedUrl();
+    this.tracker.trackEvent("ical_sub", "subscribed direct", calendarUrl);
     window.open(calendarUrl);
   }
 
@@ -56,6 +60,7 @@ export class HomeComponent implements OnInit {
 
   copyFeedUrlBtnClicked() {
     let calendarUrl = this.getCalFeedUrl();
+    this.tracker.trackEvent("ical_sub", "copied link", calendarUrl);
     navigator.clipboard.writeText(calendarUrl)
       .then(_ => {
         console.debug("copied iCal URL: " + calendarUrl);
