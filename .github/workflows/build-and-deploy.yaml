@@ -129,6 +129,43 @@ jobs:
         search-text: 'IMAGE_BASE_URL'
         replacement-text: ${{ vars.IMAGE_BASE_URL }}
 
+    - name: Replace IMPRINT_NAME
+      uses: richardrigutins/replace-in-files@v2
+      with:
+        files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
+        search-text: 'IMPRINT_NAME'
+        replacement-text: ${{ vars.IMPRINT_NAME }}
+    - name: Replace IMPRINT_ADDRESS1
+      uses: richardrigutins/replace-in-files@v2
+      with:
+        files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
+        search-text: 'IMPRINT_ADDRESS1'
+        replacement-text: ${{ vars.IMPRINT_ADDRESS1 }}
+    - name: Replace IMPRINT_ADDRESS2
+      uses: richardrigutins/replace-in-files@v2
+      with:
+        files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
+        search-text: 'IMPRINT_ADDRESS2'
+        replacement-text: ${{ vars.IMPRINT_ADDRESS2 }}
+    - name: Replace IMPRINT_CITY
+      uses: richardrigutins/replace-in-files@v2
+      with:
+        files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
+        search-text: 'IMPRINT_CITY'
+        replacement-text: ${{ vars.IMPRINT_CITY }}
+    - name: Replace IMPRINT_COUNTRY
+      uses: richardrigutins/replace-in-files@v2
+      with:
+        files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
+        search-text: 'IMPRINT_COUNTRY'
+        replacement-text: ${{ vars.IMPRINT_COUNTRY }}
+    - name: Replace IMPRINT_EMAIL
+      uses: richardrigutins/replace-in-files@v2
+      with:
+        files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
+        search-text: 'IMPRINT_EMAIL'
+        replacement-text: ${{ vars.IMPRINT_EMAIL }}
+
     # Get Date and write it into the environemnt.ts
     - name: Get current date
       id: date
