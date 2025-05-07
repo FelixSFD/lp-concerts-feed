@@ -9,5 +9,13 @@ export const environment = {
   imageBaseUrl: "",
   build: "",
   trackingUrl: "",
-  trackingSiteId: 0
+  trackingSiteId: 0,
+  imprintData: {
+    name: "",
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    country: "",
+    email: ""
+  }
 };

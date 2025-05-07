@@ -8,6 +8,7 @@ import {EditConcertPageComponent} from './admin/edit-concert-page/edit-concert-p
 import {AddConcertPageComponent} from './admin/add-concert-page/add-concert-page.component';
 import {TourMapPageComponent} from './tour-map-page/tour-map-page.component';
 import {PrivacyPolicyComponent} from './privacy-policy/privacy-policy.component';
+import {ImprintComponent} from './imprint/imprint.component';
 
 let baseTitle = "LP Concerts - ";
 
@@ -27,6 +28,11 @@ export const routes: Routes = [
     path: 'privacy',
     component: PrivacyPolicyComponent,
     title: baseTitle + 'Privacy Policy'
+  },
+  {
+    path: 'imprint',
+    component: ImprintComponent,
+    title: baseTitle + 'Imprint'
   },
   {
     path: 'profile',
