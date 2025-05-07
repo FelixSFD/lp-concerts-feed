@@ -129,6 +129,19 @@ jobs:
         search-text: 'IMAGE_BASE_URL'
         replacement-text: ${{ vars.IMAGE_BASE_URL }}
 
+    - name: Replace TRACKING_URL
+      uses: richardrigutins/replace-in-files@v2
+      with:
+        files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
+        search-text: 'TRACKING_URL'
+        replacement-text: ${{ vars.TRACKING_URL }}
+    - name: Replace TRACKING_SITE_ID
+      uses: richardrigutins/replace-in-files@v2
+      with:
+        files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
+        search-text: 'TRACKING_SITE_ID'
+        replacement-text: ${{ vars.TRACKING_SITE_ID }}
+
     - name: Replace IMPRINT_NAME
       uses: richardrigutins/replace-in-files@v2
       with:
