@@ -191,6 +191,10 @@ Resources:
           #Required: true
         - AttributeDataType: String
           Mutable: true
+          Name: display_name
+          #Required: true
+        - AttributeDataType: String
+          Mutable: true
           Name: first_name
           #Required: true
         - AttributeDataType: String

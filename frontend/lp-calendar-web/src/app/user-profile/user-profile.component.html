@@ -6,8 +6,19 @@
     <input type="text" class="form-control" id="userIdInput" disabled [value]="userId$">
   </div>
   <div class="mb-3">
+    <label for="userIdInput" class="form-label">Username</label>
+    <input type="text" class="form-control" id="usernameInput" disabled [value]="username$">
+  </div>
+  <div class="mb-3">
     <label for="emailInput" class="form-label">Email address</label>
     <input type="email" class="form-control" id="emailInput" disabled [value]="email$">
+  </div>
+
+  <div class="form-group">
+    <label for="groupsSelect">Groups</label>
+    <select multiple disabled class="form-control" id="groupsSelect">
+      <option *ngFor="let groupName of groupNames$">{{ groupName }}</option>
+    </select>
   </div>
 </form>
 
