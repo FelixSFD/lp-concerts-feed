@@ -213,8 +213,9 @@
                 </div>
             </div>
 
-            <button class="btn btn-outline-secondary mt-3 mb-3" (click)="onGoToCityClicked()"><i class="bi bi-map"></i> Go to city</button>
-            <button class="btn btn-outline-secondary mt-3 mb-3 ms-1" (click)="onSetPinClicked()"><i class="bi bi-pin-map"></i> Set pin here</button>
+            <button class="btn btn-outline-secondary mt-3 mb-3" (click)="tryAutoSetVenuePin()"><i class="bi bi-crosshair"></i> Try to set pin at venue</button>
+            <button class="btn btn-outline-secondary mt-3 mb-3 ms-1" (click)="onGoToCityClicked()"><i class="bi bi-map"></i> Go to city</button>
+            <button class="btn btn-outline-secondary mt-3 mb-3 ms-1" (click)="onSetPinClicked()"><i class="bi bi-geo-fill"></i> Set pin here</button>
 
             <div id="venueMap" class="concert-form-map"></div>
         </ng-container>

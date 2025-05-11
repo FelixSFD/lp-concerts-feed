@@ -218,9 +218,9 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
 
-  private zoomToCoordinates(lon: number, lat: number) {
+  private zoomToCoordinates(lon: number, lat: number, zoomLevel: number = 11) {
     this.venueMap?.getView().setCenter(fromLonLat([lon, lat]));
-    this.venueMap?.getView().setZoom(11);
+    this.venueMap?.getView().setZoom(zoomLevel);
   }
 
 
@@ -302,6 +302,29 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
     this.addOrMoveMarker(coordinateFinal[0], coordinateFinal[1]);
     this.concertForm.controls.venueLong.setValue(coordinateFinal[0]);
     this.concertForm.controls.venueLat.setValue(coordinateFinal[1]);
+  }
+
+
+  tryAutoSetVenuePin() {
+    let venue = this.concertForm.value.venue;
+    let city = this.concertForm.value.city;
+    let state = this.concertForm.value.state;
+    let country = this.concertForm.value.country;
+
+    if (city == null || country == null || venue == null) {
+      return;
+    }
+
+    this.locationsService.getCoordinatesForVenue(venue, city, state ? state : null, country)
+      .subscribe(coordinates => {
+        let lat = coordinates?.latitude ?? 0;
+        let lon = coordinates?.longitude ?? 0;
+
+        this.zoomToCoordinates(lon, lat, 8);
+        this.addOrMoveMarker(lon, lat);
+        this.concertForm.controls.venueLong.setValue(lon);
+        this.concertForm.controls.venueLat.setValue(lat);
+      });
   }
 
 

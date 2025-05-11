@@ -1,23 +1,23 @@
 <ng-container *ngIf="concert$?.showType != undefined && concert$?.showType != defaultShowType">
-  <span class="badge bg-secondary" style="margin-right: 3px;" title="Type of the show">
+  <span class="badge bg-secondary" style="margin-right: 3px;" ngbTooltip="Type of the show" placement="bottom">
     <i class="bi-info-circle"></i> {{ concert$?.showType }}
   </span>
 </ng-container>
 
 <ng-container *ngIf="concert$?.mainStageTime != undefined">
-  <span class="badge bg-primary" style="margin-right: 3px;" title="Linkin Park stage time has been confirmed">
+  <span class="badge bg-primary" style="margin-right: 3px;" ngbTooltip="Linkin Park stage time has been confirmed" placement="bottom">
     <i class="bi-clock"></i> LP Stage Time confirmed
   </span>
 </ng-container>
 
 <ng-container *ngIf="concert$?.lpuEarlyEntryConfirmed && concert$?.lpuEarlyEntryTime == undefined">
-  <span class="badge bg-info" style="margin-right: 3px;" title="LPU Early Entry has been confirmed for this show but no time has been published yet">
+  <span class="badge bg-info" style="margin-right: 3px;" ngbTooltip="LPU Early Entry has been confirmed for this show but no time has been published yet" placement="bottom">
     <i class="bi-ticket-perforated"></i> LPU Early Entry
   </span>
 </ng-container>
 
 <ng-container *ngIf="concert$?.lpuEarlyEntryConfirmed && concert$?.lpuEarlyEntryTime != undefined">
-  <span class="badge bg-success" style="margin-right: 3px;" title="LPU Early Entry time has been confirmed for this show">
+  <span class="badge bg-success" style="margin-right: 3px;" ngbTooltip="LPU Early Entry time has been confirmed for this show" placement="bottom">
     <i class="bi-ticket-perforated"></i> LPU Early Entry
   </span>
 </ng-container>
