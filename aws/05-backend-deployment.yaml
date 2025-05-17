@@ -163,6 +163,29 @@ Resources:
                   - dynamodb:Scan
                   - dynamodb:Query
                 Resource: !Sub "${ConcertsDynamoDBTable.Arn}*"
+  
+  UsersReadLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: "Execution role for Lambda that reads from the Cognito User List"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: LambdaCognitoReadAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cognito-idp:ListUsers
+                Resource: !Sub "${CognitoAuthorizerUserPool.Arn}*"
 
   CognitoAuthorizerUserPool:
     Type: AWS::Cognito::UserPool
@@ -527,7 +550,33 @@ Resources:
             RestApiId: !Ref ConcertsApi
             Path: /concerts/{id}/adjacent
             Method: get
-    
+  
+  
+  UsersReadFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: Lambda.UsersRead::Lambda.UsersRead.Function::FunctionHandler
+      Role: !GetAtt UsersReadLambdaExecutionRole.Arn
+      Description: .NET function to read user-data from Cognito
+      CodeUri: ../Lambda.UsersRead/src/Lambda.UsersRead/bin/Release/net8.0/Lambda.UsersRead.zip
+      Architectures:
+        - arm64
+      Tracing: Active
+      MemorySize: 384
+      Environment:
+        Variables:
+          USER_POOL_ID: !Ref CognitoAuthorizerUserPool
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
+      Events:
+        GetUsers:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ConcertsApi
+            Path: /users
+            Method: get
+  
   
   GetTimeZoneFunction:
     Type: AWS::Serverless::Function
