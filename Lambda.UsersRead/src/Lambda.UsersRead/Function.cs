@@ -19,7 +19,8 @@ public class Function
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        bool hasIdParam = request.PathParameters.TryGetValue("id", out var idParameter);
+        string? idParameter = null;
+        bool hasIdParam = request.PathParameters != null && request.PathParameters.TryGetValue("id", out idParameter);
         if (request.HttpMethod == "GET")
         {
             if (hasIdParam)
