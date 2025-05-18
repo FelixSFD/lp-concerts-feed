@@ -24,7 +24,7 @@
       <th scope="row">{{ user.username }}</th>
       <td>{{ user.email }} <i class="bi bi-patch-check-fill text-success" ngbTooltip="verified" *ngIf="user.emailVerified"></i></td>
       <td class="text-end">
-        <button class="btn btn-primary" disabled><i class="bi bi-pencil"></i>&nbsp;Edit</button>
+        <button class="btn btn-primary" [routerLink]="[user.id]"><i class="bi bi-pencil"></i>&nbsp;Edit</button>
       </td>
     </tr>
     </tbody>

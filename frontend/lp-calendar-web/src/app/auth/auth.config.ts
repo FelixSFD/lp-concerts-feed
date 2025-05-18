@@ -17,7 +17,13 @@ export const authConfig: PassedInitialConfig = {
     silentRenew: true, // Enable silent token renewal
     useRefreshToken: true, // Use refresh tokens to maintain the session
     allowUnsafeReuseRefreshToken: true,
-    secureRoutes: [environment.apiNoCacheBaseUrl + '/Prod/deleteConcert/', environment.apiNoCacheBaseUrl + '/Prod/addConcert', environment.apiNoCacheBaseUrl + "/Prod/requestFileUpload"],
+    secureRoutes: [
+      environment.apiNoCacheBaseUrl + '/Prod/deleteConcert/',
+      environment.apiNoCacheBaseUrl + '/Prod/addConcert',
+      environment.apiNoCacheBaseUrl + "/Prod/requestFileUpload",
+      environment.apiNoCacheBaseUrl + "/Prod/users",
+      environment.apiNoCacheBaseUrl + "/Prod/users/"
+    ],
     logLevel: LogLevel.Warn // Enable detailed logs for debugging
   }
 }

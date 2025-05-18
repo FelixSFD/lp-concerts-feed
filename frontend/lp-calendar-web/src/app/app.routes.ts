@@ -10,6 +10,7 @@ import {TourMapPageComponent} from './tour-map-page/tour-map-page.component';
 import {PrivacyPolicyComponent} from './privacy-policy/privacy-policy.component';
 import {ImprintComponent} from './imprint/imprint.component';
 import {UsersListComponent} from './admin/users/users-list/users-list.component';
+import {EditUserComponent} from './admin/users/edit-user/edit-user.component';
 
 let baseTitle = "LP Concerts - ";
 
@@ -74,5 +75,10 @@ export const routes: Routes = [
     path: 'users',
     component: UsersListComponent,
     title: baseTitle + 'Manage users',
+  },
+  {
+    path: 'users/:id',
+    component: EditUserComponent,
+    title: baseTitle + 'Edit user',
   },
 ];

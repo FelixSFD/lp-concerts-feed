@@ -33,4 +33,23 @@ export class UsersService {
 
     return this.httpClient.get<User[]>(url);
   }
+
+
+  getUserById(id: string, cached: boolean = false) : Observable<User> {
+    let url = environment.apiCachedBaseUrl + "/Prod/users/" + id;
+
+    if (!cached) {
+      // disable caching
+      const httpHeaders: HttpHeaders = new HttpHeaders({
+        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+        'X-LP-Request-Id': Guid.create().toString()
+      });
+
+      return this.httpClient.get<User>(url, {
+        headers: httpHeaders
+      });
+    }
+
+    return this.httpClient.get<User>(url);
+  }
 }
