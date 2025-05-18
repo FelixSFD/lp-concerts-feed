@@ -9,6 +9,9 @@ public class User
 
     [JsonPropertyName("email")]
     public string Email { get; set; }
+    
+    [JsonPropertyName("emailVerified")]
+    public bool EmailVerified { get; set; }
 
     [JsonPropertyName("username")]
     public string Username { get; set; }

@@ -26,7 +26,8 @@ public class Function
         {
             Id = ut.GetAttributeFromUser("sub")!,
             Username = ut.GetAttributeFromUser("custom:display_name") ?? "No name",
-            Email = ut.GetAttributeFromUser("email")!
+            Email = ut.GetAttributeFromUser("email")!,
+            EmailVerified = ut.GetAttributeFromUser("email_verified") == "true"
         });
         
         return new APIGatewayProxyResponse

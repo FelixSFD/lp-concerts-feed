@@ -8,6 +8,7 @@ import {DateTime} from 'luxon';
 import {ConcertBadgesComponent} from '../../../concert-badges/concert-badges.component';
 import {CountdownComponent} from '../../../countdown/countdown.component';
 import {RouterLink} from '@angular/router';
+import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-users-list',
@@ -16,7 +17,8 @@ import {RouterLink} from '@angular/router';
     ConcertBadgesComponent,
     CountdownComponent,
     NgForOf,
-    RouterLink
+    RouterLink,
+    NgbTooltip
   ],
   templateUrl: './users-list.component.html',
   styleUrl: './users-list.component.css'
