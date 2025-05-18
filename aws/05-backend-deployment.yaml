@@ -185,7 +185,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - cognito-idp:ListUsers
-                Resource: !Sub "${CognitoAuthorizerUserPool.Arn}*"
+                Resource: !Sub "${NewCognitoAuthorizerUserPool.Arn}*"
         - PolicyName: LambdaCognitoWriteAccess
           PolicyDocument:
             Version: "2012-10-17"
@@ -194,14 +194,14 @@ Resources:
                 Action:
                   - cognito-idp:AdminUpdateUserAttributes
                   - cognito-idp:AdminGetUser
-                Resource: !Sub "${CognitoAuthorizerUserPool.Arn}*"
+                Resource: !Sub "${NewCognitoAuthorizerUserPool.Arn}*"
 
-  CognitoAuthorizerUserPool:
+  NewCognitoAuthorizerUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
       UserPoolName: !Sub ${UserPoolId}
       AdminCreateUserConfig:
-        AllowAdminCreateUserOnly: true
+        AllowAdminCreateUserOnly: false
       Policies:
         PasswordPolicy:
           MinimumLength: 8
@@ -213,7 +213,7 @@ Resources:
       AutoVerifiedAttributes:
         - email
       UsernameConfiguration:
-        CaseSensitive: true
+        CaseSensitive: false
       UsernameAttributes:
         - email
       Schema:
@@ -224,17 +224,9 @@ Resources:
         - AttributeDataType: String
           Mutable: true
           Name: display_name
-          #Required: true
-        - AttributeDataType: String
-          Mutable: true
-          Name: first_name
-          #Required: true
-        - AttributeDataType: String
-          Mutable: true
-          Name: last_name
-          #Required: true
+          #Required: true        
 
-  CognitoAuthorizerUserPoolResourceServer:
+  NewCognitoAuthorizerUserPoolResourceServer:
     Type: AWS::Cognito::UserPoolResourceServer
     Properties:
       Identifier: !Sub ${AWS::StackName}_LpConcertsAuthServer
@@ -242,11 +234,11 @@ Resources:
       Scopes:
         - ScopeDescription: "Allow access to application"
           ScopeName: user_access
-      UserPoolId: !Ref CognitoAuthorizerUserPool
+      UserPoolId: !Ref NewCognitoAuthorizerUserPool
 
   CognitoAuthorizerUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
-    DependsOn: CognitoAuthorizerUserPoolResourceServer
+    DependsOn: NewCognitoAuthorizerUserPoolResourceServer
     Properties:
       AllowedOAuthFlows:
         - implicit
@@ -268,14 +260,14 @@ Resources:
       ClientName: !Sub ${UserPoolId}-client
       SupportedIdentityProviders:
         - COGNITO
-      UserPoolId: !Ref CognitoAuthorizerUserPool
+      UserPoolId: !Ref NewCognitoAuthorizerUserPool
       GenerateSecret: false
 
   CognitoAuthorizerUserPoolDomain:
     Type: AWS::Cognito::UserPoolDomain
     Properties:
       Domain: !Sub ${AWS::StackName}-${AWS::AccountId}
-      UserPoolId: !Ref CognitoAuthorizerUserPool
+      UserPoolId: !Ref NewCognitoAuthorizerUserPool
 
   # REST API that is secured by cognito
   ConcertsApi:
@@ -289,7 +281,7 @@ Resources:
       Auth:
         Authorizers:
           ConcertsCognitoAuthorizer:
-            UserPoolArn: !GetAtt CognitoAuthorizerUserPool.Arn
+            UserPoolArn: !GetAtt NewCognitoAuthorizerUserPool.Arn
             IdentitySource: method.request.header.Authorization
             Scopes:
               - !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
@@ -574,7 +566,7 @@ Resources:
       MemorySize: 384
       Environment:
         Variables:
-          USER_POOL_ID: !Ref CognitoAuthorizerUserPool
+          USER_POOL_ID: !Ref NewCognitoAuthorizerUserPool
       LoggingConfig:
         LogFormat: JSON
         ApplicationLogLevel: DEBUG
