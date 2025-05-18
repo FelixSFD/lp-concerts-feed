@@ -18,17 +18,24 @@ public class Function
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        var userTypes = await ListUsersAsync(_userPoolId);
+        if (request.PathParameters != null && request.PathParameters.TryGetValue("id", out var idParameter))
+        {
+            context.Logger.LogInformation("Requested ID: {id}", idParameter);
+            return await ReturnSingleUser(idParameter, context);
+        }
+        
+        context.Logger.LogDebug("Requested list of users");
+        return await ReturnAllUsers(context);
+    }
+
+
+    private async Task<APIGatewayProxyResponse> ReturnAllUsers(ILambdaContext context)
+    {
+        var userTypes = await ListUsersAsync();
         
         context.Logger.LogDebug($"Found {userTypes.Count} users.\n\n{JsonSerializer.Serialize(userTypes)}");
         
-        var users = userTypes.Select(ut => new User
-        {
-            Id = ut.GetAttributeFromUser("sub")!,
-            Username = ut.GetAttributeFromUser("custom:display_name") ?? "No name",
-            Email = ut.GetAttributeFromUser("email")!,
-            EmailVerified = ut.GetAttributeFromUser("email_verified") == "true"
-        });
+        var users = userTypes.Select(ut => ut.Attributes.ToUser());
         
         return new APIGatewayProxyResponse
         {
@@ -44,16 +51,34 @@ public class Function
     }
     
     
+    private async Task<APIGatewayProxyResponse> ReturnSingleUser(string userId, ILambdaContext context)
+    {
+        context.Logger.LogDebug("Returning single user");
+        var user = await GetUserByIdAsync(userId);
+        
+        return new APIGatewayProxyResponse
+        {
+            StatusCode = 200,
+            Body = JsonSerializer.Serialize(user),
+            Headers = new Dictionary<string, string>
+            {
+                { "Content-Type", "application/json" },
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+            }
+        };
+    }
+    
+    
     /// <summary>
     /// Get a list of users for the Amazon Cognito user pool.
     /// </summary>
-    /// <param name="userPoolId">The user pool ID.</param>
     /// <returns>A list of users.</returns>
-    private async Task<List<UserType>> ListUsersAsync(string userPoolId)
+    private async Task<List<UserType>> ListUsersAsync()
     {
         var request = new ListUsersRequest
         {
-            UserPoolId = userPoolId
+            UserPoolId = _userPoolId
         };
 
         var users = new List<UserType>();
@@ -68,5 +93,20 @@ public class Function
     }
 
 
-    
+    /// <summary>
+    /// Get a user for the Amazon Cognito user pool.
+    /// </summary>
+    /// <param name="userId">ID of the user</param>
+    /// <returns>A user.</returns>
+    private async Task<User> GetUserByIdAsync(string userId)
+    {
+        var request = new AdminGetUserRequest
+        {
+            UserPoolId = _userPoolId,
+            Username = userId
+        };
+        
+        var response = await _cognitoService.AdminGetUserAsync(request) ?? throw new KeyNotFoundException("User was not found");
+        return response.UserAttributes.ToUser();
+    }
 }

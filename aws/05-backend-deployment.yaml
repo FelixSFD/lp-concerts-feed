@@ -185,6 +185,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - cognito-idp:ListUsers
+                  - cognito-idp:AdminGetUser
                 Resource: !Sub "${CognitoAuthorizerUserPool.Arn}*"
 
   CognitoAuthorizerUserPool:
@@ -576,6 +577,20 @@ Resources:
             RestApiId: !Ref ConcertsApi
             Path: /users
             Method: get
+            Auth:
+              Authorizer: ConcertsCognitoAuthorizer
+              AuthorizationScopes:
+                - openid
+        GetUserById:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ConcertsApi
+            Path: /users/{id}
+            Method: get
+            Auth:
+              Authorizer: ConcertsCognitoAuthorizer
+              AuthorizationScopes:
+                - openid
   
   
   GetTimeZoneFunction:
