@@ -278,8 +278,12 @@ Resources:
     Properties:
       ClientId: !Ref CognitoAuthorizerUserPoolClient
       ReturnMergedResources: true
-      UseCognitoProvidedValues: true # use the default managed login UI
+      UseCognitoProvidedValues: false
       UserPoolId: !Ref NewCognitoAuthorizerUserPool
+      Settings:
+        categories:
+          global:
+            colorSchemeMode: DYNAMIC
 
   # REST API that is secured by cognito
   ConcertsApi:
