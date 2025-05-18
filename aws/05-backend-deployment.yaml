@@ -185,6 +185,14 @@ Resources:
               - Effect: Allow
                 Action:
                   - cognito-idp:ListUsers
+                Resource: !Sub "${CognitoAuthorizerUserPool.Arn}*"
+        - PolicyName: LambdaCognitoWriteAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cognito-idp:AdminUpdateUserAttributes
                   - cognito-idp:AdminGetUser
                 Resource: !Sub "${CognitoAuthorizerUserPool.Arn}*"
 
@@ -587,6 +595,16 @@ Resources:
             RestApiId: !Ref ConcertsApi
             Path: /users/{id}
             Method: get
+            Auth:
+              Authorizer: ConcertsCognitoAuthorizer
+              AuthorizationScopes:
+                - openid
+        UpdateUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ConcertsApi
+            Path: /users/{id}
+            Method: put
             Auth:
               Authorizer: ConcertsCognitoAuthorizer
               AuthorizationScopes:

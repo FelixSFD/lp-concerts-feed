@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.Json;
 using Amazon.CognitoIdentityProvider;
 using Amazon.CognitoIdentityProvider.Model;
@@ -18,14 +19,54 @@ public class Function
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        if (request.PathParameters != null && request.PathParameters.TryGetValue("id", out var idParameter))
+        bool hasIdParam = request.PathParameters.TryGetValue("id", out var idParameter);
+        if (request.HttpMethod == "GET")
         {
-            context.Logger.LogInformation("Requested ID: {id}", idParameter);
-            return await ReturnSingleUser(idParameter, context);
-        }
+            if (hasIdParam)
+            {
+                context.Logger.LogInformation("Requested ID: {id}", idParameter);
+                return await ReturnSingleUser(idParameter!, context);
+            }
         
-        context.Logger.LogDebug("Requested list of users");
-        return await ReturnAllUsers(context);
+            context.Logger.LogDebug("Requested list of users");
+            return await ReturnAllUsers(context);
+        } else if (request.HttpMethod == "PUT" && hasIdParam)
+        {
+            var sentUser = JsonSerializer.Deserialize<User>(request.Body);
+            if (sentUser == null)
+            {
+                return new APIGatewayProxyResponse()
+                {
+                    // TODO: Error message?
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    Headers = new Dictionary<string, string>
+                    {
+                        { "Content-Type", "application/json" },
+                        { "Access-Control-Allow-Origin", "*" },
+                        { "Access-Control-Allow-Methods", "OPTIONS, POST, PUT" }
+                    }
+                };
+            }
+            
+            // use ID from parameter
+            sentUser.Id = idParameter!;
+            
+            return await UpdateUser(sentUser, context);
+        }
+        else
+        {
+            return new APIGatewayProxyResponse()
+            {
+                // TODO: Error message?
+                StatusCode = (int)HttpStatusCode.MethodNotAllowed,
+                Headers = new Dictionary<string, string>
+                {
+                    { "Content-Type", "application/json" },
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                }
+            };
+        }
     }
 
 
@@ -108,5 +149,40 @@ public class Function
         
         var response = await _cognitoService.AdminGetUserAsync(request) ?? throw new KeyNotFoundException("User was not found");
         return response.UserAttributes.ToUser();
+    }
+
+
+    private async Task<APIGatewayProxyResponse> UpdateUser(User user, ILambdaContext context)
+    {
+        var request = new AdminUpdateUserAttributesRequest
+        {
+            UserPoolId = _userPoolId,
+            Username = user.Id,
+            UserAttributes =
+            [
+                new AttributeType
+                {
+                    Name = "email",
+                    Value = user.Email
+                },
+                new AttributeType
+                {
+                    Name = "custom:display_name",
+                    Value = user.Username
+                }
+            ]
+        };
+        
+        var response = await _cognitoService.AdminUpdateUserAttributesAsync(request);
+        return new APIGatewayProxyResponse
+        {
+            StatusCode = response.HttpStatusCode == HttpStatusCode.OK ? (int)HttpStatusCode.NoContent : (int)response.HttpStatusCode,
+            Headers = new Dictionary<string, string>
+            {
+                { "Content-Type", "application/json" },
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, PUT, POST" }
+            }
+        };
     }
 }

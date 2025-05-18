@@ -4,6 +4,7 @@ import {Observable} from 'rxjs';
 import {environment} from '../../environments/environment';
 import {Guid} from 'guid-typescript';
 import {User} from '../data/users/user';
+import {Concert} from '../data/concert';
 
 @Injectable({
   providedIn: 'root'
@@ -51,5 +52,11 @@ export class UsersService {
     }
 
     return this.httpClient.get<User>(url);
+  }
+
+
+  updateUser(user: User) {
+    let url = environment.apiNoCacheBaseUrl + "/Prod/users/" + user.id;
+    return this.httpClient.put(url, user);
   }
 }

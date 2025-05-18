@@ -36,5 +36,9 @@ export class EditUserComponent implements OnInit {
 
   onFormSaved(user: User) {
     console.log("Received event for user", user);
+    user.id = this.userId$;
+    this.userService.updateUser(user).subscribe(response => {
+      this.toastr.success("User updated successfully");
+    });
   }
 }
