@@ -210,6 +210,9 @@ Resources:
           RequireSymbols: true
           RequireUppercase: true
           TemporaryPasswordValidityDays: 7
+        SignInPolicy:
+          AllowedFirstAuthFactors:
+            - PASSWORD
       AutoVerifiedAttributes:
         - email
       UsernameConfiguration:
@@ -267,6 +270,15 @@ Resources:
     Type: AWS::Cognito::UserPoolDomain
     Properties:
       Domain: !Sub ${AWS::StackName}-${AWS::AccountId}
+      ManagedLoginVersion: 2
+      UserPoolId: !Ref NewCognitoAuthorizerUserPool
+  
+  CognitoManagedLoginBranding:
+    Type: AWS::Cognito::ManagedLoginBranding
+    Properties:
+      ClientId: !Ref CognitoAuthorizerUserPoolClient
+      ReturnMergedResources: true
+      UseCognitoProvidedValues: true # use the default managed login UI
       UserPoolId: !Ref NewCognitoAuthorizerUserPool
 
   # REST API that is secured by cognito
