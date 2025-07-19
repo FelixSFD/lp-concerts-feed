@@ -194,6 +194,7 @@ Resources:
                 Action:
                   - cognito-idp:AdminUpdateUserAttributes
                   - cognito-idp:AdminGetUser
+                  - cognito-idp:AdminListGroupsForUser
                 Resource: !Sub "${NewCognitoAuthorizerUserPool.Arn}*"
 
   NewCognitoAuthorizerUserPool:

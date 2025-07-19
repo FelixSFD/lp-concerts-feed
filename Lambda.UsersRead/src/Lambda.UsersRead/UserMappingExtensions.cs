@@ -42,4 +42,19 @@ internal static class UserMappingExtensions
             EmailVerified = attributes.GetAttribute("email_verified") == "true"
         };
     }
+    
+    
+    /// <summary>
+    /// Creates a <see cref="UserGroup"/> object based on the values in the <param name="groupType"/>
+    /// </summary>
+    /// <param name="groupType"></param>
+    /// <returns></returns>
+    internal static UserGroup ToUserGroup(this GroupType groupType)
+    {
+        return new UserGroup
+        {
+            Name = groupType.GroupName,
+            Description = groupType.Description
+        };
+    }
 }

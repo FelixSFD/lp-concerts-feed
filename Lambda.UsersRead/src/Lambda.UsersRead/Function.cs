@@ -149,7 +149,19 @@ public class Function
         };
         
         var response = await _cognitoService.AdminGetUserAsync(request) ?? throw new KeyNotFoundException("User was not found");
-        return response.UserAttributes.ToUser();
+        var user = response.UserAttributes.ToUser();
+
+        var groupsRequest = new AdminListGroupsForUserRequest
+        {
+            UserPoolId = _userPoolId,
+            Username = userId
+        };
+        
+        // add groups
+        var groupsResponse = await _cognitoService.AdminListGroupsForUserAsync(groupsRequest) ?? throw new KeyNotFoundException("User was not found; Could not fetch groups.");
+        user.UserGroups = groupsResponse.Groups?.Select(gt => gt.ToUserGroup()).ToList() ?? [];
+
+        return user;
     }
 
 
