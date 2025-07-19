@@ -1,9 +1,6 @@
 import {Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {ToastrService} from 'ngx-toastr';
-import {Concert} from '../../../data/concert';
 import {User} from '../../../data/users/user';
-import {UsersService} from '../../../services/users.service';
 import {NgClass, NgIf} from '@angular/common';
 
 @Component({
@@ -19,8 +16,6 @@ import {NgClass, NgIf} from '@angular/common';
 })
 export class UserFormComponent implements OnInit, OnChanges {
   private formBuilder = inject(FormBuilder);
-  private toastrService = inject(ToastrService);
-  private userService = inject(UsersService);
 
   userForm = this.formBuilder.group({
     email: new FormControl('', [Validators.required, Validators.email]),
@@ -28,21 +23,22 @@ export class UserFormComponent implements OnInit, OnChanges {
   });
 
 
-  @Input({ alias: "user-id" })
-  userId: string | null = null;
-
   @Input({ alias: "is-saving" })
   isSaving$: boolean = false;
+
+  @Input({ alias: "user" })
+  user$ : User | null = null;
 
   @Output('saveClicked')
   saveClicked = new EventEmitter<User>();
 
-  user$ : User | null = null;
-
 
   ngOnInit(): void {
-    if (this.userId != null) {
-      this.loadUser(this.userId);
+    this.userForm.disable();
+
+    if (this.user$ != null) {
+      this.fillFormWithUser(this.user$);
+      this.userForm.enable();
     }
   }
 
@@ -56,30 +52,28 @@ export class UserFormComponent implements OnInit, OnChanges {
         this.userForm.enable();
       }
     }
+
+    if (changes.hasOwnProperty('user$')) {
+      let change = changes['user$'];
+      this.fillFormWithUser(change.currentValue);
+    }
   }
 
 
-  private loadUser(id: string) {
-    this.userForm.disable();
-
-    this.userService.getUserById(id).subscribe(user => {
-      this.user$ = user;
-      this.fillFormWithUser(user);
-
+  private fillFormWithUser(user: User | null) {
+    if (user != null) {
       this.userForm.enable();
-    });
-  }
-
-
-  private fillFormWithUser(user: User) {
-    this.userForm.controls.username.setValue(user.username ?? "");
-    this.userForm.controls.email.setValue(user.email ?? "");
+    } else {
+      this.userForm.disable();
+    }
+    this.userForm.controls.username.setValue(user?.username ?? "");
+    this.userForm.controls.email.setValue(user?.email ?? "");
   }
 
 
   onSaveClicked() {
     let createdUser = this.readUserFromForm();
-    console.log("Emitting event for user");
+    console.debug("Emitting event for user");
     this.saveClicked.emit(createdUser);
   }
 

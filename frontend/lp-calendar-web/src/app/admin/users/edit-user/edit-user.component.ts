@@ -21,6 +21,7 @@ export class EditUserComponent implements OnInit {
   private readonly oidcSecurityService = inject(OidcSecurityService);
 
   userId$: string = "";
+  user$ : User | null = null;
 
   // true while the user is saved on the server
   userIsSaving$: boolean = false;
@@ -33,7 +34,15 @@ export class EditUserComponent implements OnInit {
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.userId$ = params['id'];
+      this.loadUser(this.userId$);
     })
+  }
+
+
+  private loadUser(id: string) {
+    this.userService.getUserById(id).subscribe(user => {
+      this.user$ = user;
+    });
   }
 
 
