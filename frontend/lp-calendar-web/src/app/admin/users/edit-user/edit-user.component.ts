@@ -22,6 +22,9 @@ export class EditUserComponent implements OnInit {
 
   userId$: string = "";
 
+  // true while the user is saved on the server
+  userIsSaving$: boolean = false;
+
   constructor(private route: ActivatedRoute, private userService: UsersService, private toastr: ToastrService) {
 
   }
@@ -36,9 +39,17 @@ export class EditUserComponent implements OnInit {
 
   onFormSaved(user: User) {
     console.log("Received event for user", user);
+    this.userIsSaving$ = true;
     user.id = this.userId$;
-    this.userService.updateUser(user).subscribe(response => {
-      this.toastr.success("User updated successfully");
+    this.userService.updateUser(user).subscribe({
+      next: response => {
+        this.toastr.success("User updated successfully");
+        this.userIsSaving$ = false;
+      },
+      error: error => {
+        this.toastr.error("Error updating user", error);
+        this.userIsSaving$ = false;
+      }
     });
   }
 }

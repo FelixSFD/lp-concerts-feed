@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {ToastrService} from 'ngx-toastr';
 import {Concert} from '../../../data/concert';
@@ -17,7 +17,7 @@ import {NgClass, NgIf} from '@angular/common';
   templateUrl: './user-form.component.html',
   styleUrl: './user-form.component.css'
 })
-export class UserFormComponent {
+export class UserFormComponent implements OnInit, OnChanges {
   private formBuilder = inject(FormBuilder);
   private toastrService = inject(ToastrService);
   private userService = inject(UsersService);
@@ -43,6 +43,18 @@ export class UserFormComponent {
   ngOnInit(): void {
     if (this.userId != null) {
       this.loadUser(this.userId);
+    }
+  }
+
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.hasOwnProperty('isSaving$')) {
+      let change = changes['isSaving$'];
+      if (change.currentValue == true) {
+        this.userForm.disable();
+      } else {
+        this.userForm.enable();
+      }
     }
   }
 

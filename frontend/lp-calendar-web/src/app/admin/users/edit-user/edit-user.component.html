@@ -2,4 +2,4 @@
 
 <h1>Edit user</h1>
 
-<app-user-form [user-id]="userId$" (saveClicked)="onFormSaved($event)" />
+<app-user-form [user-id]="userId$" [is-saving]="userIsSaving$" (saveClicked)="onFormSaved($event)" />
