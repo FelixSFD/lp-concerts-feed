@@ -23,12 +23,18 @@ export class AddConcertPageComponent {
   onFormSaved(concert: Concert) {
     this.isSaving$ = true;
 
-    this.concertsService.addConcert(concert).subscribe(result => {
-      console.log("Add concert request finished");
-      console.log(result);
+    this.concertsService.addConcert(concert).subscribe({
+      next: result => {
+        console.log("Add concert request finished");
+        console.log(result);
 
-      this.toastr.success("Saved concert!");
-      this.isSaving$ = false;
+        this.toastr.success("Saved concert!");
+        this.isSaving$ = false;
+      },
+      error: err => {
+        this.toastr.error(err.message, "Failed to add concert!");
+        this.isSaving$ = false;
+      }
     });
   }
 }
