@@ -4,6 +4,7 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Lambda.Auth;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Converters;
 using LPCalendar.DataStructure.Requests;
@@ -29,8 +30,13 @@ public class Function
     }
     
     
-    public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayHttpApiV2ProxyRequest request, ILambdaContext context)
+    public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
+        if (request.CanDeleteConcerts())
+        {
+            return ForbiddenResponseHelper.GetResponse("OPTIONS, GET, POST");
+        }
+        
         var response = new APIGatewayProxyResponse
         {
             Headers = new Dictionary<string, string>

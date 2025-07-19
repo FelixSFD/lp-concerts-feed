@@ -69,6 +69,15 @@ public static class ApiGatewayProxyRequestPermissionsExtensions
     /// <returns></returns>
     public static bool CanUpdateConcerts(this APIGatewayProxyRequest request)
         => request.IsMemberOfOrAdmin("UpdateConcerts");
+    
+    
+    /// <summary>
+    /// Checks if the user of the request is allowed to delete concerts
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public static bool CanDeleteConcerts(this APIGatewayProxyRequest request)
+        => request.IsMemberOfOrAdmin("DeleteConcerts");
 
 
     /// <summary>
