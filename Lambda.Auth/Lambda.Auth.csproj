@@ -10,4 +10,8 @@
       <PackageReference Include="Amazon.Lambda.APIGatewayEvents" Version="2.7.1" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\DataStructure\DataStructure.csproj" />
+    </ItemGroup>
+
 </Project>

@@ -32,7 +32,7 @@ export class AddConcertPageComponent {
         this.isSaving$ = false;
       },
       error: err => {
-        this.toastr.error(err.message, "Failed to add concert!");
+        this.toastr.error(err.error?.message, "Failed to add concert!");
         this.isSaving$ = false;
       }
     });
