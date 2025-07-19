@@ -19,6 +19,21 @@ public class Function
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
+        if (!request.IsMemberOf("Admin"))
+        {
+            return new APIGatewayProxyResponse()
+            {
+                // TODO: Error message?
+                StatusCode = (int)HttpStatusCode.Forbidden,
+                Headers = new Dictionary<string, string>
+                {
+                    { "Content-Type", "application/json" },
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, POST, PUT" }
+                }
+            };
+        }
+        
         string? idParameter = null;
         bool hasIdParam = request.PathParameters != null && request.PathParameters.TryGetValue("id", out idParameter);
         if (request.HttpMethod == "GET")
