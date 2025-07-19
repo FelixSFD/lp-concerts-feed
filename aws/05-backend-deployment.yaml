@@ -293,7 +293,38 @@ Resources:
       Description: Admins
       GroupName: Admin
       Precedence: 1
-      #RoleArn: arn:aws:iam::123456789012:role/my-test-cognito-role
+      UserPoolId: !Ref NewCognitoAuthorizerUserPool
+  
+  ManageUsersUserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      Description: People in this group can manage users
+      GroupName: ManageUsers
+      Precedence: 2
+      UserPoolId: !Ref NewCognitoAuthorizerUserPool
+  
+  AddConcertsUserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      Description: People in this group can add concerts
+      GroupName: AddConcerts
+      Precedence: 3
+      UserPoolId: !Ref NewCognitoAuthorizerUserPool
+  
+  UpdateConcertsUserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      Description: People in this group can update concerts
+      GroupName: UpdateConcerts
+      Precedence: 4
+      UserPoolId: !Ref NewCognitoAuthorizerUserPool
+  
+  DeleteConcertsUserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      Description: People in this group can DELETE concerts
+      GroupName: DeleteConcerts
+      Precedence: 3
       UserPoolId: !Ref NewCognitoAuthorizerUserPool
 
   # REST API that is secured by cognito

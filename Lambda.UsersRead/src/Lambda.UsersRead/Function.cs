@@ -20,7 +20,7 @@ public class Function
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        if (!request.IsMemberOf("Admin"))
+        if (!request.CanManageUsers())
         {
             return ForbiddenResponseHelper.GetResponse("OPTIONS, POST, PUT");
         }
