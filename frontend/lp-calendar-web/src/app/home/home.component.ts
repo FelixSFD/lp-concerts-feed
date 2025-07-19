@@ -34,7 +34,17 @@ export class HomeComponent implements OnInit {
 
 
   ngOnInit() {
-    this.concertsService.getNextConcert().subscribe(result => this.nextConcert = result);
+    //this.concertsService.getNextConcert().subscribe(result => this.nextConcert = result);
+    this.concertsService.getNextConcert().subscribe({
+      next: result => {
+        this.nextConcert = result;
+      },
+      error: err => {
+        // If the request times out, an error will have been emitted.
+        console.warn("Next concert was not found. Maybe there is nothing scheduled.");
+        this.nextConcert = null;
+      }
+    });
   }
 
 
