@@ -33,7 +33,7 @@ public class Function
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        if (request.CanAddConcerts())
+        if (!request.CanAddConcerts())
         {
             return ForbiddenResponseHelper.GetResponse("OPTIONS, GET, POST");
         }

@@ -451,6 +451,9 @@ Resources:
       Architectures:
         - arm64
       Tracing: Active
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
       Environment:
         Variables:
           CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
