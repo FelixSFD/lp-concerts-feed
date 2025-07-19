@@ -23,5 +23,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\DataStructure\DataStructure.csproj" />
+      <ProjectReference Include="..\..\..\Lambda.Auth\Lambda.Auth.csproj" />
     </ItemGroup>
 </Project>

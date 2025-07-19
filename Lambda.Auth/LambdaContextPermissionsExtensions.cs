@@ -33,6 +33,15 @@ public static class ApiGatewayProxyRequestPermissionsExtensions
             // check if group is included
             .Any(groupNames.Contains);
     }
+    
+    
+    /// <summary>
+    /// Checks if the user of the request is allowed to add/publish concerts
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public static bool CanAddConcerts(this APIGatewayProxyRequest request)
+        => request.IsMemberOf("AddConcerts", "Admin");
 
 
     /// <summary>
