@@ -32,9 +32,9 @@ public class Function
     
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        if (request.CanDeleteConcerts())
+        if (!request.CanDeleteConcerts())
         {
-            return ForbiddenResponseHelper.GetResponse("OPTIONS, GET, POST");
+            return ForbiddenResponseHelper.GetResponse("OPTIONS, GET, POST, DELETE");
         }
         
         var response = new APIGatewayProxyResponse
