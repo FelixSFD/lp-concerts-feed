@@ -1,10 +1,15 @@
 using Amazon.Lambda.APIGatewayEvents;
-using Amazon.Lambda.Core;
 
-namespace Lambda.UsersRead;
+namespace Lambda.Auth;
 
-public static class LambdaContextPermissionsExtensions
+public static class ApiGatewayProxyRequestPermissionsExtensions
 {
+    /// <summary>
+    /// Checks in the request if the user is member of a given group
+    /// </summary>
+    /// <param name="request">Request that contains the claims</param>
+    /// <param name="groupName">name of the group</param>
+    /// <returns>true, if current user is member of the group</returns>
     public static bool IsMemberOf(this APIGatewayProxyRequest request, string groupName)
     {
         return request.RequestContext.Authorizer.Claims

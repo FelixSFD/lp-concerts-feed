@@ -4,6 +4,7 @@ using Amazon.CognitoIdentityProvider;
 using Amazon.CognitoIdentityProvider.Model;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Lambda.Auth;
 using LPCalendar.DataStructure;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
@@ -21,21 +22,11 @@ public class Function
     {
         if (!request.IsMemberOf("Admin"))
         {
-            return new APIGatewayProxyResponse()
-            {
-                // TODO: Error message?
-                StatusCode = (int)HttpStatusCode.Forbidden,
-                Headers = new Dictionary<string, string>
-                {
-                    { "Content-Type", "application/json" },
-                    { "Access-Control-Allow-Origin", "*" },
-                    { "Access-Control-Allow-Methods", "OPTIONS, POST, PUT" }
-                }
-            };
+            return ForbiddenResponseHelper.GetResponse("OPTIONS, POST, PUT");
         }
         
         string? idParameter = null;
-        bool hasIdParam = request.PathParameters != null && request.PathParameters.TryGetValue("id", out idParameter);
+        var hasIdParam = request.PathParameters != null && request.PathParameters.TryGetValue("id", out idParameter);
         if (request.HttpMethod == "GET")
         {
             if (hasIdParam)
