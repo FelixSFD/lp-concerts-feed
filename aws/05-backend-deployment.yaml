@@ -285,6 +285,16 @@ Resources:
         categories:
           global:
             colorSchemeMode: DYNAMIC
+  
+  # Cognito User Groups
+  AdminUserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      Description: Admins
+      GroupName: Admin
+      Precedence: 1
+      #RoleArn: arn:aws:iam::123456789012:role/my-test-cognito-role
+      UserPoolId: !Ref NewCognitoAuthorizerUserPool
 
   # REST API that is secured by cognito
   ConcertsApi:
