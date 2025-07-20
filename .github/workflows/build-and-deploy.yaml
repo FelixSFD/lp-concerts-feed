@@ -96,7 +96,7 @@ jobs:
 
     - name: Install dependencies
       working-directory: frontend/lp-calendar-web
-      run: npm ci # Use npm ci for faster installs and CI consistency
+      run: npm ci --force # Use npm ci for faster installs and CI consistency
     
     - name: Replace ROOT_DOMAIN
       uses: richardrigutins/replace-in-files@v2
@@ -189,7 +189,7 @@ jobs:
         files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
         search-text: 'BUILD_NUMBER'
         replacement-text: '${{ github.ref_name }}-${{ steps.date.outputs.date }}'
-    
+
     - name: Build Angular project
       working-directory: frontend/lp-calendar-web
       run: npm run build -- --configuration github
