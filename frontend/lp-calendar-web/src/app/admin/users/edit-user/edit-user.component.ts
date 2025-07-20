@@ -44,6 +44,11 @@ export class EditUserComponent implements OnInit {
     this.userService.getUserById(id).subscribe({
       next: user => {
         this.user$ = user;
+
+        // remove "No name" placeholder
+        if (this.user$.username == "No name") {
+          this.user$.username = "";
+        }
       },
       error: err => {
         let errorResponse: ErrorResponse = err.error;
