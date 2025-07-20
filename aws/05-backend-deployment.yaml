@@ -88,6 +88,8 @@ Resources:
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
       BillingMode: PAY_PER_REQUEST
+      StreamSpecification: # stream for DB events
+        StreamViewType: NEW_AND_OLD_IMAGES
       
   AuditLogDynamoDBTable:
     Type: AWS::DynamoDB::Table
@@ -285,6 +287,19 @@ Resources:
                 Resource:
                   - !Sub "${AuditLogDynamoDBTable.Arn}"
                   - !Sub "${AuditLogDynamoDBTable.Arn}*"
+        - PolicyName: LambdaDynamoDBConcertStreamsAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetRecords
+                  - dynamodb:GetShardIterator
+                  - dynamodb:DescribeStream
+                  - dynamodb:ListStreams
+                Resource:
+                  - !Sub "${ConcertsDynamoDBTable.Arn}"
+                  - !Sub "${ConcertsDynamoDBTable.Arn}*"
 
   NewCognitoAuthorizerUserPool:
     Type: AWS::Cognito::UserPool
@@ -560,6 +575,29 @@ Resources:
           Properties:
             Queue: !GetAtt AuditLogQueue.Arn
             BatchSize: 5
+  AuditLogConcertsDynamoDbWriterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: Lambda.AuditLogWriter::Lambda.AuditLogWriter.Function::HandleConcertsDynamoDBEvent
+      Role: !GetAtt AuditLogWriteLambdaExecutionRole.Arn
+      Description: .NET function to save the audit log events from DynamoDBStream
+      CodeUri: ../Lambda.AuditLogWriter/src/Lambda.AuditLogWriter/bin/Release/net8.0/Lambda.AuditLogWriter.zip
+      Architectures:
+        - arm64
+      Tracing: Active
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
+      Environment:
+        Variables:
+          AUDIT_LOG_TABLE_NAME: !Ref AuditLogDynamoDBTable
+      Events:
+        DynamoStream:
+          Type: DynamoDB
+          Properties:
+            Stream: !GetAtt ConcertsDynamoDBTable.StreamArn
+            StartingPosition: TRIM_HORIZON  # or LATEST
+            BatchSize: 100
   
   # Other Lambda functions
   AddConcertFunction:

@@ -20,5 +20,5 @@ public class AuditLogEvent
     /// <summary>
     /// Timestamp of the action
     /// </summary>
-    public DateTimeOffset Timestamp { get; set; }
+    public DateTime Timestamp { get; set; }
 }
