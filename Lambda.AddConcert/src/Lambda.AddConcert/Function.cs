@@ -37,7 +37,9 @@ public class Function
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        if (!request.CanAddConcerts())
+        var hasAddPermission = request.CanAddConcerts();
+        var hasUpdatePermission = request.CanUpdateConcerts();
+        if (!hasAddPermission && !hasUpdatePermission)
         {
             return ForbiddenResponseHelper.GetResponse("OPTIONS, GET, POST");
         }
@@ -59,8 +61,28 @@ public class Function
         // Parse JSON
         context.Logger.LogInformation("Start parsing JSON...");
         var concert = MakeConcertFromJsonBody(request.Body);
-        var action = string.IsNullOrEmpty(concert.Id) ? "Add" : "Update";
         
+        // check if concerts exists to get old value
+        Concert? oldValue = null;
+        if (!string.IsNullOrEmpty(concert.Id))
+        {
+            oldValue = await _dynamoDbContext.LoadAsync<Concert>(concert.Id, _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName());
+        }
+        
+        var action = oldValue == null ? "Add" : "Update";
+        
+        // Check if it's update and user has permission
+        if (oldValue != null && !hasUpdatePermission)
+        {
+            return ForbiddenResponseHelper.GetResponse("OPTIONS, GET, POST");
+        }
+
+        // Check if it's add and user has permission
+        if (oldValue == null && !hasAddPermission)
+        {
+            return ForbiddenResponseHelper.GetResponse("OPTIONS, GET, POST");
+        }
+
         context.Logger.LogInformation("Validate request");
         var isValid = RequestIsValid(concert, out var errors);
         if (!isValid)
@@ -82,7 +104,7 @@ public class Function
         await SaveConcert(concert);
         context.Logger.LogInformation("Concert written to DB");
         
-        await LogChanges(null, concert, request.GetUserId(), action, context.Logger);
+        await LogChanges(oldValue, concert, request.GetUserId(), action, context.Logger);
         
         var response = new APIGatewayProxyResponse()
         {
