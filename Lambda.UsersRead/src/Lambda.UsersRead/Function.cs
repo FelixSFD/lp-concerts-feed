@@ -20,13 +20,19 @@ public class Function
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        if (!request.CanManageUsers())
+        // not everyone can manage all users. Some can only edit themselves
+        var callingUserId = request.GetUserId();
+        var canManageAllUsers = request.CanManageUsers();
+        context.Logger.LogInformation($"Does user {callingUserId} have access to all the users? {canManageAllUsers}");
+        
+        string? idParameter = null;
+        var hasIdParam = request.PathParameters != null && request.PathParameters.TryGetValue("id", out idParameter);
+        var isAboutCurrentUser = hasIdParam && idParameter == callingUserId;
+        if (!isAboutCurrentUser && !canManageAllUsers)
         {
             return ForbiddenResponseHelper.GetResponse("OPTIONS, POST, PUT");
         }
         
-        string? idParameter = null;
-        var hasIdParam = request.PathParameters != null && request.PathParameters.TryGetValue("id", out idParameter);
         if (request.HttpMethod == "GET")
         {
             if (hasIdParam)

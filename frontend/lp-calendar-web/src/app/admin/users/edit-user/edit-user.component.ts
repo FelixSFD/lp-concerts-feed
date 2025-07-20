@@ -6,6 +6,7 @@ import {ToastrService} from 'ngx-toastr';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {UsersService} from '../../../services/users.service';
 import {UserFormComponent} from '../user-form/user-form.component';
+import {ErrorResponse} from '../../../data/error-response';
 
 
 @Component({
@@ -40,8 +41,14 @@ export class EditUserComponent implements OnInit {
 
 
   private loadUser(id: string) {
-    this.userService.getUserById(id).subscribe(user => {
-      this.user$ = user;
+    this.userService.getUserById(id).subscribe({
+      next: user => {
+        this.user$ = user;
+      },
+      error: err => {
+        let errorResponse: ErrorResponse = err.error;
+        this.toastr.error(errorResponse.message, "Could not load user");
+      }
     });
   }
 
@@ -55,8 +62,9 @@ export class EditUserComponent implements OnInit {
         this.toastr.success("User updated successfully");
         this.userIsSaving$ = false;
       },
-      error: error => {
-        this.toastr.error("Error updating user", error);
+      error: err => {
+        let errorResponse: ErrorResponse = err.error;
+        this.toastr.error(errorResponse.message, "Could not save user");
         this.userIsSaving$ = false;
       }
     });

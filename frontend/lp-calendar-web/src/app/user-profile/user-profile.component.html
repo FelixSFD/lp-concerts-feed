@@ -1,4 +1,11 @@
-<p>View your profile information. At the moment, changing your profile is not possible.</p>
+<h1>Your profile</h1>
+
+<button class="btn btn-outline-primary" [routerLink]="['/users', userId$]" [disabled]="userId$.length == 0">
+  <i class="bi bi-pencil"></i> Edit
+</button>
+
+<br />
+<br />
 
 <form>
   <div class="mb-3">

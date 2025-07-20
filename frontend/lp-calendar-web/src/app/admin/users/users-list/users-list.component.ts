@@ -9,6 +9,8 @@ import {ConcertBadgesComponent} from '../../../concert-badges/concert-badges.com
 import {CountdownComponent} from '../../../countdown/countdown.component';
 import {RouterLink} from '@angular/router';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {ToastrService} from 'ngx-toastr';
+import {ErrorResponse} from '../../../data/error-response';
 
 @Component({
   selector: 'app-users-list',
@@ -30,16 +32,25 @@ export class UsersListComponent {
   isLoading$ = false;
 
 
-  constructor(private usersService: UsersService) {
+  constructor(private usersService: UsersService, private toastr: ToastrService) {
     this.reloadUserList(false);
   }
 
 
   private reloadUserList(cache: boolean) {
     this.isLoading$ = true;
-    this.usersService.getUsers(cache).subscribe(result => {
-      this.users$ = result;
-      this.isLoading$ = false;
+    this.usersService.getUsers(cache).subscribe({
+      next: result => {
+        this.users$ = result;
+        this.isLoading$ = false;
+      },
+      error: err => {
+        let errorResponse: ErrorResponse = err.error;
+        console.warn("Failed to load users:", err);
+        this.isLoading$ = false;
+
+        this.toastr.error(errorResponse.message, "Could not load users!");
+      }
     });
   }
 
