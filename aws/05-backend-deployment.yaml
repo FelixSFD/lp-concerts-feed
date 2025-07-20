@@ -34,6 +34,9 @@ Globals:
       ProductName: "lpcalendar"
       Stage: !Ref BaseProductName
       Category: "compute"
+    Environment:
+      Variables:
+        AUDIT_LOG_QUEUE_URL: !Ref AuditLogQueue
   Api:
     TracingEnabled: true
     Cors:
@@ -136,6 +139,17 @@ Resources:
       BillingMode: PAY_PER_REQUEST
       
   
+  # Policy to publish to AuditLogQueue
+  AuditLogQueueConsumerPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - sqs:SendMessage
+            Resource: !GetAtt AuditLogQueue.Arn
 
   # Access Roles
   ConcertsWriteLambdaExecutionRole:
@@ -151,6 +165,7 @@ Resources:
             Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - !Ref AuditLogQueueConsumerPolicy
       Policies:
         - PolicyName: S3ImporterBucketAccess
           PolicyDocument:
@@ -551,6 +566,7 @@ Resources:
     Properties:
       QueueName: !Sub ${AWS::StackName}-audit-log-event-queue.fifo
       FifoQueue: true
+      ContentBasedDeduplication: true
   
   # Audit log lambda
   AuditLogWriterFunction:

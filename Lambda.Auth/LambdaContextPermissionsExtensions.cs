@@ -5,6 +5,18 @@ namespace Lambda.Auth;
 public static class ApiGatewayProxyRequestPermissionsExtensions
 {
     /// <summary>
+    /// Tries to find the UserID in the request context
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns>id of user if found</returns>
+    public static string? GetUserId(this APIGatewayProxyRequest request) =>
+        request.RequestContext.Authorizer.Claims
+            .Where(kv => kv.Key == "sub") // this contains the user ID
+            .Select(kv => kv.Value)
+            .FirstOrDefault();
+
+
+    /// <summary>
     /// Checks in the request if the user is member of a given group
     /// </summary>
     /// <param name="request">Request that contains the claims</param>

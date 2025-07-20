@@ -21,4 +21,14 @@ public class AuditLogEvent
     /// Timestamp of the action
     /// </summary>
     public DateTime Timestamp { get; set; }
+    
+    /// <summary>
+    /// Old value (if applicable)
+    /// </summary>
+    public string? OldValue { get; set; }
+    
+    /// <summary>
+    /// New value (if applicable)
+    /// </summary>
+    public string? NewValue { get; set; }
 }

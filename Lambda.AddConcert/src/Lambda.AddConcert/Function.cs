@@ -7,9 +7,12 @@ using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.Runtime.Internal;
+using Amazon.SQS;
+using Amazon.SQS.Model;
 using Lambda.Auth;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Converters;
+using LPCalendar.DataStructure.Events;
 using LPCalendar.DataStructure.Responses;
 using ErrorResponse = LPCalendar.DataStructure.Responses.ErrorResponse;
 
@@ -23,6 +26,7 @@ public class Function
     private readonly IAmazonDynamoDB _dynamoDbClient = new AmazonDynamoDBClient();
     private readonly DynamoDBContext _dynamoDbContext;
     private readonly DBOperationConfigProvider _dbOperationConfigProvider = new();
+    private readonly IAmazonSQS _sqsClient = new AmazonSQSClient();
 
     public Function()
     {
@@ -55,9 +59,10 @@ public class Function
         // Parse JSON
         context.Logger.LogInformation("Start parsing JSON...");
         var concert = MakeConcertFromJsonBody(request.Body);
+        var action = string.IsNullOrEmpty(concert.Id) ? "Add" : "Update";
         
         context.Logger.LogInformation("Validate request");
-        bool isValid = RequestIsValid(concert, out var errors);
+        var isValid = RequestIsValid(concert, out var errors);
         if (!isValid)
         {
             context.Logger.LogWarning("Request was not valid. Will return 400");
@@ -76,6 +81,8 @@ public class Function
         context.Logger.LogInformation("Start writing to DB...");
         await SaveConcert(concert);
         context.Logger.LogInformation("Concert written to DB");
+        
+        await LogChanges(null, concert, request.GetUserId(), action, context.Logger);
         
         var response = new APIGatewayProxyResponse()
         {
@@ -133,5 +140,41 @@ public class Function
     {
         await FixNonOverridableFields(concert);
         await _dynamoDbContext.SaveAsync(concert, _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName());
+    }
+
+
+    private async Task LogChanges(Concert? oldValue, Concert? newValue, string? userId, string action, ILambdaLogger logger)
+    {
+        logger.LogDebug($"Log action '{action}' made by {userId}...");
+        var auditLogEvent = new AuditLogEvent
+        {
+            UserId = userId ?? "unknown",
+            Action = $"Concert_{action}",
+            AffectedEntity = $"{Concert.ConcertTableName}#{newValue?.Id ?? oldValue?.Id}",
+            Timestamp = DateTime.UtcNow
+        };
+
+        if (oldValue != null)
+        {
+            auditLogEvent.OldValue = JsonSerializer.Serialize(oldValue);
+        }
+
+        if (newValue != null)
+        {
+            auditLogEvent.NewValue = JsonSerializer.Serialize(newValue);
+        }
+        
+        var auditMessage = new SendMessageRequest
+        {
+            MessageGroupId = "default",
+            QueueUrl = Environment.GetEnvironmentVariable("AUDIT_LOG_QUEUE_URL"),
+            MessageBody = JsonSerializer.Serialize(auditLogEvent)
+        };
+        
+        logger.LogDebug($"Sending SQS message: {JsonSerializer.Serialize(auditMessage)}");
+
+        await _sqsClient.SendMessageAsync(auditMessage);
+        
+        logger.LogDebug($"Successfully sent message to URL: {auditMessage.QueueUrl}");
     }
 }

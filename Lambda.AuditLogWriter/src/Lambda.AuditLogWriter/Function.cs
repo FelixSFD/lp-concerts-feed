@@ -28,19 +28,24 @@ public class Function
     }
     
     
-    public void HandleSQSMessages(List<SQSEvent.SQSMessage> messages, ILambdaContext context)
+    public async Task HandleSQSMessages(SQSEvent sqsEvent, ILambdaContext context)
     {
-        foreach (var auditLogEvent in messages
+        var saveAuditLogTasks = new List<Task>();
+        foreach (var auditLogEvent in sqsEvent.Records
                      .Select(msg => JsonSerializer.Deserialize<AuditLogEvent>(msg.Body))
                      .Where(auditLogEvent => auditLogEvent != null)
                      .Cast<AuditLogEvent>())
         {
             context.Logger.LogInformation("Received event: " + JsonSerializer.Serialize(auditLogEvent));
-            ProcessAuditLogEvent(auditLogEvent);
+            var task = ProcessAuditLogEvent(auditLogEvent, context.Logger);
+            saveAuditLogTasks.Add(task);
         }
+        
+        await Task.WhenAll(saveAuditLogTasks);
     }
     
     
+    [Obsolete("Doesn't provide identity info")]
     public async Task HandleConcertsDynamoDBEvent(DynamoDBEvent dynamoEvent, ILambdaContext context)
     {
         var saveAuditLogTasks = new List<Task>();
@@ -55,7 +60,7 @@ public class Function
 
                 var auditLogEntry = new AuditLogEntry
                 {
-                    UserId = "TODO",
+                    UserId = "unknown",
                     Action = "Concerts_Modify",
                     Timestamp = record.Dynamodb.ApproximateCreationDateTime,
                     AffectedEntity = string.Join(",", record.Dynamodb.Keys.Values.Select(v => v.S)),
@@ -71,7 +76,7 @@ public class Function
 
                 var auditLogEntry = new AuditLogEntry
                 {
-                    UserId = "TODO",
+                    UserId = "unknown",
                     Action = "Concerts_Add",
                     Timestamp = record.Dynamodb.ApproximateCreationDateTime,
                     AffectedEntity = string.Join(",", record.Dynamodb.Keys.Values.Select(v => v.S)),
@@ -86,7 +91,7 @@ public class Function
 
                 var auditLogEntry = new AuditLogEntry
                 {
-                    UserId = "TODO",
+                    UserId = "unknown",
                     Action = "Concerts_Delete",
                     Timestamp = record.Dynamodb.ApproximateCreationDateTime,
                     AffectedEntity = string.Join(",", record.Dynamodb.Keys.Values.Select(v => v.S)),
@@ -103,9 +108,21 @@ public class Function
     }
 
 
-    private void ProcessAuditLogEvent(AuditLogEvent auditEvent)
+    private async Task ProcessAuditLogEvent(AuditLogEvent auditEvent, ILambdaLogger logger)
     {
+        var entry = new AuditLogEntry
+        {
+            UserId = auditEvent.UserId ?? "unknown",
+            Action = auditEvent.Action,
+            Timestamp = auditEvent.Timestamp,
+            AffectedEntity = auditEvent.AffectedEntity,
+            OldValue = auditEvent.OldValue,
+            NewValue = auditEvent.NewValue
+        };
         
+        logger.LogDebug($"AuditLogEntry: {JsonSerializer.Serialize(entry)}");
+
+        await SaveAuditLog(entry);
     }
 
 
