@@ -333,7 +333,11 @@ Resources:
           TemporaryPasswordValidityDays: 7
         SignInPolicy:
           AllowedFirstAuthFactors:
+            - WEB_AUTHN # passkeys
             - PASSWORD
+      # the domain here must be built like CognitoAuthorizerUserPoolDomain!
+      WebAuthnRelyingPartyID: !Sub "${AWS::StackName}-${AWS::AccountId}"
+      WebAuthnUserVerification: required
       AutoVerifiedAttributes:
         - email
       UsernameConfiguration:
@@ -373,6 +377,10 @@ Resources:
         - openid
         - profile
         - !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
+      ExplicitAuthFlows:
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_USER_AUTH
+        - ALLOW_USER_SRP_AUTH
       CallbackURLs:
         - !Ref CallbackUrl
         - !Sub ${CallbackUrl}/
