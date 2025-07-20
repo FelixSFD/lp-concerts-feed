@@ -380,6 +380,10 @@ Resources:
         - http://localhost:4200/home
       LogoutURLs:
         - !Ref CallbackUrl
+        - !Sub ${CallbackUrl}/
+        - http://localhost:4200
+        - http://localhost:4200/
+        - http://localhost:4200/home
       ClientName: !Sub ${UserPoolId}-client
       SupportedIdentityProviders:
         - COGNITO
