@@ -140,7 +140,7 @@ Resources:
       
   
   # Policy to publish to AuditLogQueue
-  AuditLogQueueConsumerPolicy:
+  AuditLogQueueProducerPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
       PolicyDocument:
@@ -165,7 +165,7 @@ Resources:
             Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-        - !Ref AuditLogQueueConsumerPolicy
+        - !Ref AuditLogQueueProducerPolicy
       Policies:
         - PolicyName: S3ImporterBucketAccess
           PolicyDocument:
@@ -240,6 +240,7 @@ Resources:
             Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - !Ref AuditLogQueueProducerPolicy
       Policies:
         - PolicyName: LambdaCognitoReadAccess
           PolicyDocument:

@@ -4,8 +4,11 @@ using Amazon.CognitoIdentityProvider;
 using Amazon.CognitoIdentityProvider.Model;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Amazon.SQS;
+using Amazon.SQS.Model;
 using Lambda.Auth;
 using LPCalendar.DataStructure;
+using LPCalendar.DataStructure.Events;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -17,6 +20,7 @@ public class Function
     private readonly IAmazonCognitoIdentityProvider _cognitoService = new AmazonCognitoIdentityProviderClient();
     private readonly string _userPoolId = Environment.GetEnvironmentVariable("USER_POOL_ID") ?? throw new ArgumentNullException(nameof(_userPoolId));
 
+    private readonly IAmazonSQS _sqsClient = new AmazonSQSClient();
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
@@ -64,7 +68,7 @@ public class Function
             // use ID from parameter
             sentUser.Id = idParameter!;
             
-            return await UpdateUser(sentUser, context);
+            return await UpdateUser(sentUser, request.GetUserId(), context);
         }
         else
         {
@@ -177,7 +181,14 @@ public class Function
     }
 
 
-    private async Task<APIGatewayProxyResponse> UpdateUser(User user, ILambdaContext context)
+    /// <summary>
+    /// Updates a user
+    /// </summary>
+    /// <param name="user">new data</param>
+    /// <param name="callingUserId">ID of the user who made the change request</param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    private async Task<APIGatewayProxyResponse> UpdateUser(User user, string? callingUserId, ILambdaContext context)
     {
         var request = new AdminUpdateUserAttributesRequest
         {
@@ -198,7 +209,15 @@ public class Function
             ]
         };
         
+        // read old value
+        var oldUser = await GetUserByIdAsync(user.Id);
+        
+        // save update
         var response = await _cognitoService.AdminUpdateUserAttributesAsync(request);
+
+        // Audit Log
+        await LogChanges(oldUser, user, callingUserId, "Update", context.Logger);
+        
         return new APIGatewayProxyResponse
         {
             StatusCode = response.HttpStatusCode == HttpStatusCode.OK ? (int)HttpStatusCode.NoContent : (int)response.HttpStatusCode,
@@ -209,5 +228,43 @@ public class Function
                 { "Access-Control-Allow-Methods", "OPTIONS, PUT, POST" }
             }
         };
+    }
+    
+    
+    private async Task LogChanges(User? oldValue, User? newValue, string? callingUserId, string action, ILambdaLogger logger)
+    {
+        logger.LogDebug($"Log action '{action}' made by {callingUserId}...");
+        var auditLogEvent = new AuditLogEvent
+        {
+            UserId = callingUserId ?? "unknown",
+            Action = $"User_{action}",
+            AffectedEntity = $"CognitoUser#{newValue?.Id ?? oldValue?.Id}",
+            Timestamp = DateTime.UtcNow
+        };
+
+        if (oldValue != null)
+        {
+            // don't log groups as they are not included in the request anyway
+            oldValue.UserGroups = [];
+            auditLogEvent.OldValue = JsonSerializer.Serialize(oldValue);
+        }
+
+        if (newValue != null)
+        {
+            auditLogEvent.NewValue = JsonSerializer.Serialize(newValue);
+        }
+        
+        var auditMessage = new SendMessageRequest
+        {
+            MessageGroupId = "default",
+            QueueUrl = Environment.GetEnvironmentVariable("AUDIT_LOG_QUEUE_URL"),
+            MessageBody = JsonSerializer.Serialize(auditLogEvent)
+        };
+        
+        logger.LogDebug($"Sending SQS message: {JsonSerializer.Serialize(auditMessage)}");
+
+        await _sqsClient.SendMessageAsync(auditMessage);
+        
+        logger.LogDebug($"Successfully sent message to URL: {auditMessage.QueueUrl}");
     }
 }
