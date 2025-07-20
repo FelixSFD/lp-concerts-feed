@@ -7,6 +7,7 @@ using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.S3;
 using Amazon.S3.Model;
+using Lambda.Auth;
 using Lambda.GetS3UploadUrl.UploadRequester;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Converters;
@@ -39,8 +40,13 @@ public class Function
         _dynamoDbContext.RegisterCustomConverters();
     }
     
-    public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayHttpApiV2ProxyRequest request, ILambdaContext context)
+    public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
+        if (!request.CanUpdateConcerts())
+        {
+            return ForbiddenResponseHelper.GetResponse("OPTIONS, GET, PUT, POST");
+        }
+        
         if (request.Body == null)
         {
             return new APIGatewayProxyResponse

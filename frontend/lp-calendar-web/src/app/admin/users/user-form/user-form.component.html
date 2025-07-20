@@ -1,0 +1,35 @@
+<form #form="ngForm" [formGroup]="userForm" class="form">
+  <div class="card mt-3">
+    <div class="card-body edit-form-card">
+      <!-- Username -->
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input id="username" type="text" formControlName="username" class="form-control"
+               [ngClass]="{ 'is-invalid': userForm.controls.username.invalid }">
+        <div *ngIf="userForm.controls.username.invalid" class="text-danger">
+          <small *ngIf="userForm.controls.username.errors">Username is invalid.</small>
+        </div>
+      </div>
+
+      <!-- E-Mail -->
+      <div class="form-group">
+        <label for="email">E-Mail<span [hidden]="!user$?.emailVerified">&nbsp;<i class="bi bi-patch-check-fill text-success"></i></span></label>
+        <input id="email" type="text" formControlName="email" class="form-control"
+               [ngClass]="{ 'is-invalid': userForm.controls.email.invalid }">
+        <div *ngIf="userForm.controls.email.invalid" class="text-danger">
+          <small *ngIf="userForm.controls.email.errors">E-Mail is invalid.</small>
+        </div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div class="row">
+        <div class="col text-end">
+          <button class="btn btn-success" (click)="onSaveClicked()" [disabled]="isSaving$ || !userForm.valid">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!isSaving$"></span>
+            <span class="sr-only">{{ isSaving$ ? "Saving..." : "Save" }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

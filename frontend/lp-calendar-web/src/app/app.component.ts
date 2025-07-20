@@ -2,8 +2,7 @@ import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
-import {AsyncPipe, JsonPipe, NgIf} from '@angular/common';
-import {logoutRedirectUrl} from './auth/auth.config';
+import {NgIf} from '@angular/common';
 import {environment} from '../environments/environment';
 import {
   NgcCookieConsentService,
@@ -16,7 +15,7 @@ import {MatomoTracker} from 'ngx-matomo-client';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NgbModule, NgIf, AsyncPipe, JsonPipe, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, NgbModule, NgIf, RouterLink, RouterLinkActive],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -95,7 +94,7 @@ export class AppComponent implements OnInit, OnDestroy {
       window.sessionStorage.clear();
     }
 
-    window.location.href = "https://lpcalendar-dev-183771145359.auth.eu-central-1.amazoncognito.com/logout?client_id=1epkncdmjoklpcoa77pl17jatj&logout_uri=" + logoutRedirectUrl;
+    window.location.href = environment.cognitoLogoutUrl;
   }
 
 

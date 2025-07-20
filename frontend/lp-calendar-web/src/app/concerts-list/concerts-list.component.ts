@@ -13,6 +13,8 @@ import {listOfTours} from '../app.config';
 import {ConcertBadgesComponent} from '../concert-badges/concert-badges.component';
 import {ConcertTitleGenerator} from '../data/concert-title-generator';
 import {CountdownComponent} from '../countdown/countdown.component';
+import {ToastrService} from 'ngx-toastr';
+import {ErrorResponse} from '../data/error-response';
 
 @Component({
   selector: 'app-concerts-list',
@@ -59,7 +61,7 @@ export class ConcertsListComponent implements OnInit {
 
   useNewTable$: boolean = true;
 
-  constructor(private concertsService: ConcertsService) {
+  constructor(private concertsService: ConcertsService, private toastr: ToastrService) {
     this.reloadConcertList(true);
 
     this.oidcSecurityService.checkAuth().subscribe(({ isAuthenticated }) => {
@@ -117,15 +119,25 @@ export class ConcertsListComponent implements OnInit {
     }
 
     let id = this.concertIdToDelete!;
-    console.log("Will delete concert: " + id);
+    console.debug("Will delete concert: " + id);
 
-    this.concertsService.deleteConcert(id).subscribe(result => {
-      console.log("DELETE concert request finished");
-      console.log(result);
+    this.concertsService.deleteConcert(id).subscribe({
+      next: result => {
+        console.debug("DELETE concert request finished");
+        console.debug(result);
 
-      this.deleteConcertModal?.dismiss();
-      this.concertDeleting$ = false;
-      this.reloadConcertList(false);
+        this.deleteConcertModal?.dismiss();
+        this.concertDeleting$ = false;
+        this.reloadConcertList(false);
+      },
+      error: err => {
+        let errorResponse: ErrorResponse = err.error;
+        console.warn("Failed to delete concert:", err);
+        this.deleteConcertModal?.dismiss();
+        this.concertDeleting$ = false;
+
+        this.toastr.error(errorResponse.message, "Could not delete concert!");
+      }
     });
   }
 

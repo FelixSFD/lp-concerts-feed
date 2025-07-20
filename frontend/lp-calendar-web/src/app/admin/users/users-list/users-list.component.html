@@ -1,0 +1,32 @@
+<h1>User</h1>
+
+<ng-template *ngIf="isLoading$; then loadingSpinner; else concertsListContent" />
+
+<!-- Loading spinner while API request is running -->
+<ng-template #loadingSpinner>
+  <div class="text-center">
+    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading users...
+  </div>
+</ng-template>
+
+<!-- List of concerts -->
+<ng-template #concertsListContent >
+  <table class="table">
+    <thead>
+    <tr>
+      <th scope="col">Username</th>
+      <th scope="col">E-Mail</th>
+      <th scope="col"></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let user of users$" class="align-middle">
+      <th scope="row">{{ user.username }}</th>
+      <td>{{ user.email }} <i class="bi bi-patch-check-fill text-success" ngbTooltip="verified" *ngIf="user.emailVerified"></i></td>
+      <td class="text-end">
+        <button class="btn btn-primary" [routerLink]="[user.id]"><i class="bi bi-pencil"></i>&nbsp;Edit</button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</ng-template>

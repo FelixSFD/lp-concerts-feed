@@ -34,6 +34,9 @@ Globals:
       ProductName: "lpcalendar"
       Stage: !Ref BaseProductName
       Category: "compute"
+    Environment:
+      Variables:
+        AUDIT_LOG_QUEUE_URL: !Ref AuditLogQueue
   Api:
     TracingEnabled: true
     Cors:
@@ -88,6 +91,65 @@ Resources:
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
       BillingMode: PAY_PER_REQUEST
+      StreamSpecification: # stream for DB events
+        StreamViewType: NEW_AND_OLD_IMAGES
+      
+  AuditLogDynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${AWS::StackName}_AuditLogV1
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "storage"
+      AttributeDefinitions:
+        - AttributeName: UserId
+          AttributeType: S
+        - AttributeName: Timestamp
+          AttributeType: S
+        - AttributeName: Entity
+          AttributeType: S
+      KeySchema:
+        - AttributeName: UserId
+          KeyType: HASH
+        - AttributeName: Timestamp
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: UserHistoryIndex
+          KeySchema:
+            - AttributeName: UserId
+              KeyType: HASH
+            - AttributeName: Timestamp
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: EntityHistoryIndex
+          KeySchema:
+            - AttributeName: Entity
+              KeyType: HASH
+            - AttributeName: Timestamp
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      BillingMode: PAY_PER_REQUEST
+      
+  
+  # Policy to publish to AuditLogQueue
+  AuditLogQueueProducerPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - sqs:SendMessage
+            Resource: !GetAtt AuditLogQueue.Arn
 
   # Access Roles
   ConcertsWriteLambdaExecutionRole:
@@ -103,6 +165,7 @@ Resources:
             Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - !Ref AuditLogQueueProducerPolicy
       Policies:
         - PolicyName: S3ImporterBucketAccess
           PolicyDocument:
@@ -163,13 +226,103 @@ Resources:
                   - dynamodb:Scan
                   - dynamodb:Query
                 Resource: !Sub "${ConcertsDynamoDBTable.Arn}*"
+  
+  UsersReadLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: "Execution role for Lambda that reads from the Cognito User List"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - !Ref AuditLogQueueProducerPolicy
+      Policies:
+        - PolicyName: LambdaCognitoReadAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cognito-idp:ListUsers
+                Resource: !Sub "${NewCognitoAuthorizerUserPool.Arn}*"
+        - PolicyName: LambdaCognitoWriteAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cognito-idp:AdminUpdateUserAttributes
+                  - cognito-idp:AdminGetUser
+                  - cognito-idp:AdminListGroupsForUser
+                Resource: !Sub "${NewCognitoAuthorizerUserPool.Arn}*"
+  
+  AuditLogWriteLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: "Execution role for Lambda that writes to the audit log DB"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: LambdaSQSAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                Resource:
+                  - !Sub "${AuditLogQueue.Arn}"
+                  - !Sub "${AuditLogQueue.Arn}*"
+        - PolicyName: LambdaDynamoDBAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:DescribeTable
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                Resource:
+                  - !Sub "${AuditLogDynamoDBTable.Arn}"
+                  - !Sub "${AuditLogDynamoDBTable.Arn}*"
+        - PolicyName: LambdaDynamoDBConcertStreamsAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetRecords
+                  - dynamodb:GetShardIterator
+                  - dynamodb:DescribeStream
+                  - dynamodb:ListStreams
+                Resource:
+                  - !Sub "${ConcertsDynamoDBTable.Arn}"
+                  - !Sub "${ConcertsDynamoDBTable.Arn}*"
 
-  CognitoAuthorizerUserPool:
+  NewCognitoAuthorizerUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
       UserPoolName: !Sub ${UserPoolId}
       AdminCreateUserConfig:
-        AllowAdminCreateUserOnly: true
+        AllowAdminCreateUserOnly: false
       Policies:
         PasswordPolicy:
           MinimumLength: 8
@@ -178,10 +331,17 @@ Resources:
           RequireSymbols: true
           RequireUppercase: true
           TemporaryPasswordValidityDays: 7
+        SignInPolicy:
+          AllowedFirstAuthFactors:
+            - WEB_AUTHN # passkeys
+            - PASSWORD
+      # the domain here must be built like CognitoAuthorizerUserPoolDomain!
+      WebAuthnRelyingPartyID: !Sub "${AWS::StackName}-${AWS::AccountId}"
+      WebAuthnUserVerification: required
       AutoVerifiedAttributes:
         - email
       UsernameConfiguration:
-        CaseSensitive: true
+        CaseSensitive: false
       UsernameAttributes:
         - email
       Schema:
@@ -191,14 +351,10 @@ Resources:
           #Required: true
         - AttributeDataType: String
           Mutable: true
-          Name: first_name
-          #Required: true
-        - AttributeDataType: String
-          Mutable: true
-          Name: last_name
-          #Required: true
+          Name: display_name
+          #Required: true        
 
-  CognitoAuthorizerUserPoolResourceServer:
+  NewCognitoAuthorizerUserPoolResourceServer:
     Type: AWS::Cognito::UserPoolResourceServer
     Properties:
       Identifier: !Sub ${AWS::StackName}_LpConcertsAuthServer
@@ -206,11 +362,11 @@ Resources:
       Scopes:
         - ScopeDescription: "Allow access to application"
           ScopeName: user_access
-      UserPoolId: !Ref CognitoAuthorizerUserPool
+      UserPoolId: !Ref NewCognitoAuthorizerUserPool
 
   CognitoAuthorizerUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
-    DependsOn: CognitoAuthorizerUserPoolResourceServer
+    DependsOn: NewCognitoAuthorizerUserPoolResourceServer
     Properties:
       AllowedOAuthFlows:
         - implicit
@@ -221,6 +377,10 @@ Resources:
         - openid
         - profile
         - !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
+      ExplicitAuthFlows:
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_USER_AUTH
+        - ALLOW_USER_SRP_AUTH
       CallbackURLs:
         - !Ref CallbackUrl
         - !Sub ${CallbackUrl}/
@@ -229,17 +389,75 @@ Resources:
         - http://localhost:4200/home
       LogoutURLs:
         - !Ref CallbackUrl
+        - !Sub ${CallbackUrl}/
+        - http://localhost:4200
+        - http://localhost:4200/
+        - http://localhost:4200/home
       ClientName: !Sub ${UserPoolId}-client
       SupportedIdentityProviders:
         - COGNITO
-      UserPoolId: !Ref CognitoAuthorizerUserPool
+      UserPoolId: !Ref NewCognitoAuthorizerUserPool
       GenerateSecret: false
 
   CognitoAuthorizerUserPoolDomain:
     Type: AWS::Cognito::UserPoolDomain
     Properties:
       Domain: !Sub ${AWS::StackName}-${AWS::AccountId}
-      UserPoolId: !Ref CognitoAuthorizerUserPool
+      ManagedLoginVersion: 2
+      UserPoolId: !Ref NewCognitoAuthorizerUserPool
+  
+  CognitoManagedLoginBranding:
+    Type: AWS::Cognito::ManagedLoginBranding
+    Properties:
+      ClientId: !Ref CognitoAuthorizerUserPoolClient
+      ReturnMergedResources: true
+      UseCognitoProvidedValues: false
+      UserPoolId: !Ref NewCognitoAuthorizerUserPool
+      Settings:
+        categories:
+          global:
+            colorSchemeMode: DYNAMIC
+  
+  # Cognito User Groups
+  AdminUserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      Description: Admins
+      GroupName: Admin
+      Precedence: 1
+      UserPoolId: !Ref NewCognitoAuthorizerUserPool
+  
+  ManageUsersUserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      Description: People in this group can manage users
+      GroupName: ManageUsers
+      Precedence: 2
+      UserPoolId: !Ref NewCognitoAuthorizerUserPool
+  
+  AddConcertsUserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      Description: People in this group can add concerts
+      GroupName: AddConcerts
+      Precedence: 3
+      UserPoolId: !Ref NewCognitoAuthorizerUserPool
+  
+  UpdateConcertsUserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      Description: People in this group can update concerts
+      GroupName: UpdateConcerts
+      Precedence: 4
+      UserPoolId: !Ref NewCognitoAuthorizerUserPool
+  
+  DeleteConcertsUserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      Description: People in this group can DELETE concerts
+      GroupName: DeleteConcerts
+      Precedence: 3
+      UserPoolId: !Ref NewCognitoAuthorizerUserPool
 
   # REST API that is secured by cognito
   ConcertsApi:
@@ -253,7 +471,7 @@ Resources:
       Auth:
         Authorizers:
           ConcertsCognitoAuthorizer:
-            UserPoolArn: !GetAtt CognitoAuthorizerUserPool.Arn
+            UserPoolArn: !GetAtt NewCognitoAuthorizerUserPool.Arn
             IdentitySource: method.request.header.Authorization
             Scopes:
               - !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
@@ -353,8 +571,64 @@ Resources:
                 - !Ref ConcertImagesBucket
                 - /*
       Bucket: !Ref ConcertImagesBucket
+      
   
-  # Lambda functions
+  # Event queues
+  AuditLogQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-audit-log-event-queue.fifo
+      FifoQueue: true
+      ContentBasedDeduplication: true
+  
+  # Audit log lambda
+  AuditLogWriterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: Lambda.AuditLogWriter::Lambda.AuditLogWriter.Function::HandleSQSMessages
+      Role: !GetAtt AuditLogWriteLambdaExecutionRole.Arn
+      Description: .NET function to save the audit log events
+      CodeUri: ../Lambda.AuditLogWriter/src/Lambda.AuditLogWriter/bin/Release/net8.0/Lambda.AuditLogWriter.zip
+      Architectures:
+        - arm64
+      Tracing: Active
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
+      Environment:
+        Variables:
+          AUDIT_LOG_TABLE_NAME: !Ref AuditLogDynamoDBTable
+      Events:
+        SQSTrigger:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt AuditLogQueue.Arn
+            BatchSize: 5
+#  AuditLogConcertsDynamoDbWriterFunction:
+#    Type: AWS::Serverless::Function
+#    Properties:
+#      Handler: Lambda.AuditLogWriter::Lambda.AuditLogWriter.Function::HandleConcertsDynamoDBEvent
+#      Role: !GetAtt AuditLogWriteLambdaExecutionRole.Arn
+#      Description: .NET function to save the audit log events from DynamoDBStream
+#      CodeUri: ../Lambda.AuditLogWriter/src/Lambda.AuditLogWriter/bin/Release/net8.0/Lambda.AuditLogWriter.zip
+#      Architectures:
+#        - arm64
+#      Tracing: Active
+#      LoggingConfig:
+#        LogFormat: JSON
+#        ApplicationLogLevel: DEBUG
+#      Environment:
+#        Variables:
+#          AUDIT_LOG_TABLE_NAME: !Ref AuditLogDynamoDBTable
+#      Events:
+#        DynamoStream:
+#          Type: DynamoDB
+#          Properties:
+#            Stream: !GetAtt ConcertsDynamoDBTable.StreamArn
+#            StartingPosition: TRIM_HORIZON  # or LATEST
+#            BatchSize: 100
+  
+  # Other Lambda functions
   AddConcertFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -365,6 +639,9 @@ Resources:
       Architectures:
         - arm64
       Tracing: Active
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
       Environment:
         Variables:
           CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
@@ -446,6 +723,9 @@ Resources:
       Architectures:
         - arm64
       Tracing: Active
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
       Environment:
         Variables:
           CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
@@ -523,7 +803,57 @@ Resources:
             RestApiId: !Ref ConcertsApi
             Path: /concerts/{id}/adjacent
             Method: get
-    
+  
+  
+  UsersReadFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: Lambda.UsersRead::Lambda.UsersRead.Function::FunctionHandler
+      Role: !GetAtt UsersReadLambdaExecutionRole.Arn
+      Description: .NET function to read user-data from Cognito
+      CodeUri: ../Lambda.UsersRead/src/Lambda.UsersRead/bin/Release/net8.0/Lambda.UsersRead.zip
+      Architectures:
+        - arm64
+      Tracing: Active
+      MemorySize: 384
+      Environment:
+        Variables:
+          USER_POOL_ID: !Ref NewCognitoAuthorizerUserPool
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
+      Events:
+        GetUsers:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ConcertsApi
+            Path: /users
+            Method: get
+            Auth:
+              Authorizer: ConcertsCognitoAuthorizer
+              AuthorizationScopes:
+                - openid
+        GetUserById:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ConcertsApi
+            Path: /users/{id}
+            Method: get
+            Auth:
+              Authorizer: ConcertsCognitoAuthorizer
+              AuthorizationScopes:
+                - openid
+        UpdateUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ConcertsApi
+            Path: /users/{id}
+            Method: put
+            Auth:
+              Authorizer: ConcertsCognitoAuthorizer
+              AuthorizationScopes:
+                - openid
+  
   
   GetTimeZoneFunction:
     Type: AWS::Serverless::Function
