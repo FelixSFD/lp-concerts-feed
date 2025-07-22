@@ -22,9 +22,6 @@
         <li class="nav-item">
           <a class="nav-link" aria-current="page" [routerLink]="['/about']" [routerLinkActive]="['active']">About</a>
         </li>
-        <li class="nav-item" *ngIf="isAuthenticated$">
-          <a class="nav-link" aria-current="page" [routerLink]="['/profile']" [routerLinkActive]="['active']">{{ currentUser$?.username ?? "Profile" }}</a>
-        </li>
       </ul>
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
         <ng-template [ngIf]="!isAuthenticated$">
@@ -33,11 +30,18 @@
           </li>
         </ng-template>
         <ng-template [ngIf]="isAuthenticated$">
-          <li class="nav-item">
-            <a class="nav-link" aria-current="page" [routerLink]="['/users']" [routerLinkActive]="['active']">Users</a>
-          </li>
-          <li class="nav-item ms-2">
-            <button type="button" class="btn btn-outline-danger" (click)="logout()">Logout</button>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-gear-fill"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><h6 class="dropdown-header">Administration</h6></li>
+              <li><a class="dropdown-item" [routerLink]="['/users']" [routerLinkActive]="['active']">Users</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><h6 class="dropdown-header">{{ currentUser$?.username ?? "You" }}</h6></li>
+              <li><a class="dropdown-item" [routerLink]="['/profile']">Your profile</a></li>
+              <li><a class="dropdown-item text-danger" href="javascript:void(0)" (click)="logout()">Logout</a></li>
+            </ul>
           </li>
         </ng-template>
       </ul>
