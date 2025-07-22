@@ -14,6 +14,10 @@ Parameters:
   HostedZoneId:
     Type: String
     Default: ""
+  AuthDomainTarget:
+    Description: Target Domain. This should be a cloudfront domain which is visible in the Cognito console
+    Type: String
+    Default: ""
 
 
 
@@ -49,3 +53,8 @@ Resources:
             HostedZoneId: Z1U9ULNL0V5AJ3 # This is the official ID for eu-central-1! TODO: different ID for different zones?
             #HostedZoneId: !Ref HostedZoneId
             DNSName: { 'Fn::ImportValue': !Sub '${BaseProductName}-main-api-gateway-domain' }
+        - Name: !Sub 'auth.${RootDomain}.'
+          Type: A
+          AliasTarget:
+            HostedZoneId: Z2FDTNDATAQYW2 # Cognito domain is in CloudFront Zone
+            DNSName: !Ref AuthDomainTarget
