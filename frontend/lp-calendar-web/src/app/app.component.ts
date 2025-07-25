@@ -12,6 +12,8 @@ import {
 } from 'ngx-cookieconsent';
 import {Subscription} from 'rxjs';
 import {MatomoTracker} from 'ngx-matomo-client';
+import {AuthService} from './services/auth.service';
+import {User} from './data/users/user';
 
 @Component({
   selector: 'app-root',
@@ -25,6 +27,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private readonly oidcSecurityService = inject(OidcSecurityService);
   private cookieService = inject(NgcCookieConsentService);
   private readonly tracker = inject(MatomoTracker);
+  private readonly authService = inject(AuthService);
 
   //keep refs to subscriptions to be able to unsubscribe later
   private popupOpenSubscription!: Subscription;
@@ -39,6 +42,8 @@ export class AppComponent implements OnInit, OnDestroy {
   configuration$ = this.oidcSecurityService.getConfiguration();
 
   userData$ = this.oidcSecurityService.userData$;
+  // currently logged-in user. Null if not logged in
+  currentUser$: User | null = null;
 
   isAuthenticated$ = false;
 
@@ -46,20 +51,24 @@ export class AppComponent implements OnInit, OnDestroy {
     this.initCookieConsent();
 
     this.oidcSecurityService.checkAuth().subscribe(({ isAuthenticated }) => {
-      console.log('Authenticated:', isAuthenticated);
+      console.debug('Authenticated:', isAuthenticated);
       this.isAuthenticated$ = isAuthenticated;
 
+      // get current user object
+      this.authService.getCurrentUser().subscribe(usr => {
+        console.debug("User -->", usr);
+        this.currentUser$ = usr;
+      });
+
       this.oidcSecurityService.getAccessToken().subscribe(at => {
-        console.log("ACCESS_TOKEN: " + at);
+        console.debug("ACCESS_TOKEN: " + at);
       });
 
       // Set user ID for Matomo tracker
-      this.oidcSecurityService.userData$.subscribe((usr) => {
-        console.debug("User -->", usr);
-        if (usr?.userData?.hasOwnProperty("username")) {
-          this.tracker.setUserId(usr.userData["username"]);
-        }
-      })
+      this.authService.getCurrentUser().subscribe(usr => {
+        console.debug("Sending username to Matomo: ", usr);
+        this.tracker.setUserId(usr.username ?? usr.id!);
+      });
     });
 
     // Manage dark/light-mode

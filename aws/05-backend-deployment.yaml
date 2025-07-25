@@ -20,6 +20,9 @@ Parameters:
   GatewaySslCertificateArn:
     Type: String
     Description: ARN of the SSL Certificate. The certificate must be hosted in us-eat-1, which is why we have to pass it as parameter
+  CognitoSslCertificateArn:
+    Type: String
+    Description: ARN of the SSL Certificate for Cognito. The certificate must be hosted in us-eat-1, which is why we have to pass it as parameter
   TimeZoneApiKey:
     Type: String
     Description: Key for the TimezoneDB API
@@ -249,7 +252,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - cognito-idp:ListUsers
-                Resource: !Sub "${NewCognitoAuthorizerUserPool.Arn}*"
+                Resource: !Sub "${CognitoAuthorizerUserPoolV3.Arn}*"
         - PolicyName: LambdaCognitoWriteAccess
           PolicyDocument:
             Version: "2012-10-17"
@@ -259,7 +262,7 @@ Resources:
                   - cognito-idp:AdminUpdateUserAttributes
                   - cognito-idp:AdminGetUser
                   - cognito-idp:AdminListGroupsForUser
-                Resource: !Sub "${NewCognitoAuthorizerUserPool.Arn}*"
+                Resource: !Sub "${CognitoAuthorizerUserPoolV3.Arn}*"
   
   AuditLogWriteLambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -317,7 +320,7 @@ Resources:
                   - !Sub "${ConcertsDynamoDBTable.Arn}"
                   - !Sub "${ConcertsDynamoDBTable.Arn}*"
 
-  NewCognitoAuthorizerUserPool:
+  CognitoAuthorizerUserPoolV3:
     Type: AWS::Cognito::UserPool
     Properties:
       UserPoolName: !Sub ${UserPoolId}
@@ -336,7 +339,7 @@ Resources:
             - WEB_AUTHN # passkeys
             - PASSWORD
       # the domain here must be built like CognitoAuthorizerUserPoolDomain!
-      WebAuthnRelyingPartyID: !Sub "${AWS::StackName}-${AWS::AccountId}"
+      WebAuthnRelyingPartyID: !Sub "auth.${RootDomain}"
       WebAuthnUserVerification: required
       AutoVerifiedAttributes:
         - email
@@ -354,7 +357,7 @@ Resources:
           Name: display_name
           #Required: true        
 
-  NewCognitoAuthorizerUserPoolResourceServer:
+  CognitoAuthorizerUserPoolV3ResourceServer:
     Type: AWS::Cognito::UserPoolResourceServer
     Properties:
       Identifier: !Sub ${AWS::StackName}_LpConcertsAuthServer
@@ -362,11 +365,11 @@ Resources:
       Scopes:
         - ScopeDescription: "Allow access to application"
           ScopeName: user_access
-      UserPoolId: !Ref NewCognitoAuthorizerUserPool
+      UserPoolId: !Ref CognitoAuthorizerUserPoolV3
 
   CognitoAuthorizerUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
-    DependsOn: NewCognitoAuthorizerUserPoolResourceServer
+    DependsOn: CognitoAuthorizerUserPoolV3ResourceServer
     Properties:
       AllowedOAuthFlows:
         - implicit
@@ -396,15 +399,17 @@ Resources:
       ClientName: !Sub ${UserPoolId}-client
       SupportedIdentityProviders:
         - COGNITO
-      UserPoolId: !Ref NewCognitoAuthorizerUserPool
+      UserPoolId: !Ref CognitoAuthorizerUserPoolV3
       GenerateSecret: false
 
   CognitoAuthorizerUserPoolDomain:
     Type: AWS::Cognito::UserPoolDomain
     Properties:
-      Domain: !Sub ${AWS::StackName}-${AWS::AccountId}
+      Domain: !Sub "auth.${RootDomain}"
       ManagedLoginVersion: 2
-      UserPoolId: !Ref NewCognitoAuthorizerUserPool
+      UserPoolId: !Ref CognitoAuthorizerUserPoolV3
+      CustomDomainConfig:
+        CertificateArn: !Ref CognitoSslCertificateArn
   
   CognitoManagedLoginBranding:
     Type: AWS::Cognito::ManagedLoginBranding
@@ -412,7 +417,7 @@ Resources:
       ClientId: !Ref CognitoAuthorizerUserPoolClient
       ReturnMergedResources: true
       UseCognitoProvidedValues: false
-      UserPoolId: !Ref NewCognitoAuthorizerUserPool
+      UserPoolId: !Ref CognitoAuthorizerUserPoolV3
       Settings:
         categories:
           global:
@@ -425,7 +430,7 @@ Resources:
       Description: Admins
       GroupName: Admin
       Precedence: 1
-      UserPoolId: !Ref NewCognitoAuthorizerUserPool
+      UserPoolId: !Ref CognitoAuthorizerUserPoolV3
   
   ManageUsersUserGroup:
     Type: AWS::Cognito::UserPoolGroup
@@ -433,7 +438,7 @@ Resources:
       Description: People in this group can manage users
       GroupName: ManageUsers
       Precedence: 2
-      UserPoolId: !Ref NewCognitoAuthorizerUserPool
+      UserPoolId: !Ref CognitoAuthorizerUserPoolV3
   
   AddConcertsUserGroup:
     Type: AWS::Cognito::UserPoolGroup
@@ -441,7 +446,7 @@ Resources:
       Description: People in this group can add concerts
       GroupName: AddConcerts
       Precedence: 3
-      UserPoolId: !Ref NewCognitoAuthorizerUserPool
+      UserPoolId: !Ref CognitoAuthorizerUserPoolV3
   
   UpdateConcertsUserGroup:
     Type: AWS::Cognito::UserPoolGroup
@@ -449,7 +454,7 @@ Resources:
       Description: People in this group can update concerts
       GroupName: UpdateConcerts
       Precedence: 4
-      UserPoolId: !Ref NewCognitoAuthorizerUserPool
+      UserPoolId: !Ref CognitoAuthorizerUserPoolV3
   
   DeleteConcertsUserGroup:
     Type: AWS::Cognito::UserPoolGroup
@@ -457,7 +462,7 @@ Resources:
       Description: People in this group can DELETE concerts
       GroupName: DeleteConcerts
       Precedence: 3
-      UserPoolId: !Ref NewCognitoAuthorizerUserPool
+      UserPoolId: !Ref CognitoAuthorizerUserPoolV3
 
   # REST API that is secured by cognito
   ConcertsApi:
@@ -471,7 +476,7 @@ Resources:
       Auth:
         Authorizers:
           ConcertsCognitoAuthorizer:
-            UserPoolArn: !GetAtt NewCognitoAuthorizerUserPool.Arn
+            UserPoolArn: !GetAtt CognitoAuthorizerUserPoolV3.Arn
             IdentitySource: method.request.header.Authorization
             Scopes:
               - !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
@@ -818,7 +823,7 @@ Resources:
       MemorySize: 384
       Environment:
         Variables:
-          USER_POOL_ID: !Ref NewCognitoAuthorizerUserPool
+          USER_POOL_ID: !Ref CognitoAuthorizerUserPoolV3
       LoggingConfig:
         LogFormat: JSON
         ApplicationLogLevel: DEBUG
@@ -921,3 +926,8 @@ Outputs:
     Value: !GetAtt ConcertImagesBucket.RegionalDomainName
     Export:
       Name: !Sub '${BaseProductName}-concert-image-s3-regional-domain'
+  CognitoUerPoolDomainExport:
+    Description: 'Internal domain name of the Cognito userpool'
+    Value: !Sub "${BaseProductName}-${AWS::AccountId}.auth.${AWS::Region}.amazoncognito.com"
+    Export:
+      Name: !Sub '${BaseProductName}-cognito-domain'

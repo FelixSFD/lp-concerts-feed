@@ -49,6 +49,26 @@ Resources:
           HostedZoneId: !Ref HostedZoneId
         - DomainName: !Sub 'img.${RootDomain}'
           HostedZoneId: !Ref HostedZoneId
+  
+  # TLS Certificate for Cognito
+  CognitoCustomDomainCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Description: TLS certificate for the cognito userpool domain
+    Properties:
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "domain"
+      DomainName: !Sub '${RootDomain}'
+      SubjectAlternativeNames:
+        - !Sub 'auth.${RootDomain}'
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: !Sub 'auth.${RootDomain}'
+          HostedZoneId: !Ref HostedZoneId
 
 
 Outputs:
@@ -57,3 +77,8 @@ Outputs:
     Value: !Ref AppSslCertificate
     Export:
       Name: !Sub '${BaseProductName}-certificate'
+  CognitoCertificate:
+    Description: 'ID of the SSL certificate for the Cognito userpool'
+    Value: !Ref CognitoCustomDomainCertificate
+    Export:
+      Name: !Sub '${BaseProductName}-cognito-certificate'
