@@ -3,5 +3,5 @@ export class ConcertFilter {
   tour: string | undefined | null;
 
   // if true, only future concerts will be returned
-  onlyFuture: boolean = true;
+  onlyFuture: boolean = false;
 }

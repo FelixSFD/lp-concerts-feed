@@ -16,6 +16,7 @@ import {CountdownComponent} from '../countdown/countdown.component';
 import {ToastrService} from 'ngx-toastr';
 import {ErrorResponse} from '../data/error-response';
 import {ConcertFilterComponent} from '../concert-filter/concert-filter.component';
+import {ConcertFilter} from '../data/concert-filter';
 
 @Component({
   selector: 'app-concerts-list',
@@ -63,6 +64,9 @@ export class ConcertsListComponent implements OnInit {
 
   useNewTable$: boolean = true;
 
+  // Filter that is used for loading the list
+  currentFilter: ConcertFilter | null = null;
+
   constructor(private concertsService: ConcertsService, private toastr: ToastrService) {
     this.reloadConcertList(true);
 
@@ -78,7 +82,7 @@ export class ConcertsListComponent implements OnInit {
 
   private reloadConcertList(cache: boolean) {
     this.isLoading$ = true;
-    this.concertsService.getConcerts(cache, !this.showHistoricConcerts$).subscribe(result => {
+    this.concertsService.getFilteredConcerts(this.currentFilter, cache, !this.showHistoricConcerts$).subscribe(result => {
       this.concerts$ = result;
       this.isLoading$ = false;
     })
@@ -146,6 +150,13 @@ export class ConcertsListComponent implements OnInit {
 
   dismissConcertConfirmModal() {
     this.deleteConcertModal?.dismiss();
+  }
+
+
+  onFilterChanged(filter: ConcertFilter) {
+    console.log("filterEvent: ", filter);
+    this.currentFilter = filter;
+    this.reloadConcertList(true);
   }
 
 

@@ -9,6 +9,7 @@ import { Guid } from 'guid-typescript';
 import {GetS3UploadUrlRequest} from '../data/get-s3-upload-url-request';
 import {GetS3UploadUrlResponse} from '../data/get-s3-upload-url-response';
 import {AdjacentConcertIdsResponse} from '../data/adjacent-concert-ids-response';
+import {ConcertFilter} from '../data/concert-filter';
 
 @Injectable({
   providedIn: 'root'
@@ -18,11 +19,25 @@ export class ConcertsService {
   constructor(private httpClient: HttpClient) { }
 
 
+  /**
+   * @deprecated Use getFilteredConcerts instead
+   */
   getConcerts(cached: boolean, onlyFuture: boolean) : Observable<Concert[]> {
+    return this.getFilteredConcerts(null, cached, onlyFuture);
+  }
+
+
+  getFilteredConcerts(filter: ConcertFilter | null, cached: boolean, onlyFuture: boolean) : Observable<Concert[]> {
     let url = environment.apiCachedBaseUrl + "/Prod/concerts";
 
     if (onlyFuture) {
       url += "?only_future=true"
+    }
+
+    let queryString = filter != null ? this.getQueryStringForFilter(filter) : "";
+    if (queryString.length > 0) {
+      url += onlyFuture ? "&" : "?";
+      url += queryString;
     }
 
     if (!cached) {
@@ -112,5 +127,15 @@ export class ConcertsService {
   getAdjacentConcerts(currentId: string) : Observable<AdjacentConcertIdsResponse> {
     let url = environment.apiCachedBaseUrl + "/Prod/concerts/" + currentId + "/adjacent";
     return this.httpClient.get<AdjacentConcertIdsResponse>(url);
+  }
+
+
+  private getQueryStringForFilter(filter: ConcertFilter) {
+    let queryString = "";
+    if (filter.tour != undefined) {
+      queryString += `tour=${encodeURIComponent(filter.tour ?? "null")}`;
+    }
+
+    return queryString;
   }
 }
