@@ -82,7 +82,7 @@ export class ConcertsListComponent implements OnInit {
 
   private reloadConcertList(cache: boolean) {
     this.isLoading$ = true;
-    this.concertsService.getFilteredConcerts(this.currentFilter, cache, !this.showHistoricConcerts$).subscribe(result => {
+    this.concertsService.getFilteredConcerts(this.currentFilter, cache).subscribe(result => {
       this.concerts$ = result;
       this.isLoading$ = false;
     })
@@ -156,7 +156,7 @@ export class ConcertsListComponent implements OnInit {
   onFilterChanged(filter: ConcertFilter) {
     console.log("filterEvent: ", filter);
     this.currentFilter = filter;
-    this.reloadConcertList(true);
+    this.reloadConcertList(false); // TODO: use cache
   }
 
 

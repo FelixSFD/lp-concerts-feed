@@ -19,7 +19,8 @@ export class ConcertFilterComponent {
   private formBuilder = inject(FormBuilder);
 
   filterForm = this.formBuilder.group({
-    tourName: new FormControl('', [])
+    tourName: new FormControl('', []),
+    showPastConcerts: new FormControl(false, []),
   });
 
   @Output('applyClicked')
@@ -35,6 +36,7 @@ export class ConcertFilterComponent {
   private readFilterFromForm() {
     let concertFilter = new ConcertFilter();
     concertFilter.tour = this.filterForm.value.tourName?.valueOf();
+    concertFilter.onlyFuture = !this.filterForm.value.showPastConcerts?.valueOf()
 
     console.debug("Filter: ", concertFilter);
 

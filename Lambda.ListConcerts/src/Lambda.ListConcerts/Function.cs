@@ -61,6 +61,7 @@ public class Function
             if (onlyFutureParamFound && onlyFutureStr != null)
             {
                 // list all future concerts
+                context.Logger.LogDebug("Content of only_future param: {value}", onlyFutureStr);
                 return await ReturnAllConcerts(context, bool.Parse(onlyFutureStr));
             }
         }
@@ -92,7 +93,7 @@ public class Function
         var searchStartDate = onlyFuture ? DateTimeOffset.Now : DateTimeOffset.MinValue;
         var searchStartDateStr = searchStartDate.ToString("O");
             
-        context.Logger.LogInformation("Query filtered concerts after: {time}", searchStartDateStr);
+        context.Logger.LogInformation("SCAN filtered concerts after: {time}", searchStartDateStr);
 
         var config = _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName();
         config.BackwardQuery = false;

@@ -1,4 +1,9 @@
 <form #form="ngForm" [formGroup]="filterForm" class="form">
+  <div class="form-check form-switch">
+    <input class="form-check-input" type="checkbox" formControlName="showPastConcerts" id="showHistoricSwitch">
+    <label class="form-check-label" for="showHistoricSwitch">Show past concerts</label>
+  </div>
+
   <!-- Tour -->
   <div class="mb-3 row">
     <label for="tourName" class="col-sm-2 col-form-label">Tour</label>

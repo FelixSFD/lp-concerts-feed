@@ -23,21 +23,16 @@ export class ConcertsService {
    * @deprecated Use getFilteredConcerts instead
    */
   getConcerts(cached: boolean, onlyFuture: boolean) : Observable<Concert[]> {
-    return this.getFilteredConcerts(null, cached, onlyFuture);
+    return this.getFilteredConcerts(null, cached);
   }
 
 
-  getFilteredConcerts(filter: ConcertFilter | null, cached: boolean, onlyFuture: boolean) : Observable<Concert[]> {
+  getFilteredConcerts(filter: ConcertFilter | null, cached: boolean) : Observable<Concert[]> {
     let url = environment.apiCachedBaseUrl + "/Prod/concerts";
-
-    if (onlyFuture) {
-      url += "?only_future=true"
-    }
 
     let queryString = filter != null ? this.getQueryStringForFilter(filter) : "";
     if (queryString.length > 0) {
-      url += onlyFuture ? "&" : "?";
-      url += queryString;
+      url += "?" + queryString;
     }
 
     if (!cached) {
@@ -131,11 +126,15 @@ export class ConcertsService {
 
 
   private getQueryStringForFilter(filter: ConcertFilter) {
-    let queryString = "";
+    let queryStringParts: string[] = [];
     if (filter.tour != undefined) {
-      queryString += `tour=${encodeURIComponent(filter.tour ?? "null")}`;
+      queryStringParts.push(`tour=${encodeURIComponent(filter.tour ?? "null")}`);
     }
 
-    return queryString;
+    if (!filter.onlyFuture) {
+      queryStringParts.push(`only_future=false`);
+    }
+
+    return queryStringParts.join('&');
   }
 }
