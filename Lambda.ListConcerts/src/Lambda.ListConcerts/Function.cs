@@ -49,10 +49,17 @@ public class Function
             }
 
             var onlyFutureParamFound = request.QueryStringParameters.TryGetValue("only_future", out var onlyFutureStr);
+            var onlyFuture = bool.Parse(onlyFutureStr ?? "true");
             if (onlyFutureParamFound && onlyFutureStr != null)
             {
                 // list all future concerts
                 return await ReturnAllConcerts(context, bool.Parse(onlyFutureStr));
+            }
+            
+            var filterTourParameterFound = request.QueryStringParameters.TryGetValue("tour", out var filterTourStr);
+            if (filterTourParameterFound)
+            {
+                return await ReturnFilteredConcertList(context, filterTourStr, onlyFuture);
             }
         }
         
@@ -75,6 +82,56 @@ public class Function
         
         // List all concerts
         return await ReturnAllConcerts(context);
+    }
+
+
+    private async Task<APIGatewayProxyResponse> ReturnFilteredConcertList(ILambdaContext context, string? filterTour = null, bool onlyFuture = true)
+    {
+        var searchStartDate = onlyFuture ? DateTimeOffset.Now : DateTimeOffset.MinValue;
+        var searchStartDateStr = searchStartDate.ToString("O");
+            
+        context.Logger.LogInformation("Query filtered concerts after: {time}", searchStartDateStr);
+
+        var config = _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName();
+        config.BackwardQuery = false;
+        config.IndexName = "PostedStartTimeGlobalIndex";
+        
+        // build Scan Conditions
+        List<ScanCondition> conditions =
+        [
+            new("Status", ScanOperator.Equal, "PUBLISHED")
+        ];
+
+        if (filterTour != null)
+        {
+            context.Logger.LogDebug("Add filter for TourName = '{tourName}'",  filterTour);
+            if (string.IsNullOrEmpty(filterTour))
+            {
+                context.Logger.LogDebug("Filter for shows without tour");
+                conditions.Add(new ScanCondition("TourName", ScanOperator.IsNull));
+            }
+            else
+            {
+                conditions.Add(new ScanCondition("TourName", ScanOperator.Equal, filterTour));
+            }
+        }
+        
+        var query = _dynamoDbContext.ScanAsync<Concert>(conditions, config);
+
+        var concerts = await query.GetRemainingAsync() ?? [];
+        
+        var concertJson = JsonSerializer.Serialize(concerts);
+        return new APIGatewayProxyResponse
+        {
+            StatusCode = 200,
+            Body = concertJson,
+            Headers = new Dictionary<string, string>
+            {
+                { "Content-Type", "application/json" },
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, GET, POST" }
+            }
+        };
     }
 
 
