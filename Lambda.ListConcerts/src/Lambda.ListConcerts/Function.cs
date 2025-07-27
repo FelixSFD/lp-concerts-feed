@@ -101,7 +101,8 @@ public class Function
         // build Scan Conditions
         List<ScanCondition> conditions =
         [
-            new("Status", ScanOperator.Equal, "PUBLISHED")
+            new("Status", ScanOperator.Equal, "PUBLISHED"),
+            new("PostedStartTime", ScanOperator.GreaterThanOrEqual, searchStartDate),
         ];
 
         if (filterTour != null)
