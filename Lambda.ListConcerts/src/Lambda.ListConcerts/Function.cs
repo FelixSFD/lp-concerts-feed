@@ -50,16 +50,18 @@ public class Function
 
             var onlyFutureParamFound = request.QueryStringParameters.TryGetValue("only_future", out var onlyFutureStr);
             var onlyFuture = bool.Parse(onlyFutureStr ?? "true");
-            if (onlyFutureParamFound && onlyFutureStr != null)
-            {
-                // list all future concerts
-                return await ReturnAllConcerts(context, bool.Parse(onlyFutureStr));
-            }
             
             var filterTourParameterFound = request.QueryStringParameters.TryGetValue("tour", out var filterTourStr);
             if (filterTourParameterFound)
             {
                 return await ReturnFilteredConcertList(context, filterTourStr, onlyFuture);
+            }
+
+            // no filters were used. Return all concerts
+            if (onlyFutureParamFound && onlyFutureStr != null)
+            {
+                // list all future concerts
+                return await ReturnAllConcerts(context, bool.Parse(onlyFutureStr));
             }
         }
         
