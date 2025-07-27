@@ -41,6 +41,8 @@
   <label class="form-check-label" for="useNewTableSwitch">Use new list design</label>
 </div>
 
+<app-concert-filter></app-concert-filter>
+
 <!-- List of all concerts -->
 <div class="container" *ngIf="useNewTable$">
   <ng-template *ngIf="isLoading$; then loadingSpinner; else concertsListContent" />

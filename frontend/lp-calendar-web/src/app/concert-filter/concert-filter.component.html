@@ -1,0 +1,17 @@
+<form #form="ngForm" [formGroup]="filterForm" class="form">
+  <!-- Tour -->
+  <div class="mb-3 row">
+    <label for="tourName" class="col-sm-2 col-form-label">Tour</label>
+    <div class="col-sm-5">
+      <select id="tourName" formControlName="tourName" class="form-select" aria-label="Select tour">
+        <option disabled>--- Select timezone of venue ---</option>
+        <option value="">Not part of a tour</option>
+        <option *ngFor="let tour of listOfTours" [value]="tour">{{tour}}</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <button class="btn btn-primary mb-3" (click)="onApplyClicked()"><i class="bi bi-filter"></i> Apply filter</button>
+  </div>
+</form>

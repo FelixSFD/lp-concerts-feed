@@ -15,6 +15,7 @@ import {ConcertTitleGenerator} from '../data/concert-title-generator';
 import {CountdownComponent} from '../countdown/countdown.component';
 import {ToastrService} from 'ngx-toastr';
 import {ErrorResponse} from '../data/error-response';
+import {ConcertFilterComponent} from '../concert-filter/concert-filter.component';
 
 @Component({
   selector: 'app-concerts-list',
@@ -26,7 +27,8 @@ import {ErrorResponse} from '../data/error-response';
     LuxonModule,
     RouterLink,
     ConcertBadgesComponent,
-    CountdownComponent
+    CountdownComponent,
+    ConcertFilterComponent
   ],
   templateUrl: './concerts-list.component.html',
   styleUrl: './concerts-list.component.css'
