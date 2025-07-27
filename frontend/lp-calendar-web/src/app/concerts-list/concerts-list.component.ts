@@ -64,8 +64,14 @@ export class ConcertsListComponent implements OnInit {
 
   useNewTable$: boolean = true;
 
+  // default filter that is used when loading the list
+  defaultFilter: ConcertFilter = {
+    onlyFuture: true,
+    tour: "FROM ZERO WORLD TOUR 2025"
+  };
+
   // Filter that is used for loading the list
-  currentFilter: ConcertFilter | null = null;
+  currentFilter: ConcertFilter = this.defaultFilter;
 
   constructor(private concertsService: ConcertsService, private toastr: ToastrService) {
     this.reloadConcertList(true);

@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, Output} from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {NgForOf} from '@angular/common';
 import {listOfTours} from '../app.config';
@@ -15,7 +15,7 @@ import {DateTime} from 'luxon';
   templateUrl: './concert-filter.component.html',
   styleUrl: './concert-filter.component.css'
 })
-export class ConcertFilterComponent {
+export class ConcertFilterComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
 
   filterForm = this.formBuilder.group({
@@ -27,9 +27,31 @@ export class ConcertFilterComponent {
   applyClicked = new EventEmitter<ConcertFilter>();
 
 
+  @Input('defaultFilter')
+  defaultFilter: ConcertFilter | undefined;
+
+
+  ngOnInit() {
+    this.setDefaultFilters();
+  }
+
+
   onApplyClicked() {
     let filter = this.readFilterFromForm();
     this.applyClicked.emit(filter);
+  }
+
+
+  onClearClicked() {
+    this.setDefaultFilters();
+    this.applyClicked.emit(this.defaultFilter);
+  }
+
+
+  private setDefaultFilters() {
+    console.debug("setDefaultFilters: ", this.defaultFilter);
+    this.filterForm.controls.showPastConcerts.setValue(!this.defaultFilter?.onlyFuture);
+    this.filterForm.controls.tourName.setValue(this.defaultFilter?.tour ?? null);
   }
 
 
