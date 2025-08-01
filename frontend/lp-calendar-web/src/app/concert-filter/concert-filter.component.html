@@ -5,7 +5,7 @@
   </div>
 
   <!-- Tour -->
-  <div>
+  <div class="mb-3">
     <label for="tourName" class="col-sm-12 col-md-12 col-lg-4 col-form-label">Tour</label>
     <div class="col-sm-12 col-md-12 col-lg-8 col-xl-6">
       <select id="tourName" formControlName="tourName" class="form-select" aria-label="Select tour">
@@ -13,6 +13,16 @@
         <option value="">Not part of a tour</option>
         <option *ngFor="let tour of listOfTours" [value]="tour">{{tour}}</option>
       </select>
+    </div>
+  </div>
+
+  <!-- Date Range -->
+  <div class="mb-3">
+    <label class="col-sm-12 col-md-12 col-lg-4 col-form-label">Concert date</label>
+    <div class="input-group col-sm-12 col-md-12 col-lg-8 col-xl-6">
+      <input type="date" class="form-control" placeholder="from date" aria-label="from date">
+      <span class="input-group-text">to</span>
+      <input type="date" class="form-control" placeholder="to date" aria-label="to date">
     </div>
   </div>
 
