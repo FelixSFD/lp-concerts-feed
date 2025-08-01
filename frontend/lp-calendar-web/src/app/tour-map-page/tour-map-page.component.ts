@@ -12,18 +12,21 @@ import VectorSource from 'ol/source/Vector';
 import VectorLayer from 'ol/layer/Vector';
 import {ConcertsService} from '../services/concerts.service';
 import {Attribution} from 'ol/control';
-import {defaultShowType, mapAttribution} from '../app.config';
+import {defaultShowType, listOfTours, mapAttribution} from '../app.config';
 import {defaults as defaultControls} from 'ol/control/defaults';
 import {ConcertFilterComponent} from '../concert-filter/concert-filter.component';
 import {ConcertFilter} from '../data/concert-filter';
 import {ToastrService} from 'ngx-toastr';
-import {NgIf} from '@angular/common';
+import {NgForOf, NgIf} from '@angular/common';
+import {ReactiveFormsModule} from '@angular/forms';
 
 @Component({
   selector: 'app-tour-map-page',
   imports: [
     ConcertFilterComponent,
-    NgIf
+    NgIf,
+    NgForOf,
+    ReactiveFormsModule
   ],
   templateUrl: './tour-map-page.component.html',
   styleUrl: './tour-map-page.component.css'
@@ -61,8 +64,13 @@ export class TourMapPageComponent implements OnInit, AfterViewInit {
   }
 
 
-  onFilterChange(filter: ConcertFilter) {
-    this.currentFilter = filter;
+  onTourSelected(event: any) {
+    let tour = event.target.value;
+    if (tour == "ALL") {
+      this.currentFilter.tour = null;
+    } else {
+      this.currentFilter.tour = tour;
+    }
     this.reloadPins();
   }
 
@@ -163,4 +171,6 @@ export class TourMapPageComponent implements OnInit, AfterViewInit {
     this.vectorSource?.removeFeatures(this.markerFeatures);
     this.markerFeatures = [];
   }
+
+  protected readonly listOfTours = listOfTours;
 }
