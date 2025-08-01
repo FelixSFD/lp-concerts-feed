@@ -1,13 +1,13 @@
-<form #form="ngForm" [formGroup]="filterForm" class="form">
-  <div class="form-check form-switch">
+<form #form="ngForm" [formGroup]="filterForm" class="form row m-3">
+  <div class="form-check form-switch ms-2">
     <input class="form-check-input" type="checkbox" formControlName="showPastConcerts" id="showHistoricSwitch">
     <label class="form-check-label" for="showHistoricSwitch">Show past concerts</label>
   </div>
 
   <!-- Tour -->
-  <div class="mb-3 row">
-    <label for="tourName" class="col-sm-2 col-form-label">Tour</label>
-    <div class="col-sm-5">
+  <div>
+    <label for="tourName" class="col-sm-12 col-md-12 col-lg-4 col-form-label">Tour</label>
+    <div class="col-sm-12 col-md-12 col-lg-8 col-xl-6">
       <select id="tourName" formControlName="tourName" class="form-select" aria-label="Select tour">
         <option disabled>--- Select timezone of venue ---</option>
         <option value="">Not part of a tour</option>
@@ -16,7 +16,7 @@
     </div>
   </div>
 
-  <div>
+  <div class="mt-3">
     <button class="btn btn-primary" (click)="onApplyClicked()"><i class="bi bi-filter"></i> Apply filter</button>
     <button class="btn btn-outline-secondary ms-2" (click)="onClearClicked()"><i class="bi bi-x"></i> Clear</button>
   </div>
