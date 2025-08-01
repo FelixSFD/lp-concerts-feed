@@ -14,42 +14,84 @@ import {ConcertsService} from '../services/concerts.service';
 import {Attribution} from 'ol/control';
 import {defaultShowType, mapAttribution} from '../app.config';
 import {defaults as defaultControls} from 'ol/control/defaults';
+import {ConcertFilterComponent} from '../concert-filter/concert-filter.component';
+import {ConcertFilter} from '../data/concert-filter';
+import {ToastrService} from 'ngx-toastr';
+import {NgIf} from '@angular/common';
 
 @Component({
   selector: 'app-tour-map-page',
-  imports: [],
+  imports: [
+    ConcertFilterComponent,
+    NgIf
+  ],
   templateUrl: './tour-map-page.component.html',
   styleUrl: './tour-map-page.component.css'
 })
 export class TourMapPageComponent implements OnInit, AfterViewInit {
   private venueMap: Map | undefined;
-  private markers: Feature[] = [];
+  private markerFeatures: Feature<Point>[] = [];
+  private vectorSource: VectorSource<Feature<Point>> | undefined;
+  private vectorLayer: VectorLayer | undefined;
+
+  // default filter that is used when loading the list
+  defaultFilter: ConcertFilter = {
+    onlyFuture: false,
+    tour: "FROM ZERO WORLD TOUR 2025"
+  };
+
+  // Filter that is used for loading the list
+  currentFilter: ConcertFilter = this.defaultFilter;
+
+  // true, if the pins on the map are being loaded from the server
+  isLoadingPins$ = true;
 
 
-  constructor(private concertsService: ConcertsService) {
+  constructor(private concertsService: ConcertsService, private toastrService: ToastrService) {
   }
 
 
   ngOnInit() {
-    this.concertsService.getConcerts(true, false)
-      .subscribe(results => {
-        results.forEach(r => {
-          if (r.venueLongitude != undefined && r.venueLongitude != 0 && r.venueLatitude != undefined && r.venueLatitude != 0) {
-            let markerColor = "black";
-            if (r.showType != defaultShowType && r.showType != undefined) {
-              markerColor = "red";
-            }
-            this.addMarker(r.venueLongitude, r.venueLatitude, markerColor);
-            console.log("Long: " + r.venueLongitude + "; Lat: " + r.venueLatitude);
-            console.log(r);
-          }
-        });
-      });
+    this.reloadPins();
   }
 
 
   ngAfterViewInit() {
     this.initVenueMap();
+  }
+
+
+  onFilterChange(filter: ConcertFilter) {
+    this.currentFilter = filter;
+    this.reloadPins();
+  }
+
+
+  private reloadPins() {
+    this.isLoadingPins$ = true;
+
+    this.concertsService.getFilteredConcerts(this.currentFilter, true)
+      .subscribe({
+        next: results => {
+          this.isLoadingPins$ = false;
+
+          this.clearAllPins();
+
+          results.forEach(r => {
+            if (r.venueLongitude != undefined && r.venueLongitude != 0 && r.venueLatitude != undefined && r.venueLatitude != 0) {
+              let markerColor = "black";
+              if (r.showType != defaultShowType && r.showType != undefined) {
+                markerColor = "red";
+              }
+              this.addMarker(r.venueLongitude, r.venueLatitude, markerColor);
+            }
+          });
+        },
+        error: err => {
+          this.isLoadingPins$ = false;
+          this.toastrService.error(err.message, "Failed to load pins");
+        }
+      });
   }
 
 
@@ -77,14 +119,30 @@ export class TourMapPageComponent implements OnInit, AfterViewInit {
 
   private addMarker(lon: number, lat: number, color: string) {
     const newCoords = fromLonLat([lon, lat]); // Convert to EPSG:3857
-    console.log("Set marker at: " + newCoords.toString())
+    console.debug("Set marker at: " + newCoords.toString())
+
+    // make sure the vectorSource and layer exist
+    if (this.vectorLayer == undefined) {
+      this.vectorSource = new VectorSource({
+        features: []
+      });
+    }
+
+    // Create vector layer if it doesn't exist yet
+    if (this.vectorLayer == undefined) {
+      this.vectorLayer = new VectorLayer({
+        source: this.vectorSource
+      });
+
+      this.venueMap?.addLayer(this.vectorLayer);
+    }
 
     // Create a marker feature
-    const marker = new Feature({
+    const markerFeature = new Feature({
       geometry: new Point(newCoords), // Initial position
     });
 
-    marker.setStyle(new Style({
+    markerFeature.setStyle(new Style({
       image: new Icon({
         anchor: [0.5, 1],
         src: './map/map-pin-50-' + color + '.png',
@@ -93,14 +151,16 @@ export class TourMapPageComponent implements OnInit, AfterViewInit {
     }));
 
     // Add marker to vector layer
-    const vectorSource = new VectorSource({
-      features: [marker]
-    });
+    this.vectorSource?.addFeature(markerFeature);
+    this.markerFeatures.push(markerFeature);
+  }
 
-    const vectorLayer = new VectorLayer({
-      source: vectorSource
-    });
 
-    this.venueMap?.addLayer(vectorLayer);
+  /**
+   * Removes all pins from the map
+   */
+  private clearAllPins() {
+    this.vectorSource?.removeFeatures(this.markerFeatures);
+    this.markerFeatures = [];
   }
 }

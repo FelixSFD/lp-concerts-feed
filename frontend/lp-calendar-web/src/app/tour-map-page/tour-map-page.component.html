@@ -1,2 +1,9 @@
 <h1>Map of all concerts</h1>
+<app-concert-filter [defaultFilter]="defaultFilter" (applyClicked)="onFilterChange($event)"></app-concert-filter>
+<div style="height: 20px">
+  <div *ngIf="isLoadingPins$">
+    <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>&nbsp;Loading concert data...
+  </div>
+</div>
+
 <div id="map" class="map"></div>
