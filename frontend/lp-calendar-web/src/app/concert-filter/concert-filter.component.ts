@@ -31,6 +31,13 @@ export class ConcertFilterComponent implements OnInit {
   @Input('defaultFilter')
   defaultFilter: ConcertFilter | undefined;
 
+  // properties to control which fields were added
+  showFilterTour$ = true;
+  showFilterPastConcerts$ = false;
+  showFilterDateRange$ = false;
+  availableFilters: string[] = ["tour", "pastConcerts", "dateRange"];
+  numberOfActivatedFilters$ = 0;
+
 
   ngOnInit() {
     this.setDefaultFilters();
@@ -46,6 +53,26 @@ export class ConcertFilterComponent implements OnInit {
   onClearClicked() {
     this.setDefaultFilters();
     this.applyClicked.emit(this.defaultFilter);
+  }
+
+
+  showOrHideFilter(filterName: string, show: boolean) {
+    switch (filterName) {
+      case 'tour':
+        this.showFilterTour$ = show;
+        this.numberOfActivatedFilters$ += show ? 1 : -1;
+        break;
+      case 'pastConcerts':
+        this.showFilterPastConcerts$ = show;
+        this.numberOfActivatedFilters$ += show ? 1 : -1;
+        break;
+      case 'dateRange':
+        this.showFilterDateRange$ = show;
+        this.numberOfActivatedFilters$ += show ? 1 : -1;
+        break;
+      default:
+          console.error("Could not find filter: ", filterName);
+    }
   }
 
 
