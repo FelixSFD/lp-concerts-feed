@@ -45,14 +45,19 @@ export class ConcertFilterComponent implements OnInit {
 
 
   onApplyClicked() {
-    let filter = this.readFilterFromForm();
-    this.applyClicked.emit(filter);
+    this.onFiltersChanged();
   }
 
 
   onClearClicked() {
     this.setDefaultFilters();
     this.applyClicked.emit(this.defaultFilter);
+  }
+
+
+  onFiltersChanged() {
+    let filter = this.readFilterFromForm();
+    this.applyClicked.emit(filter);
   }
 
 

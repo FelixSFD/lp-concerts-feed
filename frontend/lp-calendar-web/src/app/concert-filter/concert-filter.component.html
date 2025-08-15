@@ -35,7 +35,7 @@
     <div class="col-10">
       <label for="tourName" class="col-sm-12 col-md-12 col-lg-4 col-form-label">Tour</label>
       <div class="col-sm-12 col-md-12 col-lg-8 col-xl-6">
-        <select id="tourName" formControlName="tourName" class="form-select" aria-label="Select tour">
+        <select id="tourName" formControlName="tourName" (change)="onFiltersChanged()" class="form-select" aria-label="Select tour">
           <option disabled>--- Select timezone of venue ---</option>
           <option value="">Not part of a tour</option>
           <option *ngFor="let tour of listOfTours" [value]="tour">{{tour}}</option>
@@ -52,9 +52,9 @@
     <div class="col-10">
       <label class="col-sm-12 col-md-12 col-lg-4 col-form-label">Date</label>
       <div class="input-group col-sm-12 col-md-12 col-lg-8 col-xl-6">
-        <input type="date" class="form-control" formControlName="dateFrom" placeholder="from date" aria-label="from date">
+        <input type="date" class="form-control" formControlName="dateFrom" (change)="onFiltersChanged()" placeholder="from date" aria-label="from date">
         <span class="input-group-text">to</span>
-        <input type="date" class="form-control" formControlName="dateTo" placeholder="to date" aria-label="to date">
+        <input type="date" class="form-control" formControlName="dateTo" (change)="onFiltersChanged()" placeholder="to date" aria-label="to date">
       </div>
     </div>
   </div>
