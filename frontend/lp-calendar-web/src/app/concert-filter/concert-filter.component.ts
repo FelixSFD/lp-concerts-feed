@@ -93,7 +93,9 @@ export class ConcertFilterComponent implements OnInit {
 
     let filterDateTo = this.visibleFilters$.includes("dateRange") ? this.filterForm.value.dateTo : null;
     if (filterDateTo != null) {
-      concertFilter.dateTo = DateTime.fromISO(filterDateTo);
+      let dateTo = DateTime.fromISO(filterDateTo);
+      // make sure to search for the whole day
+      concertFilter.dateTo = dateTo.set({hour: 23, minute: 59, second: 59});
     }
 
     // if dates are set, include past shows as well

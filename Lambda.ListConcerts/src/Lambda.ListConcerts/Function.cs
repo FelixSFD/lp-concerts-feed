@@ -103,8 +103,12 @@ public class Function
             searchStartDate = DateTimeOffset.MinValue;
         }
         
+        // if no end is specified, use max value to search for all shows
+        var searchEndDate = dateRange?.to ?? DateTimeOffset.MaxValue;
+        
         var searchStartDateStr = searchStartDate.ToString("O");
-        context.Logger.LogInformation("SCAN filtered concerts after: {time}", searchStartDateStr);
+        var searchEndDateStr = searchEndDate.ToString("O");
+        context.Logger.LogInformation("SCAN filtered concerts between {start} and {end}", searchStartDateStr, searchEndDateStr);
 
         var config = _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName();
         config.BackwardQuery = false;
@@ -114,7 +118,7 @@ public class Function
         List<ScanCondition> conditions =
         [
             new("Status", ScanOperator.Equal, "PUBLISHED"),
-            new("PostedStartTime", ScanOperator.GreaterThanOrEqual, searchStartDate),
+            new("PostedStartTime", ScanOperator.Between, searchStartDate,  searchEndDate),
         ];
 
         if (filterTour != null)
