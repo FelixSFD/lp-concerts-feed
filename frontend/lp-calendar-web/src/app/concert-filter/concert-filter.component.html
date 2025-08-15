@@ -19,7 +19,7 @@
     <div class="col-auto align-content-center">
       <button class="btn btn-link link-info" (click)="showOrHideFilter('tour', false)" ngbTooltip="remove filter"><i class="bi bi-x-lg"></i></button>
     </div>
-    <div class="col-10">
+    <div class="col-8">
       <label for="tourName" class="col-sm-12 col-md-12 col-lg-4 col-form-label">Tour</label>
       <div class="col-sm-12 col-md-12 col-lg-8 col-xl-6">
         <select id="tourName" formControlName="tourName" (change)="onFiltersChanged()" class="form-select" aria-label="Select tour">
@@ -36,7 +36,7 @@
     <div class="col-auto align-content-center">
       <button class="btn btn-link link-info" (click)="showOrHideFilter('dateRange', false)" ngbTooltip="remove filter"><i class="bi bi-x-lg"></i></button>
     </div>
-    <div class="col-10">
+    <div class="col-8">
       <label class="col-sm-12 col-md-12 col-lg-4 col-form-label">Date <i class="bi bi-question-circle text-info" ngbTooltip="in your timezone"></i></label>
       <div class="input-group col-sm-12 col-md-12 col-lg-8 col-xl-6">
         <input type="date" class="form-control" formControlName="dateFrom" (change)="onFiltersChanged()" placeholder="from date" aria-label="from date">
