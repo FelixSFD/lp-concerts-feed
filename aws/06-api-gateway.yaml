@@ -40,12 +40,7 @@ Resources:
         Fn::Transform:
           Name: AWS::Include
           Parameters:
-            Location:
-              Fn::Join:
-                - ''
-                - - 's3://'
-                  - 'lpshows-dev-openapi'
-                  - '/openapi.yaml'
+            Location: !Sub "s3://${BaseProductName}-openapi/openapi.yaml"
       Auth:
         Authorizers:
           ConcertsCognitoAuthorizer:
