@@ -119,7 +119,7 @@
     </div>
   </ng-template>
 
-  <div class="alert alert-info" *ngIf="concerts$.length == 0">
+  <div class="alert alert-info" *ngIf="!isLoading$ && concerts$.length == 0">
     No concerts found for the specified filters.
   </div>
 </div>
