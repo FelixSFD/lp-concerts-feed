@@ -1,7 +1,7 @@
 <form #form="ngForm" [formGroup]="filterForm" class="form row m-3">
   <div class="col-12 mb-3">
     <div class="btn-group me-4">
-      <button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+      <button type="button" [disabled]="availableFilters.length == visibleFilters$.length" class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
         Add filter...
       </button>
       <ul class="dropdown-menu">
@@ -14,23 +14,10 @@
     <button class="btn btn-sm btn-outline-secondary ms-2" (click)="onClearClicked()" *ngIf="visibleFilters$.length > 1"><i class="bi bi-x"></i> Clear</button>
   </div>
 
-  <!-- Show past shows -->
-  <div class="mb-3 row" *ngIf="visibleFilters$.includes('pastConcerts')">
-    <div class="col-auto align-content-center">
-      <button class="btn btn-link link-info" (click)="showOrHideFilter('pastConcerts', false)"><i class="bi bi-x-lg"></i></button>
-    </div>
-    <div class="col-10">
-      <div class="form-check form-switch ms-2">
-        <input class="form-check-input" type="checkbox" formControlName="showPastConcerts" id="showHistoricSwitch">
-        <label class="form-check-label" for="showHistoricSwitch">Show past concerts</label>
-      </div>
-    </div>
-  </div>
-
   <!-- Tour -->
   <div class="mb-3 row" *ngIf="visibleFilters$.includes('tour')">
     <div class="col-auto align-content-center">
-      <button class="btn btn-link link-info" (click)="showOrHideFilter('tour', false)"><i class="bi bi-x-lg"></i></button>
+      <button class="btn btn-link link-info" (click)="showOrHideFilter('tour', false)" ngbTooltip="remove filter"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="col-10">
       <label for="tourName" class="col-sm-12 col-md-12 col-lg-4 col-form-label">Tour</label>
@@ -47,7 +34,7 @@
   <!-- Date Range -->
   <div class="mb-3 row" *ngIf="visibleFilters$.includes('dateRange')">
     <div class="col-auto align-content-center">
-      <button class="btn btn-link link-info" (click)="showOrHideFilter('dateRange', false)"><i class="bi bi-x-lg"></i></button>
+      <button class="btn btn-link link-info" (click)="showOrHideFilter('dateRange', false)" ngbTooltip="remove filter"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="col-10">
       <label class="col-sm-12 col-md-12 col-lg-4 col-form-label">Date</label>

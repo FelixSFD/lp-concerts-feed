@@ -5,13 +5,15 @@ import {listOfTours} from '../app.config';
 import {Concert} from '../data/concert';
 import {ConcertFilter} from '../data/concert-filter';
 import {DateTime} from 'luxon';
+import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-concert-filter',
   imports: [
     ReactiveFormsModule,
     NgForOf,
-    NgIf
+    NgIf,
+    NgbTooltip
   ],
   templateUrl: './concert-filter.component.html',
   styleUrl: './concert-filter.component.css'
@@ -34,9 +36,8 @@ export class ConcertFilterComponent implements OnInit {
   defaultFilter: ConcertFilter | undefined;
 
   // properties to control which fields were added
-  availableFilters: string[] = ["tour", "pastConcerts", "dateRange"];
+  availableFilters: string[] = ["tour", "dateRange"];
   visibleFilters$: string[] = ["tour"];
-  numberOfActivatedFilters$ = 0;
 
 
   ngOnInit() {
