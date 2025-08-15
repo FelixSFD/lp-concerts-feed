@@ -58,12 +58,8 @@ public class Function
             }
 
             // no filters were used. Return all concerts
-            if (onlyFutureParamFound && onlyFutureStr != null)
-            {
-                // list all future concerts
-                context.Logger.LogDebug("Content of only_future param: {value}", onlyFutureStr);
-                return await ReturnAllConcerts(context, bool.Parse(onlyFutureStr));
-            }
+            context.Logger.LogDebug("Content of only_future param: {value} -> parsed to {parsed}", onlyFutureStr, onlyFuture);
+            return await ReturnAllConcerts(context, onlyFuture);
         }
         
         if (request.Path == "/concerts/next")
@@ -84,6 +80,7 @@ public class Function
         }
         
         // List all concerts
+        context.Logger.LogDebug("Fallback to return all concerts");
         return await ReturnAllConcerts(context);
     }
 
@@ -198,7 +195,7 @@ public class Function
     }
     
     
-    private async Task<APIGatewayProxyResponse> ReturnAllConcerts(ILambdaContext context, bool onlyFuture = false)
+    private async Task<APIGatewayProxyResponse> ReturnAllConcerts(ILambdaContext context, bool onlyFuture = true)
     {
         var searchStartDate = onlyFuture ? DateTimeOffset.Now : DateTimeOffset.MinValue;
         var searchStartDateStr = searchStartDate.ToString("O");
