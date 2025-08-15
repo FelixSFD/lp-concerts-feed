@@ -14,7 +14,6 @@ import {ConcertsService} from '../services/concerts.service';
 import {Attribution} from 'ol/control';
 import {defaultShowType, listOfTours, mapAttribution} from '../app.config';
 import {defaults as defaultControls} from 'ol/control/defaults';
-import {ConcertFilterComponent} from '../concert-filter/concert-filter.component';
 import {ConcertFilter} from '../data/concert-filter';
 import {ToastrService} from 'ngx-toastr';
 import {NgForOf, NgIf} from '@angular/common';
@@ -23,7 +22,6 @@ import {ReactiveFormsModule} from '@angular/forms';
 @Component({
   selector: 'app-tour-map-page',
   imports: [
-    ConcertFilterComponent,
     NgIf,
     NgForOf,
     ReactiveFormsModule
@@ -40,7 +38,9 @@ export class TourMapPageComponent implements OnInit, AfterViewInit {
   // default filter that is used when loading the list
   defaultFilter: ConcertFilter = {
     onlyFuture: false,
-    tour: "FROM ZERO WORLD TOUR 2025"
+    tour: "FROM ZERO WORLD TOUR 2025",
+    dateFrom: null,
+    dateTo: null
   };
 
   // Filter that is used for loading the list

@@ -135,6 +135,14 @@ export class ConcertsService {
       queryStringParts.push(`only_future=false`);
     }
 
+    // add the parameters for the date range
+    if (filter.dateFrom != null && filter.dateFrom?.isValid) {
+      queryStringParts.push(`date_from=${filter.dateFrom.toISO()}`);
+    }
+    if (filter.dateTo != null && filter.dateTo?.isValid) {
+      queryStringParts.push(`date_to=${filter.dateTo.toISO()}`);
+    }
+
     return queryStringParts.join('&');
   }
 }

@@ -50,11 +50,11 @@
       <button class="btn btn-link link-info" (click)="showOrHideFilter('dateRange', false)"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="col-10">
-      <label class="col-sm-12 col-md-12 col-lg-4 col-form-label">Concert date</label>
+      <label class="col-sm-12 col-md-12 col-lg-4 col-form-label">Date</label>
       <div class="input-group col-sm-12 col-md-12 col-lg-8 col-xl-6">
-        <input type="date" class="form-control" placeholder="from date" aria-label="from date">
+        <input type="date" class="form-control" formControlName="dateFrom" placeholder="from date" aria-label="from date">
         <span class="input-group-text">to</span>
-        <input type="date" class="form-control" placeholder="to date" aria-label="to date">
+        <input type="date" class="form-control" formControlName="dateTo" placeholder="to date" aria-label="to date">
       </div>
     </div>
   </div>

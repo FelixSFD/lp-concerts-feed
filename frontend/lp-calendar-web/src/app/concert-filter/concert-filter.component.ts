@@ -22,6 +22,8 @@ export class ConcertFilterComponent implements OnInit {
   filterForm = this.formBuilder.group({
     tourName: new FormControl('', []),
     showPastConcerts: new FormControl(false, []),
+    dateFrom: new FormControl(''),
+    dateTo: new FormControl('')
   });
 
   @Output('applyClicked')
@@ -61,6 +63,7 @@ export class ConcertFilterComponent implements OnInit {
     } else {
       // remove filter from list of visible
       this.visibleFilters$ = this.visibleFilters$.filter(e => e !== filterName);
+      this.onApplyClicked();
     }
   }
 
@@ -75,8 +78,20 @@ export class ConcertFilterComponent implements OnInit {
 
   private readFilterFromForm() {
     let concertFilter = new ConcertFilter();
-    concertFilter.tour = this.filterForm.value.tourName?.valueOf();
-    concertFilter.onlyFuture = !this.filterForm.value.showPastConcerts?.valueOf()
+    concertFilter.tour = this.visibleFilters$.includes("tour") ? this.filterForm.value.tourName?.valueOf() : null;
+
+    let filterDateFrom = this.visibleFilters$.includes("dateRange") ? this.filterForm.value.dateFrom : null;
+    if (filterDateFrom != null) {
+      concertFilter.dateFrom = DateTime.fromISO(filterDateFrom);
+    }
+
+    let filterDateTo = this.visibleFilters$.includes("dateRange") ? this.filterForm.value.dateTo : null;
+    if (filterDateTo != null) {
+      concertFilter.dateTo = DateTime.fromISO(filterDateTo);
+    }
+
+    // if dates are set, include past shows as well
+    concertFilter.onlyFuture = filterDateFrom != null && filterDateTo != null;
 
     console.debug("Filter: ", concertFilter);
 

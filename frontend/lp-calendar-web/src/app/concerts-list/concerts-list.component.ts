@@ -67,7 +67,9 @@ export class ConcertsListComponent implements OnInit {
   // default filter that is used when loading the list
   defaultFilter: ConcertFilter = {
     onlyFuture: true,
-    tour: "FROM ZERO WORLD TOUR 2025"
+    tour: "FROM ZERO WORLD TOUR 2025",
+    dateFrom: null,
+    dateTo: null
   };
 
   // Filter that is used for loading the list
@@ -88,9 +90,14 @@ export class ConcertsListComponent implements OnInit {
 
   private reloadConcertList(cache: boolean) {
     this.isLoading$ = true;
-    this.concertsService.getFilteredConcerts(this.currentFilter, cache).subscribe(result => {
-      this.concerts$ = result;
-      this.isLoading$ = false;
+    this.concertsService.getFilteredConcerts(this.currentFilter, cache).subscribe({
+      next: result => {
+        this.concerts$ = result;
+        this.isLoading$ = false;
+      },
+      error: err => {
+        this.toastr.error(err.message, "Failed to load concerts");
+      }
     })
   }
 
