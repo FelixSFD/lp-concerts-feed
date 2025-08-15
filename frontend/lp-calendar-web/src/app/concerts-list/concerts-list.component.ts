@@ -15,6 +15,8 @@ import {ConcertTitleGenerator} from '../data/concert-title-generator';
 import {CountdownComponent} from '../countdown/countdown.component';
 import {ToastrService} from 'ngx-toastr';
 import {ErrorResponse} from '../data/error-response';
+import {ConcertFilterComponent} from '../concert-filter/concert-filter.component';
+import {ConcertFilter} from '../data/concert-filter';
 
 @Component({
   selector: 'app-concerts-list',
@@ -26,7 +28,8 @@ import {ErrorResponse} from '../data/error-response';
     LuxonModule,
     RouterLink,
     ConcertBadgesComponent,
-    CountdownComponent
+    CountdownComponent,
+    ConcertFilterComponent
   ],
   templateUrl: './concerts-list.component.html',
   styleUrl: './concerts-list.component.css'
@@ -61,6 +64,17 @@ export class ConcertsListComponent implements OnInit {
 
   useNewTable$: boolean = true;
 
+  // default filter that is used when loading the list
+  defaultFilter: ConcertFilter = {
+    onlyFuture: true,
+    tour: "FROM ZERO WORLD TOUR 2025",
+    dateFrom: DateTime.now(),
+    dateTo: null
+  };
+
+  // Filter that is used for loading the list
+  currentFilter: ConcertFilter = this.defaultFilter;
+
   constructor(private concertsService: ConcertsService, private toastr: ToastrService) {
     this.reloadConcertList(true);
 
@@ -76,9 +90,14 @@ export class ConcertsListComponent implements OnInit {
 
   private reloadConcertList(cache: boolean) {
     this.isLoading$ = true;
-    this.concertsService.getConcerts(cache, !this.showHistoricConcerts$).subscribe(result => {
-      this.concerts$ = result;
-      this.isLoading$ = false;
+    this.concertsService.getFilteredConcerts(this.currentFilter, cache).subscribe({
+      next: result => {
+        this.concerts$ = result;
+        this.isLoading$ = false;
+      },
+      error: err => {
+        this.toastr.error(err.message, "Failed to load concerts");
+      }
     })
   }
 
@@ -144,6 +163,13 @@ export class ConcertsListComponent implements OnInit {
 
   dismissConcertConfirmModal() {
     this.deleteConcertModal?.dismiss();
+  }
+
+
+  onFilterChanged(filter: ConcertFilter) {
+    console.log("filterEvent: ", filter);
+    this.currentFilter = filter;
+    this.reloadConcertList(false); // TODO: use cache
   }
 
 
