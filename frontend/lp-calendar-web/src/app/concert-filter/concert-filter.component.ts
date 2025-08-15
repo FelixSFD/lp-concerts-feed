@@ -97,7 +97,7 @@ export class ConcertFilterComponent implements OnInit {
     }
 
     // if dates are set, include past shows as well
-    concertFilter.onlyFuture = filterDateFrom != null && filterDateTo != null;
+    concertFilter.onlyFuture = !(concertFilter.dateFrom?.isValid || concertFilter.dateTo?.isValid);
 
     console.debug("Filter: ", concertFilter);
 

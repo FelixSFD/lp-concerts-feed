@@ -68,7 +68,7 @@ export class ConcertsListComponent implements OnInit {
   defaultFilter: ConcertFilter = {
     onlyFuture: true,
     tour: "FROM ZERO WORLD TOUR 2025",
-    dateFrom: null,
+    dateFrom: DateTime.now(),
     dateTo: null
   };
 

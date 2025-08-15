@@ -55,8 +55,7 @@ public class Function
             var dateFromFound = request.QueryStringParameters.TryGetValue("date_from", out var dateFromStr);
             var dateToFound = request.QueryStringParameters.TryGetValue("date_to", out var dateToStr);
 
-            var onlyFutureParamFound = request.QueryStringParameters.TryGetValue("only_future", out var onlyFutureStr);
-            var onlyFuture = bool.Parse(onlyFutureStr ?? "true");
+            var onlyFuture = !dateFromFound && !dateToFound;
             
             var filterTourParameterFound = request.QueryStringParameters.TryGetValue("tour", out var filterTourStr);
             if (filterTourParameterFound || dateFromFound  || dateToFound)
@@ -67,7 +66,7 @@ public class Function
             }
 
             // no filters were used. Return all concerts
-            context.Logger.LogDebug("Content of only_future param: {value} -> parsed to {parsed}", onlyFutureStr, onlyFuture);
+            context.Logger.LogDebug("Content of only_future variable: {value}", onlyFuture);
             return await ReturnAllConcerts(context, onlyFuture);
         }
         
@@ -89,7 +88,7 @@ public class Function
         }
         
         // List all concerts
-        context.Logger.LogDebug("Fallback to return all concerts");
+        context.Logger.LogDebug("Fallback to return all FUTURE concerts");
         return await ReturnAllConcerts(context);
     }
 
