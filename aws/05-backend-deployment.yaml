@@ -943,6 +943,11 @@ Outputs:
     Value: !Sub "${BaseProductName}-${AWS::AccountId}.auth.${AWS::Region}.amazoncognito.com"
     Export:
       Name: !Sub '${BaseProductName}-cognito-domain'
+  CognitoAuthorizerUserPoolExport:
+    Description: 'ARN of the authorizer userpool'
+    Value: !GetAtt CognitoAuthorizerUserPoolV3.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-cognito-authorizer-user-pool'
   LambdaRefGetTimeZoneFunction:
     Value: !GetAtt GetTimeZoneFunction.Arn
     Export:

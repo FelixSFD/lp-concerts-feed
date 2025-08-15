@@ -46,13 +46,15 @@ Resources:
                 - - 's3://'
                   - 'lpshows-dev-openapi'
                   - '/openapi.yaml'
-      #Auth:
-      #  Authorizers:
-      #    ConcertsCognitoAuthorizer:
-      #      #UserPoolArn: !GetAtt CognitoAuthorizerUserPoolV3.Arn
-      #      IdentitySource: method.request.header.Authorization
-      #      Scopes:
-      #        - !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
+      Auth:
+        Authorizers:
+          ConcertsCognitoAuthorizer:
+            UserPoolArn:
+              Fn::ImportValue:
+                Fn::Sub: "${BaseProductName}-cognito-authorizer-user-pool"
+            IdentitySource: method.request.header.Authorization
+            Scopes:
+              - !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
 
   # Lambda permissions
   GetTimeZoneLambdaPermission:
