@@ -1,0 +1,83 @@
+openapi: 3.0.4
+info:
+  title: LP Concerts API
+  description: API for the LP Concerts application
+  version: 1.0.0
+
+components:
+  schemas:
+    UserGroup:
+      type: object
+      description: Group of users
+      properties:
+        name:
+          type: string
+          description: Name of the group
+        description:
+          type: string
+          description: Description of the group
+    User:
+      type: object
+      description: User information
+      properties:
+        id:
+          type: string
+          description: ID of the group
+        username:
+          type: string
+          description: Name of the user
+        email:
+          type: string
+          description: e-mail address of the user
+        emailVerified:
+          type: boolean
+          description: true, if the address was verified
+        userGroups:
+          type: array
+          description: Groups the user is a member of
+          items: 
+            $ref: "#/components/schemas/UserGroup"
+    
+    TimeZoneResponse:
+      type: object
+      properties:
+        timeZoneId:
+          type: string
+
+paths:
+  /timeZone/byCoordinates:
+    get:
+      summary: Returns the timezone for the given coordinates
+      responses: 
+        "200":
+          description: A JSON object with the data of the timezone
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimeZoneResponse"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-get-time-zone-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+#  /users:
+#    get:
+#      summary: Returns a list of users.
+#      responses:
+#        "200": # status code
+#          description: A JSON array of users
+#          content:
+#            application/json:
+#              schema:
+#                type: array
+#                items:
+#                  $ref: "#/components/schemas/User"

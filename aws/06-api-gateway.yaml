@@ -1,0 +1,79 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Application to manage the backend resources for the LP Calendar project
+
+
+
+Parameters:
+  BaseProductName:
+    Description: Name of the product. Is used as prefix in the exports
+    Type: String
+  RootDomain:
+    Type: String
+  #OpenApiBucketArn:
+  #  Description: ARN of a S3 bucket that stores the OpenAPI definition
+  #  Type: String
+
+
+Globals:
+  Api:
+    TracingEnabled: true
+    Cors:
+      AllowMethods: "'POST, GET, PUT, DELETE'"
+      AllowOrigin: "'*'"
+      AllowHeaders: "'*'"
+      #MaxAge: "'600'"
+
+
+Resources:  
+  # REST API that is secured by cognito
+  ConcertsApiV2:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: v2
+      Cors:
+        AllowMethods: "'POST, GET, PUT, DELETE'"
+        AllowOrigin: "'*'"
+        AllowHeaders: "'*'"
+      DefinitionBody:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location:
+              Fn::Join:
+                - ''
+                - - 's3://'
+                  - 'lpshows-dev-openapi'
+                  - '/openapi.yaml'
+      #Auth:
+      #  Authorizers:
+      #    ConcertsCognitoAuthorizer:
+      #      #UserPoolArn: !GetAtt CognitoAuthorizerUserPoolV3.Arn
+      #      IdentitySource: method.request.header.Authorization
+      #      Scopes:
+      #        - !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
+
+  # Lambda permissions
+  GetTimeZoneLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue
+        Fn::Sub: "${BaseProductName}-lambda-get-time-zone-function"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/timeZone/byCoordinates
+
+
+Outputs:
+  ConcertsApiGatewayExport:
+    Description: 'Id of the API Gateway V2'
+    Value: !Ref ConcertsApiV2
+    Export:
+      Name: !Sub '${BaseProductName}-main-api-gateway-v2'
+  ConcertsApiGatewayDomainExport:
+    Description: Domain of API Gateway
+    Value: !Sub "${ConcertsApiV2}.execute-api.${AWS::Region}.amazonaws.com"
+    #Value: !Sub api-gateway.${RootDomain}.
+    Export:
+      Name: !Sub '${BaseProductName}-main-api-gateway-v2-domain'

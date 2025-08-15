@@ -141,6 +141,18 @@ Resources:
         PointInTimeRecoveryEnabled: true
       BillingMode: PAY_PER_REQUEST
       
+  # S3 bucket to store OpenAPI definition
+  OpenApiBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: !Sub ${BaseProductName}-openapi
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "storage"
   
   # Policy to publish to AuditLogQueue
   AuditLogQueueProducerPolicy:
@@ -931,3 +943,11 @@ Outputs:
     Value: !Sub "${BaseProductName}-${AWS::AccountId}.auth.${AWS::Region}.amazoncognito.com"
     Export:
       Name: !Sub '${BaseProductName}-cognito-domain'
+  LambdaRefGetTimeZoneFunction:
+    Value: !GetAtt GetTimeZoneFunction.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-lambda-get-time-zone-function'
+  OpenApiBucketArn:
+    Value: !GetAtt OpenApiBucket.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-openapi-bucket-arn'
