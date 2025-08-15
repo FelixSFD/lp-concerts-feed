@@ -6,7 +6,7 @@
       </button>
       <ul class="dropdown-menu">
         <li *ngFor="let filterName of availableFilters">
-          <a *ngIf="!visibleFilters$.includes(filterName)" class="dropdown-item" href="javascript:void(0)" (click)="showOrHideFilter(filterName, true)">{{ filterName }} (TODO)</a>
+          <a *ngIf="!visibleFilters$.includes(filterName)" class="dropdown-item" href="javascript:void(0)" (click)="showOrHideFilter(filterName, true)">{{ filterLabels$.get(filterName) }}</a>
         </li>
       </ul>
     </div>

@@ -38,6 +38,12 @@ export class ConcertFilterComponent implements OnInit {
   // properties to control which fields were added
   availableFilters: string[] = ["tour", "dateRange"];
   visibleFilters$: string[] = ["tour"];
+  filterLabels$: Map<string, string> = new Map<string, string>();
+
+  constructor() {
+    this.filterLabels$.set('tour', 'Tour name');
+    this.filterLabels$.set('dateRange', 'Concert date');
+  }
 
 
   ngOnInit() {
