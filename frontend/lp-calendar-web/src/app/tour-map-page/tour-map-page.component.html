@@ -4,7 +4,7 @@
 <div class="mb-3 row">
   <div class="col-sm-5">
     <select id="tourName" class="form-select" aria-label="Select tour" (change)="onTourSelected($event)" [disabled]="isLoadingPins$">
-      <option disabled>--- Select timezone of venue ---</option>
+      <option disabled>--- Select tour ---</option>
       <option value="ALL">All shows</option>
       <option value="">Not part of a tour</option>
       <option *ngFor="let tour of listOfTours" [value]="tour" [selected]="currentFilter.tour == tour">{{tour}}</option>

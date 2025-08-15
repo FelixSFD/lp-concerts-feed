@@ -23,7 +23,7 @@
       <label for="tourName" class="col-sm-12 col-md-12 col-lg-4 col-form-label">Tour</label>
       <div class="col-sm-12 col-md-12 col-lg-8 col-xl-6">
         <select id="tourName" formControlName="tourName" (change)="onFiltersChanged()" class="form-select" aria-label="Select tour">
-          <option disabled>--- Select timezone of venue ---</option>
+          <option disabled>--- Select tour ---</option>
           <option value="">Not part of a tour</option>
           <option *ngFor="let tour of listOfTours" [value]="tour">{{tour}}</option>
         </select>
