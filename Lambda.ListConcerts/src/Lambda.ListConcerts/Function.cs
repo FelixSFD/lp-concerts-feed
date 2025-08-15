@@ -245,7 +245,7 @@ public class Function
 
 
     /// <summary>
-    /// Returns a date range as tuple
+    /// Returns a date range as tuple in UTC. The inputs are allowed to be any timezone as long as the offset is specified
     /// </summary>
     /// <param name="fromStr">ISO String</param>
     /// <param name="toStr">ISO String</param>
@@ -254,9 +254,11 @@ public class Function
     private static DateRange GetDateRangeFrom(string? fromStr, string? toStr, ILambdaLogger logger)
     {
         logger.LogDebug("GetDateRangeFrom: {from}, {to}", fromStr, toStr);
-        var fromParsed = DateTimeOffset.TryParseExact(fromStr ?? "", "O", null, DateTimeStyles.AdjustToUniversal, out var dateFrom);
-        var toParsed = DateTimeOffset.TryParseExact(toStr ?? "", "O", null, DateTimeStyles.AdjustToUniversal, out var dateTo);
-        var dateRange = new DateRange(fromParsed ? dateFrom : null, toParsed ? dateTo : null);
+        var fromParsed = DateTimeOffset.TryParse(fromStr ?? "", out var dateFrom);
+        var toParsed = DateTimeOffset.TryParse(toStr ?? "", out var dateTo);
+        
+        // make sure to use UTC time
+        var dateRange = new DateRange(fromParsed ? dateFrom.ToOffset(TimeSpan.Zero) : null, toParsed ? dateTo.ToOffset(TimeSpan.Zero) : null);
         logger.LogDebug("Created tuple: {from}, {to}", dateRange.from?.ToString("O"), dateRange.to?.ToString("O"));
         return dateRange;
     }

@@ -25,10 +25,22 @@ public class FunctionTest
                 new DateRangeTuple(null, null)
             },
             {
-                "2025-02-21T00:00:00.00Z",
-                "2025-05-01T00:00:00.00Z",
+                "2025-02-21T00:00:00.000Z",
+                "2025-05-01T00:00:00.000Z",
                 (new DateTimeOffset(2025, 2, 21, 0, 0, 0, TimeSpan.Zero),
                     new DateTimeOffset(2025, 5, 1, 0, 0, 0, TimeSpan.Zero))
+            },
+            {
+                "2025-02-21T01:00:00.000+01:00",
+                "2025-05-01T02:00:00.000+02:00",
+                (new DateTimeOffset(2025, 2, 21, 1, 0, 0, TimeSpan.FromHours(1)),
+                    new DateTimeOffset(2025, 5, 1, 2, 0, 0, TimeSpan.FromHours(2)))
+            },
+            {
+                "2025-01-11T11:00:00.000+00:00",
+                "2025-07-09T13:00:00.000+00:15",
+                (new DateTimeOffset(2025, 1, 11, 11, 0, 0, TimeSpan.Zero),
+                    new DateTimeOffset(2025, 7, 9, 13, 0, 0, TimeSpan.FromMinutes(15)))
             }
         };
     }
@@ -44,5 +56,12 @@ public class FunctionTest
         var result = (DateRangeTuple?)methodInfo.Invoke(null, [from, to, lambdaLogger]);
         Assert.NotNull(result);
         Assert.Equal(expectedResult, result);
+        
+        // we always want the UTC time!
+        if (result?.from != null)
+            Assert.Equal(TimeSpan.Zero, result?.from?.Offset);
+        
+        if (result?.to != null)
+            Assert.Equal(TimeSpan.Zero, result?.to?.Offset);
     }
 }
