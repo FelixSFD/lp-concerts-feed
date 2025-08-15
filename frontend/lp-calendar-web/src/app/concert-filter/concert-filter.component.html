@@ -6,21 +6,21 @@
       </button>
       <ul class="dropdown-menu">
         <li *ngFor="let filterName of availableFilters">
-          <a class="dropdown-item" href="javascript:void(0)" (click)="showOrHideFilter(filterName, true)">{{ filterName }} (TODO)</a>
+          <a *ngIf="!visibleFilters$.includes(filterName)" class="dropdown-item" href="javascript:void(0)" (click)="showOrHideFilter(filterName, true)">{{ filterName }} (TODO)</a>
         </li>
       </ul>
     </div>
     <button class="btn btn-sm btn-primary" (click)="onApplyClicked()"><i class="bi bi-filter"></i> Apply filter</button>
-    <button class="btn btn-sm btn-outline-secondary ms-2" (click)="onClearClicked()" *ngIf="numberOfActivatedFilters$ > 1"><i class="bi bi-x"></i> Clear</button>
+    <button class="btn btn-sm btn-outline-secondary ms-2" (click)="onClearClicked()" *ngIf="visibleFilters$.length > 1"><i class="bi bi-x"></i> Clear</button>
   </div>
 
-  <div class="form-check form-switch ms-2" *ngIf="showFilterPastConcerts$">
+  <div class="form-check form-switch ms-2" *ngIf="visibleFilters$.includes('pastConcerts')">
     <input class="form-check-input" type="checkbox" formControlName="showPastConcerts" id="showHistoricSwitch">
     <label class="form-check-label" for="showHistoricSwitch">Show past concerts</label>
   </div>
 
   <!-- Tour -->
-  <div class="mb-3" *ngIf="showFilterTour$">
+  <div class="mb-3" *ngIf="visibleFilters$.includes('tour')">
     <label for="tourName" class="col-sm-12 col-md-12 col-lg-4 col-form-label">Tour</label>
     <div class="col-sm-12 col-md-12 col-lg-8 col-xl-6">
       <select id="tourName" formControlName="tourName" class="form-select" aria-label="Select tour">
@@ -32,7 +32,7 @@
   </div>
 
   <!-- Date Range -->
-  <div class="mb-3 row" *ngIf="showFilterDateRange$">
+  <div class="mb-3 row" *ngIf="visibleFilters$.includes('dateRange')">
     <div class="col-auto align-content-center">
       <button class="btn btn-link link-info" (click)="showOrHideFilter('dateRange', false)"><i class="bi bi-x"></i></button>
     </div>

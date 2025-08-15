@@ -32,10 +32,8 @@ export class ConcertFilterComponent implements OnInit {
   defaultFilter: ConcertFilter | undefined;
 
   // properties to control which fields were added
-  showFilterTour$ = true;
-  showFilterPastConcerts$ = false;
-  showFilterDateRange$ = false;
   availableFilters: string[] = ["tour", "pastConcerts", "dateRange"];
+  visibleFilters$: string[] = ["tour"];
   numberOfActivatedFilters$ = 0;
 
 
@@ -57,21 +55,12 @@ export class ConcertFilterComponent implements OnInit {
 
 
   showOrHideFilter(filterName: string, show: boolean) {
-    switch (filterName) {
-      case 'tour':
-        this.showFilterTour$ = show;
-        this.numberOfActivatedFilters$ += show ? 1 : -1;
-        break;
-      case 'pastConcerts':
-        this.showFilterPastConcerts$ = show;
-        this.numberOfActivatedFilters$ += show ? 1 : -1;
-        break;
-      case 'dateRange':
-        this.showFilterDateRange$ = show;
-        this.numberOfActivatedFilters$ += show ? 1 : -1;
-        break;
-      default:
-          console.error("Could not find filter: ", filterName);
+    if (show) {
+      // add filter to list of visible
+      this.visibleFilters$.push(filterName);
+    } else {
+      // remove filter from list of visible
+      this.visibleFilters$ = this.visibleFilters$.filter(e => e !== filterName);
     }
   }
 
@@ -80,6 +69,7 @@ export class ConcertFilterComponent implements OnInit {
     console.debug("setDefaultFilters: ", this.defaultFilter);
     this.filterForm.controls.showPastConcerts.setValue(!this.defaultFilter?.onlyFuture);
     this.filterForm.controls.tourName.setValue(this.defaultFilter?.tour ?? null);
+    this.visibleFilters$ = ["tour"];
   }
 
 
