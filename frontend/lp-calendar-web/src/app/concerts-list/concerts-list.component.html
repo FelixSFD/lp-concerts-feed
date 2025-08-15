@@ -20,20 +20,14 @@
   </div>
 </ng-template>
 
-
-<div class="alert alert-warning" role="alert">
-  Please be aware, that this list is <b>maintained by fans</b> and is not official information by Linkin Park or any organizer! <b>YOU</b> are responsible for making sure you are at the correct venue at the correct time and with a valid ticket.
-</div>
-
-
 <!-- Button to add concert -->
 <button type="button" class="btn btn-outline-primary mb-2" *ngIf="hasWriteAccess$" [disabled]="!hasWriteAccess$" [routerLink]="['/concerts/add']">
   Add concert
 </button>
 
-<div class="form-check form-switch" [hidden]="true">
-  <input class="form-check-input" type="checkbox" id="useNewTableSwitch" [(ngModel)]="useNewTable$" (change)="onUseNewTableSwitchChanged()">
-  <label class="form-check-label" for="useNewTableSwitch">Use new list design</label>
+<!-- Disclaimer about the data source -->
+<div class="alert alert-warning" role="alert">
+  Please be aware, that this list is <b>maintained by fans</b> and is not official information by Linkin Park or any organizer! <b>YOU</b> are responsible for making sure you are at the correct venue at the correct time and with a valid ticket.
 </div>
 
 <app-concert-filter (applyClicked)="onFilterChanged($event)" [defaultFilter]="defaultFilter"></app-concert-filter>
