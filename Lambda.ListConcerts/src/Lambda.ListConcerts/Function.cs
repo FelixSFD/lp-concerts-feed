@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
@@ -12,6 +13,8 @@ using LPCalendar.DataStructure.Converters;
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
 namespace Lambda.ListConcerts;
+
+using DateRange = (DateTimeOffset? from, DateTimeOffset? to);
 
 public class Function
 {
@@ -47,14 +50,20 @@ public class Function
                 // Find one concert
                 return await ReturnSingleConcert(searchId);
             }
+            
+            // check date range
+            var dateFromFound = request.QueryStringParameters.TryGetValue("date_from", out var dateFromStr);
+            var dateToFound = request.QueryStringParameters.TryGetValue("date_to", out var dateToStr);
 
             var onlyFutureParamFound = request.QueryStringParameters.TryGetValue("only_future", out var onlyFutureStr);
             var onlyFuture = bool.Parse(onlyFutureStr ?? "true");
             
             var filterTourParameterFound = request.QueryStringParameters.TryGetValue("tour", out var filterTourStr);
-            if (filterTourParameterFound)
+            if (filterTourParameterFound || dateFromFound  || dateToFound)
             {
-                return await ReturnFilteredConcertList(context, filterTourStr, onlyFuture);
+                var dateRangeFilter = GetDateRangeFrom(dateFromStr, dateToStr, context.Logger);
+
+                return await ReturnFilteredConcertList(context, filterTourStr, dateRangeFilter);
             }
 
             // no filters were used. Return all concerts
@@ -85,11 +94,17 @@ public class Function
     }
 
 
-    private async Task<APIGatewayProxyResponse> ReturnFilteredConcertList(ILambdaContext context, string? filterTour = null, bool onlyFuture = true)
+    private async Task<APIGatewayProxyResponse> ReturnFilteredConcertList(ILambdaContext context, string? filterTour = null, DateRange? dateRange = null)
     {
-        var searchStartDate = onlyFuture ? DateTimeOffset.Now : DateTimeOffset.MinValue;
+        context.Logger.LogDebug("Query filtered concerts: DateRange ({from} to {to}); Tour: {tour}", dateRange?.from, dateRange?.to, filterTour);
+        var searchStartDate = dateRange?.from ?? DateTimeOffset.Now;
+        if (dateRange?.from == null && dateRange?.to != null)
+        {
+            context.Logger.LogDebug("date_from is not set, but date_to is. Will search for historic shows as well", dateRange);
+            searchStartDate = DateTimeOffset.MinValue;
+        }
+        
         var searchStartDateStr = searchStartDate.ToString("O");
-            
         context.Logger.LogInformation("SCAN filtered concerts after: {time}", searchStartDateStr);
 
         var config = _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName();
@@ -226,5 +241,23 @@ public class Function
                 { "Access-Control-Allow-Methods", "OPTIONS, GET, POST" }
             }
         };
+    }
+
+
+    /// <summary>
+    /// Returns a date range as tuple
+    /// </summary>
+    /// <param name="fromStr">ISO String</param>
+    /// <param name="toStr">ISO String</param>
+    /// <param name="logger">Logger</param>
+    /// <returns>tuple of DateTimeOffsets</returns>
+    private static DateRange GetDateRangeFrom(string? fromStr, string? toStr, ILambdaLogger logger)
+    {
+        logger.LogDebug("GetDateRangeFrom: {from}, {to}", fromStr, toStr);
+        var fromParsed = DateTimeOffset.TryParseExact(fromStr ?? "", "O", null, DateTimeStyles.AdjustToUniversal, out var dateFrom);
+        var toParsed = DateTimeOffset.TryParseExact(toStr ?? "", "O", null, DateTimeStyles.AdjustToUniversal, out var dateTo);
+        var dateRange = new DateRange(fromParsed ? dateFrom : null, toParsed ? dateTo : null);
+        logger.LogDebug("Created tuple: {from}, {to}", dateRange.from?.ToString("O"), dateRange.to?.ToString("O"));
+        return dateRange;
     }
 }
