@@ -18,6 +18,7 @@ import {ConcertFilter} from '../data/concert-filter';
 import {ToastrService} from 'ngx-toastr';
 import {NgForOf, NgIf} from '@angular/common';
 import {ReactiveFormsModule} from '@angular/forms';
+import {DateTime} from 'luxon';
 
 @Component({
   selector: 'app-tour-map-page',
@@ -39,8 +40,8 @@ export class TourMapPageComponent implements OnInit, AfterViewInit {
   defaultFilter: ConcertFilter = {
     onlyFuture: false,
     tour: "FROM ZERO WORLD TOUR 2025",
-    dateFrom: null,
-    dateTo: null
+    dateFrom: DateTime.fromISO("0000-01-01T00:00:00.000Z"),
+    dateTo: DateTime.fromISO("3000-12-31T23:59:59.999Z"),
   };
 
   // Filter that is used for loading the list
