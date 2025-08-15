@@ -137,10 +137,10 @@ export class ConcertsService {
 
     // add the parameters for the date range
     if (filter.dateFrom != null && filter.dateFrom?.isValid) {
-      queryStringParts.push(`date_from=${filter.dateFrom.toISO()}`);
+      queryStringParts.push(`date_from=${encodeURIComponent(filter.dateFrom.toISO() ?? "")}`);
     }
     if (filter.dateTo != null && filter.dateTo?.isValid) {
-      queryStringParts.push(`date_to=${filter.dateTo.toISO()}`);
+      queryStringParts.push(`date_to=${encodeURIComponent(filter.dateTo.toISO() ?? "")}`);
     }
 
     return queryStringParts.join('&');

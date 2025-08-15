@@ -96,7 +96,7 @@ public class Function
 
     private async Task<APIGatewayProxyResponse> ReturnFilteredConcertList(ILambdaContext context, string? filterTour = null, DateRange? dateRange = null)
     {
-        context.Logger.LogDebug("Query filtered concerts: DateRange ({from} to {to}); Tour: {tour}", dateRange?.from, dateRange?.to, filterTour);
+        context.Logger.LogDebug("Query filtered concerts: DateRange ({from} to {to}); Tour: {tour}", dateRange?.from.ToString() ?? "null", dateRange?.to.ToString() ?? "null", filterTour);
         var searchStartDate = dateRange?.from ?? DateTimeOffset.Now;
         if (dateRange?.from == null && dateRange?.to != null)
         {
@@ -259,7 +259,7 @@ public class Function
         
         // make sure to use UTC time
         var dateRange = new DateRange(fromParsed ? dateFrom.ToOffset(TimeSpan.Zero) : null, toParsed ? dateTo.ToOffset(TimeSpan.Zero) : null);
-        logger.LogDebug("Created tuple: {from}, {to}", dateRange.from?.ToString("O"), dateRange.to?.ToString("O"));
+        logger.LogDebug("Parsed from: {from}: Parsed to: {to}", fromParsed, toParsed);
         return dateRange;
     }
 }
