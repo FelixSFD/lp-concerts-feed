@@ -196,6 +196,29 @@ paths:
         httpMethod: "POST"
         contentHandling: "CONVERT_TO_TEXT"
         type: "aws_proxy"
+  /deleteConcert/{concertId}:
+    delete:
+      operationId: DeleteConcert
+      summary: Deletes a concert from the database (this API is not using /concerts because the Angular frontend couldn't decide whether to require authentication)
+      responses:
+        "201":
+          description: when the concert was saved
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-delete-concert-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
   /concerts:
     get:
       operationId: GetConcerts

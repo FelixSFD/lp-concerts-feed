@@ -75,6 +75,14 @@ Resources:
         Fn::Sub: "${BaseProductName}-lambda-adjacent-concerts-function"
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/concerts/*/adjacent
+  DeleteConcertLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue
+        Fn::Sub: "${BaseProductName}-lambda-delete-concert-function"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/deleteConcert/*
   FindConcertsLambdaPermission:
     Type: AWS::Lambda::Permission
     Properties:

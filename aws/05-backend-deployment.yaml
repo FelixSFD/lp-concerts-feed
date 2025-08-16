@@ -960,10 +960,10 @@ Outputs:
     Value: !GetAtt AddConcertFunction.Arn
     Export:
       Name: !Sub '${BaseProductName}-lambda-add-concert-function'
-  LambdaRefWriteConcertFunctionExport:
-    Value: !GetAtt AddConcertFunction.Arn
+  LambdaRefDeleteConcertFunctionExport:
+    Value: !GetAtt DeleteConcertFunction.Arn
     Export:
-      Name: !Sub '${BaseProductName}-lambda-write-concert-function'
+      Name: !Sub '${BaseProductName}-lambda-delete-concert-function'
   LambdaRefFindConcertsFunctionExport:
     Value: !GetAtt FindConcertFunction.Arn
     Export:
