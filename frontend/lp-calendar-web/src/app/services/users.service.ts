@@ -15,7 +15,7 @@ export class UsersService {
 
 
   getUsers(cached: boolean) : Observable<User[]> {
-    let url = environment.apiCachedBaseUrl + "/Prod/users";
+    let url = environment.apiCachedBaseUrl + "/users";
 
     if (!cached) {
       // disable caching
@@ -37,7 +37,7 @@ export class UsersService {
 
 
   getUserById(id: string, cached: boolean = false) : Observable<User> {
-    let url = environment.apiCachedBaseUrl + "/Prod/users/" + id;
+    let url = environment.apiCachedBaseUrl + "/users/" + id;
 
     if (!cached) {
       // disable caching
@@ -56,7 +56,7 @@ export class UsersService {
 
 
   updateUser(user: User) {
-    let url = environment.apiNoCacheBaseUrl + "/Prod/users/" + user.id;
+    let url = environment.apiNoCacheBaseUrl + "/users/" + user.id;
     return this.httpClient.put(url, user);
   }
 }

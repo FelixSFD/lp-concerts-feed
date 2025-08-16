@@ -51,7 +51,7 @@ export class LocationsService {
 
 
   getTimeZoneForCoordinates(lat: number, lon: number): Observable<string> {
-    let url = `${environment.apiCachedBaseUrl}/Prod/timeZone/byCoordinates?lat=${lat}&lon=${lon}`;
+    let url = `${environment.apiCachedBaseUrl}/timeZone/byCoordinates?lat=${lat}&lon=${lon}`;
     return this.httpClient.get<any>(url).pipe(
       map(responseObj => responseObj["timeZoneId"])
     )

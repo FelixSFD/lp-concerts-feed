@@ -16,11 +16,11 @@ export const authConfig: PassedInitialConfig = {
     useRefreshToken: true, // Use refresh tokens to maintain the session
     allowUnsafeReuseRefreshToken: true,
     secureRoutes: [
-      environment.apiNoCacheBaseUrl + '/Prod/deleteConcert/',
-      environment.apiNoCacheBaseUrl + '/Prod/addConcert',
-      environment.apiNoCacheBaseUrl + "/Prod/requestFileUpload",
-      environment.apiNoCacheBaseUrl + "/Prod/users",
-      environment.apiNoCacheBaseUrl + "/Prod/users/"
+      environment.apiNoCacheBaseUrl + '/deleteConcert/',
+      environment.apiNoCacheBaseUrl + '/addConcert',
+      environment.apiNoCacheBaseUrl + "/requestFileUpload",
+      environment.apiNoCacheBaseUrl + "/users",
+      environment.apiNoCacheBaseUrl + "/users/"
     ],
     logLevel: LogLevel.Warn // Enable detailed logs for debugging
   }
