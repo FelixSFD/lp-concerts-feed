@@ -140,7 +140,7 @@ Resources:
       DistributionConfig:
         Origins:
           - Id: ApiGatewayOrigin
-            DomainName: {'Fn::ImportValue': !Sub '${BaseProductName}-main-api-gateway-domain' }
+            DomainName: {'Fn::ImportValue': !Sub '${BaseProductName}-api-gateway-domain' }
             CustomOriginConfig:
               OriginProtocolPolicy: https-only
               OriginSSLProtocols:
