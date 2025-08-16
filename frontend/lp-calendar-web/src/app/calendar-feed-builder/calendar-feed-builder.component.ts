@@ -33,7 +33,7 @@ export class CalendarFeedBuilderComponent implements OnInit {
 
 
   onSelectionChanged() {
-    let url = environment.apiCachedBaseUrl + "/Prod/feed/ical"
+    let url = environment.apiBaseUrlLatest + "/feed/ical"
 
     let eventCategories: string[] = [];
     if (this.feedBuilderForm.value.doorsTimeSwitch)

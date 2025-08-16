@@ -62,7 +62,7 @@ export class HomeComponent implements OnInit {
 
 
   subscribeBtnClicked() {
-    let calendarUrl = environment.apiCachedBaseUrl + "/Prod/feed/ical";
+    let calendarUrl = environment.apiBaseUrlLatest + "/feed/ical";
     calendarUrl = calendarUrl.replace("https", "webcal");
     window.open(calendarUrl);
   }
