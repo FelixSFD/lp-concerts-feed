@@ -31,6 +31,7 @@ Resources:
   ConcertsApiV2:
     Type: AWS::Serverless::Api
     Properties:
+      Name: !Sub ${BaseProductName} API
       StageName: v2
       Cors:
         AllowMethods: "'POST, GET, PUT, DELETE'"
