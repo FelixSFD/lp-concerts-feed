@@ -443,7 +443,7 @@ paths:
       operationId: GetUsers
       summary: Returns a list of users.
       responses:
-        "200": # status code
+        "200":
           description: A JSON array of users
           content:
             application/json:
@@ -459,7 +459,58 @@ paths:
             - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
             - LambdaArn:
                 Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-users-read-function"
+                  Fn::Sub: "${BaseProductName}-lambda-users-read-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /users/{id}:
+    get:
+      operationId: GetUserById
+      summary: Returns a user
+      responses:
+        "200":
+          description: A JSON object with user information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-users-read-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+    put:
+      operationId: UpdateUser
+      summary: Updates a user
+      requestBody:
+        $ref: "#/components/schemas/User"
+      responses:
+        "204":
+          description: User updated successfully
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-users-read-write-function"
         responses:
           default:
             statusCode: "200"

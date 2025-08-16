@@ -99,14 +99,14 @@ Resources:
         Fn::Sub: "${BaseProductName}-lambda-concert-s3-upload-url-function"
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/requestFileUpload
-  UsersReadLambdaPermission:
+  UsersReadWriteLambdaPermission:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunction
       FunctionName: !ImportValue
-        Fn::Sub: "${BaseProductName}-lambda-users-read-function"
+        Fn::Sub: "${BaseProductName}-lambda-users-read-write-function"
       Principal: apigateway.amazonaws.com
-      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/users
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/users*
 
 
 Outputs:
