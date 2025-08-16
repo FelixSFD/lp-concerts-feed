@@ -968,6 +968,10 @@ Outputs:
     Value: !GetAtt FindConcertFunction.Arn
     Export:
       Name: !Sub '${BaseProductName}-lambda-find-concerts-function'
+  LambdaRefAdjacentConcertsFunctionExport:
+    Value: !GetAtt AdjacentConcertsFunction.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-lambda-adjacent-concerts-function'
   OpenApiBucketArn:
     Value: !GetAtt OpenApiBucket.Arn
     Export:

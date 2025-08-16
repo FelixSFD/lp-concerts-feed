@@ -18,6 +18,20 @@ components:
               Fn::Sub: '${BaseProductName}-cognito-authorizer-user-pool'
               
   schemas:
+    # Concerts
+    AdjacentConcertsResponse:
+      type: object
+      description: Response to get the IDs of the previous and next concerts
+      properties: 
+        current:
+          type: string
+          description: ID of the requested concert
+        previous:
+          type: string
+          description: ID of the previous concert
+        next:
+          type: string
+          description: ID of the next concert
     Concert:
       type: object
       description: Information about a concert
@@ -115,6 +129,8 @@ components:
           type: string
           description: A show is considered as "past", when the posted start time was more than 4 hour ago
           readOnly: true
+          
+    # Users
     UserGroup:
       type: object
       description: Group of users
@@ -146,7 +162,8 @@ components:
           description: Groups the user is a member of
           items: 
             $ref: "#/components/schemas/UserGroup"
-    
+
+    # Timezones
     TimeZoneResponse:
       type: object
       properties:
@@ -156,6 +173,7 @@ components:
 paths:
   /addConcert:
     put:
+      operationId: AddOrUpdateConcert
       summary: Adds a new concert to the database or updates an existing entry (this API is not using /concerts because the Angular frontend couldn't decide whether to require authentication)
       requestBody:
         $ref: "#/components/schemas/Concert"
@@ -180,6 +198,7 @@ paths:
         type: "aws_proxy"
   /concerts:
     get:
+      operationId: GetConcerts
       summary: Returns a list of concerts
       description: The list can be filtered if needed. See list of parameters for more information. Some filters are applied by default
       parameters:
@@ -231,6 +250,7 @@ paths:
         type: "aws_proxy"
   /concerts/{id}:
     get:
+      operationId: GetConcertById
       summary: Returns a single concert
       responses:
         "200":
@@ -253,8 +273,34 @@ paths:
         httpMethod: "POST"
         contentHandling: "CONVERT_TO_TEXT"
         type: "aws_proxy"
+  /concerts/{id}/adjacent:
+    get:
+      operationId: GetAdjacentConcertsForId
+      summary: Returns information about the previous and next concerts
+      responses:
+        "200":
+          description: A JSON object with the information of the adjacent concerts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdjacentConcertsResponse"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-adjacent-concerts-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
   /concerts/next:
     get:
+      operationId: GetNextConcert
       summary: Returns the next concert
       responses:
         "200":
@@ -279,6 +325,7 @@ paths:
         type: "aws_proxy"
   /timeZone/byCoordinates:
     get:
+      operationId: GetTimeZoneByCoordinates
       summary: Returns the timezone for the given coordinates
       parameters:
         - in: query
@@ -314,6 +361,7 @@ paths:
         type: "aws_proxy"
   /users:
     get:
+      operationId: GetUsers
       summary: Returns a list of users.
       responses:
         "200": # status code
