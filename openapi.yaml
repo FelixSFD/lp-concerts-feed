@@ -156,6 +156,14 @@ components:
           type: string
           description: URL to use when uploading the file. This URL is only valid for the requested file
           nullable: false
+    ConcertSubEventCategory:
+      type: string
+      description: Describes a type of "sub-event". This is a part of the concert and can be something like "doors time" or "LP stage time"
+      enum:
+        - AsOneSingleEvent
+        - LinkinPark
+        - Doors
+        - SupportAct
 
     # Users
     UserGroup:
@@ -366,6 +374,41 @@ paths:
             - LambdaArn:
                 Fn::ImportValue:
                   Fn::Sub: "${BaseProductName}-lambda-find-concerts-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /feed/ical:
+    get:
+      operationId: GetCalendarFeed
+      summary: Returns the calendar as iCal
+      parameters:
+        - in: query
+          name: event_categories
+          style: form
+          explode: false
+          example: LinkinPark,Doors
+          schema: 
+            type: array
+            items:
+              $ref: "#/components/schemas/ConcertSubEventCategory"
+      responses: 
+        "200":
+          description: The calendar entries for all shows in the iCal format
+          content: 
+            text/calendar:
+              schema: 
+                type: string
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-get-ical-function"
         responses:
           default:
             statusCode: "200"
