@@ -9,6 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "aws-deployment", "aws-deplo
 		aws\README.md = aws\README.md
 		aws\30-dns-deployment.yaml = aws\30-dns-deployment.yaml
 		aws\06-api-gateway.yaml = aws\06-api-gateway.yaml
+		aws\18-lambda-edge.yaml = aws\18-lambda-edge.yaml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.AddConcert", "Lambda.AddConcert\src\Lambda.AddConcert\Lambda.AddConcert.csproj", "{44164B0A-34D0-46CE-B782-DA308B45F3FE}"
