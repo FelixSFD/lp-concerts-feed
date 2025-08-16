@@ -129,7 +129,34 @@ components:
           type: string
           description: A show is considered as "past", when the posted start time was more than 4 hour ago
           readOnly: true
-          
+    ConcertFileUploadRequest:
+      type: object
+      description: Request to get a S3 url to upload the schedule for a concert
+      properties: 
+        type:
+          type: string
+          description: Type of the file to upload. (not the MIME-type)
+          enum: 
+            - ConcertSchedule
+          default: ConcertSchedule
+          nullable: false
+        concertId:
+          type: string
+          description: ID of the concert where the file is uploaded to
+          nullable: false
+        contentType:
+          type: string
+          description: Type of the file to be uploaded
+          nullable: false
+    ConcertFileUploadResponse:
+      type: object
+      description: Response that tells the client which URL to use for the upload
+      properties:
+        uploadUrl:
+          type: string
+          description: URL to use when uploading the file. This URL is only valid for the requested file
+          nullable: false
+
     # Users
     UserGroup:
       type: object
@@ -179,7 +206,7 @@ paths:
         $ref: "#/components/schemas/Concert"
       responses:
         "201":
-          description: when the concert was saved 
+          description: when the concert was saved
       security:
         - ConcertsCognitoAuthorizer: [ "openid" ]
       x-amazon-apigateway-integration:
@@ -248,12 +275,12 @@ paths:
             example: '2024-12-31T12:00:00Z'
           description: 'Search for concerts before this date'
           required: false
-      responses: 
+      responses:
         "200":
           description: A JSON array with the concerts that were found
-          content: 
+          content:
             application/json:
-              schema: 
+              schema:
                 type: array
                 items:
                   $ref: "#/components/schemas/Concert"
@@ -346,6 +373,35 @@ paths:
         httpMethod: "POST"
         contentHandling: "CONVERT_TO_TEXT"
         type: "aws_proxy"
+  /requestFileUpload:
+    put:
+      operationId: GetUrlForConcertFileUpload
+      summary: Requests a URL that can be used to upload a file to a concert
+      requestBody:
+        $ref: "#/components/schemas/ConcertFileUploadRequest"
+      responses:
+        "200":
+          description: URL for upload requested successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConcertFileUploadResponse"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-concert-s3-upload-url-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
   /timeZone/byCoordinates:
     get:
       operationId: GetTimeZoneByCoordinates
@@ -361,7 +417,7 @@ paths:
           schema:
             type: number
           description: Longitude of the location
-      responses: 
+      responses:
         "200":
           description: A JSON object with the data of the timezone
           content:
