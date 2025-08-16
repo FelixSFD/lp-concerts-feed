@@ -208,7 +208,13 @@ public class Function
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
-            Body = concertJson
+            Body = concertJson,
+            Headers = new Dictionary<string, string>
+            {
+                { "Content-Type", "application/json" },
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+            }
         };
     }
     
