@@ -956,6 +956,10 @@ Outputs:
     Value: !GetAtt UsersReadFunction.Arn
     Export:
       Name: !Sub '${BaseProductName}-lambda-users-read-function'
+  LambdaRefFindConcertsFunctionExport:
+    Value: !GetAtt FindConcertFunction.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-lambda-find-concerts-function'
   OpenApiBucketArn:
     Value: !GetAtt OpenApiBucket.Arn
     Export:

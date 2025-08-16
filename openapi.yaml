@@ -18,6 +18,103 @@ components:
               Fn::Sub: '${BaseProductName}-cognito-authorizer-user-pool'
               
   schemas:
+    Concert:
+      type: object
+      description: Information about a concert
+      properties: 
+        id:
+          type: string
+          description: Unique ID of the concert
+        showType:
+          type: string
+          description: Type of the show
+        customTitle:
+          type: string
+          description: Custom title for the show to display in the calendar. Only used if the auto-generated title is not suitable
+          nullable: true
+        tourName:
+          type: string
+          description: Name of the tour
+          nullable: true
+        status:
+          type: string
+          description: Status of the show (always PUBLISHED for now)
+          nullable: false
+          enum:
+            - PUBLISHED
+        postedStartTime:
+          type: string
+          description: Time when the concert starts according to Ticketmaster. It' technically nullable but should exist in every show as this property is used as fallback if other times are not known yet.
+          nullable: false
+          format: date-time
+          example: '2024-09-05T22:00:00Z'
+        lpuEarlyEntryConfirmed:
+          type: boolean
+          description: true, if LPU early entry has been confirmed for the show. Not all shows are guaranteed to have early entry.
+        lpuEarlyEntryTime:
+          type: string
+          description: Time when doors will open for LPU early entry. If null, the time is probably not announced yet.
+          format: date-time
+          example: '2024-09-05T20:30:00Z'
+        doorsTime:
+          type: string
+          description: Time when the doors will open for the general public. If null, the time is probably not announced yet
+          format: date-time
+          example: '2024-09-05T21:00:00Z'
+        mainStageTime:
+          type: string
+          description: Time when Linkin Park is expected to enter the stage. If null, the time is probably not announced yet
+          format: date-time
+          example: '2024-09-05T22:01:00Z'
+        expectedSetDuration:
+          type: integer
+          description: Expected duration in minutes of the Linkin Park set during this event
+          example: 120
+        timeZoneId:
+          type: string
+          description: Timezone of the venue
+          example: "Europe/Berlin"
+        country:
+          type: string
+          description: Country of the venue
+        state:
+          type: string
+          description: State where the venue is located in
+          nullable: true
+        city:
+          type: string
+          description: City of the venue
+        venue:
+          type: string
+          description: Name of the venue
+          nullable: true
+        locationLong:
+          type: string
+          description: Long version of the location string (includes Venue, City, State, Country if available)
+          readOnly: true
+        locationMedium:
+          type: string
+          description: Shorter version of the location string (includes Venue, City, Country if available)
+          readOnly: true
+        locationShort:
+          type: string
+          description: Short version of the location string (includes City, Country if available)
+          readOnly: true
+        venueLatitude:
+          type: number
+          description: Latitude of the venue
+        venueLongitude:
+          type: number
+          description: Longitude of the venue
+        scheduleImageFile:
+          type: string
+          description: Filename of the image that contains the show's schedule. It's possible that the name is set, but the image doesn't exist. In that case, the file was not uploaded (yet)
+          nullable: true
+          readOnly: true
+        isPast:
+          type: string
+          description: A show is considered as "past", when the posted start time was more than 4 hour ago
+          readOnly: true
     UserGroup:
       type: object
       description: Group of users
@@ -57,6 +154,56 @@ components:
           type: string
 
 paths:
+  /concerts:
+    get:
+      summary: Returns a list of concerts
+      responses: 
+        "200":
+          description: A JSON array with the concerts that were found
+          content: 
+            application/json:
+              schema: 
+                type: array
+                items:
+                  $ref: "#/components/schemas/Concert"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-find-concerts-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /concerts/{id}:
+    get:
+      summary: Returns a single concert
+      responses:
+        "200":
+          description: A JSON object with the information of the concert
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Concert"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-find-concerts-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
   /timeZone/byCoordinates:
     get:
       summary: Returns the timezone for the given coordinates
