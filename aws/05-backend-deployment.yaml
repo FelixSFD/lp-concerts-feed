@@ -938,7 +938,7 @@ Outputs:
     Value: !GetAtt ConcertImagesBucket.RegionalDomainName
     Export:
       Name: !Sub '${BaseProductName}-concert-image-s3-regional-domain'
-  CognitoUerPoolDomainExport:
+  CognitoUserPoolDomainExport:
     Description: 'Internal domain name of the Cognito userpool'
     Value: !Sub "${BaseProductName}-${AWS::AccountId}.auth.${AWS::Region}.amazoncognito.com"
     Export:
@@ -948,10 +948,14 @@ Outputs:
     Value: !GetAtt CognitoAuthorizerUserPoolV3.Arn
     Export:
       Name: !Sub '${BaseProductName}-cognito-authorizer-user-pool'
-  LambdaRefGetTimeZoneFunction:
+  LambdaRefGetTimeZoneFunctionExport:
     Value: !GetAtt GetTimeZoneFunction.Arn
     Export:
       Name: !Sub '${BaseProductName}-lambda-get-time-zone-function'
+  LambdaRefUsersReadFunctionExport:
+    Value: !GetAtt UsersReadFunction.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-lambda-users-read-function'
   OpenApiBucketArn:
     Value: !GetAtt OpenApiBucket.Arn
     Export:

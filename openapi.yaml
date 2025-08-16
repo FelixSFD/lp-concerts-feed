@@ -5,6 +5,18 @@ info:
   version: 1.0.0
 
 components:
+  securitySchemes:
+    ConcertsCognitoAuthorizer:
+      type: apiKey
+      name: Authorization
+      in: header
+      x-amazon-apigateway-authtype: cognito_user_pools
+      x-amazon-apigateway-authorizer:
+        type: cognito_user_pools
+        providerARNs:
+          - Fn::ImportValue:
+              Fn::Sub: '${BaseProductName}-cognito-authorizer-user-pool'
+              
   schemas:
     UserGroup:
       type: object
@@ -69,15 +81,31 @@ paths:
         httpMethod: "POST"
         contentHandling: "CONVERT_TO_TEXT"
         type: "aws_proxy"
-#  /users:
-#    get:
-#      summary: Returns a list of users.
-#      responses:
-#        "200": # status code
-#          description: A JSON array of users
-#          content:
-#            application/json:
-#              schema:
-#                type: array
-#                items:
-#                  $ref: "#/components/schemas/User"
+  /users:
+    get:
+      summary: Returns a list of users.
+      responses:
+        "200": # status code
+          description: A JSON array of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-users-read-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
