@@ -1,7 +1,8 @@
 
 export const environment = {
-  apiCachedBaseUrl: "https://api.ROOT_DOMAIN",
-  apiNoCacheBaseUrl: "https://api.ROOT_DOMAIN",
+  apiCachedBaseUrl: "https://api.ROOT_DOMAIN/v2",
+  apiNoCacheBaseUrl: "https://api.ROOT_DOMAIN/v2",
+  apiBaseUrlLatest: "https://api.ROOT_DOMAIN/latest",
   cognitoBaseUrl: "https://COGNITO_URL",
   cognitoClientId: "COGNITO_CLIENT_ID",
   cognitoUserPoolId: "COGNITO_USER_POOL_ID",
