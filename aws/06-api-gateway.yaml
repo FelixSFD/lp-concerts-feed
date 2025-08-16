@@ -59,6 +59,14 @@ Resources:
         Fn::Sub: "${BaseProductName}-lambda-get-time-zone-function"
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/timeZone/byCoordinates
+  AddConcertLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue
+        Fn::Sub: "${BaseProductName}-lambda-add-concert-function"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/addConcert
   FindConcertsLambdaPermission:
     Type: AWS::Lambda::Permission
     Properties:

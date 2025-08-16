@@ -154,9 +154,58 @@ components:
           type: string
 
 paths:
+  /addConcert:
+    put:
+      summary: Adds a new concert to the database or updates an existing entry (this API is not using /concerts because the Angular frontend couldn't decide whether to require authentication)
+      requestBody:
+        $ref: "#/components/schemas/Concert"
+      responses:
+        "201":
+          description: when the concert was saved 
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-add-concert-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
   /concerts:
     get:
       summary: Returns a list of concerts
+      description: The list can be filtered if needed. See list of parameters for more information. Some filters are applied by default
+      parameters:
+        - in: query
+          name: tour
+          schema:
+            type: string
+            example: FROM ZERO WORLD TOUR 2026
+          description: 'Name of the tour. (TODO: describe possible values)'
+          required: false
+        - in: query
+          name: date_from
+          schema:
+            type: string
+            format: date-time
+            example: '2024-09-05T22:00:00Z'
+          description: 'Search for concerts after this date'
+          required: false
+        - in: query
+          name: date_to
+          schema:
+            type: string
+            format: date-time
+            example: '2024-12-31T12:00:00Z'
+          description: 'Search for concerts before this date'
+          required: false
       responses: 
         "200":
           description: A JSON array with the concerts that were found
@@ -183,6 +232,30 @@ paths:
   /concerts/{id}:
     get:
       summary: Returns a single concert
+      responses:
+        "200":
+          description: A JSON object with the information of the concert
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Concert"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-find-concerts-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /concerts/next:
+    get:
+      summary: Returns the next concert
       responses:
         "200":
           description: A JSON object with the information of the concert

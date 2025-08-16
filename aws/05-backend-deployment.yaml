@@ -956,6 +956,14 @@ Outputs:
     Value: !GetAtt UsersReadFunction.Arn
     Export:
       Name: !Sub '${BaseProductName}-lambda-users-read-function'
+  LambdaRefAddConcertFunctionExport:
+    Value: !GetAtt AddConcertFunction.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-lambda-add-concert-function'
+  LambdaRefWriteConcertFunctionExport:
+    Value: !GetAtt AddConcertFunction.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-lambda-write-concert-function'
   LambdaRefFindConcertsFunctionExport:
     Value: !GetAtt FindConcertFunction.Arn
     Export:
