@@ -60,6 +60,17 @@ paths:
   /timeZone/byCoordinates:
     get:
       summary: Returns the timezone for the given coordinates
+      parameters:
+        - in: query
+          name: lat
+          schema:
+            type: number
+          description: Latitude of the location
+        - in: query
+          name: lon
+          schema:
+            type: number
+          description: Longitude of the location
       responses: 
         "200":
           description: A JSON object with the data of the timezone
