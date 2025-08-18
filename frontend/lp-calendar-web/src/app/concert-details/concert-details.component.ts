@@ -35,6 +35,7 @@ import {TimeSpanPipe} from '../data/time-span-pipe';
 import {AdjacentConcertIdsResponse} from '../data/adjacent-concert-ids-response';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {MatomoTracker} from 'ngx-matomo-client';
+import {ConcertDto} from '../modules/lpshows-api';
 
 @Component({
   selector: 'app-concert-details',
@@ -52,7 +53,7 @@ import {MatomoTracker} from 'ngx-matomo-client';
 export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   tracker = inject(MatomoTracker);
 
-  concert$: Concert | null = null;
+  concert$: Concert | ConcertDto | null = null;
   adjacentConcertData$: AdjacentConcertIdsResponse | null = null;
   concertId: string | undefined;
 
@@ -211,7 +212,7 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   }
 
 
-  private updateMetaInfo(concert: Concert) {
+  private updateMetaInfo(concert: Concert | ConcertDto) {
     let pageTitle = "";
     let description = "";
 

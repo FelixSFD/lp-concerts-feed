@@ -5,6 +5,7 @@ import {ConcertsService} from '../services/concerts.service';
 import {NgIf} from '@angular/common';
 import {RouterLink} from '@angular/router';
 import {ConcertTitleGenerator} from '../data/concert-title-generator';
+import {ConcertDto} from '../modules/lpshows-api';
 
 @Component({
   selector: 'app-concert-card',
@@ -21,7 +22,7 @@ export class ConcertCardComponent implements OnInit{
   displayType: string = "countdown";
 
   @Input("concert")
-  concert$: Concert | null = null;
+  concert$: Concert | ConcertDto | null = null;
 
   // if no concert is set, use distant past as placeholder for countdown
   pastPlaceholderDate = new Date(2024, 9, 5, 15, 0).toISOString();

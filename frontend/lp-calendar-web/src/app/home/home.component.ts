@@ -7,6 +7,7 @@ import {Concert} from '../data/concert';
 import {CalendarFeedBuilderComponent} from '../calendar-feed-builder/calendar-feed-builder.component';
 import {ToastrService} from 'ngx-toastr';
 import {MatomoTracker} from 'ngx-matomo-client';
+import {ConcertDto} from '../modules/lpshows-api';
 
 @Component({
   selector: 'app-home',
@@ -24,7 +25,7 @@ export class HomeComponent implements OnInit {
 
   private readonly tracker = inject(MatomoTracker);
 
-  nextConcert: Concert | null = null;
+  nextConcert: Concert | ConcertDto | null = null;
 
   iCalFeedUrl$: string = "";
 

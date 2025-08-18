@@ -29,23 +29,8 @@ export class ConcertsService {
 
 
   getFilteredConcerts(filter: ConcertFilter | null, cached: boolean) : Observable<ConcertDto[]> {
-    let url = environment.apiCachedBaseUrl + "/concerts";
-
-    let queryString = filter != null ? this.getQueryStringForFilter(filter) : "";
-    if (queryString.length > 0) {
-      url += "?" + queryString;
-    }
-
     if (!cached) {
       // disable caching
-      const httpHeaders: HttpHeaders = new HttpHeaders({
-        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-        'X-LP-Request-Id': Guid.create().toString()
-      });
-
-      console.log("Headers:");
-      console.log(httpHeaders);
-
       return this.concertsApiClient.getConcerts(filter?.tour ?? undefined, filter?.dateFrom?.toISO() ?? undefined, filter?.dateTo?.toISO() ?? undefined, Guid.create().toString(), "body", false);
     }
 
@@ -53,30 +38,18 @@ export class ConcertsService {
   }
 
 
-  getNextConcert() : Observable<Concert> {
-    let url = environment.apiCachedBaseUrl + "/concerts/next";
-    return this.httpClient.get<Concert>(url);
+  getNextConcert() : Observable<ConcertDto> {
+    return this.concertsApiClient.getNextConcert("body", false);
   }
 
 
-  getConcert(concertId: string, cached: boolean = true) : Observable<Concert> {
-    let url = environment.apiCachedBaseUrl + "/concerts/" + concertId;
+  getConcert(concertId: string, cached: boolean = true) : Observable<ConcertDto> {
     if (!cached) {
       // disable caching
-      const httpHeaders: HttpHeaders = new HttpHeaders({
-        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-        'X-LP-Request-Id': Guid.create().toString()
-      });
-
-      console.log("Headers:");
-      console.log(httpHeaders);
-
-      return this.httpClient.get<Concert>(url, {
-        headers: httpHeaders
-      });
+      return this.concertsApiClient.getConcertById(concertId, Guid.create().toString(), "body", false);
     }
 
-    return this.httpClient.get<Concert>(url);
+    return this.concertsApiClient.getConcertById(concertId, undefined, "body", false);
   }
 
 
