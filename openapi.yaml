@@ -210,8 +210,13 @@ paths:
     put:
       operationId: AddOrUpdateConcert
       summary: Adds a new concert to the database or updates an existing entry (this API is not using /concerts because the Angular frontend couldn't decide whether to require authentication)
+      tags:
+        - concerts
       requestBody:
-        $ref: "#/components/schemas/Concert"
+        content: 
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Concert"
       responses:
         "201":
           description: when the concert was saved
@@ -235,6 +240,15 @@ paths:
     delete:
       operationId: DeleteConcert
       summary: Deletes a concert from the database (this API is not using /concerts because the Angular frontend couldn't decide whether to require authentication)
+      tags:
+        - concerts
+      parameters:
+        - in: path
+          name: concertId
+          description: ID of the concert
+          required: true
+          schema: 
+            type: string
       responses:
         "201":
           description: when the concert was saved
@@ -259,6 +273,8 @@ paths:
       operationId: GetConcerts
       summary: Returns a list of concerts
       description: The list can be filtered if needed. See list of parameters for more information. Some filters are applied by default
+      tags:
+        - concerts
       parameters:
         - in: query
           name: tour
@@ -283,6 +299,13 @@ paths:
             example: '2024-12-31T12:00:00Z'
           description: 'Search for concerts before this date'
           required: false
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
       responses:
         "200":
           description: A JSON array with the concerts that were found
@@ -310,6 +333,15 @@ paths:
     get:
       operationId: GetConcertById
       summary: Returns a single concert
+      tags:
+        - concerts
+      parameters:
+        - in: path
+          name: id
+          description: ID of the concert
+          required: true
+          schema:
+            type: string
       responses:
         "200":
           description: A JSON object with the information of the concert
@@ -335,6 +367,15 @@ paths:
     get:
       operationId: GetAdjacentConcertsForId
       summary: Returns information about the previous and next concerts
+      tags:
+        - concerts
+      parameters:
+        - in: path
+          name: id
+          description: ID of the concert
+          required: true
+          schema:
+            type: string
       responses:
         "200":
           description: A JSON object with the information of the adjacent concerts
@@ -360,6 +401,8 @@ paths:
     get:
       operationId: GetNextConcert
       summary: Returns the next concert
+      tags:
+        - concerts
       responses:
         "200":
           description: A JSON object with the information of the concert
@@ -420,8 +463,13 @@ paths:
     put:
       operationId: GetUrlForConcertFileUpload
       summary: Requests a URL that can be used to upload a file to a concert
+      tags:
+        - concerts
       requestBody:
-        $ref: "#/components/schemas/ConcertFileUploadRequest"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConcertFileUploadRequest"
       responses:
         "200":
           description: URL for upload requested successfully
@@ -449,6 +497,8 @@ paths:
     get:
       operationId: GetTimeZoneByCoordinates
       summary: Returns the timezone for the given coordinates
+      tags:
+        - timezone
       parameters:
         - in: query
           name: lat
@@ -485,6 +535,8 @@ paths:
     get:
       operationId: GetUsers
       summary: Returns a list of users.
+      tags:
+        - users
       responses:
         "200":
           description: A JSON array of users
@@ -514,6 +566,15 @@ paths:
     get:
       operationId: GetUserById
       summary: Returns a user
+      tags:
+        - users
+      parameters:
+        - in: path
+          name: id
+          description: ID of the user
+          required: true
+          schema:
+            type: string
       responses:
         "200":
           description: A JSON object with user information
@@ -540,8 +601,20 @@ paths:
     put:
       operationId: UpdateUser
       summary: Updates a user
+      tags:
+        - users
+      parameters:
+        - in: path
+          name: id
+          description: ID of the user
+          required: true
+          schema:
+            type: string
       requestBody:
-        $ref: "#/components/schemas/User"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
       responses:
         "204":
           description: User updated successfully

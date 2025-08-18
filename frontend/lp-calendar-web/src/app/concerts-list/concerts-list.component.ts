@@ -17,6 +17,7 @@ import {ToastrService} from 'ngx-toastr';
 import {ErrorResponse} from '../data/error-response';
 import {ConcertFilterComponent} from '../concert-filter/concert-filter.component';
 import {ConcertFilter} from '../data/concert-filter';
+import {ConcertDto} from '../modules/lpshows-api';
 
 @Component({
   selector: 'app-concerts-list',
@@ -37,7 +38,7 @@ import {ConcertFilter} from '../data/concert-filter';
 export class ConcertsListComponent implements OnInit {
   private modalService = inject(NgbModal);
 
-  concerts$: Concert[] = [];
+  concerts$: ConcertDto[] = [];
 
   // status if the table is currently loading
   isLoading$ = false;
@@ -68,7 +69,7 @@ export class ConcertsListComponent implements OnInit {
   defaultFilter: ConcertFilter = {
     onlyFuture: true,
     tour: "FROM ZERO WORLD TOUR 2025",
-    dateFrom: DateTime.now(),
+    dateFrom: DateTime.now().set({hour: 0, minute: 0, second: 0, millisecond: 0}),
     dateTo: null
   };
 

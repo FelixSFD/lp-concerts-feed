@@ -10,24 +10,25 @@ import {GetS3UploadUrlRequest} from '../data/get-s3-upload-url-request';
 import {GetS3UploadUrlResponse} from '../data/get-s3-upload-url-response';
 import {AdjacentConcertIdsResponse} from '../data/adjacent-concert-ids-response';
 import {ConcertFilter} from '../data/concert-filter';
+import {ConcertDto, ConcertsService as ConcertsApiClient} from '../modules/lpshows-api';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ConcertsService {
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(private httpClient: HttpClient, private concertsApiClient: ConcertsApiClient) { }
 
 
   /**
    * @deprecated Use getFilteredConcerts instead
    */
-  getConcerts(cached: boolean, onlyFuture: boolean) : Observable<Concert[]> {
+  getConcerts(cached: boolean, onlyFuture: boolean) : Observable<ConcertDto[]> {
     return this.getFilteredConcerts(null, cached);
   }
 
 
-  getFilteredConcerts(filter: ConcertFilter | null, cached: boolean) : Observable<Concert[]> {
+  getFilteredConcerts(filter: ConcertFilter | null, cached: boolean) : Observable<ConcertDto[]> {
     let url = environment.apiCachedBaseUrl + "/concerts";
 
     let queryString = filter != null ? this.getQueryStringForFilter(filter) : "";
@@ -45,12 +46,10 @@ export class ConcertsService {
       console.log("Headers:");
       console.log(httpHeaders);
 
-      return this.httpClient.get<Concert[]>(url, {
-        headers: httpHeaders
-      });
+      return this.concertsApiClient.getConcerts(filter?.tour ?? undefined, filter?.dateFrom?.toISO() ?? undefined, filter?.dateTo?.toISO() ?? undefined, Guid.create().toString(), "body", false);
     }
 
-    return this.httpClient.get<Concert[]>(url);
+    return this.concertsApiClient.getConcerts(filter?.tour ?? undefined, filter?.dateFrom?.toISO() ?? undefined, filter?.dateTo?.toISO() ?? undefined, undefined, "body", false);
   }
 
 
