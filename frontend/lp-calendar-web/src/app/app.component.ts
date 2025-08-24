@@ -14,6 +14,7 @@ import {Subscription} from 'rxjs';
 import {MatomoTracker} from 'ngx-matomo-client';
 import {AuthService} from './services/auth.service';
 import {User} from './data/users/user';
+import {UserDto} from './modules/lpshows-api';
 
 @Component({
   selector: 'app-root',
@@ -43,7 +44,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   userData$ = this.oidcSecurityService.userData$;
   // currently logged-in user. Null if not logged in
-  currentUser$: User | null = null;
+  currentUser$: UserDto | null = null;
 
   isAuthenticated$ = false;
 
