@@ -13,7 +13,6 @@ import {
 import {Subscription} from 'rxjs';
 import {MatomoTracker} from 'ngx-matomo-client';
 import {AuthService} from './services/auth.service';
-import {User} from './data/users/user';
 import {UserDto} from './modules/lpshows-api';
 
 @Component({
@@ -123,20 +122,20 @@ export class AppComponent implements OnInit, OnDestroy {
     this.initializingSubscription = this.cookieService.initializing$.subscribe(
       (event: NgcInitializingEvent) => {
         // the cookieconsent is initilializing... Not yet safe to call methods like `NgcCookieConsentService.hasAnswered()`
-        console.log(`initializing: ${JSON.stringify(event)}`);
+        console.debug(`initializing: ${JSON.stringify(event)}`);
       });
 
     this.initializedSubscription = this.cookieService.initialized$.subscribe(
       () => {
         // the cookieconsent has been successfully initialized.
         // It's now safe to use methods on NgcCookieConsentService that require it, like `hasAnswered()` for eg...
-        console.log(`initialized: ${JSON.stringify(event)}`);
+        console.debug(`initialized: ${JSON.stringify(event)}`);
       });
 
     this.initializationErrorSubscription = this.cookieService.initializationError$.subscribe(
       (event: NgcInitializationErrorEvent) => {
         // the cookieconsent has failed to initialize...
-        console.log(`initializationError: ${JSON.stringify(event.error?.message)}`);
+        console.debug(`initializationError: ${JSON.stringify(event.error?.message)}`);
       });
 
     this.statusChangeSubscription = this.cookieService.statusChange$.subscribe(
