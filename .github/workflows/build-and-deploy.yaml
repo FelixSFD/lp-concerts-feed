@@ -210,6 +210,13 @@ jobs:
       working-directory: frontend/lp-calendar-web
       run: npm run build -- --configuration github
 
+    - name: Generate Swagger UI
+      uses: Legion2/swagger-ui-action@v1
+      with:
+        output: ./dist/lp-calendar-web/browser/swagger-ui
+        spec-file: openapi.yaml
+        #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Deploy
       if: success()
       working-directory: frontend/lp-calendar-web
