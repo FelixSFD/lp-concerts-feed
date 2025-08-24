@@ -59,14 +59,7 @@ export class ConcertsService {
 
 
   deleteConcert(concertId: string) {
-    let deleteRequest = new DeleteConcertRequest();
-    deleteRequest.concertId = concertId;
-
-    console.log(authConfig);
-
-    let url = environment.apiNoCacheBaseUrl + "/deleteConcert/" + concertId;
-    //let url = "https://o1qqdpvb23.execute-api.eu-central-1.amazonaws.com/Prod/concerts/" + concertId + "/delete";
-    return this.httpClient.delete(url);
+    return this.concertsApiClient.deleteConcert(concertId);
   }
 
 
