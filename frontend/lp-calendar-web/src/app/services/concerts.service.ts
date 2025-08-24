@@ -9,7 +9,12 @@ import {GetS3UploadUrlRequest} from '../data/get-s3-upload-url-request';
 import {GetS3UploadUrlResponse} from '../data/get-s3-upload-url-response';
 import {AdjacentConcertIdsResponse} from '../data/adjacent-concert-ids-response';
 import {ConcertFilter} from '../data/concert-filter';
-import {AdjacentConcertsResponseDto, ConcertDto, ConcertsService as ConcertsApiClient} from '../modules/lpshows-api';
+import {
+  AdjacentConcertsResponseDto,
+  ConcertDto,
+  ConcertFileUploadRequestDto,
+  ConcertsService as ConcertsApiClient
+} from '../modules/lpshows-api';
 
 @Injectable({
   providedIn: 'root'
@@ -64,13 +69,12 @@ export class ConcertsService {
 
 
   uploadConcertSchedule(concertId: string, imageFile: File) {
-    let requestUrl = environment.apiNoCacheBaseUrl + "/requestFileUpload";
-    let getUrlRequest = new GetS3UploadUrlRequest();
+    let getUrlRequest: ConcertFileUploadRequestDto = {};
     getUrlRequest.concertId = concertId;
     getUrlRequest.contentType = imageFile.type;
     getUrlRequest.type = "ConcertSchedule";
 
-    return this.httpClient.put<GetS3UploadUrlResponse>(requestUrl, getUrlRequest)
+    return this.concertsApiClient.getUrlForConcertFileUpload(getUrlRequest)
       .pipe(
         switchMap((response) => {
           return this.httpClient.put(response.uploadUrl!, imageFile);
