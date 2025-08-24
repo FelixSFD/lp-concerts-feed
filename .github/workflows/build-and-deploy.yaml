@@ -215,7 +215,7 @@ jobs:
       with:
         output: ./dist/lp-calendar-web/browser/swagger-ui
         spec-file: openapi.yaml
-        #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Deploy
       if: success()
