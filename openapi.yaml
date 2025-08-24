@@ -16,8 +16,48 @@ components:
         providerARNs:
           - Fn::ImportValue:
               Fn::Sub: '${BaseProductName}-cognito-authorizer-user-pool'
-              
+  
+  responses:
+    400:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    401:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    403:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    404:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    500:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+        
   schemas:
+    # Common error response
+    ErrorResponse:
+      type: object
+      description: Common class to return errors
+      properties: 
+        message:
+          type: string
+          description: Error-Message
     # Concerts
     AdjacentConcertsResponse:
       type: object
