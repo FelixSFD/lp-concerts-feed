@@ -343,8 +343,9 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
       .subscribe(coordinates => {
         console.log("Found coordinates: ", coordinates);
         this.locationsService.getTimeZoneForCoordinates(coordinates?.latitude ?? 0, coordinates?.longitude ?? 0)
-          .subscribe(tz => {
-            console.log("Found timezone: ", tz);
+          .subscribe(tzObj => {
+            console.log("Found timezone: ", tzObj);
+            let tz = tzObj.timeZoneId!;
             this.timeZoneIsLoading$ = false;
 
             if (timezones.map(t => t.tzCode).indexOf(tz, 0) >= 0) {

@@ -245,6 +245,9 @@ components:
       properties:
         timeZoneId:
           type: string
+          description: Name/ID of the timezone
+          example: Europe/Berlin
+          nullable: false
 
 paths:
   /addConcert:
