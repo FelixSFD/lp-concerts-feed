@@ -9,7 +9,7 @@ import {GetS3UploadUrlRequest} from '../data/get-s3-upload-url-request';
 import {GetS3UploadUrlResponse} from '../data/get-s3-upload-url-response';
 import {AdjacentConcertIdsResponse} from '../data/adjacent-concert-ids-response';
 import {ConcertFilter} from '../data/concert-filter';
-import {ConcertDto, ConcertsService as ConcertsApiClient} from '../modules/lpshows-api';
+import {AdjacentConcertsResponseDto, ConcertDto, ConcertsService as ConcertsApiClient} from '../modules/lpshows-api';
 
 @Injectable({
   providedIn: 'root'
@@ -83,9 +83,8 @@ export class ConcertsService {
    * Returns the previous and next ID based on the ID passed into the method
    * @param currentId ID of the current concert
    */
-  getAdjacentConcerts(currentId: string) : Observable<AdjacentConcertIdsResponse> {
-    let url = environment.apiCachedBaseUrl + "/concerts/" + currentId + "/adjacent";
-    return this.httpClient.get<AdjacentConcertIdsResponse>(url);
+  getAdjacentConcerts(currentId: string) : Observable<AdjacentConcertsResponseDto> {
+    return this.concertsApiClient.getAdjacentConcertsForId(currentId);
   }
 
 

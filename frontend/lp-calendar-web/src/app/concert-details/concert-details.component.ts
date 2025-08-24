@@ -31,10 +31,9 @@ import {mapAttribution} from '../app.config';
 import {environment} from '../../environments/environment';
 import {ConcertTitleGenerator} from '../data/concert-title-generator';
 import {TimeSpanPipe} from '../data/time-span-pipe';
-import {AdjacentConcertIdsResponse} from '../data/adjacent-concert-ids-response';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {MatomoTracker} from 'ngx-matomo-client';
-import {ConcertDto} from '../modules/lpshows-api';
+import {AdjacentConcertsResponseDto, ConcertDto} from '../modules/lpshows-api';
 
 @Component({
   selector: 'app-concert-details',
@@ -53,7 +52,7 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   tracker = inject(MatomoTracker);
 
   concert$: ConcertDto | null = null;
-  adjacentConcertData$: AdjacentConcertIdsResponse | null = null;
+  adjacentConcertData$: AdjacentConcertsResponseDto | null = null;
   concertId: string | undefined;
 
   // Map of the location of the concert

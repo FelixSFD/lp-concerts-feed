@@ -1,12 +1,11 @@
-import {Component, OnInit} from '@angular/core';
+import {Component} from '@angular/core';
 import {ConcertFormComponent} from '../concert-form/concert-form.component';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {ConcertsService} from '../../services/concerts.service';
 import {ToastrService} from 'ngx-toastr';
 import {ErrorResponse} from "../../data/error-response";
 import {HttpErrorResponse} from "@angular/common/http";
-import {AdjacentConcertIdsResponse} from '../../data/adjacent-concert-ids-response';
-import {ConcertDto} from '../../modules/lpshows-api';
+import {AdjacentConcertsResponseDto, ConcertDto} from '../../modules/lpshows-api';
 
 @Component({
   selector: 'app-edit-concert-page',
@@ -19,7 +18,7 @@ import {ConcertDto} from '../../modules/lpshows-api';
 })
 export class EditConcertPageComponent {
   concertId: string | null;
-  adjacentConcertData$: AdjacentConcertIdsResponse | null = null;
+  adjacentConcertData$: AdjacentConcertsResponseDto | null = null;
 
   isSaving$: boolean = false;
 
