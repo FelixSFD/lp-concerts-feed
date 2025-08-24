@@ -12,7 +12,6 @@ import timezones from 'timezones-list';
 import {listOfTours, listOfShowTypes} from '../../app.config';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgClass, NgForOf, NgIf} from '@angular/common';
-import {Concert} from '../../data/concert';
 import {ConcertsService} from '../../services/concerts.service';
 import {DateTime} from 'luxon';
 import {OidcSecurityService} from 'angular-auth-oidc-client';

@@ -53,9 +53,9 @@ export class ConcertsService {
   }
 
 
-  addConcert(concert: Concert) {
-    let url = environment.apiNoCacheBaseUrl + "/addConcert";
-    return this.httpClient.put(url, concert);
+  addConcert(concert: ConcertDto) {
+    concert.status = "PUBLISHED";
+    return this.concertsApiClient.addOrUpdateConcert(concert);
   }
 
 
