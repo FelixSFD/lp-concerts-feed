@@ -13,10 +13,9 @@ import {ConcertBadgesComponent} from '../concert-badges/concert-badges.component
 import {ConcertTitleGenerator} from '../data/concert-title-generator';
 import {CountdownComponent} from '../countdown/countdown.component';
 import {ToastrService} from 'ngx-toastr';
-import {ErrorResponse} from '../data/error-response';
 import {ConcertFilterComponent} from '../concert-filter/concert-filter.component';
 import {ConcertFilter} from '../data/concert-filter';
-import {ConcertDto} from '../modules/lpshows-api';
+import {ConcertDto, ErrorResponseDto} from '../modules/lpshows-api';
 
 @Component({
   selector: 'app-concerts-list',
@@ -150,7 +149,7 @@ export class ConcertsListComponent implements OnInit {
         this.reloadConcertList(false);
       },
       error: err => {
-        let errorResponse: ErrorResponse = err.error;
+        let errorResponse: ErrorResponseDto = err.error;
         console.warn("Failed to delete concert:", err);
         this.deleteConcertModal?.dismiss();
         this.concertDeleting$ = false;

@@ -1,13 +1,7 @@
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import {Observable, switchMap} from 'rxjs';
-import {DeleteConcertRequest} from '../data/delete-concert-request';
-import {authConfig} from '../auth/auth.config';
-import {environment} from '../../environments/environment';
 import { Guid } from 'guid-typescript';
-import {GetS3UploadUrlRequest} from '../data/get-s3-upload-url-request';
-import {GetS3UploadUrlResponse} from '../data/get-s3-upload-url-response';
-import {AdjacentConcertIdsResponse} from '../data/adjacent-concert-ids-response';
 import {ConcertFilter} from '../data/concert-filter';
 import {
   AdjacentConcertsResponseDto,
@@ -89,27 +83,5 @@ export class ConcertsService {
    */
   getAdjacentConcerts(currentId: string) : Observable<AdjacentConcertsResponseDto> {
     return this.concertsApiClient.getAdjacentConcertsForId(currentId);
-  }
-
-
-  private getQueryStringForFilter(filter: ConcertFilter) {
-    let queryStringParts: string[] = [];
-    if (filter.tour != undefined) {
-      queryStringParts.push(`tour=${encodeURIComponent(filter.tour ?? "null")}`);
-    }
-
-    if (!filter.onlyFuture) {
-      queryStringParts.push(`only_future=false`);
-    }
-
-    // add the parameters for the date range
-    if (filter.dateFrom != null && filter.dateFrom?.isValid) {
-      queryStringParts.push(`date_from=${encodeURIComponent(filter.dateFrom.toISO() ?? "")}`);
-    }
-    if (filter.dateTo != null && filter.dateTo?.isValid) {
-      queryStringParts.push(`date_to=${encodeURIComponent(filter.dateTo.toISO() ?? "")}`);
-    }
-
-    return queryStringParts.join('&');
   }
 }

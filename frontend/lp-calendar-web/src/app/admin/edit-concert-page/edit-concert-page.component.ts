@@ -3,9 +3,8 @@ import {ConcertFormComponent} from '../concert-form/concert-form.component';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {ConcertsService} from '../../services/concerts.service';
 import {ToastrService} from 'ngx-toastr';
-import {ErrorResponse} from "../../data/error-response";
 import {HttpErrorResponse} from "@angular/common/http";
-import {AdjacentConcertsResponseDto, ConcertDto} from '../../modules/lpshows-api';
+import {AdjacentConcertsResponseDto, ConcertDto, ErrorResponseDto} from '../../modules/lpshows-api';
 
 @Component({
   selector: 'app-edit-concert-page',
@@ -64,7 +63,7 @@ export class EditConcertPageComponent {
 
             console.log(err);
 
-            let errorResponse: ErrorResponse = err.error;
+            let errorResponse: ErrorResponseDto = err.error;
 
             this.toastr.error(errorResponse.message, "Failed to save concert!");
           }

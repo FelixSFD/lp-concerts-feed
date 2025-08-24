@@ -1,12 +1,11 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {User} from '../../../data/users/user';
-import {environment} from '../../../../environments/environment';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {ToastrService} from 'ngx-toastr';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {UsersService} from '../../../services/users.service';
 import {UserFormComponent} from '../user-form/user-form.component';
-import {ErrorResponse} from '../../../data/error-response';
+import {ErrorResponseDto} from '../../../modules/lpshows-api';
 
 
 @Component({
@@ -51,7 +50,7 @@ export class EditUserComponent implements OnInit {
         }
       },
       error: err => {
-        let errorResponse: ErrorResponse = err.error;
+        let errorResponse: ErrorResponseDto = err.error;
         this.toastr.error(errorResponse.message, "Could not load user");
       }
     });
@@ -68,7 +67,7 @@ export class EditUserComponent implements OnInit {
         this.userIsSaving$ = false;
       },
       error: err => {
-        let errorResponse: ErrorResponse = err.error;
+        let errorResponse: ErrorResponseDto = err.error;
         this.toastr.error(errorResponse.message, "Could not save user");
         this.userIsSaving$ = false;
       }
