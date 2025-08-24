@@ -1,7 +1,7 @@
 import {Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {User} from '../../../data/users/user';
 import {NgClass, NgIf} from '@angular/common';
+import {UserDto} from '../../../modules/lpshows-api';
 
 @Component({
   selector: 'app-user-form',
@@ -27,10 +27,10 @@ export class UserFormComponent implements OnInit, OnChanges {
   isSaving$: boolean = false;
 
   @Input({ alias: "user" })
-  user$ : User | null = null;
+  user$ : UserDto | null = null;
 
   @Output('saveClicked')
-  saveClicked = new EventEmitter<User>();
+  saveClicked = new EventEmitter<UserDto>();
 
 
   ngOnInit(): void {
@@ -60,7 +60,7 @@ export class UserFormComponent implements OnInit, OnChanges {
   }
 
 
-  private fillFormWithUser(user: User | null) {
+  private fillFormWithUser(user: UserDto | null) {
     if (user != null) {
       this.userForm.enable();
     } else {
@@ -79,7 +79,7 @@ export class UserFormComponent implements OnInit, OnChanges {
 
 
   private readUserFromForm() {
-    let newUser = new User();
+    let newUser: UserDto = {};
     newUser.username = this.userForm.controls.username.value ?? "";
     newUser.email = this.userForm.controls.email.value ?? "";
 

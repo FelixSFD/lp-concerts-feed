@@ -1,12 +1,8 @@
+import {UserDto} from '../../modules/lpshows-api';
+
 export class User {
-  id: string | undefined;
-  username: string | undefined;
-  email: string | undefined;
-  emailVerified: boolean = false;
-
-
-  static fromClaims(claims: any): User {
-    let user =  new User();
+  static fromClaims(claims: any): UserDto {
+    let user: UserDto = {};
     user.id = claims['sub'];
     user.username = claims['custom:display_name'];
     user.email = claims['email'];

@@ -1,13 +1,12 @@
 import { Component } from '@angular/core';
 import {UsersService} from '../../../services/users.service';
-import {User} from '../../../data/users/user';
 import {NgForOf, NgIf} from '@angular/common';
 import {ConcertTitleGenerator} from '../../../data/concert-title-generator';
 import {DateTime} from 'luxon';
 import {RouterLink} from '@angular/router';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {ToastrService} from 'ngx-toastr';
-import {ErrorResponseDto} from '../../../modules/lpshows-api';
+import {ErrorResponseDto, UserDto} from '../../../modules/lpshows-api';
 
 @Component({
   selector: 'app-users-list',
@@ -21,7 +20,7 @@ import {ErrorResponseDto} from '../../../modules/lpshows-api';
   styleUrl: './users-list.component.css'
 })
 export class UsersListComponent {
-  users$: User[] = [];
+  users$: UserDto[] = [];
 
   // status if the table is currently loading
   isLoading$ = false;
