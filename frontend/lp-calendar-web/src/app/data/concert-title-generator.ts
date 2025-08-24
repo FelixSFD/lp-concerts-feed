@@ -1,9 +1,8 @@
 /// Class to generate titles based on concert data
-import {Concert} from './concert';
 import {ConcertDto} from '../modules/lpshows-api';
 
 export class ConcertTitleGenerator {
-  public static getTitleFor(concert: Concert | ConcertDto) {
+  public static getTitleFor(concert: ConcertDto) {
     if (concert.customTitle) {
       return concert.customTitle;
     } else {

@@ -1,6 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {CountdownComponent} from '../countdown/countdown.component';
-import {Concert} from '../data/concert';
 import {ConcertsService} from '../services/concerts.service';
 import {NgIf} from '@angular/common';
 import {RouterLink} from '@angular/router';
@@ -22,7 +21,7 @@ export class ConcertCardComponent implements OnInit{
   displayType: string = "countdown";
 
   @Input("concert")
-  concert$: Concert | ConcertDto | null = null;
+  concert$: ConcertDto | null = null;
 
   // if no concert is set, use distant past as placeholder for countdown
   pastPlaceholderDate = new Date(2024, 9, 5, 15, 0).toISOString();

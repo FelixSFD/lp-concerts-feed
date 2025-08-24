@@ -1,6 +1,5 @@
 import {Component, Input} from '@angular/core';
 import {NgIf} from "@angular/common";
-import {Concert} from '../data/concert';
 import {defaultShowType} from '../app.config';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {ConcertDto} from '../modules/lpshows-api';
@@ -16,6 +15,6 @@ import {ConcertDto} from '../modules/lpshows-api';
 })
 export class ConcertBadgesComponent {
   @Input("concert")
-  concert$: Concert | ConcertDto | null = null;
+  concert$: ConcertDto | null = null;
   protected readonly defaultShowType = defaultShowType;
 }

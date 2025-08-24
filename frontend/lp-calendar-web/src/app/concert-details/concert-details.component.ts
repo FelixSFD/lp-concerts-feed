@@ -7,7 +7,6 @@ import {
   ViewChild
 } from '@angular/core';
 import {ConcertsService} from '../services/concerts.service';
-import {Concert} from '../data/concert';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {DateTime} from 'luxon';
 import {NgIf} from '@angular/common';
@@ -53,7 +52,7 @@ import {ConcertDto} from '../modules/lpshows-api';
 export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   tracker = inject(MatomoTracker);
 
-  concert$: Concert | ConcertDto | null = null;
+  concert$: ConcertDto | null = null;
   adjacentConcertData$: AdjacentConcertIdsResponse | null = null;
   concertId: string | undefined;
 
@@ -212,7 +211,7 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   }
 
 
-  private updateMetaInfo(concert: Concert | ConcertDto) {
+  private updateMetaInfo(concert: ConcertDto) {
     let pageTitle = "";
     let description = "";
 

@@ -1,7 +1,6 @@
 import {Component, inject, OnInit, TemplateRef} from '@angular/core';
 import {ConcertsService} from '../services/concerts.service';
 import {NgForOf, NgIf} from '@angular/common';
-import {Concert} from '../data/concert';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {OidcSecurityService} from 'angular-auth-oidc-client';

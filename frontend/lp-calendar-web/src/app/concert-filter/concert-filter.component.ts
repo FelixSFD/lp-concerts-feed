@@ -2,7 +2,6 @@ import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/c
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {NgForOf, NgIf} from '@angular/common';
 import {listOfTours} from '../app.config';
-import {Concert} from '../data/concert';
 import {ConcertFilter} from '../data/concert-filter';
 import {DateTime} from 'luxon';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';

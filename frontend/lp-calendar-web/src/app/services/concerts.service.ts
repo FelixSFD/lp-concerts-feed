@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Concert } from '../data/concert';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Observable, switchMap} from 'rxjs';
 import {DeleteConcertRequest} from '../data/delete-concert-request';

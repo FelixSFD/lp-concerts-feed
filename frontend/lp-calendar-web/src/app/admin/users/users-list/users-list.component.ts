@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import {UsersService} from '../../../services/users.service';
-import {Concert} from '../../../data/concert';
 import {User} from '../../../data/users/user';
 import {NgForOf, NgIf} from '@angular/common';
 import {ConcertTitleGenerator} from '../../../data/concert-title-generator';

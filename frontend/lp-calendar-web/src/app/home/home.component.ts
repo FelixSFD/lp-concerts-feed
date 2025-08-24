@@ -3,7 +3,6 @@ import {RouterLink} from '@angular/router';
 import {environment} from '../../environments/environment';
 import {ConcertCardComponent} from '../concert-card/concert-card.component';
 import {ConcertsService} from '../services/concerts.service';
-import {Concert} from '../data/concert';
 import {CalendarFeedBuilderComponent} from '../calendar-feed-builder/calendar-feed-builder.component';
 import {ToastrService} from 'ngx-toastr';
 import {MatomoTracker} from 'ngx-matomo-client';
@@ -25,7 +24,7 @@ export class HomeComponent implements OnInit {
 
   private readonly tracker = inject(MatomoTracker);
 
-  nextConcert: Concert | ConcertDto | null = null;
+  nextConcert: ConcertDto | null = null;
 
   iCalFeedUrl$: string = "";
 
