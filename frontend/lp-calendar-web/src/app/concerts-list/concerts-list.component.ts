@@ -166,9 +166,9 @@ export class ConcertsListComponent implements OnInit {
 
 
   onFilterChanged(filter: ConcertFilter) {
-    console.log("filterEvent: ", filter);
+    console.debug("filterEvent: ", filter);
     this.currentFilter = filter;
-    this.reloadConcertList(false); // TODO: use cache
+    this.reloadConcertList(true);
   }
 
 
