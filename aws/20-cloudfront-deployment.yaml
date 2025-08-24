@@ -16,6 +16,9 @@ Parameters:
   HostedZoneId:
     Type: String
     Default: ""
+  RedirectLambdaArn:
+    Description: ARN of the Lambda@Edge function to handle redirects (must be passed like this because the function is in a different region)
+    Type: String
 
 
 
@@ -140,7 +143,7 @@ Resources:
       DistributionConfig:
         Origins:
           - Id: ApiGatewayOrigin
-            DomainName: {'Fn::ImportValue': !Sub '${BaseProductName}-main-api-gateway-domain' }
+            DomainName: {'Fn::ImportValue': !Sub '${BaseProductName}-api-gateway-domain' }
             CustomOriginConfig:
               OriginProtocolPolicy: https-only
               OriginSSLProtocols:
@@ -168,6 +171,9 @@ Resources:
           CachePolicyId: !Ref DefaultCachePolicy
           OriginRequestPolicyId: !Ref CORSOriginRequestPolicy
           ResponseHeadersPolicyId: !Ref CORSResponseHeadersPolicy
+          LambdaFunctionAssociations:
+            - EventType: viewer-request
+              LambdaFunctionARN: !Ref RedirectLambdaArn
         Enabled: true
         Comment: !Sub "${AWS::StackName} API"
         PriceClass: PriceClass_100

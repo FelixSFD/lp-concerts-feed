@@ -1,0 +1,92 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Application to manage the CloudFront deployment for the LP Calendar project
+
+
+
+Parameters:
+  BaseProductName:
+    Description: Name of the product. Is used as prefix in the exports
+    Type: String
+
+
+
+Resources:
+  # Lambda@Edge for redirects
+  RedirectLambdaFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - 'lambda.amazonaws.com'
+                - 'edgelambda.amazonaws.com'
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+  
+  RedirectLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${BaseProductName}-redirect-lambda
+      Handler: index.handler
+      Role: !GetAtt RedirectLambdaFunctionRole.Arn
+      Runtime: nodejs18.x
+      AutoPublishAlias: live
+      InlineCode: |
+        exports.handler = async (event, context, callback) => {
+            const request = event.Records[0].cf.request;
+            const uri = request.uri;
+        
+            // Check if path starts with /Prod/
+            if (uri.startsWith('/Prod/')) {
+              const newUri = uri.replace(/^\/Prod\//, '/v2/');
+              
+              const response = {
+                status: '301',
+                statusDescription: 'Moved Permanently',
+                headers: {
+                  location: [{
+                    key: 'Location',
+                    value: newUri,
+                  }],
+                },
+              };
+
+              return callback(null, response);
+            }
+        
+            // Check if path starts with /latest/
+            if (uri.startsWith('/latest/')) {
+              const newUri = uri.replace(/^\/latest\//, '/v2/');
+        
+              const response = {
+                status: '302',
+                statusDescription: 'Found v2',
+                headers: {
+                  location: [{
+                    key: 'Location',
+                    value: newUri,
+                  }],
+                },
+              };
+        
+              return callback(null, response);
+            }
+        
+            // Otherwise, continue as normal
+            return callback(null, request);
+        };
+
+
+Outputs:
+  RedirectLambdaFunctionArnExport:
+    Description: 'Lambda@Edge function Version'
+    Value: !Ref RedirectLambdaFunction.Version
+    Export:
+      Name: !Sub '${BaseProductName}-redirect-lambda-version'

@@ -1,7 +1,6 @@
 import {Component, inject, OnInit, TemplateRef} from '@angular/core';
 import {ConcertsService} from '../services/concerts.service';
 import {NgForOf, NgIf} from '@angular/common';
-import {Concert} from '../data/concert';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
@@ -14,9 +13,9 @@ import {ConcertBadgesComponent} from '../concert-badges/concert-badges.component
 import {ConcertTitleGenerator} from '../data/concert-title-generator';
 import {CountdownComponent} from '../countdown/countdown.component';
 import {ToastrService} from 'ngx-toastr';
-import {ErrorResponse} from '../data/error-response';
 import {ConcertFilterComponent} from '../concert-filter/concert-filter.component';
 import {ConcertFilter} from '../data/concert-filter';
+import {ConcertDto, ErrorResponseDto} from '../modules/lpshows-api';
 
 @Component({
   selector: 'app-concerts-list',
@@ -37,7 +36,7 @@ import {ConcertFilter} from '../data/concert-filter';
 export class ConcertsListComponent implements OnInit {
   private modalService = inject(NgbModal);
 
-  concerts$: Concert[] = [];
+  concerts$: ConcertDto[] = [];
 
   // status if the table is currently loading
   isLoading$ = false;
@@ -68,7 +67,7 @@ export class ConcertsListComponent implements OnInit {
   defaultFilter: ConcertFilter = {
     onlyFuture: true,
     tour: "FROM ZERO WORLD TOUR 2025",
-    dateFrom: DateTime.now(),
+    dateFrom: DateTime.now().set({hour: 0, minute: 0, second: 0, millisecond: 0}),
     dateTo: null
   };
 
@@ -150,7 +149,7 @@ export class ConcertsListComponent implements OnInit {
         this.reloadConcertList(false);
       },
       error: err => {
-        let errorResponse: ErrorResponse = err.error;
+        let errorResponse: ErrorResponseDto = err.error;
         console.warn("Failed to delete concert:", err);
         this.deleteConcertModal?.dismiss();
         this.concertDeleting$ = false;
@@ -167,9 +166,9 @@ export class ConcertsListComponent implements OnInit {
 
 
   onFilterChanged(filter: ConcertFilter) {
-    console.log("filterEvent: ", filter);
+    console.debug("filterEvent: ", filter);
     this.currentFilter = filter;
-    this.reloadConcertList(false); // TODO: use cache
+    this.reloadConcertList(true);
   }
 
 

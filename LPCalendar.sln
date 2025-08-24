@@ -8,6 +8,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "aws-deployment", "aws-deplo
 		aws\20-cloudfront-deployment.yaml = aws\20-cloudfront-deployment.yaml
 		aws\README.md = aws\README.md
 		aws\30-dns-deployment.yaml = aws\30-dns-deployment.yaml
+		aws\06-api-gateway.yaml = aws\06-api-gateway.yaml
+		aws\18-lambda-edge.yaml = aws\18-lambda-edge.yaml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.AddConcert", "Lambda.AddConcert\src\Lambda.AddConcert\Lambda.AddConcert.csproj", "{44164B0A-34D0-46CE-B782-DA308B45F3FE}"
@@ -62,6 +64,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.AuditLogWriter", "Lambda.AuditLogWriter\src\Lambda.AuditLogWriter\Lambda.AuditLogWriter.csproj", "{54C50188-3C2F-4022-86D3-FB8BA36BEEB6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.AuditLogWriter.Tests", "Lambda.AuditLogWriter\test\Lambda.AuditLogWriter.Tests\Lambda.AuditLogWriter.Tests.csproj", "{45B2B32D-1495-481D-8106-18587B85653A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "openapi", "openapi", "{101367A1-3CC3-471F-ACAA-BEA34DA8E85D}"
+	ProjectSection(SolutionItems) = preProject
+		openapi.yaml = openapi.yaml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

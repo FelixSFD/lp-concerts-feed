@@ -10,6 +10,7 @@ import {BrowserAnimationsModule, provideAnimations} from '@angular/platform-brow
 import {provideMatomo, withRouter} from 'ngx-matomo-client';
 import {environment} from '../environments/environment';
 import {NgcCookieConsentConfig, provideNgcCookieConsent} from 'ngx-cookieconsent';
+import {BASE_PATH} from './modules/lpshows-api';
 
 const cookieConfig:NgcCookieConsentConfig = {
   "cookie": {
@@ -59,7 +60,8 @@ export const appConfig: ApplicationConfig = {
         delay: 1000
       }),
     ),
-    provideNgcCookieConsent(cookieConfig)
+    provideNgcCookieConsent(cookieConfig),
+    { provide: BASE_PATH, useValue: environment.apiCachedBaseUrl } // base path for API
   ]
 };
 

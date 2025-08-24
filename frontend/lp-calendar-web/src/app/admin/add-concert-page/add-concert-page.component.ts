@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
 import {ConcertFormComponent} from '../concert-form/concert-form.component';
-import {ActivatedRoute} from '@angular/router';
-import {Concert} from '../../data/concert';
 import {ConcertsService} from '../../services/concerts.service';
 import {ToastrService} from 'ngx-toastr';
+import {ConcertDto} from '../../modules/lpshows-api';
 
 @Component({
   selector: 'app-add-concert-page',
@@ -20,7 +19,7 @@ export class AddConcertPageComponent {
   }
 
 
-  onFormSaved(concert: Concert) {
+  onFormSaved(concert: ConcertDto) {
     this.isSaving$ = true;
 
     this.concertsService.addConcert(concert).subscribe({

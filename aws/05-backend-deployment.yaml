@@ -141,6 +141,18 @@ Resources:
         PointInTimeRecoveryEnabled: true
       BillingMode: PAY_PER_REQUEST
       
+  # S3 bucket to store OpenAPI definition
+  OpenApiBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: !Sub ${BaseProductName}-openapi
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "storage"
   
   # Policy to publish to AuditLogQueue
   AuditLogQueueProducerPolicy:
@@ -810,12 +822,12 @@ Resources:
             Method: get
   
   
-  UsersReadFunction:
+  UsersReadWriteFunction:
     Type: AWS::Serverless::Function
     Properties:
       Handler: Lambda.UsersRead::Lambda.UsersRead.Function::FunctionHandler
       Role: !GetAtt UsersReadLambdaExecutionRole.Arn
-      Description: .NET function to read user-data from Cognito
+      Description: .NET function to  and write user-data from Cognito
       CodeUri: ../Lambda.UsersRead/src/Lambda.UsersRead/bin/Release/net8.0/Lambda.UsersRead.zip
       Architectures:
         - arm64
@@ -926,8 +938,49 @@ Outputs:
     Value: !GetAtt ConcertImagesBucket.RegionalDomainName
     Export:
       Name: !Sub '${BaseProductName}-concert-image-s3-regional-domain'
-  CognitoUerPoolDomainExport:
+  CognitoUserPoolDomainExport:
     Description: 'Internal domain name of the Cognito userpool'
     Value: !Sub "${BaseProductName}-${AWS::AccountId}.auth.${AWS::Region}.amazoncognito.com"
     Export:
       Name: !Sub '${BaseProductName}-cognito-domain'
+  CognitoAuthorizerUserPoolExport:
+    Description: 'ARN of the authorizer userpool'
+    Value: !GetAtt CognitoAuthorizerUserPoolV3.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-cognito-authorizer-user-pool'
+  LambdaRefGetTimeZoneFunctionExport:
+    Value: !GetAtt GetTimeZoneFunction.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-lambda-get-time-zone-function'
+  LambdaRefUsersReadWriteFunctionExport:
+    Value: !GetAtt UsersReadWriteFunction.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-lambda-users-read-write-function'
+  LambdaRefAddConcertFunctionExport:
+    Value: !GetAtt AddConcertFunction.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-lambda-add-concert-function'
+  LambdaRefDeleteConcertFunctionExport:
+    Value: !GetAtt DeleteConcertFunction.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-lambda-delete-concert-function'
+  LambdaRefFindConcertsFunctionExport:
+    Value: !GetAtt FindConcertFunction.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-lambda-find-concerts-function'
+  LambdaRefAdjacentConcertsFunctionExport:
+    Value: !GetAtt AdjacentConcertsFunction.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-lambda-adjacent-concerts-function'
+  LambdaRefGetCalendarFeedFunctionExport:
+    Value: !GetAtt ConcertCalendarFeedFunction.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-lambda-get-ical-function'
+  LambdaRefGetS3UploadUrlFunctionExport:
+    Value: !GetAtt GetS3UploadUrlFunction.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-lambda-concert-s3-upload-url-function'
+  OpenApiBucketArn:
+    Value: !GetAtt OpenApiBucket.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-openapi-bucket-arn'

@@ -4,6 +4,7 @@ import {first, map, Observable} from 'rxjs';
 import {OsmCity} from '../data/osm/osm-city';
 import {Coordinates} from '../data/location/coordinates';
 import {environment} from '../../environments/environment';
+import {TimeZoneResponseDto, TimezoneService} from '../modules/lpshows-api';
 
 /**
  * Service to retrieve location data like coordinates and timezones
@@ -14,7 +15,7 @@ import {environment} from '../../environments/environment';
 export class LocationsService {
   private osmApiBaseUrl = "https://nominatim.openstreetmap.org";
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(private httpClient: HttpClient, private timezoneApiClient: TimezoneService) { }
 
 
   getCoordinatesFor(city: string, state: string | null, country: string): Observable<Coordinates | undefined> {
@@ -50,10 +51,7 @@ export class LocationsService {
   }
 
 
-  getTimeZoneForCoordinates(lat: number, lon: number): Observable<string> {
-    let url = `${environment.apiCachedBaseUrl}/Prod/timeZone/byCoordinates?lat=${lat}&lon=${lon}`;
-    return this.httpClient.get<any>(url).pipe(
-      map(responseObj => responseObj["timeZoneId"])
-    )
+  getTimeZoneForCoordinates(lat: number, lon: number): Observable<TimeZoneResponseDto> {
+    return this.timezoneApiClient.getTimeZoneByCoordinates(lat, lon);
   }
 }

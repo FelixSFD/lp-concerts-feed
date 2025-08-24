@@ -43,3 +43,6 @@ Thumbs.db
 
 # Local config
 /src/environments/environment.development.ts
+
+# auto-generated api client
+/src/app/modules/lpshows-api/

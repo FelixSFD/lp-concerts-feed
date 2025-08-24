@@ -3,10 +3,10 @@ import {RouterLink} from '@angular/router';
 import {environment} from '../../environments/environment';
 import {ConcertCardComponent} from '../concert-card/concert-card.component';
 import {ConcertsService} from '../services/concerts.service';
-import {Concert} from '../data/concert';
 import {CalendarFeedBuilderComponent} from '../calendar-feed-builder/calendar-feed-builder.component';
 import {ToastrService} from 'ngx-toastr';
 import {MatomoTracker} from 'ngx-matomo-client';
+import {ConcertDto} from '../modules/lpshows-api';
 
 @Component({
   selector: 'app-home',
@@ -24,7 +24,7 @@ export class HomeComponent implements OnInit {
 
   private readonly tracker = inject(MatomoTracker);
 
-  nextConcert: Concert | null = null;
+  nextConcert: ConcertDto | null = null;
 
   iCalFeedUrl$: string = "";
 
@@ -62,7 +62,7 @@ export class HomeComponent implements OnInit {
 
 
   subscribeBtnClicked() {
-    let calendarUrl = environment.apiCachedBaseUrl + "/Prod/feed/ical";
+    let calendarUrl = environment.apiBaseUrlLatest + "/feed/ical";
     calendarUrl = calendarUrl.replace("https", "webcal");
     window.open(calendarUrl);
   }

@@ -1,0 +1,702 @@
+openapi: 3.0.4
+info:
+  title: LP Concerts API
+  description: API for the LP Concerts application
+  version: 1.0.0
+
+components:
+  securitySchemes:
+    ConcertsCognitoAuthorizer:
+      type: apiKey
+      name: Authorization
+      in: header
+      x-amazon-apigateway-authtype: cognito_user_pools
+      x-amazon-apigateway-authorizer:
+        type: cognito_user_pools
+        providerARNs:
+          - Fn::ImportValue:
+              Fn::Sub: '${BaseProductName}-cognito-authorizer-user-pool'
+  
+  responses:
+    400:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    401:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    403:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    404:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    500:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+        
+  schemas:
+    # Common error response
+    ErrorResponse:
+      type: object
+      description: Common class to return errors
+      properties: 
+        message:
+          type: string
+          description: Error-Message
+    # Concerts
+    AdjacentConcertsResponse:
+      type: object
+      description: Response to get the IDs of the previous and next concerts
+      properties: 
+        current:
+          type: string
+          description: ID of the requested concert
+        previous:
+          type: string
+          description: ID of the previous concert
+        next:
+          type: string
+          description: ID of the next concert
+    Concert:
+      type: object
+      description: Information about a concert
+      properties: 
+        id:
+          type: string
+          description: Unique ID of the concert
+        showType:
+          type: string
+          description: Type of the show
+        customTitle:
+          type: string
+          description: Custom title for the show to display in the calendar. Only used if the auto-generated title is not suitable
+          nullable: true
+        tourName:
+          type: string
+          description: Name of the tour
+          nullable: true
+        status:
+          type: string
+          description: Status of the show (always PUBLISHED for now)
+          nullable: false
+          enum:
+            - PUBLISHED
+        postedStartTime:
+          type: string
+          description: Time when the concert starts according to Ticketmaster. It' technically nullable but should exist in every show as this property is used as fallback if other times are not known yet.
+          nullable: false
+          format: date-time
+          example: '2024-09-05T22:00:00Z'
+        lpuEarlyEntryConfirmed:
+          type: boolean
+          description: true, if LPU early entry has been confirmed for the show. Not all shows are guaranteed to have early entry.
+        lpuEarlyEntryTime:
+          type: string
+          description: Time when doors will open for LPU early entry. If null, the time is probably not announced yet.
+          format: date-time
+          example: '2024-09-05T20:30:00Z'
+        doorsTime:
+          type: string
+          description: Time when the doors will open for the general public. If null, the time is probably not announced yet
+          format: date-time
+          example: '2024-09-05T21:00:00Z'
+        mainStageTime:
+          type: string
+          description: Time when Linkin Park is expected to enter the stage. If null, the time is probably not announced yet
+          format: date-time
+          example: '2024-09-05T22:01:00Z'
+        expectedSetDuration:
+          type: integer
+          description: Expected duration in minutes of the Linkin Park set during this event
+          example: 120
+        timeZoneId:
+          type: string
+          description: Timezone of the venue
+          example: "Europe/Berlin"
+        country:
+          type: string
+          description: Country of the venue
+        state:
+          type: string
+          description: State where the venue is located in
+          nullable: true
+        city:
+          type: string
+          description: City of the venue
+        venue:
+          type: string
+          description: Name of the venue
+          nullable: true
+        locationLong:
+          type: string
+          description: Long version of the location string (includes Venue, City, State, Country if available)
+          readOnly: true
+        locationMedium:
+          type: string
+          description: Shorter version of the location string (includes Venue, City, Country if available)
+          readOnly: true
+        locationShort:
+          type: string
+          description: Short version of the location string (includes City, Country if available)
+          readOnly: true
+        venueLatitude:
+          type: number
+          description: Latitude of the venue
+        venueLongitude:
+          type: number
+          description: Longitude of the venue
+        scheduleImageFile:
+          type: string
+          description: Filename of the image that contains the show's schedule. It's possible that the name is set, but the image doesn't exist. In that case, the file was not uploaded (yet)
+          nullable: true
+          readOnly: true
+        isPast:
+          type: string
+          description: A show is considered as "past", when the posted start time was more than 4 hour ago
+          readOnly: true
+    ConcertFileUploadRequest:
+      type: object
+      description: Request to get a S3 url to upload the schedule for a concert
+      properties: 
+        type:
+          type: string
+          description: Type of the file to upload. (not the MIME-type)
+          enum: 
+            - ConcertSchedule
+          default: ConcertSchedule
+          nullable: false
+        concertId:
+          type: string
+          description: ID of the concert where the file is uploaded to
+          nullable: false
+        contentType:
+          type: string
+          description: Type of the file to be uploaded
+          nullable: false
+    ConcertFileUploadResponse:
+      type: object
+      description: Response that tells the client which URL to use for the upload
+      properties:
+        uploadUrl:
+          type: string
+          description: URL to use when uploading the file. This URL is only valid for the requested file
+          nullable: false
+    ConcertSubEventCategory:
+      type: string
+      description: Describes a type of "sub-event". This is a part of the concert and can be something like "doors time" or "LP stage time"
+      enum:
+        - AsOneSingleEvent
+        - LinkinPark
+        - Doors
+        - SupportAct
+
+    # Users
+    UserGroup:
+      type: object
+      description: Group of users
+      properties:
+        name:
+          type: string
+          description: Name of the group
+        description:
+          type: string
+          description: Description of the group
+    User:
+      type: object
+      description: User information
+      properties:
+        id:
+          type: string
+          description: ID of the group
+          nullable: false
+        username:
+          type: string
+          description: Name of the user
+        email:
+          type: string
+          description: e-mail address of the user
+        emailVerified:
+          type: boolean
+          description: true, if the address was verified
+        userGroups:
+          type: array
+          description: Groups the user is a member of
+          items: 
+            $ref: "#/components/schemas/UserGroup"
+
+    # Timezones
+    TimeZoneResponse:
+      type: object
+      properties:
+        timeZoneId:
+          type: string
+          description: Name/ID of the timezone
+          example: Europe/Berlin
+          nullable: false
+
+paths:
+  /addConcert:
+    put:
+      operationId: AddOrUpdateConcert
+      summary: Adds a new concert to the database or updates an existing entry (this API is not using /concerts because the Angular frontend couldn't decide whether to require authentication)
+      tags:
+        - concerts
+      requestBody:
+        content: 
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Concert"
+      responses:
+        "201":
+          description: when the concert was saved
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-add-concert-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /deleteConcert/{concertId}:
+    delete:
+      operationId: DeleteConcert
+      summary: Deletes a concert from the database (this API is not using /concerts because the Angular frontend couldn't decide whether to require authentication)
+      tags:
+        - concerts
+      parameters:
+        - in: path
+          name: concertId
+          description: ID of the concert
+          required: true
+          schema: 
+            type: string
+      responses:
+        "201":
+          description: when the concert was saved
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-delete-concert-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /concerts:
+    get:
+      operationId: GetConcerts
+      summary: Returns a list of concerts
+      description: The list can be filtered if needed. See list of parameters for more information. Some filters are applied by default
+      tags:
+        - concerts
+      parameters:
+        - in: query
+          name: tour
+          schema:
+            type: string
+            example: FROM ZERO WORLD TOUR 2026
+          description: 'Name of the tour. (TODO: describe possible values)'
+          required: false
+        - in: query
+          name: date_from
+          schema:
+            type: string
+            format: date-time
+            example: '2024-09-05T22:00:00Z'
+          description: 'Search for concerts after this date'
+          required: false
+        - in: query
+          name: date_to
+          schema:
+            type: string
+            format: date-time
+            example: '2024-12-31T12:00:00Z'
+          description: 'Search for concerts before this date'
+          required: false
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A JSON array with the concerts that were found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Concert"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-find-concerts-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /concerts/{id}:
+    get:
+      operationId: GetConcertById
+      summary: Returns a single concert
+      tags:
+        - concerts
+      parameters:
+        - in: path
+          name: id
+          description: ID of the concert
+          required: true
+          schema:
+            type: string
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A JSON object with the information of the concert
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Concert"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-find-concerts-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /concerts/{id}/adjacent:
+    get:
+      operationId: GetAdjacentConcertsForId
+      summary: Returns information about the previous and next concerts
+      tags:
+        - concerts
+      parameters:
+        - in: path
+          name: id
+          description: ID of the concert
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A JSON object with the information of the adjacent concerts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdjacentConcertsResponse"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-adjacent-concerts-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /concerts/next:
+    get:
+      operationId: GetNextConcert
+      summary: Returns the next concert
+      tags:
+        - concerts
+      responses:
+        "200":
+          description: A JSON object with the information of the concert
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Concert"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-find-concerts-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /feed/ical:
+    get:
+      operationId: GetCalendarFeed
+      summary: Returns the calendar as iCal
+      parameters:
+        - in: query
+          name: event_categories
+          style: form
+          explode: false
+          example: LinkinPark,Doors
+          schema: 
+            type: array
+            items:
+              $ref: "#/components/schemas/ConcertSubEventCategory"
+      responses: 
+        "200":
+          description: The calendar entries for all shows in the iCal format
+          content: 
+            text/calendar:
+              schema: 
+                type: string
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-get-ical-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /requestFileUpload:
+    put:
+      operationId: GetUrlForConcertFileUpload
+      summary: Requests a URL that can be used to upload a file to a concert
+      tags:
+        - concerts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConcertFileUploadRequest"
+      responses:
+        "200":
+          description: URL for upload requested successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConcertFileUploadResponse"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-concert-s3-upload-url-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /timeZone/byCoordinates:
+    get:
+      operationId: GetTimeZoneByCoordinates
+      summary: Returns the timezone for the given coordinates
+      tags:
+        - timezone
+      parameters:
+        - in: query
+          name: lat
+          schema:
+            type: number
+          description: Latitude of the location
+        - in: query
+          name: lon
+          schema:
+            type: number
+          description: Longitude of the location
+      responses:
+        "200":
+          description: A JSON object with the data of the timezone
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimeZoneResponse"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-get-time-zone-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /users:
+    get:
+      operationId: GetUsers
+      summary: Returns a list of users.
+      tags:
+        - users
+      parameters:
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A JSON array of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-users-read-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /users/{id}:
+    get:
+      operationId: GetUserById
+      summary: Returns a user
+      tags:
+        - users
+      parameters:
+        - in: path
+          name: id
+          description: ID of the user
+          required: true
+          schema:
+            type: string
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A JSON object with user information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-users-read-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+    put:
+      operationId: UpdateUser
+      summary: Updates a user
+      tags:
+        - users
+      parameters:
+        - in: path
+          name: id
+          description: ID of the user
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "204":
+          description: User updated successfully
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-users-read-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"

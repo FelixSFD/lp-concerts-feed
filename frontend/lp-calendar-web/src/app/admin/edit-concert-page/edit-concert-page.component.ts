@@ -1,12 +1,10 @@
-import {Component, OnInit} from '@angular/core';
+import {Component} from '@angular/core';
 import {ConcertFormComponent} from '../concert-form/concert-form.component';
 import {ActivatedRoute, RouterLink} from '@angular/router';
-import {Concert} from '../../data/concert';
 import {ConcertsService} from '../../services/concerts.service';
 import {ToastrService} from 'ngx-toastr';
-import {ErrorResponse} from "../../data/error-response";
 import {HttpErrorResponse} from "@angular/common/http";
-import {AdjacentConcertIdsResponse} from '../../data/adjacent-concert-ids-response';
+import {AdjacentConcertsResponseDto, ConcertDto, ErrorResponseDto} from '../../modules/lpshows-api';
 
 @Component({
   selector: 'app-edit-concert-page',
@@ -19,7 +17,7 @@ import {AdjacentConcertIdsResponse} from '../../data/adjacent-concert-ids-respon
 })
 export class EditConcertPageComponent {
   concertId: string | null;
-  adjacentConcertData$: AdjacentConcertIdsResponse | null = null;
+  adjacentConcertData$: AdjacentConcertsResponseDto | null = null;
 
   isSaving$: boolean = false;
 
@@ -45,7 +43,7 @@ export class EditConcertPageComponent {
   }
 
 
-  onFormSaved(concert: Concert) {
+  onFormSaved(concert: ConcertDto) {
     this.isSaving$ = true;
 
     concert.id = this.concertId!;
@@ -65,7 +63,7 @@ export class EditConcertPageComponent {
 
             console.log(err);
 
-            let errorResponse: ErrorResponse = err.error;
+            let errorResponse: ErrorResponseDto = err.error;
 
             this.toastr.error(errorResponse.message, "Failed to save concert!");
           }

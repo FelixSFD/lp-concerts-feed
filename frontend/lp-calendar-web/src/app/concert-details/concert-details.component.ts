@@ -7,7 +7,6 @@ import {
   ViewChild
 } from '@angular/core';
 import {ConcertsService} from '../services/concerts.service';
-import {Concert} from '../data/concert';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {DateTime} from 'luxon';
 import {NgIf} from '@angular/common';
@@ -32,9 +31,9 @@ import {mapAttribution} from '../app.config';
 import {environment} from '../../environments/environment';
 import {ConcertTitleGenerator} from '../data/concert-title-generator';
 import {TimeSpanPipe} from '../data/time-span-pipe';
-import {AdjacentConcertIdsResponse} from '../data/adjacent-concert-ids-response';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {MatomoTracker} from 'ngx-matomo-client';
+import {AdjacentConcertsResponseDto, ConcertDto} from '../modules/lpshows-api';
 
 @Component({
   selector: 'app-concert-details',
@@ -52,8 +51,8 @@ import {MatomoTracker} from 'ngx-matomo-client';
 export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   tracker = inject(MatomoTracker);
 
-  concert$: Concert | null = null;
-  adjacentConcertData$: AdjacentConcertIdsResponse | null = null;
+  concert$: ConcertDto | null = null;
+  adjacentConcertData$: AdjacentConcertsResponseDto | null = null;
   concertId: string | undefined;
 
   // Map of the location of the concert
@@ -211,7 +210,7 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   }
 
 
-  private updateMetaInfo(concert: Concert) {
+  private updateMetaInfo(concert: ConcertDto) {
     let pageTitle = "";
     let description = "";
 

@@ -1,0 +1,130 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Application to manage the backend resources for the LP Calendar project
+
+
+
+Parameters:
+  BaseProductName:
+    Description: Name of the product. Is used as prefix in the exports
+    Type: String
+  RootDomain:
+    Type: String
+  #OpenApiBucketArn:
+  #  Description: ARN of a S3 bucket that stores the OpenAPI definition
+  #  Type: String
+
+
+Globals:
+  Api:
+    TracingEnabled: true
+    Cors:
+      AllowMethods: "'POST, GET, PUT, DELETE'"
+      AllowOrigin: "'*'"
+      AllowHeaders: "'*'"
+      #MaxAge: "'600'"
+
+
+Resources:  
+  # REST API that is secured by cognito
+  ConcertsApiV2:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub ${BaseProductName}-api
+      StageName: v2
+      Cors:
+        AllowMethods: "'POST, GET, PUT, DELETE'"
+        AllowOrigin: "'*'"
+        AllowHeaders: "'*'"
+      DefinitionBody:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location: !Sub "s3://${BaseProductName}-openapi/openapi.yaml"
+      Auth:
+        Authorizers:
+          ConcertsCognitoAuthorizer:
+            UserPoolArn:
+              Fn::ImportValue:
+                Fn::Sub: "${BaseProductName}-cognito-authorizer-user-pool"
+            IdentitySource: method.request.header.Authorization
+
+  # Lambda permissions
+  GetTimeZoneLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue
+        Fn::Sub: "${BaseProductName}-lambda-get-time-zone-function"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/timeZone/byCoordinates
+  AddConcertLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue
+        Fn::Sub: "${BaseProductName}-lambda-add-concert-function"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/addConcert
+  AdjacentConcertsLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue
+        Fn::Sub: "${BaseProductName}-lambda-adjacent-concerts-function"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/concerts/*/adjacent
+  DeleteConcertLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue
+        Fn::Sub: "${BaseProductName}-lambda-delete-concert-function"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/deleteConcert/*
+  FindConcertsLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue
+        Fn::Sub: "${BaseProductName}-lambda-find-concerts-function"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/concerts*
+  GetCalendarFeedLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue
+        Fn::Sub: "${BaseProductName}-lambda-get-ical-function"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/feed/ical
+  GetS3UploadUrlLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue
+        Fn::Sub: "${BaseProductName}-lambda-concert-s3-upload-url-function"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/requestFileUpload
+  UsersReadWriteLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue
+        Fn::Sub: "${BaseProductName}-lambda-users-read-write-function"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/users*
+
+
+Outputs:
+  ConcertsApiGatewayExport:
+    Description: 'Id of the API Gateway V2'
+    Value: !Ref ConcertsApiV2
+    Export:
+      Name: !Sub '${BaseProductName}-api-gateway'
+  ConcertsApiGatewayDomainExport:
+    Description: Domain of API Gateway V2
+    Value: !Sub "${ConcertsApiV2}.execute-api.${AWS::Region}.amazonaws.com"
+    Export:
+      Name: !Sub '${BaseProductName}-api-gateway-domain'

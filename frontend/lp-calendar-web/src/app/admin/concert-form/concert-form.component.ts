@@ -12,7 +12,6 @@ import timezones from 'timezones-list';
 import {listOfTours, listOfShowTypes} from '../../app.config';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgClass, NgForOf, NgIf} from '@angular/common';
-import {Concert} from '../../data/concert';
 import {ConcertsService} from '../../services/concerts.service';
 import {DateTime} from 'luxon';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
@@ -33,6 +32,7 @@ import {environment} from "../../../environments/environment";
 import {ToastrService} from 'ngx-toastr';
 import {LocationsService} from '../../services/locations.service';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {ConcertDto} from '../../modules/lpshows-api';
 
 // This class represents a form for adding and editing concerts
 @Component({
@@ -84,12 +84,12 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
   isSaving$: boolean = false;
 
   @Output('saveClicked')
-  saveClicked = new EventEmitter<Concert>();
+  saveClicked = new EventEmitter<ConcertDto>();
 
   // Name of the form-tab that is open at the moment
   activeTabName$: string = "main";
 
-  concert$ : Concert | null = null;
+  concert$ : ConcertDto | null = null;
 
   // Map of the location of the concert
   private venueMap: Map | undefined;
@@ -224,7 +224,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
 
-  private fillFormWithConcert(concert: Concert) {
+  private fillFormWithConcert(concert: ConcertDto) {
     let postedStartDateTimeUtc = concert.postedStartTime == undefined ? null : DateTime.fromISO(concert.postedStartTime);
     let postedStartDateTime = postedStartDateTimeUtc?.setZone(concert.timeZoneId!, {keepLocalTime: false})
     let postedStartDateTimeIsoStr = postedStartDateTime?.toISO();
@@ -255,7 +255,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
     this.concertForm.controls.country.setValue(concert.country ?? null);
     this.concertForm.controls.postedStartTime.setValue(postedStartDateTimeIsoStr?.substring(0, postedStartDateTimeIsoStr?.length - 6) ?? null);
     this.concertForm.controls.timezone.setValue(concert.timeZoneId ?? null);
-    this.concertForm.controls.lpuEarlyEntryConfirmed.setValue(concert.lpuEarlyEntryConfirmed);
+    this.concertForm.controls.lpuEarlyEntryConfirmed.setValue(concert.lpuEarlyEntryConfirmed ?? false);
     this.concertForm.controls.lpuEarlyEntryTime.setValue(lpuEarlyEntryDateTimeIsoStr?.substring(0, 5) ?? null);
     this.concertForm.controls.doorsTime.setValue(doorsDateTimeIsoStr?.substring(0, 5) ?? null);
     this.concertForm.controls.lpStageTime.setValue(lpStageDateTimeIsoStr?.substring(0, 5) ?? null);
@@ -343,8 +343,9 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
       .subscribe(coordinates => {
         console.log("Found coordinates: ", coordinates);
         this.locationsService.getTimeZoneForCoordinates(coordinates?.latitude ?? 0, coordinates?.longitude ?? 0)
-          .subscribe(tz => {
-            console.log("Found timezone: ", tz);
+          .subscribe(tzObj => {
+            console.log("Found timezone: ", tzObj);
+            let tz = tzObj.timeZoneId!;
             this.timeZoneIsLoading$ = false;
 
             if (timezones.map(t => t.tzCode).indexOf(tz, 0) >= 0) {
@@ -380,7 +381,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
 
   private readConcertFromForm() {
     const postedStartTime = this.concertForm.value.postedStartTime!;
-    let newConcert = new Concert();
+    let newConcert: ConcertDto = {};
     newConcert.showType = this.concertForm.value.showType?.valueOf();
     newConcert.tourName = this.concertForm.value.tourName?.valueOf();
     newConcert.customTitle = this.concertForm.value.customTitle?.valueOf();

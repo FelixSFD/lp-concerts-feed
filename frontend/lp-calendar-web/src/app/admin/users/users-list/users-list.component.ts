@@ -1,23 +1,17 @@
 import { Component } from '@angular/core';
 import {UsersService} from '../../../services/users.service';
-import {Concert} from '../../../data/concert';
-import {User} from '../../../data/users/user';
 import {NgForOf, NgIf} from '@angular/common';
 import {ConcertTitleGenerator} from '../../../data/concert-title-generator';
 import {DateTime} from 'luxon';
-import {ConcertBadgesComponent} from '../../../concert-badges/concert-badges.component';
-import {CountdownComponent} from '../../../countdown/countdown.component';
 import {RouterLink} from '@angular/router';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {ToastrService} from 'ngx-toastr';
-import {ErrorResponse} from '../../../data/error-response';
+import {ErrorResponseDto, UserDto} from '../../../modules/lpshows-api';
 
 @Component({
   selector: 'app-users-list',
   imports: [
     NgIf,
-    ConcertBadgesComponent,
-    CountdownComponent,
     NgForOf,
     RouterLink,
     NgbTooltip
@@ -26,7 +20,7 @@ import {ErrorResponse} from '../../../data/error-response';
   styleUrl: './users-list.component.css'
 })
 export class UsersListComponent {
-  users$: User[] = [];
+  users$: UserDto[] = [];
 
   // status if the table is currently loading
   isLoading$ = false;
@@ -45,7 +39,7 @@ export class UsersListComponent {
         this.isLoading$ = false;
       },
       error: err => {
-        let errorResponse: ErrorResponse = err.error;
+        let errorResponse: ErrorResponseDto = err.error;
         console.warn("Failed to load users:", err);
         this.isLoading$ = false;
 

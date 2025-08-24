@@ -1,62 +1,36 @@
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {environment} from '../../environments/environment';
 import {Guid} from 'guid-typescript';
-import {User} from '../data/users/user';
-import {Concert} from '../data/concert';
+import {UserDto, UsersService as UsersApiClient} from '../modules/lpshows-api';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UsersService {
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(private usersApiClient: UsersApiClient) { }
 
 
-  getUsers(cached: boolean) : Observable<User[]> {
-    let url = environment.apiCachedBaseUrl + "/Prod/users";
-
+  getUsers(cached: boolean) : Observable<UserDto[]> {
     if (!cached) {
-      // disable caching
-      const httpHeaders: HttpHeaders = new HttpHeaders({
-        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-        'X-LP-Request-Id': Guid.create().toString()
-      });
-
-      console.log("Headers:");
-      console.log(httpHeaders);
-
-      return this.httpClient.get<User[]>(url, {
-        headers: httpHeaders
-      });
+      return this.usersApiClient.getUsers(Guid.create().toString());
     }
 
-    return this.httpClient.get<User[]>(url);
+    return this.usersApiClient.getUsers();
   }
 
 
-  getUserById(id: string, cached: boolean = false) : Observable<User> {
-    let url = environment.apiCachedBaseUrl + "/Prod/users/" + id;
-
+  getUserById(id: string, cached: boolean = false) : Observable<UserDto> {
     if (!cached) {
       // disable caching
-      const httpHeaders: HttpHeaders = new HttpHeaders({
-        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-        'X-LP-Request-Id': Guid.create().toString()
-      });
-
-      return this.httpClient.get<User>(url, {
-        headers: httpHeaders
-      });
+      return this.usersApiClient.getUserById(id, Guid.create().toString());
     }
 
-    return this.httpClient.get<User>(url);
+    return this.usersApiClient.getUserById(id);
   }
 
 
-  updateUser(user: User) {
-    let url = environment.apiNoCacheBaseUrl + "/Prod/users/" + user.id;
-    return this.httpClient.put(url, user);
+  updateUser(user: UserDto) {
+    return this.usersApiClient.updateUser(user.id ?? "", user);
   }
 }
