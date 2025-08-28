@@ -36,52 +36,56 @@ Resources:
       FunctionName: !Sub ${BaseProductName}-redirect-lambda
       Handler: index.handler
       Role: !GetAtt RedirectLambdaFunctionRole.Arn
-      Runtime: nodejs18.x
+      Runtime: nodejs22.x
       AutoPublishAlias: live
       InlineCode: |
         exports.handler = async (event, context, callback) => {
-            const request = event.Records[0].cf.request;
-            const uri = request.uri;
-        
-            // Check if path starts with /Prod/
-            if (uri.startsWith('/Prod/')) {
-              const newUri = uri.replace(/^\/Prod\//, '/v2/');
-              
-              const response = {
-                status: '301',
-                statusDescription: 'Moved Permanently',
-                headers: {
-                  location: [{
-                    key: 'Location',
-                    value: newUri,
-                  }],
-                },
-              };
-
-              return callback(null, response);
-            }
-        
-            // Check if path starts with /latest/
-            if (uri.startsWith('/latest/')) {
-              const newUri = uri.replace(/^\/latest\//, '/v2/');
-        
-              const response = {
-                status: '302',
-                statusDescription: 'Found v2',
-                headers: {
-                  location: [{
-                    key: 'Location',
-                    value: newUri,
-                  }],
-                },
-              };
-        
-              return callback(null, response);
-            }
-        
-            // Otherwise, continue as normal
-            return callback(null, request);
+          const request = event.Records[0].cf.request;
+          const uri = request.uri;
+          const querystring = request.querystring;
+      
+          // Check if path starts with /Prod/
+          if (uri.startsWith('/Prod/')) {
+            const newUri = uri.replace(/^\/Prod\//, '/v2/');
+            const newUriWithQuery = newUri + (querystring ? `?${querystring}` : '');
+            
+            const response = {
+              status: '301',
+              statusDescription: 'Moved Permanently',
+              headers: {
+                location: [{
+                  key: 'Location',
+                  value: newUriWithQuery,
+                }],
+              },
+            };
+            
+            return callback(null, response);
+          }
+      
+          // Check if path starts with /latest/
+          if (uri.startsWith('/latest/')) {
+            const newUri = uri.replace(/^\/latest\//, '/v2/');
+            const newUriWithQuery = newUri + (querystring ? `?${querystring}` : '');
+            
+            const response = {
+              status: '302',
+              statusDescription: 'Found v2',
+              headers: {
+                location: [{
+                  key: 'Location',
+                  value: newUriWithQuery,
+                }],
+              },
+            };
+            
+            return callback(null, response);
+          }
+      
+          // Otherwise, continue as normal
+          return callback(null, request);
         };
+
 
 
 Outputs:
