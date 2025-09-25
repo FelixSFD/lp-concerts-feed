@@ -96,7 +96,47 @@ Resources:
       BillingMode: PAY_PER_REQUEST
       StreamSpecification: # stream for DB events
         StreamViewType: NEW_AND_OLD_IMAGES
-      
+  
+  
+  ConcertBookmarksDynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${AWS::StackName}_ConcertBookmarksV1
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "storage"
+      AttributeDefinitions:
+        - AttributeName: ConcertId
+          AttributeType: S
+        - AttributeName: UserId
+          AttributeType: S
+        - AttributeName: Status
+          AttributeType: S
+      KeySchema:
+        - AttributeName: ConcertId
+          KeyType: HASH
+        - AttributeName: Status
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: UserBookmarksIndex
+          KeySchema:
+            - AttributeName: UserId
+              KeyType: HASH
+            - AttributeName: Status
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      BillingMode: PAY_PER_REQUEST
+      StreamSpecification: # stream for DB events
+        StreamViewType: NEW_AND_OLD_IMAGES
+  
+  
   AuditLogDynamoDBTable:
     Type: AWS::DynamoDB::Table
     Properties:
