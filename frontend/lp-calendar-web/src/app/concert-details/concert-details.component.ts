@@ -33,7 +33,7 @@ import {ConcertTitleGenerator} from '../data/concert-title-generator';
 import {TimeSpanPipe} from '../data/time-span-pipe';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {MatomoTracker} from 'ngx-matomo-client';
-import {AdjacentConcertsResponseDto, ConcertDto} from '../modules/lpshows-api';
+import {AdjacentConcertsResponseDto, ConcertDto, GetConcertBookmarkCountsResponseDto} from '../modules/lpshows-api';
 
 @Component({
   selector: 'app-concert-details',
@@ -53,6 +53,7 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
 
   concert$: ConcertDto | null = null;
   adjacentConcertData$: AdjacentConcertsResponseDto | null = null;
+  concertBookmarks$: GetConcertBookmarkCountsResponseDto | null = null;
   concertId: string | undefined;
 
   // Map of the location of the concert
@@ -101,6 +102,13 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
       .subscribe(adjacentConcerts => {
         if (adjacentConcerts != undefined) {
           this.adjacentConcertData$ = adjacentConcerts;
+        }
+      });
+
+    this.concertsService.getBookmarksForConcert(this.concertId)
+      .subscribe(bookmarkStatus => {
+        if (bookmarkStatus != undefined) {
+          this.concertBookmarks$ = bookmarkStatus;
         }
       });
 
@@ -274,4 +282,5 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   protected readonly environment = environment;
   protected readonly ConcertTitleGenerator = ConcertTitleGenerator;
   protected readonly window = window;
+  protected readonly GetConcertBookmarkCountsResponseDto = GetConcertBookmarkCountsResponseDto;
 }
