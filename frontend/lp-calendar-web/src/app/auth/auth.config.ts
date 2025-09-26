@@ -16,12 +16,21 @@ export const authConfig: PassedInitialConfig = {
     useRefreshToken: true, // Use refresh tokens to maintain the session
     allowUnsafeReuseRefreshToken: true,
     secureRoutes: [
-      environment.apiCachedBaseUrl + '/deleteConcert/',
-      environment.apiCachedBaseUrl + '/addConcert',
-      environment.apiCachedBaseUrl + "/requestFileUpload",
-      environment.apiCachedBaseUrl + "/users",
-      environment.apiCachedBaseUrl + "/users/"
+      // config was moved
     ],
     logLevel: LogLevel.Warn // Enable detailed logs for debugging
   }
 }
+
+
+/**
+ * Patterns of routes that require authentication
+ */
+export const authRoutePatterns: RegExp[] = [
+  /\/concerts\/[^/]+\/bookmarks\/status$/,
+  /\/deleteConcert\//,
+  /\/addConcert/,
+  /\/requestFileUpload/,
+  /\/users/,
+  /\/users\/[^/]+/,
+]

@@ -11,6 +11,7 @@ import {provideMatomo, withRouter} from 'ngx-matomo-client';
 import {environment} from '../environments/environment';
 import {NgcCookieConsentConfig, provideNgcCookieConsent} from 'ngx-cookieconsent';
 import {BASE_PATH} from './modules/lpshows-api';
+import {authTokenInterceptor} from './auth/auth-token.interceptor';
 
 const cookieConfig:NgcCookieConsentConfig = {
   "cookie": {
@@ -45,7 +46,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes), provideAuth(authConfig),
-    provideHttpClient(withInterceptors([authInterceptor()])),
+    provideHttpClient(withInterceptors([authTokenInterceptor])),
     provideAnimations(),
     provideToastr({
       positionClass: "toast-bottom-right",
