@@ -67,6 +67,14 @@ Resources:
         Fn::Sub: "${BaseProductName}-lambda-add-concert-function"
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/addConcert
+  AddConcertBookmarksLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue
+        Fn::Sub: "${BaseProductName}-lambda-add-concert-bookmarks-function"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/concerts/*/bookmarks
   AdjacentConcertsLambdaPermission:
     Type: AWS::Lambda::Permission
     Properties:

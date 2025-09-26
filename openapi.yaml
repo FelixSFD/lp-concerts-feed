@@ -204,6 +204,21 @@ components:
         - LinkinPark
         - Doors
         - SupportAct
+    
+    # Bookmarks
+    ConcertBookmarkUpdateRequest:
+      type: object
+      description: Request to set a bookmark to a concert
+      properties:
+        status:
+          type: string
+          description: Bookmark status. Defined if there is a bookmark set and what kind of it
+          enum:
+            - None
+            - Bookmarked
+            - Attending
+          default: ConcertSchedule
+          nullable: false
 
     # Users
     UserGroup:
@@ -448,6 +463,45 @@ paths:
         httpMethod: "POST"
         contentHandling: "CONVERT_TO_TEXT"
         type: "aws_proxy"
+  
+  /concerts/{id}/bookmarks:
+    put:
+      operationId: SetBookmarkOnConcert
+      summary: Sets the bookmark of the current user to the concert
+      tags:
+        - concerts
+      parameters:
+        - in: path
+          name: id
+          description: ID of the concert
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConcertBookmarkUpdateRequest"
+      responses:
+        "204":
+          description: Bookmark updated successfully
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-add-concert-bookmarks-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  
   /concerts/next:
     get:
       operationId: GetNextConcert

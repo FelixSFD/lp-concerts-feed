@@ -6,6 +6,7 @@ namespace LPCalendar.DataStructure;
 /// <summary>
 /// Stores if a user has bookmarked a concert
 /// </summary>
+[DynamoDBTable(ConcertBookmarkTableName)]
 public class ConcertBookmark
 {
     public const string ConcertBookmarkTableName = "ConcertBookmarksV1";
@@ -33,9 +34,18 @@ public class ConcertBookmark
     
     
     /// <summary>
-    /// ID of the concert
+    /// ID of the bookmark (exists for technical reasons)
     /// </summary>
     [DynamoDBHashKey]
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+    
+    
+    /// <summary>
+    /// ID of the concert
+    /// </summary>
+    //[DynamoDBGlobalSecondaryIndexHashKey("ConcertBookmarksIndex")]
+    [DynamoDBProperty]
     [JsonPropertyName("concertId")]
     public string ConcertId { get; set; }
     
@@ -43,7 +53,7 @@ public class ConcertBookmark
     /// <summary>
     /// ID of the user
     /// </summary>
-    [DynamoDBGlobalSecondaryIndexHashKey("UserBookmarksIndex")]
+    [DynamoDBGlobalSecondaryIndexHashKey("UserBookmarksIndexV1")]
     [JsonPropertyName("userId")]
     public string UserId { get; set; }
     
@@ -51,7 +61,15 @@ public class ConcertBookmark
     /// <summary>
     /// Status of the bookmark
     /// </summary>
-    [DynamoDBProperty]
-    [JsonPropertyName("status")]
+    [DynamoDBIgnore]
+    [JsonIgnore]
     public BookmarkStatus Status { get; set; }
+
+    [DynamoDBProperty("Status")]
+    [JsonPropertyName("status")]
+    public string StatusString
+    {
+        get => Status.ToString();
+        set => Status = Enum.Parse<BookmarkStatus>(value);
+    }
 }
