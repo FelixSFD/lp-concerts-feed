@@ -74,6 +74,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.BookmarksWrite", "La
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.BookmarksWrite.Tests", "Lambda.BookmarksWrite\test\Lambda.BookmarksWrite.Tests\Lambda.BookmarksWrite.Tests.csproj", "{0142783D-57E9-4A34-A165-681B3CE9BECE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.BookmarksRead", "Lambda.BookmarksRead\src\Lambda.BookmarksRead\Lambda.BookmarksRead.csproj", "{52F44B92-F87D-42A9-8B0B-74296B87368E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.BookmarksRead.Tests", "Lambda.BookmarksRead\test\Lambda.BookmarksRead.Tests\Lambda.BookmarksRead.Tests.csproj", "{0A2E739A-DBF2-4998-A662-5F861F1BE705}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -184,5 +188,13 @@ Global
 		{0142783D-57E9-4A34-A165-681B3CE9BECE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0142783D-57E9-4A34-A165-681B3CE9BECE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0142783D-57E9-4A34-A165-681B3CE9BECE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{52F44B92-F87D-42A9-8B0B-74296B87368E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52F44B92-F87D-42A9-8B0B-74296B87368E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52F44B92-F87D-42A9-8B0B-74296B87368E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52F44B92-F87D-42A9-8B0B-74296B87368E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A2E739A-DBF2-4998-A662-5F861F1BE705}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A2E739A-DBF2-4998-A662-5F861F1BE705}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A2E739A-DBF2-4998-A662-5F861F1BE705}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A2E739A-DBF2-4998-A662-5F861F1BE705}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

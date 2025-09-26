@@ -217,7 +217,27 @@ components:
             - None
             - Bookmarked
             - Attending
-          default: ConcertSchedule
+          default: None
+          nullable: false
+    
+    GetConcertBookmarkCountsResponse:
+      type: object
+      description: Response from server to tell the number of people who bookmarked or attended a show
+      properties:
+        bookmarked:
+          type: number
+          description: Number of users who bookmarked the concert
+        attending:
+          type: number
+          description: Number of users who are attending the concert
+        currentUserStatus:
+          type: string
+          description: Bookmark status. Of the current user
+          enum:
+            - None
+            - Bookmarked
+            - Attending
+          default: None
           nullable: false
 
     # Users
@@ -494,6 +514,48 @@ paths:
             - LambdaArn:
                 Fn::ImportValue:
                   Fn::Sub: "${BaseProductName}-lambda-add-concert-bookmarks-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+        
+  /concerts/{id}/bookmarks/count:
+    get:
+      operationId: GetBookmarkCountForConcert
+      summary: Checks how many bookmarks there are for a concert
+      tags:
+        - concerts
+      parameters:
+        - in: path
+          name: id
+          description: ID of the concert
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConcertBookmarkUpdateRequest"
+      responses:
+        "200":
+          description: Found the number of bookmarks
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetConcertBookmarkCountsResponse"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-concert-bookmarks-read-function"
         responses:
           default:
             statusCode: "200"
