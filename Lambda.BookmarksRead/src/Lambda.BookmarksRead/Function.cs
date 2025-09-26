@@ -39,7 +39,8 @@ public class Function
         context.Logger.LogDebug($"Path: {request.Path}");
         context.Logger.LogDebug($"Request: {JsonSerializer.Serialize(request)}");
         
-        if (request.Resource == "/concerts/{id}/bookmarks/count" && request.PathParameters.TryGetValue("id", out var concertId))
+        if (request.Resource is "/concerts/{id}/bookmarks/count" or "/concerts/{id}/bookmarks/status"
+            && request.PathParameters.TryGetValue("id", out var concertId))
         {
             context.Logger.LogInformation("Requested bookmark counts for a concert");
             return await ReturnBookmarkCountsForConcert(concertId!, request.GetUserId());

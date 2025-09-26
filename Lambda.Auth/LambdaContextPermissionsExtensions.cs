@@ -10,7 +10,7 @@ public static class ApiGatewayProxyRequestPermissionsExtensions
     /// <param name="request"></param>
     /// <returns>id of user if found</returns>
     public static string? GetUserId(this APIGatewayProxyRequest request) =>
-        request.RequestContext.Authorizer.Claims
+        request.RequestContext.Authorizer?.Claims
             .Where(kv => kv.Key == "sub") // this contains the user ID
             .Select(kv => kv.Value)
             .FirstOrDefault();
