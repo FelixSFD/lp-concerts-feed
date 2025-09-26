@@ -1,19 +1,21 @@
-import { Injectable } from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable, switchMap} from 'rxjs';
 import { Guid } from 'guid-typescript';
 import {ConcertFilter} from '../data/concert-filter';
 import {
-  AdjacentConcertsResponseDto,
+  AdjacentConcertsResponseDto, ConcertBookmarkUpdateRequestDto,
   ConcertDto,
-  ConcertFileUploadRequestDto,
-  ConcertsService as ConcertsApiClient
+  ConcertFileUploadRequestDto, ConcertFileUploadResponseDto,
+  ConcertsService as ConcertsApiClient, GetConcertBookmarkCountsResponseDto
 } from '../modules/lpshows-api';
+import {AuthService} from './auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ConcertsService {
+  private readonly authService = inject(AuthService);
 
   constructor(private httpClient: HttpClient, private concertsApiClient: ConcertsApiClient) { }
 
@@ -83,5 +85,38 @@ export class ConcertsService {
    */
   getAdjacentConcerts(currentId: string) : Observable<AdjacentConcertsResponseDto> {
     return this.concertsApiClient.getAdjacentConcertsForId(currentId);
+  }
+
+
+  /**
+   * Returns the number of bookmarks for a concert and the status the current user has set
+   * @param concertId ID of the concert
+   */
+  getBookmarksForConcert(concertId: string): Observable<GetConcertBookmarkCountsResponseDto> {
+    return this.authService.isAuthenticated().pipe(
+      switchMap((isAuthenticated) => {
+        if (isAuthenticated) {
+          return this.concertsApiClient.getBookmarkStatusForConcert(concertId, Guid.create().toString());
+        } else {
+          return this.concertsApiClient.getBookmarkCountForConcert(concertId);
+        }
+      })
+    )
+  }
+
+
+  /**
+   * Set the bookmark status for a concert and the current user
+   * @param concertId ID of the concert
+   * @param status status
+   */
+  setBookmarksForConcert(concertId: string, status: ConcertBookmarkUpdateRequestDto.StatusEnum) {
+    console.log("setBookmarksForConcert ", concertId, status);
+
+    let req: ConcertBookmarkUpdateRequestDto = {
+      status: status
+    };
+
+    return this.concertsApiClient.setBookmarkOnConcert(concertId, req);
   }
 }

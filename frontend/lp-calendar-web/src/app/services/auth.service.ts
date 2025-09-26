@@ -16,4 +16,9 @@ export class AuthService {
       map((data) => User.fromClaims(data.userData))
     );
   }
+
+
+  isAuthenticated(): Observable<boolean> {
+    return this.oidcSecurityService.isAuthenticated()
+  }
 }

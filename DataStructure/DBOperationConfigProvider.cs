@@ -13,6 +13,15 @@ public class DBOperationConfigProvider
     }
     
     
+    public DynamoDBOperationConfig GetConcertBookmarksConfigWithEnvTableName()
+    {
+        return new DynamoDBOperationConfig
+        {
+            OverrideTableName = Environment.GetEnvironmentVariable("CONCERT_BOOKMARKS_TABLE_NAME")
+        };
+    }
+    
+    
     public DynamoDBOperationConfig GetAuditLogEntryConfigWithEnvTableName()
     {
         return new DynamoDBOperationConfig

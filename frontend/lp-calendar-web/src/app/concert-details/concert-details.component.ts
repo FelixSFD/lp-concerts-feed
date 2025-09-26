@@ -33,7 +33,15 @@ import {ConcertTitleGenerator} from '../data/concert-title-generator';
 import {TimeSpanPipe} from '../data/time-span-pipe';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {MatomoTracker} from 'ngx-matomo-client';
-import {AdjacentConcertsResponseDto, ConcertDto} from '../modules/lpshows-api';
+import {
+  AdjacentConcertsResponseDto,
+  ConcertBookmarkUpdateRequestDto,
+  ConcertDto, ErrorResponseDto,
+  GetConcertBookmarkCountsResponseDto
+} from '../modules/lpshows-api';
+import {AuthService} from '../services/auth.service';
+import {ToastrService} from 'ngx-toastr';
+import {HttpErrorResponse} from '@angular/common/http';
 
 @Component({
   selector: 'app-concert-details',
@@ -49,10 +57,13 @@ import {AdjacentConcertsResponseDto, ConcertDto} from '../modules/lpshows-api';
   styleUrl: './concert-details.component.css'
 })
 export class ConcertDetailsComponent implements OnInit, AfterViewInit {
+  private readonly authService = inject(AuthService);
+  private readonly toastr = inject(ToastrService);
   tracker = inject(MatomoTracker);
 
   concert$: ConcertDto | null = null;
   adjacentConcertData$: AdjacentConcertsResponseDto | null = null;
+  concertBookmarks$: GetConcertBookmarkCountsResponseDto | null = null;
   concertId: string | undefined;
 
   // Map of the location of the concert
@@ -83,6 +94,77 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   }
 
 
+  onBookmarkClicked() {
+    this.onBookmarkOrAttendingClicked(ConcertBookmarkUpdateRequestDto.StatusEnum.Bookmarked);
+  }
+
+
+  onAttendingClicked() {
+    this.onBookmarkOrAttendingClicked(ConcertBookmarkUpdateRequestDto.StatusEnum.Attending);
+  }
+
+
+  private onBookmarkOrAttendingClicked(status: GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum) {
+    console.log("Clicked button for: ", status);
+    this.authService.isAuthenticated().subscribe((isAuthenticated) => {
+      if (this.concertId == undefined || this.concertBookmarks$ == null) {
+        this.toastr.error("Concert not loaded")
+        return;
+      }
+
+      if (isAuthenticated) {
+        if (this.concertBookmarks$?.currentUserStatus == status) {
+          // remove bookmark
+          this.tracker.trackEvent("concert_bookmark", "remove", status);
+          this.concertsService.setBookmarksForConcert(this.concertId, ConcertBookmarkUpdateRequestDto.StatusEnum.None).subscribe({
+            next: () => {
+              //this.toastr.success("Removed bookmark!");
+              this.concertBookmarks$!.currentUserStatus = GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.None;
+              this.loadBookmarkStatus();
+            },
+            error: (err: HttpErrorResponse) => {
+              console.log(err);
+              let errorResponse: ErrorResponseDto = err.error;
+              this.toastr.error(errorResponse.message, "Failed to remove bookmark!");
+            }
+          });
+        } else {
+          // add bookmark
+          this.tracker.trackEvent("concert_bookmark", "set", status);
+          this.concertsService.setBookmarksForConcert(this.concertId, status).subscribe({
+            next: () => {
+              //this.toastr.success("Added bookmark!");
+              this.concertBookmarks$!.currentUserStatus = status;
+              this.loadBookmarkStatus();
+            },
+            error: (err: HttpErrorResponse) => {
+              console.log(err);
+              let errorResponse: ErrorResponseDto = err.error;
+              this.toastr.error(errorResponse.message, "Failed to save bookmark!");
+            }
+          });
+        }
+      } else {
+        this.toastr.info('You are not logged in!');
+      }
+    });
+  }
+
+
+  private loadBookmarkStatus() {
+    if (this.concertId == undefined) {
+      return;
+    }
+
+    this.concertsService.getBookmarksForConcert(this.concertId)
+      .subscribe(bookmarkStatus => {
+        if (bookmarkStatus != undefined) {
+          this.concertBookmarks$ = bookmarkStatus;
+        }
+      });
+  }
+
+
   loadDataForId(id: string | undefined) {
     console.log("loadDataForId: " + id);
     if (id == undefined) {
@@ -103,6 +185,8 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
           this.adjacentConcertData$ = adjacentConcerts;
         }
       });
+
+    this.loadBookmarkStatus();
 
     this.concertsService
       .getConcert(this.concertId)
@@ -274,4 +358,5 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   protected readonly environment = environment;
   protected readonly ConcertTitleGenerator = ConcertTitleGenerator;
   protected readonly window = window;
+  protected readonly GetConcertBookmarkCountsResponseDto = GetConcertBookmarkCountsResponseDto;
 }
