@@ -67,9 +67,31 @@ public class Function
                 Message = "ConcertId is missing"
             };
             var bodyJson = JsonSerializer.Serialize(errResponse);
-            return new APIGatewayProxyResponse()
+            return new APIGatewayProxyResponse
             {
                 StatusCode = (int)HttpStatusCode.BadRequest,
+                Body = bodyJson,
+                Headers = new Dictionary<string, string>
+                {
+                    { "Content-Type", "application/json" },
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, PUT" }
+                }
+            };
+        }
+        
+        // verify that concert actually exists
+        var concert = await GetConcertById(concertId);
+        if (concert == null)
+        {
+            var errResponse = new ErrorResponse
+            {
+                Message = "Concert does not exist"
+            };
+            var bodyJson = JsonSerializer.Serialize(errResponse);
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.NotFound,
                 Body = bodyJson,
                 Headers = new Dictionary<string, string>
                 {
@@ -128,5 +150,16 @@ public class Function
     {
         var bookmark = JsonSerializer.Deserialize<ConcertBookmarkUpdateRequest>(json) ?? throw new InvalidDataContractException("JSON could not be parsed to ConcertBookmarkUpdateRequest!");
         return bookmark;
+    }
+
+
+    /// <summary>
+    /// Gets a concert by its ID
+    /// </summary>
+    /// <param name="concertId"></param>
+    /// <returns></returns>
+    private async Task<Concert?> GetConcertById(string concertId)
+    {
+        return await _dynamoDbContext.LoadAsync<Concert>(concertId, _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName());
     }
 }
