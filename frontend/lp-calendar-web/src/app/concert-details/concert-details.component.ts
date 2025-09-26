@@ -106,7 +106,7 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
 
   private onBookmarkOrAttendingClicked(status: GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum) {
     console.log("Clicked button for: ", status);
-    if (this.concertId == undefined) {
+    if (this.concertId == undefined || this.concertBookmarks$ == null) {
       this.toastr.error("Concert not loaded")
       return;
     }
@@ -116,7 +116,8 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
         // remove bookmark
         this.concertsService.setBookmarksForConcert(this.concertId, ConcertBookmarkUpdateRequestDto.StatusEnum.None).subscribe({
           next: () => {
-            this.toastr.success("Removed bookmark!");
+            //this.toastr.success("Removed bookmark!");
+            this.concertBookmarks$!.currentUserStatus = GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.None;
             this.loadBookmarkStatus();
           },
           error: (err: HttpErrorResponse) => {
@@ -129,7 +130,8 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
         // add bookmark
         this.concertsService.setBookmarksForConcert(this.concertId, status).subscribe({
           next: () => {
-            this.toastr.success("Added bookmark!");
+            //this.toastr.success("Added bookmark!");
+            this.concertBookmarks$!.currentUserStatus = status;
             this.loadBookmarkStatus();
           },
           error: (err: HttpErrorResponse) => {
