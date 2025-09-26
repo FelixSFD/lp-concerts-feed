@@ -114,6 +114,7 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
     if (this.authService.isAuthenticated()) {
       if (this.concertBookmarks$?.currentUserStatus == status) {
         // remove bookmark
+        this.tracker.trackEvent("concert_bookmark", "remove", status);
         this.concertsService.setBookmarksForConcert(this.concertId, ConcertBookmarkUpdateRequestDto.StatusEnum.None).subscribe({
           next: () => {
             //this.toastr.success("Removed bookmark!");
@@ -128,6 +129,7 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
         });
       } else {
         // add bookmark
+        this.tracker.trackEvent("concert_bookmark", "set", status);
         this.concertsService.setBookmarksForConcert(this.concertId, status).subscribe({
           next: () => {
             //this.toastr.success("Added bookmark!");
