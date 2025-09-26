@@ -33,7 +33,15 @@ import {ConcertTitleGenerator} from '../data/concert-title-generator';
 import {TimeSpanPipe} from '../data/time-span-pipe';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {MatomoTracker} from 'ngx-matomo-client';
-import {AdjacentConcertsResponseDto, ConcertDto, GetConcertBookmarkCountsResponseDto} from '../modules/lpshows-api';
+import {
+  AdjacentConcertsResponseDto,
+  ConcertBookmarkUpdateRequestDto,
+  ConcertDto, ErrorResponseDto,
+  GetConcertBookmarkCountsResponseDto
+} from '../modules/lpshows-api';
+import {AuthService} from '../services/auth.service';
+import {ToastrService} from 'ngx-toastr';
+import {HttpErrorResponse} from '@angular/common/http';
 
 @Component({
   selector: 'app-concert-details',
@@ -49,6 +57,8 @@ import {AdjacentConcertsResponseDto, ConcertDto, GetConcertBookmarkCountsRespons
   styleUrl: './concert-details.component.css'
 })
 export class ConcertDetailsComponent implements OnInit, AfterViewInit {
+  private readonly authService = inject(AuthService);
+  private readonly toastr = inject(ToastrService);
   tracker = inject(MatomoTracker);
 
   concert$: ConcertDto | null = null;
@@ -84,6 +94,71 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   }
 
 
+  onBookmarkClicked() {
+    this.onBookmarkOrAttendingClicked(ConcertBookmarkUpdateRequestDto.StatusEnum.Bookmarked);
+  }
+
+
+  onAttendingClicked() {
+    this.onBookmarkOrAttendingClicked(ConcertBookmarkUpdateRequestDto.StatusEnum.Attending);
+  }
+
+
+  private onBookmarkOrAttendingClicked(status: GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum) {
+    console.log("Clicked button for: ", status);
+    if (this.concertId == undefined) {
+      this.toastr.error("Concert not loaded")
+      return;
+    }
+
+    if (this.authService.isAuthenticated()) {
+      if (this.concertBookmarks$?.currentUserStatus == status) {
+        // remove bookmark
+        this.concertsService.setBookmarksForConcert(this.concertId, ConcertBookmarkUpdateRequestDto.StatusEnum.None).subscribe({
+          next: () => {
+            this.toastr.success("Removed bookmark!");
+            this.loadBookmarkStatus();
+          },
+          error: (err: HttpErrorResponse) => {
+            console.log(err);
+            let errorResponse: ErrorResponseDto = err.error;
+            this.toastr.error(errorResponse.message, "Failed to remove bookmark!");
+          }
+        });
+      } else {
+        // add bookmark
+        this.concertsService.setBookmarksForConcert(this.concertId, status).subscribe({
+          next: () => {
+            this.toastr.success("Added bookmark!");
+            this.loadBookmarkStatus();
+          },
+          error: (err: HttpErrorResponse) => {
+            console.log(err);
+            let errorResponse: ErrorResponseDto = err.error;
+            this.toastr.error(errorResponse.message, "Failed to save bookmark!");
+          }
+        });
+      }
+    } else {
+      this.toastr.info('You are not logged in!');
+    }
+  }
+
+
+  private loadBookmarkStatus() {
+    if (this.concertId == undefined) {
+      return;
+    }
+
+    this.concertsService.getBookmarksForConcert(this.concertId)
+      .subscribe(bookmarkStatus => {
+        if (bookmarkStatus != undefined) {
+          this.concertBookmarks$ = bookmarkStatus;
+        }
+      });
+  }
+
+
   loadDataForId(id: string | undefined) {
     console.log("loadDataForId: " + id);
     if (id == undefined) {
@@ -105,12 +180,7 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
         }
       });
 
-    this.concertsService.getBookmarksForConcert(this.concertId)
-      .subscribe(bookmarkStatus => {
-        if (bookmarkStatus != undefined) {
-          this.concertBookmarks$ = bookmarkStatus;
-        }
-      });
+    this.loadBookmarkStatus();
 
     this.concertsService
       .getConcert(this.concertId)

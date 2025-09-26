@@ -4,7 +4,7 @@ import {Observable, switchMap} from 'rxjs';
 import { Guid } from 'guid-typescript';
 import {ConcertFilter} from '../data/concert-filter';
 import {
-  AdjacentConcertsResponseDto,
+  AdjacentConcertsResponseDto, ConcertBookmarkUpdateRequestDto,
   ConcertDto,
   ConcertFileUploadRequestDto, ConcertFileUploadResponseDto,
   ConcertsService as ConcertsApiClient, GetConcertBookmarkCountsResponseDto
@@ -102,5 +102,21 @@ export class ConcertsService {
         }
       })
     )
+  }
+
+
+  /**
+   * Set the bookmark status for a concert and the current user
+   * @param concertId ID of the concert
+   * @param status status
+   */
+  setBookmarksForConcert(concertId: string, status: ConcertBookmarkUpdateRequestDto.StatusEnum) {
+    console.log("setBookmarksForConcert ", concertId, status);
+
+    let req: ConcertBookmarkUpdateRequestDto = {
+      status: status
+    };
+
+    return this.concertsApiClient.setBookmarkOnConcert(concertId, req);
   }
 }

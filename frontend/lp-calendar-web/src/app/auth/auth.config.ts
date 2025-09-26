@@ -27,6 +27,7 @@ export const authConfig: PassedInitialConfig = {
  * Patterns of routes that require authentication
  */
 export const authRoutePatterns: RegExp[] = [
+  /\/concerts\/[^/]+\/bookmarks$/,
   /\/concerts\/[^/]+\/bookmarks\/status$/,
   /\/deleteConcert\//,
   /\/addConcert/,
