@@ -96,7 +96,7 @@ export class ConcertsService {
     return this.authService.isAuthenticated().pipe(
       switchMap((isAuthenticated) => {
         if (isAuthenticated) {
-          return this.concertsApiClient.getBookmarkStatusForConcert(concertId);
+          return this.concertsApiClient.getBookmarkStatusForConcert(concertId, Guid.create().toString());
         } else {
           return this.concertsApiClient.getBookmarkCountForConcert(concertId);
         }
