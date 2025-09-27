@@ -1,4 +1,4 @@
-import {Component, inject, Input, OnInit} from '@angular/core';
+import {Component, ElementRef, inject, Input, OnInit, ViewChild} from '@angular/core';
 import {RouterLink} from '@angular/router';
 import {environment} from '../../environments/environment';
 import {ConcertCardComponent} from '../concert-card/concert-card.component';
@@ -9,6 +9,8 @@ import {MatomoTracker} from 'ngx-matomo-client';
 import {ConcertDto} from '../modules/lpshows-api';
 import {AuthService} from '../services/auth.service';
 import {NgIf} from '@angular/common';
+import {OidcSecurityService} from 'angular-auth-oidc-client';
+import {NgbAlert} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-home',
@@ -16,7 +18,8 @@ import {NgIf} from '@angular/common';
     RouterLink,
     ConcertCardComponent,
     CalendarFeedBuilderComponent,
-    NgIf
+    NgIf,
+    NgbAlert
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
@@ -27,10 +30,14 @@ export class HomeComponent implements OnInit {
 
   private readonly tracker = inject(MatomoTracker);
   private readonly authService = inject(AuthService);
+  private readonly oidcSecurityService = inject(OidcSecurityService);
 
   nextConcert: ConcertDto | null = null;
   nextAttendingConcert: ConcertDto | null = null;
   nextBookmarkedConcert: ConcertDto | null = null;
+
+  newFeatureAlertDismissedToken: string | null = localStorage.getItem("alert.new-feature.dismissed-token");
+  currentNewFeatureAlertToken: string = "c4b2d59a-a98d-4d46-8e73-854ded50125a";
 
   isLoggedIn$: boolean = false;
 
@@ -52,6 +59,17 @@ export class HomeComponent implements OnInit {
         this.loadNextAttendingConcert();
       }
     });
+  }
+
+
+  login(): void {
+    this.oidcSecurityService.authorize();
+  }
+
+
+  onNewFeatureAlertClosed() {
+    this.newFeatureAlertDismissedToken = this.currentNewFeatureAlertToken;
+    localStorage.setItem("alert.new-feature.dismissed-token", this.currentNewFeatureAlertToken);
   }
 
 
