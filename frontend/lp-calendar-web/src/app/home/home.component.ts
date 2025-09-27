@@ -7,13 +7,16 @@ import {CalendarFeedBuilderComponent} from '../calendar-feed-builder/calendar-fe
 import {ToastrService} from 'ngx-toastr';
 import {MatomoTracker} from 'ngx-matomo-client';
 import {ConcertDto} from '../modules/lpshows-api';
+import {AuthService} from '../services/auth.service';
+import {NgIf} from '@angular/common';
 
 @Component({
   selector: 'app-home',
   imports: [
     RouterLink,
     ConcertCardComponent,
-    CalendarFeedBuilderComponent
+    CalendarFeedBuilderComponent,
+    NgIf
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
@@ -23,8 +26,13 @@ export class HomeComponent implements OnInit {
   protected readonly environment = environment;
 
   private readonly tracker = inject(MatomoTracker);
+  private readonly authService = inject(AuthService);
 
   nextConcert: ConcertDto | null = null;
+  nextAttendingConcert: ConcertDto | null = null;
+  nextBookmarkedConcert: ConcertDto | null = null;
+
+  isLoggedIn$: boolean = false;
 
   iCalFeedUrl$: string = "";
 
@@ -34,7 +42,20 @@ export class HomeComponent implements OnInit {
 
 
   ngOnInit() {
-    //this.concertsService.getNextConcert().subscribe(result => this.nextConcert = result);
+    this.loadNextConcert();
+
+    this.authService.isAuthenticated().subscribe(isAuthenticated => {
+      this.isLoggedIn$ = isAuthenticated;
+
+      if (isAuthenticated) {
+        this.loadNextBookmarkedConcert();
+        this.loadNextAttendingConcert();
+      }
+    });
+  }
+
+
+  private loadNextConcert() {
     this.concertsService.getNextConcert().subscribe({
       next: result => {
         this.nextConcert = result;
@@ -43,6 +64,42 @@ export class HomeComponent implements OnInit {
         // If the request times out, an error will have been emitted.
         console.warn("Next concert was not found. Maybe there is nothing scheduled.");
         this.nextConcert = null;
+      }
+    });
+  }
+
+
+  private loadNextBookmarkedConcert() {
+    this.concertsService.getNextBookmarked().subscribe({
+      next: result => {
+        let next = result.at(0);
+        if (next != undefined) {
+          this.nextBookmarkedConcert = next;
+        }
+      },
+      error: err => {
+        // If the request times out, an error will have been emitted.
+        console.log(err);
+        console.error("Next bookmarked concert could not be loaded");
+        this.nextBookmarkedConcert = null;
+      }
+    });
+  }
+
+
+  private loadNextAttendingConcert() {
+    this.concertsService.getNextAttending().subscribe({
+      next: result => {
+        let next = result.at(0);
+        if (next != undefined) {
+          this.nextAttendingConcert = next;
+        }
+      },
+      error: err => {
+        // If the request times out, an error will have been emitted.
+        console.log(err);
+        console.error("Next concert you attend could not be loaded");
+        this.nextAttendingConcert = null;
       }
     });
   }

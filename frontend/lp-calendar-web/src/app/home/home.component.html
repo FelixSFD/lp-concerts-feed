@@ -4,7 +4,15 @@
 
 <div class="row row-cols-xxl-4 row-cols-xl-3 row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1 gy-4 gx-4">
   <div class="col">
-    <app-concert-card [concert]="nextConcert" />
+    <app-concert-card cardTitle="Next Concert" [concert]="nextConcert" />
+  </div>
+
+  <div class="col" *ngIf="isLoggedIn$">
+    <app-concert-card cardTitle="The next concert you follow" [concert]="nextBookmarkedConcert" />
+  </div>
+
+  <div class="col" *ngIf="isLoggedIn$">
+    <app-concert-card cardTitle="The next concert you attend! 🎉" [concert]="nextAttendingConcert" />
   </div>
 
   <div class="col">

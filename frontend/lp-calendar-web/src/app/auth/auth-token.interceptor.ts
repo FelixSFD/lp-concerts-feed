@@ -9,10 +9,14 @@ import {authRoutePatterns} from './auth.config';
 export const authTokenInterceptor: HttpInterceptorFn = (req, next) => {
   const oidcSecurityService = inject(OidcSecurityService);
 
+  //console.log('auth for this required?', req.url);
+
   let authRequired = false;
   for (let i = 0; i < authRoutePatterns.length; i++) {
     let pattern = authRoutePatterns[i];
+    //console.log("Testing pattern:", pattern);
     if (pattern.test(req.url)) {
+      //console.log("auth will be added");
       authRequired = true;
       break;
     }

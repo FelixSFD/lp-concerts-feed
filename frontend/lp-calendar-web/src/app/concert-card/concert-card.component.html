@@ -1,6 +1,6 @@
 <div class="card w-100">
   <div class="card-header">
-    Next concert
+    {{ cardTitle }}
   </div>
   <div class="card-body">
     <ng-template [ngIf]="concert$ != null" #concertTemplate>
@@ -19,7 +19,7 @@
 
     <ng-template #concertLoadingError>
       <div class="alert alert-danger" role="alert">
-        Failed to load information about the next concert!
+        Failed to load information about the concert!
       </div>
     </ng-template>
   </div>
