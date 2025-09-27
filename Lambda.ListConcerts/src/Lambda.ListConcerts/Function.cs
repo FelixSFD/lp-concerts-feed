@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Text.Json;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
@@ -6,8 +5,9 @@ using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Lambda.Auth;
 using LPCalendar.DataStructure;
-using LPCalendar.DataStructure.Converters;
+using LPCalendar.DataStructure.Responses;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -74,6 +74,23 @@ public class Function
         {
             context.Logger.LogInformation("Requested next concert");
             return await ReturnNextConcert(context);
+        }
+
+        
+        if (request.Path is "/concerts/attending" or "/concerts/bookmarked")
+        {
+            var currentUserId = request.GetUserId();
+            context.Logger.LogInformation("Requested bookmarked concerts for user '{currentUserId}'", currentUserId);
+
+            if (currentUserId == null)
+            {
+                return UnauthorizedResponseHelper.GetResponse("OPTIONS, GET");
+            }
+
+            var status = request.Path is "/concerts/attending"
+                ? ConcertBookmark.BookmarkStatus.Attending
+                : ConcertBookmark.BookmarkStatus.Bookmarked;
+            return await ReturnBookmarkedConcerts(status, 5, currentUserId, context);
         }
         
         if (request.PathParameters != null && request.PathParameters.TryGetValue("id", out var idParameter))
@@ -203,7 +220,7 @@ public class Function
 
     private async Task<APIGatewayProxyResponse> ReturnSingleConcert(string id)
     {
-        var concert = await _dynamoDbContext.LoadAsync<Concert>(id, _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName());
+        var concert = await GetConcertById(id);
         var concertJson = JsonSerializer.Serialize(concert);
         return new APIGatewayProxyResponse
         {
@@ -250,6 +267,62 @@ public class Function
                 { "Access-Control-Allow-Methods", "OPTIONS, GET, POST" }
             }
         };
+    }
+    
+    
+    private async Task<APIGatewayProxyResponse> ReturnBookmarkedConcerts(ConcertBookmark.BookmarkStatus status, int maxResults, string currentUserId, ILambdaContext context)
+    {
+        var config = _dbOperationConfigProvider.GetConcertBookmarksConfigWithEnvTableName();
+        config.BackwardQuery = false;
+        config.IndexName = "UserBookmarkStatusIndexV1";
+        
+        var query = _dynamoDbContext.QueryAsync<ConcertBookmark>(
+            currentUserId, // PartitionKey value
+            QueryOperator.Equal,
+            [status.ToString()],
+            config);
+
+        var searchStartDate = DateTimeOffset.Now.AddHours(-4);
+        var bookmarks = await query.GetRemainingAsync() ?? [];
+        var enrichingTasks = bookmarks.Select(GetConcertForBookmarkAndMerge);
+        var enrichedObjects = await Task.WhenAll(enrichingTasks);
+        var sortedAndFiltered = enrichedObjects
+            .Where(c => c != null && c.PostedStartTime >= searchStartDate)
+            .Cast<ConcertWithBookmarkStatusResponse>()
+            .OrderBy(ec => ec.PostedStartTime)
+            .Take(maxResults);
+        
+        var json = JsonSerializer.Serialize(sortedAndFiltered);
+        return new APIGatewayProxyResponse
+        {
+            StatusCode = 200,
+            Body = json,
+            Headers = new Dictionary<string, string>
+            {
+                { "Content-Type", "application/json" },
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+            }
+        };
+    }
+
+
+    private async Task<ConcertWithBookmarkStatusResponse?> GetConcertForBookmarkAndMerge(
+        ConcertBookmark bookmark)
+    {
+        var concert = await GetConcertById(bookmark.ConcertId);
+        return concert != null ? ConcertWithBookmarkStatusResponse.FromConcert(concert, bookmark) : null;
+    }
+
+
+    /// <summary>
+    /// Returns a concert by its ID
+    /// </summary>
+    /// <param name="id">ID</param>
+    /// <returns>Concert</returns>
+    private async Task<Concert?> GetConcertById(string id)
+    {
+        return await _dynamoDbContext.LoadAsync<Concert>(id, _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName());
     }
 
 
