@@ -36,6 +36,10 @@ export class HomeComponent implements OnInit {
   nextAttendingConcert: ConcertDto | null = null;
   nextBookmarkedConcert: ConcertDto | null = null;
 
+  isLoadingNextConcert: boolean = false;
+  isLoadingAttendingConcert: boolean = false;
+  isLoadingBookmarkedConcert: boolean = false;
+
   newFeatureAlertDismissedToken: string | null = localStorage.getItem("alert.new-feature.dismissed-token");
   currentNewFeatureAlertToken: string = "c4b2d59a-a98d-4d46-8e73-854ded50125a";
 
@@ -74,50 +78,61 @@ export class HomeComponent implements OnInit {
 
 
   private loadNextConcert() {
+    this.isLoadingNextConcert = true;
     this.concertsService.getNextConcert().subscribe({
       next: result => {
         this.nextConcert = result;
+        this.isLoadingNextConcert = false;
       },
       error: err => {
         // If the request times out, an error will have been emitted.
         console.warn("Next concert was not found. Maybe there is nothing scheduled.");
         this.nextConcert = null;
+        this.isLoadingNextConcert = false;
       }
     });
   }
 
 
   private loadNextBookmarkedConcert() {
+    this.isLoadingBookmarkedConcert = true;
     this.concertsService.getNextBookmarked().subscribe({
       next: result => {
         let next = result.at(0);
         if (next != undefined) {
           this.nextBookmarkedConcert = next;
         }
+
+        this.isLoadingBookmarkedConcert = false;
       },
       error: err => {
         // If the request times out, an error will have been emitted.
         console.log(err);
         console.error("Next bookmarked concert could not be loaded");
         this.nextBookmarkedConcert = null;
+        this.isLoadingBookmarkedConcert = false;
       }
     });
   }
 
 
   private loadNextAttendingConcert() {
+    this.isLoadingAttendingConcert = true;
     this.concertsService.getNextAttending().subscribe({
       next: result => {
         let next = result.at(0);
         if (next != undefined) {
           this.nextAttendingConcert = next;
         }
+
+        this.isLoadingAttendingConcert = false;
       },
       error: err => {
         // If the request times out, an error will have been emitted.
         console.log(err);
         console.error("Next concert you attend could not be loaded");
         this.nextAttendingConcert = null;
+        this.isLoadingAttendingConcert = false;
       }
     });
   }

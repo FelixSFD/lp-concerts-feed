@@ -23,6 +23,15 @@ export class ConcertCardComponent implements OnInit{
   @Input("concert")
   concert$: ConcertDto | null = null;
 
+  @Input("isLoading")
+  isLoading$: boolean = true;
+
+  @Input("notFoundAlertClass")
+  notFoundAlertClass: string = "info"
+
+  @Input("notFoundAlertText")
+  notFoundAlertText: string = "Concert was not found";
+
   constructor() {
   }
 
