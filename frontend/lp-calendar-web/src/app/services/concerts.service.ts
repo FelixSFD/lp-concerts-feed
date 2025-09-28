@@ -7,7 +7,7 @@ import {
   AdjacentConcertsResponseDto, ConcertBookmarkUpdateRequestDto,
   ConcertDto,
   ConcertFileUploadRequestDto, ConcertFileUploadResponseDto,
-  ConcertsService as ConcertsApiClient, GetConcertBookmarkCountsResponseDto
+  ConcertsService as ConcertsApiClient, ConcertWithBookmarkStatusDto, GetConcertBookmarkCountsResponseDto
 } from '../modules/lpshows-api';
 import {AuthService} from './auth.service';
 
@@ -118,5 +118,15 @@ export class ConcertsService {
     };
 
     return this.concertsApiClient.setBookmarkOnConcert(concertId, req);
+  }
+
+
+  getNextBookmarked(): Observable<Array<ConcertWithBookmarkStatusDto>> {
+    return this.concertsApiClient.getBookmarkedConcerts();
+  }
+
+
+  getNextAttending(): Observable<Array<ConcertWithBookmarkStatusDto>> {
+    return this.concertsApiClient.getUsersConcerts();
   }
 }

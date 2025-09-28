@@ -98,11 +98,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   logout(): void {
-    // Clear session storage
-    if (window.sessionStorage) {
-      window.sessionStorage.clear();
-    }
-
+    this.oidcSecurityService.logoffLocal();
     window.location.href = environment.cognitoLogoutUrl;
   }
 

@@ -1,10 +1,37 @@
 <h1>Linkin Park Concert Calendar</h1>
 <p>Want too keep track of the From Zero World Tour? Subscribe to the iCal-feed that contains all the concerts, so you never miss a show. <a [routerLink]="['/about']" class="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">More information...</a> </p>
 
+<ngb-alert *ngIf="newFeatureAlertDismissedToken != currentNewFeatureAlertToken && !isLoggedIn$" (closed)="onNewFeatureAlertClosed()" type="info" role="alert">
+  New feature: You can now <a href="javascript:void(0)" (click)="login()">sign up</a> and bookmark shows you want to see on the start page.
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</ngb-alert>
 
 <div class="row row-cols-xxl-4 row-cols-xl-3 row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1 gy-4 gx-4">
   <div class="col">
-    <app-concert-card [concert]="nextConcert" />
+    <app-concert-card cardTitle="Next Concert"
+                      [concert]="nextConcert"
+                      [isLoading]="isLoadingNextConcert"
+                      notFoundAlertClass="info"
+                      notFoundAlertText="No upcoming concert found."
+    />
+  </div>
+
+  <div class="col" *ngIf="isLoggedIn$">
+    <app-concert-card cardTitle="The next concert you follow"
+                      [concert]="nextBookmarkedConcert"
+                      [isLoading]="isLoadingBookmarkedConcert"
+                      notFoundAlertClass="info"
+                      notFoundAlertText="You have not bookmarked any upcoming concerts. You can bookmark a concert on its detail page."
+    />
+  </div>
+
+  <div class="col" *ngIf="isLoggedIn$">
+    <app-concert-card cardTitle="The next concert you attend! 🎉"
+                      [concert]="nextAttendingConcert"
+                      [isLoading]="isLoadingAttendingConcert"
+                      notFoundAlertClass="info"
+                      notFoundAlertText="You have no upcoming concerts. If you plan to attend a concert, find it on this site and click the 'Ticket'-button."
+    />
   </div>
 
   <div class="col">

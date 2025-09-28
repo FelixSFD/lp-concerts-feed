@@ -17,17 +17,22 @@ import {ConcertDto} from '../modules/lpshows-api';
   styleUrl: './concert-card.component.css'
 })
 export class ConcertCardComponent implements OnInit{
-  // how the concert is displayed. "countdown" is default
-  displayType: string = "countdown";
+  @Input("cardTitle")
+  cardTitle: string = "Concert";
 
   @Input("concert")
   concert$: ConcertDto | null = null;
 
-  // if no concert is set, use distant past as placeholder for countdown
-  pastPlaceholderDate = new Date(2024, 9, 5, 15, 0).toISOString();
+  @Input("isLoading")
+  isLoading$: boolean = true;
 
+  @Input("notFoundAlertClass")
+  notFoundAlertClass: string = "info"
 
-  constructor(private concertsService: ConcertsService) {
+  @Input("notFoundAlertText")
+  notFoundAlertText: string = "Concert was not found";
+
+  constructor() {
   }
 
 

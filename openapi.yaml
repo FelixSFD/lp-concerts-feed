@@ -72,6 +72,7 @@ components:
         next:
           type: string
           description: ID of the next concert
+    
     Concert:
       type: object
       description: Information about a concert
@@ -169,6 +170,7 @@ components:
           type: string
           description: A show is considered as "past", when the posted start time was more than 4 hour ago
           readOnly: true
+    
     ConcertFileUploadRequest:
       type: object
       description: Request to get a S3 url to upload the schedule for a concert
@@ -188,6 +190,7 @@ components:
           type: string
           description: Type of the file to be uploaded
           nullable: false
+    
     ConcertFileUploadResponse:
       type: object
       description: Response that tells the client which URL to use for the upload
@@ -196,6 +199,7 @@ components:
           type: string
           description: URL to use when uploading the file. This URL is only valid for the requested file
           nullable: false
+    
     ConcertSubEventCategory:
       type: string
       description: Describes a type of "sub-event". This is a part of the concert and can be something like "doors time" or "LP stage time"
@@ -239,6 +243,15 @@ components:
             - Attending
           default: None
           nullable: false
+    
+    ConcertWithBookmarkStatus:
+      type: object
+      description: Concert information with bookmark data
+      allOf:
+        - $ref: "#/components/schemas/Concert"
+      properties: 
+        bookmarkStatus:
+          $ref: "#/components/schemas/GetConcertBookmarkCountsResponse"
 
     # Users
     UserGroup:
@@ -394,6 +407,84 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Concert"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-find-concerts-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /concerts/attending:
+    get:
+      operationId: GetUsersConcerts
+      summary: Returns a list of concerts the user is attending
+      tags:
+        - concerts
+      parameters:
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A JSON array with the bookmarked concerts that were found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConcertWithBookmarkStatus"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-find-concerts-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /concerts/bookmarked:
+    get:
+      operationId: GetBookmarkedConcerts
+      summary: Returns a list of bookmarked concerts
+      tags:
+        - concerts
+      parameters:
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A JSON array with the bookmarked concerts that were found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConcertWithBookmarkStatus"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:

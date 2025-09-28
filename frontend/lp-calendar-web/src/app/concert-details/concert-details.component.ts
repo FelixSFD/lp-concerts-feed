@@ -64,6 +64,7 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   concert$: ConcertDto | null = null;
   adjacentConcertData$: AdjacentConcertsResponseDto | null = null;
   concertBookmarks$: GetConcertBookmarkCountsResponseDto | null = null;
+  concertBookmarksLoading$: boolean = false;
   concertId: string | undefined;
 
   // Map of the location of the concert
@@ -106,9 +107,12 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
 
   private onBookmarkOrAttendingClicked(status: GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum) {
     console.log("Clicked button for: ", status);
+    this.concertBookmarksLoading$ = true;
+
     this.authService.isAuthenticated().subscribe((isAuthenticated) => {
       if (this.concertId == undefined || this.concertBookmarks$ == null) {
-        this.toastr.error("Concert not loaded")
+        this.toastr.error("Concert not loaded");
+        this.concertBookmarksLoading$ = false;
         return;
       }
 
@@ -135,17 +139,19 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
             next: () => {
               //this.toastr.success("Added bookmark!");
               this.concertBookmarks$!.currentUserStatus = status;
-              this.loadBookmarkStatus();
+              this.loadBookmarkStatus(); // will set the loading status to false when done
             },
             error: (err: HttpErrorResponse) => {
               console.log(err);
               let errorResponse: ErrorResponseDto = err.error;
               this.toastr.error(errorResponse.message, "Failed to save bookmark!");
+              this.concertBookmarksLoading$ = false;
             }
           });
         }
       } else {
         this.toastr.info('You are not logged in!');
+        this.concertBookmarksLoading$ = false;
       }
     });
   }
@@ -159,6 +165,7 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
     this.concertsService.getBookmarksForConcert(this.concertId)
       .subscribe(bookmarkStatus => {
         if (bookmarkStatus != undefined) {
+          this.concertBookmarksLoading$ = false;
           this.concertBookmarks$ = bookmarkStatus;
         }
       });

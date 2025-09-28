@@ -1,9 +1,9 @@
 <div class="card w-100">
   <div class="card-header">
-    Next concert
+    {{ cardTitle }}
   </div>
   <div class="card-body">
-    <ng-template [ngIf]="concert$ != null" #concertTemplate>
+    <ng-template [ngIf]="concert$ != null && !isLoading$" #concertTemplate>
       <h5 class="card-title">{{ concert$?.venue }}</h5>
       <p class="card-text">
         <i>{{ concert$.city }}{{ (concert$.state?.length ?? 0) > 0 ? ", " + concert$.state : ""}}, {{ concert$.country }}</i>
@@ -13,13 +13,13 @@
       <small *ngIf="concert$.mainStageTime != undefined">Based on Linkin Park stage time</small>
     </ng-template>
 
-    <ng-template [ngIf]="concert$ == null" #concertLoadingSpinner>
+    <ng-template [ngIf]="isLoading$" #concertLoadingSpinner>
       <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading concert...
     </ng-template>
 
-    <ng-template #concertLoadingError>
-      <div class="alert alert-danger" role="alert">
-        Failed to load information about the next concert!
+    <ng-template [ngIf]="!isLoading$ && concert$ == null" #concertLoadingError>
+      <div class="alert alert-{{notFoundAlertClass}}" role="alert">
+        {{ notFoundAlertText }}
       </div>
     </ng-template>
   </div>

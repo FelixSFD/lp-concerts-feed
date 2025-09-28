@@ -12,17 +12,19 @@
     </div>
     &nbsp;
     <button class="btn btn-outline-info" [routerLink]="['./edit']" [hidden]="!hasWriteAccess$"><i class="bi bi-pencil"></i> Edit</button>
-    &nbsp;
-    <button [class]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Bookmarked ? 'btn btn-outline-primary' : 'btn btn-primary'"
-            [disabled]="concertBookmarks$ == null"
+  </div>
+
+  <!-- Bookmark buttons -->
+  <div class="col">
+    <button [class]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Bookmarked ? 'btn btn-outline-primary me-2' : 'btn btn-primary me-2'"
+            [disabled]="concertBookmarks$ == null || concertBookmarksLoading$"
             [ngbTooltip]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Bookmarked ? 'Remove bookmark' : 'Bookmark this show'"
             (click)="onBookmarkClicked()">
       <i [class]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Bookmarked ? 'bi bi-bookmark-check' : 'bi bi-bookmark'"></i>
       {{ concertBookmarks$?.bookmarked ?? 0 }}
     </button>
-    &nbsp;
     <button [class]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Attending ? 'btn btn-outline-success' : 'btn btn-success'"
-            [disabled]="concertBookmarks$ == null"
+            [disabled]="concertBookmarks$ == null || concertBookmarksLoading$"
             [ngbTooltip]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Attending ? 'Remove me from the show' : 'I will attend this show'"
             (click)="onAttendingClicked()">
       <i [class]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Attending ? 'bi bi-ticket-detailed-fill' : 'bi-ticket-detailed'"></i>

@@ -130,6 +130,14 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
+        - IndexName: UserBookmarkStatusIndexV1
+          KeySchema:
+            - AttributeName: UserId
+              KeyType: HASH
+            - AttributeName: Status
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
         - IndexName: ConcertBookmarkStatusIndexV1
           KeySchema:
             - AttributeName: ConcertId
@@ -288,7 +296,11 @@ Resources:
                   - dynamodb:DescribeTable
                   - dynamodb:Scan
                   - dynamodb:Query
-                Resource: !Sub "${ConcertsDynamoDBTable.Arn}*"
+                Resource:
+                  - !Sub "${ConcertsDynamoDBTable.Arn}"
+                  - !Sub "${ConcertsDynamoDBTable.Arn}*"
+                  - !Sub "${ConcertBookmarksDynamoDBTable.Arn}"
+                  - !Sub "${ConcertBookmarksDynamoDBTable.Arn}*"
   
   UsersReadLambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -921,6 +933,7 @@ Resources:
       Environment:
         Variables:
           CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
+          CONCERT_BOOKMARKS_TABLE_NAME: !Ref ConcertBookmarksDynamoDBTable
       LoggingConfig:
         LogFormat: JSON
         ApplicationLogLevel: DEBUG
