@@ -525,12 +525,14 @@ Resources:
         - http://localhost:4200
         - http://localhost:4200/
         - http://localhost:4200/home
+        - lpshows://
       LogoutURLs:
         - !Ref CallbackUrl
         - !Sub ${CallbackUrl}/
         - http://localhost:4200
         - http://localhost:4200/
         - http://localhost:4200/home
+        - lpshows://
       ClientName: !Sub ${UserPoolId}-client
       SupportedIdentityProviders:
         - COGNITO
