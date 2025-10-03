@@ -167,7 +167,7 @@ components:
           nullable: true
           readOnly: true
         isPast:
-          type: string
+          type: boolean
           description: A show is considered as "past", when the posted start time was more than 4 hour ago
           readOnly: true
     
@@ -626,11 +626,6 @@ paths:
           required: true
           schema:
             type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ConcertBookmarkUpdateRequest"
       responses:
         "200":
           description: Found the number of bookmarks
@@ -673,11 +668,6 @@ paths:
           required: false
           schema:
             type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ConcertBookmarkUpdateRequest"
       responses:
         "200":
           description: Found the number of bookmarks
