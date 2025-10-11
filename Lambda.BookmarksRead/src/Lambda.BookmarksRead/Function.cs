@@ -1,5 +1,4 @@
 using System.Net;
-using System.Runtime.Serialization;
 using System.Text.Json;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
@@ -9,7 +8,7 @@ using Amazon.Lambda.Core;
 using Lambda.Auth;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Converters;
-using LPCalendar.DataStructure.Requests;
+using LPCalendar.DataStructure.DbConfig;
 using LPCalendar.DataStructure.Responses;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
@@ -21,7 +20,7 @@ public class Function
 {
     private readonly IAmazonDynamoDB _dynamoDbClient = new AmazonDynamoDBClient();
     private readonly DynamoDBContext _dynamoDbContext;
-    private readonly DBOperationConfigProvider _dbOperationConfigProvider = new();
+    private readonly DynamoDbConfigProvider _dbConfigProvider = new();
     
     
     public Function()
@@ -71,7 +70,7 @@ public class Function
             return ConcertBookmark.BookmarkStatus.None;
         }
         
-        var config = _dbOperationConfigProvider.GetConcertBookmarksConfigWithEnvTableName();
+        var config = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.ConcertBookmarks);
         config.IndexName = "UserBookmarksIndexV1";
         
         var query = _dynamoDbContext.QueryAsync<ConcertBookmark>(
@@ -86,7 +85,7 @@ public class Function
 
     private IAsyncSearch<ConcertBookmark> QueryBookmarksFor(string concertId, ConcertBookmark.BookmarkStatus status)
     {
-        var config = _dbOperationConfigProvider.GetConcertBookmarksConfigWithEnvTableName();
+        var config = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.ConcertBookmarks);
         config.IndexName = "ConcertBookmarkStatusIndexV1";
         
         return _dynamoDbContext.QueryAsync<ConcertBookmark>(

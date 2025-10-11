@@ -10,6 +10,7 @@ using Amazon.Lambda.Core;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Converters;
 using Lambda.Auth;
+using LPCalendar.DataStructure.DbConfig;
 using LPCalendar.DataStructure.Requests;
 using LPCalendar.DataStructure.Responses;
 
@@ -22,7 +23,7 @@ public class Function
 {
     private readonly IAmazonDynamoDB _dynamoDbClient = new AmazonDynamoDBClient();
     private readonly DynamoDBContext _dynamoDbContext;
-    private readonly DBOperationConfigProvider _dbOperationConfigProvider = new();
+    private readonly DynamoDbConfigProvider _dbConfigProvider = new();
     
     
     public Function()
@@ -103,7 +104,7 @@ public class Function
         }
         
         // try to find bookmark for this user and concert
-        var config = _dbOperationConfigProvider.GetConcertBookmarksConfigWithEnvTableName();
+        var config = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.ConcertBookmarks);
         config.IndexName = "UserBookmarksIndexV1";
         
         var query = _dynamoDbContext.QueryAsync<ConcertBookmark>(
@@ -132,7 +133,7 @@ public class Function
         }
         
         // write to DB
-        await _dynamoDbContext.SaveAsync(bookmark, _dbOperationConfigProvider.GetConcertBookmarksConfigWithEnvTableName());
+        await _dynamoDbContext.SaveAsync(bookmark, _dbConfigProvider.GetSaveConfigFor(DynamoDbConfigProvider.Table.ConcertBookmarks));
         
         return new APIGatewayProxyResponse
         {
@@ -160,6 +161,6 @@ public class Function
     /// <returns></returns>
     private async Task<Concert?> GetConcertById(string concertId)
     {
-        return await _dynamoDbContext.LoadAsync<Concert>(concertId, _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName());
+        return await _dynamoDbContext.LoadAsync<Concert>(concertId, _dbConfigProvider.GetLoadConfigFor(DynamoDbConfigProvider.Table.ConcertBookmarks));
     }
 }

@@ -11,6 +11,7 @@ using Lambda.Auth;
 using Lambda.GetS3UploadUrl.UploadRequester;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Converters;
+using LPCalendar.DataStructure.DbConfig;
 using LPCalendar.DataStructure.Requests;
 using LPCalendar.DataStructure.Responses;
 
@@ -23,7 +24,7 @@ public class Function
 {
     private readonly IAmazonDynamoDB _dynamoDbClient = new AmazonDynamoDBClient();
     private readonly DynamoDBContext _dynamoDbContext;
-    private readonly DBOperationConfigProvider _dbOperationConfigProvider = new();
+    private readonly DynamoDbConfigProvider _dbConfigProvider = new();
     private readonly IAmazonS3 _s3Client;
     private readonly IGuidService _guidService;
     
@@ -79,7 +80,7 @@ public class Function
         
         context.Logger.LogDebug("Generated URL: {url}", response.UploadUrl);
 
-        await requester.UpdateConcert(uploadUrlRequest.ConcertId, _dynamoDbContext, _dbOperationConfigProvider);
+        await requester.UpdateConcert(uploadUrlRequest.ConcertId, _dynamoDbContext, _dbConfigProvider);
         context.Logger.LogDebug("Updated concert...");
         
         return new APIGatewayProxyResponse

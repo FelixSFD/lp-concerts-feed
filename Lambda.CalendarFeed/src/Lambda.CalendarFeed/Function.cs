@@ -8,6 +8,7 @@ using Ical.Net.CalendarComponents;
 using Ical.Net.Serialization;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Converters;
+using LPCalendar.DataStructure.DbConfig;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -20,7 +21,7 @@ public class Function
     
     private readonly IAmazonDynamoDB _dynamoDbClient = new AmazonDynamoDBClient();
     private readonly DynamoDBContext _dynamoDbContext;
-    private readonly DBOperationConfigProvider _dbOperationConfigProvider = new();
+    private readonly DynamoDbConfigProvider _dbConfigProvider = new();
     private readonly ICalendarGenerator _calendarGenerator;
 
     
@@ -61,7 +62,7 @@ public class Function
         calendar.AddTimeZone(new VTimeZone("Europe/Berlin")); // TODO: Get correct timezone
         
         var concerts = await _dynamoDbContext
-            .ScanAsync<Concert>(new List<ScanCondition>(), _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName())
+            .ScanAsync<Concert>(new List<ScanCondition>(), _dbConfigProvider.GetScanConfigFor(DynamoDbConfigProvider.Table.Concerts))
             .GetRemainingAsync(cts.Token);
         
         calendar.Events.AddRange(concerts.ToCalendarEvents(eventCategories));

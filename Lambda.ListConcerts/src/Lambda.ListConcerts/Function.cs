@@ -21,8 +21,6 @@ public class Function
 {
     private readonly IAmazonDynamoDB _dynamoDbClient;
     private readonly DynamoDBContext _dynamoDbContext;
-    [Obsolete]
-    private readonly DBOperationConfigProvider _dbOperationConfigProvider = new();
     private readonly DynamoDbConfigProvider _dbConfigProvider = new();
 
     public Function()

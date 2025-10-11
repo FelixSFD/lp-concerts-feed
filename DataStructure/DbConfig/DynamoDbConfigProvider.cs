@@ -20,6 +20,14 @@ public class DynamoDbConfigProvider
     }
     
     
+    public DeleteConfig GetDeleteConfigFor(Table table)
+    {
+        var config = new DeleteConfig();
+        SetTableNameOverride(config, table);
+        return config;
+    }
+    
+    
     public LoadConfig GetLoadConfigFor(Table table)
     {
         var config = new LoadConfig();
