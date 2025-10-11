@@ -11,25 +11,59 @@ public class DynamoDbConfigProvider
         AuditLog
     }
     
+    
+    public SaveConfig GetSaveConfigFor(Table table)
+    {
+        var config = new SaveConfig();
+        SetTableNameOverride(config, table);
+        return config;
+    }
+    
+    
+    public LoadConfig GetLoadConfigFor(Table table)
+    {
+        var config = new LoadConfig();
+        SetTableNameOverride(config, table);
+        return config;
+    }
+    
+    
+    public ScanConfig GetScanConfigFor(Table table)
+    {
+        var config = new ScanConfig();
+        SetTableNameOverride(config, table);
+        return config;
+    }
+    
+    
+    public QueryConfig GetQueryConfigFor(Table table)
+    {
+        var config = new QueryConfig();
+        SetTableNameOverride(config, table);
+        return config;
+    }
+
+
+    /// <summary>
+    /// Sets the <see cref="BaseOperationConfig.OverrideTableName"/> of the config, if the table is defined
+    /// </summary>
+    /// <param name="config"></param>
+    /// <param name="table"></param>
+    private static void SetTableNameOverride(BaseOperationConfig config, Table table)
+    {
+        var tableName = GetTableNameFor(table);
+        if (tableName != null)
+        {
+            config.OverrideTableName = tableName;
+        }
+    }
+    
+
     /// <summary>
     /// Fetches the table name for the <paramref name="table"/> from the env variables
     /// </summary>
     /// <param name="table">Table to get the config for</param>
     /// <returns>SaveConfig for DynamoDB</returns>
-    public SaveConfig GetSaveConfigFor(Table table)
-    {
-        var tableName = GetTableNameFor(table);
-        if (tableName == null)
-        {
-            return new SaveConfig();
-        }
-
-        return new SaveConfig
-        {
-            OverrideTableName = tableName
-        };
-    }
-
     private static string? GetTableNameFor(Table table)
     {
         return table switch

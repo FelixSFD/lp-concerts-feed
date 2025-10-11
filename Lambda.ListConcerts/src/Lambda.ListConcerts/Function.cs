@@ -7,6 +7,7 @@ using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Lambda.Auth;
 using LPCalendar.DataStructure;
+using LPCalendar.DataStructure.DbConfig;
 using LPCalendar.DataStructure.Responses;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
@@ -20,7 +21,9 @@ public class Function
 {
     private readonly IAmazonDynamoDB _dynamoDbClient;
     private readonly DynamoDBContext _dynamoDbContext;
+    [Obsolete]
     private readonly DBOperationConfigProvider _dbOperationConfigProvider = new();
+    private readonly DynamoDbConfigProvider _dbConfigProvider = new();
 
     public Function()
     {
@@ -127,8 +130,7 @@ public class Function
         var searchEndDateStr = searchEndDate.ToString("O");
         context.Logger.LogInformation("SCAN filtered concerts between {start} and {end}", searchStartDateStr, searchEndDateStr);
 
-        var config = _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName();
-        config.BackwardQuery = false;
+        var config = _dbConfigProvider.GetScanConfigFor(DynamoDbConfigProvider.Table.Concerts);
         config.IndexName = "PostedStartTimeGlobalIndex";
         
         // build Scan Conditions
@@ -178,8 +180,7 @@ public class Function
         
         context.Logger.LogInformation("Query concerts after: {time}", dateNowStr);
 
-        var config = _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName();
-        config.BackwardQuery = false;
+        var config = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.Concerts);
         config.IndexName = "PostedStartTimeGlobalIndex";
         
         var query = _dynamoDbContext.QueryAsync<Concert>(
@@ -243,7 +244,7 @@ public class Function
             
         context.Logger.LogInformation("Query concerts after: {time}", searchStartDateStr);
 
-        var config = _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName();
+        var config = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.Concerts);
         config.BackwardQuery = false;
         config.IndexName = "PostedStartTimeGlobalIndex";
         
@@ -272,7 +273,7 @@ public class Function
     
     private async Task<APIGatewayProxyResponse> ReturnBookmarkedConcerts(ConcertBookmark.BookmarkStatus status, int maxResults, string currentUserId, ILambdaContext context)
     {
-        var config = _dbOperationConfigProvider.GetConcertBookmarksConfigWithEnvTableName();
+        var config = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.ConcertBookmarks);
         config.BackwardQuery = false;
         config.IndexName = "UserBookmarkStatusIndexV1";
         
@@ -322,7 +323,7 @@ public class Function
     /// <returns>Concert</returns>
     private async Task<Concert?> GetConcertById(string id)
     {
-        return await _dynamoDbContext.LoadAsync<Concert>(id, _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName());
+        return await _dynamoDbContext.LoadAsync<Concert>(id, _dbConfigProvider.GetLoadConfigFor(DynamoDbConfigProvider.Table.Concerts));
     }
 
 
