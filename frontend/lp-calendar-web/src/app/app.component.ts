@@ -2,7 +2,7 @@ import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
-import {NgIf} from '@angular/common';
+import {NgIf, NgOptimizedImage} from '@angular/common';
 import {environment} from '../environments/environment';
 import {
   NgcCookieConsentService,
@@ -17,7 +17,7 @@ import {UserDto} from './modules/lpshows-api';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NgbModule, NgIf, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, NgbModule, NgIf, RouterLink, RouterLinkActive, NgOptimizedImage],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
