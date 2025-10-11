@@ -84,7 +84,7 @@ public class Function
     }
 
 
-    private AsyncSearch<ConcertBookmark> QueryBookmarksFor(string concertId, ConcertBookmark.BookmarkStatus status)
+    private IAsyncSearch<ConcertBookmark> QueryBookmarksFor(string concertId, ConcertBookmark.BookmarkStatus status)
     {
         var config = _dbOperationConfigProvider.GetConcertBookmarksConfigWithEnvTableName();
         config.IndexName = "ConcertBookmarkStatusIndexV1";

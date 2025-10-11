@@ -53,7 +53,7 @@ public class Function
         {
             context.Logger.LogInformation("Record: " + JsonSerializer.Serialize(record));
             
-            if (record.EventName == OperationType.MODIFY)
+            if (record.EventName == DynamoDBEventNames.Modify)
             {
                 var oldImage = record.Dynamodb.OldImage;
                 var newImage = record.Dynamodb.NewImage;
@@ -70,7 +70,7 @@ public class Function
                 
                 var task = SaveAuditLog(auditLogEntry);
                 saveAuditLogTasks.Add(task);
-            } else if (record.EventName == OperationType.INSERT)
+            } else if (record.EventName == DynamoDBEventNames.Insert)
             {
                 var newImage = record.Dynamodb.NewImage;
 
@@ -85,7 +85,7 @@ public class Function
                 
                 var task = SaveAuditLog(auditLogEntry);
                 saveAuditLogTasks.Add(task);
-            } else if (record.EventName == OperationType.REMOVE)
+            } else if (record.EventName == DynamoDBEventNames.Remove)
             {
                 var oldImage = record.Dynamodb.OldImage;
 
