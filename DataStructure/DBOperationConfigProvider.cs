@@ -2,6 +2,7 @@ using Amazon.DynamoDBv2.DataModel;
 
 namespace LPCalendar.DataStructure;
 
+[Obsolete("Use DynamoDbConfigProvider instead")]
 public class DBOperationConfigProvider
 {
     public DynamoDBOperationConfig GetConcertsConfigWithEnvTableName()

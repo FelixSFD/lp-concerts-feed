@@ -6,6 +6,7 @@ using Amazon.Lambda.DynamoDBEvents;
 using Amazon.Lambda.SQSEvents;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Converters;
+using LPCalendar.DataStructure.DbConfig;
 using LPCalendar.DataStructure.Entities;
 using LPCalendar.DataStructure.Events;
 
@@ -18,7 +19,7 @@ public class Function
 {
     private readonly IAmazonDynamoDB _dynamoDbClient = new AmazonDynamoDBClient();
     private readonly DynamoDBContext _dynamoDbContext;
-    private readonly DBOperationConfigProvider _dbOperationConfigProvider = new();
+    private readonly DynamoDbConfigProvider _dbConfigProvider = new();
     
     
     public Function()
@@ -128,6 +129,6 @@ public class Function
 
     private async Task SaveAuditLog(AuditLogEntry entry)
     {
-        await _dynamoDbContext.SaveAsync(entry, _dbOperationConfigProvider.GetAuditLogEntryConfigWithEnvTableName());
+        await _dynamoDbContext.SaveAsync(entry, _dbConfigProvider.GetSaveConfigFor(DynamoDbConfigProvider.Table.AuditLog));
     }
 }
