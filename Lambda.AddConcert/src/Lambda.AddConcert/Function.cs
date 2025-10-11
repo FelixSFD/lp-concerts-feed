@@ -31,7 +31,9 @@ public class Function
 
     public Function()
     {
-        _dynamoDbContext = new DynamoDBContext(_dynamoDbClient);
+        _dynamoDbContext = new DynamoDBContextBuilder()
+            .WithDynamoDBClient(() => new AmazonDynamoDBClient())
+            .Build();
         _dynamoDbContext.RegisterCustomConverters();
     }
 

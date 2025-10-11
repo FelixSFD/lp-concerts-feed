@@ -19,7 +19,6 @@ public class Function
 {
     private const string QueryParamEventCatFlags = "event_categories";
     
-    private readonly IAmazonDynamoDB _dynamoDbClient = new AmazonDynamoDBClient();
     private readonly DynamoDBContext _dynamoDbContext;
     private readonly DynamoDbConfigProvider _dbConfigProvider = new();
     private readonly ICalendarGenerator _calendarGenerator;
@@ -32,7 +31,9 @@ public class Function
     
     public Function(ICalendarGenerator calendarGenerator)
     {
-        _dynamoDbContext = new DynamoDBContext(_dynamoDbClient);
+        _dynamoDbContext = new DynamoDBContextBuilder()
+            .WithDynamoDBClient(() => new AmazonDynamoDBClient())
+            .Build();
         _dynamoDbContext.RegisterCustomConverters();
         _calendarGenerator = calendarGenerator;
     }

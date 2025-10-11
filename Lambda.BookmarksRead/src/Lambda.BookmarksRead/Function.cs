@@ -18,14 +18,15 @@ namespace Lambda.BookmarksRead;
 
 public class Function
 {
-    private readonly IAmazonDynamoDB _dynamoDbClient = new AmazonDynamoDBClient();
     private readonly DynamoDBContext _dynamoDbContext;
     private readonly DynamoDbConfigProvider _dbConfigProvider = new();
     
     
     public Function()
     {
-        _dynamoDbContext = new DynamoDBContext(_dynamoDbClient);
+        _dynamoDbContext = new DynamoDBContextBuilder()
+            .WithDynamoDBClient(() => new AmazonDynamoDBClient())
+            .Build();
         _dynamoDbContext.RegisterCustomConverters();
     }
     
@@ -42,7 +43,7 @@ public class Function
             && request.PathParameters.TryGetValue("id", out var concertId))
         {
             context.Logger.LogInformation("Requested bookmark counts for a concert");
-            return await ReturnBookmarkCountsForConcert(concertId!, request.GetUserId());
+            return await ReturnBookmarkCountsForConcert(concertId!, request.GetUserId(), context.Logger);
         }
 
         var error = new ErrorResponse
@@ -63,7 +64,7 @@ public class Function
 
 
     private async Task<ConcertBookmark.BookmarkStatus> GetBookmarkStatusForUserAtConcert(string concertId,
-        string? userId)
+        string? userId, ILambdaLogger logger)
     {
         if (userId == null)
         {
@@ -71,7 +72,9 @@ public class Function
         }
         
         var config = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.ConcertBookmarks);
-        config.IndexName = "UserBookmarksIndexV1";
+        config.IndexName = ConcertBookmark.UserBookmarksIndex;
+        
+        logger.LogInformation($"GetBookmarkStatusForUserAtConcert Query: {JsonSerializer.Serialize(config)}");
         
         var query = _dynamoDbContext.QueryAsync<ConcertBookmark>(
             userId, // PartitionKey value
@@ -83,10 +86,12 @@ public class Function
     }
 
 
-    private IAsyncSearch<ConcertBookmark> QueryBookmarksFor(string concertId, ConcertBookmark.BookmarkStatus status)
+    private IAsyncSearch<ConcertBookmark> QueryBookmarksFor(string concertId, ConcertBookmark.BookmarkStatus status, ILambdaLogger logger)
     {
         var config = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.ConcertBookmarks);
         config.IndexName = "ConcertBookmarkStatusIndexV1";
+        
+        logger.LogInformation($"Query: {JsonSerializer.Serialize(config)}");
         
         return _dynamoDbContext.QueryAsync<ConcertBookmark>(
             concertId, // PartitionKey value
@@ -96,14 +101,14 @@ public class Function
     }
 
 
-    private async Task<APIGatewayProxyResponse> ReturnBookmarkCountsForConcert(string concertId, string? currentUserId)
+    private async Task<APIGatewayProxyResponse> ReturnBookmarkCountsForConcert(string concertId, string? currentUserId, ILambdaLogger logger)
     {
-        var queryBookmarked = QueryBookmarksFor(concertId, ConcertBookmark.BookmarkStatus.Bookmarked);
-        var queryAttending = QueryBookmarksFor(concertId, ConcertBookmark.BookmarkStatus.Attending);
+        var queryBookmarked = QueryBookmarksFor(concertId, ConcertBookmark.BookmarkStatus.Bookmarked, logger);
+        var queryAttending = QueryBookmarksFor(concertId, ConcertBookmark.BookmarkStatus.Attending, logger);
 
         var bookmarkedTask = queryBookmarked.GetRemainingAsync();
         var attendingTask = queryAttending.GetRemainingAsync();
-        var bookmarkStatusTask = GetBookmarkStatusForUserAtConcert(concertId, currentUserId);
+        var bookmarkStatusTask = GetBookmarkStatusForUserAtConcert(concertId, currentUserId, logger);
         
         await Task.WhenAll(bookmarkedTask, attendingTask, bookmarkStatusTask);
         var countBookmarked = bookmarkedTask.Result.Count;

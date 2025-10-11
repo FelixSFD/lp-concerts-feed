@@ -23,14 +23,15 @@ namespace Lambda.DeleteConcert;
 /// </summary>
 public class Function
 {
-    private readonly IAmazonDynamoDB _dynamoDbClient = new AmazonDynamoDBClient();
     private readonly DynamoDBContext _dynamoDbContext;
     private readonly DynamoDbConfigProvider _dbConfigProvider = new();
     private readonly IAmazonSQS _sqsClient = new AmazonSQSClient();
 
     public Function()
     {
-        _dynamoDbContext = new DynamoDBContext(_dynamoDbClient);
+        _dynamoDbContext = new DynamoDBContextBuilder()
+            .WithDynamoDBClient(() => new AmazonDynamoDBClient())
+            .Build();
         _dynamoDbContext.RegisterCustomConverters();
     }
     

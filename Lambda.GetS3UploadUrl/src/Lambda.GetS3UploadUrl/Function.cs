@@ -22,7 +22,6 @@ namespace Lambda.GetS3UploadUrl;
 
 public class Function
 {
-    private readonly IAmazonDynamoDB _dynamoDbClient = new AmazonDynamoDBClient();
     private readonly DynamoDBContext _dynamoDbContext;
     private readonly DynamoDbConfigProvider _dbConfigProvider = new();
     private readonly IAmazonS3 _s3Client;
@@ -37,7 +36,9 @@ public class Function
     {
         _s3Client = s3Client;
         _guidService = guidService;
-        _dynamoDbContext = new DynamoDBContext(_dynamoDbClient);
+        _dynamoDbContext = new DynamoDBContextBuilder()
+            .WithDynamoDBClient(() => new AmazonDynamoDBClient())
+            .Build();
         _dynamoDbContext.RegisterCustomConverters();
     }
     

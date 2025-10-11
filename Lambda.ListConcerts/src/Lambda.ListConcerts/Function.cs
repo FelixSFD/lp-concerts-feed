@@ -19,7 +19,6 @@ using DateRange = (DateTimeOffset? from, DateTimeOffset? to);
 
 public class Function
 {
-    private readonly IAmazonDynamoDB _dynamoDbClient;
     private readonly DynamoDBContext _dynamoDbContext;
     private readonly DynamoDbConfigProvider _dbConfigProvider = new();
 
@@ -30,11 +29,10 @@ public class Function
             LogMetrics = true,
             LogResponse = true
         };
-
-        _dynamoDbClient = new AmazonDynamoDBClient(config);
-
-        _dynamoDbContext = new DynamoDBContext(_dynamoDbClient);
-        //_dynamoDbContext.RegisterCustomConverters();
+        
+        _dynamoDbContext = new DynamoDBContextBuilder()
+            .WithDynamoDBClient(() => new AmazonDynamoDBClient(config))
+            .Build();
     }
 
 

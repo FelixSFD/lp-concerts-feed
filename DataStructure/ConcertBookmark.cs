@@ -10,6 +10,8 @@ namespace LPCalendar.DataStructure;
 public class ConcertBookmark
 {
     public const string ConcertBookmarkTableName = "ConcertBookmarks";
+    public const string UserBookmarksIndex = "UserBookmarksIndexV1";
+    public const string ConcertBookmarkStatusIndex = "ConcertBookmarkStatusIndexV1";
     
     /// <summary>
     /// Status of the bookmark
@@ -44,7 +46,8 @@ public class ConcertBookmark
     /// <summary>
     /// ID of the concert
     /// </summary>
-    //[DynamoDBGlobalSecondaryIndexHashKey("ConcertBookmarksIndex")]
+    [DynamoDBGlobalSecondaryIndexHashKey(ConcertBookmarkStatusIndex)]
+    [DynamoDBGlobalSecondaryIndexRangeKey(UserBookmarksIndex)]
     [DynamoDBProperty]
     [JsonPropertyName("concertId")]
     public string ConcertId { get; set; }
@@ -53,7 +56,7 @@ public class ConcertBookmark
     /// <summary>
     /// ID of the user
     /// </summary>
-    [DynamoDBGlobalSecondaryIndexHashKey("UserBookmarksIndexV1", "UserBookmarkStatusIndexV1")]
+    [DynamoDBGlobalSecondaryIndexHashKey(UserBookmarksIndex, "UserBookmarkStatusIndexV1")]
     [JsonPropertyName("userId")]
     public string UserId { get; set; }
     
@@ -65,7 +68,7 @@ public class ConcertBookmark
     [JsonIgnore]
     public BookmarkStatus Status { get; set; }
 
-    [DynamoDBGlobalSecondaryIndexRangeKey("UserBookmarkStatusIndexV1")]
+    [DynamoDBGlobalSecondaryIndexRangeKey("UserBookmarkStatusIndexV1", ConcertBookmarkStatusIndex)]
     [DynamoDBProperty("Status")]
     [JsonPropertyName("status")]
     public string StatusString

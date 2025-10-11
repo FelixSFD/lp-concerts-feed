@@ -16,7 +16,6 @@ namespace Lambda.ImportConcerts;
 
 public class Function
 {
-    private readonly IAmazonDynamoDB _dynamoDbClient = new AmazonDynamoDBClient();
     private readonly DynamoDBContext _dynamoDbContext;
     private readonly DynamoDbConfigProvider _dbConfigProvider = new();
     private readonly IAmazonS3 _s3Client;
@@ -29,7 +28,9 @@ public class Function
     internal Function(IAmazonS3 s3Client)
     {
         _s3Client = s3Client;
-        _dynamoDbContext = new DynamoDBContext(_dynamoDbClient);
+        _dynamoDbContext = new DynamoDBContextBuilder()
+            .WithDynamoDBClient(() => new AmazonDynamoDBClient())
+            .Build();
         _dynamoDbContext.RegisterCustomConverters();
     }
     
