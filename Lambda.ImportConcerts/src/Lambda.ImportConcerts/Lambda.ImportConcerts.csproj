@@ -14,7 +14,7 @@
         <PackageReference Include="Amazon.Lambda.Core" Version="2.5.0"/>
         <PackageReference Include="Amazon.Lambda.S3Events" Version="3.1.0" />
         <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.4"/>
-        <PackageReference Include="AWSSDK.S3" Version="3.7.412.2" />
+        <PackageReference Include="AWSSDK.S3" Version="4.0.7.9" />
         <PackageReference Include="ChoETL" Version="1.2.1.68" />
     </ItemGroup>
     <ItemGroup>

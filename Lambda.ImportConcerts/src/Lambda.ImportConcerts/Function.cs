@@ -7,6 +7,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Converters;
+using LPCalendar.DataStructure.DbConfig;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -15,9 +16,8 @@ namespace Lambda.ImportConcerts;
 
 public class Function
 {
-    private readonly IAmazonDynamoDB _dynamoDbClient = new AmazonDynamoDBClient();
     private readonly DynamoDBContext _dynamoDbContext;
-    private readonly DBOperationConfigProvider _dbOperationConfigProvider = new();
+    private readonly DynamoDbConfigProvider _dbConfigProvider = new();
     private readonly IAmazonS3 _s3Client;
     
     public Function() : this(new AmazonS3Client())
@@ -28,7 +28,9 @@ public class Function
     internal Function(IAmazonS3 s3Client)
     {
         _s3Client = s3Client;
-        _dynamoDbContext = new DynamoDBContext(_dynamoDbClient);
+        _dynamoDbContext = new DynamoDBContextBuilder()
+            .WithDynamoDBClient(() => new AmazonDynamoDBClient())
+            .Build();
         _dynamoDbContext.RegisterCustomConverters();
     }
     
@@ -82,6 +84,6 @@ public class Function
     
     private async Task SaveConcert(Concert concert)
     {
-        await _dynamoDbContext.SaveAsync(concert, _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName());
+        await _dynamoDbContext.SaveAsync(concert, _dbConfigProvider.GetSaveConfigFor(DynamoDbConfigProvider.Table.Concerts));
     }
 }

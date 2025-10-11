@@ -1,6 +1,7 @@
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.S3;
 using LPCalendar.DataStructure;
+using LPCalendar.DataStructure.DbConfig;
 using LPCalendar.DataStructure.Requests;
 
 namespace Lambda.GetS3UploadUrl.UploadRequester;
@@ -27,13 +28,13 @@ public class ConcertScheduleUploadRequester(GetS3UploadUrlRequest uploadUrlReque
     }
 
 
-    public override async Task UpdateConcert(string concertId, IDynamoDBContext dbContext, DBOperationConfigProvider dbOperationConfigProvider)
+    public override async Task UpdateConcert(string concertId, IDynamoDBContext dbContext, DynamoDbConfigProvider dbConfigProvider)
     {
         var concert = await dbContext
-            .LoadAsync<Concert>(concertId, dbOperationConfigProvider.GetConcertsConfigWithEnvTableName());
+            .LoadAsync<Concert>(concertId, dbConfigProvider.GetLoadConfigFor(DynamoDbConfigProvider.Table.Concerts));
 
         concert.ScheduleImageFile = GetFileKey();
 
-        await dbContext.SaveAsync(concert, dbOperationConfigProvider.GetConcertsConfigWithEnvTableName());
+        await dbContext.SaveAsync(concert, dbConfigProvider.GetSaveConfigFor(DynamoDbConfigProvider.Table.Concerts));
     }
 }

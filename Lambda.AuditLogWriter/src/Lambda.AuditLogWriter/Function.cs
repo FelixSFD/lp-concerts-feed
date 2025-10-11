@@ -6,6 +6,7 @@ using Amazon.Lambda.DynamoDBEvents;
 using Amazon.Lambda.SQSEvents;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Converters;
+using LPCalendar.DataStructure.DbConfig;
 using LPCalendar.DataStructure.Entities;
 using LPCalendar.DataStructure.Events;
 
@@ -16,14 +17,15 @@ namespace Lambda.AuditLogWriter;
 
 public class Function
 {
-    private readonly IAmazonDynamoDB _dynamoDbClient = new AmazonDynamoDBClient();
     private readonly DynamoDBContext _dynamoDbContext;
-    private readonly DBOperationConfigProvider _dbOperationConfigProvider = new();
+    private readonly DynamoDbConfigProvider _dbConfigProvider = new();
     
     
     public Function()
     {
-        _dynamoDbContext = new DynamoDBContext(_dynamoDbClient);
+        _dynamoDbContext = new DynamoDBContextBuilder()
+            .WithDynamoDBClient(() => new AmazonDynamoDBClient())
+            .Build();
         _dynamoDbContext.RegisterCustomConverters();
     }
     
@@ -53,7 +55,7 @@ public class Function
         {
             context.Logger.LogInformation("Record: " + JsonSerializer.Serialize(record));
             
-            if (record.EventName == OperationType.MODIFY)
+            if (record.EventName == DynamoDBEventNames.Modify)
             {
                 var oldImage = record.Dynamodb.OldImage;
                 var newImage = record.Dynamodb.NewImage;
@@ -70,7 +72,7 @@ public class Function
                 
                 var task = SaveAuditLog(auditLogEntry);
                 saveAuditLogTasks.Add(task);
-            } else if (record.EventName == OperationType.INSERT)
+            } else if (record.EventName == DynamoDBEventNames.Insert)
             {
                 var newImage = record.Dynamodb.NewImage;
 
@@ -85,7 +87,7 @@ public class Function
                 
                 var task = SaveAuditLog(auditLogEntry);
                 saveAuditLogTasks.Add(task);
-            } else if (record.EventName == OperationType.REMOVE)
+            } else if (record.EventName == DynamoDBEventNames.Remove)
             {
                 var oldImage = record.Dynamodb.OldImage;
 
@@ -128,6 +130,6 @@ public class Function
 
     private async Task SaveAuditLog(AuditLogEntry entry)
     {
-        await _dynamoDbContext.SaveAsync(entry, _dbOperationConfigProvider.GetAuditLogEntryConfigWithEnvTableName());
+        await _dynamoDbContext.SaveAsync(entry, _dbConfigProvider.GetSaveConfigFor(DynamoDbConfigProvider.Table.AuditLog));
     }
 }

@@ -9,6 +9,7 @@ using Amazon.SQS.Model;
 using Lambda.Auth;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Converters;
+using LPCalendar.DataStructure.DbConfig;
 using LPCalendar.DataStructure.Events;
 using LPCalendar.DataStructure.Requests;
 
@@ -22,14 +23,15 @@ namespace Lambda.DeleteConcert;
 /// </summary>
 public class Function
 {
-    private readonly IAmazonDynamoDB _dynamoDbClient = new AmazonDynamoDBClient();
     private readonly DynamoDBContext _dynamoDbContext;
-    private readonly DBOperationConfigProvider _dbOperationConfigProvider = new();
+    private readonly DynamoDbConfigProvider _dbConfigProvider = new();
     private readonly IAmazonSQS _sqsClient = new AmazonSQSClient();
 
     public Function()
     {
-        _dynamoDbContext = new DynamoDBContext(_dynamoDbClient);
+        _dynamoDbContext = new DynamoDBContextBuilder()
+            .WithDynamoDBClient(() => new AmazonDynamoDBClient())
+            .Build();
         _dynamoDbContext.RegisterCustomConverters();
     }
     
@@ -73,7 +75,7 @@ public class Function
             return response;
         }
         
-        var oldValue = await _dynamoDbContext.LoadAsync<Concert>(deleteRequest.ConcertId, _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName());
+        var oldValue = await _dynamoDbContext.LoadAsync<Concert>(deleteRequest.ConcertId, _dbConfigProvider.GetLoadConfigFor(DynamoDbConfigProvider.Table.Concerts));
         if (oldValue == null)
         {
             context.Logger.LogWarning("Could not find concert with ID '{0}'", concertId);
@@ -81,7 +83,7 @@ public class Function
             return response;
         }
         
-        await _dynamoDbContext.DeleteAsync<Concert>(deleteRequest.ConcertId, _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName());
+        await _dynamoDbContext.DeleteAsync<Concert>(deleteRequest.ConcertId, _dbConfigProvider.GetDeleteConfigFor(DynamoDbConfigProvider.Table.Concerts));
 
         try
         {

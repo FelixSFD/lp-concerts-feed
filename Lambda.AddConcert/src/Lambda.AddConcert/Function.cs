@@ -12,6 +12,7 @@ using Amazon.SQS.Model;
 using Lambda.Auth;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Converters;
+using LPCalendar.DataStructure.DbConfig;
 using LPCalendar.DataStructure.Events;
 using LPCalendar.DataStructure.Responses;
 using ErrorResponse = LPCalendar.DataStructure.Responses.ErrorResponse;
@@ -25,12 +26,14 @@ public class Function
 {
     private readonly IAmazonDynamoDB _dynamoDbClient = new AmazonDynamoDBClient();
     private readonly DynamoDBContext _dynamoDbContext;
-    private readonly DBOperationConfigProvider _dbOperationConfigProvider = new();
+    private readonly DynamoDbConfigProvider _dbConfigProvider = new();
     private readonly IAmazonSQS _sqsClient = new AmazonSQSClient();
 
     public Function()
     {
-        _dynamoDbContext = new DynamoDBContext(_dynamoDbClient);
+        _dynamoDbContext = new DynamoDBContextBuilder()
+            .WithDynamoDBClient(() => new AmazonDynamoDBClient())
+            .Build();
         _dynamoDbContext.RegisterCustomConverters();
     }
 
@@ -66,7 +69,7 @@ public class Function
         Concert? oldValue = null;
         if (!string.IsNullOrEmpty(concert.Id))
         {
-            oldValue = await _dynamoDbContext.LoadAsync<Concert>(concert.Id, _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName());
+            oldValue = await _dynamoDbContext.LoadAsync<Concert>(concert.Id, _dbConfigProvider.GetLoadConfigFor(DynamoDbConfigProvider.Table.Concerts));
         }
         
         var action = oldValue == null ? "Add" : "Update";
@@ -150,7 +153,7 @@ public class Function
 
     private async Task FixNonOverridableFields(Concert concert)
     {
-        var existing = await _dynamoDbContext.LoadAsync<Concert>(concert.Id, _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName());
+        var existing = await _dynamoDbContext.LoadAsync<Concert>(concert.Id, _dbConfigProvider.GetLoadConfigFor(DynamoDbConfigProvider.Table.Concerts));
         if (existing != null)
         {
             concert.ScheduleImageFile = existing.ScheduleImageFile;
@@ -161,7 +164,7 @@ public class Function
     private async Task SaveConcert(Concert concert)
     {
         await FixNonOverridableFields(concert);
-        await _dynamoDbContext.SaveAsync(concert, _dbOperationConfigProvider.GetConcertsConfigWithEnvTableName());
+        await _dynamoDbContext.SaveAsync(concert, _dbConfigProvider.GetSaveConfigFor(DynamoDbConfigProvider.Table.Concerts));
     }
 
 
