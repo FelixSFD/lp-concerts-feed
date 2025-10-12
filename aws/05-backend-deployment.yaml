@@ -924,10 +924,11 @@ Resources:
   FindConcertFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: Lambda.ListConcerts::Lambda.ListConcerts.Function::FunctionHandler
+      Handler: bootstrap
       Role: !GetAtt ConcertsReadLambdaExecutionRole.Arn
       Description: .NET function to read Concert entries
       CodeUri: ../Lambda.ListConcerts/src/Lambda.ListConcerts/bin/Release/net8.0/Lambda.ListConcerts.zip
+      Runtime: provided.al2023
       Architectures:
         - arm64
       Tracing: Active
