@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
+using LPCalendar.DataStructure.Requests;
 using LPCalendar.DataStructure.Responses;
-using ErrorResponse = Amazon.Runtime.Internal.ErrorResponse;
 
 namespace LPCalendar.DataStructure;
 
@@ -11,6 +11,7 @@ namespace LPCalendar.DataStructure;
 [JsonSerializable(typeof(ConcertBookmark))]
 [JsonSerializable(typeof(ErrorResponse))]
 [JsonSerializable(typeof(GetConcertBookmarkCountsResponse))]
+[JsonSerializable(typeof(ConcertBookmarkUpdateRequest))]
 public partial class DataStructureJsonContext : JsonSerializerContext
 {
 }

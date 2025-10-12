@@ -774,10 +774,11 @@ Resources:
   AddConcertBookmarksFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: Lambda.BookmarksWrite::Lambda.BookmarksWrite.Function::FunctionHandler
+      Handler: bootstrap
       Role: !GetAtt ConcertBookmarksWriteLambdaExecutionRole.Arn
       Description: .NET function to add Concert bookmarks for a user
       CodeUri: ../Lambda.BookmarksWrite/src/Lambda.BookmarksWrite/bin/Release/net8.0/Lambda.BookmarksWrite.zip
+      Runtime: provided.al2023
       Architectures:
         - arm64
       Tracing: Active

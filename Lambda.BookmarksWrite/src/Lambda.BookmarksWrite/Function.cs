@@ -4,7 +4,6 @@ using System.Text.Json;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
-using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using LPCalendar.DataStructure;
@@ -41,6 +40,7 @@ public class Function
     {
         if (request.Body == null)
         {
+            context.Logger.LogInformation("Request body is null");
             return new APIGatewayProxyResponse()
             {
                 StatusCode = (int)HttpStatusCode.BadRequest,
@@ -54,21 +54,25 @@ public class Function
         }
 
         var parsedRequestBody = MakeRequestFromJsonBody(request.Body);
+        context.Logger.LogDebug($"User sets status to: {parsedRequestBody.Status}");
         var currentUserId = request.GetUserId();
         request.PathParameters.TryGetValue("id", out var concertId);
 
         if (currentUserId == null)
         {
+            context.Logger.LogInformation("No userId found");
             return ForbiddenResponseHelper.GetResponse("OPTIONS, PUT");
         }
 
         if (concertId == null)
         {
+            context.Logger.LogInformation("No concertId found");
+            
             var errResponse = new ErrorResponse
             {
                 Message = "ConcertId is missing"
             };
-            var bodyJson = JsonSerializer.Serialize(errResponse);
+            var bodyJson = JsonSerializer.Serialize(errResponse, DataStructureJsonContext.Default.ErrorResponse);
             return new APIGatewayProxyResponse
             {
                 StatusCode = (int)HttpStatusCode.BadRequest,
@@ -86,11 +90,13 @@ public class Function
         var concert = await GetConcertById(concertId);
         if (concert == null)
         {
+            context.Logger.LogInformation("Concert '{id}' not found", concertId);
+            
             var errResponse = new ErrorResponse
             {
                 Message = "Concert does not exist"
             };
-            var bodyJson = JsonSerializer.Serialize(errResponse);
+            var bodyJson = JsonSerializer.Serialize(errResponse, DataStructureJsonContext.Default.ErrorResponse);
             return new APIGatewayProxyResponse
             {
                 StatusCode = (int)HttpStatusCode.NotFound,
@@ -148,9 +154,9 @@ public class Function
     }
     
     
-    private ConcertBookmarkUpdateRequest MakeRequestFromJsonBody(string json)
+    private static ConcertBookmarkUpdateRequest MakeRequestFromJsonBody(string json)
     {
-        var bookmark = JsonSerializer.Deserialize<ConcertBookmarkUpdateRequest>(json) ?? throw new InvalidDataContractException("JSON could not be parsed to ConcertBookmarkUpdateRequest!");
+        var bookmark = JsonSerializer.Deserialize(json, DataStructureJsonContext.Default.ConcertBookmarkUpdateRequest) ?? throw new InvalidDataContractException("JSON could not be parsed to ConcertBookmarkUpdateRequest!");
         return bookmark;
     }
 
@@ -162,6 +168,6 @@ public class Function
     /// <returns></returns>
     private async Task<Concert?> GetConcertById(string concertId)
     {
-        return await _dynamoDbContext.LoadAsync<Concert>(concertId, _dbConfigProvider.GetLoadConfigFor(DynamoDbConfigProvider.Table.ConcertBookmarks));
+        return await _dynamoDbContext.LoadAsync<Concert>(concertId, _dbConfigProvider.GetLoadConfigFor(DynamoDbConfigProvider.Table.Concerts));
     }
 }
