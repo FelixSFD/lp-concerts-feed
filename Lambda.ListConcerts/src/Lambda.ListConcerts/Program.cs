@@ -2,9 +2,10 @@ using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.RuntimeSupport;
 using Amazon.Lambda.Serialization.SystemTextJson;
+using Lambda.Common.ApiGateway;
 using Lambda.ListConcerts;
 
-await LambdaBootstrapBuilder.Create((Func<APIGatewayProxyRequest, ILambdaContext, Task<APIGatewayProxyResponse>>)Handler, new SourceGeneratorLambdaJsonSerializer<CustomJsonSerializerContext>(options => {
+await LambdaBootstrapBuilder.Create((Func<APIGatewayProxyRequest, ILambdaContext, Task<APIGatewayProxyResponse>>)Handler, new SourceGeneratorLambdaJsonSerializer<ApiGatewayJsonContext>(options => {
         options.PropertyNameCaseInsensitive = true;
     }))
     .Build()

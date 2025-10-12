@@ -22,5 +22,6 @@
     <ItemGroup>
       <ProjectReference Include="..\..\..\DataStructure\DataStructure.csproj" />
       <ProjectReference Include="..\..\..\Lambda.Auth\Lambda.Auth.csproj" />
+      <ProjectReference Include="..\..\..\Lambda.Common.ApiGateway\Lambda.Common.ApiGateway.csproj" />
     </ItemGroup>
 </Project>

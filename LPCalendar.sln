@@ -83,6 +83,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "properties", "properties", 
 		LambdaAotProperties.targets = LambdaAotProperties.targets
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.Common.ApiGateway", "Lambda.Common.ApiGateway\Lambda.Common.ApiGateway.csproj", "{D952637E-93CC-4C80-BEB9-F871D2BC7105}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -201,5 +203,9 @@ Global
 		{0A2E739A-DBF2-4998-A662-5F861F1BE705}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A2E739A-DBF2-4998-A662-5F861F1BE705}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A2E739A-DBF2-4998-A662-5F861F1BE705}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D952637E-93CC-4C80-BEB9-F871D2BC7105}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D952637E-93CC-4C80-BEB9-F871D2BC7105}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D952637E-93CC-4C80-BEB9-F871D2BC7105}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D952637E-93CC-4C80-BEB9-F871D2BC7105}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
