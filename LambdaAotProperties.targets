@@ -1,7 +1,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <AssemblyName>bootstrap</AssemblyName>
+        <!--<AssemblyName>bootstrap</AssemblyName>-->
         <PublishAot>true</PublishAot>
         <RuntimeIdentifier>linux-arm64</RuntimeIdentifier>
         <SelfContained>true</SelfContained>
