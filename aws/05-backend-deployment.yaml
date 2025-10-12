@@ -995,10 +995,11 @@ Resources:
   UsersReadWriteFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: Lambda.UsersRead::Lambda.UsersRead.Function::FunctionHandler
+      Handler: bootstrap
       Role: !GetAtt UsersReadLambdaExecutionRole.Arn
-      Description: .NET function to  and write user-data from Cognito
+      Description: .NET function to read and write user-data from Cognito
       CodeUri: ../Lambda.UsersRead/src/Lambda.UsersRead/bin/Release/net8.0/Lambda.UsersRead.zip
+      Runtime: provided.al2023
       Architectures:
         - arm64
       Tracing: Active

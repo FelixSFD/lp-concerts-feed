@@ -18,6 +18,8 @@ namespace LPCalendar.DataStructure;
 [JsonSerializable(typeof(GetS3UploadUrlRequest))]
 [JsonSerializable(typeof(GetS3UploadUrlResponse))]
 [JsonSerializable(typeof(ConcertBookmarkUpdateRequest))]
+[JsonSerializable(typeof(User))]
+[JsonSerializable(typeof(IEnumerable<User>))]
 public partial class DataStructureJsonContext : JsonSerializerContext
 {
 }
