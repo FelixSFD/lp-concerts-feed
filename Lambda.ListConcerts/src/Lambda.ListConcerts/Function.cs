@@ -155,7 +155,7 @@ public class Function
 
         var concerts = await query.GetRemainingAsync() ?? [];
         
-        var concertsJson = JsonSerializer.Serialize(concerts, DataStructureJsonContext.Default.Concert);
+        var concertsJson = JsonSerializer.Serialize(concerts, DataStructureJsonContext.Default.ListConcert);
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
