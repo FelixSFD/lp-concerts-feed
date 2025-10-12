@@ -78,6 +78,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.BookmarksRead", "Lam
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.BookmarksRead.Tests", "Lambda.BookmarksRead\test\Lambda.BookmarksRead.Tests\Lambda.BookmarksRead.Tests.csproj", "{0A2E739A-DBF2-4998-A662-5F861F1BE705}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "properties", "properties", "{08BB0272-FA80-4C28-8F22-7DC152131631}"
+	ProjectSection(SolutionItems) = preProject
+		LambdaAotProperties.targets = LambdaAotProperties.targets
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
