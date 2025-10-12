@@ -3,6 +3,9 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Lambda.Common.ApiGateway;
+using LPCalendar.DataStructure;
+using LPCalendar.DataStructure.Responses;
 using AttributeValue = Amazon.DynamoDBv2.Model.AttributeValue;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
@@ -18,7 +21,7 @@ public class Function
     
     public Function()
     {
-        AmazonDynamoDBConfig config = new AmazonDynamoDBConfig
+        var config = new AmazonDynamoDBConfig
         {
             LogMetrics = true,
             LogResponse = true
@@ -46,10 +49,12 @@ public class Function
             };
         }
         
-        context.Logger.LogInformation($"Found ID: {currentId}");
-        
-        IDictionary<string, string?> results = new Dictionary<string, string?>();
-        results["current"] = currentId!;
+        context.Logger.LogInformation("Found ID: {id}", currentId);
+
+        var response = new AdjacentConcertsResponse
+        {
+            Current = currentId!
+        };
         
         // Load information about the current concert first. We need this for the next queries
         var currentConcert = await GetConcertById(currentId!);
@@ -61,21 +66,21 @@ public class Function
             ["PostedStartTime"] = currentConcert["PostedStartTime"]
         };
 
-        context.Logger.LogInformation($"Path: {request.Path}");
-        context.Logger.LogInformation($"Request: {JsonSerializer.Serialize(request)}");
+        context.Logger.LogDebug("Path: {path}", request.Path);
+        context.Logger.LogDebug("Request: {request}", JsonSerializer.Serialize(request, ApiGatewayJsonContext.Default.APIGatewayProxyRequest));
 
         // query adjacent IDs
         var nextIdTask = GetAdjacentId(startKey, true, context.Logger);
         var previousIdTask = GetAdjacentId(startKey, false, context.Logger);
         
         await Task.WhenAll(nextIdTask, previousIdTask);
-        results["next"] = nextIdTask.Result;
-        results["previous"] = previousIdTask.Result;
+        response.Next = nextIdTask.Result;
+        response.Previous = previousIdTask.Result;
 
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
-            Body = JsonSerializer.Serialize(results),
+            Body = JsonSerializer.Serialize(response, DataStructureJsonContext.Default.AdjacentConcertsResponse),
             Headers = new Dictionary<string, string>
             {
                 { "Content-Type", "application/json" },
@@ -91,7 +96,7 @@ public class Function
      */
     private async Task<string?> GetAdjacentId(Dictionary<string, AttributeValue> startKey, bool next, ILambdaLogger logger)
     {
-        logger.LogInformation($"Start key: {JsonSerializer.Serialize(startKey)}");
+        logger.LogDebug("Start key: {key}", JsonSerializer.Serialize(startKey, LocalJsonContext.Default.DictionaryStringAttributeValue));
         var keyConditions = new Dictionary<string, Condition>
         {
             ["PostedStartTime"] = new()
@@ -106,7 +111,7 @@ public class Function
             }
         };
         
-        logger.LogInformation($"key conditions: {JsonSerializer.Serialize(keyConditions)}");
+        logger.LogInformation("key conditions: {conditions}", JsonSerializer.Serialize(keyConditions, LocalJsonContext.Default.DictionaryStringCondition));
 
         var queryRequest = new QueryRequest
         {
@@ -123,13 +128,11 @@ public class Function
             // no ID found as next
             return null;
         }
-        else
-        {
-            // last item in the list will be the next ID
-            var attributeValues = query.Items.Last();
-            logger.LogInformation($"Found attributes: {JsonSerializer.Serialize(attributeValues)}");
-            return attributeValues?["Id"].S;
-        }
+
+        // last item in the list will be the next ID
+        var attributeValues = query.Items.Last();
+        logger.LogDebug("Found attributes: {attr}", JsonSerializer.Serialize(attributeValues, LocalJsonContext.Default.DictionaryStringAttributeValue));
+        return attributeValues?["Id"].S;
     }
 
 

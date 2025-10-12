@@ -968,10 +968,11 @@ Resources:
   AdjacentConcertsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: Lambda.AdjacentConcerts::Lambda.AdjacentConcerts.Function::FunctionHandler
+      Handler: bootstrap
       Role: !GetAtt ConcertsReadLambdaExecutionRole.Arn
       Description: .NET function to read the next and/or previous Concert IDs
       CodeUri: ../Lambda.AdjacentConcerts/src/Lambda.AdjacentConcerts/bin/Release/net8.0/Lambda.AdjacentConcerts.zip
+      Runtime: provided.al2023
       Architectures:
         - arm64
       Tracing: Active
