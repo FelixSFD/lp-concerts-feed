@@ -98,12 +98,6 @@ public class Function
 
         return response;
     }
-
-
-    private static DeleteConcertRequest? GetRequestFromJson(string json)
-    {
-        return JsonSerializer.Deserialize<DeleteConcertRequest>(json);
-    }
     
     
     private async Task LogChanges(Concert? oldValue, string? userId, ILambdaLogger logger)
@@ -119,17 +113,17 @@ public class Function
 
         if (oldValue != null)
         {
-            auditLogEvent.OldValue = JsonSerializer.Serialize(oldValue);
+            auditLogEvent.OldValue = JsonSerializer.Serialize(oldValue, DataStructureJsonContext.Default.Concert);
         }
         
         var auditMessage = new SendMessageRequest
         {
             MessageGroupId = "default",
             QueueUrl = Environment.GetEnvironmentVariable("AUDIT_LOG_QUEUE_URL"),
-            MessageBody = JsonSerializer.Serialize(auditLogEvent)
+            MessageBody = JsonSerializer.Serialize(auditLogEvent, DataStructureJsonContext.Default.AuditLogEvent)
         };
         
-        logger.LogDebug($"Sending SQS message: {JsonSerializer.Serialize(auditMessage)}");
+        logger.LogDebug("Sending SQS message: {json}", JsonSerializer.Serialize(auditMessage, LocalJsonContext.Default.SendMessageRequest));
 
         await _sqsClient.SendMessageAsync(auditMessage);
         
