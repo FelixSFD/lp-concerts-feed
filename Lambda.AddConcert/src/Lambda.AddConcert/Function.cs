@@ -122,13 +122,13 @@ public class Function
 
     private bool RequestIsValid(Concert concert, [NotNullWhen(true)] out InvalidFieldsErrorResponse? errors)
     {
-        bool valid = true;
+        var valid = true;
         var tmpResponse = new InvalidFieldsErrorResponse
         {
             Message = "Some fields are not valid"
         };
 
-        if (concert.LpuEarlyEntryTime.HasValue && !concert.LpuEarlyEntryConfirmed)
+        if (concert is { LpuEarlyEntryTime: not null, LpuEarlyEntryConfirmed: false })
         {
             valid = false;
             tmpResponse.AddInvalidField(nameof(concert.LpuEarlyEntryTime), $"LPU Early Entry time can only be set, if {concert.LpuEarlyEntryConfirmed} is set to true");
@@ -139,10 +139,10 @@ public class Function
     }
 
 
-    private Concert MakeConcertFromJsonBody(string json)
+    private static Concert MakeConcertFromJsonBody(string json)
     {
-        string guid = Guid.NewGuid().ToString();
-        Concert concert = JsonSerializer.Deserialize(json, DataStructureJsonContext.Default.Concert) ?? throw new InvalidDataContractException("JSON could not be parsed to Concert!");
+        var guid = Guid.NewGuid().ToString();
+        var concert = JsonSerializer.Deserialize(json, DataStructureJsonContext.Default.Concert) ?? throw new InvalidDataContractException("JSON could not be parsed to Concert!");
         concert.Id = Guid.TryParse(concert.Id, out _) ? concert.Id : guid;
         return concert;
     }
