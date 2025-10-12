@@ -2,6 +2,8 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Lambda.Common.ApiGateway;
+using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Requests;
 using LPCalendar.DataStructure.Responses;
 
@@ -21,8 +23,8 @@ public class Function(HttpClient httpClient, string apiKey)
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        context.Logger.LogInformation($"Path: {request.Path}");
-        context.Logger.LogInformation($"Request: {JsonSerializer.Serialize(request)}");
+        context.Logger.LogDebug("Path: {path}", request.Path);
+        context.Logger.LogDebug("Request: {request}", JsonSerializer.Serialize(request, ApiGatewayJsonContext.Default.APIGatewayProxyRequest));
 
         if (!request.QueryStringParameters.TryGetValue("lat", out var lat))
         {
@@ -57,19 +59,14 @@ public class Function(HttpClient httpClient, string apiKey)
         var uri = new Uri($"{TzApiBaseUrl}/get-time-zone?key={apiKey}&by=position&lat={lat}&lng={lon}&format=json");
         var httpResponseMessage = await httpClient.GetAsync(uri);
         var responseJson = await httpResponseMessage.Content.ReadAsStringAsync();
-        var responseObj = JsonSerializer.Deserialize<JsonObject>(responseJson);
-        
-        if (responseObj?.TryGetPropertyValue("zoneName", out var zoneNode) ?? false)
+        var apiResponse = JsonSerializer.Deserialize(responseJson, LocalJsonContext.Default.TimeZoneDbResponse);
+
+        if (apiResponse == null)
         {
-            GetTimeZoneByCoordinatesResponse response = new()
-            {
-                TimeZoneId = zoneNode!.GetValue<string>()
-            };
-            
             return new APIGatewayProxyResponse
             {
-                StatusCode = 200,
-                Body = JsonSerializer.Serialize(response),
+                StatusCode = 500,
+                Body = "{\"message\": \"Failed to parse API response.\"}",
                 Headers = new Dictionary<string, string>
                 {
                     { "Content-Type", "application/json" },
@@ -79,10 +76,15 @@ public class Function(HttpClient httpClient, string apiKey)
             };
         }
 
+        GetTimeZoneByCoordinatesResponse response = new()
+        {
+            TimeZoneId = apiResponse.ZoneName
+        };
+            
         return new APIGatewayProxyResponse
         {
-            StatusCode = 500,
-            Body = "{\"message\": \"Failed to parse API response.\"}",
+            StatusCode = 200,
+            Body = JsonSerializer.Serialize(response, DataStructureJsonContext.Default.GetTimeZoneByCoordinatesResponse),
             Headers = new Dictionary<string, string>
             {
                 { "Content-Type", "application/json" },
@@ -90,5 +92,6 @@ public class Function(HttpClient httpClient, string apiKey)
                 { "Access-Control-Allow-Methods", "OPTIONS, GET" }
             }
         };
+
     }
 }

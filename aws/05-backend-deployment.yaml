@@ -1046,10 +1046,11 @@ Resources:
   GetTimeZoneFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: Lambda.GetTimeZone::Lambda.GetTimeZone.Function::FunctionHandler
+      Handler: bootstrap
       Role: !GetAtt ConcertsReadLambdaExecutionRole.Arn
       Description: .NET function to search for the timezone at a given location
       CodeUri: ../Lambda.GetTimeZone/src/Lambda.GetTimeZone/bin/Release/net8.0/Lambda.GetTimeZone.zip
+      Runtime: provided.al2023
       Architectures:
         - arm64
       Tracing: Active

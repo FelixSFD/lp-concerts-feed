@@ -17,6 +17,7 @@ namespace LPCalendar.DataStructure;
 [JsonSerializable(typeof(GetConcertBookmarkCountsResponse))]
 [JsonSerializable(typeof(GetS3UploadUrlRequest))]
 [JsonSerializable(typeof(GetS3UploadUrlResponse))]
+[JsonSerializable(typeof(GetTimeZoneByCoordinatesResponse))]
 [JsonSerializable(typeof(ConcertBookmarkUpdateRequest))]
 [JsonSerializable(typeof(User))]
 [JsonSerializable(typeof(IEnumerable<User>))]
