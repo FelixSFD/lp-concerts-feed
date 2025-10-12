@@ -813,10 +813,11 @@ Resources:
   AddConcertFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: Lambda.AddConcert::Lambda.AddConcert.Function::FunctionHandler
+      Handler: bootstrap
       Role: !GetAtt ConcertsWriteLambdaExecutionRole.Arn
       Description: .NET function to add Concerts to the calendar
       CodeUri: ../Lambda.AddConcert/src/Lambda.AddConcert/bin/Release/net8.0/Lambda.AddConcert.zip
+      Runtime: provided.al2023
       Architectures:
         - arm64
       Tracing: Active

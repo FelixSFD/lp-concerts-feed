@@ -6,7 +6,6 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
-using Amazon.Runtime.Internal;
 using Amazon.SQS;
 using Amazon.SQS.Model;
 using Lambda.Auth;
@@ -15,7 +14,6 @@ using LPCalendar.DataStructure.Converters;
 using LPCalendar.DataStructure.DbConfig;
 using LPCalendar.DataStructure.Events;
 using LPCalendar.DataStructure.Responses;
-using ErrorResponse = LPCalendar.DataStructure.Responses.ErrorResponse;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -24,7 +22,6 @@ namespace Lambda.AddConcert;
 
 public class Function
 {
-    private readonly IAmazonDynamoDB _dynamoDbClient = new AmazonDynamoDBClient();
     private readonly DynamoDBContext _dynamoDbContext;
     private readonly DynamoDbConfigProvider _dbConfigProvider = new();
     private readonly IAmazonSQS _sqsClient = new AmazonSQSClient();
@@ -94,7 +91,7 @@ public class Function
             return new APIGatewayProxyResponse
             {
                 StatusCode = (int)HttpStatusCode.BadRequest,
-                Body = JsonSerializer.Serialize(errors),
+                Body = JsonSerializer.Serialize(errors!, DataStructureJsonContext.Default.InvalidFieldsErrorResponse),
                 Headers = new Dictionary<string, string>
                 {
                     { "Access-Control-Allow-Origin", "*" },
@@ -145,7 +142,7 @@ public class Function
     private Concert MakeConcertFromJsonBody(string json)
     {
         string guid = Guid.NewGuid().ToString();
-        Concert concert = JsonSerializer.Deserialize<Concert>(json) ?? throw new InvalidDataContractException("JSON could not be parsed to Concert!");
+        Concert concert = JsonSerializer.Deserialize(json, DataStructureJsonContext.Default.Concert) ?? throw new InvalidDataContractException("JSON could not be parsed to Concert!");
         concert.Id = Guid.TryParse(concert.Id, out _) ? concert.Id : guid;
         return concert;
     }
@@ -181,22 +178,22 @@ public class Function
 
         if (oldValue != null)
         {
-            auditLogEvent.OldValue = JsonSerializer.Serialize(oldValue);
+            auditLogEvent.OldValue = JsonSerializer.Serialize(oldValue, DataStructureJsonContext.Default.Concert);
         }
 
         if (newValue != null)
         {
-            auditLogEvent.NewValue = JsonSerializer.Serialize(newValue);
+            auditLogEvent.NewValue = JsonSerializer.Serialize(newValue, DataStructureJsonContext.Default.Concert);
         }
         
         var auditMessage = new SendMessageRequest
         {
             MessageGroupId = "default",
             QueueUrl = Environment.GetEnvironmentVariable("AUDIT_LOG_QUEUE_URL"),
-            MessageBody = JsonSerializer.Serialize(auditLogEvent)
+            MessageBody = JsonSerializer.Serialize(auditLogEvent, DataStructureJsonContext.Default.AuditLogEvent)
         };
         
-        logger.LogDebug($"Sending SQS message: {JsonSerializer.Serialize(auditMessage)}");
+        logger.LogDebug("Sending SQS message: {json}", JsonSerializer.Serialize(auditMessage, LocalJsonContext.Default.SendMessageRequest));
 
         await _sqsClient.SendMessageAsync(auditMessage);
         
