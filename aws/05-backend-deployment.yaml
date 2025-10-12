@@ -868,10 +868,11 @@ Resources:
   GetS3UploadUrlFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: Lambda.GetS3UploadUrl::Lambda.GetS3UploadUrl.Function::FunctionHandler
+      Handler: bootstrap
       Role: !GetAtt ConcertsWriteLambdaExecutionRole.Arn
       Description: .NET function to request an URL to upload files to S3
       CodeUri: ../Lambda.GetS3UploadUrl/src/Lambda.GetS3UploadUrl/bin/Release/net8.0/Lambda.GetS3UploadUrl.zip
+      Runtime: provided.al2023
       Architectures:
         - arm64
       Tracing: Active

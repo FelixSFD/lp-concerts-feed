@@ -14,6 +14,8 @@ namespace LPCalendar.DataStructure;
 [JsonSerializable(typeof(ErrorResponse))]
 [JsonSerializable(typeof(InvalidFieldsErrorResponse))]
 [JsonSerializable(typeof(GetConcertBookmarkCountsResponse))]
+[JsonSerializable(typeof(GetS3UploadUrlRequest))]
+[JsonSerializable(typeof(GetS3UploadUrlResponse))]
 [JsonSerializable(typeof(ConcertBookmarkUpdateRequest))]
 public partial class DataStructureJsonContext : JsonSerializerContext
 {
