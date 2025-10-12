@@ -6,6 +6,7 @@ using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Lambda.Auth;
+using Lambda.Common.ApiGateway;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Converters;
 using LPCalendar.DataStructure.DbConfig;
@@ -37,7 +38,6 @@ public class Function
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         context.Logger.LogDebug($"Path: {request.Path}");
-        context.Logger.LogDebug($"Request: {JsonSerializer.Serialize(request)}");
         
         if (request.Resource is "/concerts/{id}/bookmarks/count" or "/concerts/{id}/bookmarks/status"
             && request.PathParameters.TryGetValue("id", out var concertId))
@@ -53,7 +53,7 @@ public class Function
         return new APIGatewayProxyResponse
         {
             StatusCode = (int)HttpStatusCode.BadRequest,
-            Body = JsonSerializer.Serialize(error),
+            Body = JsonSerializer.Serialize(error, DataStructureJsonContext.Default.ErrorResponse),
             Headers = new Dictionary<string, string>
             {
                 { "Access-Control-Allow-Origin", "*" },
@@ -74,7 +74,7 @@ public class Function
         var config = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.ConcertBookmarks);
         config.IndexName = ConcertBookmark.UserBookmarksIndex;
         
-        logger.LogInformation($"GetBookmarkStatusForUserAtConcert Query: {JsonSerializer.Serialize(config)}");
+        logger.LogDebug($"Query index: {config.IndexName}");
         
         var query = _dynamoDbContext.QueryAsync<ConcertBookmark>(
             userId, // PartitionKey value
@@ -91,7 +91,7 @@ public class Function
         var config = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.ConcertBookmarks);
         config.IndexName = "ConcertBookmarkStatusIndexV1";
         
-        logger.LogInformation($"Query: {JsonSerializer.Serialize(config)}");
+        logger.LogDebug($"Query index: {config.IndexName}");
         
         return _dynamoDbContext.QueryAsync<ConcertBookmark>(
             concertId, // PartitionKey value
@@ -121,7 +121,7 @@ public class Function
             CurrentUserStatus = bookmarkStatusTask.Result
         };
         
-        var json = JsonSerializer.Serialize(response);
+        var json = JsonSerializer.Serialize(response, DataStructureJsonContext.Default.GetConcertBookmarkCountsResponse);
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,

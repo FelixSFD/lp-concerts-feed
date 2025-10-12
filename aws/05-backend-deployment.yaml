@@ -792,10 +792,11 @@ Resources:
   ReadConcertBookmarksFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: Lambda.BookmarksRead::Lambda.BookmarksRead.Function::FunctionHandler
+      Handler: bootstrap
       Role: !GetAtt ConcertBookmarksReadLambdaExecutionRole.Arn
       Description: .NET function to read Concert bookmarks
       CodeUri: ../Lambda.BookmarksRead/src/Lambda.BookmarksRead/bin/Release/net8.0/Lambda.BookmarksRead.zip
+      Runtime: provided.al2023
       Architectures:
         - arm64
       Tracing: Active
