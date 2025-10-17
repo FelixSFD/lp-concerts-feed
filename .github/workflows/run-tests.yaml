@@ -18,8 +18,8 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build
-    - name: Print all files
-      run: ls -R
+    - name: Print all files in Lambda.ListConcerts
+      run: ls -R Lambda.ListConcerts
     - name: Test with dotnet
       # TODO: Fix runsettings
       run: dotnet test --logger trx --results-directory "TestResults" --settings:"Lambda.GetS3UploadUrl/test/Lambda.GetS3UploadUrl.Tests/test.runsettings"
