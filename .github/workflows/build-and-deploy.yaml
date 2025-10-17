@@ -38,7 +38,7 @@ jobs:
       run: dotnet restore
 
     - name: Build all lambdas
-      run: sh publishAllDotnetLambdas.sh
+      run: ./publishAllDotnetLambdas.sh
 
     #- name: Build Lambda.AddConcert
     #  working-directory: Lambda.AddConcert/src/Lambda.AddConcert
