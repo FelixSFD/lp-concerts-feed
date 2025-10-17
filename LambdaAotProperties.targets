@@ -1,6 +1,8 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <OutputType>Exe</OutputType>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
         <!--<AssemblyName>bootstrap</AssemblyName>-->
         <PublishAot>true</PublishAot>
         <RuntimeIdentifier>linux-arm64</RuntimeIdentifier>
