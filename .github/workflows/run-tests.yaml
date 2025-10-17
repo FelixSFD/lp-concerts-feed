@@ -18,7 +18,7 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build
-    - name: DEBUG: Files
+    - name: Print all files
       run: ls -R
     - name: Test with dotnet
       # TODO: Fix runsettings
