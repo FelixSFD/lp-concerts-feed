@@ -25,7 +25,7 @@ jobs:
 
     - uses: aws-actions/setup-sam@v2
       with:
-        use-installer: true
+        use-installer: false
     
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
