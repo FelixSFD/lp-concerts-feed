@@ -35,11 +35,6 @@ jobs:
         lambda_names: ${{ fromJSON(needs.define-matrix.outputs.lambda_names) }}
 
     steps:
-      - name: Define Lambda Name
-        env:
-          lambda_name: ${{ matrix.lambda_names }}
-        run: |
-          echo "$lambda_name" > lambda_name
       - uses: actions/checkout@v4
 
       - uses: aws-actions/setup-sam@v2
@@ -56,11 +51,19 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
   
-      - name: Build Lambda.$lambda_name
+      - name: Build Lambda.${{ matrix.lambda_names }}
         env:
           lambda_name: ${{ matrix.lambda_names }}
         run: ./publishDotnetLambda.sh $lambda_name
+
+      - name: Upload ZIP for AWS-job
+        uses: actions/upload-artifact@v4
+        with:
+          name: Lambda.${{ matrix.lambda_names }}
+          path: |
+            Lambda.${{ matrix.lambda_names }}/src/Lambda.${{ matrix.lambda_names }}/bin/Release/net8.0/Lambda.${{ matrix.lambda_names }}.zip
   backend:
+    needs: build-lambdas
     environment: 
       name: ${{ inputs.environment || 'test' }}
     runs-on: ubuntu-24.04-arm
