@@ -269,7 +269,7 @@ jobs:
         path: angular-app
 
     - name: List downloaded files
-      run: ls -R artifacts
+      run: ls -R angular-app
       
     - name: Configure AWS credentials
       id: creds
