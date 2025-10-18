@@ -81,10 +81,11 @@ jobs:
       name: Download Lambdas from previous jobs
       with:
         pattern: Lambda.*
-        path: downloaded_lambdas
+        path: lambda_packages
+        merge-multiple: true
 
     - name: List downloaded files
-      run: ls -R downloaded_lambdas
+      run: ls -R lambda_packages
     
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
