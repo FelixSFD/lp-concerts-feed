@@ -58,7 +58,7 @@ jobs:
   
       - name: Build Lambda.$lambda_name
         env:
-          lambda_name: ${{ matrix.lambda_name }}
+          lambda_name: ${{ matrix.lambda_names }}
         run: ./publishDotnetLambda.sh $lambda_name
   backend:
     environment: 
