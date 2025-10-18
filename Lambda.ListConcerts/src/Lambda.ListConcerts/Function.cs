@@ -39,8 +39,8 @@ public class Function
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        context.Logger.LogInformation($"Path: {request.Path}");
-        context.Logger.LogInformation($"Request: {JsonSerializer.Serialize(request, ApiGatewayJsonContext.Default.APIGatewayProxyRequest)}");
+        context.Logger.LogInformation("Path: {path}", request.Path);
+        //context.Logger.LogInformation($"Request: {JsonSerializer.Serialize(request, ApiGatewayJsonContext.Default.APIGatewayProxyRequest)}");
         
         if (request.QueryStringParameters != null)
         {
@@ -79,6 +79,7 @@ public class Function
         
         if (request.Path is "/concerts/attending" or "/concerts/bookmarked")
         {
+            context.Logger.LogDebug("Requested attending or bookmarked concerts for a user.");
             var currentUserId = request.GetUserId();
             context.Logger.LogInformation("Requested bookmarked concerts for user '{currentUserId}'", currentUserId);
 
@@ -305,7 +306,7 @@ public class Function
             .OrderBy(ec => ec.PostedStartTime)
             .Take(maxResults);
         
-        var json = JsonSerializer.Serialize(sortedAndFiltered, DataStructureJsonContext.Default.ListConcert);
+        var json = JsonSerializer.Serialize(sortedAndFiltered.ToList(), DataStructureJsonContext.Default.ListConcertWithBookmarkStatusResponse);
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
