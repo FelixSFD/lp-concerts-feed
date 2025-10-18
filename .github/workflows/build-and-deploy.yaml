@@ -15,6 +15,50 @@ on:
         required: true
 
 jobs:
+  define-matrix:
+    runs-on: ubuntu-latest
+
+    outputs:
+      lambda_names: ${{ steps.lambda_names.outputs.lambda_names }}
+
+    steps:
+      - name: Define Lambda Projects
+        id: lambda_names
+        run: ./.github/workflows/generateGitHubJobMatrix.sh
+
+  build-lambdas:
+    runs-on: ubuntu-24.04-arm
+    needs: define-matrix
+    strategy:
+      matrix:
+        lambda_names: ${{ fromJSON(needs.define-matrix.outputs.lambda_names) }}
+
+    steps:
+      - name: Define Lambda Name
+        env:
+          lambda_name: ${{ matrix.lambda_names }}
+        run: |
+          echo "$lambda_name" > lambda_name
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+  
+      - name: Install Lambda tools
+        run: dotnet tool install -g Amazon.Lambda.Tools
+      - name: Restore dependencies
+        run: dotnet restore
+  
+      - name: Build Lambda.$lambda_name
+        env:
+          lambda_name: ${{ matrix.lambda_name }}
+        run: ./publishDotnetLambda.sh $lambda_name
   backend:
     environment: 
       name: ${{ inputs.environment || 'test' }}
