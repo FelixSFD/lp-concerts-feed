@@ -27,7 +27,7 @@ public class Function
         // not everyone can manage all users. Some can only edit themselves
         var callingUserId = request.GetUserId();
         var canManageAllUsers = request.CanManageUsers();
-        context.Logger.LogInformation($"Does user {callingUserId} have access to all the users? {canManageAllUsers}");
+        context.Logger.LogDebug("Does user {callingUserId} have access to all the users? {canManageAllUsers}", callingUserId, canManageAllUsers);
         
         string? idParameter = null;
         var hasIdParam = request.PathParameters != null && request.PathParameters.TryGetValue("id", out idParameter);
@@ -49,7 +49,7 @@ public class Function
             return await ReturnAllUsers(context);
         } else if (request.HttpMethod == "PUT" && hasIdParam)
         {
-            var sentUser = JsonSerializer.Deserialize<User>(request.Body);
+            var sentUser = JsonSerializer.Deserialize(request.Body, DataStructureJsonContext.Default.User);
             if (sentUser == null)
             {
                 return new APIGatewayProxyResponse()
@@ -91,14 +91,14 @@ public class Function
     {
         var userTypes = await ListUsersAsync();
         
-        context.Logger.LogDebug($"Found {userTypes.Count} users.\n\n{JsonSerializer.Serialize(userTypes)}");
+        context.Logger.LogDebug("Found {count} users.\n\n{json}", userTypes.Count, JsonSerializer.Serialize(userTypes, LocalJsonContext.Default.ListUserType));
         
         var users = userTypes.Select(ut => ut.Attributes.ToUser());
         
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
-            Body = JsonSerializer.Serialize(users),
+            Body = JsonSerializer.Serialize(users, DataStructureJsonContext.Default.IEnumerableUser),
             Headers = new Dictionary<string, string>
             {
                 { "Content-Type", "application/json" },
@@ -117,7 +117,7 @@ public class Function
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
-            Body = JsonSerializer.Serialize(user),
+            Body = JsonSerializer.Serialize(user, DataStructureJsonContext.Default.User),
             Headers = new Dictionary<string, string>
             {
                 { "Content-Type", "application/json" },
@@ -246,25 +246,25 @@ public class Function
         {
             // don't log groups as they are not included in the request anyway
             oldValue.UserGroups = [];
-            auditLogEvent.OldValue = JsonSerializer.Serialize(oldValue);
+            auditLogEvent.OldValue = JsonSerializer.Serialize(oldValue, DataStructureJsonContext.Default.User);
         }
 
         if (newValue != null)
         {
-            auditLogEvent.NewValue = JsonSerializer.Serialize(newValue);
+            auditLogEvent.NewValue = JsonSerializer.Serialize(newValue, DataStructureJsonContext.Default.User);
         }
         
         var auditMessage = new SendMessageRequest
         {
             MessageGroupId = "default",
             QueueUrl = Environment.GetEnvironmentVariable("AUDIT_LOG_QUEUE_URL"),
-            MessageBody = JsonSerializer.Serialize(auditLogEvent)
+            MessageBody = JsonSerializer.Serialize(auditLogEvent, DataStructureJsonContext.Default.AuditLogEvent)
         };
         
-        logger.LogDebug($"Sending SQS message: {JsonSerializer.Serialize(auditMessage)}");
+        logger.LogDebug("Sending SQS message: {message}", JsonSerializer.Serialize(auditMessage, LocalJsonContext.Default.SendMessageRequest));
 
         await _sqsClient.SendMessageAsync(auditMessage);
         
-        logger.LogDebug($"Successfully sent message to URL: {auditMessage.QueueUrl}");
+        logger.LogDebug("Successfully sent message to URL: {url}", auditMessage.QueueUrl);
     }
 }

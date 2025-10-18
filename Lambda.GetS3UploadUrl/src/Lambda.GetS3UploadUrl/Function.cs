@@ -32,7 +32,7 @@ public class Function
     }
     
     
-    internal Function(IAmazonS3 s3Client, IGuidService guidService)
+    private Function(IAmazonS3 s3Client, IGuidService guidService)
     {
         _s3Client = s3Client;
         _guidService = guidService;
@@ -87,7 +87,7 @@ public class Function
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
-            Body = JsonSerializer.Serialize(response),
+            Body = JsonSerializer.Serialize(response, DataStructureJsonContext.Default.GetS3UploadUrlResponse),
             Headers = new Dictionary<string, string>
             {
                 { "Content-Type", "application/json" },
@@ -100,6 +100,6 @@ public class Function
     
     private static GetS3UploadUrlRequest GetRequestObjectFromJsonBody(string json)
     {
-        return JsonSerializer.Deserialize<GetS3UploadUrlRequest>(json) ?? throw new InvalidDataContractException("JSON could not be parsed to Concert!");
+        return JsonSerializer.Deserialize(json, DataStructureJsonContext.Default.GetS3UploadUrlRequest) ?? throw new InvalidDataContractException("JSON could not be parsed to Concert!");
     }
 }

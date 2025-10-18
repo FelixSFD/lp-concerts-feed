@@ -6,6 +6,7 @@ using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Lambda.Auth;
+using Lambda.Common.ApiGateway;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.DbConfig;
 using LPCalendar.DataStructure.Responses;
@@ -39,7 +40,7 @@ public class Function
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         context.Logger.LogInformation($"Path: {request.Path}");
-        context.Logger.LogInformation($"Request: {JsonSerializer.Serialize(request)}");
+        context.Logger.LogInformation($"Request: {JsonSerializer.Serialize(request, ApiGatewayJsonContext.Default.APIGatewayProxyRequest)}");
         
         if (request.QueryStringParameters != null)
         {
@@ -154,11 +155,11 @@ public class Function
 
         var concerts = await query.GetRemainingAsync() ?? [];
         
-        var concertJson = JsonSerializer.Serialize(concerts);
+        var concertsJson = JsonSerializer.Serialize(concerts, DataStructureJsonContext.Default.ListConcert);
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
-            Body = concertJson,
+            Body = concertsJson,
             Headers = new Dictionary<string, string>
             {
                 { "Content-Type", "application/json" },
@@ -204,7 +205,7 @@ public class Function
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
-            Body = JsonSerializer.Serialize(concerts.First()),
+            Body = JsonSerializer.Serialize(concerts.First(), DataStructureJsonContext.Default.Concert),
             Headers = new Dictionary<string, string>
             {
                 { "Content-Type", "application/json" },
@@ -218,7 +219,22 @@ public class Function
     private async Task<APIGatewayProxyResponse> ReturnSingleConcert(string id)
     {
         var concert = await GetConcertById(id);
-        var concertJson = JsonSerializer.Serialize(concert);
+        if (concert == null)
+        {
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = 404,
+                Body = "{\"message\": \"Concert not found.\"}",
+                Headers = new Dictionary<string, string>
+                {
+                    { "Content-Type", "application/json" },
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                }
+            };
+        }
+        
+        var concertJson = JsonSerializer.Serialize(concert, DataStructureJsonContext.Default.Concert);
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
@@ -252,7 +268,7 @@ public class Function
 
         var concerts = await query.GetRemainingAsync() ?? [];
         
-        var concertJson = JsonSerializer.Serialize(concerts);
+        var concertJson = JsonSerializer.Serialize(concerts, DataStructureJsonContext.Default.ListConcert);
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
@@ -289,7 +305,7 @@ public class Function
             .OrderBy(ec => ec.PostedStartTime)
             .Take(maxResults);
         
-        var json = JsonSerializer.Serialize(sortedAndFiltered);
+        var json = JsonSerializer.Serialize(sortedAndFiltered, DataStructureJsonContext.Default.ListConcert);
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
