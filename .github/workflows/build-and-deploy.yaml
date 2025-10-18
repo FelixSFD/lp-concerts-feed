@@ -266,8 +266,11 @@ jobs:
       name: Download frontend files from previous job
       with:
         pattern: angular-app
-        path: angular-app
-    
+        path: artifacts
+
+    - name: List downloaded files
+      run: ls -R artifacts
+      
     - name: Configure AWS credentials
       id: creds
       uses: aws-actions/configure-aws-credentials@v1
@@ -279,4 +282,4 @@ jobs:
     - name: Deploy
       if: success()
       working-directory: frontend/lp-calendar-web
-      run: aws s3 sync angular-app s3://${{ vars.BASE_NAME }}-web-frontend-bucket
+      run: aws s3 sync artifacts/angular-app s3://${{ vars.BASE_NAME }}-web-frontend-bucket
