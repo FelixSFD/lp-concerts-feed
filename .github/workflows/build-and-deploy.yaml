@@ -266,7 +266,7 @@ jobs:
       name: Download frontend files from previous job
       with:
         pattern: angular-app
-        path: artifacts
+        path: angular-app
 
     - name: List downloaded files
       run: ls -R artifacts
@@ -282,4 +282,4 @@ jobs:
     - name: Deploy
       if: success()
       working-directory: frontend/lp-calendar-web
-      run: aws s3 sync artifacts/angular-app s3://${{ vars.BASE_NAME }}-web-frontend-bucket
+      run: aws s3 sync ./angular-app s3://${{ vars.BASE_NAME }}-web-frontend-bucket
