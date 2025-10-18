@@ -40,6 +40,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{0D4F
 	ProjectSection(SolutionItems) = preProject
 		publishAllDotnetLambdas.sh = publishAllDotnetLambdas.sh
 		publishDotnetLambda.sh = publishDotnetLambda.sh
+		generateGitHubJobMatrix.sh = .github/workflows/generateGitHubJobMatrix.sh
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.GetS3UploadUrl", "Lambda.GetS3UploadUrl\src\Lambda.GetS3UploadUrl\Lambda.GetS3UploadUrl.csproj", "{6A4EE69F-AD35-45F4-83C7-CCBF904046FE}"
