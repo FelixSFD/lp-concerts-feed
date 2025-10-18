@@ -60,8 +60,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Lambda.${{ matrix.lambda_names }}
+          retention-days: 1
           path: |
             Lambda.${{ matrix.lambda_names }}/src/Lambda.${{ matrix.lambda_names }}/bin/Release/net8.0/Lambda.${{ matrix.lambda_names }}.zip
+  
   backend:
     needs: build-lambdas
     environment: 
@@ -74,6 +76,15 @@ jobs:
     - uses: aws-actions/setup-sam@v2
       with:
         use-installer: true
+
+    - uses: actions/download-artifact@v5
+      name: Download Lambdas from previous jobs
+      with:
+        pattern: Lambda.*
+        path: downloaded_lambdas
+
+    - name: List downloaded files
+      run: ls -R downloaded_lambdas
     
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
