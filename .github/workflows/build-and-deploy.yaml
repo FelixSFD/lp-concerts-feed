@@ -255,7 +255,7 @@ jobs:
           ./dist/lp-calendar-web/browser
     
   deploy-frontend:
-    needs: [deploy-backend]
+    needs: [deploy-backend, build-frontend]
     environment: 
       name: ${{ inputs.environment || 'test' }}
     runs-on: ubuntu-latest
