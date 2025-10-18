@@ -1,7 +1,7 @@
 #!/bin/bash
 
 project_name="Lambda.$1"
-project_dir="./$project_name/src/$project_name/"
+project_dir="./$project_name/src/$project_name"
 project_file="$project_dir/$project_name.csproj"
 echo "Project file: $project_file"
 
