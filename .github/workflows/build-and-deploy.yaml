@@ -279,4 +279,4 @@ jobs:
     - name: Deploy
       if: success()
       working-directory: frontend/lp-calendar-web
-      run: aws s3 sync ./dist/lp-calendar-web/browser s3://${{ vars.BASE_NAME }}-web-frontend-bucket
+      run: aws s3 sync angular-app s3://${{ vars.BASE_NAME }}-web-frontend-bucket
