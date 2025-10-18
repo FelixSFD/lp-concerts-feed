@@ -62,7 +62,7 @@ jobs:
           name: Lambda.${{ matrix.lambda_names }}
           retention-days: 1
           path: |
-            Lambda.${{ matrix.lambda_names }}/src/Lambda.${{ matrix.lambda_names }}/bin/Release/net8.0/Lambda.${{ matrix.lambda_names }}.zip
+            lambda_packages/Lambda.${{ matrix.lambda_names }}.zip
   
   backend:
     needs: build-lambdas
