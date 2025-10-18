@@ -55,7 +55,7 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
     this.loadNextConcert();
 
-    this.authService.isAuthenticated().subscribe(isAuthenticated => {
+    this.oidcSecurityService.isAuthenticated().subscribe(isAuthenticated => {
       this.isLoggedIn$ = isAuthenticated;
 
       if (isAuthenticated) {
