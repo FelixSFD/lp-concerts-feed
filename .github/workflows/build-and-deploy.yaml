@@ -242,7 +242,7 @@ jobs:
     - name: Generate Swagger UI
       uses: Legion2/swagger-ui-action@v1
       with:
-        output: ./dist/lp-calendar-web/browser/swagger-ui
+        output: ./frontend/lp-calendar-web/dist/lp-calendar-web/browser/swagger-ui
         spec-file: openapi.yaml
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -252,7 +252,7 @@ jobs:
         name: angular-app
         retention-days: 1
         path: |
-          ./dist/lp-calendar-web/browser
+          ./frontend/lp-calendar-web/dist/lp-calendar-web/browser
     
   deploy-frontend:
     needs: [deploy-backend, build-frontend]
