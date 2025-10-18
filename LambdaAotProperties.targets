@@ -3,7 +3,7 @@
         <OutputType>Exe</OutputType>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-        <!--<AssemblyName>bootstrap</AssemblyName>-->
+        <AssemblyName>bootstrap</AssemblyName>
         <PublishAot>true</PublishAot>
         <RuntimeIdentifier>linux-arm64</RuntimeIdentifier>
         <SelfContained>true</SelfContained>
