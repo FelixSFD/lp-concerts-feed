@@ -263,10 +263,10 @@ jobs:
     - uses: actions/checkout@v4
 
     - uses: actions/download-artifact@v5
-      name: Download Lambdas from previous jobs
+      name: Download frontend files from previous job
       with:
         pattern: angular-app
-        path: lambda_packages
+        path: angular-app
     
     - name: Configure AWS credentials
       id: creds
