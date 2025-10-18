@@ -22,6 +22,7 @@ jobs:
       lambda_names: ${{ steps.lambda_names.outputs.lambda_names }}
 
     steps:
+      - uses: actions/checkout@v4
       - name: Define Lambda Projects
         id: lambda_names
         run: ./.github/workflows/generateGitHubJobMatrix.sh
