@@ -64,7 +64,7 @@ jobs:
           path: |
             lambda_packages/Lambda.${{ matrix.lambda_names }}.zip
   
-  backend:
+  deploy-backend:
     needs: build-lambdas
     environment: 
       name: ${{ inputs.environment || 'test' }}
@@ -97,28 +97,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Build all lambdas
-      run: ./publishAllDotnetLambdas.sh
-
-    #- name: Build Lambda.AddConcert
-    #  working-directory: Lambda.AddConcert/src/Lambda.AddConcert
-    #  run: dotnet lambda package -farch arm64
-    #- name: Build Lambda.ImportConcerts
-    #  working-directory: Lambda.ImportConcerts/src/Lambda.ImportConcerts
-    #  run: dotnet lambda package -farch arm64
-    #- name: Build Lambda.ListConcerts
-    #  working-directory: Lambda.ListConcerts/src/Lambda.ListConcerts
-    #  run: dotnet lambda package -farch arm64
-    #- name: Build Lambda.DeleteConcert
-    #  working-directory: Lambda.DeleteConcert/src/Lambda.DeleteConcert
-    #  run: dotnet lambda package -farch arm64
-    #- name: Build Lambda.CalendarFeed
-    #  working-directory: Lambda.CalendarFeed/src/Lambda.CalendarFeed
-    #  run: dotnet lambda package -farch arm64
-    #- name: Build Lambda.GetS3UploadUrl
-    #  working-directory: Lambda.GetS3UploadUrl/src/Lambda.GetS3UploadUrl
-    #  run: dotnet lambda package -farch arm64
-
     # AWS DEPLOY
     - name: Configure AWS credentials
       id: creds
@@ -149,22 +127,13 @@ jobs:
       run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name ${{ vars.BASE_NAME }}-api --resolve-s3 --s3-prefix ${{ vars.BASE_NAME }}-${{ github.ref_name }} --region eu-central-1 --capabilities CAPABILITY_IAM --parameter-overrides BaseProductName=${{ vars.BASE_NAME }} RootDomain=${{ vars.ROOT_DOMAIN }}
       working-directory: aws
 
-  frontend:
-    needs: [backend]
+  build-frontend:
     environment: 
       name: ${{ inputs.environment || 'test' }}
     runs-on: ubuntu-latest
     steps:
-    
     - uses: actions/checkout@v4
     
-    - name: Configure AWS credentials
-      id: creds
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: eu-central-1
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
@@ -276,6 +245,36 @@ jobs:
         output: ./dist/lp-calendar-web/browser/swagger-ui
         spec-file: openapi.yaml
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload Frontend files
+      uses: actions/upload-artifact@v4
+      with:
+        name: angular-app
+        retention-days: 1
+        path: |
+          ./dist/lp-calendar-web/browser
+    
+  deploy-frontend:
+    needs: [deploy-backend]
+    environment: 
+      name: ${{ inputs.environment || 'test' }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/download-artifact@v5
+      name: Download Lambdas from previous jobs
+      with:
+        pattern: angular-app
+        path: lambda_packages
+    
+    - name: Configure AWS credentials
+      id: creds
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-central-1
 
     - name: Deploy
       if: success()
