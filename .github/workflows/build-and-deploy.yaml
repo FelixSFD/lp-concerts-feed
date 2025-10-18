@@ -15,7 +15,7 @@ on:
         required: true
 
 jobs:
-  define-matrix:
+  define-lambda-matrix:
     runs-on: ubuntu-latest
 
     outputs:
@@ -29,10 +29,10 @@ jobs:
 
   build-lambdas:
     runs-on: ubuntu-24.04-arm
-    needs: define-matrix
+    needs: define-lambda-matrix
     strategy:
       matrix:
-        lambda_names: ${{ fromJSON(needs.define-matrix.outputs.lambda_names) }}
+        lambda_names: ${{ fromJSON(needs.define-lambda-matrix.outputs.lambda_names) }}
 
     steps:
       - uses: actions/checkout@v4
