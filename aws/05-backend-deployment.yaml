@@ -730,7 +730,7 @@ Resources:
       Handler: Lambda.AuditLogWriter::Lambda.AuditLogWriter.Function::HandleSQSMessages
       Role: !GetAtt AuditLogWriteLambdaExecutionRole.Arn
       Description: .NET function to save the audit log events
-      CodeUri: ../Lambda.AuditLogWriter/src/Lambda.AuditLogWriter/bin/Release/net8.0/Lambda.AuditLogWriter.zip
+      CodeUri: ../lambda_packages/Lambda.AuditLogWriter.zip
       Architectures:
         - arm64
       Tracing: Active
@@ -752,7 +752,7 @@ Resources:
 #      Handler: Lambda.AuditLogWriter::Lambda.AuditLogWriter.Function::HandleConcertsDynamoDBEvent
 #      Role: !GetAtt AuditLogWriteLambdaExecutionRole.Arn
 #      Description: .NET function to save the audit log events from DynamoDBStream
-#      CodeUri: ../Lambda.AuditLogWriter/src/Lambda.AuditLogWriter/bin/Release/net8.0/Lambda.AuditLogWriter.zip
+#      CodeUri: ../lambda_packages/Lambda.AuditLogWriter.zip
 #      Architectures:
 #        - arm64
 #      Tracing: Active
@@ -777,7 +777,7 @@ Resources:
       Handler: bootstrap
       Role: !GetAtt ConcertBookmarksWriteLambdaExecutionRole.Arn
       Description: .NET function to add Concert bookmarks for a user
-      CodeUri: ../Lambda.BookmarksWrite/src/Lambda.BookmarksWrite/bin/Release/net8.0/Lambda.BookmarksWrite.zip
+      CodeUri: ../lambda_packages/Lambda.BookmarksWrite.zip
       Runtime: provided.al2023
       Architectures:
         - arm64
@@ -796,7 +796,7 @@ Resources:
       Handler: bootstrap
       Role: !GetAtt ConcertBookmarksReadLambdaExecutionRole.Arn
       Description: .NET function to read Concert bookmarks
-      CodeUri: ../Lambda.BookmarksRead/src/Lambda.BookmarksRead/bin/Release/net8.0/Lambda.BookmarksRead.zip
+      CodeUri: ../lambda_packages/Lambda.BookmarksRead.zip
       Runtime: provided.al2023
       Architectures:
         - arm64
@@ -816,7 +816,7 @@ Resources:
       Handler: bootstrap
       Role: !GetAtt ConcertsWriteLambdaExecutionRole.Arn
       Description: .NET function to add Concerts to the calendar
-      CodeUri: ../Lambda.AddConcert/src/Lambda.AddConcert/bin/Release/net8.0/Lambda.AddConcert.zip
+      CodeUri: ../lambda_packages/Lambda.AddConcert.zip
       Runtime: provided.al2023
       Architectures:
         - arm64
@@ -846,7 +846,7 @@ Resources:
       Handler: Lambda.ImportConcerts::Lambda.ImportConcerts.Function::FunctionHandler
       Role: !GetAtt ConcertsWriteLambdaExecutionRole.Arn
       Description: .NET function to import Concerts as CSV from DynamoDB
-      CodeUri: ../Lambda.ImportConcerts/src/Lambda.ImportConcerts/bin/Release/net8.0/Lambda.ImportConcerts.zip
+      CodeUri: ../lambda_packages/Lambda.ImportConcerts.zip
       Architectures:
         - arm64
       Tracing: Active
@@ -871,7 +871,7 @@ Resources:
       Handler: bootstrap
       Role: !GetAtt ConcertsWriteLambdaExecutionRole.Arn
       Description: .NET function to request an URL to upload files to S3
-      CodeUri: ../Lambda.GetS3UploadUrl/src/Lambda.GetS3UploadUrl/bin/Release/net8.0/Lambda.GetS3UploadUrl.zip
+      CodeUri: ../lambda_packages/Lambda.GetS3UploadUrl.zip
       Runtime: provided.al2023
       Architectures:
         - arm64
@@ -902,7 +902,7 @@ Resources:
       Handler: bootstrap
       Role: !GetAtt ConcertsWriteLambdaExecutionRole.Arn
       Description: .NET function to remove Concerts from calendar
-      CodeUri: ../Lambda.DeleteConcert/src/Lambda.DeleteConcert/bin/Release/net8.0/Lambda.DeleteConcert.zip
+      CodeUri: ../lambda_packages/Lambda.DeleteConcert.zip
       Runtime: provided.al2023
       Architectures:
         - arm64
@@ -932,7 +932,7 @@ Resources:
       Handler: bootstrap
       Role: !GetAtt ConcertsReadLambdaExecutionRole.Arn
       Description: .NET function to read Concert entries
-      CodeUri: ../Lambda.ListConcerts/src/Lambda.ListConcerts/bin/Release/net8.0/Lambda.ListConcerts.zip
+      CodeUri: ../lambda_packages/Lambda.ListConcerts.zip
       Runtime: provided.al2023
       Architectures:
         - arm64
@@ -971,7 +971,7 @@ Resources:
       Handler: bootstrap
       Role: !GetAtt ConcertsReadLambdaExecutionRole.Arn
       Description: .NET function to read the next and/or previous Concert IDs
-      CodeUri: ../Lambda.AdjacentConcerts/src/Lambda.AdjacentConcerts/bin/Release/net8.0/Lambda.AdjacentConcerts.zip
+      CodeUri: ../lambda_packages/Lambda.AdjacentConcerts.zip
       Runtime: provided.al2023
       Architectures:
         - arm64
@@ -998,7 +998,7 @@ Resources:
       Handler: bootstrap
       Role: !GetAtt UsersReadLambdaExecutionRole.Arn
       Description: .NET function to read and write user-data from Cognito
-      CodeUri: ../Lambda.UsersRead/src/Lambda.UsersRead/bin/Release/net8.0/Lambda.UsersRead.zip
+      CodeUri: ../lambda_packages/Lambda.UsersRead.zip
       Runtime: provided.al2023
       Architectures:
         - arm64
@@ -1049,7 +1049,7 @@ Resources:
       Handler: bootstrap
       Role: !GetAtt ConcertsReadLambdaExecutionRole.Arn
       Description: .NET function to search for the timezone at a given location
-      CodeUri: ../Lambda.GetTimeZone/src/Lambda.GetTimeZone/bin/Release/net8.0/Lambda.GetTimeZone.zip
+      CodeUri: ../lambda_packages/Lambda.GetTimeZone.zip
       Runtime: provided.al2023
       Architectures:
         - arm64
@@ -1077,7 +1077,7 @@ Resources:
       Handler: Lambda.CalendarFeed::Lambda.CalendarFeed.Function::FunctionHandler
       Role: !GetAtt ConcertsReadLambdaExecutionRole.Arn
       Description: .NET function to convert calendar entries to the iCal format as a feed
-      CodeUri: ../Lambda.CalendarFeed/src/Lambda.CalendarFeed/bin/Release/net8.0/Lambda.CalendarFeed.zip
+      CodeUri: ../lambda_packages/Lambda.CalendarFeed.zip
       Architectures:
         - arm64
       Tracing: Active
