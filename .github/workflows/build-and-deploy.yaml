@@ -18,14 +18,14 @@ jobs:
   backend:
     environment: 
       name: ${{ inputs.environment || 'test' }}
-    runs-on: macos-26 # should default to arm64 architecture
+    runs-on: ubuntu-24.04-arm
 
     steps:
     - uses: actions/checkout@v4
 
     - uses: aws-actions/setup-sam@v2
       with:
-        use-installer: false
+        use-installer: true
     
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
