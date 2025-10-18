@@ -13,10 +13,21 @@ on:
         default: "test"
         type: environment
         required: true
+      deploy-backend:
+        description: 'Deploy backend'
+        default: true
+        type: boolean
+        required: true
+      deploy-frontend:
+        description: 'Deploy frontend'
+        default: true
+        type: boolean
+        required: true
 
 jobs:
   define-lambda-matrix:
     runs-on: ubuntu-latest
+    if: ${{ inputs.deploy-backend }}
 
     outputs:
       lambda_names: ${{ steps.lambda_names.outputs.lambda_names }}
@@ -30,6 +41,7 @@ jobs:
   build-lambdas:
     runs-on: ubuntu-24.04-arm
     needs: define-lambda-matrix
+    if: ${{ inputs.deploy-backend }}
     strategy:
       matrix:
         lambda_names: ${{ fromJSON(needs.define-lambda-matrix.outputs.lambda_names) }}
@@ -66,6 +78,7 @@ jobs:
   
   deploy-backend:
     needs: build-lambdas
+    if: ${{ inputs.deploy-backend }}
     environment: 
       name: ${{ inputs.environment || 'test' }}
     runs-on: ubuntu-24.04-arm
@@ -128,6 +141,7 @@ jobs:
       working-directory: aws
 
   build-frontend:
+    if: ${{ inputs.deploy-frontend }}
     environment: 
       name: ${{ inputs.environment || 'test' }}
     runs-on: ubuntu-latest
@@ -256,6 +270,7 @@ jobs:
     
   deploy-frontend:
     needs: [deploy-backend, build-frontend]
+    if: ${{ inputs.deploy-frontend }}
     environment: 
       name: ${{ inputs.environment || 'test' }}
     runs-on: ubuntu-latest
