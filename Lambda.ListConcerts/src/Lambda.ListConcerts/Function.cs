@@ -268,7 +268,7 @@ public class Function
 
         var concerts = await query.GetRemainingAsync() ?? [];
         
-        var concertJson = JsonSerializer.Serialize(concerts, DataStructureJsonContext.Default.Concert);
+        var concertJson = JsonSerializer.Serialize(concerts, DataStructureJsonContext.Default.ListConcert);
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
@@ -305,7 +305,7 @@ public class Function
             .OrderBy(ec => ec.PostedStartTime)
             .Take(maxResults);
         
-        var json = JsonSerializer.Serialize(sortedAndFiltered, DataStructureJsonContext.Default.Concert);
+        var json = JsonSerializer.Serialize(sortedAndFiltered, DataStructureJsonContext.Default.ListConcert);
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
