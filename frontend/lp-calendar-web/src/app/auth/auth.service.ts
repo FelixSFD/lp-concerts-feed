@@ -19,11 +19,7 @@ export class AuthService {
     // Subscribe once to the OIDC observables and propagate updates
     this.oidcSecurityService.checkAuth().subscribe((loginResponse: LoginResponse) => {
       if (loginResponse.isAuthenticated) {
-        this.isAuthenticatedSubject.next(loginResponse.isAuthenticated);
-
-        this.oidcSecurityService.getAccessToken().subscribe(accessToken => {
-          this.accessTokenSubject.next(accessToken);
-        });
+        this.handleLoginResponse(loginResponse);
       } else {
         console.debug("Check auth failed. Not authenticated. Try refresh if token is available.");
         this.oidcSecurityService.getRefreshToken().subscribe(refreshToken => {
@@ -32,7 +28,10 @@ export class AuthService {
             // attempt a programmatic refresh using the library's refresh token flow
             console.debug("Refresh token found. Try refresh...");
             this.oidcSecurityService.forceRefreshSession().subscribe({
-              next: res => console.debug('refresh succeeded', res),
+              next: res => {
+                console.debug('refresh succeeded', res);
+                this.handleLoginResponse(res);
+              },
               error: err => console.warn('refresh failed', err)
             });
           }
@@ -49,6 +48,16 @@ export class AuthService {
         this.userDataSubject.next(null);
       }
     });
+  }
+
+  /**
+   * Pushes the data from the response to the observers
+   * @param loginResponse Response from library
+   */
+  private handleLoginResponse(loginResponse: LoginResponse) {
+    this.isAuthenticatedSubject.next(loginResponse.isAuthenticated);
+    this.accessTokenSubject.next(loginResponse.accessToken);
+    this.userDataSubject.next(User.fromClaims(loginResponse.userData));
   }
 
   /** convenience getters */
