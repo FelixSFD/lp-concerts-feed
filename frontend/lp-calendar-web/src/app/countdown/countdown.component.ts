@@ -29,23 +29,12 @@ export class CountdownComponent implements AfterViewInit {
   concertId: string | undefined;
 
   ngAfterViewInit() {
+    // one initial update of the countdown values
+    this.updateView();
+
+    // then trigger a update every second
     setInterval(() => {
-      let now = new Date();
-      let target = new Date(this.countdownToDate);
-
-      let difference = target.getTime() - now.getTime();
-      this.differenceMillis$ = difference;
-      if (difference < 0) {
-        return;
-      }
-
-      this.days$ = Math.floor(difference / (24 * 60 * 60 * 1000));
-      let daysFromMilliSeconds = difference % (24 * 60 * 60 * 1000);
-      this.hours$ = Math.floor((daysFromMilliSeconds) / (60 * 60 * 1000));
-      let hoursFromMilliSeconds = difference % (60 * 60 * 1000);
-      this.minutes$ = Math.floor((hoursFromMilliSeconds) / (60 * 1000));
-      let minutesFromMilliSeconds = difference % (60 * 1000);
-      this.seconds$ = Math.floor((minutesFromMilliSeconds) / (1000));
+      this.updateView();
     }, 1000);
   }
 
@@ -70,5 +59,25 @@ export class CountdownComponent implements AfterViewInit {
       .then(_ => {
         this.toastrService.success("Copied link to clipboard!");
       });
+  }
+
+
+  private updateView(): void {
+    let now = new Date();
+    let target = new Date(this.countdownToDate);
+
+    let difference = target.getTime() - now.getTime();
+    this.differenceMillis$ = difference;
+    if (difference < 0) {
+      return;
+    }
+
+    this.days$ = Math.floor(difference / (24 * 60 * 60 * 1000));
+    let daysFromMilliSeconds = difference % (24 * 60 * 60 * 1000);
+    this.hours$ = Math.floor((daysFromMilliSeconds) / (60 * 60 * 1000));
+    let hoursFromMilliSeconds = difference % (60 * 60 * 1000);
+    this.minutes$ = Math.floor((hoursFromMilliSeconds) / (60 * 1000));
+    let minutesFromMilliSeconds = difference % (60 * 1000);
+    this.seconds$ = Math.floor((minutesFromMilliSeconds) / (1000));
   }
 }
