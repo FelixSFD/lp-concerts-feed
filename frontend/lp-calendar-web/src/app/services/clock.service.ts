@@ -16,9 +16,25 @@ export class ClockService {
   luxonClock$ = this.luxonClockSubject.asObservable();
 
   constructor() {
-    setInterval(() => {
-      this.clockSubject.next(new Date());
-      this.luxonClockSubject.next(DateTime.now());
-      }, 1000);
+    this.startAlignedClock();
+  }
+
+  private startAlignedClock() {
+    const now = Date.now();
+    const delay = 1000 - (now % 1000); // ms until next full second
+
+    // wait until next full second
+    setTimeout(() => {
+      // fire immediately at that exact second
+      this.tick();
+
+      // then continue every second, aligned
+      setInterval(() => this.tick(), 1000);
+    }, delay);
+  }
+
+  private tick() {
+    this.clockSubject.next(new Date());
+    this.luxonClockSubject.next(DateTime.now());
   }
 }
