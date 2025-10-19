@@ -24,6 +24,12 @@
         </li>
       </ul>
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <span class="navbar-text me-2 d-none d-lg-inline">
+          Your time:
+        </span>
+        <span class="navbar-text me-2 d-none d-md-inline">
+          {{ currentDateTime$.toLocaleString(DateTime.TIME_WITH_SECONDS) }}
+        </span>
         <ng-template [ngIf]="!isAuthenticated$">
           <li class="nav-item">
             <button type="button" class="btn btn-outline-secondary" (click)="login()">Login</button>

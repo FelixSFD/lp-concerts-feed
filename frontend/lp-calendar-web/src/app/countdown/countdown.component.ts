@@ -38,7 +38,7 @@ export class CountdownComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     // then trigger an update every time the global clock updates
     this.clockService.clock$.subscribe(clock => {
-      console.log("Will update countdown for: ", this.concertId, clock);
+      //console.log("Will update countdown for: ", this.concertId, clock);
       this.updateView();
     });
   }

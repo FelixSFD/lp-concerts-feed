@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
+import {DateTime} from 'luxon';
 
 /**
  * This service publishes the current time every second.
@@ -10,9 +11,14 @@ import {BehaviorSubject} from 'rxjs';
 })
 export class ClockService {
   private clockSubject = new BehaviorSubject<Date>(new Date());
+  private luxonClockSubject = new BehaviorSubject<DateTime>(DateTime.now());
   clock$ = this.clockSubject.asObservable();
+  luxonClock$ = this.luxonClockSubject.asObservable();
 
   constructor() {
-    setInterval(() => { this.clockSubject.next(new Date()); }, 1000);
+    setInterval(() => {
+      this.clockSubject.next(new Date());
+      this.luxonClockSubject.next(DateTime.now());
+      }, 1000);
   }
 }

@@ -2,7 +2,7 @@ import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
-import {NgIf, NgOptimizedImage} from '@angular/common';
+import {DatePipe, NgIf, NgOptimizedImage} from '@angular/common';
 import {environment} from '../environments/environment';
 import {
   NgcCookieConsentService,
@@ -14,10 +14,12 @@ import {Subscription} from 'rxjs';
 import {MatomoTracker} from 'ngx-matomo-client';
 import {UserDto} from './modules/lpshows-api';
 import {AuthService} from './auth/auth.service';
+import {DateTime} from 'luxon';
+import {ClockService} from './services/clock.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NgbModule, NgIf, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, NgbModule, NgIf, RouterLink, RouterLinkActive, DatePipe],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -28,6 +30,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private readonly oidcSecurityService = inject(OidcSecurityService);
   private cookieService = inject(NgcCookieConsentService);
   private readonly tracker = inject(MatomoTracker);
+  private readonly clockService = inject(ClockService);
 
   //keep refs to subscriptions to be able to unsubscribe later
   private popupOpenSubscription!: Subscription;
@@ -44,8 +47,15 @@ export class AppComponent implements OnInit, OnDestroy {
 
   isAuthenticated$ = false;
 
+  // the current clock
+  currentDateTime$: DateTime = DateTime.now();
+
   ngOnInit(): void {
     this.initCookieConsent();
+
+    this.clockService.luxonClock$.subscribe(clock => {
+      this.currentDateTime$ = clock;
+    });
 
     this.authStateService.isAuthenticated$.subscribe(isAuthenticated => {
       console.debug('Authenticated:', isAuthenticated);
@@ -165,4 +175,5 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   protected readonly environment = environment;
+  protected readonly DateTime = DateTime;
 }
