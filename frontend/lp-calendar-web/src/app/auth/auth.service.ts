@@ -5,7 +5,7 @@ import {User} from '../data/users/user';
 import {UserDto} from '../modules/lpshows-api';
 
 @Injectable({ providedIn: 'root' })
-export class AuthStateService {
+export class AuthService {
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   private userDataSubject = new BehaviorSubject<UserDto | null>(null);
   private accessTokenSubject = new BehaviorSubject<any>(null);

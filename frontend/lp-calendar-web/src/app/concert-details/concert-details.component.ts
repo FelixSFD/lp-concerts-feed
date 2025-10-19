@@ -39,7 +39,7 @@ import {
   ConcertDto, ErrorResponseDto,
   GetConcertBookmarkCountsResponseDto
 } from '../modules/lpshows-api';
-import {AuthService} from '../services/auth.service';
+import {AuthService} from '../auth/auth.service';
 import {ToastrService} from 'ngx-toastr';
 import {HttpErrorResponse} from '@angular/common/http';
 
@@ -109,7 +109,7 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
     console.log("Clicked button for: ", status);
     this.concertBookmarksLoading$ = true;
 
-    this.authService.isAuthenticated().subscribe((isAuthenticated) => {
+    this.authService.isAuthenticated$.subscribe((isAuthenticated) => {
       if (this.concertId == undefined || this.concertBookmarks$ == null) {
         this.toastr.error("Concert not loaded");
         this.concertBookmarksLoading$ = false;

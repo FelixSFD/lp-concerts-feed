@@ -9,7 +9,7 @@ import {
   ConcertFileUploadRequestDto, ConcertFileUploadResponseDto,
   ConcertsService as ConcertsApiClient, ConcertWithBookmarkStatusDto, GetConcertBookmarkCountsResponseDto
 } from '../modules/lpshows-api';
-import {AuthService} from './auth.service';
+import {AuthService} from '../auth/auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -93,7 +93,7 @@ export class ConcertsService {
    * @param concertId ID of the concert
    */
   getBookmarksForConcert(concertId: string): Observable<GetConcertBookmarkCountsResponseDto> {
-    return this.authService.isAuthenticated().pipe(
+    return this.authService.isAuthenticated$.pipe(
       switchMap((isAuthenticated) => {
         if (isAuthenticated) {
           return this.concertsApiClient.getBookmarkStatusForConcert(concertId, Guid.create().toString());

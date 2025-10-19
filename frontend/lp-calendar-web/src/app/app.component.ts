@@ -13,7 +13,7 @@ import {
 import {Subscription} from 'rxjs';
 import {MatomoTracker} from 'ngx-matomo-client';
 import {UserDto} from './modules/lpshows-api';
-import {AuthStateService} from './auth/auth-state.service';
+import {AuthService} from './auth/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -24,7 +24,7 @@ import {AuthStateService} from './auth/auth-state.service';
 export class AppComponent implements OnInit, OnDestroy {
   title = 'lp-calendar-web';
 
-  private readonly authStateService = inject(AuthStateService);
+  private readonly authStateService = inject(AuthService);
   private readonly oidcSecurityService = inject(OidcSecurityService);
   private cookieService = inject(NgcCookieConsentService);
   private readonly tracker = inject(MatomoTracker);
