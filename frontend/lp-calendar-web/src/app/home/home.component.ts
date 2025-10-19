@@ -7,10 +7,10 @@ import {CalendarFeedBuilderComponent} from '../calendar-feed-builder/calendar-fe
 import {ToastrService} from 'ngx-toastr';
 import {MatomoTracker} from 'ngx-matomo-client';
 import {ConcertDto} from '../modules/lpshows-api';
-import {AuthService} from '../services/auth.service';
 import {NgIf} from '@angular/common';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {NgbAlert} from '@ng-bootstrap/ng-bootstrap';
+import {AuthService} from '../auth/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -55,10 +55,12 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
     this.loadNextConcert();
 
-    this.oidcSecurityService.isAuthenticated().subscribe(isAuthenticated => {
+    this.authService.isAuthenticated$.subscribe(isAuthenticated => {
+      console.debug("Home component is authenticated:", isAuthenticated);
       this.isLoggedIn$ = isAuthenticated;
 
       if (isAuthenticated) {
+        console.debug("Load user's bookmarks etc.");
         this.loadNextBookmarkedConcert();
         this.loadNextAttendingConcert();
       }
