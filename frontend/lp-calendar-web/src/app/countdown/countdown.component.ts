@@ -3,7 +3,7 @@ import {NgIf} from '@angular/common';
 import {environment} from '../../environments/environment';
 import {ToastrService} from 'ngx-toastr';
 import {MatomoTrackClickDirective} from 'ngx-matomo-client';
-import {TimeProviderService} from '../services/time-provider.service';
+import {ClockService} from '../services/clock.service';
 
 @Component({
   selector: 'app-countdown',
@@ -16,7 +16,7 @@ import {TimeProviderService} from '../services/time-provider.service';
 })
 export class CountdownComponent implements OnInit, AfterViewInit {
   private toastrService = inject(ToastrService);
-  private timeProviderService = inject(TimeProviderService);
+  private clockService = inject(ClockService);
 
   differenceMillis$: number = 0;
   days$: number = 0;
@@ -37,8 +37,8 @@ export class CountdownComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     // then trigger an update every time the global clock updates
-    this.timeProviderService.clock$.subscribe(clock => {
-      //console.log("Will update countdown for: ", this.concertId, clock);
+    this.clockService.clock$.subscribe(clock => {
+      console.log("Will update countdown for: ", this.concertId, clock);
       this.updateView();
     });
   }
