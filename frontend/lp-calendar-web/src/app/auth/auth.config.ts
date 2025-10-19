@@ -18,7 +18,7 @@ export const authConfig: PassedInitialConfig = {
     secureRoutes: [
       // config was moved
     ],
-    logLevel: LogLevel.Debug // Enable detailed logs for debugging
+    logLevel: LogLevel.Warn // Enable detailed logs for debugging
   }
 }
 
