@@ -12,22 +12,22 @@ import {
 } from 'ngx-cookieconsent';
 import {Subscription} from 'rxjs';
 import {MatomoTracker} from 'ngx-matomo-client';
-import {AuthService} from './services/auth.service';
 import {UserDto} from './modules/lpshows-api';
+import {AuthStateService} from './auth/auth-state.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NgbModule, NgIf, RouterLink, RouterLinkActive, NgOptimizedImage],
+  imports: [RouterOutlet, NgbModule, NgIf, RouterLink, RouterLinkActive],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'lp-calendar-web';
 
+  private readonly authStateService = inject(AuthStateService);
   private readonly oidcSecurityService = inject(OidcSecurityService);
   private cookieService = inject(NgcCookieConsentService);
   private readonly tracker = inject(MatomoTracker);
-  private readonly authService = inject(AuthService);
 
   //keep refs to subscriptions to be able to unsubscribe later
   private popupOpenSubscription!: Subscription;
@@ -39,9 +39,6 @@ export class AppComponent implements OnInit, OnDestroy {
   private revokeChoiceSubscription!: Subscription;
   private noCookieLawSubscription!: Subscription;
 
-  configuration$ = this.oidcSecurityService.getConfiguration();
-
-  userData$ = this.oidcSecurityService.userData$;
   // currently logged-in user. Null if not logged in
   currentUser$: UserDto | null = null;
 
@@ -50,24 +47,24 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initCookieConsent();
 
-    this.oidcSecurityService.checkAuth().subscribe(({ isAuthenticated }) => {
+    this.authStateService.isAuthenticated$.subscribe(isAuthenticated => {
       console.debug('Authenticated:', isAuthenticated);
       this.isAuthenticated$ = isAuthenticated;
 
       // get current user object
-      this.authService.getCurrentUser().subscribe(usr => {
+      this.authStateService.userData$.subscribe(usr => {
         console.debug("User -->", usr);
         this.currentUser$ = usr;
       });
 
-      this.oidcSecurityService.getAccessToken().subscribe(at => {
+      this.authStateService.accessToken$.subscribe(at => {
         console.debug("ACCESS_TOKEN: " + at);
       });
 
       // Set user ID for Matomo tracker
-      this.authService.getCurrentUser().subscribe(usr => {
+      this.authStateService.userData$.subscribe(usr => {
         console.debug("Sending username to Matomo: ", usr);
-        this.tracker.setUserId(usr.username ?? usr.id!);
+        this.tracker.setUserId(usr?.username ?? usr?.id!);
       });
     });
 

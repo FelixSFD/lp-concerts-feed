@@ -11,6 +11,7 @@ import {AuthService} from '../services/auth.service';
 import {NgIf} from '@angular/common';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {NgbAlert} from '@ng-bootstrap/ng-bootstrap';
+import {AuthStateService} from '../auth/auth-state.service';
 
 @Component({
   selector: 'app-home',
@@ -29,7 +30,7 @@ export class HomeComponent implements OnInit {
   protected readonly environment = environment;
 
   private readonly tracker = inject(MatomoTracker);
-  private readonly authService = inject(AuthService);
+  private readonly authStateService = inject(AuthStateService);
   private readonly oidcSecurityService = inject(OidcSecurityService);
 
   nextConcert: ConcertDto | null = null;
@@ -55,10 +56,12 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
     this.loadNextConcert();
 
-    this.oidcSecurityService.isAuthenticated().subscribe(isAuthenticated => {
+    this.authStateService.isAuthenticated$.subscribe(isAuthenticated => {
+      console.debug("Home component is authenticated:", isAuthenticated);
       this.isLoggedIn$ = isAuthenticated;
 
       if (isAuthenticated) {
+        console.debug("Load user's bookmarks etc.");
         this.loadNextBookmarkedConcert();
         this.loadNextAttendingConcert();
       }
