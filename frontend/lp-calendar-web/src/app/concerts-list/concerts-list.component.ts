@@ -66,7 +66,7 @@ export class ConcertsListComponent implements OnInit {
   // default filter that is used when loading the list
   defaultFilter: ConcertFilter = {
     onlyFuture: true,
-    tour: "FROM ZERO WORLD TOUR 2025",
+    tour: null,
     dateFrom: DateTime.now().set({hour: 0, minute: 0, second: 0, millisecond: 0}),
     dateTo: null
   };
