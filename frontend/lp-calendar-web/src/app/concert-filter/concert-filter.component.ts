@@ -36,7 +36,7 @@ export class ConcertFilterComponent implements OnInit {
 
   // properties to control which fields were added
   availableFilters: string[] = ["tour", "dateRange"];
-  visibleFilters$: string[] = ["tour"];
+  visibleFilters$: string[] = [];
   filterLabels$: Map<string, string> = new Map<string, string>();
 
   constructor() {
