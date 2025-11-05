@@ -36,7 +36,7 @@ export class ConcertFilterComponent implements OnInit {
 
   // properties to control which fields were added
   availableFilters: string[] = ["tour", "dateRange"];
-  visibleFilters$: string[] = ["tour"];
+  visibleFilters$: string[] = [];
   filterLabels$: Map<string, string> = new Map<string, string>();
 
   constructor() {
@@ -83,7 +83,7 @@ export class ConcertFilterComponent implements OnInit {
     console.debug("setDefaultFilters: ", this.defaultFilter);
     this.filterForm.controls.showPastConcerts.setValue(!this.defaultFilter?.onlyFuture);
     this.filterForm.controls.tourName.setValue(this.defaultFilter?.tour ?? null);
-    this.visibleFilters$ = ["tour"];
+    this.visibleFilters$ = [];
   }
 
 
