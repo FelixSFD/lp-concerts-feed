@@ -83,7 +83,7 @@ export class ConcertFilterComponent implements OnInit {
     console.debug("setDefaultFilters: ", this.defaultFilter);
     this.filterForm.controls.showPastConcerts.setValue(!this.defaultFilter?.onlyFuture);
     this.filterForm.controls.tourName.setValue(this.defaultFilter?.tour ?? null);
-    this.visibleFilters$ = ["tour"];
+    this.visibleFilters$ = [];
   }
 
 
