@@ -11,6 +11,7 @@ import {PrivacyPolicyComponent} from './privacy-policy/privacy-policy.component'
 import {ImprintComponent} from './imprint/imprint.component';
 import {UsersListComponent} from './admin/users/users-list/users-list.component';
 import {EditUserComponent} from './admin/users/edit-user/edit-user.component';
+import {AppInfoPageComponent} from './app-info-page/app-info-page.component';
 
 let baseTitle = "LP Concerts - ";
 
@@ -80,5 +81,10 @@ export const routes: Routes = [
     path: 'users/:id',
     component: EditUserComponent,
     title: baseTitle + 'Edit user',
+  },
+  {
+    path: 'app',
+    component: AppInfoPageComponent,
+    title: baseTitle + 'iOS App',
   },
 ];

@@ -41,7 +41,7 @@ export class HomeComponent implements OnInit {
   isLoadingBookmarkedConcert: boolean = false;
 
   newFeatureAlertDismissedToken: string | null = localStorage.getItem("alert.new-feature.dismissed-token");
-  currentNewFeatureAlertToken: string = "c4b2d59a-a98d-4d46-8e73-854ded50125a";
+  currentNewFeatureAlertToken: string = "23040c71-de9e-47bc-8e43-b733dea58cfa";
 
   isLoggedIn$: boolean = false;
 
