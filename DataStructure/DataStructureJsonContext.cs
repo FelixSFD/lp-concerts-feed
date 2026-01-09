@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using LPCalendar.DataStructure.Entities;
 using LPCalendar.DataStructure.Events;
 using LPCalendar.DataStructure.Requests;
 using LPCalendar.DataStructure.Responses;
@@ -23,6 +24,7 @@ namespace LPCalendar.DataStructure;
 [JsonSerializable(typeof(ConcertBookmarkUpdateRequest))]
 [JsonSerializable(typeof(User))]
 [JsonSerializable(typeof(IEnumerable<User>))]
+[JsonSerializable(typeof(NotificationRegistration))]
 public partial class DataStructureJsonContext : JsonSerializerContext
 {
 }

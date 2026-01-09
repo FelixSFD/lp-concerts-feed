@@ -200,29 +200,21 @@ Resources:
   NotificationRegistrationTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Sub ${AWS::StackName}_NotificationRegistrations_v1
+      TableName: !Sub ${AWS::StackName}_NotificationRegistrationsV1
       AttributeDefinitions:
         - AttributeName: UserId
           AttributeType: S
         - AttributeName: Endpoint
           AttributeType: S
-        - AttributeName: Channel
-          AttributeType: S
       KeySchema:
         - AttributeName: UserId
           KeyType: HASH
-        - AttributeName: Channel
+        - AttributeName: Endpoint
           KeyType: RANGE
       GlobalSecondaryIndexes:
         - IndexName: EndpointIndex
           KeySchema:
             - AttributeName: Endpoint
-              KeyType: HASH
-          Projection:
-            ProjectionType: ALL
-        - IndexName: ChannelIndex
-          KeySchema:
-            - AttributeName: Channel
               KeyType: HASH
           Projection:
             ProjectionType: ALL
@@ -487,6 +479,37 @@ Resources:
                   - !Sub "${ConcertBookmarksDynamoDBTable.Arn}*"
                   #- !Sub "${ConcertsDynamoDBTable.Arn}"
                   #- !Sub "${ConcertsDynamoDBTable.Arn}*"
+
+  NotificationRegistrationLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: "Execution role for Lambda that manages notifications"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: LambdaDynamoDBAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:DescribeTable
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                Resource:
+                  - !Sub "${NotificationRegistrationTable.Arn}"
+                  - !Sub "${NotificationRegistrationTable.Arn}*"
 
   CognitoAuthorizerUserPoolV3:
     Type: AWS::Cognito::UserPool
@@ -842,6 +865,25 @@ Resources:
           CONCERT_BOOKMARKS_TABLE_NAME: !Ref ConcertBookmarksDynamoDBTable
           CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
   
+  # Notification functions
+  PushEndpointManagementLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: bootstrap
+      Role: !GetAtt NotificationRegistrationLambdaExecutionRole.Arn
+      Description: .NET function to manage the endpoint registrations for push notifications
+      CodeUri: ../lambda_packages/Lambda.Push.EndpointManagement.zip
+      Runtime: provided.al2023
+      Architectures:
+        - arm64
+      Tracing: Active
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
+      Environment:
+        Variables:
+          NOTIFICATION_REGISTRATIONS_TABLE_NAME: !Ref NotificationRegistrationTable
+  
   # Other Lambda functions
   AddConcertFunction:
     Type: AWS::Serverless::Function
@@ -1193,6 +1235,10 @@ Outputs:
     Value: !GetAtt ReadConcertBookmarksFunction.Arn
     Export:
       Name: !Sub '${BaseProductName}-lambda-concert-bookmarks-read-function'
+  LambdaRefPushEndpointManagementFunctionExport:
+    Value: !GetAtt PushEndpointManagementLambda.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-lambda-push-endpoint-management-function'
   OpenApiBucketArn:
     Value: !GetAtt OpenApiBucket.Arn
     Export:

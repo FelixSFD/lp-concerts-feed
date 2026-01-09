@@ -286,6 +286,20 @@ components:
           description: Groups the user is a member of
           items: 
             $ref: "#/components/schemas/UserGroup"
+    
+    # Push notifications
+    RegisterEndpointRequest:
+      type: object
+      description: Request to register an endpoint for push notifications
+      properties:
+        userId:
+          type: string
+          description: ID of the user who will receive the notifications
+          nullable: false
+        endpoint:
+          type: string
+          description: Endpoint to use for sending the notification to this user
+          nullable: false
 
     # Timezones
     TimeZoneResponse:
@@ -937,6 +951,36 @@ paths:
             - LambdaArn:
                 Fn::ImportValue:
                   Fn::Sub: "${BaseProductName}-lambda-users-read-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  
+  # Push notifications
+  /notifications/push:
+    put:
+      operationId: RegisterPushEndpoint
+      summary: Registers a push-notification endpoint for a user
+      tags:
+        - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterEndpointRequest"
+      responses:
+        "204":
+          description: Nothing. Endpoint registered successfully
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-push-endpoint-management-function"
         responses:
           default:
             statusCode: "200"
