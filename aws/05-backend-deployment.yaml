@@ -196,7 +196,40 @@ Resources:
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
       BillingMode: PAY_PER_REQUEST
-      
+  
+  NotificationRegistrationTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${AWS::StackName}_NotificationRegistrations_v1
+      AttributeDefinitions:
+        - AttributeName: UserId
+          AttributeType: S
+        - AttributeName: Endpoint
+          AttributeType: S
+        - AttributeName: Channel
+          AttributeType: S
+      KeySchema:
+        - AttributeName: UserId
+          KeyType: HASH
+        - AttributeName: Channel
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: EndpointIndex
+          KeySchema:
+            - AttributeName: Endpoint
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+        - IndexName: ChannelIndex
+          KeySchema:
+            - AttributeName: Channel
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      BillingMode: PAY_PER_REQUEST
+  
   # S3 bucket to store OpenAPI definition
   OpenApiBucket:
     Type: "AWS::S3::Bucket"
