@@ -6,7 +6,7 @@ namespace LPCalendar.DataStructure.Entities;
 /// <summary>
 /// Stores the endpoint information for push notifications to users
 /// </summary>
-public class NotificationRegistration
+public class NotificationUserDeviceToken
 {
     /// <summary>
     /// ID of the user to receive notifications
@@ -16,9 +16,9 @@ public class NotificationRegistration
     public required string UserId { get; set; }
     
     /// <summary>
-    /// Notification endpoint
+    /// Device token of the device the user registered
     /// </summary>
     [DynamoDBRangeKey]
-    [JsonPropertyName("endpoint")]
-    public required string Endpoint { get; set; }
+    [JsonPropertyName("deviceToken")]
+    public required string DeviceToken { get; set; }
 }

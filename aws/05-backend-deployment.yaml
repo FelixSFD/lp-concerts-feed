@@ -197,24 +197,24 @@ Resources:
         PointInTimeRecoveryEnabled: true
       BillingMode: PAY_PER_REQUEST
   
-  NotificationRegistrationTable:
+  NotificationDeviceTokensTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Sub ${AWS::StackName}_NotificationRegistrationsV1
+      TableName: !Sub ${AWS::StackName}_NotificationDeviceTokensV1
       AttributeDefinitions:
         - AttributeName: UserId
           AttributeType: S
-        - AttributeName: Endpoint
+        - AttributeName: DeviceToken
           AttributeType: S
       KeySchema:
         - AttributeName: UserId
           KeyType: HASH
-        - AttributeName: Endpoint
+        - AttributeName: DeviceToken
           KeyType: RANGE
       GlobalSecondaryIndexes:
-        - IndexName: EndpointIndex
+        - IndexName: DeviceTokenIndex
           KeySchema:
-            - AttributeName: Endpoint
+            - AttributeName: DeviceToken
               KeyType: HASH
           Projection:
             ProjectionType: ALL
@@ -508,8 +508,8 @@ Resources:
                   - dynamodb:Scan
                   - dynamodb:Query
                 Resource:
-                  - !Sub "${NotificationRegistrationTable.Arn}"
-                  - !Sub "${NotificationRegistrationTable.Arn}*"
+                  - !Sub "${NotificationDeviceTokensTable.Arn}"
+                  - !Sub "${NotificationDeviceTokensTable.Arn}*"
 
   CognitoAuthorizerUserPoolV3:
     Type: AWS::Cognito::UserPool
@@ -882,7 +882,7 @@ Resources:
         ApplicationLogLevel: DEBUG
       Environment:
         Variables:
-          NOTIFICATION_REGISTRATIONS_TABLE_NAME: !Ref NotificationRegistrationTable
+          NOTIFICATION_REGISTRATIONS_TABLE_NAME: !Ref NotificationDeviceTokensTable
   
   # Other Lambda functions
   AddConcertFunction:

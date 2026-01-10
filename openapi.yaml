@@ -296,9 +296,9 @@ components:
           type: string
           description: ID of the user who will receive the notifications
           nullable: false
-        endpoint:
+        deviceToken:
           type: string
-          description: Endpoint to use for sending the notification to this user
+          description: Token for the device of the user
           nullable: false
 
     # Timezones

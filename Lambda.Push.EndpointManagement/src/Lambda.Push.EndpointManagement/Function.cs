@@ -44,9 +44,9 @@ public class Function
             context.Logger.LogInformation("Registering device for push notifications");
             try
             {
-                var registration =
-                    JsonSerializer.Deserialize(request.Body, DataStructureJsonContext.Default.NotificationRegistration);
-                return await Register(registration!);
+                var userDeviceToken =
+                    JsonSerializer.Deserialize(request.Body, DataStructureJsonContext.Default.NotificationUserDeviceToken);
+                return await Register(userDeviceToken!);
             } catch (Exception e)
             {
                 context.Logger.LogError(e, "Error parsing notification registration");
@@ -83,9 +83,9 @@ public class Function
         };
     }
 
-    private async Task<APIGatewayProxyResponse> Register(NotificationRegistration registration)
+    private async Task<APIGatewayProxyResponse> Register(NotificationUserDeviceToken userDeviceToken)
     {
-        await _dynamoDbContext.SaveAsync(registration, _dbConfigProvider.GetSaveConfigFor(DynamoDbConfigProvider.Table.NotificationRegistrations));
+        await _dynamoDbContext.SaveAsync(userDeviceToken, _dbConfigProvider.GetSaveConfigFor(DynamoDbConfigProvider.Table.NotificationRegistrations));
         
         return new APIGatewayProxyResponse
         {

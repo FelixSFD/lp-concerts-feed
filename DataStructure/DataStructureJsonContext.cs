@@ -24,7 +24,7 @@ namespace LPCalendar.DataStructure;
 [JsonSerializable(typeof(ConcertBookmarkUpdateRequest))]
 [JsonSerializable(typeof(User))]
 [JsonSerializable(typeof(IEnumerable<User>))]
-[JsonSerializable(typeof(NotificationRegistration))]
+[JsonSerializable(typeof(NotificationUserDeviceToken))]
 public partial class DataStructureJsonContext : JsonSerializerContext
 {
 }
