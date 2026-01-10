@@ -523,6 +523,56 @@ Resources:
                 Resource:
                   - !Sub "${NotificationUserEndpointsTable.Arn}"
                   - !Sub "${NotificationUserEndpointsTable.Arn}*"
+  
+  NotificationSenderLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: "Execution role for Lambda that send notifications"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: LambdaSQSAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                Resource:
+                  - !Sub "${SendPushNotificationQueue.Arn}"
+                  - !Sub "${SendPushNotificationQueue.Arn}*"
+        - PolicyName: LambdaSNS
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - SNS:CreatePlatformEndpoint
+                Resource:
+                  - !Sub "${PushPlatformAppArn}"
+                  - !Sub "${PushPlatformAppArn}*"
+        - PolicyName: LambdaDynamoDBAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:DescribeTable
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                Resource:
+                  - !Sub "${NotificationUserEndpointsTable.Arn}"
+                  - !Sub "${NotificationUserEndpointsTable.Arn}*"
 
   CognitoAuthorizerUserPoolV3:
     Type: AWS::Cognito::UserPool
@@ -791,6 +841,10 @@ Resources:
       QueueName: !Sub ${AWS::StackName}-audit-log-event-queue.fifo
       FifoQueue: true
       ContentBasedDeduplication: true
+  SendPushNotificationQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-push-notification-queue
   
   # Audit log lambda
   AuditLogWriterFunction:
@@ -897,6 +951,30 @@ Resources:
         Variables:
           NOTIFICATION_REGISTRATIONS_TABLE_NAME: !Ref NotificationUserEndpointsTable
           PLATFORM_APPLICATION_ARN: !Ref PushPlatformAppArn
+  
+  PushNotificationSenderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: bootstrap
+      Role: !GetAtt NotificationSenderLambdaExecutionRole.Arn
+      Description: .NET function to listen to a SQS queue and send them as push notifications through SNS
+      CodeUri: ../lambda_packages/Lambda.Push.Sender.zip
+      Runtime: provided.al2023
+      Architectures:
+        - arm64
+      Tracing: Active
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
+      Environment:
+        Variables:
+          NOTIFICATION_REGISTRATIONS_TABLE_NAME: !Ref NotificationUserEndpointsTable
+      Events:
+        SQSTrigger:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt SendPushNotificationQueue.Arn
+            BatchSize: 5
   
   # Other Lambda functions
   AddConcertFunction:

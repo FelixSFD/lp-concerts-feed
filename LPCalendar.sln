@@ -89,6 +89,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.Common.ApiGateway", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.Push.EndpointManagement", "Lambda.Push.EndpointManagement\src\Lambda.Push.EndpointManagement\Lambda.Push.EndpointManagement.csproj", "{78DD0829-F925-4880-BF04-C69FBE3400F7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.Push.Sender", "Lambda.Push.Sender\src\Lambda.Push.Sender\Lambda.Push.Sender.csproj", "{85B6E8C1-FB97-4D50-8562-C556D55EE565}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -215,5 +217,9 @@ Global
 		{78DD0829-F925-4880-BF04-C69FBE3400F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{78DD0829-F925-4880-BF04-C69FBE3400F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{78DD0829-F925-4880-BF04-C69FBE3400F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{85B6E8C1-FB97-4D50-8562-C556D55EE565}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{85B6E8C1-FB97-4D50-8562-C556D55EE565}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{85B6E8C1-FB97-4D50-8562-C556D55EE565}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{85B6E8C1-FB97-4D50-8562-C556D55EE565}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

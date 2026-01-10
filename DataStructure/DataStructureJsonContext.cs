@@ -26,6 +26,7 @@ namespace LPCalendar.DataStructure;
 [JsonSerializable(typeof(IEnumerable<User>))]
 [JsonSerializable(typeof(NotificationUserEndpoint))]
 [JsonSerializable(typeof(RegisterNotificationDeviceRequest))]
+[JsonSerializable(typeof(PushNotificationEvent))]
 public partial class DataStructureJsonContext : JsonSerializerContext
 {
 }
