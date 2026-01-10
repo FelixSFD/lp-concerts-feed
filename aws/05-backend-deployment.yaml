@@ -556,7 +556,7 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - SNS:CreatePlatformEndpoint
+                  - SNS:Publish
                 Resource:
                   - !Sub "${PushPlatformAppArn}"
                   - !Sub "${PushPlatformAppArn}*"

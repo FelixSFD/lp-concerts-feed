@@ -76,7 +76,42 @@ public class Function
         
         var sendTasks = endpoints.Select(async endpoint =>
         {
-            await _sns.PublishAsync(endpoint.EndpointArn, $"test message {Random.Shared.Next()}");
+            logger.LogDebug("Publishing to endpoint: {endpoint}", endpoint.EndpointArn);
+            try
+            {
+                var pushMessagePayload = new NotificationWrapper
+                {
+                    Apple = new AppleNotificationAlert
+                    {
+                        Alert = new AppleNotificationPayload
+                        {
+                            Title =  pushNotificationEvent.Title,
+                            Body = pushNotificationEvent.Body
+                        }
+                    }
+                };
+
+                var snsMessage = new SnsMessage
+                {
+                    Default = pushNotificationEvent.Body,
+                    AppleNotificationService = JsonSerializer.Serialize(pushMessagePayload, SqsEventJsonSerializer.Default.NotificationWrapper)
+                };
+
+                var snsMessageJson = JsonSerializer.Serialize(snsMessage, SqsEventJsonSerializer.Default.SnsMessage);
+                logger.LogDebug("SNS Message: {messageJson}", snsMessageJson);
+                
+                var publishRequest = new PublishRequest
+                {
+                    TargetArn = endpoint.EndpointArn,
+                    MessageStructure = "json",
+                    Message = snsMessageJson
+                };
+                var publishResponse = await _sns.PublishAsync(publishRequest);
+                logger.LogDebug("Published message: {id} (Sequence: {seq})", publishResponse.MessageId, publishResponse.SequenceNumber);
+            } catch (Exception e)
+            {
+                logger.LogError(e, "Failed to publish message!");
+            }
         });
         
         await Task.WhenAll(sendTasks);
