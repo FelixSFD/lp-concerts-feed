@@ -5,11 +5,14 @@ using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Amazon.SimpleNotificationService;
+using Amazon.SimpleNotificationService.Model;
 using Lambda.Auth;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Converters;
 using LPCalendar.DataStructure.DbConfig;
 using LPCalendar.DataStructure.Entities;
+using LPCalendar.DataStructure.Requests;
 using LPCalendar.DataStructure.Responses;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
@@ -21,10 +24,15 @@ public class Function
 {
     private readonly DynamoDBContext _dynamoDbContext;
     private readonly DynamoDbConfigProvider _dbConfigProvider = new();
-    
+    private readonly IAmazonSimpleNotificationService _sns;
+    private readonly string _platformApplicationArn;
     
     public Function()
     {
+        _platformApplicationArn = Environment.GetEnvironmentVariable("PLATFORM_APPLICATION_ARN")
+                                  ?? throw new Exception("Missing environment variable PLATFORM_APPLICATION_ARN");
+        
+        _sns = new AmazonSimpleNotificationServiceClient();
         _dynamoDbContext = new DynamoDBContextBuilder()
             .WithDynamoDBClient(() => new AmazonDynamoDBClient())
             .Build();
@@ -42,11 +50,11 @@ public class Function
         if (request is { Resource: "/notifications/push", HttpMethod: "PUT" })
         {
             context.Logger.LogInformation("Registering device for push notifications");
+            
+            RegisterNotificationDeviceRequest? registerRequest;
             try
             {
-                var userDeviceToken =
-                    JsonSerializer.Deserialize(request.Body, DataStructureJsonContext.Default.NotificationUserDeviceToken);
-                return await Register(userDeviceToken!);
+                registerRequest = JsonSerializer.Deserialize(request.Body, DataStructureJsonContext.Default.RegisterNotificationDeviceRequest);
             } catch (Exception e)
             {
                 context.Logger.LogError(e, "Error parsing notification registration");
@@ -65,6 +73,8 @@ public class Function
                     }
                 };
             }
+            
+            return await Register(registerRequest!, context.Logger);
         }
 
         var error = new ErrorResponse
@@ -83,9 +93,27 @@ public class Function
         };
     }
 
-    private async Task<APIGatewayProxyResponse> Register(NotificationUserDeviceToken userDeviceToken)
+    private async Task<APIGatewayProxyResponse> Register(RegisterNotificationDeviceRequest request, ILambdaLogger logger)
     {
-        await _dynamoDbContext.SaveAsync(userDeviceToken, _dbConfigProvider.GetSaveConfigFor(DynamoDbConfigProvider.Table.NotificationRegistrations));
+        logger.LogDebug("Registering device for push notifications for user '{user}'", request.UserId);
+        var snsCreateEndpointRequest = new CreatePlatformEndpointRequest
+        {
+            PlatformApplicationArn = _platformApplicationArn,
+            Token = request.DeviceToken,
+            CustomUserData = request.UserId
+        };
+
+        var snsEndpointResponse = await _sns.CreatePlatformEndpointAsync(snsCreateEndpointRequest);
+        logger.LogDebug("Created platform endpoint for push notifications: {arn}",  snsEndpointResponse.EndpointArn);
+
+        var notificationUserEndpoint = new NotificationUserEndpoint
+        {
+            UserId = request.UserId,
+            EndpointArn = snsEndpointResponse.EndpointArn,
+        };
+        await _dynamoDbContext.SaveAsync(notificationUserEndpoint, _dbConfigProvider.GetSaveConfigFor(DynamoDbConfigProvider.Table.NotificationRegistrations));
+        
+        logger.LogDebug("Saved notification user endpoint: {arn}", notificationUserEndpoint.EndpointArn);
         
         return new APIGatewayProxyResponse
         {

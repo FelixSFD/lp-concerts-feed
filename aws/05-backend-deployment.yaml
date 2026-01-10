@@ -17,6 +17,9 @@ Parameters:
     Type: String
   HostedZoneId:
     Type: String
+  PushPlatformAppArn:
+    Type: String
+    Description: ARN of the AWS SNS Platform Application for push notifications
   GatewaySslCertificateArn:
     Type: String
     Description: ARN of the SSL Certificate. The certificate must be hosted in us-eat-1, which is why we have to pass it as parameter
@@ -197,24 +200,24 @@ Resources:
         PointInTimeRecoveryEnabled: true
       BillingMode: PAY_PER_REQUEST
   
-  NotificationDeviceTokensTable:
+  NotificationUserEndpointsTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Sub ${AWS::StackName}_NotificationDeviceTokensV1
+      TableName: !Sub ${AWS::StackName}_NotificationUserEndpointsV1
       AttributeDefinitions:
         - AttributeName: UserId
           AttributeType: S
-        - AttributeName: DeviceToken
+        - AttributeName: EndpointArn
           AttributeType: S
       KeySchema:
         - AttributeName: UserId
           KeyType: HASH
-        - AttributeName: DeviceToken
+        - AttributeName: EndpointArn
           KeyType: RANGE
       GlobalSecondaryIndexes:
-        - IndexName: DeviceTokenIndex
+        - IndexName: EndpointArnIndex
           KeySchema:
-            - AttributeName: DeviceToken
+            - AttributeName: EndpointArn
               KeyType: HASH
           Projection:
             ProjectionType: ALL
@@ -494,6 +497,16 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Policies:
+        - PolicyName: LambdaSNS
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - SNS:CreatePlatformEndpoint
+                Resource:
+                  - !Sub "${PushPlatformAppArn}"
+                  - !Sub "${PushPlatformAppArn}*"
         - PolicyName: LambdaDynamoDBAccess
           PolicyDocument:
             Version: "2012-10-17"
@@ -508,8 +521,8 @@ Resources:
                   - dynamodb:Scan
                   - dynamodb:Query
                 Resource:
-                  - !Sub "${NotificationDeviceTokensTable.Arn}"
-                  - !Sub "${NotificationDeviceTokensTable.Arn}*"
+                  - !Sub "${NotificationUserEndpointsTable.Arn}"
+                  - !Sub "${NotificationUserEndpointsTable.Arn}*"
 
   CognitoAuthorizerUserPoolV3:
     Type: AWS::Cognito::UserPool
@@ -882,7 +895,8 @@ Resources:
         ApplicationLogLevel: DEBUG
       Environment:
         Variables:
-          NOTIFICATION_REGISTRATIONS_TABLE_NAME: !Ref NotificationDeviceTokensTable
+          NOTIFICATION_REGISTRATIONS_TABLE_NAME: !Ref NotificationUserEndpointsTable
+          PLATFORM_APPLICATION_ARN: !Ref PushPlatformAppArn
   
   # Other Lambda functions
   AddConcertFunction:
