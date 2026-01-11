@@ -2,6 +2,8 @@ import {Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, Simpl
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgClass, NgIf} from '@angular/common';
 import {UserDto, UserNotificationSettingsDto} from '../../../modules/lpshows-api';
+import ConcertRemindersStatusEnum = UserNotificationSettingsDto.ConcertRemindersStatusEnum;
+import MainStageTimeUpdatesStatusEnum = UserNotificationSettingsDto.MainStageTimeUpdatesStatusEnum;
 
 @Component({
   selector: 'app-user-form',
@@ -25,7 +27,13 @@ export class UserFormComponent implements OnInit, OnChanges {
 
   notificationsForm = this.formBuilder.group({
     receiveConcertReminders: new FormControl(false, []),
+    receiveConcertRemindersAny: new FormControl(false, []),
+    receiveConcertRemindersBookmarked: new FormControl(false, []),
+    receiveConcertRemindersAttending: new FormControl(false, []),
     receiveMainStageTimeUpdates: new FormControl(false, []),
+    receiveMainStageTimeUpdatesAny: new FormControl(false, []),
+    receiveMainStageTimeUpdatesBookmarked: new FormControl(false, []),
+    receiveMainStageTimeUpdatesAttending: new FormControl(false, []),
   });
 
 
@@ -98,7 +106,13 @@ export class UserFormComponent implements OnInit, OnChanges {
       this.notificationsForm.disable();
     }
     this.notificationsForm.controls.receiveConcertReminders.setValue(settings?.receiveConcertReminders ?? false);
+    this.notificationsForm.controls.receiveConcertRemindersAny.setValue((settings?.concertRemindersStatus?.indexOf(ConcertRemindersStatusEnum.None) ?? -1) >= 0);
+    this.notificationsForm.controls.receiveConcertRemindersBookmarked.setValue((settings?.concertRemindersStatus?.indexOf(ConcertRemindersStatusEnum.Bookmarked) ?? -1) >= 0);
+    this.notificationsForm.controls.receiveConcertRemindersAttending.setValue((settings?.concertRemindersStatus?.indexOf(ConcertRemindersStatusEnum.Attending) ?? -1) >= 0);
     this.notificationsForm.controls.receiveMainStageTimeUpdates.setValue(settings?.receiveMainStageTimeUpdates ?? false);
+    this.notificationsForm.controls.receiveMainStageTimeUpdatesAny.setValue((settings?.mainStageTimeUpdatesStatus?.indexOf(MainStageTimeUpdatesStatusEnum.None) ?? -1) >= 0);
+    this.notificationsForm.controls.receiveMainStageTimeUpdatesBookmarked.setValue((settings?.mainStageTimeUpdatesStatus?.indexOf(MainStageTimeUpdatesStatusEnum.Bookmarked) ?? -1) >= 0);
+    this.notificationsForm.controls.receiveMainStageTimeUpdatesAttending.setValue((settings?.mainStageTimeUpdatesStatus?.indexOf(MainStageTimeUpdatesStatusEnum.Attending) ?? -1) >= 0);
   }
 
 
@@ -129,6 +143,30 @@ export class UserFormComponent implements OnInit, OnChanges {
     let newSettings: UserNotificationSettingsDto = {};
     newSettings.receiveConcertReminders = this.notificationsForm.controls.receiveConcertReminders.value ?? false;
     newSettings.receiveMainStageTimeUpdates = this.notificationsForm.controls.receiveMainStageTimeUpdates.value ?? false;
+    newSettings.concertRemindersStatus = [];
+    newSettings.mainStageTimeUpdatesStatus = [];
+
+    if (this.notificationsForm.controls.receiveConcertRemindersAny.value) {
+      newSettings.concertRemindersStatus.push(ConcertRemindersStatusEnum.None, ConcertRemindersStatusEnum.Bookmarked, ConcertRemindersStatusEnum.Attending)
+    } else {
+      if (this.notificationsForm.controls.receiveConcertRemindersBookmarked.value) {
+        newSettings.concertRemindersStatus.push(ConcertRemindersStatusEnum.Bookmarked)
+      }
+      if (this.notificationsForm.controls.receiveConcertRemindersAttending.value) {
+        newSettings.concertRemindersStatus.push(ConcertRemindersStatusEnum.Attending)
+      }
+    }
+
+    if (this.notificationsForm.controls.receiveMainStageTimeUpdatesAny.value) {
+      newSettings.mainStageTimeUpdatesStatus.push(MainStageTimeUpdatesStatusEnum.None, MainStageTimeUpdatesStatusEnum.Bookmarked, MainStageTimeUpdatesStatusEnum.Attending)
+    } else {
+      if (this.notificationsForm.controls.receiveMainStageTimeUpdatesBookmarked.value) {
+        newSettings.mainStageTimeUpdatesStatus.push(MainStageTimeUpdatesStatusEnum.Bookmarked)
+      }
+      if (this.notificationsForm.controls.receiveMainStageTimeUpdatesAttending.value) {
+        newSettings.mainStageTimeUpdatesStatus.push(MainStageTimeUpdatesStatusEnum.Attending)
+      }
+    }
 
     return newSettings;
   }

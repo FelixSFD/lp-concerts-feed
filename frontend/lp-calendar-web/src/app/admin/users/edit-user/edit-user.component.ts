@@ -93,12 +93,12 @@ export class EditUserComponent implements OnInit {
     this.userService.updateUserNotificationSettings(notificationSettings).subscribe({
       next: response => {
         this.toastr.success("User notification settings updated successfully");
-        this.userIsSaving$ = false;
+        this.notificationsIsSaving$ = false;
       },
       error: err => {
         let errorResponse: ErrorResponseDto = err.error;
         this.toastr.error(errorResponse.message, "Could not save user notification settings");
-        this.userIsSaving$ = false;
+        this.notificationsIsSaving$ = false;
       }
     });
   }
