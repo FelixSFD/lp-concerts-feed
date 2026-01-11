@@ -41,6 +41,12 @@ export class EditUserComponent implements OnInit {
 
 
   private loadUser(id: string) {
+    this.loadUserData(id);
+    this.loadUserNotificationsData(id);
+  }
+
+
+  private loadUserData(id: string) {
     this.userService.getUserById(id).subscribe({
       next: user => {
         this.user$ = user;
@@ -55,7 +61,9 @@ export class EditUserComponent implements OnInit {
         this.toastr.error(errorResponse.message, "Could not load user");
       }
     });
+  }
 
+  private loadUserNotificationsData(id: string) {
     this.userService.getUserNotificationSettings(id, false).subscribe({
       next: settings => {
         this.userNotificationSettings$ = settings;
@@ -94,6 +102,8 @@ export class EditUserComponent implements OnInit {
       next: response => {
         this.toastr.success("User notification settings updated successfully");
         this.notificationsIsSaving$ = false;
+
+        this.loadUserNotificationsData(this.userId$);
       },
       error: err => {
         let errorResponse: ErrorResponseDto = err.error;
