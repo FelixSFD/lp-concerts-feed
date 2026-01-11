@@ -60,6 +60,7 @@ public class Function
                          var notificationType = PushNotificationType.Custom;
                          if (msg.MessageAttributes.TryGetValue("notificationType", out var notificationTypeAttr))
                          {
+                             context.Logger.LogDebug($"Parsing notification type: {notificationTypeAttr.StringValue}");
                              notificationType = Enum.Parse<PushNotificationType>(notificationTypeAttr.StringValue);
                          }
                          
@@ -88,6 +89,7 @@ public class Function
         {
             PushNotificationType.Custom => GetPushNotificationsForCustom(msgBody),
             PushNotificationType.ConcertReminder => await GetPushNotificationsForConcertReminder(msgBody, logger),
+            PushNotificationType.MainStageTimeConfirmed => await GetPushNotificationsForMainStageTimeConfirmed(msgBody, logger),
             _ => throw new ArgumentOutOfRangeException(nameof(pushNotificationType), pushNotificationType, null)
         };
     }
@@ -119,6 +121,30 @@ public class Function
             Body = "The concert is starting soon! 🔥\nOpen the app to see the exact start time in your timezone."
         });
     }
+    
+    
+    private async Task<IEnumerable<PushNotificationEvent>> GetPushNotificationsForMainStageTimeConfirmed(string msgBody, ILambdaLogger logger)
+    {
+        logger.LogDebug("Getting push notifications for confirmed stage time. Message body: {messageBody}", msgBody);
+        var pushEvent = JsonSerializer.Deserialize(msgBody,
+            DataStructureJsonContext.Default.ConcertRelatedPushNotificationEvent);
+        if (pushEvent == null)
+        {
+            logger.LogWarning("No ConcertRelatedPushNotificationEvent found.");
+            return [];
+        }
+
+        // find users to send the message to
+        logger.LogDebug("Get list of recipients...");
+        var recipients = await GetRecipientUserIdsFor(pushEvent.Concert, PushNotificationType.MainStageTimeConfirmed);
+        return recipients.Select(userId => new PushNotificationEvent
+        {
+            UserId = userId,
+            Title = $"Linkin Park in {pushEvent.Concert.City}",
+            Body = $"Stage time for Linkin Park confirmed: {pushEvent.Concert.MainStageTime:HH:mm} ({pushEvent.Concert.TimeZoneId})"
+        });
+    }
+    
 
     private async Task SendNotification(PushNotificationEvent pushNotificationEvent, ILambdaLogger logger)
     {
@@ -176,6 +202,7 @@ public class Function
         return pushNotificationType switch
         {
             PushNotificationType.ConcertReminder => await GetRecipientUserIdsForConcertReminder(concert),
+            PushNotificationType.MainStageTimeConfirmed => await GetRecipientUserIdsForConcertReminder(concert),
             _ => []
         };
     }

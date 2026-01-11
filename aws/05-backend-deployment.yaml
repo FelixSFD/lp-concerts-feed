@@ -267,6 +267,18 @@ Resources:
             Action:
               - sqs:SendMessage
             Resource: !GetAtt AuditLogQueue.Arn
+  
+  # Policy to publish to SendPushNotificationQueue
+  SendPushNotificationQueueProducerPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - sqs:SendMessage
+            Resource: !GetAtt SendPushNotificationQueue.Arn
 
   # Access Roles
   ConcertsWriteLambdaExecutionRole:
@@ -283,6 +295,7 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - !Ref AuditLogQueueProducerPolicy
+        - !Ref SendPushNotificationQueueProducerPolicy
       Policies:
         - PolicyName: S3ImporterBucketAccess
           PolicyDocument:
@@ -1069,6 +1082,7 @@ Resources:
       Environment:
         Variables:
           CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
+          PUSH_QUEUE_URL: !Ref SendPushNotificationQueue
       Events:
         PutAddConcert:
           Type: Api
