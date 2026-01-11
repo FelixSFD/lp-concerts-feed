@@ -11,6 +11,8 @@ namespace LPCalendar.DataStructure;
 [JsonSerializable(typeof(Dictionary<string, string>))]
 [JsonSerializable(typeof(Concert))]
 [JsonSerializable(typeof(ConcertWithBookmarkStatusResponse))]
+[JsonSerializable(typeof(ConcertBookmark.BookmarkStatus))]
+[JsonSerializable(typeof(IEnumerable<ConcertBookmark.BookmarkStatus>))]
 [JsonSerializable(typeof(List<Concert>))]
 [JsonSerializable(typeof(List<ConcertWithBookmarkStatusResponse>))]
 [JsonSerializable(typeof(AdjacentConcertsResponse))]

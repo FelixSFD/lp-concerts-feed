@@ -151,7 +151,7 @@ public class Function
         }
         
         settings.UserId = userId;
-        settings.LastUpdated = DateTimeOffset.UtcNow;
+        //settings.LastUpdated = DateTimeOffset.UtcNow;
         
         var config = _dbConfigProvider.GetSaveConfigFor(DynamoDbConfigProvider.Table.UserNotificationSettings);
         

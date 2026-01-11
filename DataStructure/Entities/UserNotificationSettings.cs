@@ -1,6 +1,5 @@
 using System.Text.Json.Serialization;
 using Amazon.DynamoDBv2.DataModel;
-using LPCalendar.DataStructure.Converters;
 
 namespace LPCalendar.DataStructure.Entities;
 
@@ -9,17 +8,17 @@ namespace LPCalendar.DataStructure.Entities;
 /// </summary>
 public class UserNotificationSettings
 {
+    public const string ReceiveConcertRemindersIndex = "ReceiveConcertRemindersIndex";
+    public const string ReceiveMainStageTimeUpdatesIndex = "ReceiveMainStageTimeUpdatesIndex";
+    
+    
     /// <summary>
     /// ID of the user
     /// </summary>
     [DynamoDBHashKey]
+    [DynamoDBGlobalSecondaryIndexHashKey(ReceiveConcertRemindersIndex, ReceiveMainStageTimeUpdatesIndex)]
     [JsonPropertyName("userId")]
     public required string UserId { get; set; }
-
-    [DynamoDBRangeKey]
-    [DynamoDBProperty(typeof(DateTimeOffsetToStringPropertyConverter))]
-    [JsonPropertyName("lastUpdated")]
-    public DateTimeOffset LastUpdated { get; set; } = DateTimeOffset.MinValue;
 
     /// <summary>
     /// true if the user wants to receive concert reminders.
@@ -31,8 +30,18 @@ public class UserNotificationSettings
     /// <summary>
     /// Bookmark status required to receive reminders for that concert
     /// </summary>
-    [JsonPropertyName("concertRemindersStatus")]
+    [JsonIgnore]
+    [DynamoDBIgnore]
     public IEnumerable<ConcertBookmark.BookmarkStatus> ConcertRemindersStatus { get; set; } = [ConcertBookmark.BookmarkStatus.None, ConcertBookmark.BookmarkStatus.Bookmarked, ConcertBookmark.BookmarkStatus.Attending];
+
+    [DynamoDBProperty(nameof(ConcertRemindersStatus))]
+    [DynamoDBGlobalSecondaryIndexHashKey(ReceiveConcertRemindersIndex)]
+    [JsonPropertyName("concertRemindersStatus")]
+    public string[] ConcertRemindersStatusStrings
+    {
+        get => ConcertRemindersStatus.Select(s => s.ToString()).ToArray();
+        set => ConcertRemindersStatus = value.Select(Enum.Parse<ConcertBookmark.BookmarkStatus>);
+    }
 
     /// <summary>
     /// true if the user wants to receive a notification when the <see cref="Concert.MainStageTime"/> is updated.
@@ -44,6 +53,16 @@ public class UserNotificationSettings
     /// <summary>
     /// Bookmark status required to receive reminders for that concert
     /// </summary>
-    [JsonPropertyName("mainStageTimeUpdatesStatus")]
+    [JsonIgnore]
+    [DynamoDBIgnore]
     public IEnumerable<ConcertBookmark.BookmarkStatus> MainStageTimeUpdatesStatus { get; set; } = [ConcertBookmark.BookmarkStatus.None, ConcertBookmark.BookmarkStatus.Bookmarked, ConcertBookmark.BookmarkStatus.Attending];
+    
+    [DynamoDBProperty(nameof(MainStageTimeUpdatesStatus))]
+    [DynamoDBGlobalSecondaryIndexHashKey(ReceiveMainStageTimeUpdatesIndex)]
+    [JsonPropertyName("mainStageTimeUpdatesStatus")]
+    public string[] MainStageTimeUpdatesStatusStrings
+    {
+        get => MainStageTimeUpdatesStatus.Select(s => s.ToString()).ToArray();
+        set => MainStageTimeUpdatesStatus = value.Select(Enum.Parse<ConcertBookmark.BookmarkStatus>);
+    }
 }

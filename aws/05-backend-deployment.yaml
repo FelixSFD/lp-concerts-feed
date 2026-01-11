@@ -246,11 +246,9 @@ Resources:
   UserNotificationSettingsTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Sub ${AWS::StackName}_UserNotificationSettings
+      TableName: !Sub ${AWS::StackName}_UserNotificationSettingsV1
       AttributeDefinitions:
         - AttributeName: UserId
-          AttributeType: S
-        - AttributeName: LastUpdated
           AttributeType: S
         - AttributeName: ReceiveConcertReminders
           AttributeType: N
@@ -259,19 +257,21 @@ Resources:
       KeySchema:
         - AttributeName: UserId
           KeyType: HASH
-        - AttributeName: LastUpdated
-          KeyType: RANGE
       GlobalSecondaryIndexes:
         - IndexName: ReceiveConcertRemindersIndex
           KeySchema:
             - AttributeName: ReceiveConcertReminders
               KeyType: HASH
+            - AttributeName: UserId
+              KeyType: RANGE
           Projection:
             ProjectionType: ALL
         - IndexName: ReceiveMainStageTimeUpdatesIndex
           KeySchema:
             - AttributeName: ReceiveMainStageTimeUpdates
               KeyType: HASH
+            - AttributeName: UserId
+              KeyType: RANGE
           Projection:
             ProjectionType: ALL
       PointInTimeRecoverySpecification:
