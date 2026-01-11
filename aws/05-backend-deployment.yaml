@@ -243,6 +243,41 @@ Resources:
           KeyType: RANGE
       BillingMode: PAY_PER_REQUEST
   
+  UserNotificationSettingsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${AWS::StackName}_UserNotificationSettings
+      AttributeDefinitions:
+        - AttributeName: UserId
+          AttributeType: S
+        - AttributeName: LastUpdated
+          AttributeType: S
+        - AttributeName: ReceiveConcertReminders
+          AttributeType: N
+        - AttributeName: ReceiveMainStageTimeUpdates
+          AttributeType: N
+      KeySchema:
+        - AttributeName: UserId
+          KeyType: HASH
+        - AttributeName: LastUpdated
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: ReceiveConcertRemindersIndex
+          KeySchema:
+            - AttributeName: ReceiveConcertReminders
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+        - IndexName: ReceiveMainStageTimeUpdatesIndex
+          KeySchema:
+            - AttributeName: ReceiveMainStageTimeUpdates
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      BillingMode: PAY_PER_REQUEST
+  
   # S3 bucket to store OpenAPI definition
   OpenApiBucket:
     Type: "AWS::S3::Bucket"
@@ -606,6 +641,37 @@ Resources:
                   - !Sub "${NotificationUserEndpointsTable.Arn}*"
                   - !Sub "${ConcertBookmarksDynamoDBTable.Arn}"
                   - !Sub "${ConcertBookmarksDynamoDBTable.Arn}*"
+  
+  UserNotificationSettingsLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: "Execution role for Lambda that manages user notification settings"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: UpdateUserNotificationSettings
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:DescribeTable
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                Resource:
+                  - !Sub "${UserNotificationSettingsTable.Arn}"
+                  - !Sub "${UserNotificationSettingsTable.Arn}*"
   
   ConcertReminderLambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -1298,6 +1364,25 @@ Resources:
               AuthorizationScopes:
                 - openid
   
+  UserNotificationSettingsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: bootstrap
+      Role: !GetAtt UserNotificationSettingsLambdaExecutionRole.Arn
+      Description: .NET function to read and write the notification settings of users
+      CodeUri: ../lambda_packages/Lambda.UserNotificationsSettings.zip
+      Runtime: provided.al2023
+      Architectures:
+        - arm64
+      Tracing: Active
+      MemorySize: 384
+      Environment:
+        Variables:
+          USER_NOTIFICATION_SETTINGS_TABLE_NAME: !Ref UserNotificationSettingsTable
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
+
   
   GetTimeZoneFunction:
     Type: AWS::Serverless::Function
@@ -1443,6 +1528,10 @@ Outputs:
     Value: !GetAtt ReadConcertBookmarksFunction.Arn
     Export:
       Name: !Sub '${BaseProductName}-lambda-concert-bookmarks-read-function'
+  UserNotificationSettingsFunctionExport:
+    Value: !GetAtt UserNotificationSettingsFunction.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-lambda-user-notification-settings-function'
   LambdaRefPushEndpointManagementFunctionExport:
     Value: !GetAtt PushEndpointManagementLambda.Arn
     Export:

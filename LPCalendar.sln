@@ -93,6 +93,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.Push.Sender", "Lambd
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.ConcertReminder", "Lambda.ConcertReminder\src\Lambda.ConcertReminder\Lambda.ConcertReminder.csproj", "{CE1AD7B8-99B9-4708-BAF4-1AD821D754DB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.UserNotificationsSettings", "Lambda.UserNotificationsSettings\src\Lambda.UserNotificationsSettings\Lambda.UserNotificationsSettings.csproj", "{41266822-F7F1-4D6E-8B9F-628A9A858289}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -227,5 +229,9 @@ Global
 		{CE1AD7B8-99B9-4708-BAF4-1AD821D754DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CE1AD7B8-99B9-4708-BAF4-1AD821D754DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CE1AD7B8-99B9-4708-BAF4-1AD821D754DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41266822-F7F1-4D6E-8B9F-628A9A858289}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41266822-F7F1-4D6E-8B9F-628A9A858289}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41266822-F7F1-4D6E-8B9F-628A9A858289}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41266822-F7F1-4D6E-8B9F-628A9A858289}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

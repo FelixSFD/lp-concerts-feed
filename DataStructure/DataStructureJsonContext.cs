@@ -31,6 +31,7 @@ namespace LPCalendar.DataStructure;
 [JsonSerializable(typeof(ConcertRelatedPushNotificationEvent))]
 [JsonSerializable(typeof(ConcertEventType))]
 [JsonSerializable(typeof(ConcertNotificationHistory))]
+[JsonSerializable(typeof(UserNotificationSettings))]
 public partial class DataStructureJsonContext : JsonSerializerContext
 {
 }
