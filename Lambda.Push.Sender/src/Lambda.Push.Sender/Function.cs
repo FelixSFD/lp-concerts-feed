@@ -1,9 +1,7 @@
-using System.Net;
 using System.Text.Json;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
-using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
 using Amazon.SimpleNotificationService;
@@ -14,8 +12,7 @@ using LPCalendar.DataStructure.DbConfig;
 using LPCalendar.DataStructure.Entities;
 using LPCalendar.DataStructure.Events;
 using LPCalendar.DataStructure.Events.PushNotifications;
-using LPCalendar.DataStructure.Requests;
-using LPCalendar.DataStructure.Responses;
+using System.Linq;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -114,7 +111,9 @@ public class Function
         // find users to send the message to
         logger.LogDebug("Get list of recipients...");
         var recipients = await GetRecipientUserIdsFor(pushEvent.Concert, PushNotificationType.ConcertReminder);
-        return recipients.Select(userId => new PushNotificationEvent
+        return recipients
+            .Where(userId => UserCanReceiveNotificationFor(pushEvent.Concert, PushNotificationType.ConcertReminder, userId, logger).GetAwaiter().GetResult())
+            .Select(userId => new PushNotificationEvent
         {
             UserId = userId,
             Title = $"Linkin Park in {pushEvent.Concert.City}",
@@ -138,14 +137,26 @@ public class Function
         // find users to send the message to
         logger.LogDebug("Get list of recipients...");
         var recipients = await GetRecipientUserIdsFor(pushEvent.Concert, PushNotificationType.MainStageTimeConfirmed);
-        return recipients.Select(userId => new PushNotificationEvent
+        var notificationsToSend = new List<PushNotificationEvent>();
+        foreach (var recipient in recipients)
         {
-            UserId = userId,
-            Title = $"Linkin Park in {pushEvent.Concert.City}",
-            Body = $"Stage time for Linkin Park confirmed: {pushEvent.Concert.MainStageTime:HH:mm} ({pushEvent.Concert.TimeZoneId})",
-            CollapseId = $"{pushEvent.Concert.Id}#{nameof(PushNotificationType.MainStageTimeConfirmed)}",
-            Thread = pushEvent.Concert.Id
-        });
+            var userCanReceive = await UserCanReceiveNotificationFor(pushEvent.Concert,
+                PushNotificationType.MainStageTimeConfirmed,
+                recipient, logger);
+            if (userCanReceive)
+            {
+                notificationsToSend.Add(new PushNotificationEvent
+                {
+                    UserId = recipient,
+                    Title = $"Linkin Park in {pushEvent.Concert.City}",
+                    Body = $"Stage time for Linkin Park confirmed: {pushEvent.Concert.MainStageTime:HH:mm} ({pushEvent.Concert.TimeZoneId})",
+                    CollapseId = $"{pushEvent.Concert.Id}#{nameof(PushNotificationType.MainStageTimeConfirmed)}",
+                    Thread = pushEvent.Concert.Id
+                });
+            }
+        }
+        
+        return notificationsToSend;
     }
     
 
@@ -241,5 +252,59 @@ public class Function
         var query = _dynamoDbContext.QueryAsync<ConcertBookmark>(concert.Id, QueryOperator.Equal, [bookmarkStatus.ToString()], queryConfig);
         var results = await query.GetRemainingAsync();
         return results.Select(bm => bm.UserId);
+    }
+
+
+    private async Task<bool> UserCanReceiveNotificationFor(Concert concert, PushNotificationType pushNotificationType, string userId, ILambdaLogger logger)
+    {
+        logger.LogDebug("Checking if user '{{userId}}' can receive notification '{{pushNotificationType}}' for concert '{concertId}'...", userId, pushNotificationType, concert.Id);
+        var queryNotificationSettingsConfig =
+            _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.UserNotificationSettings);
+        var queryNotificationSettings =
+            _dynamoDbContext.QueryAsync<UserNotificationSettings>(userId, queryNotificationSettingsConfig);
+        var notificationSettings = (await queryNotificationSettings.GetRemainingAsync()).FirstOrDefault() ?? new UserNotificationSettings
+        {
+            UserId = userId
+        };
+        
+        var userBookmark = await GetBookmarkStatusForUserAtConcert(concert.Id, notificationSettings.UserId, logger);
+
+        var canReceive = pushNotificationType switch
+        {
+            PushNotificationType.ConcertReminder => notificationSettings.ReceiveConcertReminders &&
+                                                    notificationSettings.ConcertRemindersStatus.Any(r =>
+                                                        r == userBookmark),
+            PushNotificationType.MainStageTimeConfirmed => notificationSettings.ReceiveMainStageTimeUpdates &&
+                                                           notificationSettings.MainStageTimeUpdatesStatus.Any(r =>
+                                                               r == userBookmark),
+            _ => false
+        };
+        
+        logger.LogDebug("Can user receive notification? {canReceive}", canReceive);
+        
+        return canReceive;
+    }
+    
+    
+    private async Task<ConcertBookmark.BookmarkStatus> GetBookmarkStatusForUserAtConcert(string concertId,
+        string? userId, ILambdaLogger logger)
+    {
+        if (userId == null)
+        {
+            return ConcertBookmark.BookmarkStatus.None;
+        }
+        
+        var config = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.ConcertBookmarks);
+        config.IndexName = ConcertBookmark.UserBookmarksIndex;
+        
+        logger.LogDebug($"Query index: {config.IndexName}");
+        
+        var query = _dynamoDbContext.QueryAsync<ConcertBookmark>(
+            userId, // PartitionKey value
+            QueryOperator.Equal,
+            [ concertId ],
+            config);
+        var bookmarkList = await query.GetRemainingAsync();
+        return bookmarkList.FirstOrDefault()?.Status ?? ConcertBookmark.BookmarkStatus.None;
     }
 }

@@ -641,6 +641,8 @@ Resources:
                   - !Sub "${NotificationUserEndpointsTable.Arn}*"
                   - !Sub "${ConcertBookmarksDynamoDBTable.Arn}"
                   - !Sub "${ConcertBookmarksDynamoDBTable.Arn}*"
+                  - !Sub "${UserNotificationSettingsTable.Arn}"
+                  - !Sub "${UserNotificationSettingsTable.Arn}*"
   
   UserNotificationSettingsLambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -1123,6 +1125,7 @@ Resources:
         Variables:
           NOTIFICATION_REGISTRATIONS_TABLE_NAME: !Ref NotificationUserEndpointsTable
           CONCERT_BOOKMARKS_TABLE_NAME: !Ref ConcertBookmarksDynamoDBTable
+          USER_NOTIFICATION_SETTINGS_TABLE_NAME: !Ref UserNotificationSettingsTable
       Events:
         SQSTrigger:
           Type: SQS
