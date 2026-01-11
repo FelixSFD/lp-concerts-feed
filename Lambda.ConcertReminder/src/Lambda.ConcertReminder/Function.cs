@@ -86,7 +86,7 @@ public class Function
 
         var notifications = await query.GetRemainingAsync();
         return notifications
-            .Where(nh => nh.Type == ConcertEventType.Reminder)
+            .Where(nh => nh.EventType == ConcertEventType.Reminder)
             .Select(nh => nh.SentAt)
             .Order()
             .FirstOrDefault();
@@ -144,5 +144,25 @@ public class Function
         context.Logger.LogDebug("Sending SQS message: {json}", JsonSerializer.Serialize(sqsMessage, LocalJsonSerializer.Default.SendMessageRequest));
 
         await _sqsClient.SendMessageAsync(sqsMessage);
+        await StoreConcertNotificationHistory(concert, context);
+    }
+
+
+    /// <summary>
+    /// Save that a reminder was sent
+    /// </summary>
+    private async Task StoreConcertNotificationHistory(Concert concert, ILambdaContext context)
+    {
+        context.Logger.LogDebug("Store concert notification history");
+
+        var historyEntry = new ConcertNotificationHistory
+        {
+            ConcertId = concert.Id,
+            SentAt = DateTimeOffset.UtcNow,
+            EventType = ConcertEventType.Reminder
+        };
+        
+        await _dynamoDbContext.SaveAsync(historyEntry, _dbConfigProvider.GetSaveConfigFor(DynamoDbConfigProvider.Table.ConcertNotificationHistory));
+        context.Logger.LogDebug("Saved concert notification history entry for concert with id '{id}'", concert.Id);
     }
 }

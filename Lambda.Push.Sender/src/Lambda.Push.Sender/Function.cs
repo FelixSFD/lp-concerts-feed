@@ -116,7 +116,7 @@ public class Function
         {
             UserId = userId,
             Title = $"Linkin Park in {pushEvent.Concert.City}",
-            Body = "The concert is starting soon! 🔥"
+            Body = "The concert is starting soon! 🔥\nOpen the app to see the exact start time in your timezone."
         });
     }
 

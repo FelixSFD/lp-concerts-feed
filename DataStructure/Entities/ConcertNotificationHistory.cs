@@ -15,8 +15,14 @@ public class ConcertNotificationHistory
     
     [DynamoDBProperty("SentAt", typeof(DateTimeOffsetToStringPropertyConverter))]
     [DynamoDBRangeKey]
-    [JsonPropertyName("mainStageTime")]
+    [JsonPropertyName("sentAt")]
     public required DateTimeOffset SentAt { get; set; }
 
-    public required ConcertEventType Type { get; set; }
+    [DynamoDBIgnore]
+    [JsonIgnore]
+    public required ConcertEventType EventType { get; set; }
+
+    [DynamoDBProperty("Type")]
+    [JsonPropertyName("type")]
+    public string TypeString { get => EventType.ToString(); set => EventType = Enum.Parse<ConcertEventType>(value); }
 }
