@@ -118,7 +118,8 @@ public class Function
         {
             UserId = userId,
             Title = $"Linkin Park in {pushEvent.Concert.City}",
-            Body = "The concert is starting soon! 🔥\nOpen the app to see the exact start time in your timezone."
+            Body = "The concert is starting soon! 🔥\nOpen the app to see the exact start time in your timezone.",
+            Thread = pushEvent.Concert.Id
         });
     }
     
@@ -142,7 +143,8 @@ public class Function
             UserId = userId,
             Title = $"Linkin Park in {pushEvent.Concert.City}",
             Body = $"Stage time for Linkin Park confirmed: {pushEvent.Concert.MainStageTime:HH:mm} ({pushEvent.Concert.TimeZoneId})",
-            CollapseId = $"{pushEvent.Concert.Id}#{nameof(PushNotificationType.MainStageTimeConfirmed)}"
+            CollapseId = $"{pushEvent.Concert.Id}#{nameof(PushNotificationType.MainStageTimeConfirmed)}",
+            Thread = pushEvent.Concert.Id
         });
     }
     
@@ -167,7 +169,8 @@ public class Function
                         {
                             Title =  pushNotificationEvent.Title,
                             Body = pushNotificationEvent.Body
-                        }
+                        },
+                        ThreadId = pushNotificationEvent.Thread
                     }
                 };
 
