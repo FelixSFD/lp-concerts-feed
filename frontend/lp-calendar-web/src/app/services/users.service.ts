@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {Observable} from 'rxjs';
 import {Guid} from 'guid-typescript';
-import {UserDto, UsersService as UsersApiClient} from '../modules/lpshows-api';
+import {UserDto, UserNotificationSettingsDto, UsersService as UsersApiClient} from '../modules/lpshows-api';
 
 @Injectable({
   providedIn: 'root'
@@ -32,5 +32,19 @@ export class UsersService {
 
   updateUser(user: UserDto) {
     return this.usersApiClient.updateUser(user.id ?? "", user);
+  }
+
+
+  getUserNotificationSettings(userId: string, cached: boolean) : Observable<UserNotificationSettingsDto> {
+    if (!cached) {
+      return this.usersApiClient.getUserNotificationSettings(userId, Guid.create().toString());
+    }
+
+    return this.usersApiClient.getUserNotificationSettings(userId);
+  }
+
+
+  updateUserNotificationSettings(settings: UserNotificationSettingsDto) {
+    return this.usersApiClient.updateUserNotificationSettings(settings.userId ?? "", settings);
   }
 }

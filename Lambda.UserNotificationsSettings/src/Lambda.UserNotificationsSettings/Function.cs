@@ -4,6 +4,7 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Lambda.Auth;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Converters;
 using LPCalendar.DataStructure.DbConfig;
@@ -74,6 +75,17 @@ public class Function
         }
         
         context.Logger.LogInformation("Found ID: {id}", userId);
+        
+        // validate permissions
+        var currentUserId = request.GetUserId();
+        if (string.IsNullOrEmpty(currentUserId))
+        {
+            return UnauthorizedResponseHelper.GetResponse("OPTIONS, GET, PUT");
+        }
+        if (currentUserId != userId)
+        {
+            return ForbiddenResponseHelper.GetResponse("OPTIONS, GET, PUT", "User is not allowed to change the notification settings for a different user.");
+        }
 
         switch (request.HttpMethod)
         {

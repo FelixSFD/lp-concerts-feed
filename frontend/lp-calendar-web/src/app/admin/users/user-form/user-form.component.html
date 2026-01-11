@@ -1,5 +1,8 @@
 <form #form="ngForm" [formGroup]="userForm" class="form">
   <div class="card mt-3">
+    <div class="card-header">
+      General information
+    </div>
     <div class="card-body edit-form-card">
       <!-- Username -->
       <div class="form-group">
@@ -27,6 +30,37 @@
           <button class="btn btn-success" (click)="onSaveClicked()" [disabled]="isSaving$ || !userForm.valid">
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!isSaving$"></span>
             <span class="sr-only">{{ isSaving$ ? "Saving..." : "Save" }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+<form #notificationForm="ngForm" [formGroup]="notificationsForm" class="form">
+  <div class="card mt-3">
+    <div class="card-header">
+      Notification settings
+    </div>
+    <div class="card-body edit-form-card">
+      <!-- Concert reminders -->
+      <div class="form-check form-switch">
+        <input class="form-check-input form-control" type="checkbox" id="receiveConcertReminders" [checked]="notificationsForm.controls.receiveConcertReminders.value" formControlName="receiveConcertReminders">
+        <label class="form-check-label" for="receiveConcertReminders">Receive reminders before the concert starts</label>
+      </div>
+
+      <!-- Main Stage Time updates -->
+      <div class="form-check form-switch">
+        <input class="form-check-input form-control" type="checkbox" id="receiveMainStageTimeUpdates" [checked]="notificationsForm.controls.receiveMainStageTimeUpdates.value" formControlName="receiveMainStageTimeUpdates">
+        <label class="form-check-label" for="receiveMainStageTimeUpdates">Updates of Linkin Park's stage time</label>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div class="row">
+        <div class="col text-end">
+          <button class="btn btn-success" (click)="onSaveNotificationsClicked()" [disabled]="isSavingNotifications$ || !notificationsForm.valid">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!isSavingNotifications$"></span>
+            <span class="sr-only">{{ isSavingNotifications$ ? "Saving..." : "Save" }}</span>
           </button>
         </div>
       </div>
