@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using LPCalendar.DataStructure.Entities;
 using LPCalendar.DataStructure.Events;
+using LPCalendar.DataStructure.Events.PushNotifications;
 using LPCalendar.DataStructure.Requests;
 using LPCalendar.DataStructure.Responses;
 
@@ -27,6 +28,9 @@ namespace LPCalendar.DataStructure;
 [JsonSerializable(typeof(NotificationUserEndpoint))]
 [JsonSerializable(typeof(RegisterNotificationDeviceRequest))]
 [JsonSerializable(typeof(PushNotificationEvent))]
+[JsonSerializable(typeof(ConcertRelatedPushNotificationEvent))]
+[JsonSerializable(typeof(ConcertEventType))]
+[JsonSerializable(typeof(ConcertNotificationHistory))]
 public partial class DataStructureJsonContext : JsonSerializerContext
 {
 }
