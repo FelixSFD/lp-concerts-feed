@@ -33,14 +33,29 @@ public class UserNotificationSettings
     [JsonIgnore]
     [DynamoDBIgnore]
     public IEnumerable<ConcertBookmark.BookmarkStatus> ConcertRemindersStatus { get; set; } = [ConcertBookmark.BookmarkStatus.None, ConcertBookmark.BookmarkStatus.Bookmarked, ConcertBookmark.BookmarkStatus.Attending];
-
-    [DynamoDBProperty(nameof(ConcertRemindersStatus))]
-    [DynamoDBGlobalSecondaryIndexHashKey(ReceiveConcertRemindersIndex)]
+    
+    [DynamoDBIgnore]
     [JsonPropertyName("concertRemindersStatus")]
     public string[] ConcertRemindersStatusStrings
     {
         get => ConcertRemindersStatus.Select(s => s.ToString()).ToArray();
-        set => ConcertRemindersStatus = value.Select(Enum.Parse<ConcertBookmark.BookmarkStatus>);
+        set => ConcertRemindersStatus = value.Where(s => !string.IsNullOrEmpty(s)).Select(Enum.Parse<ConcertBookmark.BookmarkStatus>);
+    }
+    
+    /// <summary>
+    /// Wrapper for <see cref="ConcertRemindersStatus"/> for DynamoDB. String Sets cannot be empty.
+    /// </summary>
+    [DynamoDBProperty(nameof(ConcertRemindersStatus))]
+    [DynamoDBGlobalSecondaryIndexHashKey(ReceiveConcertRemindersIndex)]
+    [JsonIgnore]
+    public string[] ConcertRemindersStatusStringsDynamoDb
+    {
+        get
+        {
+            var tmpArray = ConcertRemindersStatusStrings;
+            return tmpArray.Length == 0 ? [""] : tmpArray;
+        }
+        set => ConcertRemindersStatusStrings = value;
     }
 
     /// <summary>
@@ -57,12 +72,27 @@ public class UserNotificationSettings
     [DynamoDBIgnore]
     public IEnumerable<ConcertBookmark.BookmarkStatus> MainStageTimeUpdatesStatus { get; set; } = [ConcertBookmark.BookmarkStatus.None, ConcertBookmark.BookmarkStatus.Bookmarked, ConcertBookmark.BookmarkStatus.Attending];
     
-    [DynamoDBProperty(nameof(MainStageTimeUpdatesStatus))]
-    [DynamoDBGlobalSecondaryIndexHashKey(ReceiveMainStageTimeUpdatesIndex)]
+    [DynamoDBIgnore]
     [JsonPropertyName("mainStageTimeUpdatesStatus")]
     public string[] MainStageTimeUpdatesStatusStrings
     {
         get => MainStageTimeUpdatesStatus.Select(s => s.ToString()).ToArray();
-        set => MainStageTimeUpdatesStatus = value.Select(Enum.Parse<ConcertBookmark.BookmarkStatus>);
+        set => MainStageTimeUpdatesStatus = value.Where(s => !string.IsNullOrEmpty(s)).Select(Enum.Parse<ConcertBookmark.BookmarkStatus>);
+    }
+    
+    /// <summary>
+    /// Wrapper for <see cref="MainStageTimeUpdatesStatus"/> for DynamoDB. String Sets cannot be empty.
+    /// </summary>
+    [DynamoDBProperty(nameof(MainStageTimeUpdatesStatus))]
+    [DynamoDBGlobalSecondaryIndexHashKey(ReceiveMainStageTimeUpdatesIndex)]
+    [JsonIgnore]
+    public string[] MainStageTimeUpdatesStatusStringsDynamoDb
+    {
+        get
+        {
+            var tmpArray = MainStageTimeUpdatesStatusStrings;
+            return tmpArray.Length == 0 ? [""] : tmpArray;
+        }
+        set => MainStageTimeUpdatesStatusStrings = value;
     }
 }

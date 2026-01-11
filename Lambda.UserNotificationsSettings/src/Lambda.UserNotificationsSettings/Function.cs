@@ -92,7 +92,8 @@ public class Function
             case "GET":
                 return await GetNotificationSettingsForUser(userId);
             case "PUT":
-                return await SaveNotificationSettingsForUser(userId, request.Body);
+                context.Logger.LogDebug("Save notification settings: {json}", request.Body);
+                return await SaveNotificationSettingsForUser(userId, request.Body, context.Logger);
             default:
             {
                 var errorResponse = new ErrorResponse
@@ -139,7 +140,7 @@ public class Function
     }
     
     
-    private async Task<APIGatewayProxyResponse> SaveNotificationSettingsForUser(string userId, string jsonBody)
+    private async Task<APIGatewayProxyResponse> SaveNotificationSettingsForUser(string userId, string jsonBody, ILambdaLogger logger)
     {
         var settings = JsonSerializer.Deserialize(jsonBody, DataStructureJsonContext.Default.UserNotificationSettings);
         if (settings == null)
@@ -166,6 +167,9 @@ public class Function
         //settings.LastUpdated = DateTimeOffset.UtcNow;
         
         var config = _dbConfigProvider.GetSaveConfigFor(DynamoDbConfigProvider.Table.UserNotificationSettings);
+        
+        logger.LogDebug("Selected ConcertRemindersStatusStrings: {statusList}", string.Join(',', settings.ConcertRemindersStatusStrings));
+        logger.LogDebug("Selected MainStageTimeUpdatesStatusStrings: {statusList}", string.Join(',', settings.MainStageTimeUpdatesStatusStrings));
         
         await _dynamoDbContext.SaveAsync(settings, config);
         
