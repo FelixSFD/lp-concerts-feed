@@ -7,6 +7,6 @@ public class AppleNotificationAlert
     [JsonPropertyName("alert")]
     public required AppleNotificationPayload Alert { get; set; }
 
-    [JsonPropertyName("threadId")]
+    [JsonPropertyName("thread-id")]
     public string? ThreadId { get; set; }
 }
