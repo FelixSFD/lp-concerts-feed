@@ -14,4 +14,10 @@ public class PushNotificationEvent
 
     public required string Title { get; set; }
     public required string Body { get; set; }
+
+    /// <summary>
+    /// Identifier that can be used to replace notifications.
+    /// Set this if sending a new message with the same ID should replace the previous one
+    /// </summary>
+    public string? CollapseId { get; set; }
 }

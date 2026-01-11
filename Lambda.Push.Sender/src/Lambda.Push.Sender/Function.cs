@@ -141,7 +141,8 @@ public class Function
         {
             UserId = userId,
             Title = $"Linkin Park in {pushEvent.Concert.City}",
-            Body = $"Stage time for Linkin Park confirmed: {pushEvent.Concert.MainStageTime:HH:mm} ({pushEvent.Concert.TimeZoneId})"
+            Body = $"Stage time for Linkin Park confirmed: {pushEvent.Concert.MainStageTime:HH:mm} ({pushEvent.Concert.TimeZoneId})",
+            CollapseId = $"{pushEvent.Concert.Id}#{nameof(PushNotificationType.MainStageTimeConfirmed)}"
         });
     }
     
@@ -183,8 +184,20 @@ public class Function
                 {
                     TargetArn = endpoint.EndpointArn,
                     MessageStructure = "json",
-                    Message = snsMessageJson
+                    Message = snsMessageJson,
+                    MessageAttributes = new Dictionary<string, MessageAttributeValue>()
                 };
+
+                if (!string.IsNullOrEmpty(pushNotificationEvent.CollapseId))
+                {
+                    logger.LogDebug("Add CollapseId: {collapseId}", pushNotificationEvent.CollapseId);
+                    publishRequest.MessageAttributes["AWS.SNS.MOBILE.APNS.COLLAPSE_ID"] = new MessageAttributeValue
+                    {
+                        StringValue = pushNotificationEvent.CollapseId,
+                        DataType = "String"
+                    };
+                }
+                
                 var publishResponse = await _sns.PublishAsync(publishRequest);
                 logger.LogDebug("Published message: {id} (Sequence: {seq})", publishResponse.MessageId, publishResponse.SequenceNumber);
             } catch (Exception e)
