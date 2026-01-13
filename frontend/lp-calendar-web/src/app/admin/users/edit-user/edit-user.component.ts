@@ -4,7 +4,7 @@ import {ToastrService} from 'ngx-toastr';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {UsersService} from '../../../services/users.service';
 import {UserFormComponent} from '../user-form/user-form.component';
-import {ErrorResponseDto, UserDto} from '../../../modules/lpshows-api';
+import {ErrorResponseDto, UserDto, UserNotificationSettingsDto} from '../../../modules/lpshows-api';
 
 
 @Component({
@@ -21,9 +21,11 @@ export class EditUserComponent implements OnInit {
 
   userId$: string = "";
   user$ : UserDto | null = null;
+  userNotificationSettings$ : UserNotificationSettingsDto | null = null;
 
   // true while the user is saved on the server
   userIsSaving$: boolean = false;
+  notificationsIsSaving$: boolean = false;
 
   constructor(private route: ActivatedRoute, private userService: UsersService, private toastr: ToastrService) {
 
@@ -39,6 +41,12 @@ export class EditUserComponent implements OnInit {
 
 
   private loadUser(id: string) {
+    this.loadUserData(id);
+    this.loadUserNotificationsData(id);
+  }
+
+
+  private loadUserData(id: string) {
     this.userService.getUserById(id).subscribe({
       next: user => {
         this.user$ = user;
@@ -51,6 +59,18 @@ export class EditUserComponent implements OnInit {
       error: err => {
         let errorResponse: ErrorResponseDto = err.error;
         this.toastr.error(errorResponse.message, "Could not load user");
+      }
+    });
+  }
+
+  private loadUserNotificationsData(id: string) {
+    this.userService.getUserNotificationSettings(id, false).subscribe({
+      next: settings => {
+        this.userNotificationSettings$ = settings;
+      },
+      error: err => {
+        let errorResponse: ErrorResponseDto = err.error;
+        this.toastr.error(errorResponse.message, "Could not load notification settings");
       }
     });
   }
@@ -69,6 +89,26 @@ export class EditUserComponent implements OnInit {
         let errorResponse: ErrorResponseDto = err.error;
         this.toastr.error(errorResponse.message, "Could not save user");
         this.userIsSaving$ = false;
+      }
+    });
+  }
+
+
+  onNotificationsFormSaved(notificationSettings: UserNotificationSettingsDto) {
+    console.log("Received event for notifications", notificationSettings);
+    this.notificationsIsSaving$ = true;
+    notificationSettings.userId = this.userId$;
+    this.userService.updateUserNotificationSettings(notificationSettings).subscribe({
+      next: response => {
+        this.toastr.success("User notification settings updated successfully");
+        this.notificationsIsSaving$ = false;
+
+        this.loadUserNotificationsData(this.userId$);
+      },
+      error: err => {
+        let errorResponse: ErrorResponseDto = err.error;
+        this.toastr.error(errorResponse.message, "Could not save user notification settings");
+        this.notificationsIsSaving$ = false;
       }
     });
   }

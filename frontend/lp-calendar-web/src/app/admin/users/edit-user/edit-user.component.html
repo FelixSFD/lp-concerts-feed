@@ -2,4 +2,4 @@
 
 <h1>Edit user</h1>
 
-<app-user-form [user]="user$" [is-saving]="userIsSaving$" (saveClicked)="onFormSaved($event)" />
+<app-user-form [user]="user$" [notifications]="userNotificationSettings$" [is-saving]="userIsSaving$" (saveClicked)="onFormSaved($event)" (saveNotificationsClicked)="onNotificationsFormSaved($event)" />

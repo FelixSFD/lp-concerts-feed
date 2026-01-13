@@ -17,6 +17,9 @@ Parameters:
     Type: String
   HostedZoneId:
     Type: String
+  PushPlatformAppArn:
+    Type: String
+    Description: ARN of the AWS SNS Platform Application for push notifications
   GatewaySslCertificateArn:
     Type: String
     Description: ARN of the SSL Certificate. The certificate must be hosted in us-eat-1, which is why we have to pass it as parameter
@@ -196,7 +199,85 @@ Resources:
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
       BillingMode: PAY_PER_REQUEST
-      
+  
+  NotificationUserEndpointsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${AWS::StackName}_NotificationUserEndpointsV1
+      AttributeDefinitions:
+        - AttributeName: UserId
+          AttributeType: S
+        - AttributeName: EndpointArn
+          AttributeType: S
+      KeySchema:
+        - AttributeName: UserId
+          KeyType: HASH
+        - AttributeName: EndpointArn
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: EndpointArnIndex
+          KeySchema:
+            - AttributeName: EndpointArn
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      BillingMode: PAY_PER_REQUEST
+  
+  ConcertNotificationHistoryTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${AWS::StackName}_ConcertNotificationHistoryV1
+      AttributeDefinitions:
+        - AttributeName: ConcertId
+          AttributeType: S
+        - AttributeName: SentAt
+          AttributeType: S
+        #- AttributeName: Type
+        #  AttributeType: S
+      KeySchema:
+        - AttributeName: ConcertId
+          KeyType: HASH
+        - AttributeName: SentAt
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+  
+  UserNotificationSettingsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${AWS::StackName}_UserNotificationSettingsV1
+      AttributeDefinitions:
+        - AttributeName: UserId
+          AttributeType: S
+        - AttributeName: ReceiveConcertReminders
+          AttributeType: N
+        - AttributeName: ReceiveMainStageTimeUpdates
+          AttributeType: N
+      KeySchema:
+        - AttributeName: UserId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: ReceiveConcertRemindersIndex
+          KeySchema:
+            - AttributeName: ReceiveConcertReminders
+              KeyType: HASH
+            - AttributeName: UserId
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: ReceiveMainStageTimeUpdatesIndex
+          KeySchema:
+            - AttributeName: ReceiveMainStageTimeUpdates
+              KeyType: HASH
+            - AttributeName: UserId
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      BillingMode: PAY_PER_REQUEST
+  
   # S3 bucket to store OpenAPI definition
   OpenApiBucket:
     Type: "AWS::S3::Bucket"
@@ -221,6 +302,18 @@ Resources:
             Action:
               - sqs:SendMessage
             Resource: !GetAtt AuditLogQueue.Arn
+  
+  # Policy to publish to SendPushNotificationQueue
+  SendPushNotificationQueueProducerPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - sqs:SendMessage
+            Resource: !GetAtt SendPushNotificationQueue.Arn
 
   # Access Roles
   ConcertsWriteLambdaExecutionRole:
@@ -237,6 +330,7 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - !Ref AuditLogQueueProducerPolicy
+        - !Ref SendPushNotificationQueueProducerPolicy
       Policies:
         - PolicyName: S3ImporterBucketAccess
           PolicyDocument:
@@ -454,6 +548,186 @@ Resources:
                   - !Sub "${ConcertBookmarksDynamoDBTable.Arn}*"
                   #- !Sub "${ConcertsDynamoDBTable.Arn}"
                   #- !Sub "${ConcertsDynamoDBTable.Arn}*"
+
+  NotificationRegistrationLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: "Execution role for Lambda that manages notifications"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: LambdaSNS
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - SNS:CreatePlatformEndpoint
+                Resource:
+                  - !Sub "${PushPlatformAppArn}"
+                  - !Sub "${PushPlatformAppArn}*"
+        - PolicyName: LambdaDynamoDBAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:DescribeTable
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                Resource:
+                  - !Sub "${NotificationUserEndpointsTable.Arn}"
+                  - !Sub "${NotificationUserEndpointsTable.Arn}*"
+  
+  NotificationSenderLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: "Execution role for Lambda that send notifications"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: LambdaSQSAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                Resource:
+                  - !Sub "${SendPushNotificationQueue.Arn}"
+                  - !Sub "${SendPushNotificationQueue.Arn}*"
+        - PolicyName: LambdaSNS
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - SNS:Publish
+                Resource:
+                  - !Sub "${PushPlatformAppArn}"
+                  - !Sub "${PushPlatformAppArn}*"
+        - PolicyName: LambdaDynamoDBAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:DescribeTable
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                Resource:
+                  - !Sub "${NotificationUserEndpointsTable.Arn}"
+                  - !Sub "${NotificationUserEndpointsTable.Arn}*"
+                  - !Sub "${ConcertBookmarksDynamoDBTable.Arn}"
+                  - !Sub "${ConcertBookmarksDynamoDBTable.Arn}*"
+                  - !Sub "${UserNotificationSettingsTable.Arn}"
+                  - !Sub "${UserNotificationSettingsTable.Arn}*"
+  
+  UserNotificationSettingsLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: "Execution role for Lambda that manages user notification settings"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: UpdateUserNotificationSettings
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:DescribeTable
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                Resource:
+                  - !Sub "${UserNotificationSettingsTable.Arn}"
+                  - !Sub "${UserNotificationSettingsTable.Arn}*"
+  
+  ConcertReminderLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: "Execution role for Lambda that sends reminders for concerts"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: LambdaSQS
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - SQS:SendMessage
+                Resource:
+                  - !Sub "${SendPushNotificationQueue.Arn}"
+                  - !Sub "${SendPushNotificationQueue.Arn}*"
+        - PolicyName: ReadConcerts
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:DescribeTable
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                Resource:
+                  - !Sub "${ConcertsDynamoDBTable.Arn}"
+                  - !Sub "${ConcertsDynamoDBTable.Arn}*"
+        - PolicyName: UpdateConcertNotificationHistory
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:DescribeTable
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                Resource:
+                  - !Sub "${ConcertNotificationHistoryTable.Arn}"
+                  - !Sub "${ConcertNotificationHistoryTable.Arn}*"
 
   CognitoAuthorizerUserPoolV3:
     Type: AWS::Cognito::UserPool
@@ -722,6 +996,10 @@ Resources:
       QueueName: !Sub ${AWS::StackName}-audit-log-event-queue.fifo
       FifoQueue: true
       ContentBasedDeduplication: true
+  SendPushNotificationQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-push-notification-queue
   
   # Audit log lambda
   AuditLogWriterFunction:
@@ -809,6 +1087,52 @@ Resources:
           CONCERT_BOOKMARKS_TABLE_NAME: !Ref ConcertBookmarksDynamoDBTable
           CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
   
+  # Notification functions
+  PushEndpointManagementLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: bootstrap
+      Role: !GetAtt NotificationRegistrationLambdaExecutionRole.Arn
+      Description: .NET function to manage the endpoint registrations for push notifications
+      CodeUri: ../lambda_packages/Lambda.Push.EndpointManagement.zip
+      Runtime: provided.al2023
+      Architectures:
+        - arm64
+      Tracing: Active
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
+      Environment:
+        Variables:
+          NOTIFICATION_REGISTRATIONS_TABLE_NAME: !Ref NotificationUserEndpointsTable
+          PLATFORM_APPLICATION_ARN: !Ref PushPlatformAppArn
+  
+  PushNotificationSenderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: bootstrap
+      Role: !GetAtt NotificationSenderLambdaExecutionRole.Arn
+      Description: .NET function to listen to a SQS queue and send them as push notifications through SNS
+      CodeUri: ../lambda_packages/Lambda.Push.Sender.zip
+      Runtime: provided.al2023
+      Architectures:
+        - arm64
+      Tracing: Active
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
+      Environment:
+        Variables:
+          NOTIFICATION_REGISTRATIONS_TABLE_NAME: !Ref NotificationUserEndpointsTable
+          CONCERT_BOOKMARKS_TABLE_NAME: !Ref ConcertBookmarksDynamoDBTable
+          USER_NOTIFICATION_SETTINGS_TABLE_NAME: !Ref UserNotificationSettingsTable
+      Events:
+        SQSTrigger:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt SendPushNotificationQueue.Arn
+            BatchSize: 5
+  
   # Other Lambda functions
   AddConcertFunction:
     Type: AWS::Serverless::Function
@@ -827,6 +1151,7 @@ Resources:
       Environment:
         Variables:
           CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
+          PUSH_QUEUE_URL: !Ref SendPushNotificationQueue
       Events:
         PutAddConcert:
           Type: Api
@@ -1042,6 +1367,25 @@ Resources:
               AuthorizationScopes:
                 - openid
   
+  UserNotificationSettingsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: bootstrap
+      Role: !GetAtt UserNotificationSettingsLambdaExecutionRole.Arn
+      Description: .NET function to read and write the notification settings of users
+      CodeUri: ../lambda_packages/Lambda.UserNotificationsSettings.zip
+      Runtime: provided.al2023
+      Architectures:
+        - arm64
+      Tracing: Active
+      MemorySize: 384
+      Environment:
+        Variables:
+          USER_NOTIFICATION_SETTINGS_TABLE_NAME: !Ref UserNotificationSettingsTable
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
+
   
   GetTimeZoneFunction:
     Type: AWS::Serverless::Function
@@ -1069,6 +1413,33 @@ Resources:
             Path: /timeZone/byCoordinates
             Method: get
 
+  ConcertReminderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: bootstrap
+      Role: !GetAtt ConcertReminderLambdaExecutionRole.Arn
+      Description: .NET function to send reminders about the next concert
+      CodeUri: ../lambda_packages/Lambda.ConcertReminder.zip
+      Runtime: provided.al2023
+      Architectures:
+        - arm64
+      Tracing: Active
+      MemorySize: 384
+      Environment:
+        Variables:
+          CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
+          CONCERT_NOTIFICATION_HISTORY_TABLE_NAME: !Ref ConcertNotificationHistoryTable
+          PUSH_QUEUE_URL: !Ref SendPushNotificationQueue
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
+      Events:
+        ScheduledEvent:
+          Type: Schedule
+          Properties:
+            Schedule: rate(10 minutes)
+            Description: Runs every 10 minutes
+            Enabled: true
   
   
   ConcertCalendarFeedFunction:
@@ -1160,6 +1531,14 @@ Outputs:
     Value: !GetAtt ReadConcertBookmarksFunction.Arn
     Export:
       Name: !Sub '${BaseProductName}-lambda-concert-bookmarks-read-function'
+  UserNotificationSettingsFunctionExport:
+    Value: !GetAtt UserNotificationSettingsFunction.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-lambda-user-notification-settings-function'
+  LambdaRefPushEndpointManagementFunctionExport:
+    Value: !GetAtt PushEndpointManagementLambda.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-lambda-push-endpoint-management-function'
   OpenApiBucketArn:
     Value: !GetAtt OpenApiBucket.Arn
     Export:

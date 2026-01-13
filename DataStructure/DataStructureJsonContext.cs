@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
+using LPCalendar.DataStructure.Entities;
 using LPCalendar.DataStructure.Events;
+using LPCalendar.DataStructure.Events.PushNotifications;
 using LPCalendar.DataStructure.Requests;
 using LPCalendar.DataStructure.Responses;
 
@@ -9,6 +11,8 @@ namespace LPCalendar.DataStructure;
 [JsonSerializable(typeof(Dictionary<string, string>))]
 [JsonSerializable(typeof(Concert))]
 [JsonSerializable(typeof(ConcertWithBookmarkStatusResponse))]
+[JsonSerializable(typeof(ConcertBookmark.BookmarkStatus))]
+[JsonSerializable(typeof(IEnumerable<ConcertBookmark.BookmarkStatus>))]
 [JsonSerializable(typeof(List<Concert>))]
 [JsonSerializable(typeof(List<ConcertWithBookmarkStatusResponse>))]
 [JsonSerializable(typeof(AdjacentConcertsResponse))]
@@ -23,6 +27,13 @@ namespace LPCalendar.DataStructure;
 [JsonSerializable(typeof(ConcertBookmarkUpdateRequest))]
 [JsonSerializable(typeof(User))]
 [JsonSerializable(typeof(IEnumerable<User>))]
+[JsonSerializable(typeof(NotificationUserEndpoint))]
+[JsonSerializable(typeof(RegisterNotificationDeviceRequest))]
+[JsonSerializable(typeof(PushNotificationEvent))]
+[JsonSerializable(typeof(ConcertRelatedPushNotificationEvent))]
+[JsonSerializable(typeof(ConcertEventType))]
+[JsonSerializable(typeof(ConcertNotificationHistory))]
+[JsonSerializable(typeof(UserNotificationSettings))]
 public partial class DataStructureJsonContext : JsonSerializerContext
 {
 }

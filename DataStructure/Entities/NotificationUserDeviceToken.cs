@@ -1,0 +1,24 @@
+using System.Text.Json.Serialization;
+using Amazon.DynamoDBv2.DataModel;
+
+namespace LPCalendar.DataStructure.Entities;
+
+/// <summary>
+/// Stores the endpoint information for push notifications to users
+/// </summary>
+public class NotificationUserEndpoint
+{
+    /// <summary>
+    /// ID of the user to receive notifications
+    /// </summary>
+    [DynamoDBHashKey]
+    [JsonPropertyName("userId")]
+    public required string UserId { get; set; }
+    
+    /// <summary>
+    /// Device token of the device the user registered
+    /// </summary>
+    [DynamoDBRangeKey]
+    [JsonPropertyName("endpointArn")]
+    public required string EndpointArn { get; set; }
+}

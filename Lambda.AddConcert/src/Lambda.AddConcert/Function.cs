@@ -13,6 +13,7 @@ using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Converters;
 using LPCalendar.DataStructure.DbConfig;
 using LPCalendar.DataStructure.Events;
+using LPCalendar.DataStructure.Events.PushNotifications;
 using LPCalendar.DataStructure.Responses;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
@@ -104,6 +105,7 @@ public class Function
         await SaveConcert(concert);
         context.Logger.LogInformation("Concert written to DB");
         
+        await SendNotificationsIfNeeded(concert, oldValue, context.Logger);
         await LogChanges(oldValue, concert, request.GetUserId(), action, context.Logger);
         
         var response = new APIGatewayProxyResponse()
@@ -198,5 +200,54 @@ public class Function
         await _sqsClient.SendMessageAsync(auditMessage);
         
         logger.LogDebug($"Successfully sent message to URL: {auditMessage.QueueUrl}");
+    }
+
+
+    private async Task SendNotificationsIfNeeded(Concert newValue, Concert? oldValue, ILambdaLogger logger)
+    {
+        logger.LogDebug("Check if notifications need to be sent");
+        
+        var mainStageTimeConfirmed = false;
+        if (oldValue != null)
+        {
+            mainStageTimeConfirmed = newValue.MainStageTime != null && newValue.MainStageTime != oldValue.MainStageTime;
+        }
+
+        if (mainStageTimeConfirmed)
+        {
+            logger.LogDebug($"Send notification for stage time confirmed: {newValue.MainStageTime}");
+            var notification = new ConcertRelatedPushNotificationEvent
+            {
+                Concert = newValue
+            };
+            
+            await SendPushNotification(notification, PushNotificationType.MainStageTimeConfirmed, logger);
+        }
+    }
+
+
+    /// <summary>
+    /// Send the notification to the SQS queue
+    /// </summary>
+    private async Task SendPushNotification(ConcertRelatedPushNotificationEvent pushNotificationEvent, PushNotificationType notificationType, ILambdaLogger logger)
+    {
+        var sqsMessage = new SendMessageRequest
+        {
+            MessageGroupId = "default",
+            QueueUrl = Environment.GetEnvironmentVariable("PUSH_QUEUE_URL"),
+            MessageBody = JsonSerializer.Serialize(pushNotificationEvent, DataStructureJsonContext.Default.ConcertRelatedPushNotificationEvent),
+            MessageAttributes = new Dictionary<string, MessageAttributeValue>
+            {
+                {
+                    "notificationType", new MessageAttributeValue
+                    {
+                        StringValue = notificationType.ToString(),
+                        DataType = "String"
+                    }
+                }
+            }
+        };
+        
+        await _sqsClient.SendMessageAsync(sqsMessage);
     }
 }

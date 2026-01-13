@@ -13,7 +13,7 @@ public static class UnauthorizedResponseHelper
         {
             Message = message
         };
-        var bodyJson = JsonSerializer.Serialize(errResponse);
+        var bodyJson = JsonSerializer.Serialize(errResponse, AuthJsonContext.Default.ErrorResponse);
         
         return new APIGatewayProxyResponse()
         {

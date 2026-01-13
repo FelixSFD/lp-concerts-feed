@@ -8,7 +8,10 @@ public class DynamoDbConfigProvider
     {
         Concerts,
         ConcertBookmarks,
-        AuditLog
+        AuditLog,
+        NotificationRegistrations,
+        ConcertNotificationHistory,
+        UserNotificationSettings
     }
     
     
@@ -79,6 +82,9 @@ public class DynamoDbConfigProvider
             Table.Concerts => Environment.GetEnvironmentVariable("CONCERTS_TABLE_NAME"),
             Table.ConcertBookmarks => Environment.GetEnvironmentVariable("CONCERT_BOOKMARKS_TABLE_NAME"),
             Table.AuditLog => Environment.GetEnvironmentVariable("AUDIT_LOG_TABLE_NAME"),
+            Table.NotificationRegistrations => Environment.GetEnvironmentVariable("NOTIFICATION_REGISTRATIONS_TABLE_NAME"),
+            Table.ConcertNotificationHistory => Environment.GetEnvironmentVariable("CONCERT_NOTIFICATION_HISTORY_TABLE_NAME"),
+            Table.UserNotificationSettings => Environment.GetEnvironmentVariable("USER_NOTIFICATION_SETTINGS_TABLE_NAME"),
             _ => null
         };
     }
