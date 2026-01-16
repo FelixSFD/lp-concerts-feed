@@ -26,6 +26,7 @@ public class Function
     private readonly IAmazonSimpleNotificationService _sns;
     private readonly string _platformApplicationArn;
     private readonly Dictionary<string, string> _endpointToUserIdCache = new();
+    private readonly Dictionary<string, bool> _endpointStatusCache = new();
     
     public Function()
     {
@@ -120,7 +121,10 @@ public class Function
         var query = _dynamoDbContext.QueryAsync<NotificationUserEndpoint>(pushNotificationEvent.UserId, queryConfig);
         var endpoints = await query.GetRemainingAsync() ?? [];
         
-        var sendTasks = endpoints.Select(async endpoint =>
+        var sendTasks = await endpoints
+            .ToAsyncEnumerable()
+            .WhereAwait(async endpoint => await IsEndpointEnabled(endpoint.EndpointArn, logger))
+            .Select(async endpoint =>
         {
             logger.LogDebug("Publishing to endpoint: {endpoint}", endpoint.EndpointArn);
             try
@@ -171,8 +175,8 @@ public class Function
             {
                 logger.LogError(e, "Failed to publish message!");
             }
-        });
-        
+        })
+            .ToListAsync();
         await Task.WhenAll(sendTasks);
         logger.LogDebug("Sent notifications to: {userId}", pushNotificationEvent.UserId);
     }
@@ -190,6 +194,12 @@ public class Function
         {
             response = await _sns.ListEndpointsByPlatformApplicationAsync(request);
             var userIdFetchingEnumerable = response.Endpoints
+                .Where(ep =>
+                {
+                    var enabled = ep.IsEnabled();
+                    _endpointStatusCache.Add(ep.EndpointArn, enabled);
+                    return enabled;
+                })
                 .Select(ep => ep.EndpointArn)
                 .Select(arn => GetUserIdForEndpointArn(arn, logger));
             foreach (var userIdTask in userIdFetchingEnumerable)
@@ -289,5 +299,29 @@ public class Function
             config);
         var bookmarkList = await query.GetRemainingAsync();
         return bookmarkList.FirstOrDefault()?.Status ?? ConcertBookmark.BookmarkStatus.None;
+    }
+
+
+    /// <summary>
+    /// Checks if the endpoint is enabled. Uses a cache to avoid rate limits.
+    /// </summary>
+    /// <param name="endpointArn"></param>
+    /// <param name="logger"></param>
+    /// <returns></returns>
+    private async Task<bool> IsEndpointEnabled(string endpointArn, ILambdaLogger logger)
+    {
+        if (_endpointStatusCache.TryGetValue(endpointArn, out var cachedEnabledStatus))
+        {
+            return cachedEnabledStatus;
+        }
+
+        var request = new GetEndpointAttributesRequest
+        {
+            EndpointArn = endpointArn
+        };
+        var response = await _sns.GetEndpointAttributesAsync(request);
+        var enabled = response.IsEnabled();
+        _endpointStatusCache.Add(endpointArn, enabled);
+        return enabled;
     }
 }
