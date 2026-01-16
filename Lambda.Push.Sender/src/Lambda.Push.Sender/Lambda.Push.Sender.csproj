@@ -18,6 +18,7 @@
         <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.4"/>
         <PackageReference Include="Amazon.Lambda.SQSEvents" Version="2.2.0" />
         <PackageReference Include="AWSSDK.SimpleNotificationService" Version="4.0.2.13" />
+        <PackageReference Include="System.Linq.Async" Version="6.0.3" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\..\..\DataStructure\DataStructure.csproj" />

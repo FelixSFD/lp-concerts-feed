@@ -623,6 +623,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - SNS:Publish
+                  - SNS:ListEndpointsByPlatformApplication
                 Resource:
                   - !Sub "${PushPlatformAppArn}"
                   - !Sub "${PushPlatformAppArn}*"
@@ -1126,6 +1127,7 @@ Resources:
           NOTIFICATION_REGISTRATIONS_TABLE_NAME: !Ref NotificationUserEndpointsTable
           CONCERT_BOOKMARKS_TABLE_NAME: !Ref ConcertBookmarksDynamoDBTable
           USER_NOTIFICATION_SETTINGS_TABLE_NAME: !Ref UserNotificationSettingsTable
+          PLATFORM_APPLICATION_ARN: !Ref PushPlatformAppArn
       Events:
         SQSTrigger:
           Type: SQS
