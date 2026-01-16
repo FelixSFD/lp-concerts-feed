@@ -27,13 +27,6 @@ Globals:
 
 
 Resources:  
-  # Log Group for the API Gateway
-  ApiGatewayLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub ${BaseProductName}-api
-      RetentionInDays: 14
-    
   # REST API that is secured by cognito
   ConcertsApiV2:
     Type: AWS::Serverless::Api
@@ -49,9 +42,6 @@ Resources:
           Name: AWS::Include
           Parameters:
             Location: !Sub "s3://${BaseProductName}-openapi/openapi.yaml"
-      AccessLogSetting:
-        DestinationArn: !GetAtt ApiGatewayLogGroup.Arn
-        Format: '{ "requestId":"$context.requestId", "extendedRequestId":"$context.extendedRequestId","ip": "$context.identity.sourceIp", "caller":"$context.identity.caller", "user":"$context.identity.user", "requestTime":"$context.requestTime", "httpMethod":"$context.httpMethod", "resourcePath":"$context.resourcePath", "status":"$context.status", "protocol":"$context.protocol", "responseLength":"$context.responseLength" }'
       Auth:
         Authorizers:
           ConcertsCognitoAuthorizer:
