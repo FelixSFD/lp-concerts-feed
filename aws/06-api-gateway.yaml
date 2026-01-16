@@ -31,6 +31,7 @@ Resources:
   ApiGatewayLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
+      LogGroupName: !Sub ${BaseProductName}-api
       RetentionInDays: 14
     
   # REST API that is secured by cognito
