@@ -110,6 +110,7 @@ public class Function
         {
             UserId = request.UserId,
             EndpointArn = snsEndpointResponse.EndpointArn,
+            LastChange = DateTimeOffset.UtcNow
         };
         await _dynamoDbContext.SaveAsync(notificationUserEndpoint, _dbConfigProvider.GetSaveConfigFor(DynamoDbConfigProvider.Table.NotificationRegistrations));
         

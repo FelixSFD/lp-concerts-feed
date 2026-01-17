@@ -590,6 +590,50 @@ Resources:
                   - !Sub "${NotificationUserEndpointsTable.Arn}"
                   - !Sub "${NotificationUserEndpointsTable.Arn}*"
   
+  NotificationRegistrationCleanupLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: "Execution role for Lambda that cleans up stored endpoints"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: LambdaSNS
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - SNS:CreatePlatformEndpoint
+                  - SNS:ListEndpointsByPlatformApplication
+                  - SNS:DeleteEndpoint
+                  - SNS:GetEndpointAttributes
+                Resource:
+                  - !Sub "${PushPlatformAppArn}"
+                  - !Sub "${PushPlatformAppArn}*"
+        - PolicyName: LambdaDynamoDBAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:DescribeTable
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                Resource:
+                  - !Sub "${NotificationUserEndpointsTable.Arn}"
+                  - !Sub "${NotificationUserEndpointsTable.Arn}*"
+  
   NotificationSenderLambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -623,6 +667,8 @@ Resources:
               - Effect: Allow
                 Action:
                   - SNS:Publish
+                  - SNS:ListEndpointsByPlatformApplication
+                  - SNS:GetEndpointAttributes
                 Resource:
                   - !Sub "${PushPlatformAppArn}"
                   - !Sub "${PushPlatformAppArn}*"
@@ -1107,6 +1153,31 @@ Resources:
           NOTIFICATION_REGISTRATIONS_TABLE_NAME: !Ref NotificationUserEndpointsTable
           PLATFORM_APPLICATION_ARN: !Ref PushPlatformAppArn
   
+  PushEndpointCleanupFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: bootstrap
+      Role: !GetAtt NotificationRegistrationCleanupLambdaExecutionRole.Arn
+      Description: .NET function to clean up disabled endpoints from both SNS and the Database
+      CodeUri: ../lambda_packages/Lambda.Push.EndpointCleanup.zip
+      Runtime: provided.al2023
+      Architectures:
+        - arm64
+      Tracing: Active
+      MemorySize: 384
+      Environment:
+        Variables:
+          NOTIFICATION_REGISTRATIONS_TABLE_NAME: !Ref NotificationUserEndpointsTable
+          PLATFORM_APPLICATION_ARN: !Ref PushPlatformAppArn
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
+      Events:
+        ScheduledEvent:
+          Type: Schedule
+          Properties:
+            Schedule: cron(15 4 * * ? *)
+            
   PushNotificationSenderFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -1126,6 +1197,7 @@ Resources:
           NOTIFICATION_REGISTRATIONS_TABLE_NAME: !Ref NotificationUserEndpointsTable
           CONCERT_BOOKMARKS_TABLE_NAME: !Ref ConcertBookmarksDynamoDBTable
           USER_NOTIFICATION_SETTINGS_TABLE_NAME: !Ref UserNotificationSettingsTable
+          PLATFORM_APPLICATION_ARN: !Ref PushPlatformAppArn
       Events:
         SQSTrigger:
           Type: SQS

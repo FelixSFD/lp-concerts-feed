@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "aws-deployment", "aws-deplo
 		aws\30-dns-deployment.yaml = aws\30-dns-deployment.yaml
 		aws\06-api-gateway.yaml = aws\06-api-gateway.yaml
 		aws\18-lambda-edge.yaml = aws\18-lambda-edge.yaml
+		aws\00-account-settings.yaml = aws\00-account-settings.yaml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.AddConcert", "Lambda.AddConcert\src\Lambda.AddConcert\Lambda.AddConcert.csproj", "{44164B0A-34D0-46CE-B782-DA308B45F3FE}"
@@ -94,6 +95,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.ConcertReminder", "Lambda.ConcertReminder\src\Lambda.ConcertReminder\Lambda.ConcertReminder.csproj", "{CE1AD7B8-99B9-4708-BAF4-1AD821D754DB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.UserNotificationsSettings", "Lambda.UserNotificationsSettings\src\Lambda.UserNotificationsSettings\Lambda.UserNotificationsSettings.csproj", "{41266822-F7F1-4D6E-8B9F-628A9A858289}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.Push.EndpointCleanup", "Lambda.Push.EndpointCleanup\src\Lambda.Push.EndpointCleanup\Lambda.Push.EndpointCleanup.csproj", "{518F7085-1C34-4779-A842-0F16BF06CE02}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.SQS", "Common.SQS\Common.SQS.csproj", "{C4BEA240-0ACB-4A96-BEFF-DE11C361B3C2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.SNS", "Common.SNS\Common.SNS.csproj", "{4E7C1376-244E-4BD5-8CB9-239649240C2A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -233,5 +240,17 @@ Global
 		{41266822-F7F1-4D6E-8B9F-628A9A858289}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{41266822-F7F1-4D6E-8B9F-628A9A858289}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{41266822-F7F1-4D6E-8B9F-628A9A858289}.Release|Any CPU.Build.0 = Release|Any CPU
+		{518F7085-1C34-4779-A842-0F16BF06CE02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{518F7085-1C34-4779-A842-0F16BF06CE02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{518F7085-1C34-4779-A842-0F16BF06CE02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{518F7085-1C34-4779-A842-0F16BF06CE02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4BEA240-0ACB-4A96-BEFF-DE11C361B3C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4BEA240-0ACB-4A96-BEFF-DE11C361B3C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4BEA240-0ACB-4A96-BEFF-DE11C361B3C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4BEA240-0ACB-4A96-BEFF-DE11C361B3C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E7C1376-244E-4BD5-8CB9-239649240C2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E7C1376-244E-4BD5-8CB9-239649240C2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E7C1376-244E-4BD5-8CB9-239649240C2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E7C1376-244E-4BD5-8CB9-239649240C2A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

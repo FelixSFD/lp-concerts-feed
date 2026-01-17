@@ -2,7 +2,7 @@ using Amazon.Lambda.Core;
 using Amazon.Lambda.RuntimeSupport;
 using Amazon.Lambda.Serialization.SystemTextJson;
 using Amazon.Lambda.SQSEvents;
-using Lambda.Push.Sender;
+using Lambda.Push.EndpointCleanup;
 using SqsEventJsonSerializer = Common.SQS.JsonContext.SqsEventJsonSerializer;
 
 await LambdaBootstrapBuilder.Create((Func<SQSEvent, ILambdaContext, Task>)Handler, new SourceGeneratorLambdaJsonSerializer<SqsEventJsonSerializer>())
