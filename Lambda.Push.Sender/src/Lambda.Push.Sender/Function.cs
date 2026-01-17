@@ -12,7 +12,6 @@ using LPCalendar.DataStructure.DbConfig;
 using LPCalendar.DataStructure.Entities;
 using LPCalendar.DataStructure.Events;
 using LPCalendar.DataStructure.Events.PushNotifications;
-using System.Linq;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -46,7 +45,7 @@ public class Function
     /// </summary>
     public async Task FunctionHandler(SQSEvent sqsEvent, ILambdaContext context)
     {
-        var sqsJson = JsonSerializer.Serialize(sqsEvent, SqsEventJsonSerializer.Default.SQSEvent);
+        var sqsJson = JsonSerializer.Serialize(sqsEvent, global::Common.SQS.JsonContext.SqsEventJsonSerializer.Default.SQSEvent);
         context.Logger.LogInformation($"SQS event: {sqsJson}");
 
         var sendNotificationsTasks = await sqsEvent.Records
@@ -145,10 +144,10 @@ public class Function
                 var snsMessage = new SnsMessage
                 {
                     Default = pushNotificationEvent.Body,
-                    AppleNotificationService = JsonSerializer.Serialize(pushMessagePayload, SqsEventJsonSerializer.Default.NotificationWrapper)
+                    AppleNotificationService = JsonSerializer.Serialize(pushMessagePayload, NotificationJsonSerializer.Default.NotificationWrapper)
                 };
 
-                var snsMessageJson = JsonSerializer.Serialize(snsMessage, SqsEventJsonSerializer.Default.SnsMessage);
+                var snsMessageJson = JsonSerializer.Serialize(snsMessage, NotificationJsonSerializer.Default.SnsMessage);
                 logger.LogDebug("SNS Message: {messageJson}", snsMessageJson);
                 
                 var publishRequest = new PublishRequest

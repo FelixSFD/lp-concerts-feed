@@ -10,7 +10,7 @@ while read -r dir; do
   # Extract name of the lambda
   project_name="${dir##*/}"
   echo "Project name: $project_name"
-  lambda_name="${project_name##*.}"
+  lambda_name="${project_name#Lambda.}"
   echo "Short name: $lambda_name"
   
   # Call the script that packaged that lambda
