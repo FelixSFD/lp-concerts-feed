@@ -57,7 +57,7 @@ public class Function
             var enabled = endpoint.IsEnabled();
             var endpointArn = endpoint.EndpointArn;
             logger.LogDebug("Found endpoint: {endpointArn}; Enabled: {enabled}", endpointArn, enabled);
-            _endpointStatusCache.Add(endpointArn, enabled);
+            _endpointStatusCache[endpointArn] = enabled;
 
             if (enabled) continue;
             
@@ -136,8 +136,8 @@ public class Function
             logger.LogInformation(e, "Endpoint not found: {endpointArn}", endpointArn);
             enabled = false;
         }
-
-        _endpointStatusCache.Add(endpointArn, enabled);
+        
+        _endpointStatusCache[endpointArn] = enabled;
         return enabled;
     }
 }

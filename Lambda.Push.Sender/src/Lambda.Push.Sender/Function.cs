@@ -196,7 +196,7 @@ public class Function
                 .Where(ep =>
                 {
                     var enabled = ep.IsEnabled();
-                    _endpointStatusCache.Add(ep.EndpointArn, enabled);
+                    _endpointStatusCache[ep.EndpointArn] = enabled;
                     return enabled;
                 })
                 .Select(ep => ep.EndpointArn)
@@ -249,7 +249,7 @@ public class Function
 
     private async Task<bool> UserCanReceiveNotificationFor(Concert concert, PushNotificationType pushNotificationType, string userId, ILambdaLogger logger)
     {
-        logger.LogDebug("Checking if user '{{userId}}' can receive notification '{{pushNotificationType}}' for concert '{concertId}'...", userId, pushNotificationType, concert.Id);
+        logger.LogDebug("Checking if user '{userId}' can receive notification '{pushNotificationType}' for concert '{concertId}'...", userId, pushNotificationType, concert.Id);
         var queryNotificationSettingsConfig =
             _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.UserNotificationSettings);
         var queryNotificationSettings =
@@ -320,7 +320,7 @@ public class Function
         };
         var response = await _sns.GetEndpointAttributesAsync(request);
         var enabled = response.IsEnabled();
-        _endpointStatusCache.Add(endpointArn, enabled);
+        _endpointStatusCache[endpointArn] = enabled;
         return enabled;
     }
 }

@@ -668,6 +668,7 @@ Resources:
                 Action:
                   - SNS:Publish
                   - SNS:ListEndpointsByPlatformApplication
+                  - SNS:GetEndpointAttributes
                 Resource:
                   - !Sub "${PushPlatformAppArn}"
                   - !Sub "${PushPlatformAppArn}*"
