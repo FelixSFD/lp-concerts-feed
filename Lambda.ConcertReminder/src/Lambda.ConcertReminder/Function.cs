@@ -95,7 +95,7 @@ public class Function
     
     private async Task<Concert?> ReturnNextConcert(ILambdaContext context)
     {
-        var now = DateTimeOffset.Now;
+        var now = DateTimeOffset.UtcNow.AddHours(-4);
         var dateNowStr = now.ToString("O");
         
         context.Logger.LogInformation("Query concerts after: {time}", dateNowStr);

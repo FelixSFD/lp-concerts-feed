@@ -173,7 +173,7 @@ public class Function
 
     private async Task<APIGatewayProxyResponse> ReturnNextConcert(ILambdaContext context)
     {
-        var now = DateTimeOffset.Now;
+        var now = DateTimeOffset.UtcNow.AddHours(-4);
         var dateNowStr = now.ToString("O");
         
         context.Logger.LogInformation("Query concerts after: {time}", dateNowStr);
@@ -296,7 +296,7 @@ public class Function
             [status.ToString()],
             config);
 
-        var searchStartDate = DateTimeOffset.Now.AddHours(-4);
+        var searchStartDate = DateTimeOffset.UtcNow.AddHours(-4);
         var bookmarks = await query.GetRemainingAsync() ?? [];
         var enrichingTasks = bookmarks.Select(GetConcertForBookmarkAndMerge);
         var enrichedObjects = await Task.WhenAll(enrichingTasks);
