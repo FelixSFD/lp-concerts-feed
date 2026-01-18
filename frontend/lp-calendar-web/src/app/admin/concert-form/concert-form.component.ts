@@ -148,15 +148,22 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
     if (!this.appleMaps) {
       console.debug('MapKit not initialized yet!');
       this.initAppleMaps().then(() => {
-        this.appleMap = new this.mapKit!.Map(mapElement.nativeElement);
+        this.appleMap = this.makeMap(mapElement.nativeElement);
         this.addOrMoveMarker(this.concertForm.controls.venueLong.value ?? 0, this.concertForm.controls.venueLat.value ?? 0);
       });
       return;
     }
 
     console.log("Will set map element: ", mapElement);
-    this.appleMap = new this.mapKit!.Map(mapElement.nativeElement);
+    this.appleMap = this.makeMap(mapElement.nativeElement);
     this.addOrMoveMarker(this.concertForm.controls.venueLong.value ?? 0, this.concertForm.controls.venueLat.value ?? 0);
+  }
+
+
+  private makeMap(mapElement: HTMLDivElement) {
+    let map = new this.mapKit!.Map(mapElement);
+    map.colorScheme = "adaptive";
+    return map;
   }
 
 

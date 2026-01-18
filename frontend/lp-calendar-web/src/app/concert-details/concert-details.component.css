@@ -4,13 +4,6 @@
 }
 
 
-@media (prefers-color-scheme: dark) {
-  .map {
-    filter: brightness(50%);
-  }
-}
-
-
 .card-body small {
   font-size: x-small;
 }

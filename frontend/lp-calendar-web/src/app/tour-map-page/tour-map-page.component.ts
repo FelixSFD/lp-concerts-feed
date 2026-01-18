@@ -58,18 +58,25 @@ export class TourMapPageComponent {
     if (!this.appleMaps) {
       console.debug('MapKit not initialized yet!');
       this.initAppleMaps().then(() => {
-        this.appleMap = new this.mapKit!.Map(mapElement.nativeElement);
+        this.appleMap = this.makeMap(mapElement.nativeElement);
         this.reloadPins();
       });
       return;
     }
 
     console.log("Will set map element: ", mapElement);
-    this.appleMap = new this.mapKit!.Map(mapElement.nativeElement);
+    this.appleMap = this.makeMap(mapElement.nativeElement);
     this.appleMap.showsUserLocationControl = true;
     this.appleMap.showsUserLocation = true;
 
     this.reloadPins();
+  }
+
+
+  private makeMap(mapElement: HTMLDivElement) {
+    let map = new this.mapKit!.Map(mapElement);
+    map.colorScheme = "adaptive";
+    return map;
   }
 
 
