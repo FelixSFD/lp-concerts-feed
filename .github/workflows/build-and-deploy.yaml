@@ -168,6 +168,12 @@ jobs:
         files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
         search-text: 'COGNITO_AUTH_SERVER'
         replacement-text: ${{ vars.COGNITO_AUTH_SERVER }}
+    - name: Replace APPLE_MAPS_TOKEN
+      uses: richardrigutins/replace-in-files@v2
+      with:
+        files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
+        search-text: 'APPLE_MAPS_TOKEN'
+        replacement-text: ${{ vars.APPLE_MAPS_TOKEN }}
     - name: Replace IMAGE_BASE_URL
       uses: richardrigutins/replace-in-files@v2
       with:
