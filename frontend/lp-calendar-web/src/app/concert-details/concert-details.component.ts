@@ -87,7 +87,7 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
 
   private async initAppleMaps() {
     this.mapKit = await load({
-      token: "eyJraWQiOiJQOEZXVzZUSEFaIiwidHlwIjoiSldUIiwiYWxnIjoiRVMyNTYifQ.eyJpc3MiOiIzRjRTNjZINUc3IiwiaWF0IjoxNzY4NzMzNzI4LCJleHAiOjE3Njk0MTQzOTl9.d7knjYlXxiHYSogD9zGHhWvwi8IVqBhZD5sUwYO4P0Z1jOPArDOjI4KkP4YWaKOEPQ4W1GBvKxERTqr4qWmKKw",
+      token: environment.appleMapsToken,
       language: "en-US",
       libraries: ["map", "annotations"],
     });
