@@ -137,11 +137,12 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '23.6.x'
+        node-version: '24.0.x'
 
     - name: Install dependencies
       working-directory: frontend/lp-calendar-web
-      run: npm ci --force # Use npm ci for faster installs and CI consistency
+      run: npm install --force
+      #run: npm ci --force --no-fund # Use npm ci for faster installs and CI consistency
     
     - name: Replace ROOT_DOMAIN
       uses: richardrigutins/replace-in-files@v2
