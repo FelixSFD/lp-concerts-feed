@@ -1,11 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  inject,
-  OnInit,
-  ViewChild
-} from '@angular/core';
+import {AfterViewInit, Component, ContentChild, ElementRef, inject, OnInit, ViewChild} from '@angular/core';
 import {ConcertsService} from '../services/concerts.service';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {DateTime} from 'luxon';
@@ -36,12 +29,14 @@ import {MatomoTracker} from 'ngx-matomo-client';
 import {
   AdjacentConcertsResponseDto,
   ConcertBookmarkUpdateRequestDto,
-  ConcertDto, ErrorResponseDto,
+  ConcertDto,
+  ErrorResponseDto,
   GetConcertBookmarkCountsResponseDto
 } from '../modules/lpshows-api';
 import {AuthService} from '../auth/auth.service';
 import {ToastrService} from 'ngx-toastr';
 import {HttpErrorResponse} from '@angular/common/http';
+import {load, MapKit, Map as AppleMap} from '@apple/mapkit-loader';
 
 @Component({
   selector: 'app-concert-details',
@@ -70,6 +65,11 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   private venueMap: Map | undefined;
   private marker: Feature | undefined;
 
+  // Apple Maps
+  private mapKit: MapKit | undefined;
+  //@ViewChild("appleMaps", { static: false }) appleMapsContainer: ElementRef<HTMLDivElement> | undefined;
+  private appleMap: AppleMap | undefined;
+
   // Service to check auth information
   private readonly oidcSecurityService = inject(OidcSecurityService);
 
@@ -85,7 +85,7 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.loadDataForId(params['id']);
-    })
+    });
   }
 
 
@@ -101,6 +101,31 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
 
   onAttendingClicked() {
     this.onBookmarkOrAttendingClicked(ConcertBookmarkUpdateRequestDto.StatusEnum.Attending);
+  }
+
+
+  private async initAppleMaps() {
+    this.mapKit = await load({
+      token: "eyJraWQiOiJQOEZXVzZUSEFaIiwidHlwIjoiSldUIiwiYWxnIjoiRVMyNTYifQ.eyJpc3MiOiIzRjRTNjZINUc3IiwiaWF0IjoxNzY4NzMzNzI4LCJleHAiOjE3Njk0MTQzOTl9.d7knjYlXxiHYSogD9zGHhWvwi8IVqBhZD5sUwYO4P0Z1jOPArDOjI4KkP4YWaKOEPQ4W1GBvKxERTqr4qWmKKw",
+      language: "en-US",
+      libraries: ["map", "annotations"],
+    });
+  }
+
+
+  @ViewChild('appleMaps')
+  set appleMaps(mapElement: ElementRef<HTMLDivElement> | undefined) {
+    if (!mapElement) return;
+    if (!this.appleMaps) {
+      console.debug('MapKit not initialized yet!');
+      this.initAppleMaps().then(() => {
+        this.appleMap = new this.mapKit!.Map(mapElement.nativeElement);
+      });
+      return;
+    }
+
+    console.log("Will set map element: ", mapElement);
+    this.appleMap = new this.mapKit!.Map(mapElement.nativeElement);
   }
 
 
