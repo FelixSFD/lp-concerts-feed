@@ -137,7 +137,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '23.6.x'
+        node-version: '24.0.x'
 
     - name: Install dependencies
       working-directory: frontend/lp-calendar-web
