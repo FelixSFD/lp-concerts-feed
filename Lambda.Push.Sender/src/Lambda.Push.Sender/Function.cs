@@ -101,15 +101,36 @@ public class Function
             .Distinct()
             .WhereAwait(async userId => await UserCanReceiveNotificationFor(pushEvent.Concert,
                 PushNotificationType.MainStageTimeConfirmed, userId, logger))
-            .Select(recipient => new PushNotificationEvent
+            .Select(recipient => GetPushNotificationForType(notificationType, recipient, pushEvent))
+            .Where(pne => pne != null)
+            .Select(pne => pne!);
+    }
+
+
+    private PushNotificationEvent? GetPushNotificationForType(PushNotificationType notificationType, string userId,
+        ConcertRelatedPushNotificationEvent pushEvent)
+    {
+        return notificationType switch
+        {
+            PushNotificationType.MainStageTimeConfirmed => new PushNotificationEvent
             {
-                UserId = recipient,
+                UserId = userId,
                 Title = $"Linkin Park in {pushEvent.Concert.City}",
                 Body =
                     $"Stage time for Linkin Park confirmed: {pushEvent.Concert.MainStageTime:HH:mm} ({pushEvent.Concert.TimeZoneId})",
                 CollapseId = $"{pushEvent.Concert.Id}#{nameof(PushNotificationType.MainStageTimeConfirmed)}",
                 Thread = pushEvent.Concert.Id
-            });
+            },
+            PushNotificationType.ConcertReminder => new PushNotificationEvent
+            {
+                UserId = userId,
+                Title = $"Linkin Park in {pushEvent.Concert.City}",
+                Body = "The concert is starting soon! 🔥",
+                CollapseId = $"{pushEvent.Concert.Id}#{nameof(PushNotificationType.ConcertReminder)}",
+                Thread = pushEvent.Concert.Id
+            },
+            _ => null
+        };
     }
     
 
