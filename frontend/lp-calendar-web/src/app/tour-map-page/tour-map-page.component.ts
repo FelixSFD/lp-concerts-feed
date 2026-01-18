@@ -110,6 +110,9 @@ export class TourMapPageComponent {
             return null;
           }).filter(m => m != null);
 
+          this.appleMap?.annotations.forEach(annotation => {
+            this.appleMap?.removeAnnotation(annotation);
+          })
           this.appleMap?.showItems(annotations);
         },
         error: err => {
