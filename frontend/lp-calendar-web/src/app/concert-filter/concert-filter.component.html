@@ -5,44 +5,56 @@
         Add filter...
       </button>
       <ul class="dropdown-menu">
-        <li *ngFor="let filterName of availableFilters">
-          <a *ngIf="!visibleFilters$.includes(filterName)" class="dropdown-item" href="javascript:void(0)" (click)="showOrHideFilter(filterName, true)">{{ filterLabels$.get(filterName) }}</a>
-        </li>
+        @for (filterName of availableFilters; track filterName) {
+          <li>
+            @if (!visibleFilters$.includes(filterName)) {
+              <a class="dropdown-item" href="javascript:void(0)" (click)="showOrHideFilter(filterName, true)">{{ filterLabels$.get(filterName) }}</a>
+            }
+          </li>
+        }
       </ul>
     </div>
     <button class="btn btn-sm btn-primary" (click)="onApplyClicked()"><i class="bi bi-filter"></i> Apply filter</button>
-    <button class="btn btn-sm btn-outline-secondary ms-2" (click)="onClearClicked()" *ngIf="visibleFilters$.length > 1"><i class="bi bi-x"></i> Clear</button>
+    @if (visibleFilters$.length > 1) {
+      <button class="btn btn-sm btn-outline-secondary ms-2" (click)="onClearClicked()"><i class="bi bi-x"></i> Clear</button>
+    }
   </div>
 
   <!-- Tour -->
-  <div class="mb-3 row" *ngIf="visibleFilters$.includes('tour')">
-    <div class="col-auto align-content-center">
-      <button class="btn btn-link link-info" (click)="showOrHideFilter('tour', false)" ngbTooltip="remove filter"><i class="bi bi-x-lg"></i></button>
-    </div>
-    <div class="col-8">
-      <label for="tourName" class="col-sm-12 col-md-12 col-lg-4 col-form-label">Tour</label>
-      <div class="col-sm-12 col-md-12 col-lg-8 col-xl-6">
-        <select id="tourName" formControlName="tourName" (change)="onFiltersChanged()" class="form-select" aria-label="Select tour">
-          <option disabled>--- Select tour ---</option>
-          <option value="">Not part of a tour</option>
-          <option *ngFor="let tour of listOfTours" [value]="tour">{{tour}}</option>
-        </select>
+  @if (visibleFilters$.includes('tour')) {
+    <div class="mb-3 row">
+      <div class="col-auto align-content-center">
+        <button class="btn btn-link link-info" (click)="showOrHideFilter('tour', false)" ngbTooltip="remove filter"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="col-8">
+        <label for="tourName" class="col-sm-12 col-md-12 col-lg-4 col-form-label">Tour</label>
+        <div class="col-sm-12 col-md-12 col-lg-8 col-xl-6">
+          <select id="tourName" formControlName="tourName" (change)="onFiltersChanged()" class="form-select" aria-label="Select tour">
+            <option disabled>--- Select tour ---</option>
+            <option value="">Not part of a tour</option>
+            @for (tour of listOfTours; track tour) {
+              <option [value]="tour">{{tour}}</option>
+            }
+          </select>
+        </div>
       </div>
     </div>
-  </div>
+  }
 
   <!-- Date Range -->
-  <div class="mb-3 row" *ngIf="visibleFilters$.includes('dateRange')">
-    <div class="col-auto align-content-center">
-      <button class="btn btn-link link-info" (click)="showOrHideFilter('dateRange', false)" ngbTooltip="remove filter"><i class="bi bi-x-lg"></i></button>
-    </div>
-    <div class="col-8">
-      <label class="col-sm-12 col-md-12 col-lg-4 col-form-label">Date <i class="bi bi-question-circle text-info" ngbTooltip="in your timezone"></i></label>
-      <div class="input-group col-sm-12 col-md-12 col-lg-8 col-xl-6">
-        <input type="date" class="form-control" formControlName="dateFrom" (change)="onFiltersChanged()" placeholder="from date" aria-label="from date">
-        <span class="input-group-text">to</span>
-        <input type="date" class="form-control" formControlName="dateTo" (change)="onFiltersChanged()" placeholder="to date" aria-label="to date">
+  @if (visibleFilters$.includes('dateRange')) {
+    <div class="mb-3 row">
+      <div class="col-auto align-content-center">
+        <button class="btn btn-link link-info" (click)="showOrHideFilter('dateRange', false)" ngbTooltip="remove filter"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="col-8">
+        <label class="col-sm-12 col-md-12 col-lg-4 col-form-label">Date <i class="bi bi-question-circle text-info" ngbTooltip="in your timezone"></i></label>
+        <div class="input-group col-sm-12 col-md-12 col-lg-8 col-xl-6">
+          <input type="date" class="form-control" formControlName="dateFrom" (change)="onFiltersChanged()" placeholder="from date" aria-label="from date">
+          <span class="input-group-text">to</span>
+          <input type="date" class="form-control" formControlName="dateTo" (change)="onFiltersChanged()" placeholder="to date" aria-label="to date">
+        </div>
       </div>
     </div>
-  </div>
+  }
 </form>

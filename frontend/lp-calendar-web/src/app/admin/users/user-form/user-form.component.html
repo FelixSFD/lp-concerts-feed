@@ -8,20 +8,28 @@
       <div class="form-group">
         <label for="username">Username</label>
         <input id="username" type="text" formControlName="username" class="form-control"
-               [ngClass]="{ 'is-invalid': userForm.controls.username.invalid }">
-        <div *ngIf="userForm.controls.username.invalid" class="text-danger">
-          <small *ngIf="userForm.controls.username.errors">Username is invalid.</small>
-        </div>
+          [ngClass]="{ 'is-invalid': userForm.controls.username.invalid }">
+        @if (userForm.controls.username.invalid) {
+          <div class="text-danger">
+            @if (userForm.controls.username.errors) {
+              <small>Username is invalid.</small>
+            }
+          </div>
+        }
       </div>
 
       <!-- E-Mail -->
       <div class="form-group">
         <label for="email">E-Mail<span [hidden]="!user$?.emailVerified">&nbsp;<i class="bi bi-patch-check-fill text-success"></i></span></label>
         <input id="email" type="text" formControlName="email" class="form-control"
-               [ngClass]="{ 'is-invalid': userForm.controls.email.invalid }">
-        <div *ngIf="userForm.controls.email.invalid" class="text-danger">
-          <small *ngIf="userForm.controls.email.errors">E-Mail is invalid.</small>
-        </div>
+          [ngClass]="{ 'is-invalid': userForm.controls.email.invalid }">
+        @if (userForm.controls.email.invalid) {
+          <div class="text-danger">
+            @if (userForm.controls.email.errors) {
+              <small>E-Mail is invalid.</small>
+            }
+          </div>
+        }
       </div>
     </div>
     <div class="card-footer">

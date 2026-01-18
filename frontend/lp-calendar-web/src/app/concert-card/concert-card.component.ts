@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {CountdownComponent} from '../countdown/countdown.component';
 import {ConcertsService} from '../services/concerts.service';
-import {NgIf} from '@angular/common';
+
 import {RouterLink} from '@angular/router';
 import {ConcertTitleGenerator} from '../data/concert-title-generator';
 import {ConcertDto} from '../modules/lpshows-api';
@@ -10,9 +10,8 @@ import {ConcertDto} from '../modules/lpshows-api';
   selector: 'app-concert-card',
   imports: [
     CountdownComponent,
-    NgIf,
     RouterLink
-  ],
+],
   templateUrl: './concert-card.component.html',
   styleUrl: './concert-card.component.css'
 })

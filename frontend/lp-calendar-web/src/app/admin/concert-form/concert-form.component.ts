@@ -11,7 +11,7 @@ import {
 import timezones from 'timezones-list';
 import {listOfTours, listOfShowTypes} from '../../app.config';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {NgClass, NgForOf, NgIf} from '@angular/common';
+import { NgClass } from '@angular/common';
 import {ConcertsService} from '../../services/concerts.service';
 import {DateTime} from 'luxon';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
@@ -39,12 +39,10 @@ import {ConcertDto} from '../../modules/lpshows-api';
   selector: 'app-concert-form',
   imports: [
     FormsModule,
-    NgForOf,
-    NgIf,
     ReactiveFormsModule,
     NgClass,
     NgbTooltip
-  ],
+],
   templateUrl: './concert-form.component.html',
   styleUrl: './concert-form.component.css'
 })

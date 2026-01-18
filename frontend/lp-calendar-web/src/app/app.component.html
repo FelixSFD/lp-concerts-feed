@@ -33,12 +33,12 @@
         <span class="navbar-text me-2 d-none d-md-inline">
           {{ currentDateTime$.toLocaleString(DateTime.TIME_WITH_SECONDS) }}
         </span>
-        <ng-template [ngIf]="!isAuthenticated$">
+        @if (!isAuthenticated$) {
           <li class="nav-item">
             <button type="button" class="btn btn-outline-secondary" (click)="login()">Login</button>
           </li>
-        </ng-template>
-        <ng-template [ngIf]="isAuthenticated$">
+        }
+        @if (isAuthenticated$) {
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               <i class="bi bi-gear-fill"></i>
@@ -52,7 +52,7 @@
               <li><a class="dropdown-item text-danger" href="javascript:void(0)" (click)="logout()">Logout</a></li>
             </ul>
           </li>
-        </ng-template>
+        }
       </ul>
     </div>
   </div>

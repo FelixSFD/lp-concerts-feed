@@ -17,16 +17,16 @@
   <!-- Bookmark buttons -->
   <div class="col">
     <button [class]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Bookmarked ? 'btn btn-outline-primary me-2' : 'btn btn-primary me-2'"
-            [disabled]="concertBookmarks$ == null || concertBookmarksLoading$"
-            [ngbTooltip]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Bookmarked ? 'Remove bookmark' : 'Bookmark this show'"
-            (click)="onBookmarkClicked()">
+      [disabled]="concertBookmarks$ == null || concertBookmarksLoading$"
+      [ngbTooltip]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Bookmarked ? 'Remove bookmark' : 'Bookmark this show'"
+      (click)="onBookmarkClicked()">
       <i [class]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Bookmarked ? 'bi bi-bookmark-check' : 'bi bi-bookmark'"></i>
       {{ concertBookmarks$?.bookmarked ?? 0 }}
     </button>
     <button [class]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Attending ? 'btn btn-outline-success' : 'btn btn-success'"
-            [disabled]="concertBookmarks$ == null || concertBookmarksLoading$"
-            [ngbTooltip]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Attending ? 'Remove me from the show' : 'I will attend this show'"
-            (click)="onAttendingClicked()">
+      [disabled]="concertBookmarks$ == null || concertBookmarksLoading$"
+      [ngbTooltip]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Attending ? 'Remove me from the show' : 'I will attend this show'"
+      (click)="onAttendingClicked()">
       <i [class]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Attending ? 'bi bi-ticket-detailed-fill' : 'bi-ticket-detailed'"></i>
       {{ concertBookmarks$?.attending ?? 0 }}
     </button>
@@ -39,15 +39,11 @@
   </div>
 </div>
 
-<ng-template *ngIf="concert$ == null; then loadingSpinner; else details;" />
-
-<ng-template #loadingSpinner>
+@if (concert$ == null) {
   <div style="text-align: center">
     <h2><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading concert details...</h2>
   </div>
-</ng-template>
-
-<ng-template #details>
+} @else {
   <h6>{{ getDateTimeInTimezone(concert$?.postedStartTime!, concert$?.timeZoneId!).toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY) }}</h6>
   <h1>
     {{ ConcertTitleGenerator.getTitleFor(concert$!) }}
@@ -62,64 +58,65 @@
     <br />
     {{ concert$?.showType }}
   </p>
-
   <div class="container">
     <div class="row row-cols-xxl-4 row-cols-xl-3 row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-xs-1 row-cols-1 gy-4 gx-4">
-      <ng-template [ngIf]="concert$?.mainStageTime != undefined" #lpStageTimeCards>
-        <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12">
-          <div class="card w-100" style="width: 18rem;">
-            <div class="card-header">
-              Linkin Park stage time <span class="d-md-none d-lg-none d-xl-none d-xxl-none">(Venue timezone)</span>
-            </div>
-            <div class="card-body text-center">
-              <h4 class="card-text">{{getDateTimeInTimezone(concert$?.mainStageTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE)}}</h4>
-              <small>Venue's timezone ({{ concert$?.timeZoneId ?? "" }})</small>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12">
-          <div class="card w-100" style="width: 18rem;">
-            <div class="card-header">
-              Linkin Park stage time <span class="d-md-none d-lg-none d-xl-none d-xxl-none">(Your timezone)</span>
-            </div>
-            <div class="card-body text-center">
-              <h4 class="card-text">{{getDateTime(concert$?.mainStageTime!).toLocaleString(DateTime. DATETIME_SHORT)}}</h4>
-              <small>Your timezone</small>
+      @if (concert$?.mainStageTime != undefined) {
+        <ng-template #lpStageTimeCards>
+          <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12">
+            <div class="card w-100" style="width: 18rem;">
+              <div class="card-header">
+                Linkin Park stage time <span class="d-md-none d-lg-none d-xl-none d-xxl-none">(Venue timezone)</span>
+              </div>
+              <div class="card-body text-center">
+                <h4 class="card-text">{{getDateTimeInTimezone(concert$?.mainStageTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE)}}</h4>
+                <small>Venue's timezone ({{ concert$?.timeZoneId ?? "" }})</small>
+              </div>
             </div>
           </div>
-        </div>
-      </ng-template>
-
-      <ng-template [ngIf]="concert$?.lpuEarlyEntryTime != undefined" #lpuEarlyEntryCard>
-        <div class="col">
-          <div class="card w-100" style="width: 18rem;">
-            <div class="card-header">
-              LPU Early Entry
-            </div>
-            <div class="card-body text-center">
-              <h4 class="card-text">{{getDateTimeInTimezone(concert$?.lpuEarlyEntryTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE)}}</h4>
-              <small>Venue's timezone ({{ concert$?.timeZoneId ?? "" }})</small>
+          <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12">
+            <div class="card w-100" style="width: 18rem;">
+              <div class="card-header">
+                Linkin Park stage time <span class="d-md-none d-lg-none d-xl-none d-xxl-none">(Your timezone)</span>
+              </div>
+              <div class="card-body text-center">
+                <h4 class="card-text">{{getDateTime(concert$?.mainStageTime!).toLocaleString(DateTime. DATETIME_SHORT)}}</h4>
+                <small>Your timezone</small>
+              </div>
             </div>
           </div>
-        </div>
-      </ng-template>
-
-      <ng-template [ngIf]="concert$?.doorsTime != undefined" #doorsTimeCard>
-        <div class="col">
-          <div class="card w-100" style="width: 18rem;">
-            <div class="card-header">
-              Doors open at
-            </div>
-            <div class="card-body text-center">
-              <h4 class="card-text">{{getDateTimeInTimezone(concert$?.doorsTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE)}}</h4>
-              <small>Venue's timezone ({{ concert$?.timeZoneId ?? "" }})</small>
+        </ng-template>
+      }
+      @if (concert$?.lpuEarlyEntryTime != undefined) {
+        <ng-template #lpuEarlyEntryCard>
+          <div class="col">
+            <div class="card w-100" style="width: 18rem;">
+              <div class="card-header">
+                LPU Early Entry
+              </div>
+              <div class="card-body text-center">
+                <h4 class="card-text">{{getDateTimeInTimezone(concert$?.lpuEarlyEntryTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE)}}</h4>
+                <small>Venue's timezone ({{ concert$?.timeZoneId ?? "" }})</small>
+              </div>
             </div>
           </div>
-        </div>
-      </ng-template>
-
-      <ng-template [ngIf]="concert$?.mainStageTime == undefined">
+        </ng-template>
+      }
+      @if (concert$?.doorsTime != undefined) {
+        <ng-template #doorsTimeCard>
+          <div class="col">
+            <div class="card w-100" style="width: 18rem;">
+              <div class="card-header">
+                Doors open at
+              </div>
+              <div class="card-body text-center">
+                <h4 class="card-text">{{getDateTimeInTimezone(concert$?.doorsTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE)}}</h4>
+                <small>Venue's timezone ({{ concert$?.timeZoneId ?? "" }})</small>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      }
+      @if (concert$?.mainStageTime == undefined) {
         <div class="col">
           <div class="card w-100" style="width: 18rem;">
             <div class="card-header">
@@ -130,9 +127,8 @@
             </div>
           </div>
         </div>
-      </ng-template>
-
-      <ng-template [ngIf]="concert$?.mainStageTime == undefined">
+      }
+      @if (concert$?.mainStageTime == undefined) {
         <div class="col">
           <div class="card w-100" style="width: 18rem;">
             <div class="card-header">
@@ -143,20 +139,20 @@
             </div>
           </div>
         </div>
-      </ng-template>
-
-      <div class="col" *ngIf="!concert$?.isPast">
-        <div class="card w-100" style="width: 18rem;">
-          <div class="card-header">
-            Countdown <s>from</s>to zero
-          </div>
-          <div class="card-body">
-            <app-countdown [countdownToDate]="concert$?.mainStageTime ?? concert$?.postedStartTime!" [concertId]="concert$?.id"></app-countdown>
+      }
+      @if (!concert$?.isPast) {
+        <div class="col">
+          <div class="card w-100" style="width: 18rem;">
+            <div class="card-header">
+              Countdown <s>from</s>to zero
+            </div>
+            <div class="card-body">
+              <app-countdown [countdownToDate]="concert$?.mainStageTime ?? concert$?.postedStartTime!" [concertId]="concert$?.id"></app-countdown>
+            </div>
           </div>
         </div>
-      </div>
-
-      <ng-template [ngIf]="(concert$?.expectedSetDuration ?? 0) > 0">
+      }
+      @if ((concert$?.expectedSetDuration ?? 0) > 0) {
         <div class="col">
           <div class="card w-100" style="width: 18rem;">
             <div class="card-header">
@@ -167,10 +163,9 @@
             </div>
           </div>
         </div>
-      </ng-template>
+      }
     </div>
-
-    <ng-template [ngIf]="concert$?.scheduleImageFile != undefined">
+    @if (concert$?.scheduleImageFile != undefined) {
       <div class="row justify-content-center mt-4 mb-5">
         <div class="col-xxl-8 col-xl-9 col-lg-10 col-md-12 col-sm-12 col-xs-12">
           <div class="card w-100" style="width: 18rem;">
@@ -183,14 +178,16 @@
           </div>
         </div>
       </div>
-    </ng-template>
+    }
   </div>
-
   <br />
+  @if (concert$?.venueLatitude != 0 && concert$?.venueLongitude != 0) {
+    <ng-container #mapContainer>
+      <h3>Venue location</h3>
+      <div id="venueMap" class="map"></div>
+    </ng-container>
+  }
+}
 
-  <ng-container #mapContainer *ngIf="concert$?.venueLatitude != 0 && concert$?.venueLongitude != 0">
-    <h3>Venue location</h3>
-    <div id="venueMap" class="map"></div>
-  </ng-container>
-</ng-template>
+
 

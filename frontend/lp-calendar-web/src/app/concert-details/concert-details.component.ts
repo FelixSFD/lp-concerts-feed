@@ -9,7 +9,7 @@ import {
 import {ConcertsService} from '../services/concerts.service';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {DateTime} from 'luxon';
-import {NgIf} from '@angular/common';
+
 import {CountdownComponent} from '../countdown/countdown.component';
 import {Meta} from '@angular/platform-browser';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
@@ -46,13 +46,12 @@ import {HttpErrorResponse} from '@angular/common/http';
 @Component({
   selector: 'app-concert-details',
   imports: [
-    NgIf,
     CountdownComponent,
     RouterLink,
     ConcertBadgesComponent,
     TimeSpanPipe,
     NgbTooltip
-  ],
+],
   templateUrl: './concert-details.component.html',
   styleUrl: './concert-details.component.css'
 })

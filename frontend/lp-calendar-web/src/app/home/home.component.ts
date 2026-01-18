@@ -7,7 +7,7 @@ import {CalendarFeedBuilderComponent} from '../calendar-feed-builder/calendar-fe
 import {ToastrService} from 'ngx-toastr';
 import {MatomoTracker} from 'ngx-matomo-client';
 import {ConcertDto} from '../modules/lpshows-api';
-import {NgIf} from '@angular/common';
+
 import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {NgbAlert} from '@ng-bootstrap/ng-bootstrap';
 import {AuthService} from '../auth/auth.service';
@@ -18,9 +18,8 @@ import {AuthService} from '../auth/auth.service';
     RouterLink,
     ConcertCardComponent,
     CalendarFeedBuilderComponent,
-    NgIf,
     NgbAlert
-  ],
+],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })

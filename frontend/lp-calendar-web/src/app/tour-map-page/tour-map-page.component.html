@@ -7,16 +7,20 @@
       <option disabled>--- Select tour ---</option>
       <option value="ALL">All shows</option>
       <option value="">Not part of a tour</option>
-      <option *ngFor="let tour of listOfTours" [value]="tour" [selected]="currentFilter.tour == tour">{{tour}}</option>
+      @for (tour of listOfTours; track tour) {
+        <option [value]="tour" [selected]="currentFilter.tour == tour">{{tour}}</option>
+      }
     </select>
   </div>
 </div>
 
 <!-- Loading indicator for pins -->
 <div style="height: 20px">
-  <div *ngIf="isLoadingPins$">
-    <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>&nbsp;Loading concert data...
-  </div>
+  @if (isLoadingPins$) {
+    <div>
+      <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>&nbsp;Loading concert data...
+    </div>
+  }
 </div>
 
 <div id="map" class="map"></div>
