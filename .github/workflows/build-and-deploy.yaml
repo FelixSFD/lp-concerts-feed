@@ -173,7 +173,7 @@ jobs:
       with:
         files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
         search-text: 'APPLE_MAPS_TOKEN'
-        replacement-text: ${{ vars.APPLE_MAPS_TOKEN }}
+        replacement-text: ${{ secrets.APPLE_MAPS_TOKEN }}
     - name: Replace IMAGE_BASE_URL
       uses: richardrigutins/replace-in-files@v2
       with:
