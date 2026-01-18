@@ -15,24 +15,12 @@ import { NgClass } from '@angular/common';
 import {ConcertsService} from '../../services/concerts.service';
 import {DateTime} from 'luxon';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
-import Map from 'ol/Map';
-import View from 'ol/View';
-import TileLayer from 'ol/layer/Tile';
-import OSM from 'ol/source/OSM';
-import {fromLonLat, toLonLat} from 'ol/proj';
-import Feature from 'ol/Feature';
-import Point from 'ol/geom/Point';
-import VectorLayer from 'ol/layer/Vector';
-import VectorSource from 'ol/source/Vector';
-import Style from 'ol/style/Style';
-import Icon from 'ol/style/Icon';
-import { Translate } from 'ol/interaction';
-import {Collection} from "ol";
 import {environment} from "../../../environments/environment";
 import {ToastrService} from 'ngx-toastr';
 import {LocationsService} from '../../services/locations.service';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {ConcertDto} from '../../modules/lpshows-api';
+import {load, MapKit, Map as AppleMap, MapKitEvent, AnnotationDragEvent} from '@apple/mapkit-loader';
 
 // This class represents a form for adding and editing concerts
 @Component({
@@ -89,9 +77,9 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
 
   concert$ : ConcertDto | null = null;
 
-  // Map of the location of the concert
-  private venueMap: Map | undefined;
-  private marker: Feature | undefined;
+  // Apple Maps
+  private mapKit: MapKit | undefined;
+  private appleMap: AppleMap | undefined;
 
   // Selected schedule-file
   protected selectedScheduleFile: File | undefined;
@@ -116,7 +104,8 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
 
 
   ngAfterViewInit() {
-    this.initVenueMap();
+    //this.initVenueMap();
+    this.initAppleMaps();
   }
 
 
@@ -143,82 +132,65 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
 
-  private initVenueMap() {
-    this.venueMap = new Map({
-      layers: [
-        new TileLayer({
-          source: new OSM(),
-        }),
-      ],
-      view: new View({
-        center: [0, 0],
-        zoom: 2, maxZoom: 18,
-      }),
+  private async initAppleMaps() {
+    this.mapKit = await load({
+      token: environment.appleMapsToken,
+      language: "en-US",
+      libraries: ["map", "annotations"],
     });
   }
 
 
-  private addOrMoveMarker(lon: number, lat: number) {
-    const newCoords = fromLonLat([lon, lat]); // Convert to EPSG:3857
-    console.log("Set marker at: " + newCoords.toString())
-
-    if (this.marker == undefined) {
-      // Create a marker feature
-      this.marker = new Feature({
-        geometry: new Point(newCoords), // Initial position
+  @ViewChild('appleMaps')
+  set appleMaps(mapElement: ElementRef<HTMLDivElement> | undefined) {
+    console.log('appleMaps will be displayed', mapElement);
+    if (!mapElement) return;
+    if (!this.appleMaps) {
+      console.debug('MapKit not initialized yet!');
+      this.initAppleMaps().then(() => {
+        this.appleMap = new this.mapKit!.Map(mapElement.nativeElement);
+        this.addOrMoveMarker(this.concertForm.controls.venueLong.value ?? 0, this.concertForm.controls.venueLat.value ?? 0);
       });
-
-      this.marker.setStyle(new Style({
-        image: new Icon({
-          anchor: [0.5, 1],
-          src: './map/map-pin-50-black.png',
-          scale: 0.59
-        })
-      }));
-
-      // Add marker to vector layer
-      const vectorSource = new VectorSource({
-        features: [this.marker]
-      });
-
-      const vectorLayer = new VectorLayer({
-        source: vectorSource
-      });
-
-      this.venueMap?.addLayer(vectorLayer);
-
-      // Add drag interaction
-      const translate = new Translate({
-        features: new Collection([this.marker])
-      });
-
-      this.venueMap?.addInteraction(translate);
-
-      // Listen for movement
-      translate.on('translateend', (event) => {
-        const point = (event.features.item(0) as Feature).getGeometry() as Point;
-        const coords = point.getCoordinates();
-        console.log('Marker moved to:', coords);
-
-        if (coords) {
-          const [lon, lat] = toLonLat(coords); // Convert to lat/lon
-          console.log('Corrected Coordinates:', { latitude: lat, longitude: lon });
-
-          this.concertForm.controls.venueLong.setValue(lon);
-          this.concertForm.controls.venueLat.setValue(lat);
-        }
-      });
-    } else {
-      (this.marker.getGeometry() as Point).setCoordinates(newCoords);
+      return;
     }
+
+    console.log("Will set map element: ", mapElement);
+    this.appleMap = new this.mapKit!.Map(mapElement.nativeElement);
+    this.addOrMoveMarker(this.concertForm.controls.venueLong.value ?? 0, this.concertForm.controls.venueLat.value ?? 0);
+  }
+
+
+  private addOrMoveMarker(lon: number, lat: number) {
+    if (!this.appleMap || !this.mapKit) {
+      return;
+    }
+    const annotation = new this.mapKit!.MarkerAnnotation(new this.mapKit!.Coordinate(lat, lon), {
+      color: "#c969e0",
+      map: this.appleMap,
+      draggable: true
+    });
+
+    annotation.addEventListener("dragging", this.didDragPin, this);
+    this.appleMap?.showItems([annotation]);
 
     this.zoomToCoordinates(lon, lat);
   }
 
 
+  private didDragPin(evt: MapKitEvent) {
+    let dragEvent = evt as AnnotationDragEvent;
+    this.concertForm.controls.venueLat.setValue(dragEvent.coordinate.latitude)
+    this.concertForm.controls.venueLong.setValue(dragEvent.coordinate.longitude);
+  }
+
+
   private zoomToCoordinates(lon: number, lat: number, zoomLevel: number = 11) {
-    this.venueMap?.getView().setCenter(fromLonLat([lon, lat]));
-    this.venueMap?.getView().setZoom(zoomLevel);
+    if (this.appleMap && this.mapKit) {
+      this.appleMap.region = new this.mapKit.CoordinateRegion(
+        new this.mapKit.Coordinate(lat, lon),
+        new this.mapKit.CoordinateSpan(0.06, 0.2)
+      );
+    }
   }
 
 
@@ -294,12 +266,8 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
 
 
   onSetPinClicked() {
-    let center = this.venueMap?.getView().getCenter();
-    let coordinateFinal = toLonLat(center!);
-
-    this.addOrMoveMarker(coordinateFinal[0], coordinateFinal[1]);
-    this.concertForm.controls.venueLong.setValue(coordinateFinal[0]);
-    this.concertForm.controls.venueLat.setValue(coordinateFinal[1]);
+    let center = this.appleMap?.center;
+    this.addOrMoveMarker(center?.longitude ?? 0, center?.latitude ?? 0);
   }
 
 
@@ -318,7 +286,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
         let lat = coordinates?.latitude ?? 0;
         let lon = coordinates?.longitude ?? 0;
 
-        this.zoomToCoordinates(lon, lat, 8);
+        //this.zoomToCoordinates(lon, lat, 8);
         this.addOrMoveMarker(lon, lat);
         this.concertForm.controls.venueLong.setValue(lon);
         this.concertForm.controls.venueLat.setValue(lat);
@@ -354,21 +322,6 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
             }
           });
       });
-  }
-
-
-  @ViewChild('tabMap')
-  set tabMapRendered(element: ElementRef | undefined) {
-    // is called when tab rendered or destroyed
-    if (element) {
-      if (this.venueMap) {
-        console.log("Set target");
-        this.venueMap.setTarget("venueMap");
-      }
-    } else {
-      console.log("Map tab destroyed");
-      this.venueMap?.setTarget("");
-    }
   }
 
 

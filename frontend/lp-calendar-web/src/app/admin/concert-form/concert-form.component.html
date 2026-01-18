@@ -248,35 +248,33 @@
       }
 
       @if (activeTabName$ == 'map') {
-        <ng-container class="container" #tabMap>
-          <h3>Venue location</h3>
-          <div class="form-group">
-            <label for="venueLat">Latitude</label>
-            <input id="venueLat" type="number" formControlName="venueLat" class="form-control"
-              [ngClass]="{ 'is-invalid': concertForm.controls.venueLat.invalid }">
-            @if (concertForm.controls.venueLat.invalid) {
-              <div class="text-danger">
-                @if (concertForm.controls.venueLat.errors) {
-                  <small>Latitude is invalid.</small>
-                }
-              </div>
-            }
-            <label for="venueLong">Longitude</label>
-            <input id="venueLong" type="number" formControlName="venueLong" class="form-control"
-              [ngClass]="{ 'is-invalid': concertForm.controls.venueLong.invalid }">
-            @if (concertForm.controls.venueLong.invalid) {
-              <div class="text-danger">
-                @if (concertForm.controls.venueLong.errors) {
-                  <small>Longitude is invalid.</small>
-                }
-              </div>
-            }
-          </div>
-          <button class="btn btn-outline-secondary mt-3 mb-3" (click)="tryAutoSetVenuePin()"><i class="bi bi-crosshair"></i> Try to set pin at venue</button>
-          <button class="btn btn-outline-secondary mt-3 mb-3 ms-1" (click)="onGoToCityClicked()"><i class="bi bi-map"></i> Go to city</button>
-          <button class="btn btn-outline-secondary mt-3 mb-3 ms-1" (click)="onSetPinClicked()"><i class="bi bi-geo-fill"></i> Set pin here</button>
-          <div id="venueMap" class="concert-form-map"></div>
-        </ng-container>
+        <h3>Venue location</h3>
+        <div class="form-group">
+          <label for="venueLat">Latitude</label>
+          <input id="venueLat" type="number" formControlName="venueLat" class="form-control"
+            [ngClass]="{ 'is-invalid': concertForm.controls.venueLat.invalid }">
+          @if (concertForm.controls.venueLat.invalid) {
+            <div class="text-danger">
+              @if (concertForm.controls.venueLat.errors) {
+                <small>Latitude is invalid.</small>
+              }
+            </div>
+          }
+          <label for="venueLong">Longitude</label>
+          <input id="venueLong" type="number" formControlName="venueLong" class="form-control"
+            [ngClass]="{ 'is-invalid': concertForm.controls.venueLong.invalid }">
+          @if (concertForm.controls.venueLong.invalid) {
+            <div class="text-danger">
+              @if (concertForm.controls.venueLong.errors) {
+                <small>Longitude is invalid.</small>
+              }
+            </div>
+          }
+        </div>
+        <button class="btn btn-outline-secondary mt-3 mb-3" (click)="tryAutoSetVenuePin()"><i class="bi bi-crosshair"></i> Try to set pin at venue</button>
+        <button class="btn btn-outline-secondary mt-3 mb-3 ms-1" (click)="onGoToCityClicked()"><i class="bi bi-map"></i> Go to city</button>
+        <button class="btn btn-outline-secondary mt-3 mb-3 ms-1" (click)="onSetPinClicked()"><i class="bi bi-geo-fill"></i> Set pin here</button>
+        <div #appleMaps class="concert-form-map"></div>
       }
     </div>
     <div class="card-footer">
