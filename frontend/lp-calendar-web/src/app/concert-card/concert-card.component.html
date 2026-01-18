@@ -4,37 +4,32 @@
   </div>
   <div class="card-body">
     @if (concert$ != null && !isLoading$) {
-      <ng-template #concertTemplate>
-        <h5 class="card-title">{{ concert$?.venue }}</h5>
-        <p class="card-text">
-          <i>{{ concert$.city }}{{ (concert$.state?.length ?? 0) > 0 ? ", " + concert$.state : ""}}, {{ concert$.country }}</i>
-        </p>
-        @if (concert$.postedStartTime != undefined || concert$.mainStageTime != undefined) {
-          <app-countdown [countdownToDate]="concert$.mainStageTime ?? concert$.postedStartTime!" [concertId]="concert$.id" />
-        }
-        @if (concert$.mainStageTime == undefined) {
-          <small>Based on start time on ticket</small>
-        }
-        @if (concert$.mainStageTime != undefined) {
-          <small>Based on Linkin Park stage time</small>
-        }
-      </ng-template>
+      <h5 class="card-title">{{ concert$?.venue }}</h5>
+      <p class="card-text">
+        <i>{{ concert$.city }}{{ (concert$.state?.length ?? 0) > 0 ? ", " + concert$.state : ""}}, {{ concert$.country }}</i>
+      </p>
+      @if (concert$.postedStartTime != undefined || concert$.mainStageTime != undefined) {
+        <app-countdown [countdownToDate]="concert$.mainStageTime ?? concert$.postedStartTime!" [concertId]="concert$.id" />
+      }
+      @if (concert$.mainStageTime == undefined) {
+        <small>Based on start time on ticket</small>
+      }
+      @if (concert$.mainStageTime != undefined) {
+        <small>Based on Linkin Park stage time</small>
+      }
     }
 
     @if (isLoading$) {
-      <ng-template #concertLoadingSpinner>
-        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading concert...
-      </ng-template>
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading concert...
     }
 
     @if (!isLoading$ && concert$ == null) {
-      <ng-template #concertLoadingError>
-        <div class="alert alert-{{notFoundAlertClass}}" role="alert">
-          {{ notFoundAlertText }}
-        </div>
-      </ng-template>
+      <div class="alert alert-{{notFoundAlertClass}}" role="alert">
+        {{ notFoundAlertText }}
+      </div>
     }
   </div>
+
   @if (concert$?.id != null) {
     <div class="card-footer text-end">
       <button class="btn btn-outline-info" [routerLink]="['/concerts', concert$?.id]"><i class="bi bi-info-circle"></i> Details</button>
