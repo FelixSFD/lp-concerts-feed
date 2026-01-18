@@ -66,6 +66,9 @@ export class TourMapPageComponent {
 
     console.log("Will set map element: ", mapElement);
     this.appleMap = new this.mapKit!.Map(mapElement.nativeElement);
+    this.appleMap.showsUserLocationControl = true;
+    this.appleMap.showsUserLocation = true;
+
     this.reloadPins();
   }
 
@@ -74,7 +77,7 @@ export class TourMapPageComponent {
     this.mapKit = await load({
       token: environment.appleMapsToken,
       language: "en-US",
-      libraries: ["map", "annotations"]
+      libraries: ["map", "annotations", "user-location"]
     });
   }
 
