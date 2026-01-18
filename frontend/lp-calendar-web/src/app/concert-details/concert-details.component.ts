@@ -49,7 +49,6 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
 
   // Apple Maps
   private mapKit: MapKit | undefined;
-  //@ViewChild("appleMaps", { static: false }) appleMapsContainer: ElementRef<HTMLDivElement> | undefined;
   private appleMap: AppleMap | undefined;
 
   // Service to check auth information

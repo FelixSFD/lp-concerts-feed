@@ -1,24 +1,13 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
-import TileLayer from 'ol/layer/Tile';
-import {OSM} from 'ol/source';
-import Map from 'ol/Map';
-import View from 'ol/View';
-import Feature from 'ol/Feature';
-import Point from 'ol/geom/Point';
-import {fromLonLat} from 'ol/proj';
-import Style from 'ol/style/Style';
-import Icon from 'ol/style/Icon';
-import VectorSource from 'ol/source/Vector';
-import VectorLayer from 'ol/layer/Vector';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {ConcertsService} from '../services/concerts.service';
-import {Attribution} from 'ol/control';
-import {defaultShowType, listOfTours, mapAttribution} from '../app.config';
-import {defaults as defaultControls} from 'ol/control/defaults';
+import {defaultShowType, listOfTours,} from '../app.config';
 import {ConcertFilter} from '../data/concert-filter';
 import {ToastrService} from 'ngx-toastr';
 
 import {ReactiveFormsModule} from '@angular/forms';
 import {DateTime} from 'luxon';
+import {load, Map as AppleMap, MapKit, MarkerAnnotation} from '@apple/mapkit-loader';
+import {environment} from '../../environments/environment';
 
 @Component({
   selector: 'app-tour-map-page',
@@ -28,11 +17,10 @@ import {DateTime} from 'luxon';
   templateUrl: './tour-map-page.component.html',
   styleUrl: './tour-map-page.component.css'
 })
-export class TourMapPageComponent implements OnInit, AfterViewInit {
-  private venueMap: Map | undefined;
-  private markerFeatures: Feature<Point>[] = [];
-  private vectorSource: VectorSource<Feature<Point>> | undefined;
-  private vectorLayer: VectorLayer | undefined;
+export class TourMapPageComponent {
+  // Apple Maps
+  private mapKit: MapKit | undefined;
+  private appleMap: AppleMap | undefined;
 
   // default filter that is used when loading the list
   defaultFilter: ConcertFilter = {
@@ -53,16 +41,6 @@ export class TourMapPageComponent implements OnInit, AfterViewInit {
   }
 
 
-  ngOnInit() {
-    this.reloadPins();
-  }
-
-
-  ngAfterViewInit() {
-    this.initVenueMap();
-  }
-
-
   onTourSelected(event: any) {
     let tour = event.target.value;
     if (tour == "ALL") {
@@ -74,6 +52,33 @@ export class TourMapPageComponent implements OnInit, AfterViewInit {
   }
 
 
+  @ViewChild('map')
+  set appleMaps(mapElement: ElementRef<HTMLDivElement> | undefined) {
+    if (!mapElement) return;
+    if (!this.appleMaps) {
+      console.debug('MapKit not initialized yet!');
+      this.initAppleMaps().then(() => {
+        this.appleMap = new this.mapKit!.Map(mapElement.nativeElement);
+        this.reloadPins();
+      });
+      return;
+    }
+
+    console.log("Will set map element: ", mapElement);
+    this.appleMap = new this.mapKit!.Map(mapElement.nativeElement);
+    this.reloadPins();
+  }
+
+
+  private async initAppleMaps() {
+    this.mapKit = await load({
+      token: environment.appleMapsToken,
+      language: "en-US",
+      libraries: ["map", "annotations"]
+    });
+  }
+
+
   private reloadPins() {
     this.isLoadingPins$ = true;
 
@@ -82,17 +87,20 @@ export class TourMapPageComponent implements OnInit, AfterViewInit {
         next: results => {
           this.isLoadingPins$ = false;
 
-          this.clearAllPins();
-
-          results.forEach(r => {
+          let annotations = results.map(r => {
             if (r.venueLongitude != undefined && r.venueLongitude != 0 && r.venueLatitude != undefined && r.venueLatitude != 0) {
-              let markerColor = "black";
+              let markerColor = "#b306d1";
               if (r.showType != defaultShowType && r.showType != undefined) {
-                markerColor = "red";
+                markerColor = "#eb4b4b";
               }
-              this.addMarker(r.venueLongitude, r.venueLatitude, markerColor);
+
+              return this.makeMarker(r.venueLatitude, r.venueLongitude, r.locationShort ?? r.city ?? undefined, markerColor);
             }
-          });
+
+            return null;
+          }).filter(m => m != null);
+
+          this.appleMap?.showItems(annotations);
         },
         error: err => {
           this.isLoadingPins$ = false;
@@ -102,73 +110,11 @@ export class TourMapPageComponent implements OnInit, AfterViewInit {
   }
 
 
-  private initVenueMap() {
-    const attribution = new Attribution({
-      collapsible: false,
-      attributions: mapAttribution,
+  private makeMarker(lat: number, lon: number, title: string | undefined, color: string): MarkerAnnotation {
+    return new this.mapKit!.MarkerAnnotation(new this.mapKit!.Coordinate(lat, lon), {
+      color: color,
+      title: title
     });
-
-    this.venueMap = new Map({
-      controls: defaultControls({attribution: false}).extend([attribution]),
-      layers: [
-        new TileLayer({
-          source: new OSM(),
-        }),
-      ],
-      target: "map",
-      view: new View({
-        center: [0, 0],
-        zoom: 2, maxZoom: 18,
-      }),
-    });
-  }
-
-
-  private addMarker(lon: number, lat: number, color: string) {
-    const newCoords = fromLonLat([lon, lat]); // Convert to EPSG:3857
-    console.debug("Set marker at: " + newCoords.toString())
-
-    // make sure the vectorSource and layer exist
-    if (this.vectorLayer == undefined) {
-      this.vectorSource = new VectorSource({
-        features: []
-      });
-    }
-
-    // Create vector layer if it doesn't exist yet
-    if (this.vectorLayer == undefined) {
-      this.vectorLayer = new VectorLayer({
-        source: this.vectorSource
-      });
-
-      this.venueMap?.addLayer(this.vectorLayer);
-    }
-
-    // Create a marker feature
-    const markerFeature = new Feature({
-      geometry: new Point(newCoords), // Initial position
-    });
-
-    markerFeature.setStyle(new Style({
-      image: new Icon({
-        anchor: [0.5, 1],
-        src: './map/map-pin-50-' + color + '.png',
-        scale: 0.59
-      })
-    }));
-
-    // Add marker to vector layer
-    this.vectorSource?.addFeature(markerFeature);
-    this.markerFeatures.push(markerFeature);
-  }
-
-
-  /**
-   * Removes all pins from the map
-   */
-  private clearAllPins() {
-    this.vectorSource?.removeFeatures(this.markerFeatures);
-    this.markerFeatures = [];
   }
 
   protected readonly listOfTours = listOfTours;
