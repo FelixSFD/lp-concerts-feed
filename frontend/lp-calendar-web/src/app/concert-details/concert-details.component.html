@@ -61,60 +61,54 @@
   <div class="container">
     <div class="row row-cols-xxl-4 row-cols-xl-3 row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-xs-1 row-cols-1 gy-4 gx-4">
       @if (concert$?.mainStageTime != undefined) {
-        <ng-template #lpStageTimeCards>
-          <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12">
-            <div class="card w-100" style="width: 18rem;">
-              <div class="card-header">
-                Linkin Park stage time <span class="d-md-none d-lg-none d-xl-none d-xxl-none">(Venue timezone)</span>
-              </div>
-              <div class="card-body text-center">
-                <h4 class="card-text">{{getDateTimeInTimezone(concert$?.mainStageTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE)}}</h4>
-                <small>Venue's timezone ({{ concert$?.timeZoneId ?? "" }})</small>
-              </div>
+        <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12">
+          <div class="card w-100" style="width: 18rem;">
+            <div class="card-header">
+              Linkin Park stage time <span class="d-md-none d-lg-none d-xl-none d-xxl-none">(Venue timezone)</span>
+            </div>
+            <div class="card-body text-center">
+              <h4 class="card-text">{{getDateTimeInTimezone(concert$?.mainStageTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE)}}</h4>
+              <small>Venue's timezone ({{ concert$?.timeZoneId ?? "" }})</small>
             </div>
           </div>
-          <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12">
-            <div class="card w-100" style="width: 18rem;">
-              <div class="card-header">
-                Linkin Park stage time <span class="d-md-none d-lg-none d-xl-none d-xxl-none">(Your timezone)</span>
-              </div>
-              <div class="card-body text-center">
-                <h4 class="card-text">{{getDateTime(concert$?.mainStageTime!).toLocaleString(DateTime. DATETIME_SHORT)}}</h4>
-                <small>Your timezone</small>
-              </div>
+        </div>
+        <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12">
+          <div class="card w-100" style="width: 18rem;">
+            <div class="card-header">
+              Linkin Park stage time <span class="d-md-none d-lg-none d-xl-none d-xxl-none">(Your timezone)</span>
+            </div>
+            <div class="card-body text-center">
+              <h4 class="card-text">{{getDateTime(concert$?.mainStageTime!).toLocaleString(DateTime. DATETIME_SHORT)}}</h4>
+              <small>Your timezone</small>
             </div>
           </div>
-        </ng-template>
+        </div>
       }
       @if (concert$?.lpuEarlyEntryTime != undefined) {
-        <ng-template #lpuEarlyEntryCard>
-          <div class="col">
-            <div class="card w-100" style="width: 18rem;">
-              <div class="card-header">
-                LPU Early Entry
-              </div>
-              <div class="card-body text-center">
-                <h4 class="card-text">{{getDateTimeInTimezone(concert$?.lpuEarlyEntryTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE)}}</h4>
-                <small>Venue's timezone ({{ concert$?.timeZoneId ?? "" }})</small>
-              </div>
+        <div class="col">
+          <div class="card w-100" style="width: 18rem;">
+            <div class="card-header">
+              LPU Early Entry
+            </div>
+            <div class="card-body text-center">
+              <h4 class="card-text">{{getDateTimeInTimezone(concert$?.lpuEarlyEntryTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE)}}</h4>
+              <small>Venue's timezone ({{ concert$?.timeZoneId ?? "" }})</small>
             </div>
           </div>
-        </ng-template>
+        </div>
       }
       @if (concert$?.doorsTime != undefined) {
-        <ng-template #doorsTimeCard>
-          <div class="col">
-            <div class="card w-100" style="width: 18rem;">
-              <div class="card-header">
-                Doors open at
-              </div>
-              <div class="card-body text-center">
-                <h4 class="card-text">{{getDateTimeInTimezone(concert$?.doorsTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE)}}</h4>
-                <small>Venue's timezone ({{ concert$?.timeZoneId ?? "" }})</small>
-              </div>
+        <div class="col">
+          <div class="card w-100" style="width: 18rem;">
+            <div class="card-header">
+              Doors open at
+            </div>
+            <div class="card-body text-center">
+              <h4 class="card-text">{{getDateTimeInTimezone(concert$?.doorsTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE)}}</h4>
+              <small>Venue's timezone ({{ concert$?.timeZoneId ?? "" }})</small>
             </div>
           </div>
-        </ng-template>
+        </div>
       }
       @if (concert$?.mainStageTime == undefined) {
         <div class="col">
