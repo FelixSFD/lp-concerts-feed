@@ -1,6 +1,6 @@
 import {Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {NgClass, NgIf} from '@angular/common';
+import { NgClass } from '@angular/common';
 import {UserDto, UserNotificationSettingsDto} from '../../../modules/lpshows-api';
 import ConcertRemindersStatusEnum = UserNotificationSettingsDto.ConcertRemindersStatusEnum;
 import MainStageTimeUpdatesStatusEnum = UserNotificationSettingsDto.MainStageTimeUpdatesStatusEnum;
@@ -10,9 +10,8 @@ import MainStageTimeUpdatesStatusEnum = UserNotificationSettingsDto.MainStageTim
   imports: [
     FormsModule,
     ReactiveFormsModule,
-    NgIf,
     NgClass
-  ],
+],
   templateUrl: './user-form.component.html',
   styleUrl: './user-form.component.css'
 })

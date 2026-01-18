@@ -24,7 +24,9 @@
   <div class="form-group">
     <label for="groupsSelect">Groups</label>
     <select multiple disabled class="form-control" id="groupsSelect">
-      <option *ngFor="let groupName of groupNames$">{{ groupName }}</option>
+      @for (groupName of groupNames$; track groupName) {
+        <option>{{ groupName }}</option>
+      }
     </select>
     <small>Only administrators can add you to groups which grant you certain permissions on the site.</small>
   </div>

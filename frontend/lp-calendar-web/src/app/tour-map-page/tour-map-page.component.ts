@@ -16,17 +16,15 @@ import {defaultShowType, listOfTours, mapAttribution} from '../app.config';
 import {defaults as defaultControls} from 'ol/control/defaults';
 import {ConcertFilter} from '../data/concert-filter';
 import {ToastrService} from 'ngx-toastr';
-import {NgForOf, NgIf} from '@angular/common';
+
 import {ReactiveFormsModule} from '@angular/forms';
 import {DateTime} from 'luxon';
 
 @Component({
   selector: 'app-tour-map-page',
   imports: [
-    NgIf,
-    NgForOf,
     ReactiveFormsModule
-  ],
+],
   templateUrl: './tour-map-page.component.html',
   styleUrl: './tour-map-page.component.css'
 })

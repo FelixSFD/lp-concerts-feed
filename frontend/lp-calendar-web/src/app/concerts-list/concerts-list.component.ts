@@ -1,6 +1,6 @@
 import {Component, inject, OnInit, TemplateRef} from '@angular/core';
 import {ConcertsService} from '../services/concerts.service';
-import {NgForOf, NgIf} from '@angular/common';
+
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
@@ -20,16 +20,14 @@ import {ConcertDto, ErrorResponseDto} from '../modules/lpshows-api';
 @Component({
   selector: 'app-concerts-list',
   imports: [
-    NgForOf,
     ReactiveFormsModule,
-    NgIf,
     FormsModule,
     LuxonModule,
     RouterLink,
     ConcertBadgesComponent,
     CountdownComponent,
     ConcertFilterComponent
-  ],
+],
   templateUrl: './concerts-list.component.html',
   styleUrl: './concerts-list.component.css'
 })

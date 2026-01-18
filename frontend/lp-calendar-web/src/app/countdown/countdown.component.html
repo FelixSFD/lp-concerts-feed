@@ -1,50 +1,52 @@
-<ng-container *ngIf="differenceMillis$ >= 0">
+@if (differenceMillis$ >= 0) {
   <table class="lpshows-countdown-table" style="width: 100%; margin-left: 10px; margin-right: 10px;">
     <colgroup>
-      <col style="width: 30px" />
-      <col />
-      <col style="align-content: end" />
-    </colgroup>
-    <tr>
-      <td>{{ days$ }}</td>
-      <td>days</td>
-    </tr>
-    <tr>
-      <td>{{ hours$ }}</td>
-      <td>hours</td>
-      <td rowspan="2">
-        <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="countdownShareDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-          <i class="bi-share"></i> Share
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="countdownShareDropdown">
-          <li><a class="dropdown-item"
-                 href="javascript:void(0)"
-                 (click)="onShareDiscordTsClicked('F')"
-                 matomoClickCategory="share_countdown"
-                 matomoClickAction="Discord Timestamp"
-                 matomoClickName="Full Datetime"
-                 [matomoClickValue]="1">
-            <i class="bi bi-discord"></i> Discord Timestamp</a>
-          </li>
-          <li><a class="dropdown-item"
-                 href="javascript:void(0)"
-                 (click)="onShareDiscordTsClicked('R')"
-                 matomoClickCategory="share_countdown"
-                 matomoClickAction="Discord Timestamp"
-                 matomoClickName="Relative"
-                 [matomoClickValue]="1">
-            <i class="bi bi-discord"></i> Discord Countdown</a>
-          </li>
-          <li *ngIf="(concertId?.length ?? 0) > 0">
+    <col style="width: 30px" />
+    <col />
+    <col style="align-content: end" />
+  </colgroup>
+  <tr>
+    <td>{{ days$ }}</td>
+    <td>days</td>
+  </tr>
+  <tr>
+    <td>{{ hours$ }}</td>
+    <td>hours</td>
+    <td rowspan="2">
+      <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="countdownShareDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi-share"></i> Share
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="countdownShareDropdown">
+        <li><a class="dropdown-item"
+          href="javascript:void(0)"
+          (click)="onShareDiscordTsClicked('F')"
+          matomoClickCategory="share_countdown"
+          matomoClickAction="Discord Timestamp"
+          matomoClickName="Full Datetime"
+          [matomoClickValue]="1">
+          <i class="bi bi-discord"></i> Discord Timestamp</a>
+        </li>
+        <li><a class="dropdown-item"
+          href="javascript:void(0)"
+          (click)="onShareDiscordTsClicked('R')"
+          matomoClickCategory="share_countdown"
+          matomoClickAction="Discord Timestamp"
+          matomoClickName="Relative"
+          [matomoClickValue]="1">
+          <i class="bi bi-discord"></i> Discord Countdown</a>
+        </li>
+        @if ((concertId?.length ?? 0) > 0) {
+          <li>
             <a class="dropdown-item"
-               href="javascript:void(0)"
-               (click)="onShareLinkClicked()"
-               matomoClickCategory="share_countdown"
-               matomoClickAction="Link"
-               matomoClickName="Link to Details"
-               [matomoClickValue]="1">
+              href="javascript:void(0)"
+              (click)="onShareLinkClicked()"
+              matomoClickCategory="share_countdown"
+              matomoClickAction="Link"
+              matomoClickName="Link to Details"
+              [matomoClickValue]="1">
               <i class="bi bi-link"></i> Link</a>
-          </li>
+            </li>
+          }
         </ul>
       </td>
     </tr>
@@ -57,8 +59,8 @@
       <td>seconds</td>
     </tr>
   </table>
-</ng-container>
+}
 
-<ng-container *ngIf="differenceMillis$ < 0">
+@if (differenceMillis$ < 0) {
   <h2>It's showtime!</h2>
-</ng-container>
+}

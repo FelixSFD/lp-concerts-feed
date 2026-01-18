@@ -1,230 +1,291 @@
 <form #form="ngForm" [formGroup]="concertForm" [hidden]="!hasWriteAccess$" class="form">
   <div class="card mt-3">
-      <div class="card-header">
-          <ul class="nav nav-tabs card-header-tabs link-secondary">
-              <li class="nav-item">
-                  <a class="nav-link {{ activeTabName$ == 'main' ? 'active' : '' }}" (click)="openTab('main')" href="javascript:void(0)">General information</a>
-              </li>
-              <li class="nav-item">
-                  <a class="nav-link {{ activeTabName$ == 'timing-details' ? 'active' : '' }}" (click)="openTab('timing-details')" href="javascript:void(0)">Timing Details</a>
-              </li>
-              <li class="nav-item">
-                  <a class="nav-link {{ activeTabName$ == 'lpu' ? 'active' : '' }}" (click)="openTab('lpu')" href="javascript:void(0)">LPU</a>
-              </li>
-              <li class="nav-item">
-                  <a class="nav-link {{ activeTabName$ == 'map' ? 'active' : '' }}" (click)="openTab('map')" href="javascript:void(0)">Map</a>
-              </li>
-          </ul>
-      </div>
+    <div class="card-header">
+      <ul class="nav nav-tabs card-header-tabs link-secondary">
+        <li class="nav-item">
+          <a class="nav-link {{ activeTabName$ == 'main' ? 'active' : '' }}" (click)="openTab('main')" href="javascript:void(0)">General information</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {{ activeTabName$ == 'timing-details' ? 'active' : '' }}" (click)="openTab('timing-details')" href="javascript:void(0)">Timing Details</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {{ activeTabName$ == 'lpu' ? 'active' : '' }}" (click)="openTab('lpu')" href="javascript:void(0)">LPU</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {{ activeTabName$ == 'map' ? 'active' : '' }}" (click)="openTab('map')" href="javascript:void(0)">Map</a>
+        </li>
+      </ul>
+    </div>
     <div class="card-body edit-form-card">
-        <ng-container *ngIf="activeTabName$ == 'main'">
-            <!-- Show Type -->
-            <div class="form-group">
-              <label for="showType">Type of show</label>
-              <select id="showType" formControlName="showType" class="form-select" aria-label="Select show type">
-                <option disabled>--- Select type of show ---</option>
-                <option *ngFor="let tour of listOfShowTypes" [value]="tour">{{tour}}</option>
-              </select>
-              <div *ngIf="concertForm.controls.showType.invalid" class="text-danger">
-                <small *ngIf="concertForm.controls.showType.errors">Type of show is required.</small>
+      @if (activeTabName$ == 'main') {
+        <!-- Show Type -->
+        <div class="form-group">
+          <label for="showType">Type of show</label>
+          <select id="showType" formControlName="showType" class="form-select" aria-label="Select show type">
+            <option disabled>--- Select type of show ---</option>
+            @for (tour of listOfShowTypes; track tour) {
+              <option [value]="tour">{{tour}}</option>
+            }
+          </select>
+          @if (concertForm.controls.showType.invalid) {
+            <div class="text-danger">
+              @if (concertForm.controls.showType.errors) {
+                <small>Type of show is required.</small>
+              }
+            </div>
+          }
+        </div>
+        <!-- Tour -->
+        <div class="form-group">
+          <label for="tourName">Tour</label>
+          <select id="tourName" formControlName="tourName" class="form-select" aria-label="Select tour">
+            <option disabled>--- Select tour ---</option>
+            <option value="">Not part of a tour</option>
+            @for (tour of listOfTours; track tour) {
+              <option [value]="tour">{{tour}}</option>
+            }
+          </select>
+        </div>
+        <!-- Custom title -->
+        <div class="form-group">
+          <label for="customTitle">Custom title (only used for special cases)</label>
+          <input id="customTitle" type="text" formControlName="customTitle" class="form-control"
+            [ngClass]="{ 'is-invalid': concertForm.controls.customTitle.invalid }">
+          @if (concertForm.controls.customTitle.invalid) {
+            <div class="text-danger">
+              @if (concertForm.controls.customTitle.errors) {
+                <small>Title name is invalid.</small>
+              }
+            </div>
+          }
+        </div>
+        <!-- Date -->
+        <div class="form-group">
+          <label for="postedStartTime">Start time (according to ticket vendor)</label>
+          <input id="postedStartTime" type="datetime-local" formControlName="postedStartTime" class="form-control"
+            [ngClass]="{ 'is-invalid': concertForm.controls.postedStartTime.invalid }">
+          @if (concertForm.controls.postedStartTime.invalid) {
+            <div class="text-danger">
+              @if (concertForm.controls.postedStartTime.errors) {
+                <small>Start time is required.</small>
+              }
+            </div>
+          }
+        </div>
+        <!-- Timezone -->
+        <div class="form-group">
+          <label for="timezone">Venue timezone</label>
+          <div class="input-group">
+            <select id="timezone" formControlName="timezone" class="form-select" aria-label="Select timezone of concert">
+              <option disabled>--- Select timezone of venue ---</option>
+              @for (tz of timezones; track tz) {
+                <option [value]="tz.tzCode">{{tz.label}}</option>
+              }
+            </select>
+            <button class="btn btn-outline-primary" placement="auto" ngbTooltip="Fetches the timezone based on the location" [disabled]="timeZoneIsLoading$" (click)="onUpdateTimeZoneClicked()">
+              <i class="bi bi-arrow-clockwise"></i> Load Timezone
+            </button>
+          </div>
+          @if (concertForm.controls.timezone.invalid) {
+            <div class="text-danger">
+              @if (concertForm.controls.timezone.errors) {
+                <small>Timezone is required.</small>
+              }
+            </div>
+          }
+        </div>
+        <!-- Venue -->
+        <div class="form-group">
+          <label for="venue">Venue Name</label>
+          <input id="venue" type="text" formControlName="venue" class="form-control"
+            [ngClass]="{ 'is-invalid': concertForm.controls.venue.invalid }">
+          @if (concertForm.controls.venue.invalid) {
+            <div class="text-danger">
+              @if (concertForm.controls.venue.errors) {
+                <small>Venue name is required.</small>
+              }
+            </div>
+          }
+        </div>
+        <!-- City -->
+        <div class="form-group">
+          <label for="city">City</label>
+          <input id="city" type="text" formControlName="city" class="form-control"
+            [ngClass]="{ 'is-invalid': concertForm.controls.city.invalid }">
+          @if (concertForm.controls.city.invalid) {
+            <div class="text-danger">
+              @if (concertForm.controls.city.errors) {
+                <small>City is required.</small>
+              }
+            </div>
+          }
+        </div>
+        <!-- State -->
+        <div class="form-group">
+          <label for="state">State (optional)</label>
+          <input id="state" type="text" formControlName="state" class="form-control"
+            [ngClass]="{ 'is-invalid': concertForm.controls.state.invalid }">
+          @if (concertForm.controls.state.invalid) {
+            <div class="text-danger">
+              @if (concertForm.controls.state.errors) {
+                <small>State is invalid.</small>
+              }
+            </div>
+          }
+        </div>
+        <!-- Country -->
+        <div class="form-group">
+          <label for="country">Country</label>
+          <input id="country" type="text" formControlName="country" class="form-control"
+            [ngClass]="{ 'is-invalid': concertForm.controls.country.invalid }">
+          @if (concertForm.controls.country.invalid) {
+            <div class="text-danger">
+              @if (concertForm.controls.country.errors) {
+                <small>Country is required.</small>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (activeTabName$ == 'timing-details') {
+        <!-- Schedule upload -->
+        <div class="form-group">
+          <label for="scheduleImg">Schedule image</label>
+          <div class="input-group">
+            <input id="scheduleImg" type="file" formControlName="scheduleImg" class="form-control"
+              [ngClass]="{ 'is-invalid': concertForm.controls.scheduleImg.invalid }" (change)="onScheduleFileSelected($event)">
+            <button class="btn btn-outline-success" (click)="uploadFileClicked()" [disabled]="scheduleIsUploading$ || this.selectedScheduleFile == undefined">
+              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!scheduleIsUploading$"></span>
+              <span class="sr-only">@if (!scheduleIsUploading$) {
+                <i class="bi-upload"></i>
+              }{{ scheduleIsUploading$ ? "Uploading..." : " Upload" }}</span>
+            </button>
+          </div>
+          @if (concertForm.controls.scheduleImg.invalid) {
+            <div class="text-danger">
+              @if (concertForm.controls.scheduleImg.errors) {
+                <small>File is invalid.</small>
+              }
+            </div>
+          }
+          <small><b>Note:</b> To save the image, click the upload button. This is separate from saving the concert details.</small>
+          <br />
+          @if (concert$?.scheduleImageFile != undefined) {
+            <img width="35%" src="{{ environment.imageBaseUrl + '/' + concert$?.scheduleImageFile! }}" alt="Uploaded image" />
+          }
+        </div>
+        <br/><br/>
+        <!-- Official Doors Time -->
+        <div class="form-group">
+          <label for="doorsTime">Confirmed doors time (normal entry)</label>
+          <input id="doorsTime" type="time" formControlName="doorsTime" class="form-control"
+            [ngClass]="{ 'is-invalid': concertForm.controls.doorsTime.invalid }">
+          @if (concertForm.controls.doorsTime.invalid) {
+            <div class="text-danger">
+              @if (concertForm.controls.doorsTime.errors) {
+                <small>Time is invalid.</small>
+              }
+            </div>
+          }
+        </div>
+        <!-- Linkin Park Stage Time -->
+        <div class="form-group">
+          <label for="lpStageTime">Confirmed Linkin Park stage time</label>
+          <input id="lpStageTime" type="time" formControlName="lpStageTime" class="form-control"
+            [ngClass]="{ 'is-invalid': concertForm.controls.lpStageTime.invalid }">
+          @if (concertForm.controls.lpStageTime.invalid) {
+            <div class="text-danger">
+              @if (concertForm.controls.lpStageTime.errors) {
+                <small>Time is invalid.</small>
+              }
+            </div>
+          }
+        </div>
+        <!-- Expected set duration -->
+        <div class="form-group">
+          <label for="expectedSetDuration">Expected set duration</label>
+          <div class="input-group mb-3">
+            <input id="expectedSetDuration" type="time" formControlName="expectedSetDuration" class="form-control"
+              [ngClass]="{ 'is-invalid': concertForm.controls.expectedSetDuration.invalid }">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Set standard</button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" (click)="setExpectedSetDuration(120)" href="javascript:void(0)">2 hours</a></li>
+              <li><a class="dropdown-item" (click)="setExpectedSetDuration(90)" href="javascript:void(0)">90 minutes</a></li>
+              <li><a class="dropdown-item" (click)="setExpectedSetDuration(59+1)" href="javascript:void(0)">1 hour</a></li>
+            </ul>
+          </div>
+          @if (concertForm.controls.expectedSetDuration.invalid) {
+            <div class="text-danger">
+              @if (concertForm.controls.expectedSetDuration.errors) {
+                <small>Duration is invalid.</small>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (activeTabName$ == 'lpu') {
+        <!-- LPU Early Entry Time -->
+        <div class="form-check form-switch">
+          <input class="form-check-input form-control" type="checkbox" id="lpuEarlyEntryConfirmed" [checked]="concertForm.controls.lpuEarlyEntryConfirmed.value" formControlName="lpuEarlyEntryConfirmed">
+          <label class="form-check-label" for="lpuEarlyEntryConfirmed">LPU Early Entry has been officially confirmed for this show</label>
+        </div>
+        <br />
+        <!-- LPU Early Entry Time -->
+        <div class="form-group">
+          <label for="lpuEarlyEntryTime">LPU early entry time</label>
+          <input id="lpuEarlyEntryTime" type="time" formControlName="lpuEarlyEntryTime" class="form-control"
+            [ngClass]="{ 'is-invalid': concertForm.controls.lpuEarlyEntryTime.invalid }">
+          @if (concertForm.controls.lpuEarlyEntryTime.invalid) {
+            <div class="text-danger">
+              @if (concertForm.controls.lpuEarlyEntryTime.errors) {
+                <small>Start time is invalid.</small>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (activeTabName$ == 'map') {
+        <ng-container class="container" #tabMap>
+          <h3>Venue location</h3>
+          <div class="form-group">
+            <label for="venueLat">Latitude</label>
+            <input id="venueLat" type="number" formControlName="venueLat" class="form-control"
+              [ngClass]="{ 'is-invalid': concertForm.controls.venueLat.invalid }">
+            @if (concertForm.controls.venueLat.invalid) {
+              <div class="text-danger">
+                @if (concertForm.controls.venueLat.errors) {
+                  <small>Latitude is invalid.</small>
+                }
               </div>
-            </div>
-
-            <!-- Tour -->
-            <div class="form-group">
-                <label for="tourName">Tour</label>
-                <select id="tourName" formControlName="tourName" class="form-select" aria-label="Select tour">
-                    <option disabled>--- Select tour ---</option>
-                    <option value="">Not part of a tour</option>
-                    <option *ngFor="let tour of listOfTours" [value]="tour">{{tour}}</option>
-                </select>
-            </div>
-
-            <!-- Custom title -->
-            <div class="form-group">
-              <label for="customTitle">Custom title (only used for special cases)</label>
-              <input id="customTitle" type="text" formControlName="customTitle" class="form-control"
-                     [ngClass]="{ 'is-invalid': concertForm.controls.customTitle.invalid }">
-              <div *ngIf="concertForm.controls.customTitle.invalid" class="text-danger">
-                <small *ngIf="concertForm.controls.customTitle.errors">Title name is invalid.</small>
+            }
+            <label for="venueLong">Longitude</label>
+            <input id="venueLong" type="number" formControlName="venueLong" class="form-control"
+              [ngClass]="{ 'is-invalid': concertForm.controls.venueLong.invalid }">
+            @if (concertForm.controls.venueLong.invalid) {
+              <div class="text-danger">
+                @if (concertForm.controls.venueLong.errors) {
+                  <small>Longitude is invalid.</small>
+                }
               </div>
-            </div>
-
-            <!-- Date -->
-            <div class="form-group">
-                <label for="postedStartTime">Start time (according to ticket vendor)</label>
-                <input id="postedStartTime" type="datetime-local" formControlName="postedStartTime" class="form-control"
-                       [ngClass]="{ 'is-invalid': concertForm.controls.postedStartTime.invalid }">
-                <div *ngIf="concertForm.controls.postedStartTime.invalid" class="text-danger">
-                    <small *ngIf="concertForm.controls.postedStartTime.errors">Start time is required.</small>
-                </div>
-            </div>
-            <!-- Timezone -->
-            <div class="form-group">
-                <label for="timezone">Venue timezone</label>
-                <div class="input-group">
-                  <select id="timezone" formControlName="timezone" class="form-select" aria-label="Select timezone of concert">
-                    <option disabled>--- Select timezone of venue ---</option>
-                    <option *ngFor="let tz of timezones" [value]="tz.tzCode">{{tz.label}}</option>
-                  </select>
-                  <button class="btn btn-outline-primary" placement="auto" ngbTooltip="Fetches the timezone based on the location" [disabled]="timeZoneIsLoading$" (click)="onUpdateTimeZoneClicked()">
-                    <i class="bi bi-arrow-clockwise"></i> Load Timezone
-                  </button>
-                </div>
-                <div *ngIf="concertForm.controls.timezone.invalid" class="text-danger">
-                    <small *ngIf="concertForm.controls.timezone.errors">Timezone is required.</small>
-                </div>
-            </div>
-            <!-- Venue -->
-            <div class="form-group">
-                <label for="venue">Venue Name</label>
-                <input id="venue" type="text" formControlName="venue" class="form-control"
-                       [ngClass]="{ 'is-invalid': concertForm.controls.venue.invalid }">
-                <div *ngIf="concertForm.controls.venue.invalid" class="text-danger">
-                    <small *ngIf="concertForm.controls.venue.errors">Venue name is required.</small>
-                </div>
-            </div>
-            <!-- City -->
-            <div class="form-group">
-                <label for="city">City</label>
-                <input id="city" type="text" formControlName="city" class="form-control"
-                       [ngClass]="{ 'is-invalid': concertForm.controls.city.invalid }">
-                <div *ngIf="concertForm.controls.city.invalid" class="text-danger">
-                    <small *ngIf="concertForm.controls.city.errors">City is required.</small>
-                </div>
-            </div>
-            <!-- State -->
-            <div class="form-group">
-                <label for="state">State (optional)</label>
-                <input id="state" type="text" formControlName="state" class="form-control"
-                       [ngClass]="{ 'is-invalid': concertForm.controls.state.invalid }">
-                <div *ngIf="concertForm.controls.state.invalid" class="text-danger">
-                    <small *ngIf="concertForm.controls.state.errors">State is invalid.</small>
-                </div>
-            </div>
-            <!-- Country -->
-            <div class="form-group">
-                <label for="country">Country</label>
-                <input id="country" type="text" formControlName="country" class="form-control"
-                       [ngClass]="{ 'is-invalid': concertForm.controls.country.invalid }">
-                <div *ngIf="concertForm.controls.country.invalid" class="text-danger">
-                    <small *ngIf="concertForm.controls.country.errors">Country is required.</small>
-                </div>
-            </div>
+            }
+          </div>
+          <button class="btn btn-outline-secondary mt-3 mb-3" (click)="tryAutoSetVenuePin()"><i class="bi bi-crosshair"></i> Try to set pin at venue</button>
+          <button class="btn btn-outline-secondary mt-3 mb-3 ms-1" (click)="onGoToCityClicked()"><i class="bi bi-map"></i> Go to city</button>
+          <button class="btn btn-outline-secondary mt-3 mb-3 ms-1" (click)="onSetPinClicked()"><i class="bi bi-geo-fill"></i> Set pin here</button>
+          <div id="venueMap" class="concert-form-map"></div>
         </ng-container>
-
-        <ng-container *ngIf="activeTabName$ == 'timing-details'">
-            <!-- Schedule upload -->
-            <div class="form-group">
-                <label for="scheduleImg">Schedule image</label>
-                <div class="input-group">
-                    <input id="scheduleImg" type="file" formControlName="scheduleImg" class="form-control"
-                           [ngClass]="{ 'is-invalid': concertForm.controls.scheduleImg.invalid }" (change)="onScheduleFileSelected($event)">
-                    <button class="btn btn-outline-success" (click)="uploadFileClicked()" [disabled]="scheduleIsUploading$ || this.selectedScheduleFile == undefined">
-                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!scheduleIsUploading$"></span>
-                        <span class="sr-only"><i *ngIf="!scheduleIsUploading$" class="bi-upload"></i>{{ scheduleIsUploading$ ? "Uploading..." : " Upload" }}</span>
-                    </button>
-                </div>
-                <div *ngIf="concertForm.controls.scheduleImg.invalid" class="text-danger">
-                    <small *ngIf="concertForm.controls.scheduleImg.errors">File is invalid.</small>
-                </div>
-                <small><b>Note:</b> To save the image, click the upload button. This is separate from saving the concert details.</small>
-
-                <br />
-                <img *ngIf="concert$?.scheduleImageFile != undefined" width="35%" src="{{ environment.imageBaseUrl + '/' + concert$?.scheduleImageFile! }}" alt="Uploaded image" />
-            </div>
-
-            <br/><br/>
-
-            <!-- Official Doors Time -->
-            <div class="form-group">
-                <label for="doorsTime">Confirmed doors time (normal entry)</label>
-                <input id="doorsTime" type="time" formControlName="doorsTime" class="form-control"
-                       [ngClass]="{ 'is-invalid': concertForm.controls.doorsTime.invalid }">
-                <div *ngIf="concertForm.controls.doorsTime.invalid" class="text-danger">
-                    <small *ngIf="concertForm.controls.doorsTime.errors">Time is invalid.</small>
-                </div>
-            </div>
-
-            <!-- Linkin Park Stage Time -->
-            <div class="form-group">
-                <label for="lpStageTime">Confirmed Linkin Park stage time</label>
-                <input id="lpStageTime" type="time" formControlName="lpStageTime" class="form-control"
-                       [ngClass]="{ 'is-invalid': concertForm.controls.lpStageTime.invalid }">
-                <div *ngIf="concertForm.controls.lpStageTime.invalid" class="text-danger">
-                    <small *ngIf="concertForm.controls.lpStageTime.errors">Time is invalid.</small>
-                </div>
-            </div>
-
-            <!-- Expected set duration -->
-            <div class="form-group">
-              <label for="expectedSetDuration">Expected set duration</label>
-              <div class="input-group mb-3">
-                <input id="expectedSetDuration" type="time" formControlName="expectedSetDuration" class="form-control"
-                       [ngClass]="{ 'is-invalid': concertForm.controls.expectedSetDuration.invalid }">
-                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Set standard</button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                  <li><a class="dropdown-item" (click)="setExpectedSetDuration(120)" href="javascript:void(0)">2 hours</a></li>
-                  <li><a class="dropdown-item" (click)="setExpectedSetDuration(90)" href="javascript:void(0)">90 minutes</a></li>
-                  <li><a class="dropdown-item" (click)="setExpectedSetDuration(59+1)" href="javascript:void(0)">1 hour</a></li>
-                </ul>
-              </div>
-              <div *ngIf="concertForm.controls.expectedSetDuration.invalid" class="text-danger">
-                <small *ngIf="concertForm.controls.expectedSetDuration.errors">Duration is invalid.</small>
-              </div>
-            </div>
-        </ng-container>
-
-        <ng-container *ngIf="activeTabName$ == 'lpu'">
-            <!-- LPU Early Entry Time -->
-            <div class="form-check form-switch">
-                <input class="form-check-input form-control" type="checkbox" id="lpuEarlyEntryConfirmed" [checked]="concertForm.controls.lpuEarlyEntryConfirmed.value" formControlName="lpuEarlyEntryConfirmed">
-                <label class="form-check-label" for="lpuEarlyEntryConfirmed">LPU Early Entry has been officially confirmed for this show</label>
-            </div>
-
-            <br />
-
-            <!-- LPU Early Entry Time -->
-            <div class="form-group">
-                <label for="lpuEarlyEntryTime">LPU early entry time</label>
-                <input id="lpuEarlyEntryTime" type="time" formControlName="lpuEarlyEntryTime" class="form-control"
-                       [ngClass]="{ 'is-invalid': concertForm.controls.lpuEarlyEntryTime.invalid }">
-                <div *ngIf="concertForm.controls.lpuEarlyEntryTime.invalid" class="text-danger">
-                    <small *ngIf="concertForm.controls.lpuEarlyEntryTime.errors">Start time is invalid.</small>
-                </div>
-            </div>
-        </ng-container>
-
-        <ng-container *ngIf="activeTabName$ == 'map'" class="container" #tabMap>
-            <h3>Venue location</h3>
-            <div class="form-group">
-                <label for="venueLat">Latitude</label>
-                <input id="venueLat" type="number" formControlName="venueLat" class="form-control"
-                       [ngClass]="{ 'is-invalid': concertForm.controls.venueLat.invalid }">
-                <div *ngIf="concertForm.controls.venueLat.invalid" class="text-danger">
-                    <small *ngIf="concertForm.controls.venueLat.errors">Latitude is invalid.</small>
-                </div>
-
-                <label for="venueLong">Longitude</label>
-                <input id="venueLong" type="number" formControlName="venueLong" class="form-control"
-                       [ngClass]="{ 'is-invalid': concertForm.controls.venueLong.invalid }">
-                <div *ngIf="concertForm.controls.venueLong.invalid" class="text-danger">
-                    <small *ngIf="concertForm.controls.venueLong.errors">Longitude is invalid.</small>
-                </div>
-            </div>
-
-            <button class="btn btn-outline-secondary mt-3 mb-3" (click)="tryAutoSetVenuePin()"><i class="bi bi-crosshair"></i> Try to set pin at venue</button>
-            <button class="btn btn-outline-secondary mt-3 mb-3 ms-1" (click)="onGoToCityClicked()"><i class="bi bi-map"></i> Go to city</button>
-            <button class="btn btn-outline-secondary mt-3 mb-3 ms-1" (click)="onSetPinClicked()"><i class="bi bi-geo-fill"></i> Set pin here</button>
-
-            <div id="venueMap" class="concert-form-map"></div>
-        </ng-container>
+      }
     </div>
     <div class="card-footer">
       <div class="row">
-        <div class="col" *ngIf="showClearButton$">
-          <button class="btn btn-outline-secondary" [disabled]="isSaving$" (click)="onClearClicked()">Clear</button>
-        </div>
+        @if (showClearButton$) {
+          <div class="col">
+            <button class="btn btn-outline-secondary" [disabled]="isSaving$" (click)="onClearClicked()">Clear</button>
+          </div>
+        }
         <div class="col text-end">
           <button class="btn btn-success" (click)="onSaveClicked()" [disabled]="isSaving$ || !concertForm.valid">
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!isSaving$"></span>

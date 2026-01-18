@@ -1,6 +1,6 @@
 import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
-import {NgForOf, NgIf} from '@angular/common';
+
 import {listOfTours} from '../app.config';
 import {ConcertFilter} from '../data/concert-filter';
 import {DateTime} from 'luxon';
@@ -10,10 +10,8 @@ import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
   selector: 'app-concert-filter',
   imports: [
     ReactiveFormsModule,
-    NgForOf,
-    NgIf,
     NgbTooltip
-  ],
+],
   templateUrl: './concert-filter.component.html',
   styleUrl: './concert-filter.component.css'
 })

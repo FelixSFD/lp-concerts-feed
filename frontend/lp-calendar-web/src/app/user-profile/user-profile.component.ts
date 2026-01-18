@@ -1,14 +1,13 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
-import {NgForOf} from '@angular/common';
+
 import {RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-user-profile',
   imports: [
-    NgForOf,
     RouterLink
-  ],
+],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.css'
 })

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import {UsersService} from '../../../services/users.service';
-import {NgForOf, NgIf} from '@angular/common';
+
 import {ConcertTitleGenerator} from '../../../data/concert-title-generator';
 import {DateTime} from 'luxon';
 import {RouterLink} from '@angular/router';
@@ -11,11 +11,9 @@ import {ErrorResponseDto, UserDto} from '../../../modules/lpshows-api';
 @Component({
   selector: 'app-users-list',
   imports: [
-    NgIf,
-    NgForOf,
     RouterLink,
     NgbTooltip
-  ],
+],
   templateUrl: './users-list.component.html',
   styleUrl: './users-list.component.css'
 })
