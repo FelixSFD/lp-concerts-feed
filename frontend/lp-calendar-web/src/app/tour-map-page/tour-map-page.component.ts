@@ -25,7 +25,7 @@ export class TourMapPageComponent {
   // default filter that is used when loading the list
   defaultFilter: ConcertFilter = {
     onlyFuture: false,
-    tour: "FROM ZERO WORLD TOUR 2025",
+    tour: "FROM ZERO WORLD TOUR 2026",
     dateFrom: DateTime.fromISO("0000-01-01T00:00:00.000Z"),
     dateTo: DateTime.fromISO("3000-12-31T23:59:59.999Z"),
   };
