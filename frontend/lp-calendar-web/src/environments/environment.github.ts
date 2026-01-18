@@ -3,6 +3,7 @@ export const environment = {
   apiCachedBaseUrl: "https://api.ROOT_DOMAIN/v2",
   apiNoCacheBaseUrl: "https://api.ROOT_DOMAIN/v2",
   apiBaseUrlLatest: "https://api.ROOT_DOMAIN/latest",
+  appleMapsToken: "APPLE_MAPS_TOKEN",
   cognitoBaseUrl: "https://COGNITO_URL",
   cognitoClientId: "COGNITO_CLIENT_ID",
   cognitoUserPoolId: "COGNITO_USER_POOL_ID",

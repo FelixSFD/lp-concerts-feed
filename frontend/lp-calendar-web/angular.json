@@ -31,7 +31,6 @@
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/cookieconsent/build/cookieconsent.min.css",
               "node_modules/ngx-toastr/toastr.css",
-              "node_modules/ol/ol.css",
               "src/styles.css"
             ],
             "scripts": [

@@ -1,11 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  inject,
-  OnInit,
-  ViewChild
-} from '@angular/core';
+import {AfterViewInit, Component, ContentChild, ElementRef, inject, OnInit, ViewChild} from '@angular/core';
 import {ConcertsService} from '../services/concerts.service';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {DateTime} from 'luxon';
@@ -14,20 +7,6 @@ import {CountdownComponent} from '../countdown/countdown.component';
 import {Meta} from '@angular/platform-browser';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {ConcertBadgesComponent} from '../concert-badges/concert-badges.component';
-import TileLayer from 'ol/layer/Tile';
-import {OSM} from 'ol/source';
-import Map from 'ol/Map';
-import View from 'ol/View';
-import Feature from 'ol/Feature';
-import Point from 'ol/geom/Point';
-import {fromLonLat} from 'ol/proj';
-import Style from 'ol/style/Style';
-import Icon from 'ol/style/Icon';
-import VectorSource from 'ol/source/Vector';
-import VectorLayer from 'ol/layer/Vector';
-import {Attribution} from 'ol/control';
-import {defaults as defaultControls} from 'ol/control/defaults.js';
-import {mapAttribution} from '../app.config';
 import {environment} from '../../environments/environment';
 import {ConcertTitleGenerator} from '../data/concert-title-generator';
 import {TimeSpanPipe} from '../data/time-span-pipe';
@@ -36,12 +15,14 @@ import {MatomoTracker} from 'ngx-matomo-client';
 import {
   AdjacentConcertsResponseDto,
   ConcertBookmarkUpdateRequestDto,
-  ConcertDto, ErrorResponseDto,
+  ConcertDto,
+  ErrorResponseDto,
   GetConcertBookmarkCountsResponseDto
 } from '../modules/lpshows-api';
 import {AuthService} from '../auth/auth.service';
 import {ToastrService} from 'ngx-toastr';
 import {HttpErrorResponse} from '@angular/common/http';
+import {load, MapKit, Map as AppleMap} from '@apple/mapkit-loader';
 
 @Component({
   selector: 'app-concert-details',
@@ -66,9 +47,9 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   concertBookmarksLoading$: boolean = false;
   concertId: string | undefined;
 
-  // Map of the location of the concert
-  private venueMap: Map | undefined;
-  private marker: Feature | undefined;
+  // Apple Maps
+  private mapKit: MapKit | undefined;
+  private appleMap: AppleMap | undefined;
 
   // Service to check auth information
   private readonly oidcSecurityService = inject(OidcSecurityService);
@@ -85,12 +66,11 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.loadDataForId(params['id']);
-    })
+    });
   }
 
 
   ngAfterViewInit() {
-    this.initVenueMap();
   }
 
 
@@ -101,6 +81,45 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
 
   onAttendingClicked() {
     this.onBookmarkOrAttendingClicked(ConcertBookmarkUpdateRequestDto.StatusEnum.Attending);
+  }
+
+
+  private async initAppleMaps() {
+    this.mapKit = await load({
+      token: environment.appleMapsToken,
+      language: "en-US",
+      libraries: ["map", "annotations"],
+    });
+  }
+
+
+  @ViewChild('appleMaps')
+  set appleMaps(mapElement: ElementRef<HTMLDivElement> | undefined) {
+    if (!mapElement) return;
+    if (!this.appleMaps) {
+      console.debug('MapKit not initialized yet!');
+      this.initAppleMaps().then(() => {
+        this.appleMap = this.makeMap(mapElement.nativeElement);
+        this.fillMapData();
+      });
+      return;
+    }
+
+    console.log("Will set map element: ", mapElement);
+    this.appleMap = this.makeMap(mapElement.nativeElement);
+    this.fillMapData();
+  }
+
+
+  private makeMap(mapElement: HTMLDivElement) {
+    let map = new this.mapKit!.Map(mapElement);
+    map.colorScheme = "adaptive";
+    return map;
+  }
+
+
+  private fillMapData() {
+    this.addOrMoveMarker(this.concert$?.venueLongitude ?? 0, this.concert$?.venueLatitude ?? 0);
   }
 
 
@@ -222,81 +241,42 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   }
 
 
-  private initVenueMap() {
-    const attribution = new Attribution({
-      collapsible: false,
-      attributions: mapAttribution,
-    });
-
-    this.venueMap = new Map({
-      controls: defaultControls({attribution: false}).extend([attribution]),
-      layers: [
-        new TileLayer({
-          source: new OSM(),
-        }),
-      ],
-      view: new View({
-        center: [0, 0],
-        zoom: 2, maxZoom: 18,
-      }),
-    });
+  private zoomToCoordinates(lon: number, lat: number) {
+    if (this.appleMap && this.mapKit) {
+      this.appleMap.region = new this.mapKit.CoordinateRegion(
+        new this.mapKit.Coordinate(lat, lon),
+        new this.mapKit.CoordinateSpan(0.06, 0.2)
+      );
+    }
   }
 
 
-  private zoomToCoordinates(lon: number, lat: number) {
-    this.venueMap?.getView().setCenter(fromLonLat([lon, lat]));
-    this.venueMap?.getView().setZoom(11);
+  private getVenuePinTitle() {
+    let venue = this.concert$?.venue ?? undefined;
+    let city = this.concert$?.city ?? undefined;
+
+    if (venue == undefined) {
+      return city ?? undefined;
+    } else if (city != undefined) {
+      return venue + ", " + city;
+    } else {
+      return undefined;
+    }
   }
 
 
   private addOrMoveMarker(lon: number, lat: number) {
-    const newCoords = fromLonLat([lon, lat]); // Convert to EPSG:3857
-    console.log("Set marker at: " + newCoords.toString())
-
-    if (this.marker == undefined) {
-      // Create a marker feature
-      this.marker = new Feature({
-        geometry: new Point(newCoords), // Initial position
-      });
-
-      this.marker.setStyle(new Style({
-        image: new Icon({
-          anchor: [0.5, 1],
-          src: './map/map-pin-50-black.png',
-          scale: 0.59
-        })
-      }));
-
-      // Add marker to vector layer
-      const vectorSource = new VectorSource({
-        features: [this.marker]
-      });
-
-      const vectorLayer = new VectorLayer({
-        source: vectorSource
-      });
-
-      this.venueMap?.addLayer(vectorLayer);
-    } else {
-      (this.marker.getGeometry() as Point).setCoordinates(newCoords);
+    if (!this.appleMap || !this.mapKit) {
+      return;
     }
+    const annotation = new this.mapKit!.MarkerAnnotation(new this.mapKit!.Coordinate(lat, lon), {
+      color: "#c969e0",
+      map: this.appleMap,
+      title: this.getVenuePinTitle()
+    });
+    this.appleMap?.showItems([annotation]);
 
     this.zoomToCoordinates(lon, lat);
-  }
-
-
-  @ViewChild('mapContainer')
-  set detailsRendered(element: ElementRef | undefined) {
-    // is called when tab rendered or destroyed
-    if (element) {
-      if (this.venueMap) {
-        console.log("Set target");
-        this.venueMap.setTarget("venueMap");
-      }
-    } else {
-      console.log("Map tab destroyed");
-      this.venueMap?.setTarget("");
-    }
   }
 
 

@@ -178,7 +178,7 @@
   @if (concert$?.venueLatitude != 0 && concert$?.venueLongitude != 0) {
     <ng-container #mapContainer>
       <h3>Venue location</h3>
-      <div id="venueMap" class="map"></div>
+      <div #appleMaps class="map"></div>
     </ng-container>
   }
 }
