@@ -1,11 +1,13 @@
-import { Injectable } from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import { BehaviorSubject} from 'rxjs';
 import {OidcSecurityService, UserDataResult, LoginResponse} from 'angular-auth-oidc-client';
 import {User} from '../data/users/user';
 import {UserDto} from '../modules/lpshows-api';
+import {UsersService} from '../services/users.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private usersService = inject(UsersService);
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   private userDataSubject = new BehaviorSubject<UserDto | null>(null);
   private accessTokenSubject = new BehaviorSubject<any>(null);
@@ -42,8 +44,16 @@ export class AuthService {
     this.oidcSecurityService.userData$.subscribe((result: UserDataResult) => {
       console.debug("userData changed: ", result);
       if (result?.userData != null) {
+        console.debug("result.userData changed: ", result?.userData);
         let user = User.fromClaims(result.userData)
         this.userDataSubject.next(user);
+
+        if (user.id != undefined) {
+          this.usersService.getUserById(user.id, true).subscribe((downloadedUser: UserDto) => {
+            console.debug("fetched user from server: ", downloadedUser);
+            this.userDataSubject.next(downloadedUser);
+          })
+        }
       } else {
         this.userDataSubject.next(null);
       }

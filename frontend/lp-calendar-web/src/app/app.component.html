@@ -44,9 +44,11 @@
               <i class="bi bi-gear-fill"></i>
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
-              <li><h6 class="dropdown-header">Administration</h6></li>
-              <li><a class="dropdown-item" [routerLink]="['/users']" [routerLinkActive]="['active']">Users</a></li>
-              <li><hr class="dropdown-divider"></li>
+              @if (isAdminUser$) {
+                <li><h6 class="dropdown-header">Administration</h6></li>
+                <li><a class="dropdown-item" [routerLink]="['/users']" [routerLinkActive]="['active']">Users</a></li>
+                <li><hr class="dropdown-divider"></li>
+              }
               <li><h6 class="dropdown-header">{{ currentUser$?.username ?? "You" }}</h6></li>
               <li><a class="dropdown-item" [routerLink]="['/users', currentUser$?.id]">Your profile</a></li>
               <li><a class="dropdown-item text-danger" href="javascript:void(0)" (click)="logout()">Logout</a></li>

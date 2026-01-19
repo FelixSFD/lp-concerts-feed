@@ -46,6 +46,7 @@ export class AppComponent implements OnInit, OnDestroy {
   currentUser$: UserDto | null = null;
 
   isAuthenticated$ = false;
+  isAdminUser$ = false;
 
   // the current clock
   currentDateTime$: DateTime = DateTime.now();
@@ -63,8 +64,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
       // get current user object
       this.authStateService.userData$.subscribe(usr => {
-        console.debug("User -->", usr);
+        console.debug("User changed to -->", usr);
         this.currentUser$ = usr;
+        this.isAdminUser$ = usr?.groups?.some(group => group.groupName == "Admin") ?? false;
       });
 
       this.authStateService.accessToken$.subscribe(at => {
