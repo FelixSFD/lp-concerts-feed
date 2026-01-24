@@ -4,7 +4,7 @@ namespace LPCalendar.DataStructure;
 
 public class UserGroup
 {
-    [JsonPropertyName("groupName")]
+    [JsonPropertyName("name")]
     public string Name { get; set; }
     
     [JsonPropertyName("description")]

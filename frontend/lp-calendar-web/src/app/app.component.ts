@@ -1,8 +1,7 @@
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
-import {RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
+import {Router, RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
-import { DatePipe, NgOptimizedImage } from '@angular/common';
 import {environment} from '../environments/environment';
 import {
   NgcCookieConsentService,
@@ -19,7 +18,7 @@ import {ClockService} from './services/clock.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NgbModule, RouterLink, RouterLinkActive, DatePipe],
+  imports: [RouterOutlet, NgbModule, RouterLink, RouterLinkActive],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -31,6 +30,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private cookieService = inject(NgcCookieConsentService);
   private readonly tracker = inject(MatomoTracker);
   private readonly clockService = inject(ClockService);
+  private readonly router = inject(Router);
 
   //keep refs to subscriptions to be able to unsubscribe later
   private popupOpenSubscription!: Subscription;
@@ -66,7 +66,9 @@ export class AppComponent implements OnInit, OnDestroy {
       this.authStateService.userData$.subscribe(usr => {
         console.debug("User changed to -->", usr);
         this.currentUser$ = usr;
-        this.isAdminUser$ = usr?.groups?.some(group => group.groupName == "Admin") ?? false;
+        this.isAdminUser$ = usr?.userGroups?.some(group => group.name == "Admin") ?? false;
+
+        this.handleMissingUsername(usr);
       });
 
       this.authStateService.accessToken$.subscribe(at => {
@@ -90,6 +92,26 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.destroyCookieConsent();
+  }
+
+
+  private handleMissingUsername(user: UserDto | null) {
+    if (!this.isAuthenticated$ || user == null) {
+      return;
+    }
+
+    console.debug('handleMissingUsername', this.router.url);
+    if (this.router.url.includes("/users")) {
+      return;
+    }
+
+    let userLength = user?.username?.length ?? -1;
+    console.log("length: " + userLength);
+
+    if (userLength < 2) {
+      console.warn("User has no valid name. Will redirect to profile page...", user);
+      this.router.navigate(['/users', user?.id]).then();
+    }
   }
 
 

@@ -16,6 +16,6 @@ public class User
     [JsonPropertyName("username")]
     public string Username { get; set; }
     
-    [JsonPropertyName("groups")]
+    [JsonPropertyName("userGroups")]
     public IList<UserGroup> UserGroups { get; set; } = new List<UserGroup>();
 }
