@@ -1,15 +1,11 @@
 using System.Text.Json;
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
-using Amazon.DynamoDBv2.DocumentModel;
-using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Common.DynamoDb;
+using Database.ConcertBookmarks;
 using Database.Concerts;
 using Lambda.Auth;
-using Lambda.Common.ApiGateway;
 using LPCalendar.DataStructure;
-using LPCalendar.DataStructure.DbConfig;
 using LPCalendar.DataStructure.Responses;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
@@ -19,27 +15,10 @@ namespace Lambda.ListConcerts;
 
 using DateRange = (DateTimeOffset? from, DateTimeOffset? to);
 
-public class Function
+public class Function(ILambdaContext context)
 {
-    private readonly DynamoDBContext _dynamoDbContext;
-    private readonly DynamoDbConfigProvider _dbConfigProvider = new();
-    private readonly IConcertRepository _concertRepository;
-    
-    
-    public Function(ILambdaContext context)
-    {
-        _concertRepository = DynamoDbConcertRepository.CreateDefault(context.Logger);
-        
-        AmazonDynamoDBConfig config = new AmazonDynamoDBConfig
-        {
-            LogMetrics = true,
-            LogResponse = true
-        };
-        
-        _dynamoDbContext = new DynamoDBContextBuilder()
-            .WithDynamoDBClient(() => new AmazonDynamoDBClient(config))
-            .Build();
-    }
+    private readonly IConcertRepository _concertRepository = DynamoDbConcertRepository.CreateDefault(context.Logger);
+    private readonly IConcertBookmarkRepository _concertBookmarkRepository = DynamoDbConcertBookmarkRepository.CreateDefault(context.Logger);
 
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
@@ -229,27 +208,16 @@ public class Function
     
     private async Task<APIGatewayProxyResponse> ReturnBookmarkedConcerts(ConcertBookmark.BookmarkStatus status, int maxResults, string currentUserId, ILambdaContext context)
     {
-        var config = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.ConcertBookmarks);
-        config.BackwardQuery = false;
-        config.IndexName = "UserBookmarkStatusIndexV1";
-        
-        var query = _dynamoDbContext.QueryAsync<ConcertBookmark>(
-            currentUserId, // PartitionKey value
-            QueryOperator.Equal,
-            [status.ToString()],
-            config);
-
         var searchStartDate = DateTimeOffset.UtcNow.AddHours(-4);
-        var bookmarks = await query.GetRemainingAsync() ?? [];
-        var enrichingTasks = bookmarks.Select(GetConcertForBookmarkAndMerge);
-        var enrichedObjects = await Task.WhenAll(enrichingTasks);
-        var sortedAndFiltered = enrichedObjects
-            .Where(c => c != null && c.PostedStartTime >= searchStartDate)
-            .Cast<ConcertWithBookmarkStatusResponse>()
+        var bookmarks = _concertBookmarkRepository.GetForUserAsync(currentUserId, status);
+        var sortedAndFiltered = bookmarks
+            .SelectAwait(async cb => await GetConcertForBookmarkAndMerge(cb))
+            .NotNull()
+            .Where(c => c.PostedStartTime >= searchStartDate)
             .OrderBy(ec => ec.PostedStartTime)
             .Take(maxResults);
         
-        var json = JsonSerializer.Serialize(sortedAndFiltered.ToList(), DataStructureJsonContext.Default.ListConcertWithBookmarkStatusResponse);
+        var json = JsonSerializer.Serialize(await sortedAndFiltered.ToListAsync(), DataStructureJsonContext.Default.ListConcertWithBookmarkStatusResponse);
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,

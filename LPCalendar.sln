@@ -106,6 +106,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database.Concerts", "Databa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.DynamoDb", "Common.DynamoDb\Common.DynamoDb.csproj", "{225CABC2-A710-4A56-A839-0C7CE1DA564D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database.ConcertBookmarks", "Database.ConcertBookmarks\Database.ConcertBookmarks.csproj", "{F213830D-1862-4851-8B31-DF45520AFE75}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -264,5 +266,9 @@ Global
 		{225CABC2-A710-4A56-A839-0C7CE1DA564D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{225CABC2-A710-4A56-A839-0C7CE1DA564D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{225CABC2-A710-4A56-A839-0C7CE1DA564D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F213830D-1862-4851-8B31-DF45520AFE75}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F213830D-1862-4851-8B31-DF45520AFE75}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F213830D-1862-4851-8B31-DF45520AFE75}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F213830D-1862-4851-8B31-DF45520AFE75}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
