@@ -2,6 +2,8 @@ using LPCalendar.DataStructure;
 
 namespace Database.Concerts;
 
+using DateRange = (DateTimeOffset? from, DateTimeOffset? to);
+
 /// <summary>
 /// Handles DB actions for Concerts
 /// </summary>
@@ -20,4 +22,13 @@ public interface IConcertRepository
     /// </summary>
     /// <returns>Concert or null if there is no upcoming concert</returns>
     public Task<Concert?> GetNextAsync();
+
+    
+    /// <summary>
+    /// Returns a list of concerts based on filters
+    /// </summary>
+    /// <param name="filterTour">Filter for tour name</param>
+    /// <param name="dateRange">Filter for concert date</param>
+    /// <returns>List of concerts</returns>
+    public IAsyncEnumerable<Concert> GetConcertsAsync(string? filterTour = null, DateRange? dateRange = null);
 }

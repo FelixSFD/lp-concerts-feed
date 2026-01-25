@@ -18,6 +18,7 @@
         <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.4"/>
         <PackageReference Include="AWSSDK.DynamoDBv2" Version="4.0.7.2" />
         <PackageReference Include="System.Linq" Version="4.3.0" />
+        <PackageReference Include="System.Linq.Async" Version="6.0.3" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\..\..\Database.Concerts\Database.Concerts.csproj" />
