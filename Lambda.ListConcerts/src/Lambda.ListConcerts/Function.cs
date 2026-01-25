@@ -209,21 +209,8 @@ public class Function
     private async Task<APIGatewayProxyResponse> ReturnAllConcerts(ILambdaContext context, bool onlyFuture = true)
     {
         var searchStartDate = onlyFuture ? DateTimeOffset.Now : DateTimeOffset.MinValue;
-        var searchStartDateStr = searchStartDate.ToString("O");
-            
-        context.Logger.LogInformation("Query concerts after: {time}", searchStartDateStr);
 
-        var config = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.Concerts);
-        config.BackwardQuery = false;
-        config.IndexName = "PostedStartTimeGlobalIndex";
-        
-        var query = _dynamoDbContext.QueryAsync<Concert>(
-            "PUBLISHED", // PartitionKey value
-            QueryOperator.GreaterThanOrEqual,
-            [new AttributeValue { S = searchStartDateStr }],
-            config);
-
-        var concerts = await query.GetRemainingAsync() ?? [];
+        var concerts = await _concertRepository.GetConcertsAsync(searchStartDate).ToListAsync();
         
         var concertJson = JsonSerializer.Serialize(concerts, DataStructureJsonContext.Default.ListConcert);
         return new APIGatewayProxyResponse

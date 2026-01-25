@@ -126,4 +126,29 @@ public class DynamoDbConcertRepository : IConcertRepository
 
         _logger.LogDebug("Finished returning all results.");
     }
+
+    
+    /// <inheritdoc/>
+    public async IAsyncEnumerable<Concert> GetConcertsAsync(DateTimeOffset afterDate)
+    {
+        var searchStartDateStr = afterDate.ToString("O");
+            
+        _logger.LogInformation("Query concerts after: {time}", searchStartDateStr);
+
+        var config = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.Concerts);
+        config.BackwardQuery = false;
+        config.IndexName = "PostedStartTimeGlobalIndex";
+        
+        var query = _dynamoDbContext.QueryAsync<Concert>(
+            "PUBLISHED", // PartitionKey value
+            QueryOperator.GreaterThanOrEqual,
+            [new AttributeValue { S = searchStartDateStr }],
+            config);
+
+        var concerts = await query.GetRemainingAsync() ?? [];
+        foreach (var concert in concerts)
+        {
+            yield return concert;
+        }
+    }
 }

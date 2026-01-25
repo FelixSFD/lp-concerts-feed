@@ -31,4 +31,12 @@ public interface IConcertRepository
     /// <param name="dateRange">Filter for concert date</param>
     /// <returns>List of concerts</returns>
     public IAsyncEnumerable<Concert> GetConcertsAsync(string? filterTour = null, DateRange? dateRange = null);
+    
+    
+    /// <summary>
+    /// Returns a list of concerts after a given date. If no other filters are used, this is faster/cheaper than the overload.
+    /// </summary>
+    /// <param name="afterDate">Only return concerts after a given date</param>
+    /// <returns></returns>
+    public IAsyncEnumerable<Concert> GetConcertsAsync(DateTimeOffset afterDate);
 }
