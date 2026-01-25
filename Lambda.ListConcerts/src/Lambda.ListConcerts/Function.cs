@@ -5,6 +5,7 @@ using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Database.Concerts;
 using Lambda.Auth;
 using Lambda.Common.ApiGateway;
 using LPCalendar.DataStructure;
@@ -22,9 +23,13 @@ public class Function
 {
     private readonly DynamoDBContext _dynamoDbContext;
     private readonly DynamoDbConfigProvider _dbConfigProvider = new();
-
+    private readonly IConcertRepository _concertRepository;
+    
+    
     public Function()
     {
+        _concertRepository = DynamoDbConcertRepository.CreateDefault();
+        
         AmazonDynamoDBConfig config = new AmazonDynamoDBConfig
         {
             LogMetrics = true,
@@ -336,7 +341,7 @@ public class Function
     /// <returns>Concert</returns>
     private async Task<Concert?> GetConcertById(string id)
     {
-        return await _dynamoDbContext.LoadAsync<Concert>(id, _dbConfigProvider.GetLoadConfigFor(DynamoDbConfigProvider.Table.Concerts));
+        return await _concertRepository.GetByIdAsync(id);
     }
 
 

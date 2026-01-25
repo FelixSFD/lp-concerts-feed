@@ -20,6 +20,7 @@
         <PackageReference Include="System.Linq" Version="4.3.0" />
     </ItemGroup>
     <ItemGroup>
+      <ProjectReference Include="..\..\..\Database.Concerts\Database.Concerts.csproj" />
       <ProjectReference Include="..\..\..\DataStructure\DataStructure.csproj" />
       <ProjectReference Include="..\..\..\Lambda.Auth\Lambda.Auth.csproj" />
       <ProjectReference Include="..\..\..\Lambda.Common.ApiGateway\Lambda.Common.ApiGateway.csproj" />
