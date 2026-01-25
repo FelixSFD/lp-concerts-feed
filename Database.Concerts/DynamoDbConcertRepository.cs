@@ -151,4 +151,27 @@ public class DynamoDbConcertRepository : IConcertRepository
             yield return concert;
         }
     }
+
+    
+    /// <inheritdoc/>
+    public async Task SaveAsync(Concert concert)
+    {
+        await FixNonOverridableFields(concert);
+        await _dynamoDbContext.SaveAsync(concert, _dbConfigProvider.GetSaveConfigFor(DynamoDbConfigProvider.Table.Concerts));
+    }
+    
+    
+    /// <summary>
+    /// Overwrite fields that can't be set by the clients
+    /// </summary>
+    /// <param name="concert"></param>
+    private async Task FixNonOverridableFields(Concert concert)
+    {
+        var existing = await GetByIdAsync(concert.Id);
+        if (existing != null)
+        {
+            concert.ScheduleImageFile = existing.ScheduleImageFile;
+            concert.LastChange = DateTimeOffset.UtcNow;
+        }
+    }
 }

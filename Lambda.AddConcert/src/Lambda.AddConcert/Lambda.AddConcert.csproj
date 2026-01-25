@@ -16,11 +16,11 @@
         <PackageReference Include="Amazon.Lambda.Core" Version="2.7.1" />
         <PackageReference Include="Amazon.Lambda.RuntimeSupport" Version="1.13.4" />
         <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.4"/>
-        <PackageReference Include="AWSSDK.DynamoDBv2" Version="4.0.7.2" />
         <PackageReference Include="AWSSDK.SQS" Version="4.0.1.10" />
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\Database.Concerts\Database.Concerts.csproj" />
       <ProjectReference Include="..\..\..\DataStructure\DataStructure.csproj" />
       <ProjectReference Include="..\..\..\Lambda.Auth\Lambda.Auth.csproj" />
       <ProjectReference Include="..\..\..\Lambda.Common.ApiGateway\Lambda.Common.ApiGateway.csproj" />

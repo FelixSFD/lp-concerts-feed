@@ -2,16 +2,13 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Runtime.Serialization;
 using System.Text.Json;
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.SQS;
 using Amazon.SQS.Model;
+using Database.Concerts;
 using Lambda.Auth;
 using LPCalendar.DataStructure;
-using LPCalendar.DataStructure.Converters;
-using LPCalendar.DataStructure.DbConfig;
 using LPCalendar.DataStructure.Events;
 using LPCalendar.DataStructure.Events.PushNotifications;
 using LPCalendar.DataStructure.Responses;
@@ -23,16 +20,13 @@ namespace Lambda.AddConcert;
 
 public class Function
 {
-    private readonly DynamoDBContext _dynamoDbContext;
-    private readonly DynamoDbConfigProvider _dbConfigProvider = new();
+    private readonly IConcertRepository _concertRepository;
+    
     private readonly IAmazonSQS _sqsClient = new AmazonSQSClient();
 
-    public Function()
+    public Function(ILambdaContext context)
     {
-        _dynamoDbContext = new DynamoDBContextBuilder()
-            .WithDynamoDBClient(() => new AmazonDynamoDBClient())
-            .Build();
-        _dynamoDbContext.RegisterCustomConverters();
+        _concertRepository = DynamoDbConcertRepository.CreateDefault(context.Logger);
     }
 
 
@@ -67,7 +61,7 @@ public class Function
         Concert? oldValue = null;
         if (!string.IsNullOrEmpty(concert.Id))
         {
-            oldValue = await _dynamoDbContext.LoadAsync<Concert>(concert.Id, _dbConfigProvider.GetLoadConfigFor(DynamoDbConfigProvider.Table.Concerts));
+            oldValue = await _concertRepository.GetByIdAsync(concert.Id);
         }
         
         var action = oldValue == null ? "Add" : "Update";
@@ -102,7 +96,7 @@ public class Function
         }
         
         context.Logger.LogInformation("Start writing to DB...");
-        await SaveConcert(concert);
+        await _concertRepository.SaveAsync(concert);
         context.Logger.LogInformation("Concert written to DB");
         
         await SendNotificationsIfNeeded(concert, oldValue, context.Logger);
@@ -147,24 +141,6 @@ public class Function
         var concert = JsonSerializer.Deserialize(json, DataStructureJsonContext.Default.Concert) ?? throw new InvalidDataContractException("JSON could not be parsed to Concert!");
         concert.Id = Guid.TryParse(concert.Id, out _) ? concert.Id : guid;
         return concert;
-    }
-
-
-    private async Task FixNonOverridableFields(Concert concert)
-    {
-        var existing = await _dynamoDbContext.LoadAsync<Concert>(concert.Id, _dbConfigProvider.GetLoadConfigFor(DynamoDbConfigProvider.Table.Concerts));
-        if (existing != null)
-        {
-            concert.ScheduleImageFile = existing.ScheduleImageFile;
-            concert.LastChange = DateTimeOffset.UtcNow;
-        }
-    }
-
-
-    private async Task SaveConcert(Concert concert)
-    {
-        await FixNonOverridableFields(concert);
-        await _dynamoDbContext.SaveAsync(concert, _dbConfigProvider.GetSaveConfigFor(DynamoDbConfigProvider.Table.Concerts));
     }
 
 

@@ -39,4 +39,12 @@ public interface IConcertRepository
     /// <param name="afterDate">Only return concerts after a given date</param>
     /// <returns></returns>
     public IAsyncEnumerable<Concert> GetConcertsAsync(DateTimeOffset afterDate);
+    
+    
+    /// <summary>
+    /// Saves the concert in the database
+    /// </summary>
+    /// <param name="concert"></param>
+    /// <returns></returns>
+    public Task SaveAsync(Concert concert);
 }
