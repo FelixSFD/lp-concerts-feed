@@ -13,4 +13,11 @@ public interface IConcertRepository
     /// <param name="id">ID of the concert</param>
     /// <returns>Concert or null if it was not found</returns>
     public Task<Concert?> GetByIdAsync(string id);
+    
+    
+    /// <summary>
+    /// Returns the next concert
+    /// </summary>
+    /// <returns>Concert or null if there is no upcoming concert</returns>
+    public Task<Concert?> GetNextAsync();
 }

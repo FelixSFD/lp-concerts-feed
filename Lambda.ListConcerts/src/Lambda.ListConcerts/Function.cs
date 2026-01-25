@@ -26,9 +26,9 @@ public class Function
     private readonly IConcertRepository _concertRepository;
     
     
-    public Function()
+    public Function(ILambdaContext context)
     {
-        _concertRepository = DynamoDbConcertRepository.CreateDefault();
+        _concertRepository = DynamoDbConcertRepository.CreateDefault(context.Logger);
         
         AmazonDynamoDBConfig config = new AmazonDynamoDBConfig
         {
@@ -178,27 +178,18 @@ public class Function
 
     private async Task<APIGatewayProxyResponse> ReturnNextConcert(ILambdaContext context)
     {
-        var now = DateTimeOffset.UtcNow.AddHours(-4);
-        var dateNowStr = now.ToString("O");
-        
-        context.Logger.LogInformation("Query concerts after: {time}", dateNowStr);
-
-        var config = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.Concerts);
-        config.IndexName = "PostedStartTimeGlobalIndex";
-        
-        var query = _dynamoDbContext.QueryAsync<Concert>(
-            "PUBLISHED", // PartitionKey value
-            QueryOperator.GreaterThanOrEqual,
-            [new AttributeValue { S = dateNowStr }],
-            config);
-
-        var concerts = await query.GetRemainingAsync();
-        if (concerts == null || concerts.Count == 0)
+        var next = await _concertRepository.GetNextAsync();
+        if (next == null)
         {
+            context.Logger.LogInformation("No upcoming concert found.");
+            var error = new ErrorResponse
+            {
+                Message = "No upcoming concerts found."
+            };
             return new APIGatewayProxyResponse
             {
                 StatusCode = 404,
-                Body = "{\"message\": \"No concerts found.\"}",
+                Body = JsonSerializer.Serialize(error, DataStructureJsonContext.Default.ErrorResponse),
                 Headers = new Dictionary<string, string>
                 {
                     { "Content-Type", "application/json" },
@@ -208,10 +199,11 @@ public class Function
             };
         }
 
+        context.Logger.LogDebug("Returning Concert with ID: {id}", next.Id);
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
-            Body = JsonSerializer.Serialize(concerts.First(), DataStructureJsonContext.Default.Concert),
+            Body = JsonSerializer.Serialize(next, DataStructureJsonContext.Default.Concert),
             Headers = new Dictionary<string, string>
             {
                 { "Content-Type", "application/json" },

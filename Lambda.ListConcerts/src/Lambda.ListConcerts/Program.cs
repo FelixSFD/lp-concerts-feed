@@ -13,4 +13,4 @@ await LambdaBootstrapBuilder.Create((Func<APIGatewayProxyRequest, ILambdaContext
 return;
 
 // calls the function
-async Task<APIGatewayProxyResponse> Handler(APIGatewayProxyRequest input, ILambdaContext ctx) => await new Function().FunctionHandler(input, ctx);
+async Task<APIGatewayProxyResponse> Handler(APIGatewayProxyRequest input, ILambdaContext ctx) => await new Function(ctx).FunctionHandler(input, ctx);
