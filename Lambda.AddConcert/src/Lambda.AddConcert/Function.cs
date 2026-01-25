@@ -156,6 +156,7 @@ public class Function
         if (existing != null)
         {
             concert.ScheduleImageFile = existing.ScheduleImageFile;
+            concert.LastChange = DateTimeOffset.UtcNow;
         }
     }
 
