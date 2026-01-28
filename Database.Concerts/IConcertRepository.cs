@@ -42,6 +42,14 @@ public interface IConcertRepository
     
     
     /// <summary>
+    /// Returns a list of concerts changed after a given date.
+    /// </summary>
+    /// <param name="changedAfterDate">Only return concerts after a given date</param>
+    /// <returns></returns>
+    public IAsyncEnumerable<Concert> GetConcertsChangedAfterAsync(DateTimeOffset changedAfterDate);
+    
+    
+    /// <summary>
     /// Saves the concert in the database
     /// </summary>
     /// <param name="concert"></param>

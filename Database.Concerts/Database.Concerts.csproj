@@ -12,6 +12,7 @@
 
     <ItemGroup>
       <PackageReference Include="Amazon.Lambda.Core" Version="2.7.1" />
+      <PackageReference Include="System.Linq.Async" Version="6.0.3" />
     </ItemGroup>
 
 </Project>

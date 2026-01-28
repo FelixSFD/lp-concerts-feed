@@ -154,6 +154,31 @@ public class DynamoDbConcertRepository : IConcertRepository
 
     
     /// <inheritdoc/>
+    public async IAsyncEnumerable<Concert> GetConcertsChangedAfterAsync(DateTimeOffset changedAfterDate)
+    {
+        var searchStartDateStr = changedAfterDate.ToString("O");
+            
+        _logger.LogInformation("Query concerts CHANGED after: {time}", searchStartDateStr);
+
+        var config = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.Concerts);
+        config.BackwardQuery = false;
+        config.IndexName = Concert.LastChangeTimeGlobalIndex;
+        
+        var query = _dynamoDbContext.QueryAsync<Concert>(
+            "PUBLISHED", // PartitionKey value
+            QueryOperator.GreaterThanOrEqual,
+            [new AttributeValue { S = searchStartDateStr }],
+            config);
+
+        var concerts = await query.GetRemainingAsync() ?? [];
+        foreach (var concert in concerts)
+        {
+            yield return concert;
+        }
+    }
+
+
+    /// <inheritdoc/>
     public async Task SaveAsync(Concert concert)
     {
         await FixNonOverridableFields(concert);
