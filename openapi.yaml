@@ -253,6 +253,49 @@ components:
         bookmarkStatus:
           $ref: "#/components/schemas/GetConcertBookmarkCountsResponse"
 
+    # Syncing Concerts
+    SyncConcertsRequest:
+      type: object
+      description: Request to sync concerts. This API can be used to make sure all Concerts in a local DB are up-to-date.
+      properties:
+        lastSync:
+          type: string
+          description: Time when the last sync on this system was done
+          nullable: false
+          format: date-time
+          example: '2024-09-05T22:00:00Z'
+        localConcertIds:
+          type: array
+          description: List of all IDs currently stored locally. This is needed to find out which Concerts were deleted.
+          items:
+            type: string
+    
+    SyncConcertsResponse:
+      type: object
+      description: Response with all the Concerts that were changed since the last sync
+      properties:
+        syncTime:
+          type: string
+          description: Time when the this sync was done
+          nullable: false
+          format: date-time
+          example: '2024-09-05T22:00:00Z'
+        added:
+          type: array
+          description: Concerts that were added since the last sync
+          items:
+            $ref: "#/components/schemas/Concert"
+        updated:
+          type: array
+          description: Concerts that were updated since the last sync
+          items:
+            $ref: "#/components/schemas/Concert"
+        deletedConcertIds:
+          type: array
+          description: List of all IDs that were deleted since the last sync
+          items:
+            type: string
+    
     # Users
     UserGroup:
       type: object
@@ -538,6 +581,46 @@ paths:
                   $ref: "#/components/schemas/ConcertWithBookmarkStatus"
       security:
         - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-find-concerts-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /concerts/sync:
+    post:
+      operationId: SyncConcerts
+      summary: API to get all changes since your last sync
+      tags:
+        - concerts
+      parameters:
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SyncConcertsRequest"
+      responses:
+        "200":
+          description: A JSON object with the information of the concert
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SyncConcertsResponse"
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:
