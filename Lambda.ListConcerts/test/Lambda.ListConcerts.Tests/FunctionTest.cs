@@ -23,6 +23,118 @@ public class FunctionTest
     {
         return new TestLambdaContext();
     }
+    
+    
+    [Fact]
+    public async Task Function_Concerts_Id_200()
+    {
+        // Build function instance
+        var ctx = CreateLambdaContext();
+        var repo = new InMemoryDbConcertRepository();
+        var functionUnderTest = new Function(ctx, repo);
+        
+        // make test data
+        var concert1 = new Concert
+        {
+            Id = Guid.NewGuid().ToString(),
+            Status = "PUBLISHED",
+            TourName = "Sample Tour 2024",
+            City = "Berlin",
+            Country = "Germany",
+            PostedStartTime = new DateTimeOffset(2024, 10, 1, 21, 0, 0, TimeSpan.FromHours(1)),
+        };
+        await repo.SaveAsync(concert1);
+        
+        var concert2 = new Concert
+        {
+            Id = Guid.NewGuid().ToString(),
+            Status = "PUBLISHED",
+            TourName = "Sample Tour",
+            City = "Bielefeld",
+            Country = "Germany",
+            PostedStartTime = DateTimeOffset.Now.AddDays(2),
+        };
+        await repo.SaveAsync(concert2);
+        
+        var concert3 = new Concert
+        {
+            Id = Guid.NewGuid().ToString(),
+            Status = "PUBLISHED",
+            TourName = "Sample Tour",
+            City = "Munich",
+            Country = "Germany",
+            PostedStartTime = DateTimeOffset.Now.AddDays(9),
+        };
+        await repo.SaveAsync(concert3);
+        
+        // Generate API Gateway Request
+        var apiGatewayProxyRequest = new ApiRequestBuilder()
+            .WithHttpMethod(HttpMethod.Get)
+            .WithPath("concerts")
+            .WithPathParameter("id", concert1.Id)
+            .Build();
+
+        // Act
+        var response = await functionUnderTest.FunctionHandler(apiGatewayProxyRequest, ctx);
+        Assert.NotNull(response);
+        Assert.Equal(200, response.StatusCode);
+        Assert.Equal("application/json", response.Headers["Content-Type"]);
+        Assert.Equal("*", response.Headers["Access-Control-Allow-Origin"]);
+        Assert.Equal("OPTIONS, GET", response.Headers["Access-Control-Allow-Methods"]);
+
+        var bodyJson = response.Body;
+        var responseConcert = JsonSerializer.Deserialize(bodyJson, DataStructureJsonContext.Default.Concert);
+        Assert.NotNull(responseConcert);
+        Assert.Equal(concert1.Id, responseConcert.Id);
+        Assert.Equal(concert1.Status, responseConcert.Status);
+        Assert.Equal(concert1.TourName, responseConcert.TourName);
+        Assert.Equal(concert1.City, responseConcert.City);
+        Assert.Equal(concert1.Country, responseConcert.Country);
+        Assert.Equal(concert1.PostedStartTime, responseConcert.PostedStartTime);
+    }
+    
+    
+    [Fact]
+    public async Task Function_Concerts_Id_404()
+    {
+        // Build function instance
+        var ctx = CreateLambdaContext();
+        var repo = new InMemoryDbConcertRepository();
+        var functionUnderTest = new Function(ctx, repo);
+        
+        // make test data
+        var testSearchId = Guid.NewGuid().ToString();
+        var concert1 = new Concert
+        {
+            Id = Guid.NewGuid().ToString(),
+            Status = "PUBLISHED",
+            TourName = "Sample Tour 2024",
+            City = "Berlin",
+            Country = "Germany",
+            PostedStartTime = new DateTimeOffset(2024, 10, 1, 21, 0, 0, TimeSpan.FromHours(1)),
+        };
+        await repo.SaveAsync(concert1);
+        
+        // Generate API Gateway Request
+        var apiGatewayProxyRequest = new ApiRequestBuilder()
+            .WithHttpMethod(HttpMethod.Get)
+            .WithPath("concerts")
+            .WithPathParameter("id", testSearchId)
+            .Build();
+
+        // Act
+        var response = await functionUnderTest.FunctionHandler(apiGatewayProxyRequest, ctx);
+        Assert.NotNull(response);
+        Assert.Equal(404, response.StatusCode);
+        Assert.Equal("application/json", response.Headers["Content-Type"]);
+        Assert.Equal("*", response.Headers["Access-Control-Allow-Origin"]);
+        Assert.Equal("OPTIONS, GET", response.Headers["Access-Control-Allow-Methods"]);
+
+        var bodyJson = response.Body;
+        var errorResponse = JsonSerializer.Deserialize(bodyJson, DataStructureJsonContext.Default.ErrorResponse);
+        Assert.NotNull(errorResponse);
+        Assert.Equal("Concert not found.", errorResponse.Message);
+    }
 
 
     [Fact]
