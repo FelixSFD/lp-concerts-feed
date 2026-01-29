@@ -598,7 +598,7 @@ paths:
   /concerts/sync:
     post:
       operationId: SyncConcerts
-      summary: API to get all changes since your last sync
+      summary: API to get all changes since your last sync. Make sure to set the correct lastSync-time.
       tags:
         - concerts
       parameters:
