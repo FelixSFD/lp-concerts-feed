@@ -15,9 +15,9 @@ namespace Lambda.ListConcerts;
 
 using DateRange = (DateTimeOffset? from, DateTimeOffset? to);
 
-public class Function(ILambdaContext context)
+public class Function(ILambdaContext context, IConcertRepository concertRepository)
 {
-    private readonly IConcertRepository _concertRepository = DynamoDbConcertRepository.CreateDefault(context.Logger);
+    private readonly IConcertRepository _concertRepository = concertRepository;
     private readonly IConcertBookmarkRepository _concertBookmarkRepository = DynamoDbConcertBookmarkRepository.CreateDefault(context.Logger);
 
 

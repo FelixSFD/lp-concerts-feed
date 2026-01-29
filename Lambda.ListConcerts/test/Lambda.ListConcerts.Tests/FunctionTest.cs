@@ -1,6 +1,11 @@
 using System.Reflection;
+using System.Text.Json;
+using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.TestUtilities;
+using Common.TestUtils;
+using Database.Concerts;
+using LPCalendar.DataStructure;
 using Xunit;
 
 namespace Lambda.ListConcerts.Tests;
@@ -12,6 +17,80 @@ public class FunctionTest
     private static ILambdaLogger CreateLambdaLogger()
     {
         return new TestLambdaLogger();
+    }
+
+
+    private static ILambdaContext CreateLambdaContext()
+    {
+        return new TestLambdaContext();
+    }
+
+
+    [Fact]
+    public async Task Function_Concerts_Next_200()
+    {
+        // Build function instance
+        var ctx = CreateLambdaContext();
+        var repo = new InMemoryDbConcertRepository();
+        var functionUnderTest = new Function(ctx, repo);
+        
+        // make test data
+        var concertPast = new Concert
+        {
+            Id = Guid.NewGuid().ToString(),
+            Status = "PUBLISHED",
+            TourName = "Sample Tour 2024",
+            City = "Berlin",
+            Country = "Germany",
+            PostedStartTime = new DateTimeOffset(2024, 10, 1, 21, 0, 0, TimeSpan.FromHours(1)),
+        };
+        await repo.SaveAsync(concertPast);
+        
+        var concertNext = new Concert
+        {
+            Id = Guid.NewGuid().ToString(),
+            Status = "PUBLISHED",
+            TourName = "Sample Tour",
+            City = "Bielefeld",
+            Country = "Germany",
+            PostedStartTime = DateTimeOffset.Now.AddDays(2),
+        };
+        await repo.SaveAsync(concertNext);
+        
+        var concertFuture = new Concert
+        {
+            Id = Guid.NewGuid().ToString(),
+            Status = "PUBLISHED",
+            TourName = "Sample Tour",
+            City = "Munich",
+            Country = "Germany",
+            PostedStartTime = DateTimeOffset.Now.AddDays(9),
+        };
+        await repo.SaveAsync(concertFuture);
+        
+        // Generate API Gateway Request
+        var apiGatewayProxyRequest = new ApiRequestBuilder()
+            .WithHttpMethod(HttpMethod.Get)
+            .WithPath("concerts", "next")
+            .Build();
+
+        // Act
+        var response = await functionUnderTest.FunctionHandler(apiGatewayProxyRequest, ctx);
+        Assert.NotNull(response);
+        Assert.Equal(200, response.StatusCode);
+        Assert.Equal("application/json", response.Headers["Content-Type"]);
+        Assert.Equal("*", response.Headers["Access-Control-Allow-Origin"]);
+        Assert.Equal("OPTIONS, GET", response.Headers["Access-Control-Allow-Methods"]);
+
+        var bodyJson = response.Body;
+        var responseConcert = JsonSerializer.Deserialize(bodyJson, DataStructureJsonContext.Default.Concert);
+        Assert.NotNull(responseConcert);
+        Assert.Equal(concertNext.Id, responseConcert.Id);
+        Assert.Equal(concertNext.Status, responseConcert.Status);
+        Assert.Equal(concertNext.TourName, responseConcert.TourName);
+        Assert.Equal(concertNext.City, responseConcert.City);
+        Assert.Equal(concertNext.Country, responseConcert.Country);
+        Assert.Equal(concertNext.PostedStartTime, responseConcert.PostedStartTime);
     }
 
 
