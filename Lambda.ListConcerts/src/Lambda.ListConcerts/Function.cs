@@ -17,7 +17,6 @@ using DateRange = (DateTimeOffset? from, DateTimeOffset? to);
 
 public class Function(ILambdaContext context, IConcertRepository concertRepository)
 {
-    private readonly IConcertRepository _concertRepository = concertRepository;
     private readonly IConcertBookmarkRepository _concertBookmarkRepository = DynamoDbConcertBookmarkRepository.CreateDefault(context.Logger);
 
 
@@ -97,7 +96,7 @@ public class Function(ILambdaContext context, IConcertRepository concertReposito
 
     private async Task<APIGatewayProxyResponse> ReturnFilteredConcertList(ILambdaContext context, string? filterTour = null, DateRange? dateRange = null)
     {
-        var concerts = await _concertRepository.GetConcertsAsync(filterTour, dateRange).ToListAsync();
+        var concerts = await concertRepository.GetConcertsAsync(filterTour, dateRange).ToListAsync();
         
         var concertsJson = JsonSerializer.Serialize(concerts, DataStructureJsonContext.Default.ListConcert);
         return new APIGatewayProxyResponse
@@ -116,7 +115,7 @@ public class Function(ILambdaContext context, IConcertRepository concertReposito
 
     private async Task<APIGatewayProxyResponse> ReturnNextConcert(ILambdaContext context)
     {
-        var next = await _concertRepository.GetNextAsync();
+        var next = await concertRepository.GetNextAsync();
         if (next == null)
         {
             context.Logger.LogInformation("No upcoming concert found.");
@@ -189,7 +188,7 @@ public class Function(ILambdaContext context, IConcertRepository concertReposito
     {
         var searchStartDate = onlyFuture ? DateTimeOffset.Now : DateTimeOffset.MinValue;
 
-        var concerts = await _concertRepository.GetConcertsAsync(searchStartDate).ToListAsync();
+        var concerts = await concertRepository.GetConcertsAsync(searchStartDate).ToListAsync();
         
         var concertJson = JsonSerializer.Serialize(concerts, DataStructureJsonContext.Default.ListConcert);
         return new APIGatewayProxyResponse
@@ -247,7 +246,7 @@ public class Function(ILambdaContext context, IConcertRepository concertReposito
     /// <returns>Concert</returns>
     private async Task<Concert?> GetConcertById(string id)
     {
-        return await _concertRepository.GetByIdAsync(id);
+        return await concertRepository.GetByIdAsync(id);
     }
 
 
