@@ -51,6 +51,13 @@ public class DynamoDbConcertRepository : IConcertRepository
 
     
     /// <inheritdoc/>
+    public IAsyncEnumerable<Concert> GetByIds(IEnumerable<string> ids)
+    {
+        throw new NotImplementedException();
+    }
+
+
+    /// <inheritdoc/>
     public async Task<Concert?> GetNextAsync()
     {
         var now = DateTimeOffset.UtcNow.AddHours(-4);

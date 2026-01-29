@@ -18,6 +18,14 @@ public interface IConcertRepository
     
     
     /// <summary>
+    /// Returns a list of concerts by their IDs
+    /// </summary>
+    /// <param name="ids"></param>
+    /// <returns></returns>
+    public IAsyncEnumerable<Concert> GetByIds(IEnumerable<string> ids);
+    
+    
+    /// <summary>
     /// Returns the next concert
     /// </summary>
     /// <returns>Concert or null if there is no upcoming concert</returns>

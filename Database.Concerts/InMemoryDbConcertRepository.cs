@@ -18,6 +18,14 @@ public class InMemoryDbConcertRepository: IConcertRepository
         return Task.FromResult(result);
     }
 
+    public IAsyncEnumerable<Concert> GetByIds(IEnumerable<string> ids)
+    {
+        return ids.ToAsyncEnumerable()
+            .SelectAwait(async id => await GetByIdAsync(id))
+            .Where(c => c != null)
+            .Select(c => c!);
+    }
+
     public Task<Concert?> GetNextAsync()
     {
         var result = GetAllSorted()

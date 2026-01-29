@@ -17,6 +17,8 @@ public class ConcertSyncEngine(IConcertRepository repository)
         await LoadChangedConcertsSince(lastSync);
 
         var result = new SyncResult<Concert, string>();
+        
+        // Find changed or added
         foreach (var addedOrChangedConcert in _addedOrChangedConcerts)
         {
             if (knownIds.Contains(addedOrChangedConcert.Id))
@@ -30,6 +32,18 @@ public class ConcertSyncEngine(IConcertRepository repository)
                 result.AddedObjects.Add(addedOrChangedConcert);
             }
         }
+        
+        // find deleted
+        // those that are in the changed objects don't need to be queried
+        // those that were added are not in this list anyway
+        var toCheckIfStillExist = knownIds
+            .Where(id => result.ChangedObjects.All(c => c.Id != id))
+            .ToArray();
+        var foundConcerts = repository.GetByIds(toCheckIfStillExist);
+        result.DeletedIds = await toCheckIfStillExist
+            .ToAsyncEnumerable()
+            .WhereAwait(async id => await foundConcerts.AllAsync(c => c.Id != id))
+            .ToListAsync();
         
         // Build the result object
         return result;
