@@ -53,7 +53,26 @@ public class DynamoDbConcertRepository : IConcertRepository
     /// <inheritdoc/>
     public IAsyncEnumerable<Concert> GetByIds(IEnumerable<string> ids)
     {
-        throw new NotImplementedException();
+        return ids
+            .Chunk(100)
+            .ToAsyncEnumerable()
+            .SelectMany(GetBatchByIds);
+    }
+
+
+    private async IAsyncEnumerable<Concert> GetBatchByIds(IEnumerable<string> ids)
+    {
+        var batchGet = _dynamoDbContext.CreateBatchGet<Concert>();
+        foreach (var id in ids)
+        {
+            batchGet.AddKey(id);
+        }
+
+        await batchGet.ExecuteAsync();
+        foreach (var concert in batchGet.Results.OfType<Concert>())
+        {
+            yield return concert;
+        }
     }
 
 
