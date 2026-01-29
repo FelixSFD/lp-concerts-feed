@@ -5,6 +5,8 @@ using Amazon.Lambda.TestUtilities;
 using Common.TestUtils;
 using Database.Concerts;
 using LPCalendar.DataStructure;
+using LPCalendar.DataStructure.Requests;
+using LPCalendar.DataStructure.Responses;
 using Xunit;
 
 namespace Lambda.ListConcerts.Tests;
@@ -278,6 +280,38 @@ public class FunctionTest
         var responseConcert = JsonSerializer.Deserialize(bodyJson, DataStructureJsonContext.Default.ErrorResponse);
         Assert.NotNull(responseConcert);
         Assert.Equal("No upcoming concerts found.", responseConcert.Message);
+    }
+
+
+    [Fact]
+    public async Task Function_Concerts_Sync()
+    {
+        // Build function instance
+        var ctx = CreateLambdaContext();
+        var repo = new InMemoryDbConcertRepository();
+        var functionUnderTest = new Function(ctx, repo);
+        
+        // Generate API Gateway Request
+        var localId1 = Guid.NewGuid().ToString();
+        var localId2 = Guid.NewGuid().ToString();
+        
+        var request = new SyncConcertsRequest
+        {
+            LastSync = DateTimeOffset.UtcNow.AddHours(12),
+            LocalConcertIds = [localId1, localId2]
+        };
+        var apiGatewayProxyRequest = new ApiRequestBuilder()
+            .WithHttpMethod(HttpMethod.Post)
+            .WithPath("concerts", "sync")
+            .WithBody(JsonSerializer.Serialize(request, DataStructureJsonContext.Default.SyncConcertsRequest))
+            .Build();
+        
+        var response = await functionUnderTest.FunctionHandler(apiGatewayProxyRequest, ctx);
+        Assert.NotNull(response);
+        Assert.Equal(200, response.StatusCode);
+        
+        var syncResponse = JsonSerializer.Deserialize(response.Body, DataStructureJsonContext.Default.SyncConcertsResponse);
+        Assert.NotNull(syncResponse);
     }
 
 

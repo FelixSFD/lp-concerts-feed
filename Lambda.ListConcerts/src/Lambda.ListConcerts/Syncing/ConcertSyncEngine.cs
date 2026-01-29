@@ -3,9 +3,9 @@ using LPCalendar.DataStructure;
 
 namespace Lambda.ListConcerts.Syncing;
 
-public class ConcertSyncEngine(IConcertRepository repository)
+public class ConcertSyncEngine(IConcertRepository repository) : ISyncEngine<Concert, string>
 {
-    private Concert[] _addedOrChangedConcerts;
+    private Concert[] _addedOrChangedConcerts = [];
 
     private async Task LoadChangedConcertsSince(DateTimeOffset lastChange)
     {

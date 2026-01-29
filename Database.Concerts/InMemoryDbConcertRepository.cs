@@ -41,7 +41,9 @@ public class InMemoryDbConcertRepository: IConcertRepository
 
     public IAsyncEnumerable<Concert> GetConcertsAsync(DateTimeOffset afterDate)
     {
-        throw new NotImplementedException();
+        return GetAllSorted()
+            .ToAsyncEnumerable()
+            .Where(c => c.PostedStartTime > afterDate);
     }
 
     public IAsyncEnumerable<Concert> GetConcertsChangedAfterAsync(DateTimeOffset changedAfterDate)

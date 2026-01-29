@@ -5,7 +5,9 @@ using Common.DynamoDb;
 using Database.ConcertBookmarks;
 using Database.Concerts;
 using Lambda.Auth;
+using Lambda.ListConcerts.Syncing;
 using LPCalendar.DataStructure;
+using LPCalendar.DataStructure.Requests;
 using LPCalendar.DataStructure.Responses;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
@@ -59,6 +61,36 @@ public class Function(ILambdaContext context, IConcertRepository concertReposito
             return await ReturnNextConcert(context);
         }
 
+        if (request.Path == "/concerts/sync")
+        {
+            context.Logger.LogInformation("Requested to sync concerts.");
+            SyncConcertsRequest? syncRequest;
+            try
+            { 
+                syncRequest = JsonSerializer.Deserialize(request.Body, DataStructureJsonContext.Default.SyncConcertsRequest);
+            }
+            catch (Exception exception)
+            {
+                context.Logger.LogError(exception, "Failed to parse sync request!");
+                var error = new ErrorResponse
+                {
+                    Message = exception.Message
+                };
+                return new APIGatewayProxyResponse
+                {
+                    StatusCode = 404,
+                    Body = JsonSerializer.Serialize(error, DataStructureJsonContext.Default.ErrorResponse),
+                    Headers = new Dictionary<string, string>
+                    {
+                        { "Content-Type", "application/json" },
+                        { "Access-Control-Allow-Origin", "*" },
+                        { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                    }
+                };
+            }
+
+            return await ReturnSyncResult(syncRequest!, context.Logger);
+        }
         
         if (request.Path is "/concerts/attending" or "/concerts/bookmarked")
         {
@@ -236,6 +268,37 @@ public class Function(ILambdaContext context, IConcertRepository concertReposito
     {
         var concert = await GetConcertById(bookmark.ConcertId);
         return concert != null ? ConcertWithBookmarkStatusResponse.FromConcert(concert, bookmark) : null;
+    }
+
+
+    private async Task<APIGatewayProxyResponse> ReturnSyncResult(SyncConcertsRequest syncRequest, ILambdaLogger logger)
+    {
+        var syncTime = DateTimeOffset.UtcNow;
+        logger.LogDebug("Sync Concerts at: {syncTime}", syncTime);
+        var syncEngine = new ConcertSyncEngine(concertRepository);
+        var syncResult = await syncEngine.SyncWith(syncRequest.LocalConcertIds, syncRequest.LastSync);
+        var responseObj = new SyncConcertsResponse
+        {
+            Added = syncResult.AddedObjects.ToArray(),
+            Updated = syncResult.ChangedObjects.ToArray(),
+            DeletedConcertIds = syncResult.DeletedIds.ToArray(),
+            SyncTime = syncTime
+        };
+        
+        logger.LogDebug("Finished sync. Added: {addCount}; Changed: {changeCount}; Deleted: {deleteCount}; SyncTime: {syncTime}", responseObj.Added.Length, responseObj.Updated.Length, responseObj.DeletedConcertIds.Length, syncTime);
+        
+        var json = JsonSerializer.Serialize(responseObj, DataStructureJsonContext.Default.SyncConcertsResponse);
+        return new APIGatewayProxyResponse
+        {
+            StatusCode = 200,
+            Body = json,
+            Headers = new Dictionary<string, string>
+            {
+                { "Content-Type", "application/json" },
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+            }
+        };
     }
 
 

@@ -12,9 +12,14 @@ public class SyncConcertsResponse
     public required DateTimeOffset SyncTime { get; set; }
     
     /// <summary>
-    /// These concerts have been added or updated
+    /// These concerts have been added
     /// </summary>
-    public required Concert[] AddedOrUpdated { get; set; }
+    public required Concert[] Added { get; set; }
+    
+    /// <summary>
+    /// These concerts have been updated
+    /// </summary>
+    public required Concert[] Updated { get; set; }
     
     /// <summary>
     /// Concerts with this ID were present in the request but not found in the database.
