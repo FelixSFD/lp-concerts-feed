@@ -1,6 +1,5 @@
 using System.Reflection;
 using System.Text.Json;
-using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.TestUtilities;
 using Common.TestUtils;
@@ -91,6 +90,82 @@ public class FunctionTest
         Assert.Equal(concertNext.City, responseConcert.City);
         Assert.Equal(concertNext.Country, responseConcert.Country);
         Assert.Equal(concertNext.PostedStartTime, responseConcert.PostedStartTime);
+    }
+    
+    
+    /// <summary>
+    /// Test the case where a concert is in DB, but there is none scheduled for the future
+    /// </summary>
+    [Fact]
+    public async Task Function_Concerts_Next_404_only_past()
+    {
+        // Build function instance
+        var ctx = CreateLambdaContext();
+        var repo = new InMemoryDbConcertRepository();
+        var functionUnderTest = new Function(ctx, repo);
+        
+        // make test data
+        var concertPast = new Concert
+        {
+            Id = Guid.NewGuid().ToString(),
+            Status = "PUBLISHED",
+            TourName = "Sample Tour 2024",
+            City = "Berlin",
+            Country = "Germany",
+            PostedStartTime = new DateTimeOffset(2024, 10, 1, 21, 0, 0, TimeSpan.FromHours(1)),
+        };
+        await repo.SaveAsync(concertPast);
+        
+        // Generate API Gateway Request
+        var apiGatewayProxyRequest = new ApiRequestBuilder()
+            .WithHttpMethod(HttpMethod.Get)
+            .WithPath("concerts", "next")
+            .Build();
+
+        // Act
+        var response = await functionUnderTest.FunctionHandler(apiGatewayProxyRequest, ctx);
+        Assert.NotNull(response);
+        Assert.Equal(404, response.StatusCode);
+        Assert.Equal("application/json", response.Headers["Content-Type"]);
+        Assert.Equal("*", response.Headers["Access-Control-Allow-Origin"]);
+        Assert.Equal("OPTIONS, GET", response.Headers["Access-Control-Allow-Methods"]);
+
+        var bodyJson = response.Body;
+        var responseConcert = JsonSerializer.Deserialize(bodyJson, DataStructureJsonContext.Default.ErrorResponse);
+        Assert.NotNull(responseConcert);
+        Assert.Equal("No upcoming concerts found.", responseConcert.Message);
+    }
+    
+    
+    /// <summary>
+    /// Test the case where not a single concert was found in the DB
+    /// </summary>
+    [Fact]
+    public async Task Function_Concerts_Next_404_empty_db()
+    {
+        // Build function instance
+        var ctx = CreateLambdaContext();
+        var repo = new InMemoryDbConcertRepository();
+        var functionUnderTest = new Function(ctx, repo);
+        
+        // Generate API Gateway Request
+        var apiGatewayProxyRequest = new ApiRequestBuilder()
+            .WithHttpMethod(HttpMethod.Get)
+            .WithPath("concerts", "next")
+            .Build();
+
+        // Act
+        var response = await functionUnderTest.FunctionHandler(apiGatewayProxyRequest, ctx);
+        Assert.NotNull(response);
+        Assert.Equal(404, response.StatusCode);
+        Assert.Equal("application/json", response.Headers["Content-Type"]);
+        Assert.Equal("*", response.Headers["Access-Control-Allow-Origin"]);
+        Assert.Equal("OPTIONS, GET", response.Headers["Access-Control-Allow-Methods"]);
+
+        var bodyJson = response.Body;
+        var responseConcert = JsonSerializer.Deserialize(bodyJson, DataStructureJsonContext.Default.ErrorResponse);
+        Assert.NotNull(responseConcert);
+        Assert.Equal("No upcoming concerts found.", responseConcert.Message);
     }
 
 
