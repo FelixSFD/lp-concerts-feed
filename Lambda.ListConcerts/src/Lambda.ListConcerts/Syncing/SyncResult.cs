@@ -21,4 +21,10 @@ public class SyncResult<TObj, TIdentifier>
     /// List of IDs that were deleted since last sync
     /// </summary>
     public List<TIdentifier> DeletedIds { get; set; } = [];
+
+    /// <summary>
+    /// Point in time when the latest change of any <typeparamref name="TObj"/> happened.
+    /// Using this timestamp instead of "now" helps with caching as all users with the latest data will use the same request.
+    /// </summary>
+    public DateTimeOffset LatestChange { get; set; }
 }

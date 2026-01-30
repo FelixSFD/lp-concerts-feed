@@ -16,8 +16,11 @@ public class ConcertSyncEngine(IConcertRepository repository) : ISyncEngine<Conc
     {
         await LoadChangedConcertsSince(lastSync);
 
-        var result = new SyncResult<Concert, string>();
-        
+        var result = new SyncResult<Concert, string>
+        {
+            LatestChange = DateTimeOffset.MinValue
+        };
+
         // Find changed or added
         foreach (var addedOrChangedConcert in _addedOrChangedConcerts)
         {
@@ -30,6 +33,11 @@ public class ConcertSyncEngine(IConcertRepository repository) : ISyncEngine<Conc
             {
                 // Concert previously unknown. It needs to be added
                 result.AddedObjects.Add(addedOrChangedConcert);
+            }
+
+            if (addedOrChangedConcert.LastChange != null && addedOrChangedConcert.LastChange > result.LatestChange)
+            {
+                result.LatestChange = addedOrChangedConcert.LastChange.Value;
             }
         }
         

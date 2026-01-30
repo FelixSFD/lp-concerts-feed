@@ -7,7 +7,7 @@ namespace Lambda.ListConcerts.Tests.Syncing;
 
 public class ConcertSyncEngineTest
 {
-    private InMemoryDbConcertRepository _concertRepository = new();
+    private readonly InMemoryDbConcertRepository _concertRepository = new();
     
     [Fact]
     public async Task Sync()
@@ -15,6 +15,7 @@ public class ConcertSyncEngineTest
         var syncEngine = new ConcertSyncEngine(_concertRepository);
         
         // Generate test data
+        var latestChange = DateTimeOffset.Now.AddHours(-5);
         var server1 = new Concert
         {
             Id = Guid.NewGuid().ToString(),
@@ -23,7 +24,7 @@ public class ConcertSyncEngineTest
             City = "Test City",
             Country = "USA",
             TourName = "Test Tour 2027",
-            LastChange = DateTimeOffset.Now.AddHours(-5),
+            LastChange = latestChange,
         };
         await _concertRepository.SaveAsync(server1);
         
@@ -74,5 +75,8 @@ public class ConcertSyncEngineTest
         Assert.Equivalent(new[] { server1.Id, server2.Id }, syncResult.AddedObjects.Select(c => c.Id).ToArray());
         Assert.Equivalent(new[] { server3.Id }, syncResult.ChangedObjects.Select(c => c.Id).ToArray());
         Assert.Equivalent(new[] { fakeDeletedId }, syncResult.DeletedIds.ToArray());
+        
+        // make sure the latest change is sent in the result. Having the same timestamp for all users helps with caching
+        Assert.Equal(latestChange, syncResult.LatestChange);
     }
 }
