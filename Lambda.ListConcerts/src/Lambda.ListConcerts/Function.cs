@@ -17,11 +17,8 @@ namespace Lambda.ListConcerts;
 
 using DateRange = (DateTimeOffset? from, DateTimeOffset? to);
 
-public class Function(ILambdaContext context, IConcertRepository concertRepository)
+public class Function(IConcertRepository concertRepository, IConcertBookmarkRepository concertBookmarkRepository)
 {
-    private readonly IConcertBookmarkRepository _concertBookmarkRepository = DynamoDbConcertBookmarkRepository.CreateDefault(context.Logger);
-
-
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         context.Logger.LogInformation("Path: {path}", request.Path);
@@ -240,7 +237,7 @@ public class Function(ILambdaContext context, IConcertRepository concertReposito
     private async Task<APIGatewayProxyResponse> ReturnBookmarkedConcerts(ConcertBookmark.BookmarkStatus status, int maxResults, string currentUserId, ILambdaContext context)
     {
         var searchStartDate = DateTimeOffset.UtcNow.AddHours(-4);
-        var bookmarks = _concertBookmarkRepository.GetForUserAsync(currentUserId, status);
+        var bookmarks = concertBookmarkRepository.GetForUserAsync(currentUserId, status);
         var sortedAndFiltered = bookmarks
             .SelectAwait(async cb => await GetConcertForBookmarkAndMerge(cb))
             .NotNull()

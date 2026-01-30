@@ -3,10 +3,10 @@ using System.Text.Json;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.TestUtilities;
 using Common.TestUtils;
+using Database.ConcertBookmarks;
 using Database.Concerts;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Requests;
-using LPCalendar.DataStructure.Responses;
 using Xunit;
 
 namespace Lambda.ListConcerts.Tests;
@@ -15,6 +15,19 @@ using DateRangeTuple = (DateTimeOffset? from, DateTimeOffset? to);
 
 public class FunctionTest
 {
+    private readonly ILambdaContext _ctx;
+    private readonly IConcertRepository _concertRepo;
+
+    private readonly Function _functionUnderTest;
+
+    public FunctionTest()
+    {
+        _ctx = CreateLambdaContext();
+        _concertRepo = new InMemoryDbConcertRepository();
+        IConcertBookmarkRepository concertBookmarkRepo = new InMemoryConcertBookmarkRepository();
+        _functionUnderTest = new Function(_concertRepo, concertBookmarkRepo);
+    }
+    
     private static ILambdaLogger CreateLambdaLogger()
     {
         return new TestLambdaLogger();
@@ -30,11 +43,6 @@ public class FunctionTest
     [Fact]
     public async Task Function_Concerts_Id_200()
     {
-        // Build function instance
-        var ctx = CreateLambdaContext();
-        var repo = new InMemoryDbConcertRepository();
-        var functionUnderTest = new Function(ctx, repo);
-        
         // make test data
         var concert1 = new Concert
         {
@@ -45,7 +53,7 @@ public class FunctionTest
             Country = "Germany",
             PostedStartTime = new DateTimeOffset(2024, 10, 1, 21, 0, 0, TimeSpan.FromHours(1)),
         };
-        await repo.SaveAsync(concert1);
+        await _concertRepo.SaveAsync(concert1);
         
         var concert2 = new Concert
         {
@@ -56,7 +64,7 @@ public class FunctionTest
             Country = "Germany",
             PostedStartTime = DateTimeOffset.Now.AddDays(2),
         };
-        await repo.SaveAsync(concert2);
+        await _concertRepo.SaveAsync(concert2);
         
         var concert3 = new Concert
         {
@@ -67,7 +75,7 @@ public class FunctionTest
             Country = "Germany",
             PostedStartTime = DateTimeOffset.Now.AddDays(9),
         };
-        await repo.SaveAsync(concert3);
+        await _concertRepo.SaveAsync(concert3);
         
         // Generate API Gateway Request
         var apiGatewayProxyRequest = new ApiRequestBuilder()
@@ -77,7 +85,7 @@ public class FunctionTest
             .Build();
 
         // Act
-        var response = await functionUnderTest.FunctionHandler(apiGatewayProxyRequest, ctx);
+        var response = await _functionUnderTest.FunctionHandler(apiGatewayProxyRequest, _ctx);
         Assert.NotNull(response);
         Assert.Equal(200, response.StatusCode);
         Assert.Equal("application/json", response.Headers["Content-Type"]);
@@ -99,11 +107,6 @@ public class FunctionTest
     [Fact]
     public async Task Function_Concerts_Id_404()
     {
-        // Build function instance
-        var ctx = CreateLambdaContext();
-        var repo = new InMemoryDbConcertRepository();
-        var functionUnderTest = new Function(ctx, repo);
-        
         // make test data
         var testSearchId = Guid.NewGuid().ToString();
         var concert1 = new Concert
@@ -115,7 +118,7 @@ public class FunctionTest
             Country = "Germany",
             PostedStartTime = new DateTimeOffset(2024, 10, 1, 21, 0, 0, TimeSpan.FromHours(1)),
         };
-        await repo.SaveAsync(concert1);
+        await _concertRepo.SaveAsync(concert1);
         
         // Generate API Gateway Request
         var apiGatewayProxyRequest = new ApiRequestBuilder()
@@ -125,7 +128,7 @@ public class FunctionTest
             .Build();
 
         // Act
-        var response = await functionUnderTest.FunctionHandler(apiGatewayProxyRequest, ctx);
+        var response = await _functionUnderTest.FunctionHandler(apiGatewayProxyRequest, _ctx);
         Assert.NotNull(response);
         Assert.Equal(404, response.StatusCode);
         Assert.Equal("application/json", response.Headers["Content-Type"]);
@@ -142,11 +145,6 @@ public class FunctionTest
     [Fact]
     public async Task Function_Concerts_Next_200()
     {
-        // Build function instance
-        var ctx = CreateLambdaContext();
-        var repo = new InMemoryDbConcertRepository();
-        var functionUnderTest = new Function(ctx, repo);
-        
         // make test data
         var concertPast = new Concert
         {
@@ -157,7 +155,7 @@ public class FunctionTest
             Country = "Germany",
             PostedStartTime = new DateTimeOffset(2024, 10, 1, 21, 0, 0, TimeSpan.FromHours(1)),
         };
-        await repo.SaveAsync(concertPast);
+        await _concertRepo.SaveAsync(concertPast);
         
         var concertNext = new Concert
         {
@@ -168,7 +166,7 @@ public class FunctionTest
             Country = "Germany",
             PostedStartTime = DateTimeOffset.Now.AddDays(2),
         };
-        await repo.SaveAsync(concertNext);
+        await _concertRepo.SaveAsync(concertNext);
         
         var concertFuture = new Concert
         {
@@ -179,7 +177,7 @@ public class FunctionTest
             Country = "Germany",
             PostedStartTime = DateTimeOffset.Now.AddDays(9),
         };
-        await repo.SaveAsync(concertFuture);
+        await _concertRepo.SaveAsync(concertFuture);
         
         // Generate API Gateway Request
         var apiGatewayProxyRequest = new ApiRequestBuilder()
@@ -188,7 +186,7 @@ public class FunctionTest
             .Build();
 
         // Act
-        var response = await functionUnderTest.FunctionHandler(apiGatewayProxyRequest, ctx);
+        var response = await _functionUnderTest.FunctionHandler(apiGatewayProxyRequest, _ctx);
         Assert.NotNull(response);
         Assert.Equal(200, response.StatusCode);
         Assert.Equal("application/json", response.Headers["Content-Type"]);
@@ -213,11 +211,6 @@ public class FunctionTest
     [Fact]
     public async Task Function_Concerts_Next_404_only_past()
     {
-        // Build function instance
-        var ctx = CreateLambdaContext();
-        var repo = new InMemoryDbConcertRepository();
-        var functionUnderTest = new Function(ctx, repo);
-        
         // make test data
         var concertPast = new Concert
         {
@@ -228,7 +221,7 @@ public class FunctionTest
             Country = "Germany",
             PostedStartTime = new DateTimeOffset(2024, 10, 1, 21, 0, 0, TimeSpan.FromHours(1)),
         };
-        await repo.SaveAsync(concertPast);
+        await _concertRepo.SaveAsync(concertPast);
         
         // Generate API Gateway Request
         var apiGatewayProxyRequest = new ApiRequestBuilder()
@@ -237,7 +230,7 @@ public class FunctionTest
             .Build();
 
         // Act
-        var response = await functionUnderTest.FunctionHandler(apiGatewayProxyRequest, ctx);
+        var response = await _functionUnderTest.FunctionHandler(apiGatewayProxyRequest, _ctx);
         Assert.NotNull(response);
         Assert.Equal(404, response.StatusCode);
         Assert.Equal("application/json", response.Headers["Content-Type"]);
@@ -257,11 +250,6 @@ public class FunctionTest
     [Fact]
     public async Task Function_Concerts_Next_404_empty_db()
     {
-        // Build function instance
-        var ctx = CreateLambdaContext();
-        var repo = new InMemoryDbConcertRepository();
-        var functionUnderTest = new Function(ctx, repo);
-        
         // Generate API Gateway Request
         var apiGatewayProxyRequest = new ApiRequestBuilder()
             .WithHttpMethod(HttpMethod.Get)
@@ -269,7 +257,7 @@ public class FunctionTest
             .Build();
 
         // Act
-        var response = await functionUnderTest.FunctionHandler(apiGatewayProxyRequest, ctx);
+        var response = await _functionUnderTest.FunctionHandler(apiGatewayProxyRequest, _ctx);
         Assert.NotNull(response);
         Assert.Equal(404, response.StatusCode);
         Assert.Equal("application/json", response.Headers["Content-Type"]);
@@ -286,11 +274,6 @@ public class FunctionTest
     [Fact]
     public async Task Function_Concerts_Sync()
     {
-        // Build function instance
-        var ctx = CreateLambdaContext();
-        var repo = new InMemoryDbConcertRepository();
-        var functionUnderTest = new Function(ctx, repo);
-        
         // Generate API Gateway Request
         var localId1 = Guid.NewGuid().ToString();
         var localId2 = Guid.NewGuid().ToString();
@@ -306,7 +289,7 @@ public class FunctionTest
             .WithBody(JsonSerializer.Serialize(request, DataStructureJsonContext.Default.SyncConcertsRequest))
             .Build();
         
-        var response = await functionUnderTest.FunctionHandler(apiGatewayProxyRequest, ctx);
+        var response = await _functionUnderTest.FunctionHandler(apiGatewayProxyRequest, _ctx);
         Assert.NotNull(response);
         Assert.Equal(200, response.StatusCode);
         
