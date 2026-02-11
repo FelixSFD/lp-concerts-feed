@@ -262,8 +262,7 @@ components:
           type: string
           description: Time when the last sync on this system was done
           nullable: false
-          format: date-time
-          example: '2024-09-05T22:00:00Z'
+          example: '2024-09-05T22:00:00.999Z'
         localConcertIds:
           type: array
           description: List of all IDs currently stored locally. This is needed to find out which Concerts were deleted.
