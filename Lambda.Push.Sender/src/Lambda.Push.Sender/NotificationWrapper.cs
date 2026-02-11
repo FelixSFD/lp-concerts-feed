@@ -6,4 +6,9 @@ public class NotificationWrapper
 {
     [JsonPropertyName("aps")]
     public required AppleNotificationAlert Apple { get; set; }
+
+
+    [JsonPropertyName("concertId")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? ConcertId { get; set; }
 }

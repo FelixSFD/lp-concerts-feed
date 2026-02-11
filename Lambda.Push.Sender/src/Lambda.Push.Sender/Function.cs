@@ -119,7 +119,10 @@ public class Function
                 Body =
                     $"Stage time for Linkin Park confirmed: {pushEvent.Concert.MainStageTime:HH:mm} ({pushEvent.Concert.TimeZoneId})",
                 CollapseId = $"{pushEvent.Concert.Id}#{nameof(PushNotificationType.MainStageTimeConfirmed)}",
-                Thread = pushEvent.Concert.Id
+                Thread = pushEvent.Concert.Id,
+                ConcertId = pushEvent.Concert.Id,
+                Category = "concertReminder",
+                IsMutable = true
             },
             PushNotificationType.ConcertReminder => new PushNotificationEvent
             {
@@ -127,7 +130,10 @@ public class Function
                 Title = $"Linkin Park in {pushEvent.Concert.City}",
                 Body = "The concert is starting soon! 🔥",
                 CollapseId = $"{pushEvent.Concert.Id}#{nameof(PushNotificationType.ConcertReminder)}",
-                Thread = pushEvent.Concert.Id
+                Thread = pushEvent.Concert.Id,
+                ConcertId = pushEvent.Concert.Id,
+                Category = "concertReminder",
+                IsMutable = true
             },
             _ => null
         };
@@ -158,8 +164,11 @@ public class Function
                             Title =  pushNotificationEvent.Title,
                             Body = pushNotificationEvent.Body
                         },
-                        ThreadId = pushNotificationEvent.Thread
-                    }
+                        ThreadId = pushNotificationEvent.Thread,
+                        MutableContent =  pushNotificationEvent.IsMutable,
+                        Category = pushNotificationEvent.Category ?? AppleNotificationAlert.DefaultServerFilteredCategory,
+                    },
+                    ConcertId = pushNotificationEvent.ConcertId
                 };
 
                 var snsMessage = new SnsMessage
