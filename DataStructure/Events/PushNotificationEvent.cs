@@ -25,4 +25,20 @@ public class PushNotificationEvent
     /// Push notifications with the same thread will be grouped in the notification center (APNS Thread)
     /// </summary>
     public string? Thread { get; set; }
+    
+    /// <summary>
+    /// If applicable, this contains the concert ID that is related to this notification
+    /// </summary>
+    public string? ConcertId { get; set; }
+
+    /// <summary>
+    /// Type of notification. This is used by the clients to perform certain actions
+    /// </summary>
+    public string? Category { get; set; }
+
+
+    /// <summary>
+    /// true, if the client can modify the content before showing it to the user
+    /// </summary>
+    public bool IsMutable { get; set; }
 }

@@ -1554,7 +1554,7 @@ Resources:
         ScheduledEvent:
           Type: Schedule
           Properties:
-            Schedule: rate(10 minutes)
+            Schedule: cron(1/10 * * * ? *)
             Description: Runs every 10 minutes
             Enabled: true
   
