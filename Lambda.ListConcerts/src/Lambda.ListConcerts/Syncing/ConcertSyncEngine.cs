@@ -35,9 +35,9 @@ public class ConcertSyncEngine(IConcertRepository repository) : ISyncEngine<Conc
                 result.AddedObjects.Add(addedOrChangedConcert);
             }
 
-            if (addedOrChangedConcert.LastChange != null && addedOrChangedConcert.LastChange > result.LatestChange)
+            if ((addedOrChangedConcert.LastChange != null && addedOrChangedConcert.LastChange > result.LatestChange) || (lastSync <= DateTimeOffset.UnixEpoch && addedOrChangedConcert.LastChange == null))
             {
-                result.LatestChange = addedOrChangedConcert.LastChange.Value;
+                result.LatestChange = addedOrChangedConcert.LastChange ?? DateTimeOffset.MinValue;
             }
         }
         

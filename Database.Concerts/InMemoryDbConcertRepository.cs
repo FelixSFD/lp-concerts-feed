@@ -49,7 +49,7 @@ public class InMemoryDbConcertRepository: IConcertRepository
     public IAsyncEnumerable<Concert> GetConcertsChangedAfterAsync(DateTimeOffset changedAfterDate)
     {
         return GetAllSorted()
-            .Where(c => c.LastChange > changedAfterDate)
+            .Where(c => (c.LastChange ?? DateTimeOffset.MaxValue) > changedAfterDate)
             .ToAsyncEnumerable();
     }
 

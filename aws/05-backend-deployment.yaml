@@ -1282,6 +1282,24 @@ Resources:
                 - openid
                 #- !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
   
+  DbConsistencyCorrectionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: bootstrap
+      Role: !GetAtt ConcertsWriteLambdaExecutionRole.Arn
+      Description: .NET function to run consistency checks on the DynamoDB database (like adding default values to new fields)
+      CodeUri: ../lambda_packages/Lambda.DbConsistencyCorrection.zip
+      Runtime: provided.al2023
+      Architectures:
+        - arm64
+      Tracing: Active
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
+      Environment:
+        Variables:
+          CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
+  
   ImportConcertsFunction:
     Type: AWS::Serverless::Function
     Properties:

@@ -209,6 +209,7 @@ public class DynamoDbConcertRepository : IConcertRepository
     {
         await FixNonOverridableFields(concert);
         await _dynamoDbContext.SaveAsync(concert, _dbConfigProvider.GetSaveConfigFor(DynamoDbConfigProvider.Table.Concerts));
+        _logger.LogDebug("Concert '{id}' has been saved.", concert.Id);
     }
     
     

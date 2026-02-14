@@ -110,6 +110,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database.ConcertBookmarks",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.TestUtils", "Common.TestUtils\Common.TestUtils.csproj", "{5EB7F9AE-08F1-4CDC-80EA-88DE286B95DC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.DbConsistencyCorrection", "Lambda.DbConsistencyCorrection\src\Lambda.DbConsistencyCorrection\Lambda.DbConsistencyCorrection.csproj", "{70E6107B-6EB6-44E0-9647-BB0EB3A437A4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.DbConsistencyCorrection.Tests", "Lambda.DbConsistencyCorrection\test\Lambda.DbConsistencyCorrection.Tests\Lambda.DbConsistencyCorrection.Tests.csproj", "{3233F33B-80E1-48E7-86F0-68FA0892ECEE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -276,5 +280,13 @@ Global
 		{5EB7F9AE-08F1-4CDC-80EA-88DE286B95DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5EB7F9AE-08F1-4CDC-80EA-88DE286B95DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5EB7F9AE-08F1-4CDC-80EA-88DE286B95DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70E6107B-6EB6-44E0-9647-BB0EB3A437A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70E6107B-6EB6-44E0-9647-BB0EB3A437A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70E6107B-6EB6-44E0-9647-BB0EB3A437A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70E6107B-6EB6-44E0-9647-BB0EB3A437A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3233F33B-80E1-48E7-86F0-68FA0892ECEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3233F33B-80E1-48E7-86F0-68FA0892ECEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3233F33B-80E1-48E7-86F0-68FA0892ECEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3233F33B-80E1-48E7-86F0-68FA0892ECEE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
