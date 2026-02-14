@@ -62,7 +62,7 @@ public class DynamoDbConcertRepository : IConcertRepository
 
     private async IAsyncEnumerable<Concert> GetBatchByIds(IEnumerable<string> ids)
     {
-        var batchGet = _dynamoDbContext.CreateBatchGet<Concert>();
+        var batchGet = _dynamoDbContext.CreateBatchGet<Concert>(_dbConfigProvider.GetBatchGetConfigFor(DynamoDbConfigProvider.Table.Concerts));
         foreach (var id in ids)
         {
             batchGet.AddKey(id);
