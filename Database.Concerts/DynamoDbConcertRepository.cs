@@ -192,7 +192,7 @@ public class DynamoDbConcertRepository : IConcertRepository
         
         var query = _dynamoDbContext.QueryAsync<Concert>(
             "PUBLISHED", // PartitionKey value
-            QueryOperator.GreaterThanOrEqual,
+            QueryOperator.GreaterThan,
             [new AttributeValue { S = searchStartDateStr }],
             config);
 

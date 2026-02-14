@@ -277,7 +277,6 @@ components:
           type: string
           description: Time when the this sync was done
           nullable: false
-          format: date-time
           example: '2024-09-05T22:00:00Z'
         added:
           type: array
