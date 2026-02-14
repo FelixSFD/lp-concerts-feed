@@ -72,6 +72,8 @@ Resources:
           AttributeType: S
         - AttributeName: Status
           AttributeType: S
+        - AttributeName: LastChange
+          AttributeType: S
         #- AttributeName: Country
         #  AttributeType: S
         #- AttributeName: State
@@ -91,6 +93,14 @@ Resources:
             - AttributeName: Status
               KeyType: HASH
             - AttributeName: PostedStartTime
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: LastChangeTimeGlobalIndex
+          KeySchema:
+            - AttributeName: Status
+              KeyType: HASH
+            - AttributeName: LastChange
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
@@ -204,6 +214,13 @@ Resources:
     Type: AWS::DynamoDB::Table
     Properties:
       TableName: !Sub ${AWS::StackName}_NotificationUserEndpointsV1
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "notifications"
       AttributeDefinitions:
         - AttributeName: UserId
           AttributeType: S
@@ -229,6 +246,13 @@ Resources:
     Type: AWS::DynamoDB::Table
     Properties:
       TableName: !Sub ${AWS::StackName}_ConcertNotificationHistoryV1
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "notifications"
       AttributeDefinitions:
         - AttributeName: ConcertId
           AttributeType: S
@@ -247,6 +271,13 @@ Resources:
     Type: AWS::DynamoDB::Table
     Properties:
       TableName: !Sub ${AWS::StackName}_UserNotificationSettingsV1
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "notifications"
       AttributeDefinitions:
         - AttributeName: UserId
           AttributeType: S
@@ -387,6 +418,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - dynamodb:GetItem
+                  - dynamodb:BatchGetItem
                   - dynamodb:DescribeTable
                   - dynamodb:Scan
                   - dynamodb:Query
@@ -1040,12 +1072,26 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: !Sub ${AWS::StackName}-audit-log-event-queue.fifo
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "security"
       FifoQueue: true
       ContentBasedDeduplication: true
   SendPushNotificationQueue:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: !Sub ${AWS::StackName}-push-notification-queue
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "notifications"
   
   # Audit log lambda
   AuditLogWriterFunction:
@@ -1236,6 +1282,24 @@ Resources:
               AuthorizationScopes:
                 - openid
                 #- !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
+  
+  DbConsistencyCorrectionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: bootstrap
+      Role: !GetAtt ConcertsWriteLambdaExecutionRole.Arn
+      Description: .NET function to run consistency checks on the DynamoDB database (like adding default values to new fields)
+      CodeUri: ../lambda_packages/Lambda.DbConsistencyCorrection.zip
+      Runtime: provided.al2023
+      Architectures:
+        - arm64
+      Tracing: Active
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
+      Environment:
+        Variables:
+          CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
   
   ImportConcertsFunction:
     Type: AWS::Serverless::Function

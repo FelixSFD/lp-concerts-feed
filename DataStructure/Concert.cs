@@ -12,6 +12,8 @@ namespace LPCalendar.DataStructure;
 public class Concert
 {
     public const string ConcertTableName = "Concertsv2";
+    public const string LastChangeTimeGlobalIndex = "LastChangeTimeGlobalIndex";
+    
     /// <summary>
     /// UUID of the concert
     /// </summary>
@@ -44,7 +46,7 @@ public class Concert
     /// Status of the concert (mainly used as workaround for having a partition key that can return all concerts for now)
     /// </summary>
     //[DynamoDBProperty("Status")]
-    [DynamoDBGlobalSecondaryIndexHashKey("PostedStartTimeGlobalIndex")]
+    [DynamoDBGlobalSecondaryIndexHashKey("PostedStartTimeGlobalIndex", nameof(LastChangeTimeGlobalIndex))]
     [JsonPropertyName("status")]
     public required string Status { get; set; }
     
@@ -189,4 +191,13 @@ public class Concert
     [DynamoDBIgnore]
     [JsonPropertyName("isPast")]
     public bool IsPast => PostedStartTime != null && PostedStartTime < DateTimeOffset.Now.AddHours(-4);
+    
+    
+    /// <summary>
+    /// Time when the concert was last edited
+    /// </summary>
+    [DynamoDBGlobalSecondaryIndexRangeKey(nameof(LastChangeTimeGlobalIndex))]
+    [DynamoDBProperty(typeof(DateTimeOffsetToStringPropertyConverter))]
+    [JsonPropertyName("lastChange")]
+    public DateTimeOffset? LastChange { get; set; }
 }

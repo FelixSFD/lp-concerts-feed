@@ -1,14 +1,13 @@
 using System.Text.Json;
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
-using Amazon.DynamoDBv2.DocumentModel;
-using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Common.DynamoDb;
+using Database.ConcertBookmarks;
+using Database.Concerts;
 using Lambda.Auth;
-using Lambda.Common.ApiGateway;
+using Lambda.ListConcerts.Syncing;
 using LPCalendar.DataStructure;
-using LPCalendar.DataStructure.DbConfig;
+using LPCalendar.DataStructure.Requests;
 using LPCalendar.DataStructure.Responses;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
@@ -18,25 +17,8 @@ namespace Lambda.ListConcerts;
 
 using DateRange = (DateTimeOffset? from, DateTimeOffset? to);
 
-public class Function
+public class Function(IConcertRepository concertRepository, IConcertBookmarkRepository concertBookmarkRepository)
 {
-    private readonly DynamoDBContext _dynamoDbContext;
-    private readonly DynamoDbConfigProvider _dbConfigProvider = new();
-
-    public Function()
-    {
-        AmazonDynamoDBConfig config = new AmazonDynamoDBConfig
-        {
-            LogMetrics = true,
-            LogResponse = true
-        };
-        
-        _dynamoDbContext = new DynamoDBContextBuilder()
-            .WithDynamoDBClient(() => new AmazonDynamoDBClient(config))
-            .Build();
-    }
-
-
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         context.Logger.LogInformation("Path: {path}", request.Path);
@@ -76,6 +58,36 @@ public class Function
             return await ReturnNextConcert(context);
         }
 
+        if (request.Path == "/concerts/sync")
+        {
+            context.Logger.LogInformation("Requested to sync concerts.");
+            SyncConcertsRequest? syncRequest;
+            try
+            { 
+                syncRequest = JsonSerializer.Deserialize(request.Body, DataStructureJsonContext.Default.SyncConcertsRequest);
+            }
+            catch (Exception exception)
+            {
+                context.Logger.LogError(exception, "Failed to parse sync request!");
+                var error = new ErrorResponse
+                {
+                    Message = exception.Message
+                };
+                return new APIGatewayProxyResponse
+                {
+                    StatusCode = 404,
+                    Body = JsonSerializer.Serialize(error, DataStructureJsonContext.Default.ErrorResponse),
+                    Headers = new Dictionary<string, string>
+                    {
+                        { "Content-Type", "application/json" },
+                        { "Access-Control-Allow-Origin", "*" },
+                        { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                    }
+                };
+            }
+
+            return await ReturnSyncResult(syncRequest!, context.Logger);
+        }
         
         if (request.Path is "/concerts/attending" or "/concerts/bookmarked")
         {
@@ -113,48 +125,7 @@ public class Function
 
     private async Task<APIGatewayProxyResponse> ReturnFilteredConcertList(ILambdaContext context, string? filterTour = null, DateRange? dateRange = null)
     {
-        context.Logger.LogDebug("Query filtered concerts: DateRange ({from} to {to}); Tour: {tour}", dateRange?.from.ToString() ?? "null", dateRange?.to.ToString() ?? "null", filterTour);
-        var searchStartDate = dateRange?.from ?? DateTimeOffset.Now;
-        if (dateRange?.from == null && dateRange?.to != null)
-        {
-            context.Logger.LogDebug("date_from is not set, but date_to is. Will search for historic shows as well", dateRange);
-            searchStartDate = DateTimeOffset.MinValue;
-        }
-        
-        // if no end is specified, use max value to search for all shows
-        var searchEndDate = dateRange?.to ?? DateTimeOffset.MaxValue;
-        
-        var searchStartDateStr = searchStartDate.ToString("O");
-        var searchEndDateStr = searchEndDate.ToString("O");
-        context.Logger.LogInformation("SCAN filtered concerts between {start} and {end}", searchStartDateStr, searchEndDateStr);
-
-        var config = _dbConfigProvider.GetScanConfigFor(DynamoDbConfigProvider.Table.Concerts);
-        config.IndexName = "PostedStartTimeGlobalIndex";
-        
-        // build Scan Conditions
-        List<ScanCondition> conditions =
-        [
-            new("Status", ScanOperator.Equal, "PUBLISHED"),
-            new("PostedStartTime", ScanOperator.Between, searchStartDate,  searchEndDate),
-        ];
-
-        if (filterTour != null)
-        {
-            context.Logger.LogDebug("Add filter for TourName = '{tourName}'",  filterTour);
-            if (string.IsNullOrEmpty(filterTour))
-            {
-                context.Logger.LogDebug("Filter for shows without tour");
-                conditions.Add(new ScanCondition("TourName", ScanOperator.IsNull));
-            }
-            else
-            {
-                conditions.Add(new ScanCondition("TourName", ScanOperator.Equal, filterTour));
-            }
-        }
-        
-        var query = _dynamoDbContext.ScanAsync<Concert>(conditions, config);
-
-        var concerts = await query.GetRemainingAsync() ?? [];
+        var concerts = await concertRepository.GetConcertsAsync(filterTour, dateRange).ToListAsync();
         
         var concertsJson = JsonSerializer.Serialize(concerts, DataStructureJsonContext.Default.ListConcert);
         return new APIGatewayProxyResponse
@@ -173,27 +144,18 @@ public class Function
 
     private async Task<APIGatewayProxyResponse> ReturnNextConcert(ILambdaContext context)
     {
-        var now = DateTimeOffset.UtcNow.AddHours(-4);
-        var dateNowStr = now.ToString("O");
-        
-        context.Logger.LogInformation("Query concerts after: {time}", dateNowStr);
-
-        var config = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.Concerts);
-        config.IndexName = "PostedStartTimeGlobalIndex";
-        
-        var query = _dynamoDbContext.QueryAsync<Concert>(
-            "PUBLISHED", // PartitionKey value
-            QueryOperator.GreaterThanOrEqual,
-            [new AttributeValue { S = dateNowStr }],
-            config);
-
-        var concerts = await query.GetRemainingAsync();
-        if (concerts == null || concerts.Count == 0)
+        var next = await concertRepository.GetNextAsync();
+        if (next == null)
         {
+            context.Logger.LogInformation("No upcoming concert found.");
+            var error = new ErrorResponse
+            {
+                Message = "No upcoming concerts found."
+            };
             return new APIGatewayProxyResponse
             {
                 StatusCode = 404,
-                Body = "{\"message\": \"No concerts found.\"}",
+                Body = JsonSerializer.Serialize(error, DataStructureJsonContext.Default.ErrorResponse),
                 Headers = new Dictionary<string, string>
                 {
                     { "Content-Type", "application/json" },
@@ -203,10 +165,11 @@ public class Function
             };
         }
 
+        context.Logger.LogDebug("Returning Concert with ID: {id}", next.Id);
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
-            Body = JsonSerializer.Serialize(concerts.First(), DataStructureJsonContext.Default.Concert),
+            Body = JsonSerializer.Serialize(next, DataStructureJsonContext.Default.Concert),
             Headers = new Dictionary<string, string>
             {
                 { "Content-Type", "application/json" },
@@ -253,21 +216,8 @@ public class Function
     private async Task<APIGatewayProxyResponse> ReturnAllConcerts(ILambdaContext context, bool onlyFuture = true)
     {
         var searchStartDate = onlyFuture ? DateTimeOffset.Now : DateTimeOffset.MinValue;
-        var searchStartDateStr = searchStartDate.ToString("O");
-            
-        context.Logger.LogInformation("Query concerts after: {time}", searchStartDateStr);
 
-        var config = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.Concerts);
-        config.BackwardQuery = false;
-        config.IndexName = "PostedStartTimeGlobalIndex";
-        
-        var query = _dynamoDbContext.QueryAsync<Concert>(
-            "PUBLISHED", // PartitionKey value
-            QueryOperator.GreaterThanOrEqual,
-            [new AttributeValue { S = searchStartDateStr }],
-            config);
-
-        var concerts = await query.GetRemainingAsync() ?? [];
+        var concerts = await concertRepository.GetConcertsAsync(searchStartDate).ToListAsync();
         
         var concertJson = JsonSerializer.Serialize(concerts, DataStructureJsonContext.Default.ListConcert);
         return new APIGatewayProxyResponse
@@ -286,27 +236,16 @@ public class Function
     
     private async Task<APIGatewayProxyResponse> ReturnBookmarkedConcerts(ConcertBookmark.BookmarkStatus status, int maxResults, string currentUserId, ILambdaContext context)
     {
-        var config = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.ConcertBookmarks);
-        config.BackwardQuery = false;
-        config.IndexName = "UserBookmarkStatusIndexV1";
-        
-        var query = _dynamoDbContext.QueryAsync<ConcertBookmark>(
-            currentUserId, // PartitionKey value
-            QueryOperator.Equal,
-            [status.ToString()],
-            config);
-
         var searchStartDate = DateTimeOffset.UtcNow.AddHours(-4);
-        var bookmarks = await query.GetRemainingAsync() ?? [];
-        var enrichingTasks = bookmarks.Select(GetConcertForBookmarkAndMerge);
-        var enrichedObjects = await Task.WhenAll(enrichingTasks);
-        var sortedAndFiltered = enrichedObjects
-            .Where(c => c != null && c.PostedStartTime >= searchStartDate)
-            .Cast<ConcertWithBookmarkStatusResponse>()
+        var bookmarks = concertBookmarkRepository.GetForUserAsync(currentUserId, status);
+        var sortedAndFiltered = bookmarks
+            .SelectAwait(async cb => await GetConcertForBookmarkAndMerge(cb))
+            .NotNull()
+            .Where(c => c.PostedStartTime >= searchStartDate)
             .OrderBy(ec => ec.PostedStartTime)
             .Take(maxResults);
         
-        var json = JsonSerializer.Serialize(sortedAndFiltered.ToList(), DataStructureJsonContext.Default.ListConcertWithBookmarkStatusResponse);
+        var json = JsonSerializer.Serialize(await sortedAndFiltered.ToListAsync(), DataStructureJsonContext.Default.ListConcertWithBookmarkStatusResponse);
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
@@ -329,6 +268,37 @@ public class Function
     }
 
 
+    private async Task<APIGatewayProxyResponse> ReturnSyncResult(SyncConcertsRequest syncRequest, ILambdaLogger logger)
+    {
+        var syncTime = DateTimeOffset.UtcNow;
+        logger.LogDebug("Sync Concerts at: {syncTime}", syncTime);
+        var syncEngine = new ConcertSyncEngine(concertRepository);
+        var syncResult = await syncEngine.SyncWith(syncRequest.LocalConcertIds, syncRequest.LastSync);
+        var responseObj = new SyncConcertsResponse
+        {
+            Added = syncResult.AddedObjects.ToArray(),
+            Updated = syncResult.ChangedObjects.ToArray(),
+            DeletedConcertIds = syncResult.DeletedIds.ToArray(),
+            SyncTime = syncTime
+        };
+        
+        logger.LogDebug("Finished sync. Added: {addCount}; Changed: {changeCount}; Deleted: {deleteCount}; SyncTime: {syncTime}", responseObj.Added.Length, responseObj.Updated.Length, responseObj.DeletedConcertIds.Length, syncTime);
+        
+        var json = JsonSerializer.Serialize(responseObj, DataStructureJsonContext.Default.SyncConcertsResponse);
+        return new APIGatewayProxyResponse
+        {
+            StatusCode = 200,
+            Body = json,
+            Headers = new Dictionary<string, string>
+            {
+                { "Content-Type", "application/json" },
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+            }
+        };
+    }
+
+
     /// <summary>
     /// Returns a concert by its ID
     /// </summary>
@@ -336,7 +306,7 @@ public class Function
     /// <returns>Concert</returns>
     private async Task<Concert?> GetConcertById(string id)
     {
-        return await _dynamoDbContext.LoadAsync<Concert>(id, _dbConfigProvider.GetLoadConfigFor(DynamoDbConfigProvider.Table.Concerts));
+        return await concertRepository.GetByIdAsync(id);
     }
 
 

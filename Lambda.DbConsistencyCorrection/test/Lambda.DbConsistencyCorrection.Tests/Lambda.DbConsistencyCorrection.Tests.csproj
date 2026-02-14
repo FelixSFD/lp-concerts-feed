@@ -13,7 +13,6 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Common.TestUtils\Common.TestUtils.csproj" />
-    <ProjectReference Include="..\..\src\Lambda.ListConcerts\Lambda.ListConcerts.csproj" />
+    <ProjectReference Include="..\..\src\Lambda.AddConcert\Lambda.AddConcert.csproj" />
   </ItemGroup>
 </Project>

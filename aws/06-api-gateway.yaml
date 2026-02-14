@@ -18,7 +18,7 @@ Parameters:
 
 Globals:
   Api:
-    TracingEnabled: true
+    TracingEnabled: false
     Cors:
       AllowMethods: "'POST, GET, PUT, DELETE'"
       AllowOrigin: "'*'"

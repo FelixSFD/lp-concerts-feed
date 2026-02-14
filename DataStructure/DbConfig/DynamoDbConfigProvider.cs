@@ -39,6 +39,14 @@ public class DynamoDbConfigProvider
     }
     
     
+    public BatchGetConfig GetBatchGetConfigFor(Table table)
+    {
+        var config = new BatchGetConfig();
+        SetTableNameOverride(config, table);
+        return config;
+    }
+    
+    
     public ScanConfig GetScanConfigFor(Table table)
     {
         var config = new ScanConfig();
