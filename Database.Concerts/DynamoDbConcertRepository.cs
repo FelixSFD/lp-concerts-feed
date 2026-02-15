@@ -223,7 +223,8 @@ public class DynamoDbConcertRepository : IConcertRepository
         if (existing != null)
         {
             concert.ScheduleImageFile = existing.ScheduleImageFile;
-            concert.LastChange = DateTimeOffset.UtcNow;
         }
+        
+        concert.LastChange = DateTimeOffset.UtcNow;
     }
 }
