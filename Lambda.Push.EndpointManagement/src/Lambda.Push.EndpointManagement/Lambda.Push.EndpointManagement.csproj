@@ -12,11 +12,11 @@
     </PropertyGroup>
     <Import Project="../../../LambdaAotProperties.targets"/>
     <ItemGroup>
-        <PackageReference Include="Amazon.Lambda.APIGatewayEvents" Version="2.7.1" />
-        <PackageReference Include="Amazon.Lambda.Core" Version="2.7.1" />
-        <PackageReference Include="Amazon.Lambda.RuntimeSupport" Version="1.13.4" />
-        <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.4"/>
-        <PackageReference Include="AWSSDK.SimpleNotificationService" Version="4.0.2.13" />
+        <PackageReference Include="Amazon.Lambda.APIGatewayEvents" Version="2.7.3" />
+        <PackageReference Include="Amazon.Lambda.Core" Version="2.8.1" />
+        <PackageReference Include="Amazon.Lambda.RuntimeSupport" Version="1.14.2" />
+        <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.5" />
+        <PackageReference Include="AWSSDK.SimpleNotificationService" Version="4.0.2.16" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\..\..\DataStructure\DataStructure.csproj" />
