@@ -3,7 +3,11 @@
 
 @if (newFeatureAlertDismissedToken != currentNewFeatureAlertToken && !isLoggedIn$) {
   <ngb-alert (closed)="onNewFeatureAlertClosed()" type="info" role="alert">
-    <img src="favicon.svg" alt="Logo" width="30" height="30" class="d-inline-block align-top me-2" /> You can now BETA-test the new iOS app for this website! Check out the information about the app <a href="javascript:void(0)" [routerLink]="['/app']">here</a> or <a href="https://testflight.apple.com/join/sQMcXNnD" class="link link-primary" target="_blank">join the BETA</a>.
+    Our new iOS app is now available! You can download it for FREE on the AppStore.<br />
+
+    <a href="https://apps.apple.com/de/app/lp-concert-calendar/id6753590776?itscg=30200&itsct=apps_box_badge&mttnsubad=6753590776" style="display: inline-block" class="mt-3">
+      <img src="https://toolbox.marketingtools.apple.com/api/v2/badges/download-on-the-app-store/black/en-us?releaseDate=1771286400" alt="Download on the App Store" style="height: 52px; vertical-align: middle; object-fit: contain;" />
+    </a>
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
   </ngb-alert>
 }
