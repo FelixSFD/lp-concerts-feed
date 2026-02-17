@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
@@ -11,11 +11,11 @@
         <PublishReadyToRun>true</PublishReadyToRun>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Amazon.Lambda.Core" Version="2.7.1" />
-        <PackageReference Include="Amazon.Lambda.S3Events" Version="3.1.0" />
-        <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.4"/>
-        <PackageReference Include="AWSSDK.S3" Version="4.0.7.9" />
-        <PackageReference Include="ChoETL" Version="1.2.1.68" />
+        <PackageReference Include="Amazon.Lambda.Core" Version="2.8.1" />
+        <PackageReference Include="Amazon.Lambda.S3Events" Version="3.1.2" />
+        <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.5" />
+        <PackageReference Include="AWSSDK.S3" Version="4.0.18.6" />
+        <PackageReference Include="ChoETL" Version="1.2.1.70" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\..\..\DataStructure\DataStructure.csproj" />
