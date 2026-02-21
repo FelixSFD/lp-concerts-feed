@@ -135,6 +135,12 @@ public class Function
                 Category = "concertReminder",
                 IsMutable = true
             },
+            PushNotificationType.TriggerClientSync => new PushNotificationEvent
+            {
+                UserId = userId,
+                IsMutable = false,
+                IsSilentNotification = true
+            },
             _ => null
         };
     }
@@ -155,25 +161,40 @@ public class Function
             logger.LogDebug("Publishing to endpoint: {endpoint}", endpoint.EndpointArn);
             try
             {
-                var pushMessagePayload = new NotificationWrapper
+                NotificationWrapper pushMessagePayload;
+                if (pushNotificationEvent.IsSilentNotification)
                 {
-                    Apple = new AppleNotificationAlert
+                    pushMessagePayload = new NotificationWrapper
                     {
-                        Alert = new AppleNotificationPayload
+                        Apple = new AppleNotificationBackground
                         {
-                            Title =  pushNotificationEvent.Title,
-                            Body = pushNotificationEvent.Body
+                            ContentAvailable = true,
                         },
-                        ThreadId = pushNotificationEvent.Thread,
-                        MutableContent =  pushNotificationEvent.IsMutable,
-                        Category = pushNotificationEvent.Category ?? AppleNotificationAlert.DefaultServerFilteredCategory,
-                    },
-                    ConcertId = pushNotificationEvent.ConcertId
-                };
+                        TriggerSync = true,
+                    };
+                }
+                else
+                {
+                    pushMessagePayload = new NotificationWrapper
+                    {
+                        Apple = new AppleNotificationAlert
+                        {
+                            Alert = new AppleNotificationPayload
+                            {
+                                Title = pushNotificationEvent.Title ?? "",
+                                Body = pushNotificationEvent.Body
+                            },
+                            ThreadId = pushNotificationEvent.Thread,
+                            MutableContent =  pushNotificationEvent.IsMutable,
+                            Category = pushNotificationEvent.Category ?? AppleNotificationAlert.DefaultServerFilteredCategory,
+                        },
+                        ConcertId = pushNotificationEvent.ConcertId
+                    };
+                }
 
                 var snsMessage = new SnsMessage
                 {
-                    Default = pushNotificationEvent.Body,
+                    Default = pushNotificationEvent.Body ?? "",
                     AppleNotificationService = JsonSerializer.Serialize(pushMessagePayload, NotificationJsonSerializer.Default.NotificationWrapper)
                 };
 
@@ -280,6 +301,14 @@ public class Function
     private async Task<bool> UserCanReceiveNotificationFor(Concert concert, PushNotificationType pushNotificationType, string userId, ILambdaLogger logger)
     {
         logger.LogDebug("Checking if user '{userId}' can receive notification '{pushNotificationType}' for concert '{concertId}'...", userId, pushNotificationType, concert.Id);
+        
+        // shortcut for certain silent notifications that all registered devices will receive in the background
+        if (pushNotificationType == PushNotificationType.TriggerClientSync)
+        {
+            logger.LogDebug("This type of notification is sent to every device.");
+            return true;
+        }
+        
         var queryNotificationSettingsConfig =
             _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.UserNotificationSettings);
         var queryNotificationSettings =

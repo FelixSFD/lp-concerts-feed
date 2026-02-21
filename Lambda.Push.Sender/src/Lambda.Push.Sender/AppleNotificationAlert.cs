@@ -3,7 +3,11 @@ using System.Text.Json.Serialization;
 
 namespace Lambda.Push.Sender;
 
-public class AppleNotificationAlert
+public class AppleNotificationBase
+{
+}
+
+public class AppleNotificationAlert : AppleNotificationBase
 {
     public const string DefaultServerFilteredCategory = "default";
     

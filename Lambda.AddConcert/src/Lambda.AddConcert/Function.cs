@@ -200,6 +200,14 @@ public class Function
             
             await SendPushNotification(notification, PushNotificationType.MainStageTimeConfirmed, logger);
         }
+        
+        // Always send a notification to trigger a sync
+        logger.LogDebug("Send a silent notification to trigger a sync on the clients");
+        var syncNotification = new ConcertRelatedPushNotificationEvent
+        {
+            Concert = newValue
+        };
+        await SendPushNotification(syncNotification, PushNotificationType.TriggerClientSync, logger);
     }
 
 
