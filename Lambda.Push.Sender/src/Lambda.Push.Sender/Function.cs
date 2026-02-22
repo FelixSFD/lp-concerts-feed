@@ -164,6 +164,7 @@ public class Function
                 NotificationWrapper pushMessagePayload;
                 if (pushNotificationEvent.IsSilentNotification)
                 {
+                    logger.LogDebug("This is a silent notification.");
                     pushMessagePayload = new NotificationWrapper
                     {
                         Apple = new AppleNotificationBackground
@@ -175,6 +176,7 @@ public class Function
                 }
                 else
                 {
+                    logger.LogDebug("This is a normal notification.");
                     pushMessagePayload = new NotificationWrapper
                     {
                         Apple = new AppleNotificationAlert
@@ -190,6 +192,9 @@ public class Function
                         },
                         ConcertId = pushNotificationEvent.ConcertId
                     };
+                    var json = JsonSerializer.Serialize(pushMessagePayload,
+                        NotificationJsonSerializer.Default.NotificationWrapper);
+                    logger.LogDebug("Payload: {json}", json);
                 }
 
                 var snsMessage = new SnsMessage
@@ -306,6 +311,13 @@ public class Function
         if (pushNotificationType == PushNotificationType.TriggerClientSync)
         {
             logger.LogDebug("This type of notification is sent to every device.");
+            return true;
+        }
+        
+        // if no user is set, always send the message. The client must filter in that case
+        if (userId == NotificationUserEndpoint.NoUser)
+        {
+            logger.LogDebug("User is set to {userId}. Client is supposed to filter that, not the server.", userId);
             return true;
         }
         
