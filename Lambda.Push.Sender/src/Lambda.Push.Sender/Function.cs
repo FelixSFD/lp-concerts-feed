@@ -121,7 +121,7 @@ public class Function
                 CollapseId = $"{pushEvent.Concert.Id}#{nameof(PushNotificationType.MainStageTimeConfirmed)}",
                 Thread = pushEvent.Concert.Id,
                 ConcertId = pushEvent.Concert.Id,
-                Category = "concertReminder",
+                Category = "concertStartTimeConfirmed",
                 IsMutable = true
             },
             PushNotificationType.ConcertReminder => new PushNotificationEvent
