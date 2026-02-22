@@ -165,7 +165,7 @@ public class Function
                 if (pushNotificationEvent.IsSilentNotification)
                 {
                     logger.LogDebug("This is a silent notification.");
-                    var notificationWrapper = new NotificationWrapper<AppleNotificationBase>
+                    var notificationWrapper = new NotificationWrapper<AppleNotificationBackground>
                     {
                         Apple = new AppleNotificationBackground
                         {
@@ -181,7 +181,7 @@ public class Function
                 else
                 {
                     logger.LogDebug("This is a normal notification.");
-                    var notificationWrapper = new NotificationWrapper<AppleNotificationBase>
+                    var notificationWrapper = new NotificationWrapper<AppleNotificationAlert>
                     {
                         Apple = new AppleNotificationAlert
                         {
@@ -207,7 +207,7 @@ public class Function
                 var snsMessage = new SnsMessage
                 {
                     Default = pushNotificationEvent.Body ?? "",
-                    AppleNotificationService = JsonSerializer.Serialize(pushMessagePayloadJson, NotificationJsonSerializer.Default.NotificationWrapperAppleNotificationAlert)
+                    AppleNotificationService = pushMessagePayloadJson
                 };
 
                 var snsMessageJson = JsonSerializer.Serialize(snsMessage, NotificationJsonSerializer.Default.SnsMessage);
