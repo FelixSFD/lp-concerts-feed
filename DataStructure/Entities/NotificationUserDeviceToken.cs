@@ -10,6 +10,7 @@ namespace LPCalendar.DataStructure.Entities;
 public class NotificationUserEndpoint
 {
     public const string EndpointArnIndex = "EndpointArnIndex";
+    public const string NoUser = "no_user";
     
     /// <summary>
     /// ID of the user to receive notifications

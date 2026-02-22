@@ -100,7 +100,7 @@ public class Function
         {
             PlatformApplicationArn = _platformApplicationArn,
             Token = request.DeviceToken,
-            CustomUserData = request.UserId
+            CustomUserData = request.UserId ?? NotificationUserEndpoint.NoUser,
         };
 
         var snsEndpointResponse = await _sns.CreatePlatformEndpointAsync(snsCreateEndpointRequest);
@@ -108,7 +108,7 @@ public class Function
 
         var notificationUserEndpoint = new NotificationUserEndpoint
         {
-            UserId = request.UserId,
+            UserId = request.UserId ?? NotificationUserEndpoint.NoUser,
             EndpointArn = snsEndpointResponse.EndpointArn,
             LastChange = DateTimeOffset.UtcNow
         };
