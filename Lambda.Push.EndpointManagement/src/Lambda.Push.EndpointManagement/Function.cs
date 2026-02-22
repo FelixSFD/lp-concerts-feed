@@ -100,7 +100,7 @@ public class Function
         {
             PlatformApplicationArn = _platformApplicationArn,
             Token = request.DeviceToken,
-            CustomUserData = request.UserId ?? NotificationUserEndpoint.NoUser,
+            // don't set the user data. Changing userdata is a pain and we have the info in DynamoDB anyway
         };
 
         var snsEndpointResponse = await _sns.CreatePlatformEndpointAsync(snsCreateEndpointRequest);
