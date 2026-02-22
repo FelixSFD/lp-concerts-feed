@@ -161,11 +161,11 @@ public class Function
             logger.LogDebug("Publishing to endpoint: {endpoint}", endpoint.EndpointArn);
             try
             {
-                NotificationWrapper pushMessagePayload;
+                string pushMessagePayloadJson;
                 if (pushNotificationEvent.IsSilentNotification)
                 {
                     logger.LogDebug("This is a silent notification.");
-                    pushMessagePayload = new NotificationWrapper
+                    var notificationWrapper = new NotificationWrapper<AppleNotificationBase>
                     {
                         Apple = new AppleNotificationBackground
                         {
@@ -173,11 +173,15 @@ public class Function
                         },
                         TriggerSync = true,
                     };
+                    
+                    // because NotificationWrapper.Apple is depending on the generic type, we need to use the appropriate parser for each case
+                    pushMessagePayloadJson = JsonSerializer.Serialize(notificationWrapper,
+                        NotificationJsonSerializer.Default.NotificationWrapperAppleNotificationBackground);
                 }
                 else
                 {
                     logger.LogDebug("This is a normal notification.");
-                    pushMessagePayload = new NotificationWrapper
+                    var notificationWrapper = new NotificationWrapper<AppleNotificationBase>
                     {
                         Apple = new AppleNotificationAlert
                         {
@@ -192,15 +196,18 @@ public class Function
                         },
                         ConcertId = pushNotificationEvent.ConcertId
                     };
-                    var json = JsonSerializer.Serialize(pushMessagePayload,
-                        NotificationJsonSerializer.Default.NotificationWrapper);
-                    logger.LogDebug("Payload: {json}", json);
+                    
+                    // because NotificationWrapper.Apple is depending on the generic type, we need to use the appropriate parser for each case
+                    pushMessagePayloadJson = JsonSerializer.Serialize(notificationWrapper,
+                        NotificationJsonSerializer.Default.NotificationWrapperAppleNotificationAlert);
                 }
+                
+                logger.LogDebug("Payload: {json}", pushMessagePayloadJson);
 
                 var snsMessage = new SnsMessage
                 {
                     Default = pushNotificationEvent.Body ?? "",
-                    AppleNotificationService = JsonSerializer.Serialize(pushMessagePayload, NotificationJsonSerializer.Default.NotificationWrapper)
+                    AppleNotificationService = JsonSerializer.Serialize(pushMessagePayloadJson, NotificationJsonSerializer.Default.NotificationWrapperAppleNotificationAlert)
                 };
 
                 var snsMessageJson = JsonSerializer.Serialize(snsMessage, NotificationJsonSerializer.Default.SnsMessage);

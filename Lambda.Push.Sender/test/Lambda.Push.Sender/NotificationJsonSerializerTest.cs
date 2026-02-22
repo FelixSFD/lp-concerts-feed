@@ -9,7 +9,7 @@ public class NotificationJsonSerializerTest
     [Fact]
     public void SilentNotification()
     {
-        var payload = new NotificationWrapper
+        var payload = new NotificationWrapper<AppleNotificationBackground>
         {
             Apple = new AppleNotificationBackground
             {
@@ -18,8 +18,8 @@ public class NotificationJsonSerializerTest
             TriggerSync = true,
         };
 
-        var json = JsonSerializer.Serialize(payload, NotificationJsonSerializer.Default.NotificationWrapper);
-        const string expectedJson = "{\"aps\":{},\"triggerSync\":true}";
+        var json = JsonSerializer.Serialize(payload, NotificationJsonSerializer.Default.NotificationWrapperAppleNotificationBackground);
+        const string expectedJson = "{\"aps\":{\"content-available\":1},\"triggerSync\":true}";
         Assert.Equal(expectedJson, json);
     }
     
@@ -28,7 +28,7 @@ public class NotificationJsonSerializerTest
     [InlineData("Stage Time Confirmed", "Some Body", "1234567", true, "confirmedStageTime", "1234")]
     public void StageTimeConfirmed(string title, string body, string threadId, bool isMutable, string category, string concertId)
     {
-        var payload = new NotificationWrapper
+        var payload = new NotificationWrapper<AppleNotificationAlert>
         {
             Apple = new AppleNotificationAlert
             {
@@ -44,8 +44,8 @@ public class NotificationJsonSerializerTest
             ConcertId = concertId
         };
 
-        var json = JsonSerializer.Serialize(payload, NotificationJsonSerializer.Default.NotificationWrapper);
-        var expectedJson = "{\"aps\":{\"alert\":{\"title\":\"" + title + "\",\"body\":\"" + body + "\",\"category\":\"" + category + "\",\"mutable-content\":" + (isMutable ? 1 : 0) + "},\"concertId\":\"" + concertId + "\"}";
+        var json = JsonSerializer.Serialize(payload, NotificationJsonSerializer.Default.NotificationWrapperAppleNotificationAlert);
+        var expectedJson = "{\"aps\":{\"alert\":{\"title\":\"" + title + "\",\"body\":\"" + body + "\"},\"thread-id\":\"" + threadId + "\",\"category\":\"" + category + "\",\"mutable-content\":" + (isMutable ? 1 : 0) + "},\"concertId\":\"" + concertId + "\"}";
         Assert.Equal(expectedJson, json);
     }
 }

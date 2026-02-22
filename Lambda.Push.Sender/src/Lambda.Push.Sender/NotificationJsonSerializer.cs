@@ -2,7 +2,8 @@ using System.Text.Json.Serialization;
 
 namespace Lambda.Push.Sender;
 
-[JsonSerializable(typeof(NotificationWrapper))]
+[JsonSerializable(typeof(NotificationWrapper<AppleNotificationAlert>))]
+[JsonSerializable(typeof(NotificationWrapper<AppleNotificationBackground>))]
 [JsonSerializable(typeof(AppleNotificationAlert))]
 [JsonSerializable(typeof(AppleNotificationPayload))]
 [JsonSerializable(typeof(SnsMessage))]

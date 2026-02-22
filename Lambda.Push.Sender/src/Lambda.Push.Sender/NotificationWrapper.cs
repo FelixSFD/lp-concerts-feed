@@ -2,10 +2,10 @@ using System.Text.Json.Serialization;
 
 namespace Lambda.Push.Sender;
 
-public class NotificationWrapper
+public class NotificationWrapper<TApsType> where TApsType : AppleNotificationBase
 {
     [JsonPropertyName("aps")]
-    public required AppleNotificationBase Apple { get; set; }
+    public required TApsType Apple { get; set; }
 
 
     [JsonPropertyName("concertId")]
