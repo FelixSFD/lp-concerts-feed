@@ -100,7 +100,7 @@ public class Function
         {
             PlatformApplicationArn = _platformApplicationArn,
             Token = request.DeviceToken,
-            CustomUserData = request.UserId
+            // don't set the user data. Changing userdata is a pain and we have the info in DynamoDB anyway
         };
 
         var snsEndpointResponse = await _sns.CreatePlatformEndpointAsync(snsCreateEndpointRequest);
@@ -108,13 +108,16 @@ public class Function
 
         var notificationUserEndpoint = new NotificationUserEndpoint
         {
-            UserId = request.UserId,
+            UserId = request.UserId ?? NotificationUserEndpoint.NoUser,
             EndpointArn = snsEndpointResponse.EndpointArn,
             LastChange = DateTimeOffset.UtcNow
         };
         await _dynamoDbContext.SaveAsync(notificationUserEndpoint, _dbConfigProvider.GetSaveConfigFor(DynamoDbConfigProvider.Table.NotificationRegistrations));
         
         logger.LogDebug("Saved notification user endpoint: {arn}", notificationUserEndpoint.EndpointArn);
+        
+        // Cleanup the old entries for that endpoint
+        await RemoveEndpointsWithSameArnButDifferentUser(notificationUserEndpoint.EndpointArn, notificationUserEndpoint.UserId, logger);
         
         return new APIGatewayProxyResponse
         {
@@ -125,5 +128,28 @@ public class Function
                 { "Access-Control-Allow-Methods", "OPTIONS, PUT" }
             }
         };
+    }
+
+
+    /// <summary>
+    /// When the UserId has changed, a new entry in the DB will be created. This function cleans up the old entries.
+    /// </summary>
+    /// <param name="endpointArn"></param>
+    /// <param name="userIdToKeep"></param>
+    /// <param name="logger"></param>
+    private async Task RemoveEndpointsWithSameArnButDifferentUser(string endpointArn, string userIdToKeep, ILambdaLogger logger)
+    {
+        logger.LogDebug("RemoveEndpointsWithSameArnButDifferentUser: {arn}; User: {userIdToKeep}", endpointArn, userIdToKeep);
+        var getEndpointQueryConfig =
+            _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.NotificationRegistrations);
+        getEndpointQueryConfig.IndexName = NotificationUserEndpoint.EndpointArnIndex;
+        var dbResponse = _dynamoDbContext.QueryAsync<NotificationUserEndpoint>(endpointArn, getEndpointQueryConfig);
+        var notificationUserEndpoints = await dbResponse.GetRemainingAsync();
+        foreach (var notificationUserEndpoint in notificationUserEndpoints.Where(notificationUserEndpoint => notificationUserEndpoint.UserId != userIdToKeep))
+        {
+            logger.LogDebug("Removing endpoint with id '{arn}' because it is NOT assigned to '{userIdToKeep}'", notificationUserEndpoint.EndpointArn, userIdToKeep);
+            await _dynamoDbContext.DeleteAsync(notificationUserEndpoint, _dbConfigProvider.GetDeleteConfigFor(DynamoDbConfigProvider.Table.NotificationRegistrations));
+            logger.LogInformation("Removed endpoint with id '{arn}' because it is NOT assigned to '{userIdToKeep}'", notificationUserEndpoint.EndpointArn, userIdToKeep);
+        }
     }
 }

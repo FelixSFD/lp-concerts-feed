@@ -12,8 +12,8 @@ public class PushNotificationEvent
     /// </summary>
     public required string UserId { get; set; }
 
-    public required string Title { get; set; }
-    public required string Body { get; set; }
+    public string? Title { get; set; }
+    public string? Body { get; set; }
 
     /// <summary>
     /// Identifier that can be used to replace notifications.
@@ -41,4 +41,10 @@ public class PushNotificationEvent
     /// true, if the client can modify the content before showing it to the user
     /// </summary>
     public bool IsMutable { get; set; }
+    
+    
+    /// <summary>
+    /// true for silent notifications that should trigger the sync
+    /// </summary>
+    public bool IsSilentNotification { get; set; }
 }

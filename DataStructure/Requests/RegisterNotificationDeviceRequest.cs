@@ -11,7 +11,7 @@ public class RegisterNotificationDeviceRequest
     /// ID of the user
     /// </summary>
     [JsonPropertyName("userId")]
-    public required string UserId { get; set; }
+    public string? UserId { get; set; }
     
     /// <summary>
     /// Device token issued by Apple

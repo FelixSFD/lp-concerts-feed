@@ -121,7 +121,7 @@ public class Function
                 CollapseId = $"{pushEvent.Concert.Id}#{nameof(PushNotificationType.MainStageTimeConfirmed)}",
                 Thread = pushEvent.Concert.Id,
                 ConcertId = pushEvent.Concert.Id,
-                Category = "concertReminder",
+                Category = "concertStartTimeConfirmed",
                 IsMutable = true
             },
             PushNotificationType.ConcertReminder => new PushNotificationEvent
@@ -134,6 +134,12 @@ public class Function
                 ConcertId = pushEvent.Concert.Id,
                 Category = "concertReminder",
                 IsMutable = true
+            },
+            PushNotificationType.TriggerClientSync => new PushNotificationEvent
+            {
+                UserId = userId,
+                IsMutable = false,
+                IsSilentNotification = true
             },
             _ => null
         };
@@ -155,26 +161,53 @@ public class Function
             logger.LogDebug("Publishing to endpoint: {endpoint}", endpoint.EndpointArn);
             try
             {
-                var pushMessagePayload = new NotificationWrapper
+                string pushMessagePayloadJson;
+                if (pushNotificationEvent.IsSilentNotification)
                 {
-                    Apple = new AppleNotificationAlert
+                    logger.LogDebug("This is a silent notification.");
+                    var notificationWrapper = new NotificationWrapper<AppleNotificationBackground>
                     {
-                        Alert = new AppleNotificationPayload
+                        Apple = new AppleNotificationBackground
                         {
-                            Title =  pushNotificationEvent.Title,
-                            Body = pushNotificationEvent.Body
+                            ContentAvailable = true,
                         },
-                        ThreadId = pushNotificationEvent.Thread,
-                        MutableContent =  pushNotificationEvent.IsMutable,
-                        Category = pushNotificationEvent.Category ?? AppleNotificationAlert.DefaultServerFilteredCategory,
-                    },
-                    ConcertId = pushNotificationEvent.ConcertId
-                };
+                        TriggerSync = true,
+                    };
+                    
+                    // because NotificationWrapper.Apple is depending on the generic type, we need to use the appropriate parser for each case
+                    pushMessagePayloadJson = JsonSerializer.Serialize(notificationWrapper,
+                        NotificationJsonSerializer.Default.NotificationWrapperAppleNotificationBackground);
+                }
+                else
+                {
+                    logger.LogDebug("This is a normal notification.");
+                    var notificationWrapper = new NotificationWrapper<AppleNotificationAlert>
+                    {
+                        Apple = new AppleNotificationAlert
+                        {
+                            Alert = new AppleNotificationPayload
+                            {
+                                Title = pushNotificationEvent.Title ?? "",
+                                Body = pushNotificationEvent.Body
+                            },
+                            ThreadId = pushNotificationEvent.Thread,
+                            MutableContent =  pushNotificationEvent.IsMutable,
+                            Category = pushNotificationEvent.Category ?? AppleNotificationAlert.DefaultServerFilteredCategory,
+                        },
+                        ConcertId = pushNotificationEvent.ConcertId
+                    };
+                    
+                    // because NotificationWrapper.Apple is depending on the generic type, we need to use the appropriate parser for each case
+                    pushMessagePayloadJson = JsonSerializer.Serialize(notificationWrapper,
+                        NotificationJsonSerializer.Default.NotificationWrapperAppleNotificationAlert);
+                }
+                
+                logger.LogDebug("Payload: {json}", pushMessagePayloadJson);
 
                 var snsMessage = new SnsMessage
                 {
-                    Default = pushNotificationEvent.Body,
-                    AppleNotificationService = JsonSerializer.Serialize(pushMessagePayload, NotificationJsonSerializer.Default.NotificationWrapper)
+                    Default = pushNotificationEvent.Body ?? "",
+                    AppleNotificationService = pushMessagePayloadJson
                 };
 
                 var snsMessageJson = JsonSerializer.Serialize(snsMessage, NotificationJsonSerializer.Default.SnsMessage);
@@ -280,6 +313,21 @@ public class Function
     private async Task<bool> UserCanReceiveNotificationFor(Concert concert, PushNotificationType pushNotificationType, string userId, ILambdaLogger logger)
     {
         logger.LogDebug("Checking if user '{userId}' can receive notification '{pushNotificationType}' for concert '{concertId}'...", userId, pushNotificationType, concert.Id);
+        
+        // shortcut for certain silent notifications that all registered devices will receive in the background
+        if (pushNotificationType == PushNotificationType.TriggerClientSync)
+        {
+            logger.LogDebug("This type of notification is sent to every device.");
+            return true;
+        }
+        
+        // if no user is set, always send the message. The client must filter in that case
+        if (userId == NotificationUserEndpoint.NoUser)
+        {
+            logger.LogDebug("User is set to {userId}. Client is supposed to filter that, not the server.", userId);
+            return true;
+        }
+        
         var queryNotificationSettingsConfig =
             _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.UserNotificationSettings);
         var queryNotificationSettings =
