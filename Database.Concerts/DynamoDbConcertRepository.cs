@@ -191,7 +191,32 @@ public class DynamoDbConcertRepository : IConcertRepository
         config.IndexName = Concert.LastChangeTimeGlobalIndex;
         
         var query = _dynamoDbContext.QueryAsync<Concert>(
-            "PUBLISHED", // PartitionKey value
+            Concert.StatusPublished, // PartitionKey value
+            QueryOperator.GreaterThan,
+            [new AttributeValue { S = searchStartDateStr }],
+            config);
+
+        var concerts = await query.GetRemainingAsync() ?? [];
+        foreach (var concert in concerts)
+        {
+            yield return concert;
+        }
+    }
+    
+    
+    /// <inheritdoc/>
+    public async IAsyncEnumerable<Concert> GetConcertsDeletedAfterAsync(DateTimeOffset deletedAfterDate)
+    {
+        var searchStartDateStr = deletedAfterDate.ToString("O");
+            
+        _logger.LogInformation("Query concerts DELETED after: {time}", searchStartDateStr);
+
+        var config = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.Concerts);
+        config.BackwardQuery = false;
+        config.IndexName = Concert.DeletedConcertsGlobalIndex;
+        
+        var query = _dynamoDbContext.QueryAsync<Concert>(
+            Concert.StatusDeleted, // PartitionKey value
             QueryOperator.GreaterThan,
             [new AttributeValue { S = searchStartDateStr }],
             config);

@@ -6,11 +6,57 @@ namespace Lambda.ListConcerts.Syncing;
 public class ConcertSyncEngine(IConcertRepository repository) : ISyncEngine<Concert, string>
 {
     private Concert[] _addedOrChangedConcerts = [];
+    private Concert[] _deletedConcerts = [];
 
     private async Task LoadChangedConcertsSince(DateTimeOffset lastChange)
     {
         _addedOrChangedConcerts = await repository.GetConcertsChangedAfterAsync(lastChange).ToArrayAsync();
     }
+    
+    
+    private async Task LoadDeletedConcertsSince(DateTimeOffset lastChange)
+    {
+        _deletedConcerts = await repository.GetConcertsDeletedAfterAsync(lastChange).ToArrayAsync();
+    }
+
+
+    public async Task<SyncResult<Concert, string>> ChangesSince(DateTimeOffset lastSync)
+    {
+        var taskLoadChanged = LoadChangedConcertsSince(lastSync);
+        var taskLoadDeleted = LoadDeletedConcertsSince(lastSync);
+        await Task.WhenAll(taskLoadChanged, taskLoadDeleted);
+        
+        var result = new SyncResult<Concert, string>
+        {
+            LatestChange = DateTimeOffset.MinValue
+        };
+        
+        // Find changed or added
+        foreach (var addedOrChangedConcert in _addedOrChangedConcerts)
+        {
+            result.ChangedObjects.Add(addedOrChangedConcert);
+
+            if ((addedOrChangedConcert.LastChange != null && addedOrChangedConcert.LastChange > result.LatestChange) || (lastSync <= DateTimeOffset.UnixEpoch && addedOrChangedConcert.LastChange == null))
+            {
+                result.LatestChange = addedOrChangedConcert.LastChange ?? DateTimeOffset.MinValue;
+            }
+        }
+        
+        // Find deleted
+        foreach (var deletedConcert in _deletedConcerts.Where(dc => dc.DeletedAt != null))
+        {
+            result.DeletedIds.Add(deletedConcert.Id);
+
+            if (deletedConcert.LastChange > result.LatestChange)
+            {
+                // delete was later than the most recent change
+                result.LatestChange = deletedConcert.DeletedAt ?? DateTimeOffset.MinValue;
+            }
+        }
+        
+        return result;
+    }
+
 
     public async Task<SyncResult<Concert, string>> SyncWith(string[] knownIds, DateTimeOffset lastSync)
     {

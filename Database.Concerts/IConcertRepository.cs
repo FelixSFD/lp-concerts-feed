@@ -52,9 +52,17 @@ public interface IConcertRepository
     /// <summary>
     /// Returns a list of concerts changed after a given date.
     /// </summary>
-    /// <param name="changedAfterDate">Only return concerts after a given date</param>
+    /// <param name="changedAfterDate">Only return concerts changed after a given date</param>
     /// <returns></returns>
     public IAsyncEnumerable<Concert> GetConcertsChangedAfterAsync(DateTimeOffset changedAfterDate);
+    
+    
+    /// <summary>
+    /// Returns a list of concerts deleted after a given date.
+    /// </summary>
+    /// <param name="deletedAfterDate">Only return concerts deleted after a given date</param>
+    /// <returns></returns>
+    public IAsyncEnumerable<Concert> GetConcertsDeletedAfterAsync(DateTimeOffset deletedAfterDate);
     
     
     /// <summary>
