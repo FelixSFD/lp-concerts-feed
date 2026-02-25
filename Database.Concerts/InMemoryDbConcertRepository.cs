@@ -60,4 +60,10 @@ public class InMemoryDbConcertRepository: IConcertRepository
         
         return Task.CompletedTask;
     }
+
+    public Task DeleteAsync(Concert concert)
+    {
+        _concerts.Remove(concert.Id);
+        return Task.CompletedTask;
+    }
 }

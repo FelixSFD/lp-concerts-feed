@@ -211,6 +211,19 @@ public class DynamoDbConcertRepository : IConcertRepository
         await _dynamoDbContext.SaveAsync(concert, _dbConfigProvider.GetSaveConfigFor(DynamoDbConfigProvider.Table.Concerts));
         _logger.LogDebug("Concert '{id}' has been saved.", concert.Id);
     }
+
+
+    /// <summary>
+    /// Deletes a concert by setting the status to DELETED
+    /// </summary>
+    /// <param name="concert">Concert to delete</param>
+    public async Task DeleteAsync(Concert concert)
+    {
+        concert.Status = Concert.StatusDeleted;
+        concert.DeletedAt = DateTimeOffset.UtcNow;
+        await _dynamoDbContext.SaveAsync(concert, _dbConfigProvider.GetSaveConfigFor(DynamoDbConfigProvider.Table.Concerts));
+        _logger.LogDebug("Concert '{id}' has been DELETED.", concert.Id);
+    }
     
     
     /// <summary>

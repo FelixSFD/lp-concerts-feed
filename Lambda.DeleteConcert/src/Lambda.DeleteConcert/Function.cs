@@ -6,6 +6,7 @@ using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.SQS;
 using Amazon.SQS.Model;
+using Database.Concerts;
 using Lambda.Auth;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Converters;
@@ -23,16 +24,12 @@ namespace Lambda.DeleteConcert;
 /// </summary>
 public class Function
 {
-    private readonly DynamoDBContext _dynamoDbContext;
-    private readonly DynamoDbConfigProvider _dbConfigProvider = new();
+    private readonly IConcertRepository _concertRepository;
     private readonly IAmazonSQS _sqsClient = new AmazonSQSClient();
 
-    public Function()
+    public Function(ILambdaContext context)
     {
-        _dynamoDbContext = new DynamoDBContextBuilder()
-            .WithDynamoDBClient(() => new AmazonDynamoDBClient())
-            .Build();
-        _dynamoDbContext.RegisterCustomConverters();
+        _concertRepository = DynamoDbConcertRepository.CreateDefault(context.Logger);
     }
     
     
@@ -74,17 +71,17 @@ public class Function
             response.Body = $"{{\"message\": \"Failed to parse request: {e.GetType().Name} - {e.Message}\"}}";
             return response;
         }
-        
-        var oldValue = await _dynamoDbContext.LoadAsync<Concert>(deleteRequest.ConcertId, _dbConfigProvider.GetLoadConfigFor(DynamoDbConfigProvider.Table.Concerts));
+
+        var oldValue = await _concertRepository.GetByIdAsync(deleteRequest.ConcertId);
         if (oldValue == null)
         {
-            context.Logger.LogWarning("Could not find concert with ID '{0}'", concertId);
+            context.Logger.LogWarning("Could not find concert with ID '{concertId}'", deleteRequest.ConcertId);
             response.StatusCode = (int)HttpStatusCode.NotFound;
             return response;
         }
         
-        await _dynamoDbContext.DeleteAsync<Concert>(deleteRequest.ConcertId, _dbConfigProvider.GetDeleteConfigFor(DynamoDbConfigProvider.Table.Concerts));
-
+        await _concertRepository.DeleteAsync(oldValue);
+        
         try
         {
             await LogChanges(oldValue, request.GetUserId(), context.Logger);
