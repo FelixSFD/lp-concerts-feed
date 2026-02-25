@@ -222,7 +222,7 @@ public class DynamoDbConcertRepository : IConcertRepository
         concert.Status = Concert.StatusDeleted;
         concert.DeletedAt = DateTimeOffset.UtcNow;
         await _dynamoDbContext.SaveAsync(concert, _dbConfigProvider.GetSaveConfigFor(DynamoDbConfigProvider.Table.Concerts));
-        _logger.LogDebug("Concert '{id}' has been DELETED.", concert.Id);
+        _logger.LogInformation("Concert '{id}' has been DELETED.", concert.Id);
     }
     
     
