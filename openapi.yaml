@@ -600,6 +600,12 @@ paths:
       tags:
         - concerts
       parameters:
+        - in: query
+          name: lastSync
+          description: Time when the last sync was performed by the client
+          required: true
+          schema:
+            type: string
         # optional header "request ID". By setting a random value, the cache is disabled
         - in: header
           name: X-LP-Request-Id
