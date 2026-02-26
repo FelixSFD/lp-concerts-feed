@@ -395,7 +395,8 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
             {
                 { "Content-Type", "application/json" },
                 { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                { "Access-Control-Allow-Methods", "OPTIONS, GET" },
+                { "Cache-Control", "max-age=3600, public" } // public caching for 1h
             }
         };
     }
