@@ -269,6 +269,26 @@ public class FunctionTest
         Assert.NotNull(responseConcert);
         Assert.Equal("No upcoming concerts found.", responseConcert.Message);
     }
+    
+    
+    [Fact]
+    public async Task Function_Concerts_Sync_v2()
+    {
+        // Generate API Gateway Request
+        var lastSync = DateTimeOffset.UtcNow.AddHours(12);
+        var apiGatewayProxyRequest = new ApiRequestBuilder()
+            .WithHttpMethod(HttpMethod.Get)
+            .WithPath("concerts", "sync")
+            .WithQueryParameter("lastSync", lastSync.ToString("O"))
+            .Build();
+        
+        var response = await _functionUnderTest.FunctionHandler(apiGatewayProxyRequest, _ctx);
+        Assert.NotNull(response);
+        Assert.Equal(200, response.StatusCode);
+        
+        var syncResponse = JsonSerializer.Deserialize(response.Body, DataStructureJsonContext.Default.SyncConcertsResponse);
+        Assert.NotNull(syncResponse);
+    }
 
 
     [Fact]

@@ -9,6 +9,7 @@ public class ApiRequestBuilder
     private string? _body;
     private HttpMethod? _httpMethod;
     private Dictionary<string, string>? _pathParams;
+    private Dictionary<string, string>? _queryParams;
     private Dictionary<string, string>? _headers;
 
     public ApiRequestBuilder WithPathParameter(string name, string value)
@@ -16,6 +17,13 @@ public class ApiRequestBuilder
         _pathParams ??= new(StringComparer.OrdinalIgnoreCase);
         _pathParams.Add(name, value);
         _path.Add(value);
+        return this;
+    }
+    
+    public ApiRequestBuilder WithQueryParameter(string name, string value)
+    {
+        _queryParams ??= new(StringComparer.OrdinalIgnoreCase);
+        _queryParams.Add(name, value);
         return this;
     }
     
@@ -56,15 +64,18 @@ public class ApiRequestBuilder
     public APIGatewayProxyRequest Build()
     {
         var path = "/" + string.Join('/', _path);
+        var httpMethod = (_httpMethod ?? HttpMethod.Get).Method;
         return new APIGatewayProxyRequest
         {
             RequestContext = new APIGatewayProxyRequest.ProxyRequestContext()
             {
                 DomainName = "localhost",
                 Path = path,
-                HttpMethod = (_httpMethod ?? HttpMethod.Get).Method,
+                HttpMethod = httpMethod,
             },
+            HttpMethod = httpMethod,
             PathParameters = _pathParams,
+            QueryStringParameters = _queryParams,
             Path = path,
             Body = _body,
             Headers = _headers,
