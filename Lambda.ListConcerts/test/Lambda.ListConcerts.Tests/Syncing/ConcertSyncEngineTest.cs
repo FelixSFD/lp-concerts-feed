@@ -1,3 +1,4 @@
+using Common.Utils;
 using Database.Concerts;
 using Lambda.ListConcerts.Syncing;
 using LPCalendar.DataStructure;
@@ -17,6 +18,7 @@ public class ConcertSyncEngineTest
         
         // Generate test data
         var latestChange = DateTimeOffset.Now.AddHours(-5);
+        var expectedLatestChange = latestChange.RoundingUpToSecond();
         var server0 = new Concert
         {
             Id = Guid.NewGuid().ToString(),
@@ -25,7 +27,7 @@ public class ConcertSyncEngineTest
             City = "Test City",
             Country = "USA",
             TourName = "Test Tour 2027",
-            LastChange = null,
+            LastChange = null, // technically possible but there is a lambda to clean those up as DynamoDB doesn't like null values here either
         };
         await _concertRepository.SaveAsync(server0);
         var server1 = new Concert
@@ -88,19 +90,183 @@ public class ConcertSyncEngineTest
             DeletedAt = DateTimeOffset.Now.AddHours(-10)
         };
         await _concertRepository.SaveAsync(server5);
-
-        string[] existingOnClient = [server3.Id, server4.Id];
         
         // run the sync
         var lastSync = DateTimeOffset.Now.AddHours(-20).AddSeconds(-10);
         var syncResult = await syncEngine.ChangesSince(lastSync);
         
         // Validate result
-        Assert.Equivalent(new[] { server0.Id, server1.Id, server2.Id, server3.Id }, syncResult.ChangedObjects.Select(c => c.Id).ToArray());
+        Assert.Equivalent(new[] { server1.Id, server2.Id, server3.Id }, syncResult.ChangedObjects.Select(c => c.Id).ToArray());
         Assert.Equivalent(new[] { server5.Id }, syncResult.DeletedIds.ToArray());
         
         // make sure the latest change is sent in the result. Having the same timestamp for all users helps with caching
-        Assert.Equal(latestChange, syncResult.LatestChange);
+        Assert.Equal(expectedLatestChange, syncResult.LatestChange);
+        
+        // run again with the new date. Should not return any more results
+        syncResult = await syncEngine.ChangesSince(syncResult.LatestChange);
+        Assert.Empty(syncResult.ChangedObjects);
+        Assert.Empty(syncResult.DeletedIds);
+        Assert.Equal(expectedLatestChange, syncResult.LatestChange);
+    }
+    
+    
+    [Fact]
+    public async Task SyncV2_LastChangeWasDelete()
+    {
+        var syncEngine = new ConcertSyncEngine(_concertRepository);
+        
+        // Generate test data
+        var latestChange = DateTimeOffset.Now.AddHours(-5);
+        var expectedLatestChange = latestChange.RoundingUpToSecond();
+        var server0 = new Concert
+        {
+            Id = Guid.NewGuid().ToString(),
+            Status = "PUBLISHED",
+            PostedStartTime = new DateTimeOffset(2027, 2, 9, 20, 0, 0, TimeSpan.Zero),
+            City = "Test City",
+            Country = "USA",
+            TourName = "Test Tour 2027",
+            LastChange = null,
+        };
+        await _concertRepository.SaveAsync(server0);
+        var server1 = new Concert
+        {
+            Id = Guid.NewGuid().ToString(),
+            Status = "DELETED",
+            PostedStartTime = new DateTimeOffset(2027, 2, 10, 20, 0, 0, TimeSpan.Zero),
+            City = "Test City",
+            Country = "USA",
+            TourName = "Test Tour 2027",
+            LastChange = latestChange.AddHours(-15),
+            DeletedAt = latestChange
+        };
+        await _concertRepository.SaveAsync(server1);
+        
+        var server2 = new Concert
+        {
+            Id = Guid.NewGuid().ToString(),
+            Status = "PUBLISHED",
+            PostedStartTime = new DateTimeOffset(2027, 2, 11, 20, 0, 0, TimeSpan.Zero),
+            City = "Test 2",
+            Country = "USA",
+            TourName = "Test Tour 2027",
+            LastChange = DateTimeOffset.Now.AddHours(-19),
+        };
+        await _concertRepository.SaveAsync(server2);
+        
+        var server3 = new Concert
+        {
+            Id = Guid.NewGuid().ToString(),
+            Status = "PUBLISHED",
+            PostedStartTime = new DateTimeOffset(2027, 2, 13, 20, 0, 0, TimeSpan.Zero),
+            City = "Test 3",
+            Country = "USA",
+            TourName = "Test Tour 2027",
+            LastChange = DateTimeOffset.Now.AddHours(-20),
+        };
+        await _concertRepository.SaveAsync(server3);
+        
+        var server4 = new Concert
+        {
+            Id = Guid.NewGuid().ToString(),
+            Status = "PUBLISHED",
+            PostedStartTime = new DateTimeOffset(2027, 2, 14, 20, 0, 0, TimeSpan.Zero),
+            City = "Test 4",
+            Country = "USA",
+            TourName = "Test Tour 2027",
+            LastChange = DateTimeOffset.Now.AddHours(-21),
+        };
+        await _concertRepository.SaveAsync(server4);
+        
+        // run the sync
+        var lastSync = DateTimeOffset.Now.AddHours(-20).AddSeconds(-10);
+        var syncResult = await syncEngine.ChangesSince(lastSync);
+        
+        // Validate result
+        Assert.Equivalent(new[] { server2.Id, server3.Id }, syncResult.ChangedObjects.Select(c => c.Id).ToArray());
+        Assert.Equivalent(new[] { server1.Id }, syncResult.DeletedIds.ToArray());
+        
+        // make sure the latest change is sent in the result. Having the same timestamp for all users helps with caching
+        Assert.Equal(expectedLatestChange, syncResult.LatestChange);
+    }
+    
+    
+    [Fact]
+    public async Task SyncV2_NoChanges()
+    {
+        var syncEngine = new ConcertSyncEngine(_concertRepository);
+        
+        // Generate test data
+        var latestChange = DateTimeOffset.Now.AddHours(-5);
+        var server0 = new Concert
+        {
+            Id = Guid.NewGuid().ToString(),
+            Status = "PUBLISHED",
+            PostedStartTime = new DateTimeOffset(2027, 2, 9, 20, 0, 0, TimeSpan.Zero),
+            City = "Test City",
+            Country = "USA",
+            TourName = "Test Tour 2027",
+            LastChange = null,
+        };
+        await _concertRepository.SaveAsync(server0);
+        var server1 = new Concert
+        {
+            Id = Guid.NewGuid().ToString(),
+            Status = "DELETED",
+            PostedStartTime = new DateTimeOffset(2027, 2, 10, 20, 0, 0, TimeSpan.Zero),
+            City = "Test City",
+            Country = "USA",
+            TourName = "Test Tour 2027",
+            LastChange = latestChange.AddHours(-15),
+            DeletedAt = latestChange
+        };
+        await _concertRepository.SaveAsync(server1);
+        
+        var server2 = new Concert
+        {
+            Id = Guid.NewGuid().ToString(),
+            Status = "PUBLISHED",
+            PostedStartTime = new DateTimeOffset(2027, 2, 11, 20, 0, 0, TimeSpan.Zero),
+            City = "Test 2",
+            Country = "USA",
+            TourName = "Test Tour 2027",
+            LastChange = DateTimeOffset.Now.AddHours(-19),
+        };
+        await _concertRepository.SaveAsync(server2);
+        
+        var server3 = new Concert
+        {
+            Id = Guid.NewGuid().ToString(),
+            Status = "PUBLISHED",
+            PostedStartTime = new DateTimeOffset(2027, 2, 13, 20, 0, 0, TimeSpan.Zero),
+            City = "Test 3",
+            Country = "USA",
+            TourName = "Test Tour 2027",
+            LastChange = DateTimeOffset.Now.AddHours(-20),
+        };
+        await _concertRepository.SaveAsync(server3);
+        
+        var server4 = new Concert
+        {
+            Id = Guid.NewGuid().ToString(),
+            Status = "PUBLISHED",
+            PostedStartTime = new DateTimeOffset(2027, 2, 14, 20, 0, 0, TimeSpan.Zero),
+            City = "Test 4",
+            Country = "USA",
+            TourName = "Test Tour 2027",
+            LastChange = DateTimeOffset.Now.AddHours(-21),
+        };
+        await _concertRepository.SaveAsync(server4);
+        
+        // run the sync
+        var lastSync = DateTimeOffset.Now;
+        var expectedLatestChange = lastSync.RoundingUpToSecond();
+        var syncResult = await syncEngine.ChangesSince(lastSync);
+        
+        // Validate result
+        Assert.Empty(syncResult.ChangedObjects);
+        Assert.Empty(syncResult.DeletedIds);
+        Assert.Equal(expectedLatestChange, syncResult.LatestChange);
     }
     
     
@@ -178,7 +344,7 @@ public class ConcertSyncEngineTest
         var syncResult = await syncEngine.SyncWith(existingOnClient, lastSync);
         
         // Validate result
-        Assert.Equivalent(new[] { server0.Id, server1.Id, server2.Id }, syncResult.AddedObjects.Select(c => c.Id).ToArray());
+        Assert.Equivalent(new[] { server1.Id, server2.Id }, syncResult.AddedObjects.Select(c => c.Id).ToArray());
         Assert.Equivalent(new[] { server3.Id }, syncResult.ChangedObjects.Select(c => c.Id).ToArray());
         Assert.Equivalent(new[] { fakeDeletedId }, syncResult.DeletedIds.ToArray());
         

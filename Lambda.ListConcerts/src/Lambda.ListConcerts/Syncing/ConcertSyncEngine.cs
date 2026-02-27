@@ -1,3 +1,4 @@
+using Common.Utils;
 using Database.Concerts;
 using LPCalendar.DataStructure;
 
@@ -32,26 +33,35 @@ public class ConcertSyncEngine(IConcertRepository repository) : ISyncEngine<Conc
         };
         
         // Find changed or added
+        DateTimeOffset? latestChange = DateTimeOffset.MinValue;
         foreach (var addedOrChangedConcert in _addedOrChangedConcerts)
         {
             result.ChangedObjects.Add(addedOrChangedConcert);
 
-            if ((addedOrChangedConcert.LastChange != null && addedOrChangedConcert.LastChange > result.LatestChange) || (lastSync <= DateTimeOffset.UnixEpoch && addedOrChangedConcert.LastChange == null))
+            if ((addedOrChangedConcert.LastChange != null && addedOrChangedConcert.LastChange > latestChange) || (lastSync <= DateTimeOffset.UnixEpoch && addedOrChangedConcert.LastChange == null))
             {
-                result.LatestChange = addedOrChangedConcert.LastChange ?? DateTimeOffset.MinValue;
+                latestChange = addedOrChangedConcert.LastChange;
             }
         }
         
         // Find deleted
+        DateTimeOffset latestDelete = DateTimeOffset.MinValue;
         foreach (var deletedConcert in _deletedConcerts.Where(dc => dc.DeletedAt != null))
         {
             result.DeletedIds.Add(deletedConcert.Id);
 
-            if (deletedConcert.LastChange > result.LatestChange)
+            if ((deletedConcert.DeletedAt != null && deletedConcert.DeletedAt > latestDelete) || (lastSync <= DateTimeOffset.UnixEpoch && deletedConcert.DeletedAt == null))
             {
                 // delete was later than the most recent change
-                result.LatestChange = deletedConcert.DeletedAt ?? DateTimeOffset.MinValue;
+                latestDelete = deletedConcert.DeletedAt ?? DateTimeOffset.MinValue;
             }
+        }
+
+        result.LatestChange = (latestChange > latestDelete ? latestChange : latestDelete).Value.RoundingUpToSecond();
+
+        if (result.LatestChange < lastSync)
+        {
+            result.LatestChange = lastSync.RoundingUpToSecond();
         }
         
         return result;

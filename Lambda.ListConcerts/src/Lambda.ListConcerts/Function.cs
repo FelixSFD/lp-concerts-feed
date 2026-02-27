@@ -381,10 +381,10 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
             Added = [], // unused will be removed at some point
             Updated = syncResult.ChangedObjects.ToArray(),
             DeletedConcertIds = syncResult.DeletedIds.ToArray(),
-            SyncTime = syncTime
+            SyncTime = syncResult.LatestChange
         };
         
-        logger.LogDebug("Finished sync. Changed: {changeCount}; Deleted: {deleteCount}; SyncTime: {syncTime}", responseObj.Added.Length, responseObj.Updated.Length, responseObj.DeletedConcertIds.Length, syncTime);
+        logger.LogDebug("Finished sync. Changed: {changeCount}; Deleted: {deleteCount}; LatestChange: {lastestChange}", responseObj.Updated.Length, responseObj.DeletedConcertIds.Length, responseObj.SyncTime);
         
         var json = JsonSerializer.Serialize(responseObj, DataStructureJsonContext.Default.SyncConcertsResponse);
         return new APIGatewayProxyResponse
@@ -396,7 +396,7 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
                 { "Content-Type", "application/json" },
                 { "Access-Control-Allow-Origin", "*" },
                 { "Access-Control-Allow-Methods", "OPTIONS, GET" },
-                { "Cache-Control", "max-age=3600, public" } // public caching for 1h
+                //{ "Cache-Control", "max-age=3600, public" } // public caching for 1h
             }
         };
     }
