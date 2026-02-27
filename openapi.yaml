@@ -594,6 +594,46 @@ paths:
         contentHandling: "CONVERT_TO_TEXT"
         type: "aws_proxy"
   /concerts/sync:
+    get:
+      operationId: SyncConcertChanges
+      summary: API to get all changes since your last sync. Make sure to set the correct lastSync-time.
+      tags:
+        - concerts
+      parameters:
+        - in: query
+          name: lastSync
+          description: Time when the last sync was performed by the client
+          required: true
+          schema:
+            type: string
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A JSON object with the information of the concerts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SyncConcertsResponse"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-find-concerts-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
     post:
       operationId: SyncConcerts
       summary: API to get all changes since your last sync. Make sure to set the correct lastSync-time.

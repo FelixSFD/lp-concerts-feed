@@ -74,6 +74,8 @@ Resources:
           AttributeType: S
         - AttributeName: LastChange
           AttributeType: S
+        - AttributeName: DeletedAt
+          AttributeType: S
         #- AttributeName: Country
         #  AttributeType: S
         #- AttributeName: State
@@ -104,6 +106,16 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
+        - IndexName: DeletedConcertsGlobalIndex
+          KeySchema:
+            - AttributeName: Status
+              KeyType: HASH
+            - AttributeName: DeletedAt
+              KeyType: RANGE
+          Projection:
+            NonKeyAttributes:
+              - Id
+            ProjectionType: INCLUDE
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
       BillingMode: PAY_PER_REQUEST

@@ -2,6 +2,7 @@ using System.Text.Json;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Common.DynamoDb;
+using Common.Utils.Cache;
 using Database.ConcertBookmarks;
 using Database.Concerts;
 using Lambda.Auth;
@@ -26,10 +27,59 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
         
         if (request.QueryStringParameters != null)
         {
+            if (request is { Path: "/concerts/sync", HttpMethod: "GET" })
+            {
+                context.Logger.LogInformation("Requested sync concerts using new logic.");
+
+                if (request.QueryStringParameters == null 
+                    || !request.QueryStringParameters.TryGetValue("lastSync", out var lastSyncStr))
+                {
+                    context.Logger.LogError("Missing parameter 'lastSync' in query string!");
+                    var error = new ErrorResponse
+                    {
+                        Message = "Missing parameter 'lastSync' in query string!"
+                    };
+                    return new APIGatewayProxyResponse
+                    {
+                        StatusCode = 400,
+                        Body = JsonSerializer.Serialize(error, DataStructureJsonContext.Default.ErrorResponse),
+                        Headers = new Dictionary<string, string>
+                        {
+                            { "Content-Type", "application/json" },
+                            { "Access-Control-Allow-Origin", "*" },
+                            { "Access-Control-Allow-Methods", "OPTIONS, POST" }
+                        }
+                    };
+                }
+
+                if (!DateTimeOffset.TryParse(lastSyncStr!, out var lastSync))
+                {
+                    context.Logger.LogError("Failed to parse parameter 'lastSync'!");
+                    var error = new ErrorResponse
+                    {
+                        Message = "Failed to parse parameter 'lastSync'!"
+                    };
+                    return new APIGatewayProxyResponse
+                    {
+                        StatusCode = 400,
+                        Body = JsonSerializer.Serialize(error, DataStructureJsonContext.Default.ErrorResponse),
+                        Headers = new Dictionary<string, string>
+                        {
+                            { "Content-Type", "application/json" },
+                            { "Access-Control-Allow-Origin", "*" },
+                            { "Access-Control-Allow-Methods", "OPTIONS, POST" }
+                        }
+                    };
+                }
+
+                return await ReturnSyncResultV2(lastSync, context.Logger);
+            }
+            
             var idParamFound = request.QueryStringParameters.TryGetValue("id", out var searchId);
             if (idParamFound && searchId != null)
             {
                 // Find one concert
+                context.Logger.LogDebug("Requested id: {id}", searchId);
                 return await ReturnSingleConcert(searchId);
             }
             
@@ -60,33 +110,56 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
 
         if (request.Path == "/concerts/sync")
         {
-            context.Logger.LogInformation("Requested to sync concerts.");
-            SyncConcertsRequest? syncRequest;
-            try
-            { 
-                syncRequest = JsonSerializer.Deserialize(request.Body, DataStructureJsonContext.Default.SyncConcertsRequest);
-            }
-            catch (Exception exception)
+            if (request.HttpMethod == "POST")
             {
-                context.Logger.LogError(exception, "Failed to parse sync request!");
+                context.Logger.LogInformation("Requested to sync concerts. (OLD logic!)");
+                SyncConcertsRequest? syncRequest;
+                try
+                { 
+                    syncRequest = JsonSerializer.Deserialize(request.Body, DataStructureJsonContext.Default.SyncConcertsRequest);
+                }
+                catch (Exception exception)
+                {
+                    context.Logger.LogError(exception, "Failed to parse sync request!");
+                    var error = new ErrorResponse
+                    {
+                        Message = exception.Message
+                    };
+                    return new APIGatewayProxyResponse
+                    {
+                        StatusCode = 400,
+                        Body = JsonSerializer.Serialize(error, DataStructureJsonContext.Default.ErrorResponse),
+                        Headers = new Dictionary<string, string>
+                        {
+                            { "Content-Type", "application/json" },
+                            { "Access-Control-Allow-Origin", "*" },
+                            { "Access-Control-Allow-Methods", "OPTIONS, POST" }
+                        }
+                    };
+                }
+
+                return await ReturnSyncResult(syncRequest!, context.Logger);
+            }
+            else
+            {
+                context.Logger.LogError("Method '{method}' not supported for /sync endpoint!");
                 var error = new ErrorResponse
                 {
-                    Message = exception.Message
+                    Message = "Method not supported for sync."
                 };
                 return new APIGatewayProxyResponse
                 {
-                    StatusCode = 404,
+                    StatusCode = 405,
                     Body = JsonSerializer.Serialize(error, DataStructureJsonContext.Default.ErrorResponse),
                     Headers = new Dictionary<string, string>
                     {
                         { "Content-Type", "application/json" },
                         { "Access-Control-Allow-Origin", "*" },
-                        { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                        { "Access-Control-Allow-Methods", "OPTIONS, GET, POST, PUT, DELETE" },
+                        { "Cache-Control", CacheControlHeaderFactory.CacheFor(CacheExpiration.VeryLong) }
                     }
                 };
             }
-
-            return await ReturnSyncResult(syncRequest!, context.Logger);
         }
         
         if (request.Path is "/concerts/attending" or "/concerts/bookmarked")
@@ -136,7 +209,8 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
             {
                 { "Content-Type", "application/json" },
                 { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET, POST" }
+                { "Access-Control-Allow-Methods", "OPTIONS, GET, POST" },
+                { "Cache-Control", CacheControlHeaderFactory.CacheFor(CacheExpiration.Default) }
             }
         };
     }
@@ -174,7 +248,8 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
             {
                 { "Content-Type", "application/json" },
                 { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                { "Access-Control-Allow-Methods", "OPTIONS, GET" },
+                { "Cache-Control", CacheControlHeaderFactory.CacheFor(CacheExpiration.Short) }
             }
         };
     }
@@ -207,7 +282,8 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
             {
                 { "Content-Type", "application/json" },
                 { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                { "Access-Control-Allow-Methods", "OPTIONS, GET" },
+                { "Cache-Control", CacheControlHeaderFactory.CacheFor(CacheExpiration.Medium) }
             }
         };
     }
@@ -228,7 +304,8 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
             {
                 { "Content-Type", "application/json" },
                 { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET, POST" }
+                { "Access-Control-Allow-Methods", "OPTIONS, GET, POST" },
+                { "Cache-Control", CacheControlHeaderFactory.CacheFor(CacheExpiration.Medium)}
             }
         };
     }
@@ -268,6 +345,7 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
     }
 
 
+    [Obsolete("Use new sync algorithm")]
     private async Task<APIGatewayProxyResponse> ReturnSyncResult(SyncConcertsRequest syncRequest, ILambdaLogger logger)
     {
         var syncTime = DateTimeOffset.UtcNow;
@@ -293,7 +371,39 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
             {
                 { "Content-Type", "application/json" },
                 { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                { "Access-Control-Allow-Methods", "OPTIONS, GET, POST" }
+            }
+        };
+    }
+    
+    
+    private async Task<APIGatewayProxyResponse> ReturnSyncResultV2(DateTimeOffset lastSync, ILambdaLogger logger)
+    {
+        var syncTime = DateTimeOffset.UtcNow;
+        logger.LogDebug("Sync Concerts at: {syncTime}", syncTime);
+        var syncEngine = new ConcertSyncEngine(concertRepository);
+        var syncResult = await syncEngine.ChangesSince(lastSync);
+        var responseObj = new SyncConcertsResponse
+        {
+            Added = [], // unused will be removed at some point
+            Updated = syncResult.ChangedObjects.ToArray(),
+            DeletedConcertIds = syncResult.DeletedIds.ToArray(),
+            SyncTime = syncResult.LatestChange
+        };
+        
+        logger.LogDebug("Finished sync. Changed: {changeCount}; Deleted: {deleteCount}; LatestChange: {lastestChange}", responseObj.Updated.Length, responseObj.DeletedConcertIds.Length, responseObj.SyncTime);
+        
+        var json = JsonSerializer.Serialize(responseObj, DataStructureJsonContext.Default.SyncConcertsResponse);
+        return new APIGatewayProxyResponse
+        {
+            StatusCode = 200,
+            Body = json,
+            Headers = new Dictionary<string, string>
+            {
+                { "Content-Type", "application/json" },
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, GET" },
+                { "Cache-Control", CacheControlHeaderFactory.CacheFor(CacheExpiration.Medium) }
             }
         };
     }

@@ -52,9 +52,17 @@ public interface IConcertRepository
     /// <summary>
     /// Returns a list of concerts changed after a given date.
     /// </summary>
-    /// <param name="changedAfterDate">Only return concerts after a given date</param>
+    /// <param name="changedAfterDate">Only return concerts changed after a given date</param>
     /// <returns></returns>
     public IAsyncEnumerable<Concert> GetConcertsChangedAfterAsync(DateTimeOffset changedAfterDate);
+    
+    
+    /// <summary>
+    /// Returns a list of concerts deleted after a given date.
+    /// </summary>
+    /// <param name="deletedAfterDate">Only return concerts deleted after a given date</param>
+    /// <returns></returns>
+    public IAsyncEnumerable<Concert> GetConcertsDeletedAfterAsync(DateTimeOffset deletedAfterDate);
     
     
     /// <summary>
@@ -63,4 +71,12 @@ public interface IConcertRepository
     /// <param name="concert"></param>
     /// <returns></returns>
     public Task SaveAsync(Concert concert);
+    
+    
+    /// <summary>
+    /// Deletes a concert from the Database. Depending on the implementation, this might just mark the entry as deleted.
+    /// </summary>
+    /// <param name="concert">Concert to delete</param>
+    /// <returns></returns>
+    public Task DeleteAsync(Concert concert);
 }

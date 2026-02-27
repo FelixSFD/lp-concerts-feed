@@ -191,7 +191,32 @@ public class DynamoDbConcertRepository : IConcertRepository
         config.IndexName = Concert.LastChangeTimeGlobalIndex;
         
         var query = _dynamoDbContext.QueryAsync<Concert>(
-            "PUBLISHED", // PartitionKey value
+            Concert.StatusPublished, // PartitionKey value
+            QueryOperator.GreaterThan,
+            [new AttributeValue { S = searchStartDateStr }],
+            config);
+
+        var concerts = await query.GetRemainingAsync() ?? [];
+        foreach (var concert in concerts)
+        {
+            yield return concert;
+        }
+    }
+    
+    
+    /// <inheritdoc/>
+    public async IAsyncEnumerable<Concert> GetConcertsDeletedAfterAsync(DateTimeOffset deletedAfterDate)
+    {
+        var searchStartDateStr = deletedAfterDate.ToString("O");
+            
+        _logger.LogInformation("Query concerts DELETED after: {time}", searchStartDateStr);
+
+        var config = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.Concerts);
+        config.BackwardQuery = false;
+        config.IndexName = Concert.DeletedConcertsGlobalIndex;
+        
+        var query = _dynamoDbContext.QueryAsync<Concert>(
+            Concert.StatusDeleted, // PartitionKey value
             QueryOperator.GreaterThan,
             [new AttributeValue { S = searchStartDateStr }],
             config);
@@ -210,6 +235,19 @@ public class DynamoDbConcertRepository : IConcertRepository
         await FixNonOverridableFields(concert);
         await _dynamoDbContext.SaveAsync(concert, _dbConfigProvider.GetSaveConfigFor(DynamoDbConfigProvider.Table.Concerts));
         _logger.LogDebug("Concert '{id}' has been saved.", concert.Id);
+    }
+
+
+    /// <summary>
+    /// Deletes a concert by setting the status to DELETED
+    /// </summary>
+    /// <param name="concert">Concert to delete</param>
+    public async Task DeleteAsync(Concert concert)
+    {
+        concert.Status = Concert.StatusDeleted;
+        concert.DeletedAt = DateTimeOffset.UtcNow;
+        await _dynamoDbContext.SaveAsync(concert, _dbConfigProvider.GetSaveConfigFor(DynamoDbConfigProvider.Table.Concerts));
+        _logger.LogInformation("Concert '{id}' has been DELETED.", concert.Id);
     }
     
     

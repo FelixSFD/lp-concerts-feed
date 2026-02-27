@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Common.Utils.Cache;
 using Lambda.Common.ApiGateway;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Requests;
@@ -89,7 +90,8 @@ public class Function(HttpClient httpClient, string apiKey)
             {
                 { "Content-Type", "application/json" },
                 { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                { "Access-Control-Allow-Methods", "OPTIONS, GET" },
+                { "Cache-Control", CacheControlHeaderFactory.CacheFor(CacheExpiration.Maximum) }
             }
         };
 

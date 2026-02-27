@@ -49,7 +49,14 @@ public class InMemoryDbConcertRepository: IConcertRepository
     public IAsyncEnumerable<Concert> GetConcertsChangedAfterAsync(DateTimeOffset changedAfterDate)
     {
         return GetAllSorted()
-            .Where(c => (c.LastChange ?? DateTimeOffset.MaxValue) > changedAfterDate)
+            .Where(c => c.LastChange != null && c.LastChange > changedAfterDate)
+            .ToAsyncEnumerable();
+    }
+
+    public IAsyncEnumerable<Concert> GetConcertsDeletedAfterAsync(DateTimeOffset deletedAfterDate)
+    {
+        return GetAllSorted()
+            .Where(c => c.DeletedAt != null && c.DeletedAt > deletedAfterDate)
             .ToAsyncEnumerable();
     }
 
@@ -59,5 +66,15 @@ public class InMemoryDbConcertRepository: IConcertRepository
         _concerts[id] = concert;
         
         return Task.CompletedTask;
+    }
+
+    public async Task DeleteAsync(Concert concert)
+    {
+        var existing = await GetByIdAsync(concert.Id);
+        if (existing != null)
+        {
+            existing.DeletedAt = DateTimeOffset.UtcNow;
+            _concerts[concert.Id] = concert;
+        }
     }
 }

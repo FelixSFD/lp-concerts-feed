@@ -3,6 +3,7 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Common.Utils.Cache;
 using Lambda.Common.ApiGateway;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Responses;
@@ -85,7 +86,8 @@ public class Function
             {
                 { "Content-Type", "application/json" },
                 { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                { "Access-Control-Allow-Methods", "OPTIONS, GET" },
+                { "Cache-Control", CacheControlHeaderFactory.CacheFor(CacheExpiration.Long) }
             }
         };
     }

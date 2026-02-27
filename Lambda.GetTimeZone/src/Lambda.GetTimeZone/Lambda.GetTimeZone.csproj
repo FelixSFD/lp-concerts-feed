@@ -18,6 +18,7 @@
         <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.5" />
     </ItemGroup>
     <ItemGroup>
+      <ProjectReference Include="..\..\..\Common.Utils\Common.Utils.csproj" />
       <ProjectReference Include="..\..\..\DataStructure\DataStructure.csproj" />
       <ProjectReference Include="..\..\..\Lambda.Common.ApiGateway\Lambda.Common.ApiGateway.csproj" />
     </ItemGroup>

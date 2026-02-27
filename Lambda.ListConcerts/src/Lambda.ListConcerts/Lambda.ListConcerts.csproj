@@ -20,6 +20,7 @@
         <PackageReference Include="System.Linq.Async" Version="7.0.0" />
     </ItemGroup>
     <ItemGroup>
+      <ProjectReference Include="..\..\..\Common.Utils\Common.Utils.csproj" />
       <ProjectReference Include="..\..\..\Database.ConcertBookmarks\Database.ConcertBookmarks.csproj" />
       <ProjectReference Include="..\..\..\Database.Concerts\Database.Concerts.csproj" />
       <ProjectReference Include="..\..\..\DataStructure\DataStructure.csproj" />

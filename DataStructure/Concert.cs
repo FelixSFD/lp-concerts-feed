@@ -13,6 +13,10 @@ public class Concert
 {
     public const string ConcertTableName = "Concertsv2";
     public const string LastChangeTimeGlobalIndex = "LastChangeTimeGlobalIndex";
+    public const string DeletedConcertsGlobalIndex = "DeletedConcertsGlobalIndex";
+
+    public const string StatusPublished = "PUBLISHED";
+    public const string StatusDeleted = "DELETED";
     
     /// <summary>
     /// UUID of the concert
@@ -46,7 +50,7 @@ public class Concert
     /// Status of the concert (mainly used as workaround for having a partition key that can return all concerts for now)
     /// </summary>
     //[DynamoDBProperty("Status")]
-    [DynamoDBGlobalSecondaryIndexHashKey("PostedStartTimeGlobalIndex", nameof(LastChangeTimeGlobalIndex))]
+    [DynamoDBGlobalSecondaryIndexHashKey("PostedStartTimeGlobalIndex", nameof(LastChangeTimeGlobalIndex), nameof(DeletedConcertsGlobalIndex))]
     [JsonPropertyName("status")]
     public required string Status { get; set; }
     
@@ -200,4 +204,13 @@ public class Concert
     [DynamoDBProperty(typeof(DateTimeOffsetToStringPropertyConverter))]
     [JsonPropertyName("lastChange")]
     public DateTimeOffset? LastChange { get; set; }
+    
+    
+    /// <summary>
+    /// Time when the concert was deleted
+    /// </summary>
+    [DynamoDBGlobalSecondaryIndexRangeKey(nameof(DeletedConcertsGlobalIndex))]
+    [DynamoDBProperty(typeof(DateTimeOffsetToStringPropertyConverter))]
+    [JsonPropertyName("deletedAt")]
+    public DateTimeOffset? DeletedAt { get; set; }
 }
