@@ -9,7 +9,20 @@ public static class DateTimeOffsetExtensions
     /// <returns></returns>
     public static DateTimeOffset RoundingUpToSecond(this DateTimeOffset dateTimeOffset)
     {
-        var millisecondCorrection = 1000 - dateTimeOffset.Millisecond;
-        return millisecondCorrection == 1000 ? dateTimeOffset : dateTimeOffset.AddMilliseconds(millisecondCorrection);
+        var result = dateTimeOffset;
+        
+        var microsecondCorrection = 1_000 - result.Microsecond;
+        if (microsecondCorrection != 1_000)
+        {
+            result = result.AddMicroseconds(microsecondCorrection);
+        }
+        
+        var millisecondCorrection = 1_000 - result.Millisecond;
+        if (millisecondCorrection != 1_000)
+        {
+            result = result.AddMilliseconds(millisecondCorrection);
+        }
+        
+        return result;
     }
 }
