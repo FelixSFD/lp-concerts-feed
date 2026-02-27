@@ -19,6 +19,7 @@
         <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     </ItemGroup>
     <ItemGroup>
+      <ProjectReference Include="..\..\..\Common.Utils\Common.Utils.csproj" />
       <ProjectReference Include="..\..\..\DataStructure\DataStructure.csproj" />
     </ItemGroup>
 </Project>

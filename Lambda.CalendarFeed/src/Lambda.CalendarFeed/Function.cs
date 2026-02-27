@@ -4,6 +4,7 @@ using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Common.Utils.Cache;
 using Ical.Net.CalendarComponents;
 using Ical.Net.Serialization;
 using LPCalendar.DataStructure;
@@ -80,7 +81,8 @@ public class Function
             {
                 { "Content-Type", "text/calendar" },
                 { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                { "Access-Control-Allow-Methods", "OPTIONS, GET" },
+                { "Cache-Control", CacheControlHeaderFactory.CacheFor(CacheConstants.MediumExpirationInSeconds) }
             }
         };
     }
