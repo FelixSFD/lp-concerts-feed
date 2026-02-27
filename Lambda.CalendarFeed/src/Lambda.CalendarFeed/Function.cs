@@ -82,7 +82,7 @@ public class Function
                 { "Content-Type", "text/calendar" },
                 { "Access-Control-Allow-Origin", "*" },
                 { "Access-Control-Allow-Methods", "OPTIONS, GET" },
-                { "Cache-Control", CacheControlHeaderFactory.CacheFor(CacheConstants.MediumExpirationInSeconds) }
+                { "Cache-Control", CacheControlHeaderFactory.CacheFor(CacheExpiration.Medium) }
             }
         };
     }
