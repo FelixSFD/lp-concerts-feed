@@ -2,6 +2,7 @@ using System.Text.Json;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Common.DynamoDb;
+using Common.Utils.Cache;
 using Database.ConcertBookmarks;
 using Database.Concerts;
 using Lambda.Auth;
@@ -154,7 +155,8 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
                     {
                         { "Content-Type", "application/json" },
                         { "Access-Control-Allow-Origin", "*" },
-                        { "Access-Control-Allow-Methods", "OPTIONS, GET, POST, PUT, DELETE" }
+                        { "Access-Control-Allow-Methods", "OPTIONS, GET, POST, PUT, DELETE" },
+                        { "Cache-Control", CacheControlHeaderFactory.CacheFor(CacheConstants.VeryLongExpirationInSeconds) }
                     }
                 };
             }
@@ -207,7 +209,8 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
             {
                 { "Content-Type", "application/json" },
                 { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET, POST" }
+                { "Access-Control-Allow-Methods", "OPTIONS, GET, POST" },
+                { "Cache-Control", CacheControlHeaderFactory.CacheFor(CacheConstants.DefaultExpirationInSeconds) }
             }
         };
     }
@@ -245,7 +248,8 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
             {
                 { "Content-Type", "application/json" },
                 { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                { "Access-Control-Allow-Methods", "OPTIONS, GET" },
+                { "Cache-Control", CacheControlHeaderFactory.CacheFor(CacheConstants.ShortExpirationInSeconds) }
             }
         };
     }
@@ -278,7 +282,8 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
             {
                 { "Content-Type", "application/json" },
                 { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                { "Access-Control-Allow-Methods", "OPTIONS, GET" },
+                { "Cache-Control", CacheControlHeaderFactory.CacheFor(CacheConstants.MediumExpirationInSeconds) }
             }
         };
     }
@@ -299,7 +304,8 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
             {
                 { "Content-Type", "application/json" },
                 { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET, POST" }
+                { "Access-Control-Allow-Methods", "OPTIONS, GET, POST" },
+                { "Cache-Control", CacheControlHeaderFactory.CacheFor(CacheConstants.MediumExpirationInSeconds)}
             }
         };
     }
@@ -339,6 +345,7 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
     }
 
 
+    [Obsolete("Use new sync algorithm")]
     private async Task<APIGatewayProxyResponse> ReturnSyncResult(SyncConcertsRequest syncRequest, ILambdaLogger logger)
     {
         var syncTime = DateTimeOffset.UtcNow;
@@ -396,7 +403,7 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
                 { "Content-Type", "application/json" },
                 { "Access-Control-Allow-Origin", "*" },
                 { "Access-Control-Allow-Methods", "OPTIONS, GET" },
-                //{ "Cache-Control", "max-age=3600, public" } // public caching for 1h
+                { "Cache-Control", CacheControlHeaderFactory.CacheFor(CacheConstants.MediumExpirationInSeconds) }
             }
         };
     }
