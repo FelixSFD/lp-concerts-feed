@@ -229,6 +229,7 @@ Resources:
           OriginRequestPolicyId: !Ref CORSOriginRequestPolicy
           ResponseHeadersPolicyId: !Ref CORSResponseHeadersPolicy
         Enabled: true
+        HttpVersion: http2and3
         Comment: !Sub "${AWS::StackName} Frontend"
         PriceClass: PriceClass_100
   
@@ -271,6 +272,7 @@ Resources:
           OriginRequestPolicyId: !Ref CORSOriginRequestPolicy
           ResponseHeadersPolicyId: !Ref CORSResponseHeadersPolicy
         Enabled: true
+        HttpVersion: http2and3
         Comment: !Sub "${AWS::StackName} Image host"
         PriceClass: PriceClass_100
 
