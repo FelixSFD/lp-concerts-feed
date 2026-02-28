@@ -70,6 +70,8 @@ Resources:
         - c-ip
         - cs(Referer)
         - cs(User-Agent)
+        - c-country
+        - cs-protocol-version
         - x-host-header
         - x-edge-response-result-type
         - x-edge-detailed-result-type
