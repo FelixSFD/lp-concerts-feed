@@ -25,7 +25,7 @@ Resources:
         - - !Sub ${BaseProductName}
           - api-cf
           - access-logs
-      RetentionInDays: 14
+      RetentionInDays: 7
   
   CloudFrontApiLogsDestination:
     Type: AWS::Logs::DeliveryDestination
