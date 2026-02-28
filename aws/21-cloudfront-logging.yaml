@@ -1,0 +1,85 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Application to manage the CloudFront deployment for the LP Calendar project
+
+
+
+Parameters:
+  BaseProductName:
+    Description: Name of the product. Is used as prefix in the exports
+    Type: String
+  ApiCloudFrontDistributionArn:
+    Description: ARN of the CloudFront distribution for the API
+    Type: String
+
+
+
+Resources:
+  # Logging
+  ApiAccessLogsLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join
+        - '-'
+        - - !Sub ${BaseProductName}
+          - api-cf
+          - access-logs
+      RetentionInDays: 7
+  
+  CloudFrontApiLogsDestination:
+    Type: AWS::Logs::DeliveryDestination
+    Properties:
+      Name: !Sub ${BaseProductName}-cf-access-logs-destination
+      DestinationResourceArn: !GetAtt ApiAccessLogsLogGroup.Arn
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "logging"
+  
+  CloudFrontApiLogsSource:
+    Type: AWS::Logs::DeliverySource
+    Properties:
+      Name: !Sub ${BaseProductName}-cf-source
+      ResourceArn: !Ref ApiCloudFrontDistributionArn
+      LogType: ACCESS_LOGS
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "logging"
+      
+  CloudFrontLogsDelivery:
+    Type: AWS::Logs::Delivery
+    Properties:
+      DeliverySourceName: !Ref CloudFrontApiLogsSource
+      DeliveryDestinationArn: !GetAtt CloudFrontApiLogsDestination.Arn
+      RecordFields:
+        - date
+        - time
+        - cs-method
+        - cs-uri-stem
+        - cs-uri-query
+        - sc-status
+        - time-taken
+        - c-ip
+        - cs(Referer)
+        - cs(User-Agent)
+        - x-host-header
+        - x-edge-response-result-type
+        - x-edge-detailed-result-type
+        - x-edge-location
+        - sc-content-type
+        - sc-content-len
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "logging"

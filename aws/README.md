@@ -58,6 +58,10 @@ With the deployment `20-cloudfront-deployment.yaml`, both distributions are crea
 You will need the ARN of the previously generated certificate for this deployment. Make sure you deployed the certificate in `us-east-1`!
 However, the CloudFront doesn't have to be in that zone. The restriction is just for the certificate.
 
+#### Logging
+
+To enable logging for the API in CloudFront, you need to deploy the stack `21-cloudfront-logging.yaml` in the `us-east-1` region. Other regions will NOT work!
+
 
 ### DNS Records
 
