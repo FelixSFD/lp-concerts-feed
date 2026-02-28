@@ -175,6 +175,7 @@ Resources:
             - EventType: viewer-request
               LambdaFunctionARN: !Ref RedirectLambdaArn
         Enabled: true
+        HttpVersion: http2and3
         Comment: !Sub "${AWS::StackName} API"
         PriceClass: PriceClass_100
   
