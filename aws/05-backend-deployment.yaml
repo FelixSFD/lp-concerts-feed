@@ -335,6 +335,28 @@ Resources:
         - Key: "Category"
           Value: "storage"
   
+  # S3 bucket to temporarily store iCal files
+  IcalCacheBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: !Sub ${BaseProductName}-ical-cache
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteNonCurrentVersionsAfter7Days
+            Status: Enabled
+            NoncurrentVersionExpiration:
+              NoncurrentDays: 7
+          - Id: CleanupDeleteMarkers
+            Status: Enabled
+            ExpiredObjectDeleteMarker: true
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "storage"
+  
   # Policy to publish to AuditLogQueue
   AuditLogQueueProducerPolicy:
     Type: AWS::IAM::ManagedPolicy
@@ -440,6 +462,47 @@ Resources:
                   - !Sub "${ConcertsDynamoDBTable.Arn}*"
                   - !Sub "${ConcertBookmarksDynamoDBTable.Arn}"
                   - !Sub "${ConcertBookmarksDynamoDBTable.Arn}*"
+  
+  ConcertsCalendarFeedLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: "Execution role for Lambda that reads from the DB and can access the iCal cache bucket"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: LambdaDynamoDBAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:BatchGetItem
+                  - dynamodb:DescribeTable
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                Resource:
+                  - !Sub "${ConcertsDynamoDBTable.Arn}"
+                  - !Sub "${ConcertsDynamoDBTable.Arn}*"
+                  - !Sub "${ConcertBookmarksDynamoDBTable.Arn}"
+                  - !Sub "${ConcertBookmarksDynamoDBTable.Arn}*"
+        - PolicyName: IcalCacheBucketAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                Resource:
+                  - !Sub "arn:aws:s3:::${BaseProductName}-ical-cache"
+                  - !Sub "arn:aws:s3:::${BaseProductName}-ical-cache/*"
   
   UsersReadLambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -1595,7 +1658,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: Lambda.CalendarFeed::Lambda.CalendarFeed.Function::FunctionHandler
-      Role: !GetAtt ConcertsReadLambdaExecutionRole.Arn
+      Role: !GetAtt ConcertsCalendarFeedLambdaExecutionRole.Arn
       Description: .NET function to convert calendar entries to the iCal format as a feed
       CodeUri: ../lambda_packages/Lambda.CalendarFeed.zip
       Architectures:
@@ -1604,6 +1667,10 @@ Resources:
       Environment:
         Variables:
           CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
+          ICAL_BUCKET_ARN: !Ref IcalCacheBucket
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
       Events:
         ListConcerts: # TODO: maybe rename?
           Type: Api
