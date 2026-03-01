@@ -499,6 +499,8 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
+                  - s3:GetObject
+                  - s3:GetObjectMetadata
                   - s3:PutObject
                 Resource:
                   - !Sub "arn:aws:s3:::${BaseProductName}-ical-cache"

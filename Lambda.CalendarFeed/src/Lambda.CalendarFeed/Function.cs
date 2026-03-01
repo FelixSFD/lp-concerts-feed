@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.APIGatewayEvents;
@@ -70,24 +71,45 @@ public class Function
         var calendar = new Calendar();
         calendar.AddTimeZone(new VTimeZone("Europe/Berlin")); // TODO: Get correct timezone
         DateTimeOffset? latestChange = DateTimeOffset.MinValue;
+        var cachedConcerts = new List<Concert>();
         await foreach (var concert in concerts)
         {
-            calendar.Events.AddRange(concert.ToCalendarEvents(eventCategories));
-            
             if ((concert.LastChange ?? DateTimeOffset.MinValue) > latestChange)
                 latestChange = concert.LastChange;
             
             if ((concert.DeletedAt ?? DateTimeOffset.MinValue) > latestChange)
                 latestChange = concert.DeletedAt;
+            
+            cachedConcerts.Add(concert);
         }
         
         context.Logger.LogDebug("Latest change was at: {latestChange}", latestChange);
-        context.Logger.LogDebug("Generated {i} events.", calendar.Events.Count);
-        
-        var serializedCalendar = SerializeCalendar(calendar, context);
-        if (!string.IsNullOrEmpty(serializedCalendar))
+
+        string? serializedCalendar;
+        var currentFileVersion = await GetDataVersionOfFile(fileName, context.Logger);
+        if (currentFileVersion == null || latestChange > currentFileVersion)
         {
-            await StoreInCache(eventCategories, serializedCalendar!, DateTimeOffset.Now, context.Logger);
+            context.Logger.LogInformation("iCal in cache is outdated or not found. Generate a new one. Current file version: {currentFileVersion}; Latest change in DB: {latestChangeInDb}", currentFileVersion, latestChange);
+
+            var stopwatch = Stopwatch.StartNew();
+            foreach (var concert in cachedConcerts)
+            {
+                calendar.Events.AddRange(concert.ToCalendarEvents(eventCategories));
+            }
+            stopwatch.Stop();
+            
+            context.Logger.LogDebug("Generated {i} events in {duration} ms.", calendar.Events.Count, stopwatch.ElapsedMilliseconds);
+            
+            serializedCalendar = SerializeCalendar(calendar, context);
+            context.Logger.LogDebug("Serialized new calendar object.");
+            if (!string.IsNullOrEmpty(serializedCalendar))
+            {
+                await StoreInCache(eventCategories, serializedCalendar, latestChange ?? DateTimeOffset.MinValue, context.Logger);
+            }
+        }
+        else
+        {
+            serializedCalendar = await GetCalFromCache(eventCategories, context.Logger);
         }
         
         return new APIGatewayProxyResponse()
@@ -130,19 +152,68 @@ public class Function
             logger.LogError(e, "Error storing calendar in cache.");
         }
     }
-
-
-    /*private async Task<bool> HasLatestFileInS3(string fileName)
+    
+    
+    private async Task<string> GetCalFromCache(ConcertSubEventCategory eventCategories, ILambdaLogger logger)
     {
-        var getDataVersionObjectRequest = new GetObjectRequest
+        logger.LogDebug("Bucket ARN: {bucket}", _calendarCacheBucketName);
+        var fileName = CalendarHelper.GetFileNameFor(eventCategories);
+        logger.LogDebug("Retrieve from S3 bucket: {fileName}", fileName);
+        var getRequest = new GetObjectRequest
         {
             BucketName = _calendarCacheBucketName,
-            Key = $"{fileName}.data-timestamp"
+            Key = fileName
+        };
+        
+        try
+        {
+            var getResponse = await _s3Client.GetObjectAsync(getRequest);
+            logger.LogDebug("Successfully retrieved calendar from cache. Status code: {statusCode}",
+                getResponse.HttpStatusCode);
+
+            using var reader = new StreamReader(getResponse.ResponseStream);
+            return await reader.ReadToEndAsync();
+        }
+        catch (AmazonS3Exception e)
+        {
+            logger.LogError(e, "Error storing calendar in cache.");
+            return string.Empty;
+        }
+    }
+
+
+    private async Task<DateTimeOffset?> GetDataVersionOfFile(string fileName, ILambdaLogger logger)
+    {
+        var getObjectMetadataRequest = new GetObjectMetadataRequest
+        {
+            BucketName = _calendarCacheBucketName, 
+            Key = fileName
         };
 
-        var getDataVersionObjectResponse = await _s3Client.GetObjectAsync(getDataVersionObjectRequest);
-        getDataVersionObjectResponse.
-    }*/
+        try
+        {
+            var getObjectMetadataResponse = await _s3Client.GetObjectMetadataAsync(getObjectMetadataRequest);
+            var version = getObjectMetadataResponse.Metadata["concert-data-version"];
+            if (string.IsNullOrEmpty(version))
+            {
+                logger.LogWarning("No version found for: {fileName}", fileName);
+                return null;
+            }
+
+            var didParse = DateTimeOffset.TryParse(version, out var parsedVersion);
+            if (!didParse)
+            {
+                logger.LogError("Could not parse concert-data-version: {version}", version);
+            }
+
+            return parsedVersion;
+        }
+        catch (AmazonS3Exception e)
+        {
+            logger.LogWarning(e, "Error retrieving concert-data-version from S3. Status code: {statusCode}", e.StatusCode);
+            return null;
+        }
+    }
 
     private string? SerializeCalendar(Calendar calendar, ILambdaContext context)
     {
