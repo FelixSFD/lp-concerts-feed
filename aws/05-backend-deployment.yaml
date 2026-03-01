@@ -43,6 +43,7 @@ Globals:
     Environment:
       Variables:
         AUDIT_LOG_QUEUE_URL: !Ref AuditLogQueue
+        ROOT_DOMAIN: !Ref RootDomain
   Api:
     TracingEnabled: true
     Cors:

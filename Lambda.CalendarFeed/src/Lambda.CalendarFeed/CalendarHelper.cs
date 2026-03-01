@@ -140,6 +140,12 @@ public static class CalendarHelper
             Duration = TimeSpan.FromMinutes(concert.ExpectedSetDuration ?? 120),
             IsAllDay = false
         };
+        
+        var url = GetUrlToConcert(concert);
+        if (url != null)
+        {
+            calendarEvent.Url = url;
+        }
 
         return calendarEvent;
     }
@@ -170,6 +176,12 @@ public static class CalendarHelper
             End = nextEventStart,
             IsAllDay = false
         };
+        
+        var url = GetUrlToConcert(concert);
+        if (url != null)
+        {
+            calendarEvent.Url = url;
+        }
 
         return calendarEvent;
     }
@@ -209,6 +221,12 @@ public static class CalendarHelper
             Duration = duration,
             IsAllDay = false
         };
+        
+        var url = GetUrlToConcert(concert);
+        if (url != null)
+        {
+            calendarEvent.Url = url;
+        }
 
         return calendarEvent;
     }
@@ -248,6 +266,12 @@ public static class CalendarHelper
             Duration = duration,
             IsAllDay = false
         };
+        
+        var url = GetUrlToConcert(concert);
+        if (url != null)
+        {
+            calendarEvent.Url = url;
+        }
 
         return calendarEvent;
     }
@@ -292,5 +316,17 @@ public static class CalendarHelper
         }
 
         return $"Linkin Park: {concert.City} (Stage Time)";
+    }
+
+
+    /// <summary>
+    /// Returns a link to the concert. This relies on the Env-Variable ROOT_DOMAIN to be set!
+    /// </summary>
+    /// <param name="concert"></param>
+    /// <returns></returns>
+    private static Uri? GetUrlToConcert(Concert concert)
+    {
+        var rootDomainStr = Environment.GetEnvironmentVariable("ROOT_DOMAIN");
+        return !string.IsNullOrEmpty(rootDomainStr) ? new Uri($"https://{rootDomainStr}/concert/{concert.Id}") : null;
     }
 }
