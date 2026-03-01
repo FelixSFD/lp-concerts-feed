@@ -505,4 +505,16 @@ public class CalendarHelperTest
         var geoLocation = testConcert.GetGeoLocation();
         Assert.Null(geoLocation);
     }
+
+
+    [Theory]
+    [InlineData(ConcertSubEventCategory.Doors | ConcertSubEventCategory.LinkinPark, "Doors-LinkinPark.ical")]
+    [InlineData(ConcertSubEventCategory.Doors, "Doors.ical")]
+    [InlineData(ConcertSubEventCategory.LinkinPark, "LinkinPark.ical")]
+    [InlineData(ConcertSubEventCategory.AsOneSingleEvent, "AsOneSingleEvent.ical")]
+    public void GetFileNameFor(ConcertSubEventCategory categoryFlags, string expectedFilename)
+    {
+        var fileName = CalendarHelper.GetFileNameFor(categoryFlags);
+        Assert.Equal(expectedFilename, fileName);
+    }
 }

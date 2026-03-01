@@ -67,11 +67,13 @@ public static class CalendarHelper
     /// <param name="concert">Concert to create the events for</param>
     /// <param name="categoryFlags">Flags to specify which sub-events to return for the concert</param>
     /// <returns>one or more events</returns>
-    private static IEnumerable<CalendarEvent?> ToCalendarEvents(Concert concert, ConcertSubEventCategory categoryFlags = ConcertSubEventCategory.AsOneSingleEvent)
+    internal static IEnumerable<CalendarEvent> ToCalendarEvents(this Concert concert, ConcertSubEventCategory categoryFlags = ConcertSubEventCategory.AsOneSingleEvent)
     {
         if (categoryFlags.HasFlag(ConcertSubEventCategory.AsOneSingleEvent))
         {
-            yield return GetFullEventFor(concert);
+            var fullEvent = GetFullEventFor(concert);
+            if (fullEvent != null)
+                yield return fullEvent;
         }
         else
         {
@@ -92,13 +94,17 @@ public static class CalendarHelper
             if (lpStageTimeEvent == null && doorsTimeEvent == null)
             {
                 // no detailed information seem to be available -> return full event. Otherwise, the cal would be empty
-                yield return GetFullEventFor(concert);
+                var fullEvent = GetFullEventFor(concert);
+                if (fullEvent != null)
+                    yield return fullEvent;
             }
             else
             {
                 // details seem to be available -> return detailed events
-                yield return doorsTimeEvent;
-                yield return lpStageTimeEvent;
+                if (doorsTimeEvent != null)
+                    yield return doorsTimeEvent;
+                if (lpStageTimeEvent != null)
+                    yield return lpStageTimeEvent;
             }
         }
     }
@@ -350,5 +356,21 @@ public static class CalendarHelper
         }
         
         return $"\n\nTry our new FREE app: https://{rootDomainStr}/app?mtm_kwd={concert.Id}&mtm_campaign=ical-feed";
+    }
+
+
+    /// <summary>
+    /// Generate the filename of the iCal based on the enabled categories
+    /// </summary>
+    /// <param name="eventCategories"></param>
+    /// <returns></returns>
+    public static string GetFileNameFor(ConcertSubEventCategory eventCategories)
+    {
+        var flagNames = Enum.GetValues<ConcertSubEventCategory>()
+            .Where(v => eventCategories.HasFlag(v))
+            .Select(v => v.ToString())
+            .Order();
+        
+        return $"{string.Join("-", flagNames)}.ical";
     }
 }
