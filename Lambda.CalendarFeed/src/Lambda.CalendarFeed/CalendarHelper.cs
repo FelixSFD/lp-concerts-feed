@@ -138,7 +138,8 @@ public static class CalendarHelper
             GeographicLocation = concert.GetGeoLocation(),
             Start = date,
             Duration = TimeSpan.FromMinutes(concert.ExpectedSetDuration ?? 120),
-            IsAllDay = false
+            IsAllDay = false,
+            LastModified = concert.LastChange?.ToCalDateTime(concert.TimeZoneId)
         };
         
         var url = GetUrlToConcert(concert);
@@ -174,7 +175,8 @@ public static class CalendarHelper
             GeographicLocation = concert.GetGeoLocation(),
             Start = date,
             End = nextEventStart,
-            IsAllDay = false
+            IsAllDay = false,
+            LastModified = concert.LastChange?.ToCalDateTime(concert.TimeZoneId)
         };
         
         var url = GetUrlToConcert(concert);
@@ -219,7 +221,8 @@ public static class CalendarHelper
             GeographicLocation = concert.GetGeoLocation(),
             Start = date,
             Duration = duration,
-            IsAllDay = false
+            IsAllDay = false,
+            LastModified = concert.LastChange?.ToCalDateTime(concert.TimeZoneId)
         };
         
         var url = GetUrlToConcert(concert);
@@ -264,7 +267,8 @@ public static class CalendarHelper
             GeographicLocation = concert.GetGeoLocation(),
             Start = date,
             Duration = duration,
-            IsAllDay = false
+            IsAllDay = false,
+            LastModified = concert.LastChange?.ToCalDateTime(concert.TimeZoneId)
         };
         
         var url = GetUrlToConcert(concert);
