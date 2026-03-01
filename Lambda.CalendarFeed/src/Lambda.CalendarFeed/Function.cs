@@ -1,7 +1,5 @@
-using System.Text.Json;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
-using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Common.Utils.Cache;
@@ -25,18 +23,13 @@ public class Function
     private readonly ICalendarGenerator _calendarGenerator;
 
     
-    public Function() : this(new CalendarGenerator())
+    public Function()
     {
-    }
-    
-    
-    public Function(ICalendarGenerator calendarGenerator)
-    {
+        _calendarGenerator = new CalendarGenerator();
         _dynamoDbContext = new DynamoDBContextBuilder()
             .WithDynamoDBClient(() => new AmazonDynamoDBClient())
             .Build();
         _dynamoDbContext.RegisterCustomConverters();
-        _calendarGenerator = calendarGenerator;
     }
     
     

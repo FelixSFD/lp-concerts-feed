@@ -137,8 +137,8 @@ public static class CalendarHelper
             Location = $"{concert.LocationLong}",
             GeographicLocation = concert.GetGeoLocation(),
             Start = date,
-            Duration = TimeSpan.FromMinutes(concert.ExpectedSetDuration ?? 120),
-            IsAllDay = false,
+            End = date.AddMinutes(concert.ExpectedSetDuration ?? 120),
+            //Duration = Duration.FromMinutes(concert.ExpectedSetDuration ?? 120),
             LastModified = concert.LastChange?.ToCalDateTime(concert.TimeZoneId)
         };
         
@@ -158,7 +158,7 @@ public static class CalendarHelper
     /// <param name="concert"></param>
     /// <param name="nextEventStart"></param>
     /// <returns>event or null, if the <see cref="Concert.DoorsTime"/> is not set</returns>
-    private static CalendarEvent? GetEventForDoorsTime(Concert concert, IDateTime? nextEventStart)
+    private static CalendarEvent? GetEventForDoorsTime(Concert concert, CalDateTime? nextEventStart)
     {
         if (concert.DoorsTime == null) 
             return null;
@@ -175,7 +175,6 @@ public static class CalendarHelper
             GeographicLocation = concert.GetGeoLocation(),
             Start = date,
             End = nextEventStart,
-            IsAllDay = false,
             LastModified = concert.LastChange?.ToCalDateTime(concert.TimeZoneId)
         };
         
@@ -197,20 +196,22 @@ public static class CalendarHelper
         var title = GetConcertTitle(concert);
         var description = $"Concert of the Linkin Park {concert.TourName}{GetAppHintString(concert)}";
 
-        CalDateTime? date;
-        TimeSpan duration;
+        CalDateTime? startDate;
+        Duration duration;
         if (concert.MainStageTime != null)
         {
             // if available, use main stage time. In that case, decrease the duration of the event
-            date = concert.MainStageTime?.ToCalDateTime(concert.TimeZoneId);
-            duration = TimeSpan.FromHours(2);
+            startDate = concert.MainStageTime?.ToCalDateTime(concert.TimeZoneId);
+            duration = Duration.FromHours(2);
         }
         else
         {
             // only start time from ticket available
-            date = concert.PostedStartTime?.ToCalDateTime(concert.TimeZoneId);
-            duration = TimeSpan.FromHours(3);
+            startDate = concert.PostedStartTime?.ToCalDateTime(concert.TimeZoneId);
+            duration = Duration.FromHours(3);
         }
+        
+        var endDate = startDate?.Add(duration);
         
         var calendarEvent = new CalendarEvent
         {
@@ -219,9 +220,8 @@ public static class CalendarHelper
             Description = description,
             Location = $"{concert.LocationLong}",
             GeographicLocation = concert.GetGeoLocation(),
-            Start = date,
-            Duration = duration,
-            IsAllDay = false,
+            Start = startDate,
+            End = endDate,
             LastModified = concert.LastChange?.ToCalDateTime(concert.TimeZoneId)
         };
         
@@ -243,20 +243,22 @@ public static class CalendarHelper
         var title = GetConcertTitle(concert);
         var description = $"Linkin Park Concert at {concert.Venue}\nThis show is not part of a tour.{GetAppHintString(concert)}";
 
-        CalDateTime? date;
-        TimeSpan duration;
+        CalDateTime? startDate;
+        Duration duration;
         if (concert.MainStageTime != null)
         {
             // if available, use main stage time. In that case, decrease the duration of the event
-            date = concert.MainStageTime?.ToCalDateTime(concert.TimeZoneId);
-            duration = TimeSpan.FromHours(2);
+            startDate = concert.MainStageTime?.ToCalDateTime(concert.TimeZoneId);
+            duration = Duration.FromHours(2);
         }
         else
         {
             // only start time from ticket available
-            date = concert.PostedStartTime?.ToCalDateTime(concert.TimeZoneId);
-            duration = TimeSpan.FromHours(3);
+            startDate = concert.PostedStartTime?.ToCalDateTime(concert.TimeZoneId);
+            duration = Duration.FromHours(3);
         }
+        
+        var endDate = startDate?.Add(duration);
         
         var calendarEvent = new CalendarEvent
         {
@@ -265,9 +267,8 @@ public static class CalendarHelper
             Description = description,
             Location = $"{concert.LocationMedium}",
             GeographicLocation = concert.GetGeoLocation(),
-            Start = date,
-            Duration = duration,
-            IsAllDay = false,
+            Start = startDate,
+            End = endDate,
             LastModified = concert.LastChange?.ToCalDateTime(concert.TimeZoneId)
         };
         
