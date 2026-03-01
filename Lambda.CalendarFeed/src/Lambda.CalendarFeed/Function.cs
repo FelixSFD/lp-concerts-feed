@@ -31,9 +31,10 @@ public class Function
             .Build();
         _dynamoDbContext.RegisterCustomConverters();
     }
-    
-    
-    public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayHttpApiV2ProxyRequest request, ILambdaContext context)
+
+
+    public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayHttpApiV2ProxyRequest request,
+        ILambdaContext context)
     {
         // Source to cancel the request after timeout
         using var cts = new CancellationTokenSource(context.RemainingTime);
@@ -53,19 +54,7 @@ public class Function
             eventCategories = ConcertSubEventCategory.LinkinPark;
         }
         
-        var calendar = new Ical.Net.Calendar();
-        calendar.AddTimeZone(new VTimeZone("Europe/Berlin")); // TODO: Get correct timezone
-        
-        var concerts = await _dynamoDbContext
-            .ScanAsync<Concert>(new List<ScanCondition>(), _dbConfigProvider.GetScanConfigFor(DynamoDbConfigProvider.Table.Concerts))
-            .GetRemainingAsync(cts.Token);
-        
-        calendar.Events.AddRange(concerts.ToCalendarEvents(eventCategories));
-        context.Logger.LogDebug("Generated {i} events.", calendar.Events.Count);
-        
-        var serializer = new CalendarSerializer();
-        var serializedCalendar = serializer.SerializeToString(calendar);
-        
+        var serializedCalendar = await GenerateNewCalendarFileAsString(eventCategories, cts.Token, context);
         return new APIGatewayProxyResponse()
         {
             StatusCode = 200,
@@ -78,6 +67,24 @@ public class Function
                 { "Cache-Control", CacheControlHeaderFactory.CacheFor(CacheExpiration.Medium) }
             }
         };
+    }
+
+
+    private async Task<string?> GenerateNewCalendarFileAsString(ConcertSubEventCategory eventCategories, CancellationToken cancellationToken, ILambdaContext context)
+    {
+        var calendar = new Ical.Net.Calendar();
+        calendar.AddTimeZone(new VTimeZone("Europe/Berlin")); // TODO: Get correct timezone
+        
+        var concerts = await _dynamoDbContext
+            .ScanAsync<Concert>(new List<ScanCondition>(), _dbConfigProvider.GetScanConfigFor(DynamoDbConfigProvider.Table.Concerts))
+            .GetRemainingAsync(cancellationToken);
+        
+        calendar.Events.AddRange(concerts.ToCalendarEvents(eventCategories));
+        context.Logger.LogDebug("Generated {i} events.", calendar.Events.Count);
+        
+        var serializer = new CalendarSerializer();
+        var serializedCalendar = serializer.SerializeToString(calendar);
+        return serializedCalendar;
     }
 
 
