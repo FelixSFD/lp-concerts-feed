@@ -126,7 +126,7 @@ public static class CalendarHelper
             return null;
         
         var title = GetStageTimeTitle(concert);
-        var description = $"Stage time for Linkin Park at {concert.Venue}.\nType of show: {concert.ShowType}";
+        var description = $"Stage time for Linkin Park at {concert.Venue}.\nType of show: {concert.ShowType}{GetAppHintString(concert)}";
 
             
         var date = concert.MainStageTime.Value.ToCalDateTime(concert.TimeZoneId);
@@ -163,7 +163,7 @@ public static class CalendarHelper
             return null;
         
         var title = $"Doors open: Linkin Park in {concert.City}";
-        var description = $"Doors open at {concert.Venue} for the Linkin Park concert";
+        var description = $"Doors open at {concert.Venue} for the Linkin Park concert{GetAppHintString(concert)}";
 
         var date = concert.DoorsTime.Value.ToCalDateTime(concert.TimeZoneId);
         var calendarEvent = new CalendarEvent
@@ -193,7 +193,7 @@ public static class CalendarHelper
             return null;
 
         var title = GetConcertTitle(concert);
-        var description = $"Concert of the Linkin Park {concert.TourName}";
+        var description = $"Concert of the Linkin Park {concert.TourName}{GetAppHintString(concert)}";
 
         CalDateTime? date;
         TimeSpan duration;
@@ -238,7 +238,7 @@ public static class CalendarHelper
             return null;
         
         var title = GetConcertTitle(concert);
-        var description = $"Linkin Park Concert at {concert.Venue}\nThis show is not part of a tour.";
+        var description = $"Linkin Park Concert at {concert.Venue}\nThis show is not part of a tour.{GetAppHintString(concert)}";
 
         CalDateTime? date;
         TimeSpan duration;
@@ -328,5 +328,22 @@ public static class CalendarHelper
     {
         var rootDomainStr = Environment.GetEnvironmentVariable("ROOT_DOMAIN");
         return !string.IsNullOrEmpty(rootDomainStr) ? new Uri($"https://{rootDomainStr}/concert/{concert.Id}") : null;
+    }
+
+
+    /// <summary>
+    /// Returns a string with an information about the app
+    /// </summary>
+    /// <param name="concert"></param>
+    /// <returns></returns>
+    private static string GetAppHintString(Concert concert)
+    {
+        var rootDomainStr = Environment.GetEnvironmentVariable("ROOT_DOMAIN");
+        if (string.IsNullOrEmpty(rootDomainStr))
+        {
+            return string.Empty;
+        }
+        
+        return $"\n\nTry our new FREE app: https://{rootDomainStr}/app?mtm_kwd={concert.Id}&mtm_campaign=ical-feed";
     }
 }
