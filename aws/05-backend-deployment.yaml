@@ -340,6 +340,8 @@ Resources:
     Type: "AWS::S3::Bucket"
     Properties:
       BucketName: !Sub ${BaseProductName}-ical-cache
+      VersioningConfiguration:
+        Status: Enabled
       LifecycleConfiguration:
         Rules:
           - Id: DeleteNonCurrentVersionsAfter7Days
