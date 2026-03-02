@@ -83,7 +83,7 @@ public class DynamoDbConfigProvider
     /// </summary>
     /// <param name="table">Table to get the config for</param>
     /// <returns>SaveConfig for DynamoDB</returns>
-    private static string? GetTableNameFor(Table table)
+    public static string? GetTableNameFor(Table table)
     {
         return table switch
         {

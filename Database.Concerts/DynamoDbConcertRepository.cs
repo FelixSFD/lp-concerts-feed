@@ -3,6 +3,7 @@ using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.Core;
+using Common.Utils;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Converters;
 using LPCalendar.DataStructure.DbConfig;
@@ -17,12 +18,14 @@ using DateRange = (DateTimeOffset? from, DateTimeOffset? to);
 public class DynamoDbConcertRepository : IConcertRepository
 {
     private readonly ILambdaLogger _logger;
+    private readonly IAmazonDynamoDB _dynamoDbClient;
     private readonly DynamoDBContext _dynamoDbContext;
     private readonly DynamoDbConfigProvider _dbConfigProvider;
 
-    public DynamoDbConcertRepository(DynamoDBContext dynamoDbContext, DynamoDbConfigProvider dbConfigProvider, ILambdaLogger logger)
+    private DynamoDbConcertRepository(IAmazonDynamoDB dynamoDbClient, DynamoDBContext dynamoDbContext, DynamoDbConfigProvider dbConfigProvider, ILambdaLogger logger)
     {
         _logger = logger;
+        _dynamoDbClient = dynamoDbClient;
         _dynamoDbContext = dynamoDbContext;
         _dbConfigProvider = dbConfigProvider;
         
@@ -36,10 +39,11 @@ public class DynamoDbConcertRepository : IConcertRepository
     /// <returns></returns>
     public static DynamoDbConcertRepository CreateDefault(ILambdaLogger logger)
     {
+        var client = new AmazonDynamoDBClient();
         var ctx = new DynamoDBContextBuilder()
             .WithDynamoDBClient(() => new AmazonDynamoDBClient())
             .Build();
-        return new DynamoDbConcertRepository(ctx, new DynamoDbConfigProvider(), logger);
+        return new DynamoDbConcertRepository(client, ctx, new DynamoDbConfigProvider(), logger);
     }
 
     
@@ -226,6 +230,57 @@ public class DynamoDbConcertRepository : IConcertRepository
         {
             yield return concert;
         }
+    }
+
+
+    /// <inheritdoc/>
+    public async Task<DateTimeOffset?> GetLastChangedAsync()
+    {
+        _logger.LogInformation("Current client: {client}", _dynamoDbClient);
+        var queryRequest = new QueryRequest
+        {
+            TableName = DynamoDbConfigProvider.GetTableNameFor(DynamoDbConfigProvider.Table.Concerts),
+            IndexName = Concert.LastChangeTimeGlobalIndex,
+            KeyConditionExpression = "#col_status = :cs",
+            ExpressionAttributeValues = new Dictionary<string, AttributeValue>
+            {
+                [":cs"] = new()
+                {
+                    S = Concert.StatusPublished
+                }
+            },
+            ExpressionAttributeNames = new Dictionary<string, string>
+            {
+                ["#col_status"] = "Status"
+            },
+            ScanIndexForward = false,
+            ReturnConsumedCapacity = ReturnConsumedCapacity.TOTAL,
+            Limit = 1
+        };
+        var lastChangedResponse = await _dynamoDbClient.QueryAsync(queryRequest);
+        _logger.LogDebug("Used capacity units to read LastChanged: {rcu}", lastChangedResponse?.ConsumedCapacity.CapacityUnits ?? double.MinValue);
+        var lastChangedEntry = lastChangedResponse?.Items.FirstOrDefault();
+        var lastChangedConcert = AttributeMapToConcert(lastChangedEntry);
+        var lastChanged = lastChangedConcert?.LastChange ?? DateTimeOffset.MinValue;
+        
+        queryRequest.IndexName = Concert.DeletedConcertsGlobalIndex;
+        var deletedAtResponse = await _dynamoDbClient.QueryAsync(queryRequest);
+        _logger.LogDebug("Used capacity units to read DeletedAt: {rcu}", deletedAtResponse?.ConsumedCapacity.CapacityUnits);
+        var lastDeletedEntry = deletedAtResponse?.Items.FirstOrDefault();
+        var lastDeletedConcert = AttributeMapToConcert(lastDeletedEntry);
+        var lastDeleted = lastDeletedConcert?.DeletedAt ?? DateTimeOffset.MinValue;
+
+        return DateTimeOffsetExtensions.Max(lastChanged, lastDeleted);
+    }
+
+
+    private Concert? AttributeMapToConcert(Dictionary<string, AttributeValue>? attributes)
+    {
+        if (attributes == null)
+            return null;
+        
+        var doc = Document.FromAttributeMap(attributes);
+        return _dynamoDbContext.FromDocument<Concert>(doc);
     }
 
 

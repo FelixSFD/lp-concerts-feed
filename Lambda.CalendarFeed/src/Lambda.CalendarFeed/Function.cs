@@ -23,8 +23,6 @@ public class Function
 {
     private const string QueryParamEventCatFlags = "event_categories";
     
-    private readonly DynamoDBContext _dynamoDbContext;
-    private readonly DynamoDbConfigProvider _dbConfigProvider = new();
     private static AmazonS3Client _s3Client = new();
     private readonly ICalendarGenerator _calendarGenerator;
     private readonly string _calendarCacheBucketName;
@@ -34,17 +32,13 @@ public class Function
     {
         _calendarCacheBucketName = Environment.GetEnvironmentVariable("ICAL_BUCKET_ARN") ?? throw new Exception("S3 bucket not configured in environment variable");
         _calendarGenerator = new CalendarGenerator();
-        _dynamoDbContext = new DynamoDBContextBuilder()
-            .WithDynamoDBClient(() => new AmazonDynamoDBClient())
-            .Build();
-        _dynamoDbContext.RegisterCustomConverters();
     }
 
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayHttpApiV2ProxyRequest request,
         ILambdaContext context)
     {
-        var concertRepository = new DynamoDbConcertRepository(_dynamoDbContext, _dbConfigProvider, context.Logger);
+        var concertRepository = DynamoDbConcertRepository.CreateDefault(context.Logger);
         
         // Source to cancel the request after timeout
         using var cts = new CancellationTokenSource(context.RemainingTime);
@@ -66,23 +60,10 @@ public class Function
         
         var fileName = CalendarHelper.GetFileNameFor(eventCategories);
         context.Logger.LogDebug("Calculated filename for the iCal: {fileName}", fileName);
-
-        var concerts = concertRepository.GetConcertsAsync(dateRange: (DateTimeOffset.MinValue, DateTimeOffset.MaxValue));
         var calendar = new Calendar();
         calendar.AddTimeZone(new VTimeZone("Europe/Berlin")); // TODO: Get correct timezone
-        DateTimeOffset? latestChange = DateTimeOffset.MinValue;
-        var cachedConcerts = new List<Concert>();
-        await foreach (var concert in concerts)
-        {
-            if ((concert.LastChange ?? DateTimeOffset.MinValue) > latestChange)
-                latestChange = concert.LastChange;
-            
-            if ((concert.DeletedAt ?? DateTimeOffset.MinValue) > latestChange)
-                latestChange = concert.DeletedAt;
-            
-            cachedConcerts.Add(concert);
-        }
         
+        DateTimeOffset? latestChange = await concertRepository.GetLastChangedAsync();
         context.Logger.LogDebug("Latest change was at: {latestChange}", latestChange);
 
         string? serializedCalendar;
@@ -92,7 +73,8 @@ public class Function
             context.Logger.LogInformation("iCal in cache is outdated or not found. Generate a new one. Current file version: {currentFileVersion}; Latest change in DB: {latestChangeInDb}", currentFileVersion, latestChange);
 
             var stopwatch = Stopwatch.StartNew();
-            foreach (var concert in cachedConcerts)
+            var concerts = concertRepository.GetConcertsAsync(dateRange: (DateTimeOffset.MinValue, DateTimeOffset.MaxValue));
+            await foreach (var concert in concerts)
             {
                 calendar.Events.AddRange(concert.ToCalendarEvents(eventCategories));
             }
