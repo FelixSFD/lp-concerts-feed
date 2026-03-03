@@ -11,6 +11,7 @@ using LPCalendar.DataStructure.DbConfig;
 namespace Database.Concerts;
 
 using DateRange = (DateTimeOffset? from, DateTimeOffset? to);
+using DbDocument = Dictionary<string, AttributeValue>;
 
 /// <summary>
 /// Manages Concerts stored in DynamoDB
@@ -243,23 +244,23 @@ public class DynamoDbConcertRepository : IConcertRepository
         await Task.WhenAll(lastChangedConcertTask, lastDeletedConcertTask);
         _logger.LogDebug("Finished both queries.");
         
-        var lastChanged = lastChangedConcertTask.Result?.LastChange ?? DateTimeOffset.MinValue;
-        var lastDeleted = lastDeletedConcertTask.Result?.DeletedAt ?? DateTimeOffset.MinValue;
+        var lastChanged = GetDateFromAttributes(nameof(Concert.LastChange), lastChangedConcertTask.Result) ?? DateTimeOffset.MinValue;
+        var lastDeleted = GetDateFromAttributes(nameof(Concert.DeletedAt), lastDeletedConcertTask.Result) ?? DateTimeOffset.MinValue;
 
         return DateTimeOffsetExtensions.Max(lastChanged, lastDeleted);
     }
 
 
-    private async Task<Concert?> GetLastChangedOrDeletedConcertAsync(string status, string indexName)
+    private async Task<DbDocument?> GetLastChangedOrDeletedConcertAsync(string status, string indexName)
     {
         var queryRequest = new QueryRequest
         {
             TableName = DynamoDbConfigProvider.GetTableNameFor(DynamoDbConfigProvider.Table.Concerts),
-            IndexName = Concert.LastChangeTimeGlobalIndex,
+            IndexName = indexName,
             KeyConditionExpression = "#col_status = :cs",
-            ExpressionAttributeValues = new Dictionary<string, AttributeValue>
+            ExpressionAttributeValues = new DbDocument
             {
-                [":cs"] = new()
+                [":cs"] = new AttributeValue
                 {
                     S = status
                 }
@@ -276,17 +277,42 @@ public class DynamoDbConcertRepository : IConcertRepository
         var queryResponse = await _dynamoDbClient.QueryAsync(queryRequest);
         _logger.LogDebug("Used capacity units to read latest change/delete with status '{status}': {rcu}", status, queryResponse?.ConsumedCapacity.CapacityUnits ?? double.MinValue);
         var lastChangedEntry = queryResponse?.Items.FirstOrDefault();
-        return AttributeMapToConcert(lastChangedEntry);
+        return lastChangedEntry;
     }
 
 
-    private Concert? AttributeMapToConcert(Dictionary<string, AttributeValue>? attributes)
+    private DateTimeOffset? GetDateFromAttributes(string key, DbDocument? attributes)
     {
         if (attributes == null)
             return null;
         
+        var foundAttribute = attributes.TryGetValue(key, out var dateAttribute);
+        if (!foundAttribute || dateAttribute == null)
+        {
+            _logger.LogWarning("The attribute '{key}' does not exist in the dictionary.", key);
+            return null;
+        }
+
+        var parsedDate = DateTimeOffset.TryParse(dateAttribute.S, out var date);
+        if (parsedDate)
+            return date;
+        
+        _logger.LogError("Failed to parse the attribute '{key}' with S '{date}' to DateTimeOffset!", key, dateAttribute.S);
+        return null;
+
+    }
+
+
+    private Concert? AttributeMapToConcert(DbDocument? attributes)
+    {
+        _logger.LogTrace("Start mapping concert attributes...");
+        if (attributes == null)
+            return null;
+        
         var doc = Document.FromAttributeMap(attributes);
-        return _dynamoDbContext.FromDocument<Concert>(doc);
+        var concert = _dynamoDbContext.FromDocument<Concert>(doc);
+        _logger.LogTrace("Finished mapping concert: {id}", concert.Id);
+        return concert;
     }
 
 
