@@ -6,7 +6,7 @@ public static class DynamoDbContextExtensions
 {
     public static void RegisterCustomConverters(this DynamoDBContext context)
     {
-        context.ConverterCache.Add(typeof(DateTimeOffset), new DateTimeOffsetToStringPropertyConverter());
-        context.ConverterCache.Add(typeof(DateTimeOffset?), new DateTimeOffsetToStringPropertyConverter());
+        _ = context.ConverterCache.TryAdd(typeof(DateTimeOffset), new DateTimeOffsetToStringPropertyConverter());
+        _ = context.ConverterCache.TryAdd(typeof(DateTimeOffset?), new DateTimeOffsetToStringPropertyConverter());
     }
 }

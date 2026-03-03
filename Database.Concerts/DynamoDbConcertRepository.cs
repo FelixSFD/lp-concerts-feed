@@ -3,6 +3,7 @@ using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.Core;
+using Common.Utils;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Converters;
 using LPCalendar.DataStructure.DbConfig;
@@ -10,6 +11,7 @@ using LPCalendar.DataStructure.DbConfig;
 namespace Database.Concerts;
 
 using DateRange = (DateTimeOffset? from, DateTimeOffset? to);
+using DbDocument = Dictionary<string, AttributeValue>;
 
 /// <summary>
 /// Manages Concerts stored in DynamoDB
@@ -17,12 +19,14 @@ using DateRange = (DateTimeOffset? from, DateTimeOffset? to);
 public class DynamoDbConcertRepository : IConcertRepository
 {
     private readonly ILambdaLogger _logger;
+    private readonly IAmazonDynamoDB _dynamoDbClient;
     private readonly DynamoDBContext _dynamoDbContext;
     private readonly DynamoDbConfigProvider _dbConfigProvider;
 
-    public DynamoDbConcertRepository(DynamoDBContext dynamoDbContext, DynamoDbConfigProvider dbConfigProvider, ILambdaLogger logger)
+    private DynamoDbConcertRepository(IAmazonDynamoDB dynamoDbClient, DynamoDBContext dynamoDbContext, DynamoDbConfigProvider dbConfigProvider, ILambdaLogger logger)
     {
         _logger = logger;
+        _dynamoDbClient = dynamoDbClient;
         _dynamoDbContext = dynamoDbContext;
         _dbConfigProvider = dbConfigProvider;
         
@@ -36,10 +40,11 @@ public class DynamoDbConcertRepository : IConcertRepository
     /// <returns></returns>
     public static DynamoDbConcertRepository CreateDefault(ILambdaLogger logger)
     {
+        var client = new AmazonDynamoDBClient();
         var ctx = new DynamoDBContextBuilder()
             .WithDynamoDBClient(() => new AmazonDynamoDBClient())
             .Build();
-        return new DynamoDbConcertRepository(ctx, new DynamoDbConfigProvider(), logger);
+        return new DynamoDbConcertRepository(client, ctx, new DynamoDbConfigProvider(), logger);
     }
 
     
@@ -226,6 +231,88 @@ public class DynamoDbConcertRepository : IConcertRepository
         {
             yield return concert;
         }
+    }
+
+
+    /// <inheritdoc/>
+    public async Task<DateTimeOffset?> GetLastChangedAsync()
+    {
+        var lastChangedConcertTask =
+            GetLastChangedOrDeletedConcertAsync(Concert.StatusPublished, Concert.LastChangeTimeGlobalIndex);
+        var lastDeletedConcertTask = GetLastChangedOrDeletedConcertAsync(Concert.StatusDeleted, Concert.DeletedConcertsGlobalIndex);
+        
+        await Task.WhenAll(lastChangedConcertTask, lastDeletedConcertTask);
+        _logger.LogDebug("Finished both queries.");
+        
+        var lastChanged = GetDateFromAttributes(nameof(Concert.LastChange), lastChangedConcertTask.Result) ?? DateTimeOffset.MinValue;
+        var lastDeleted = GetDateFromAttributes(nameof(Concert.DeletedAt), lastDeletedConcertTask.Result) ?? DateTimeOffset.MinValue;
+
+        return DateTimeOffsetExtensions.Max(lastChanged, lastDeleted);
+    }
+
+
+    private async Task<DbDocument?> GetLastChangedOrDeletedConcertAsync(string status, string indexName)
+    {
+        var queryRequest = new QueryRequest
+        {
+            TableName = DynamoDbConfigProvider.GetTableNameFor(DynamoDbConfigProvider.Table.Concerts),
+            IndexName = indexName,
+            KeyConditionExpression = "#col_status = :cs",
+            ExpressionAttributeValues = new DbDocument
+            {
+                [":cs"] = new AttributeValue
+                {
+                    S = status
+                }
+            },
+            ExpressionAttributeNames = new Dictionary<string, string>
+            {
+                ["#col_status"] = "Status"
+            },
+            ScanIndexForward = false,
+            ReturnConsumedCapacity = ReturnConsumedCapacity.TOTAL,
+            Limit = 1
+        };
+        
+        var queryResponse = await _dynamoDbClient.QueryAsync(queryRequest);
+        _logger.LogDebug("Used capacity units to read latest change/delete with status '{status}': {rcu}", status, queryResponse?.ConsumedCapacity.CapacityUnits ?? double.MinValue);
+        var lastChangedEntry = queryResponse?.Items.FirstOrDefault();
+        return lastChangedEntry;
+    }
+
+
+    private DateTimeOffset? GetDateFromAttributes(string key, DbDocument? attributes)
+    {
+        if (attributes == null)
+            return null;
+        
+        var foundAttribute = attributes.TryGetValue(key, out var dateAttribute);
+        if (!foundAttribute || dateAttribute == null)
+        {
+            _logger.LogWarning("The attribute '{key}' does not exist in the dictionary.", key);
+            return null;
+        }
+
+        var parsedDate = DateTimeOffset.TryParse(dateAttribute.S, out var date);
+        if (parsedDate)
+            return date;
+        
+        _logger.LogError("Failed to parse the attribute '{key}' with S '{date}' to DateTimeOffset!", key, dateAttribute.S);
+        return null;
+
+    }
+
+
+    private Concert? AttributeMapToConcert(DbDocument? attributes)
+    {
+        _logger.LogTrace("Start mapping concert attributes...");
+        if (attributes == null)
+            return null;
+        
+        var doc = Document.FromAttributeMap(attributes);
+        var concert = _dynamoDbContext.FromDocument<Concert>(doc);
+        _logger.LogTrace("Finished mapping concert: {id}", concert.Id);
+        return concert;
     }
 
 

@@ -66,6 +66,13 @@ public interface IConcertRepository
     
     
     /// <summary>
+    /// Returns the timestamp from when the most recent add, update or delete happened.
+    /// </summary>
+    /// <returns></returns>
+    public Task<DateTimeOffset?> GetLastChangedAsync();
+    
+    
+    /// <summary>
     /// Saves the concert in the database
     /// </summary>
     /// <param name="concert"></param>

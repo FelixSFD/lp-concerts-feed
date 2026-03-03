@@ -67,11 +67,13 @@ public static class CalendarHelper
     /// <param name="concert">Concert to create the events for</param>
     /// <param name="categoryFlags">Flags to specify which sub-events to return for the concert</param>
     /// <returns>one or more events</returns>
-    private static IEnumerable<CalendarEvent?> ToCalendarEvents(Concert concert, ConcertSubEventCategory categoryFlags = ConcertSubEventCategory.AsOneSingleEvent)
+    internal static IEnumerable<CalendarEvent> ToCalendarEvents(this Concert concert, ConcertSubEventCategory categoryFlags = ConcertSubEventCategory.AsOneSingleEvent)
     {
         if (categoryFlags.HasFlag(ConcertSubEventCategory.AsOneSingleEvent))
         {
-            yield return GetFullEventFor(concert);
+            var fullEvent = GetFullEventFor(concert);
+            if (fullEvent != null)
+                yield return fullEvent;
         }
         else
         {
@@ -92,13 +94,17 @@ public static class CalendarHelper
             if (lpStageTimeEvent == null && doorsTimeEvent == null)
             {
                 // no detailed information seem to be available -> return full event. Otherwise, the cal would be empty
-                yield return GetFullEventFor(concert);
+                var fullEvent = GetFullEventFor(concert);
+                if (fullEvent != null)
+                    yield return fullEvent;
             }
             else
             {
                 // details seem to be available -> return detailed events
-                yield return doorsTimeEvent;
-                yield return lpStageTimeEvent;
+                if (doorsTimeEvent != null)
+                    yield return doorsTimeEvent;
+                if (lpStageTimeEvent != null)
+                    yield return lpStageTimeEvent;
             }
         }
     }
@@ -126,7 +132,7 @@ public static class CalendarHelper
             return null;
         
         var title = GetStageTimeTitle(concert);
-        var description = $"Stage time for Linkin Park at {concert.Venue}.\nType of show: {concert.ShowType}";
+        var description = $"Stage time for Linkin Park at {concert.Venue}.\nType of show: {concert.ShowType}{GetAppHintString(concert)}";
 
             
         var date = concert.MainStageTime.Value.ToCalDateTime(concert.TimeZoneId);
@@ -137,9 +143,16 @@ public static class CalendarHelper
             Location = $"{concert.LocationLong}",
             GeographicLocation = concert.GetGeoLocation(),
             Start = date,
-            Duration = TimeSpan.FromMinutes(concert.ExpectedSetDuration ?? 120),
-            IsAllDay = false
+            End = date.AddMinutes(concert.ExpectedSetDuration ?? 120),
+            //Duration = Duration.FromMinutes(concert.ExpectedSetDuration ?? 120),
+            LastModified = concert.LastChange?.ToCalDateTime(concert.TimeZoneId)
         };
+        
+        var url = GetUrlToConcert(concert);
+        if (url != null)
+        {
+            calendarEvent.Url = url;
+        }
 
         return calendarEvent;
     }
@@ -151,13 +164,13 @@ public static class CalendarHelper
     /// <param name="concert"></param>
     /// <param name="nextEventStart"></param>
     /// <returns>event or null, if the <see cref="Concert.DoorsTime"/> is not set</returns>
-    private static CalendarEvent? GetEventForDoorsTime(Concert concert, IDateTime? nextEventStart)
+    private static CalendarEvent? GetEventForDoorsTime(Concert concert, CalDateTime? nextEventStart)
     {
         if (concert.DoorsTime == null) 
             return null;
         
         var title = $"Doors open: Linkin Park in {concert.City}";
-        var description = $"Doors open at {concert.Venue} for the Linkin Park concert";
+        var description = $"Doors open at {concert.Venue} for the Linkin Park concert{GetAppHintString(concert)}";
 
         var date = concert.DoorsTime.Value.ToCalDateTime(concert.TimeZoneId);
         var calendarEvent = new CalendarEvent
@@ -168,8 +181,14 @@ public static class CalendarHelper
             GeographicLocation = concert.GetGeoLocation(),
             Start = date,
             End = nextEventStart,
-            IsAllDay = false
+            LastModified = concert.LastChange?.ToCalDateTime(concert.TimeZoneId)
         };
+        
+        var url = GetUrlToConcert(concert);
+        if (url != null)
+        {
+            calendarEvent.Url = url;
+        }
 
         return calendarEvent;
     }
@@ -181,22 +200,24 @@ public static class CalendarHelper
             return null;
 
         var title = GetConcertTitle(concert);
-        var description = $"Concert of the Linkin Park {concert.TourName}";
+        var description = $"Concert of the Linkin Park {concert.TourName}{GetAppHintString(concert)}";
 
-        CalDateTime? date;
-        TimeSpan duration;
+        CalDateTime? startDate;
+        Duration duration;
         if (concert.MainStageTime != null)
         {
             // if available, use main stage time. In that case, decrease the duration of the event
-            date = concert.MainStageTime?.ToCalDateTime(concert.TimeZoneId);
-            duration = TimeSpan.FromHours(2);
+            startDate = concert.MainStageTime?.ToCalDateTime(concert.TimeZoneId);
+            duration = Duration.FromHours(2);
         }
         else
         {
             // only start time from ticket available
-            date = concert.PostedStartTime?.ToCalDateTime(concert.TimeZoneId);
-            duration = TimeSpan.FromHours(3);
+            startDate = concert.PostedStartTime?.ToCalDateTime(concert.TimeZoneId);
+            duration = Duration.FromHours(3);
         }
+        
+        var endDate = startDate?.Add(duration);
         
         var calendarEvent = new CalendarEvent
         {
@@ -205,10 +226,16 @@ public static class CalendarHelper
             Description = description,
             Location = $"{concert.LocationLong}",
             GeographicLocation = concert.GetGeoLocation(),
-            Start = date,
-            Duration = duration,
-            IsAllDay = false
+            Start = startDate,
+            End = endDate,
+            LastModified = concert.LastChange?.ToCalDateTime(concert.TimeZoneId)
         };
+        
+        var url = GetUrlToConcert(concert);
+        if (url != null)
+        {
+            calendarEvent.Url = url;
+        }
 
         return calendarEvent;
     }
@@ -220,22 +247,24 @@ public static class CalendarHelper
             return null;
         
         var title = GetConcertTitle(concert);
-        var description = $"Linkin Park Concert at {concert.Venue}\nThis show is not part of a tour.";
+        var description = $"Linkin Park Concert at {concert.Venue}\nThis show is not part of a tour.{GetAppHintString(concert)}";
 
-        CalDateTime? date;
-        TimeSpan duration;
+        CalDateTime? startDate;
+        Duration duration;
         if (concert.MainStageTime != null)
         {
             // if available, use main stage time. In that case, decrease the duration of the event
-            date = concert.MainStageTime?.ToCalDateTime(concert.TimeZoneId);
-            duration = TimeSpan.FromHours(2);
+            startDate = concert.MainStageTime?.ToCalDateTime(concert.TimeZoneId);
+            duration = Duration.FromHours(2);
         }
         else
         {
             // only start time from ticket available
-            date = concert.PostedStartTime?.ToCalDateTime(concert.TimeZoneId);
-            duration = TimeSpan.FromHours(3);
+            startDate = concert.PostedStartTime?.ToCalDateTime(concert.TimeZoneId);
+            duration = Duration.FromHours(3);
         }
+        
+        var endDate = startDate?.Add(duration);
         
         var calendarEvent = new CalendarEvent
         {
@@ -244,10 +273,16 @@ public static class CalendarHelper
             Description = description,
             Location = $"{concert.LocationMedium}",
             GeographicLocation = concert.GetGeoLocation(),
-            Start = date,
-            Duration = duration,
-            IsAllDay = false
+            Start = startDate,
+            End = endDate,
+            LastModified = concert.LastChange?.ToCalDateTime(concert.TimeZoneId)
         };
+        
+        var url = GetUrlToConcert(concert);
+        if (url != null)
+        {
+            calendarEvent.Url = url;
+        }
 
         return calendarEvent;
     }
@@ -292,5 +327,50 @@ public static class CalendarHelper
         }
 
         return $"Linkin Park: {concert.City} (Stage Time)";
+    }
+
+
+    /// <summary>
+    /// Returns a link to the concert. This relies on the Env-Variable ROOT_DOMAIN to be set!
+    /// </summary>
+    /// <param name="concert"></param>
+    /// <returns></returns>
+    private static Uri? GetUrlToConcert(Concert concert)
+    {
+        var rootDomainStr = Environment.GetEnvironmentVariable("ROOT_DOMAIN");
+        return !string.IsNullOrEmpty(rootDomainStr) ? new Uri($"https://{rootDomainStr}/concert/{concert.Id}") : null;
+    }
+
+
+    /// <summary>
+    /// Returns a string with an information about the app
+    /// </summary>
+    /// <param name="concert"></param>
+    /// <returns></returns>
+    private static string GetAppHintString(Concert concert)
+    {
+        var rootDomainStr = Environment.GetEnvironmentVariable("ROOT_DOMAIN");
+        if (string.IsNullOrEmpty(rootDomainStr))
+        {
+            return string.Empty;
+        }
+        
+        return $"\n\nTry our new FREE app: https://{rootDomainStr}/app?mtm_kwd={concert.Id}&mtm_campaign=ical-feed";
+    }
+
+
+    /// <summary>
+    /// Generate the filename of the iCal based on the enabled categories
+    /// </summary>
+    /// <param name="eventCategories"></param>
+    /// <returns></returns>
+    public static string GetFileNameFor(ConcertSubEventCategory eventCategories)
+    {
+        var flagNames = Enum.GetValues<ConcertSubEventCategory>()
+            .Where(v => eventCategories.HasFlag(v))
+            .Select(v => v.ToString())
+            .Order();
+        
+        return $"{string.Join("-", flagNames)}.ical";
     }
 }

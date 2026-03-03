@@ -19,4 +19,36 @@ public class DateTimeOffsetExtensionsTest
         Assert.Equal(0, inputDate.Millisecond);
         Assert.Equal(0, inputDate.Microsecond);
     }
+    
+    
+    [Theory]
+    [InlineData("2026-02-26T12:34:56.091", "2026-02-26T12:34:56.091", "2026-02-26T12:34:56.091")]
+    [InlineData("2026-02-26T12:34:56.191", "2026-02-26T12:34:56.091", "2026-02-26T12:34:56.191")]
+    [InlineData("2026-02-26T12:34:56.191", "2026-02-26T12:34:56.791", "2026-02-26T12:34:56.791")]
+    [InlineData("2026-02-01T12:34:56.000", "2026-03-26T12:00:00.000", "2026-03-26T12:00:00.000")]
+    public void Max(string inputA, string inputB, string expectedOutput)
+    {
+        var inputDateA = DateTimeOffset.Parse(inputA);
+        var inputDateB = DateTimeOffset.Parse(inputB);
+        var expectedOutputDate = DateTimeOffset.Parse(expectedOutput);
+
+        var max = DateTimeOffsetExtensions.Max(inputDateA, inputDateB);
+        Assert.Equal(expectedOutputDate, max);
+    }
+    
+    
+    [Fact]
+    public void Max_Null()
+    {
+        var inputDate = new DateTimeOffset(2024, 9, 5, 15, 0, 0, TimeSpan.Zero);
+
+        DateTimeOffset? max = DateTimeOffsetExtensions.Max(inputDate, null);
+        Assert.Equal(inputDate, max);
+        
+        max = DateTimeOffsetExtensions.Max(null, inputDate);
+        Assert.Equal(inputDate, max);
+        
+        max = DateTimeOffsetExtensions.Max(null, null);
+        Assert.Null(max);
+    }
 }

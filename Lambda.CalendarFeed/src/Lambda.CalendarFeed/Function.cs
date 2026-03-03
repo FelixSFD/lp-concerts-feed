@@ -1,10 +1,13 @@
-using System.Text.Json;
+using System.Diagnostics;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
-using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Amazon.S3;
+using Amazon.S3.Model;
 using Common.Utils.Cache;
+using Database.Concerts;
+using Ical.Net;
 using Ical.Net.CalendarComponents;
 using Ical.Net.Serialization;
 using LPCalendar.DataStructure;
@@ -20,28 +23,23 @@ public class Function
 {
     private const string QueryParamEventCatFlags = "event_categories";
     
-    private readonly DynamoDBContext _dynamoDbContext;
-    private readonly DynamoDbConfigProvider _dbConfigProvider = new();
+    private static AmazonS3Client _s3Client = new();
     private readonly ICalendarGenerator _calendarGenerator;
+    private readonly string _calendarCacheBucketName;
 
     
-    public Function() : this(new CalendarGenerator())
+    public Function()
     {
+        _calendarCacheBucketName = Environment.GetEnvironmentVariable("ICAL_BUCKET_ARN") ?? throw new Exception("S3 bucket not configured in environment variable");
+        _calendarGenerator = new CalendarGenerator();
     }
-    
-    
-    public Function(ICalendarGenerator calendarGenerator)
+
+
+    public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayHttpApiV2ProxyRequest request,
+        ILambdaContext context)
     {
-        _dynamoDbContext = new DynamoDBContextBuilder()
-            .WithDynamoDBClient(() => new AmazonDynamoDBClient())
-            .Build();
-        _dynamoDbContext.RegisterCustomConverters();
-        _calendarGenerator = calendarGenerator;
-    }
-    
-    
-    public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayHttpApiV2ProxyRequest request, ILambdaContext context)
-    {
+        var concertRepository = DynamoDbConcertRepository.CreateDefault(context.Logger);
+        
         // Source to cancel the request after timeout
         using var cts = new CancellationTokenSource(context.RemainingTime);
 
@@ -60,18 +58,41 @@ public class Function
             eventCategories = ConcertSubEventCategory.LinkinPark;
         }
         
-        var calendar = new Ical.Net.Calendar();
+        var fileName = CalendarHelper.GetFileNameFor(eventCategories);
+        context.Logger.LogDebug("Calculated filename for the iCal: {fileName}", fileName);
+        var calendar = new Calendar();
         calendar.AddTimeZone(new VTimeZone("Europe/Berlin")); // TODO: Get correct timezone
         
-        var concerts = await _dynamoDbContext
-            .ScanAsync<Concert>(new List<ScanCondition>(), _dbConfigProvider.GetScanConfigFor(DynamoDbConfigProvider.Table.Concerts))
-            .GetRemainingAsync(cts.Token);
-        
-        calendar.Events.AddRange(concerts.ToCalendarEvents(eventCategories));
-        context.Logger.LogDebug("Generated {i} events.", calendar.Events.Count);
-        
-        var serializer = new CalendarSerializer();
-        var serializedCalendar = serializer.SerializeToString(calendar);
+        DateTimeOffset? latestChange = await concertRepository.GetLastChangedAsync();
+        context.Logger.LogDebug("Latest change was at: {latestChange}", latestChange);
+
+        string? serializedCalendar;
+        var currentFileVersion = await GetDataVersionOfFile(fileName, context.Logger);
+        if (currentFileVersion == null || latestChange > currentFileVersion)
+        {
+            context.Logger.LogInformation("iCal in cache is outdated or not found. Generate a new one. Current file version: {currentFileVersion}; Latest change in DB: {latestChangeInDb}", currentFileVersion, latestChange);
+
+            var stopwatch = Stopwatch.StartNew();
+            var concerts = concertRepository.GetConcertsAsync(dateRange: (DateTimeOffset.MinValue, DateTimeOffset.MaxValue));
+            await foreach (var concert in concerts)
+            {
+                calendar.Events.AddRange(concert.ToCalendarEvents(eventCategories));
+            }
+            stopwatch.Stop();
+            
+            context.Logger.LogDebug("Generated {i} events in {duration} ms.", calendar.Events.Count, stopwatch.ElapsedMilliseconds);
+            
+            serializedCalendar = SerializeCalendar(calendar, context);
+            context.Logger.LogDebug("Serialized new calendar object.");
+            if (!string.IsNullOrEmpty(serializedCalendar))
+            {
+                await StoreInCache(eventCategories, serializedCalendar, latestChange ?? DateTimeOffset.MinValue, context.Logger);
+            }
+        }
+        else
+        {
+            serializedCalendar = await GetCalFromCache(eventCategories, context.Logger);
+        }
         
         return new APIGatewayProxyResponse()
         {
@@ -85,6 +106,102 @@ public class Function
                 { "Cache-Control", CacheControlHeaderFactory.CacheFor(CacheExpiration.Medium) }
             }
         };
+    }
+
+
+    private async Task StoreInCache(ConcertSubEventCategory eventCategories, string serializedCalendar, DateTimeOffset latestChange, ILambdaLogger logger)
+    {
+        logger.LogDebug("Storing calendar in cache with latest change at: {latestChange}", latestChange);
+        logger.LogDebug("Bucket ARN: {bucket}", _calendarCacheBucketName);
+        var fileName = CalendarHelper.GetFileNameFor(eventCategories);
+        var putRequest = new PutObjectRequest
+        {
+            BucketName = _calendarCacheBucketName,
+            Key = fileName,
+            ContentBody = serializedCalendar,
+            ContentType = "text/calendar"
+        };
+        putRequest.Metadata.Add("concert-data-version", latestChange.ToString("O"));
+
+        try
+        {
+            var putResponse = await _s3Client.PutObjectAsync(putRequest);
+            logger.LogDebug("Successfully stored calendar in cache. Status code: {statusCode}",
+                putResponse.HttpStatusCode);
+        }
+        catch (AmazonS3Exception e)
+        {
+            logger.LogError(e, "Error storing calendar in cache.");
+        }
+    }
+    
+    
+    private async Task<string> GetCalFromCache(ConcertSubEventCategory eventCategories, ILambdaLogger logger)
+    {
+        logger.LogDebug("Bucket ARN: {bucket}", _calendarCacheBucketName);
+        var fileName = CalendarHelper.GetFileNameFor(eventCategories);
+        logger.LogDebug("Retrieve from S3 bucket: {fileName}", fileName);
+        var getRequest = new GetObjectRequest
+        {
+            BucketName = _calendarCacheBucketName,
+            Key = fileName
+        };
+        
+        try
+        {
+            var getResponse = await _s3Client.GetObjectAsync(getRequest);
+            logger.LogDebug("Successfully retrieved calendar from cache. Status code: {statusCode}",
+                getResponse.HttpStatusCode);
+
+            using var reader = new StreamReader(getResponse.ResponseStream);
+            return await reader.ReadToEndAsync();
+        }
+        catch (AmazonS3Exception e)
+        {
+            logger.LogError(e, "Error storing calendar in cache.");
+            return string.Empty;
+        }
+    }
+
+
+    private async Task<DateTimeOffset?> GetDataVersionOfFile(string fileName, ILambdaLogger logger)
+    {
+        var getObjectMetadataRequest = new GetObjectMetadataRequest
+        {
+            BucketName = _calendarCacheBucketName, 
+            Key = fileName
+        };
+
+        try
+        {
+            var getObjectMetadataResponse = await _s3Client.GetObjectMetadataAsync(getObjectMetadataRequest);
+            var version = getObjectMetadataResponse.Metadata["concert-data-version"];
+            if (string.IsNullOrEmpty(version))
+            {
+                logger.LogWarning("No version found for: {fileName}", fileName);
+                return null;
+            }
+
+            var didParse = DateTimeOffset.TryParse(version, out var parsedVersion);
+            if (!didParse)
+            {
+                logger.LogError("Could not parse concert-data-version: {version}", version);
+            }
+
+            return parsedVersion;
+        }
+        catch (AmazonS3Exception e)
+        {
+            logger.LogWarning(e, "Error retrieving concert-data-version from S3. Status code: {statusCode}", e.StatusCode);
+            return null;
+        }
+    }
+
+    private string? SerializeCalendar(Calendar calendar, ILambdaContext context)
+    {
+        var serializer = new CalendarSerializer();
+        var serializedCalendar = serializer.SerializeToString(calendar);
+        return serializedCalendar;
     }
 
 

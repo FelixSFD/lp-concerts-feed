@@ -58,7 +58,7 @@ public class CalendarHelperTest
                 "Linkin Park Concert at Hogwarts Quidditch Stadium\nThis show is not part of a tour.",
                 "Hogwarts Quidditch Stadium, Hogsmeade, Scotland",
                 new CalDateTime(2024, 9, 23, 17, 0, 0, "Europe/London"),
-                TimeSpan.FromHours(3)
+                Duration.FromHours(3)
             },
             new object[]
             {
@@ -80,7 +80,7 @@ public class CalendarHelperTest
                 "Linkin Park Concert at Barclays Arena\nThis show is not part of a tour.",
                 "Barclays Arena, Hamburg, Germany",
                 new CalDateTime(2024, 9, 22, 20, 40, 0, "Europe/Berlin"),
-                TimeSpan.FromHours(2)
+                Duration.FromHours(2)
             },
             new object[]
             {
@@ -103,7 +103,7 @@ public class CalendarHelperTest
                 "Concert of the Linkin Park FZ WORLD TOUR 2024",
                 "Hogwarts Quidditch Stadium, Hogsmeade, Scotland",
                 new CalDateTime(2024, 9, 23, 17, 0, 0, "Europe/London"),
-                TimeSpan.FromHours(3)
+                Duration.FromHours(3)
             },
             new object[]
             {
@@ -126,7 +126,7 @@ public class CalendarHelperTest
                 "Concert of the Linkin Park FZ WORLD TOUR 2024",
                 "Barclays Arena, Hamburg, Germany",
                 new CalDateTime(2024, 9, 22, 20, 40, 0, "Europe/Berlin"),
-                TimeSpan.FromHours(2)
+                Duration.FromHours(2)
             },
             new object[]
             {
@@ -149,7 +149,7 @@ public class CalendarHelperTest
                 "Linkin Park Concert at Hogwarts Quidditch Stadium\nThis show is not part of a tour.",
                 "Hogwarts Quidditch Stadium, Hogsmeade, Scotland",
                 new CalDateTime(2024, 9, 23, 17, 0, 0, "Europe/London"),
-                TimeSpan.FromHours(3)
+                Duration.FromHours(3)
             },
         };
 
@@ -177,16 +177,17 @@ public class CalendarHelperTest
 
     [Theory]
     [MemberData(nameof(GetFullEventForData))]
-    public void GetFullEventFor(Concert concert, string expectedTitle, string expectedDescription, string expectedLocation, CalDateTime expectedStart, TimeSpan expectedDuration)
+    public void GetFullEventFor(Concert concert, string expectedTitle, string expectedDescription, string expectedLocation, CalDateTime expectedStart, Duration expectedDuration)
     {
         var fullEvent = CalendarHelper.GetFullEventFor(concert);
+        var expectedEnd = expectedStart.Add(expectedDuration);
 
         Assert.NotNull(fullEvent);
         Assert.Equal(expectedTitle, fullEvent.Summary);
         Assert.Equal(expectedDescription, fullEvent.Description);
         Assert.Equal(expectedLocation, fullEvent.Location);
-        Assert.Equal(expectedDuration, fullEvent.Duration);
         Assert.Equal(expectedStart, fullEvent.Start);
+        Assert.Equal(expectedEnd, fullEvent.End);
     }
 
     
@@ -227,8 +228,7 @@ public class CalendarHelperTest
                         Description = "Doors open at Barclays Arena for the Linkin Park concert",
                         Location = "Barclays Arena, Hamburg, Germany",
                         Start = new CalDateTime(2024, 9, 22, 18, 30, 0, "Europe/Berlin"),
-                        End = new CalDateTime(2024, 9, 22, 20, 40, 0, "Europe/Berlin"),
-                        IsAllDay = false
+                        End = new CalDateTime(2024, 9, 22, 20, 40, 0, "Europe/Berlin")
                     },
                     new CalendarEvent
                     {
@@ -236,8 +236,7 @@ public class CalendarHelperTest
                         Description = "Stage time for Linkin Park at Barclays Arena.\nType of show: Linkin Park Show",
                         Location = "Barclays Arena, Hamburg, Germany",
                         Start = new CalDateTime(2024, 9, 22, 20, 40, 0, "Europe/Berlin"),
-                        End = new CalDateTime(2024, 9, 22, 22, 40, 0, "Europe/Berlin"),
-                        IsAllDay = false
+                        End = new CalDateTime(2024, 9, 22, 22, 40, 0, "Europe/Berlin")
                     }
                 }
             },
@@ -272,8 +271,7 @@ public class CalendarHelperTest
                         Description = "Stage time for Linkin Park at Barclays Arena.\nType of show: Linkin Park Show",
                         Location = "Barclays Arena, Hamburg, Germany",
                         Start = new CalDateTime(2024, 9, 22, 20, 40, 0, "Europe/Berlin"),
-                        End = new CalDateTime(2024, 9, 22, 21, 25, 0, "Europe/Berlin"),
-                        IsAllDay = false
+                        End = new CalDateTime(2024, 9, 22, 21, 25, 0, "Europe/Berlin")
                     }
                 }
             },
@@ -306,8 +304,7 @@ public class CalendarHelperTest
                         Description = "Stage time for Linkin Park at Barclays Arena.\nType of show: Festival",
                         Location = "Barclays Arena, Hamburg, Germany",
                         Start = new CalDateTime(2024, 9, 22, 20, 40, 0, "Europe/Berlin"),
-                        End = new CalDateTime(2024, 9, 22, 22, 40, 0, "Europe/Berlin"),
-                        IsAllDay = false
+                        End = new CalDateTime(2024, 9, 22, 22, 40, 0, "Europe/Berlin")
                     }
                 }
             },
@@ -341,8 +338,7 @@ public class CalendarHelperTest
                         Description = "Stage time for Linkin Park at Barclays Arena.\nType of show: Festival",
                         Location = "Barclays Arena, Hamburg, Germany",
                         Start = new CalDateTime(2024, 9, 22, 20, 40, 0, "Europe/Berlin"),
-                        End = new CalDateTime(2024, 9, 22, 22, 40, 0, "Europe/Berlin"),
-                        IsAllDay = false
+                        End = new CalDateTime(2024, 9, 22, 22, 40, 0, "Europe/Berlin")
                     }
                 }
             },
@@ -376,8 +372,7 @@ public class CalendarHelperTest
                         Description = "Doors open at Barclays Arena for the Linkin Park concert",
                         Location = "Barclays Arena, Hamburg, Germany",
                         Start = new CalDateTime(2024, 9, 22, 18, 30, 0, "Europe/Berlin"),
-                        End = null,
-                        IsAllDay = false
+                        End = null
                     }
                 }
             },
@@ -408,8 +403,7 @@ public class CalendarHelperTest
                         Description = "Linkin Park Concert at Allianz Arena\nThis show is not part of a tour.",
                         Location = "Allianz Arena, München, Germany",
                         Start = new CalDateTime(2025, 5, 31, 20, 45, 0, "Europe/Berlin"),
-                        End = new CalDateTime(2025, 5, 31, 23, 45, 0, "Europe/Berlin"),
-                        IsAllDay = false
+                        End = new CalDateTime(2025, 5, 31, 23, 45, 0, "Europe/Berlin")
                     }
                 }
             },
@@ -443,8 +437,7 @@ public class CalendarHelperTest
                         Description = "Concert of the Linkin Park FZ WORLD TOUR 2024",
                         Location = "Barclays Arena, Hamburg, Germany",
                         Start = new CalDateTime(2024, 9, 22, 20, 40, 0, "Europe/Berlin"),
-                        End = new CalDateTime(2024, 9, 22, 22, 40, 0, "Europe/Berlin"),
-                        IsAllDay = false
+                        End = new CalDateTime(2024, 9, 22, 22, 40, 0, "Europe/Berlin")
                     }
                 }
             }
@@ -511,5 +504,17 @@ public class CalendarHelperTest
 
         var geoLocation = testConcert.GetGeoLocation();
         Assert.Null(geoLocation);
+    }
+
+
+    [Theory]
+    [InlineData(ConcertSubEventCategory.Doors | ConcertSubEventCategory.LinkinPark, "Doors-LinkinPark.ical")]
+    [InlineData(ConcertSubEventCategory.Doors, "Doors.ical")]
+    [InlineData(ConcertSubEventCategory.LinkinPark, "LinkinPark.ical")]
+    [InlineData(ConcertSubEventCategory.AsOneSingleEvent, "AsOneSingleEvent.ical")]
+    public void GetFileNameFor(ConcertSubEventCategory categoryFlags, string expectedFilename)
+    {
+        var fileName = CalendarHelper.GetFileNameFor(categoryFlags);
+        Assert.Equal(expectedFilename, fileName);
     }
 }

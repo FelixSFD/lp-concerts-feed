@@ -1,3 +1,5 @@
+using Amazon.Runtime.Internal;
+using Common.Utils;
 using LPCalendar.DataStructure;
 using DateRange = (System.DateTimeOffset? from, System.DateTimeOffset? to);
 
@@ -58,6 +60,24 @@ public class InMemoryDbConcertRepository: IConcertRepository
         return GetAllSorted()
             .Where(c => c.DeletedAt != null && c.DeletedAt > deletedAfterDate)
             .ToAsyncEnumerable();
+    }
+
+    public Task<DateTimeOffset?> GetLastChangedAsync()
+    {
+        var all = GetAllSorted().ToArray();
+        var lastDeleted = all
+            .Where(c => c.DeletedAt != null)
+            .OrderByDescending(c => c.DeletedAt)
+            .Select(c => c.DeletedAt)
+            .FirstOrDefault();
+        var lastChanged = all
+            .Where(c => c.LastChange != null)
+            .OrderByDescending(c => c.LastChange)
+            .Select(c => c.LastChange)
+            .FirstOrDefault();
+
+        var result = DateTimeOffsetExtensions.Max(lastChanged, lastDeleted);
+        return Task.FromResult(result);
     }
 
     public Task SaveAsync(Concert concert)

@@ -25,4 +25,23 @@ public static class DateTimeOffsetExtensions
         
         return result;
     }
+
+
+    /// <summary>
+    /// Returns the maximum value of the two passed parameters
+    /// </summary>
+    /// <param name="dateA"></param>
+    /// <param name="dateB"></param>
+    /// <returns></returns>
+    public static DateTimeOffset? Max(DateTimeOffset? dateA, DateTimeOffset? dateB)
+    {
+        if (dateA == dateB)
+        {
+            return dateA;
+        }
+        
+        var safeA = dateA ?? DateTimeOffset.MinValue;
+        var safeB = dateB ?? DateTimeOffset.MinValue;
+        return safeA > safeB ? safeA : safeB;
+    }
 }
