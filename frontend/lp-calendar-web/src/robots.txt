@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /users
+Disallow: /profile
+Disallow: /concerts/*/edit
+Disallow: /imprint
