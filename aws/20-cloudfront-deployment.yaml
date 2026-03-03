@@ -263,11 +263,6 @@ Resources:
           - Id: FrontendBucketOrigin
             DomainName: { 'Fn::ImportValue': !Sub '${BaseProductName}-frontend-s3-regional-domain' }
             S3OriginConfig: { }
-          - Id: StaticFilesOrigin
-            DomainName: !GetAtt StaticFilesBucket.RegionalDomainName
-            OriginPath: /frontend_distribution
-            S3OriginConfig: { }
-            OriginAccessControlId: !Ref StaticFilesOAC
         Aliases: # info about CNAMEs (alternate domain names), if any, for this distribution
           - !Sub '${RootDomain}'
         CacheBehaviors:
