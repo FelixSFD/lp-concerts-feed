@@ -23,6 +23,53 @@ Parameters:
 
 
 Resources:
+  # S3 Bucket for static files served by CloudFront
+  StaticFilesBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${BaseProductName}-static-files"
+  
+  StaticFilesOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub "${BaseProductName}-static-files-oac"
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+  
+  StaticFilesBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref StaticFilesBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub "${StaticFilesBucket.Arn}/*"
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${ApiCloudFrontDistribution}"
+          - Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub "${StaticFilesBucket.Arn}/*"
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${FrontendCloudFrontDistribution}"
+          - Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub "${StaticFilesBucket.Arn}/*"
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${ConcertImagesCloudFrontDistribution}"
+  
   # CORS Cloudfront
   CORSOriginRequestPolicy:
     Type: AWS::CloudFront::OriginRequestPolicy
@@ -148,8 +195,26 @@ Resources:
               OriginProtocolPolicy: https-only
               OriginSSLProtocols:
                 - TLSv1.2
+          - Id: StaticFilesOrigin
+            DomainName: !GetAtt StaticFilesBucket.RegionalDomainName
+            OriginPath: /api_distribution
+            S3OriginConfig: { }
+            OriginAccessControlId: !Ref StaticFilesOAC
         Aliases: # info about CNAMEs (alternate domain names), if any, for this distribution
           - !Sub 'api.${RootDomain}'
+        CacheBehaviors:
+          - PathPattern: /robots.txt
+            TargetOriginId: StaticFilesOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachePolicyId: !Ref DefaultCachePolicy
         ViewerCertificate:
           AcmCertificateArn: !Ref CertificateArn
           SslSupportMethod: sni-only
@@ -200,6 +265,19 @@ Resources:
             S3OriginConfig: { }
         Aliases: # info about CNAMEs (alternate domain names), if any, for this distribution
           - !Sub '${RootDomain}'
+        CacheBehaviors:
+          - PathPattern: /robots.txt
+            TargetOriginId: StaticFilesOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachePolicyId: !Ref DefaultCachePolicy
         CustomErrorResponses:
           - ErrorCode: 403
             ResponseCode: 200
@@ -252,8 +330,26 @@ Resources:
           - Id: ImageBucketOrigin
             DomainName: { 'Fn::ImportValue': !Sub '${BaseProductName}-concert-image-s3-regional-domain' }
             S3OriginConfig: { }
+          - Id: StaticFilesOrigin
+            DomainName: !GetAtt StaticFilesBucket.RegionalDomainName
+            OriginPath: /img_distribution
+            S3OriginConfig: { }
+            OriginAccessControlId: !Ref StaticFilesOAC
         Aliases: # info about CNAMEs (alternate domain names), if any, for this distribution
           - !Sub 'img.${RootDomain}'
+        CacheBehaviors:
+          - PathPattern: /robots.txt
+            TargetOriginId: StaticFilesOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachePolicyId: !Ref DefaultCachePolicy
         ViewerCertificate:
           AcmCertificateArn: !Ref CertificateArn
           SslSupportMethod: sni-only

@@ -59,6 +59,27 @@ public class Function
         
         // Load information about the current concert first. We need this for the next queries
         var currentConcert = await GetConcertById(currentId!);
+        if (currentConcert == null)
+        {
+            var error = new ErrorResponse
+            {
+                Message = $"Concert with ID '{currentId}' does not exist.",
+            };
+            
+            context.Logger.LogError(error.Message);
+            
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = 404,
+                Body = JsonSerializer.Serialize(error, DataStructureJsonContext.Default.ErrorResponse),
+                Headers = new Dictionary<string, string>
+                {
+                    { "Content-Type", "application/json" },
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                }
+            };
+        }
         
         // Build the key where the searches will start
         var startKey = new Dictionary<string, AttributeValue>
@@ -141,7 +162,7 @@ public class Function
     /**
      * Searches for a Concert by its ID
      */
-    private async Task<Dictionary<string, AttributeValue>> GetConcertById(string id)
+    private async Task<Dictionary<string, AttributeValue>?> GetConcertById(string id)
     {
         var getItemRequest = new GetItemRequest
         {
