@@ -1674,7 +1674,7 @@ Resources:
           ICAL_BUCKET_ARN: !Ref IcalCacheBucket
       LoggingConfig:
         LogFormat: JSON
-        ApplicationLogLevel: DEBUG
+        ApplicationLogLevel: INFO
       Events:
         ListConcerts: # TODO: maybe rename?
           Type: Api
