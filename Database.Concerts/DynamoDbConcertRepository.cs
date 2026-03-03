@@ -236,7 +236,22 @@ public class DynamoDbConcertRepository : IConcertRepository
     /// <inheritdoc/>
     public async Task<DateTimeOffset?> GetLastChangedAsync()
     {
-        _logger.LogInformation("Current client: {client}", _dynamoDbClient);
+        var lastChangedConcertTask =
+            GetLastChangedOrDeletedConcertAsync(Concert.StatusPublished, Concert.LastChangeTimeGlobalIndex);
+        var lastDeletedConcertTask = GetLastChangedOrDeletedConcertAsync(Concert.StatusDeleted, Concert.DeletedConcertsGlobalIndex);
+        
+        await Task.WhenAll(lastChangedConcertTask, lastDeletedConcertTask);
+        _logger.LogDebug("Finished both queries.");
+        
+        var lastChanged = lastChangedConcertTask.Result?.LastChange ?? DateTimeOffset.MinValue;
+        var lastDeleted = lastDeletedConcertTask.Result?.DeletedAt ?? DateTimeOffset.MinValue;
+
+        return DateTimeOffsetExtensions.Max(lastChanged, lastDeleted);
+    }
+
+
+    private async Task<Concert?> GetLastChangedOrDeletedConcertAsync(string status, string indexName)
+    {
         var queryRequest = new QueryRequest
         {
             TableName = DynamoDbConfigProvider.GetTableNameFor(DynamoDbConfigProvider.Table.Concerts),
@@ -246,7 +261,7 @@ public class DynamoDbConcertRepository : IConcertRepository
             {
                 [":cs"] = new()
                 {
-                    S = Concert.StatusPublished
+                    S = status
                 }
             },
             ExpressionAttributeNames = new Dictionary<string, string>
@@ -257,20 +272,11 @@ public class DynamoDbConcertRepository : IConcertRepository
             ReturnConsumedCapacity = ReturnConsumedCapacity.TOTAL,
             Limit = 1
         };
-        var lastChangedResponse = await _dynamoDbClient.QueryAsync(queryRequest);
-        _logger.LogDebug("Used capacity units to read LastChanged: {rcu}", lastChangedResponse?.ConsumedCapacity.CapacityUnits ?? double.MinValue);
-        var lastChangedEntry = lastChangedResponse?.Items.FirstOrDefault();
-        var lastChangedConcert = AttributeMapToConcert(lastChangedEntry);
-        var lastChanged = lastChangedConcert?.LastChange ?? DateTimeOffset.MinValue;
         
-        queryRequest.IndexName = Concert.DeletedConcertsGlobalIndex;
-        var deletedAtResponse = await _dynamoDbClient.QueryAsync(queryRequest);
-        _logger.LogDebug("Used capacity units to read DeletedAt: {rcu}", deletedAtResponse?.ConsumedCapacity.CapacityUnits);
-        var lastDeletedEntry = deletedAtResponse?.Items.FirstOrDefault();
-        var lastDeletedConcert = AttributeMapToConcert(lastDeletedEntry);
-        var lastDeleted = lastDeletedConcert?.DeletedAt ?? DateTimeOffset.MinValue;
-
-        return DateTimeOffsetExtensions.Max(lastChanged, lastDeleted);
+        var queryResponse = await _dynamoDbClient.QueryAsync(queryRequest);
+        _logger.LogDebug("Used capacity units to read latest change/delete with status '{status}': {rcu}", status, queryResponse?.ConsumedCapacity.CapacityUnits ?? double.MinValue);
+        var lastChangedEntry = queryResponse?.Items.FirstOrDefault();
+        return AttributeMapToConcert(lastChangedEntry);
     }
 
 
