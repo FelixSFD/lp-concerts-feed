@@ -1,6 +1,6 @@
 namespace Database.Setlists.DataObjects;
 
-public class Song
+public class Song : ILinkinpediaLinkable
 {
     /// <summary>
     /// Unique ID of the song
@@ -17,8 +17,6 @@ public class Song
     /// </summary>
     public string? Isrc { get; set; }
     
-    /// <summary>
-    /// Optional to the wiki page on Linkinpedia
-    /// </summary>
+    /// <inheritdoc/>
     public string? LinkinpediaUrl { get; set; }
 }

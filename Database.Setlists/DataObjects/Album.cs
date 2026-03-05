@@ -1,6 +1,6 @@
 ﻿namespace Database.Setlists.DataObjects;
 
-public class Album
+public class Album : ILinkinpediaLinkable
 {
     /// <summary>
     /// Unique ID of the album
@@ -12,8 +12,6 @@ public class Album
     /// </summary>
     public required string Title { get; set; }
 
-    /// <summary>
-    /// Optional to the wiki page on Linkinpedia
-    /// </summary>
+    /// <inheritdoc/>
     public string? LinkinpediaUrl { get; set; }
 }

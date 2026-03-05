@@ -1,6 +1,6 @@
 namespace Database.Setlists.DataObjects;
 
-public class Setlist
+public class Setlist : ILinkinpediaLinkable
 {
     /// <summary>
     /// Unique ID of the setlist
@@ -12,8 +12,6 @@ public class Setlist
     /// </summary>
     public required string ConcertId { get; set; }
     
-    /// <summary>
-    /// Optional to the wiki page on Linkinpedia
-    /// </summary>
+    /// <inheritdoc/>
     public string? LinkinpediaUrl { get; set; }
 }
