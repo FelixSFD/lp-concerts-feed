@@ -121,6 +121,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Utils", "Common.Util
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Utils.Tests", "Common.Utils.Tests\Common.Utils.Tests.csproj", "{B30E3443-9762-4705-B92D-7FC123CDF44A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database.Setlists", "Database.Setlists\Database.Setlists.csproj", "{46D18CC3-B381-4C24-A7CA-33F543316797}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -307,5 +309,9 @@ Global
 		{B30E3443-9762-4705-B92D-7FC123CDF44A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B30E3443-9762-4705-B92D-7FC123CDF44A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B30E3443-9762-4705-B92D-7FC123CDF44A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46D18CC3-B381-4C24-A7CA-33F543316797}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46D18CC3-B381-4C24-A7CA-33F543316797}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46D18CC3-B381-4C24-A7CA-33F543316797}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46D18CC3-B381-4C24-A7CA-33F543316797}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
