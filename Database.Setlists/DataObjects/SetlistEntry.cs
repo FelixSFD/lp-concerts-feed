@@ -52,4 +52,20 @@ public class SetlistEntry
     /// ID of the <see cref="SongVariant"/> that was played.
     /// </summary>
     public uint? PlayedMashupId { get; set; }
+    
+    /// <summary>
+    /// true if this slot is known to rotate between shows on the same tour.
+    /// </summary>
+    public bool IsRotationSong { get; set; }
+
+    /// <summary>
+    /// true if the song was played from a recording only. Not played live. (this can happen for pre-show-songs for example)
+    /// </summary>
+    public bool IsPlayedFromRecording { get; set; }
+    
+    /// <summary>
+    /// true if this song has not only not been played before, but was not released before this show.
+    /// Example: "Heavy Is The Crown" in Hamburg 2024
+    /// </summary>
+    public bool IsWorldPremiere { get; set; }
 }
