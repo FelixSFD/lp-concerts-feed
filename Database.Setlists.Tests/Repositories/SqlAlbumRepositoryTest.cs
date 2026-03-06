@@ -22,6 +22,8 @@ public class SqlAlbumRepositoryTest : DbIntegrationTestsBase
         await repo.SaveChangesAsync();
         
         Assert.Equal(1, DbContext.Albums.Count());
-        Assert.Equal(1u, album.Id);
+        Assert.NotEqual(0u, album.Id);
+        Assert.Equal("Test Album", album.Title);
+        Assert.Equal("https://lplive.net", album.LinkinpediaUrl);
     }
 }
