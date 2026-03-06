@@ -1,6 +1,6 @@
 ﻿namespace Database.Setlists.DataObjects;
 
-public class Album : ILinkinpediaLinkable
+public class AlbumDo : BaseDo, ILinkinpediaLinkable
 {
     /// <summary>
     /// Unique ID of the album
