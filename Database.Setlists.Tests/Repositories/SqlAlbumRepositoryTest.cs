@@ -7,7 +7,7 @@ namespace Database.Setlists.Tests.Repositories;
 public class SqlAlbumRepositoryTest : DbIntegrationTestsBase
 {
     [Fact]
-    public async Task SaveAlbum()
+    public async Task GetByIdAsync()
     {
         var repo = new SqlAlbumRepository(DbContext);
         
@@ -21,9 +21,17 @@ public class SqlAlbumRepositoryTest : DbIntegrationTestsBase
 
         await repo.SaveChangesAsync();
         
-        Assert.Equal(1, DbContext.Albums.Count());
-        Assert.NotEqual(0u, album.Id);
-        Assert.Equal("Test Album", album.Title);
-        Assert.Equal("https://lplive.net", album.LinkinpediaUrl);
+        var retrievedAlbum = await repo.GetByIdAsync(album.Id);
+        Assert.NotNull(retrievedAlbum);
+        Assert.Equal(album.Id, retrievedAlbum.Id);
+        Assert.Equal(album.Title, retrievedAlbum.Title);
+        Assert.Equal(album.LinkinpediaUrl, retrievedAlbum.LinkinpediaUrl);
+        
+        repo.Delete(retrievedAlbum);
+        
+        await repo.SaveChangesAsync();
+        
+        retrievedAlbum = await repo.GetByIdAsync(album.Id);
+        Assert.Null(retrievedAlbum);
     }
 }
