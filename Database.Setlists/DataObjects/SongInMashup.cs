@@ -3,7 +3,7 @@ namespace Database.Setlists.DataObjects;
 public class SongInMashup
 {
     /// <summary>
-    /// ID of the <see cref="Song"/> in the <see cref="MashupId"/>.
+    /// ID of the <see cref="SongDo"/> in the <see cref="MashupId"/>.
     /// </summary>
     public uint SongId { get; set; }
 

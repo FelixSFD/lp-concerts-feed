@@ -23,10 +23,11 @@ public abstract class DbIntegrationTestsBase : IAsyncLifetime
         
         var optBuilder = new DbContextOptionsBuilder<SetlistsDbContext>();
         optBuilder.UseMySQL(_dbContainer.GetConnectionString());
+        //optBuilder.UseMySQL("server=lpdb.felixsfd.de;Port=6612;uid=admin;pwd=;database=lpdb");
         DbContext = new SetlistsDbContext(optBuilder.Options);
 
         await DbContext.Database.EnsureCreatedAsync();
-        await RunDbScriptsAsync();
+        //await RunDbScriptsAsync();
     }
 
     public async Task DisposeAsync()

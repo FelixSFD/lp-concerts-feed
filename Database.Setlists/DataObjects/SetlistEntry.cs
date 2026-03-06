@@ -38,7 +38,7 @@ public class SetlistEntry
     public string? ExtraNotes { get; set; }
     
     /// <summary>
-    /// ID of the <see cref="Song"/> that was played.
+    /// ID of the <see cref="SongDo"/> that was played.
     /// </summary>
     /// <remarks>Only one of <see cref="PlayedSongId"/>, <see cref="PlayedSongVariantId"/> and <see cref="PlayedSongId"/> can be set at the same time</remarks>
     public uint? PlayedSongId { get; set; }

@@ -1,7 +1,7 @@
 namespace Database.Setlists.DataObjects;
 
 /// <summary>
-/// Variation of a <see cref="Song"/>
+/// Variation of a <see cref="SongDo"/>
 /// </summary>
 public class SongVariant
 {
@@ -12,13 +12,13 @@ public class SongVariant
     
     
     /// <summary>
-    /// ID of the <see cref="Song"/> that is the base for this variation
+    /// ID of the <see cref="SongDo"/> that is the base for this variation
     /// </summary>
     public uint SongId { get; set; }
     
     
     /// <summary>
-    /// Overrides the <see cref="Song.Isrc"/> code which helps to find the song on Apple Music or Spotify.
+    /// Overrides the <see cref="SongDo.Isrc"/> code which helps to find the song on Apple Music or Spotify.
     /// </summary>
     public string? IsrcOverride { get; set; }
     
