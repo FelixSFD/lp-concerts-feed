@@ -44,12 +44,12 @@ public class SetlistEntry
     public uint? PlayedSongId { get; set; }
     
     /// <summary>
-    /// ID of the <see cref="SongVariant"/> that was played.
+    /// ID of the <see cref="SongVariantDo"/> that was played.
     /// </summary>
     public uint? PlayedSongVariantId { get; set; }
     
     /// <summary>
-    /// ID of the <see cref="SongVariant"/> that was played.
+    /// ID of the <see cref="SongVariantDo"/> that was played.
     /// </summary>
     public uint? PlayedMashupId { get; set; }
     
