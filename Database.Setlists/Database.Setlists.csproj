@@ -6,4 +6,17 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3" />
+      <PackageReference Include="MySql.EntityFrameworkCore" Version="10.0.1" />
+      <PackageReference Include="Testcontainers" Version="4.10.0" />
+      <PackageReference Include="Testcontainers.MySql" Version="4.10.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="DbScripts\0001_InitDb.sql">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

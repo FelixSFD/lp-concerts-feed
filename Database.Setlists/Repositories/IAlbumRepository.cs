@@ -4,5 +4,5 @@ namespace Database.Setlists.Repositories;
 
 public interface IAlbumRepository : IRepositoryBase<AlbumDo>
 {
-    public Task<AlbumDo> GetByIdAsync(uint id);
+    public Task<AlbumDo?> GetByIdAsync(uint id);
 }

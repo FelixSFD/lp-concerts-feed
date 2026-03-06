@@ -2,10 +2,11 @@ using Database.Setlists.DataObjects;
 
 namespace Database.Setlists.Repositories;
 
-public class SqlAlbumRepository : SqlRepositoryBase<AlbumDo>, IAlbumRepository
+public class SqlAlbumRepository(SetlistsDbContext dbContext)
+    : SqlRepositoryBase<AlbumDo>(dbContext, dbContext.Albums), IAlbumRepository
 {
-    public Task<AlbumDo> GetByIdAsync(uint id)
+    public async Task<AlbumDo?> GetByIdAsync(uint id)
     {
-        throw new NotImplementedException();
+        return await dbContext.Albums.FindAsync([id]);
     }
 }

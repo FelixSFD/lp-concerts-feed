@@ -1,21 +1,28 @@
 using Database.Setlists.DataObjects;
+using Microsoft.EntityFrameworkCore;
 
 namespace Database.Setlists.Repositories;
 
-public class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObject> where TDataObject : BaseDo
+public class SqlRepositoryBase<TDataObject>(DbContext dbContext, DbSet<TDataObject> dbSet) : IRepositoryBase<TDataObject> where TDataObject : BaseDo
 {
-    public void Save(TDataObject data)
+    public void Add(TDataObject data)
     {
-        throw new NotImplementedException();
+        dbSet.Add(data);
     }
 
     public void Delete(TDataObject data)
     {
-        throw new NotImplementedException();
+        dbSet.Remove(data);
     }
 
     public IAsyncEnumerable<TDataObject> QueryAsync(CancellationToken token)
     {
         throw new NotImplementedException();
+    }
+
+
+    public async Task SaveChangesAsync()
+    {
+        await dbContext.SaveChangesAsync();
     }
 }
