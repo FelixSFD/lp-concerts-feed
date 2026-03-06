@@ -3,19 +3,29 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Database.Setlists.Repositories;
 
-public class SqlRepositoryBase<TDataObject>(DbContext dbContext, DbSet<TDataObject> dbSet) : IRepositoryBase<TDataObject> where TDataObject : BaseDo
+public class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObject> where TDataObject : BaseDo
 {
-    public void Add(TDataObject data)
+    protected DbContext Context { get; }
+    protected DbSet<TDataObject> DbSet { get; }
+
+    
+    public SqlRepositoryBase(DbContext dbContext, DbSet<TDataObject> dbSet)
     {
-        dbSet.Add(data);
+        Context = dbContext;
+        DbSet = dbSet;
     }
 
-    public void Delete(TDataObject data)
+    public virtual void Add(TDataObject data)
     {
-        dbSet.Remove(data);
+        DbSet.Add(data);
     }
 
-    public IAsyncEnumerable<TDataObject> QueryAsync(CancellationToken token)
+    public virtual void Delete(TDataObject data)
+    {
+        DbSet.Remove(data);
+    }
+
+    public virtual IAsyncEnumerable<TDataObject> QueryAsync(CancellationToken token)
     {
         throw new NotImplementedException();
     }
@@ -23,6 +33,6 @@ public class SqlRepositoryBase<TDataObject>(DbContext dbContext, DbSet<TDataObje
 
     public async Task SaveChangesAsync()
     {
-        await dbContext.SaveChangesAsync();
+        await Context.SaveChangesAsync();
     }
 }

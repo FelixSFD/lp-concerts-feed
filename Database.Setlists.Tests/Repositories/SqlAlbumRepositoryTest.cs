@@ -21,7 +21,7 @@ public class SqlAlbumRepositoryTest : DbIntegrationTestsBase
 
         await repo.SaveChangesAsync();
         
-        var retrievedAlbum = await repo.GetByIdAsync(album.Id);
+        var retrievedAlbum = await repo.GetByPrimaryKeyAsync(album.Id);
         Assert.NotNull(retrievedAlbum);
         Assert.Equal(album.Id, retrievedAlbum.Id);
         Assert.Equal(album.Title, retrievedAlbum.Title);
@@ -31,7 +31,7 @@ public class SqlAlbumRepositoryTest : DbIntegrationTestsBase
         
         await repo.SaveChangesAsync();
         
-        retrievedAlbum = await repo.GetByIdAsync(album.Id);
+        retrievedAlbum = await repo.GetByPrimaryKeyAsync(album.Id);
         Assert.Null(retrievedAlbum);
     }
 }

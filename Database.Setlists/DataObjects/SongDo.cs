@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Database.Setlists.DataObjects;
 
 [Table("Song")]
-public class SongDo : ILinkinpediaLinkable
+public class SongDo : BaseDo, ILinkinpediaLinkable
 {
     /// <summary>
     /// Unique ID of the song
