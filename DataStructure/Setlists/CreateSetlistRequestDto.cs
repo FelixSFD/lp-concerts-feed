@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace LPCalendar.DataStructure.Setlists;
 
@@ -10,11 +11,13 @@ public class CreateSetlistRequestDto
     /// <summary>
     /// ID of the <see cref="Concert"/> where this set was played
     /// </summary>
+    [JsonPropertyName("concertId")]
     public required string ConcertId { get; set; }
     
     /// <summary>
     /// URL to the wiki page on Linkinpedia
     /// </summary>
     [MaxLength(63)]
+    [JsonPropertyName("linkinpediaUrl")]
     public string? LinkinpediaUrl { get; set; }
 }

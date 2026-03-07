@@ -10,7 +10,6 @@
         <!-- Generate ready to run images during publishing to improve cold start time. -->
         <PublishReadyToRun>true</PublishReadyToRun>
     </PropertyGroup>
-    <Import Project="../../../LambdaAotProperties.targets"/>
     <ItemGroup>
         <PackageReference Include="Amazon.Lambda.APIGatewayEvents" Version="2.7.3" />
         <PackageReference Include="Amazon.Lambda.RuntimeSupport" Version="1.14.2" />

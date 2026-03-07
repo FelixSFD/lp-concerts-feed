@@ -1717,15 +1717,15 @@ Resources:
   SetlistsWriteFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: bootstrap
+      Handler: Lambda.SetlistsWrite::Lambda.SetlistsWrite.Function::FunctionHandler
       Role: !GetAtt SetlistsWriteLambdaExecutionRole.Arn
       Description: .NET function to write Setlist-data into the database
       CodeUri: ../lambda_packages/Lambda.SetlistsWrite.zip
-      Runtime: provided.al2023
+      Runtime: dotnet10
       Architectures:
         - arm64
       Tracing: Active
-      MemorySize: 384
+      MemorySize: 1024
       Environment:
         Variables:
           CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable

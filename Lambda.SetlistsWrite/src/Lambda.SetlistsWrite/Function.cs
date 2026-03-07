@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using System.Text.Json;
 using Amazon.Lambda.APIGatewayEvents;
@@ -7,6 +8,7 @@ using Database.Setlists;
 using Database.Setlists.DataObjects;
 using Database.Setlists.Repositories;
 using Lambda.Auth;
+using Lambda.SetlistsWrite.Services;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Responses;
 using LPCalendar.DataStructure.Setlists;
@@ -19,28 +21,34 @@ namespace Lambda.SetlistsWrite;
 
 public class Function
 {
-    private readonly IConcertRepository _concertRepository;
-    private readonly ISetlistRepository _setlistRepository;
+    private IConcertRepository _concertRepository;
+    private ISetlistRepository _setlistRepository;
+    private SetlistService _setlistService;
 
-    public Function(ILambdaContext context)
+    public Function()
     {
-        _concertRepository = DynamoDbConcertRepository.CreateDefault(context.Logger);
-        
-        var connectionString = Environment.GetEnvironmentVariable("SETLISTS_DB_CONNECTION_STRING") ?? throw new Exception("Missing environment variable 'SETLISTS_DB_CONNECTION_STRING'!");
-        var optBuilder = new DbContextOptionsBuilder<SetlistsDbContext>();
-        optBuilder.UseMySQL(connectionString);
-        var dbContext = new SetlistsDbContext(optBuilder.Options);
-        _setlistRepository = new SqlSetlistRepository(dbContext);
     }
 
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        var hasSetlistPermission = request.CanManageSetlists();
+        _concertRepository = DynamoDbConcertRepository.CreateDefault(context.Logger);
+        var connectionString = Environment.GetEnvironmentVariable("SETLISTS_DB_CONNECTION_STRING") ?? throw new Exception("Missing environment variable 'SETLISTS_DB_CONNECTION_STRING'!");
+        var stopwatch = Stopwatch.StartNew();
+        var optBuilder = new DbContextOptionsBuilder<SetlistsDbContext>();
+        optBuilder.UseMySQL(connectionString);
+        var dbContext = new SetlistsDbContext(optBuilder.Options);
+        stopwatch.Stop();
+        context.Logger.LogDebug("Init duration of EFCore context: {duration}", stopwatch.ElapsedMilliseconds);
+        _setlistRepository = new SqlSetlistRepository(dbContext);
+        _setlistService = new SetlistService(_setlistRepository, _concertRepository);
+        
+        // TODO: Enable authorization!
+        /*var hasSetlistPermission = request.CanManageSetlists();
         if (!hasSetlistPermission)
         {
             return ForbiddenResponseHelper.GetResponse("OPTIONS, GET, POST");
-        }
+        }*/
         
         if (request.Body == null)
         {
@@ -141,23 +149,8 @@ public class Function
             };
         }
         
-        var setlistDo = new SetlistDo
-        {
-            ConcertId = request.ConcertId,
-            LinkinpediaUrl = request.LinkinpediaUrl
-        };
-        
-        _setlistRepository.Add(setlistDo);
-        await _setlistRepository.SaveChangesAsync();
-        
-        context.Logger.LogDebug("Successfully created setlist with ID: {id}", setlistDo.Id);
-
-        var responseDto = new CreateSetlistResponseDto
-        {
-            Id = setlistDo.Id,
-            ConcertId = request.ConcertId,
-            LinkinpediaUrl = setlistDo.LinkinpediaUrl
-        };
+        var responseDto = await _setlistService.CreateSetlistAsync(request);
+        context.Logger.LogDebug("Successfully created setlist with ID: {id}", responseDto.Id);
         
         return new APIGatewayProxyResponse()
         {

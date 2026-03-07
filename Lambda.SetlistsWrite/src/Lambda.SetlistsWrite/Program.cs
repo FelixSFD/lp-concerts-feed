@@ -1,4 +1,4 @@
-using Amazon.Lambda.APIGatewayEvents;
+/*using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.RuntimeSupport;
 using Amazon.Lambda.Serialization.SystemTextJson;
@@ -13,4 +13,4 @@ await LambdaBootstrapBuilder.Create((Func<APIGatewayProxyRequest, ILambdaContext
 return;
 
 // calls the function
-async Task<APIGatewayProxyResponse> Handler(APIGatewayProxyRequest input, ILambdaContext ctx) => await new Function(ctx).FunctionHandler(input, ctx);
+async Task<APIGatewayProxyResponse> Handler(APIGatewayProxyRequest input, ILambdaContext ctx) => await new Function(ctx).FunctionHandler(input, ctx);*/
