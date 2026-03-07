@@ -30,6 +30,7 @@ public class SetlistsDbContext(DbContextOptions<SetlistsDbContext> options) : Db
 
         modelBuilder.Entity<SongMashupDo>()
             .HasMany(m => m.Songs)
-            .WithMany();
+            .WithMany()
+            .UsingEntity(join => join.ToTable("SongInMashup"));
     }
 }
