@@ -84,6 +84,12 @@ public class SetlistEntryDo : BaseDo
     public uint? PlayedMashupId { get; set; }
     
     /// <summary>
+    /// Mashup that was played
+    /// </summary>
+    [ForeignKey(nameof(PlayedMashupId))]
+    public virtual SongMashupDo? PlayedMashup { get; set; }
+    
+    /// <summary>
     /// Special things that have been added to this played song. This can for example be an extended bridge with the verse of a different song.
     /// </summary>
     public virtual ICollection<SetlistEntrySongExtraDo> SongExtras { get; set; }
