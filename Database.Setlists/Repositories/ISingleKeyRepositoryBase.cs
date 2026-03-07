@@ -2,7 +2,7 @@ using Database.Setlists.DataObjects;
 
 namespace Database.Setlists.Repositories;
 
-public interface ISingleKeyRepositoryBase<TDataObject, TPrimaryKey> where TDataObject : BaseDo
+public interface ISingleKeyRepositoryBase<TDataObject, TPrimaryKey>
 {
     /// <summary>
     /// Returns the <typeparamref name="TDataObject" /> by its primary key of type <typeparamref name="TPrimaryKey"/>

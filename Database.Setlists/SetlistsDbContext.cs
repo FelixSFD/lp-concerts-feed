@@ -8,4 +8,5 @@ public class SetlistsDbContext(DbContextOptions<SetlistsDbContext> options) : Db
     public DbSet<AlbumDo> Albums { get; set; }
     public DbSet<SongDo> Songs { get; set; }
     public DbSet<SongVariantDo> SongVariants { get; set; }
+    public DbSet<SetlistDo> Setlists { get; set; }
 }
