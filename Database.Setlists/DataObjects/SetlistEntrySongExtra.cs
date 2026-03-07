@@ -18,7 +18,7 @@ public class SetlistEntrySongExtra
     public required string Id { get; set; }
     
     /// <summary>
-    /// ID of the <see cref="SetlistEntry"/> where this extra was included.
+    /// ID of the <see cref="SetlistEntryDo"/> where this extra was included.
     /// </summary>
     public required string SetlistEntryId { get; set; }
 

@@ -9,4 +9,5 @@ public class SetlistsDbContext(DbContextOptions<SetlistsDbContext> options) : Db
     public DbSet<SongDo> Songs { get; set; }
     public DbSet<SongVariantDo> SongVariants { get; set; }
     public DbSet<SetlistDo> Setlists { get; set; }
+    public DbSet<SetlistEntryDo> SetlistEntries { get; set; }
 }

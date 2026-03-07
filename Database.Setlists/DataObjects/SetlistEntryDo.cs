@@ -1,16 +1,27 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Database.Setlists.DataObjects;
 
-public class SetlistEntry
+[Table("SetlistEntry")]
+public class SetlistEntryDo : BaseDo
 {
     /// <summary>
     /// Unique ID of the entry (GUID?)
     /// </summary>
+    [Key]
     public required string Id { get; set; }
 
     /// <summary>
     /// ID of the setlist
     /// </summary>
     public uint SetlistId { get; set; }
+    
+    /// <summary>
+    /// Setlist that contains this entry
+    /// </summary>
+    [ForeignKey(nameof(SetlistId))]
+    public virtual SetlistDo Setlist { get; set; }
     
     /// <summary>
     /// Number of the <see cref="SetlistAct"/>
@@ -30,11 +41,13 @@ public class SetlistEntry
     /// <summary>
     /// Optional property to override the title of the song or mashup in this entry only.
     /// </summary>
+    [MaxLength(31)]
     public string? TitleOverride { get; set; }
     
     /// <summary>
     /// Field to store additional notes about this entry
     /// </summary>
+    [MaxLength(127)]
     public string? ExtraNotes { get; set; }
     
     /// <summary>
