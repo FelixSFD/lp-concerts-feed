@@ -98,6 +98,12 @@ public class SqlSetlistEntryRepositoryTest : DbIntegrationTestsBase
         
         await actRepo.SaveChangesAsync();
 
+        var song1 = new SongDo
+        {
+            Title = "QWERTY",
+            Isrc = "5355646",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
+        };
         var entry1 = new SetlistEntryDo
         {
             Id = Guid.NewGuid().ToString(),
@@ -106,6 +112,7 @@ public class SqlSetlistEntryRepositoryTest : DbIntegrationTestsBase
             ExtraNotes = "Notes for this entry",
             TitleOverride = "Custom title",
             SongNumber = 1,
+            PlayedSong = song1,
             IsWorldPremiere = false,
             IsPlayedFromRecording = false,
             IsRotationSong = true
@@ -113,6 +120,18 @@ public class SqlSetlistEntryRepositoryTest : DbIntegrationTestsBase
         
         repo.Add(entry1);
         
+        var song2 = new SongDo
+        {
+            Title = "Lost",
+            Isrc = "3452111",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/Lost"
+        };
+        var songVariant2 = new SongVariantDo
+        {
+            Song = song2,
+            VariantName = "Piano Version",
+            Description = "just amazing"
+        };
         var entry2 = new SetlistEntryDo
         {
             Id = Guid.NewGuid().ToString(),
@@ -121,6 +140,7 @@ public class SqlSetlistEntryRepositoryTest : DbIntegrationTestsBase
             ExtraNotes = "second entry",
             TitleOverride = null,
             SongNumber = 2,
+            PlayedSongVariant = songVariant2,
             IsWorldPremiere = true,
             IsPlayedFromRecording = false,
             IsRotationSong = false
@@ -178,6 +198,9 @@ public class SqlSetlistEntryRepositoryTest : DbIntegrationTestsBase
         var expectedAct = expected.Act;
         var actualAct = actual.Act;
         AssertActsEqual(expectedAct, actualAct);
+        
+        AssertSongsEqual(expected.PlayedSong, actual.PlayedSong);
+        AssertSongVariantsEqual(expected.PlayedSongVariant, actual.PlayedSongVariant);
     }
 
 
@@ -186,5 +209,21 @@ public class SqlSetlistEntryRepositoryTest : DbIntegrationTestsBase
         Assert.Equal(expected?.ActNumber, actual?.ActNumber);
         Assert.Equal(expected?.SetlistId, actual?.SetlistId);
         Assert.Equal(expected?.Title, actual?.Title);
+    }
+    
+    private static void AssertSongsEqual(SongDo? expected, SongDo? actual)
+    {
+        Assert.Equal(expected?.Id, actual?.Id);
+        Assert.Equal(expected?.Isrc, actual?.Isrc);
+        Assert.Equal(expected?.Title, actual?.Title);
+        Assert.Equal(expected?.LinkinpediaUrl, actual?.LinkinpediaUrl);
+    }
+    
+    private static void AssertSongVariantsEqual(SongVariantDo? expected, SongVariantDo? actual)
+    {
+        Assert.Equal(expected?.Id, actual?.Id);
+        Assert.Equal(expected?.IsrcOverride, actual?.IsrcOverride);
+        Assert.Equal(expected?.Description, actual?.Description);
+        Assert.Equal(expected?.VariantName, actual?.VariantName);
     }
 }

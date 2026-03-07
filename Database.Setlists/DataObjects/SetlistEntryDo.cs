@@ -62,9 +62,21 @@ public class SetlistEntryDo : BaseDo
     public uint? PlayedSongId { get; set; }
     
     /// <summary>
+    /// Song that was played
+    /// </summary>
+    [ForeignKey(nameof(PlayedSongId))]
+    public virtual SongDo? PlayedSong { get; set; }
+    
+    /// <summary>
     /// ID of the <see cref="SongVariantDo"/> that was played.
     /// </summary>
     public uint? PlayedSongVariantId { get; set; }
+    
+    /// <summary>
+    /// Song variant that was played
+    /// </summary>
+    [ForeignKey(nameof(PlayedSongVariantId))]
+    public virtual SongVariantDo? PlayedSongVariant { get; set; }
     
     /// <summary>
     /// ID of the <see cref="SongVariantDo"/> that was played.
