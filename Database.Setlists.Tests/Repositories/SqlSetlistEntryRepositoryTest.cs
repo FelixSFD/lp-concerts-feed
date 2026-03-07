@@ -132,6 +132,13 @@ public class SqlSetlistEntryRepositoryTest : DbIntegrationTestsBase
             VariantName = "Piano Version",
             Description = "just amazing"
         };
+        var entry2Extra = new SetlistEntrySongExtraDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            Song = song1,
+            Description = "testing",
+            Type = SetlistEntrySongExtraDo.ExtraType.ExtraVerse
+        };
         var entry2 = new SetlistEntryDo
         {
             Id = Guid.NewGuid().ToString(),
@@ -141,6 +148,7 @@ public class SqlSetlistEntryRepositoryTest : DbIntegrationTestsBase
             TitleOverride = null,
             SongNumber = 2,
             PlayedSongVariant = songVariant2,
+            SongExtras = [entry2Extra],
             IsWorldPremiere = true,
             IsPlayedFromRecording = false,
             IsRotationSong = false
@@ -171,6 +179,10 @@ public class SqlSetlistEntryRepositoryTest : DbIntegrationTestsBase
         retrievedEntry = await repo.GetByPrimaryKeyAsync(entry2.Id);
         Assert.NotNull(retrievedEntry);
         AssertEntriesEqual(entry2, retrievedEntry);
+
+        var retrievedExtra = retrievedEntry.SongExtras.FirstOrDefault();
+        Assert.NotNull(retrievedExtra);
+        Assert.Equal(entry2Extra.Id, retrievedExtra.Id);
         
         retrievedEntry = await repo.GetByPrimaryKeyAsync(entry3.Id);
         Assert.NotNull(retrievedEntry);

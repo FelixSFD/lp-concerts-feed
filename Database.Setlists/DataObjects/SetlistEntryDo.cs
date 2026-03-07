@@ -84,6 +84,11 @@ public class SetlistEntryDo : BaseDo
     public uint? PlayedMashupId { get; set; }
     
     /// <summary>
+    /// Special things that have been added to this played song. This can for example be an extended bridge with the verse of a different song.
+    /// </summary>
+    public virtual ICollection<SetlistEntrySongExtraDo> SongExtras { get; set; }
+    
+    /// <summary>
     /// true if this slot is known to rotate between shows on the same tour.
     /// </summary>
     public bool IsRotationSong { get; set; }
