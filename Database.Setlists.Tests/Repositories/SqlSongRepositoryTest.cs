@@ -49,4 +49,30 @@ public class SqlSongRepositoryTest : DbIntegrationTestsBase
         retrievedSong = await repo.GetByPrimaryKeyAsync(song.Id);
         Assert.Null(retrievedSong);
     }
+
+    [Fact]
+    public async Task TestWithoutAlbum()
+    {
+        var repo = new SqlSongRepository(DbContext);
+        
+        var song = new SongDo
+        {
+            Title = "Song without album",
+            Isrc = "1234",
+            LinkinpediaUrl = "https://lplive.net"
+        };
+        
+        repo.Add(song);
+        await repo.SaveChangesAsync();
+        
+        var retrievedSong = await repo.GetByPrimaryKeyAsync(song.Id);
+        Assert.NotNull(retrievedSong);
+        Assert.Equal(retrievedSong.Id, song.Id);
+        Assert.Equal(retrievedSong.Title, song.Title);
+        Assert.Equal(retrievedSong.Isrc, song.Isrc);
+        Assert.Equal(retrievedSong.LinkinpediaUrl, song.LinkinpediaUrl);
+        
+        var retrievedAlbum = retrievedSong.Album;
+        Assert.Null(retrievedAlbum);
+    }
 }
