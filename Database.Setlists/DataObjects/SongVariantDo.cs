@@ -6,8 +6,8 @@ namespace Database.Setlists.DataObjects;
 /// <summary>
 /// Variation of a <see cref="SongDo"/>
 /// </summary>
-[Table("SongVariants")]
-public class SongVariantDo
+[Table("SongVariant")]
+public class SongVariantDo : BaseDo
 {
     /// <summary>
     /// Unique ID of the variant
