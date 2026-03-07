@@ -24,9 +24,14 @@ public class SetlistEntryDo : BaseDo
     public virtual SetlistDo Setlist { get; set; }
     
     /// <summary>
-    /// Number of the <see cref="SetlistAct"/>
+    /// Number of the <see cref="SetlistActDo"/>
     /// </summary>
-    public uint ActNumber { get; set; }
+    public uint? ActNumber { get; set; }
+    
+    /// <summary>
+    /// Act of this entry. Is used to group multiple songs in a setlist
+    /// </summary>
+    public virtual SetlistActDo? Act { get; set; }
     
     /// <summary>
     /// Number to sort the entries

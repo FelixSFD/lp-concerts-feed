@@ -10,4 +10,16 @@ public class SetlistsDbContext(DbContextOptions<SetlistsDbContext> options) : Db
     public DbSet<SongVariantDo> SongVariants { get; set; }
     public DbSet<SetlistDo> Setlists { get; set; }
     public DbSet<SetlistEntryDo> SetlistEntries { get; set; }
+    public DbSet<SetlistActDo> SetlistActs { get; set; }
+
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<SetlistEntryDo>()
+            .HasOne(e => e.Act)
+            .WithMany(a => a.Entries)
+            .HasForeignKey(e => new { e.SetlistId, e.ActNumber })
+            .HasPrincipalKey(a => new { a.SetlistId, ActNumber = (uint?)a.ActNumber })
+            .IsRequired(false); // because ActNumber is nullable
+    }
 }
