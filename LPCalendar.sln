@@ -125,6 +125,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database.Setlists", "Databa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database.Setlists.Tests", "Database.Setlists.Tests\Database.Setlists.Tests.csproj", "{17DF7A76-5DEF-47FC-B997-1246FF4B2547}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.SetlistsWrite", "Lambda.SetlistsWrite\src\Lambda.SetlistsWrite\Lambda.SetlistsWrite.csproj", "{5F99780C-BFE0-4FD1-A624-1CBBEFDAF8DD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.SetlistsWrite.Tests", "Lambda.SetlistsWrite\test\Lambda.SetlistsWrite.Tests\Lambda.SetlistsWrite.Tests.csproj", "{9F4E7A0D-1664-41CD-AC18-44C21414BFEB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -319,5 +323,13 @@ Global
 		{17DF7A76-5DEF-47FC-B997-1246FF4B2547}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{17DF7A76-5DEF-47FC-B997-1246FF4B2547}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{17DF7A76-5DEF-47FC-B997-1246FF4B2547}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F99780C-BFE0-4FD1-A624-1CBBEFDAF8DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F99780C-BFE0-4FD1-A624-1CBBEFDAF8DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F99780C-BFE0-4FD1-A624-1CBBEFDAF8DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F99780C-BFE0-4FD1-A624-1CBBEFDAF8DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F4E7A0D-1664-41CD-AC18-44C21414BFEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F4E7A0D-1664-41CD-AC18-44C21414BFEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F4E7A0D-1664-41CD-AC18-44C21414BFEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F4E7A0D-1664-41CD-AC18-44C21414BFEB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

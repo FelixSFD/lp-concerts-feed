@@ -390,6 +390,34 @@ components:
           description: Name/ID of the timezone
           example: Europe/Berlin
           nullable: false
+    
+    # Setlists
+    CreateSetlistRequest:
+      type: object
+      description: Request to create a new (empty) setlist
+      properties:
+        concertId:
+          type: string
+          description: ID of the concert where this setlist was played
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+    
+    CreateSetlistResponse:
+      type: object
+      description: Response after a setlist was created
+      properties:
+        id:
+          type: string
+          description: ID of the newly created setlist
+        concertId:
+          type: string
+          description: ID of the concert where this setlist was played
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
 
 paths:
   /addConcert:
@@ -1222,6 +1250,42 @@ paths:
             - LambdaArn:
                 Fn::ImportValue:
                   Fn::Sub: "${BaseProductName}-lambda-push-endpoint-management-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+
+  /setlists:
+    post:
+      operationId: CreateSetlist
+      summary: Creates a new setlist
+      description: Creates a new (empty) setlist
+      tags:
+        - setlists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSetlistRequest"
+      responses:
+        "200":
+          description: The setlist that has just been created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CreateSetlistResponse"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
         responses:
           default:
             statusCode: "200"

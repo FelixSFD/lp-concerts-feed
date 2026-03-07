@@ -99,4 +99,12 @@ public static class ApiGatewayProxyRequestPermissionsExtensions
     /// <returns></returns>
     public static bool CanManageUsers(this APIGatewayProxyRequest request)
         => request.IsMemberOfOrAdmin("ManageUsers");
+    
+    /// <summary>
+    /// Checks if the user of the request is allowed to manage setlists
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public static bool CanManageSetlists(this APIGatewayProxyRequest request)
+        => request.IsMemberOfOrAdmin("ManageSetlists");
 }
