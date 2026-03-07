@@ -7,6 +7,7 @@ public class SetlistsDbContext(DbContextOptions<SetlistsDbContext> options) : Db
 {
     public DbSet<AlbumDo> Albums { get; set; }
     public DbSet<SongDo> Songs { get; set; }
+    public DbSet<SongMashupDo> SongMashups { get; set; }
     public DbSet<SongVariantDo> SongVariants { get; set; }
     public DbSet<SetlistDo> Setlists { get; set; }
     public DbSet<SetlistEntryDo> SetlistEntries { get; set; }
@@ -21,5 +22,9 @@ public class SetlistsDbContext(DbContextOptions<SetlistsDbContext> options) : Db
             .HasForeignKey(e => new { e.SetlistId, e.ActNumber })
             .HasPrincipalKey(a => new { a.SetlistId, ActNumber = (uint?)a.ActNumber })
             .IsRequired(false); // because ActNumber is nullable
+
+        modelBuilder.Entity<SongMashupDo>()
+            .HasMany(m => m.Songs)
+            .WithMany();
     }
 }

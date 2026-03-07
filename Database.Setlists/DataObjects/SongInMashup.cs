@@ -8,7 +8,7 @@ public class SongInMashup
     public uint SongId { get; set; }
 
     /// <summary>
-    /// ID of the <see cref="SongMashup"/>
+    /// ID of the <see cref="SongMashupDo"/>
     /// </summary>
     public uint MashupId { get; set; }
 }
