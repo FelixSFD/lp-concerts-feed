@@ -162,11 +162,23 @@ public class SetlistService(ISetlistRepository setlistRepository, ISetlistEntryR
         {
             SongNumber = setlistEntry.SongNumber,
             SortNumber = setlistEntry.SortNumber,
+            PlayedSong = setlistEntry.PlayedSong != null ? SongDoToDto(setlistEntry.PlayedSong) : null,
             Title = setlistEntry.TitleOverride ?? setlistEntry.PlayedSong?.Title ?? "unknown",
             ExtraNotes = setlistEntry.ExtraNotes,
             IsPlayedFromRecording = setlistEntry.IsPlayedFromRecording,
             IsRotationSong = setlistEntry.IsRotationSong,
             IsWorldPremiere = setlistEntry.IsWorldPremiere
+        };
+    }
+    
+    
+    private static SongDto SongDoToDto(SongDo song)
+    {
+        return new SongDto
+        {
+            Id = song.Id,
+            Title = song.Title,
+            Isrc = song.Isrc
         };
     }
 }

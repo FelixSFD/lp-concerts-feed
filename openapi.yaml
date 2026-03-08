@@ -392,6 +392,22 @@ components:
           nullable: false
     
     # Setlists
+    Song:
+      type: object
+      description: Information about a song
+      properties:
+        id:
+          type: number
+          description: ID of the song
+        title:
+          type: string
+          description: Title of the song
+          nullable: true
+        isrc:
+          type: string
+          description: ISRC of the song
+          nullable: true
+    
     SetlistEntry:
       type: object
       description: An entry in a setlist
@@ -402,6 +418,12 @@ components:
         songNumber:
           type: number
           description: Number of the song in this setlist. Is displayed as an orientation
+        playedSong:
+          type: object
+          description: Song that was played. If not set, they didn't play a song, but a mashup or song variant instead
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/Song"
         title:
           type: string
           description: Title of this setlist entry. This can for example be the title of a song or a mashup

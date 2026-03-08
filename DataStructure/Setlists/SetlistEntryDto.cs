@@ -18,6 +18,13 @@ public class SetlistEntryDto
     /// </summary>
     [JsonPropertyName("songNumber")]
     public ushort SongNumber { get; set; }
+
+    /// <summary>
+    /// ID of the song that has been played
+    /// </summary>
+    [JsonPropertyName("playedSong")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SongDto? PlayedSong { get; set; }
     
     /// <summary>
     /// Title of this setlist entry. This can for example be the title of a song or a mashup
