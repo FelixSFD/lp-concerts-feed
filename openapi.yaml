@@ -418,6 +418,27 @@ components:
           type: string
           description: URL to the wiki page on Linkinpedia
           nullable: true
+    
+    AddSongToSetlistRequestDto:
+      type: object
+      description: Request to add a song to an existing setlist
+      properties:
+        setlistId:
+          type: number
+          description: ID of the setlist
+        songId:
+          type: number
+          description: ID of the song. To create a new song, don't set this ID. Only set the song parameters.
+          nullable: true
+    
+    # TODO: Fully define DTO
+    AddSongToSetlistResponseDto:
+      type: object
+      description: Response after a song was added to the setlist
+      properties:
+        setlistId:
+          type: number
+          description: ID of the setlist
 
 paths:
   /addConcert:
@@ -1279,6 +1300,41 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/CreateSetlistResponse"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /setlists/{setlistId}/songs:
+    post:
+      operationId: AddSongToSetlist
+      summary: Adds a new song to the setlist and creates 
+      description: In case the song doesn't exist yet, its entry in the database will be created, too
+      tags:
+        - setlists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddSongToSetlistRequestDto"
+      responses:
+        "200":
+          description: The setlist entry that has just been created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AddSongToSetlistResponseDto"
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:
