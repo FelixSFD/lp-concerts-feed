@@ -24,15 +24,30 @@ public class SongService(ISongRepository songRepository, ISongVariantRepository 
     }
     
     /// <summary>
-    /// Returns a song by its ID
+    /// Returns a song variant by its ID
     /// </summary>
     /// <param name="variantId">ID of the song</param>
     /// <returns></returns>
-    /// <exception cref="SongNotFoundException">if the song was not found</exception>
+    /// <exception cref="SongVariantNotFoundException">if the song variant was not found</exception>
     public async Task<SongVariantDto> GetSongVariantById(uint variantId)
     {
-        logger.LogDebug("Getting song variant with id: {songId}", variantId);
+        logger.LogDebug("Getting song variant with id: {variantId}", variantId);
         var song = await songVariantRepository.GetByPrimaryKeyAsync(variantId) ?? throw new SongVariantNotFoundException(variantId);
         return DtoMapper.ToDto(song);
+    }
+    
+    /// <summary>
+    /// Returns all variants of a given song
+    /// </summary>
+    /// <param name="songId">ID of the song</param>
+    /// <returns></returns>
+    /// <exception cref="SongNotFoundException">if the song was not found</exception>
+    public async Task<List<SongVariantDto>> GetVariantsOfSong(uint songId)
+    {
+        logger.LogDebug("Getting song variant for song with id: {songId}", songId);
+        var variants = await songVariantRepository.GetVariantsOfSongAsync(songId) ?? throw new SongVariantNotFoundException(songId);
+        return variants
+            .Select(DtoMapper.ToDto)
+            .ToList();
     }
 }

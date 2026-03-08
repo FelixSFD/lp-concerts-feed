@@ -162,4 +162,65 @@ public class SongServiceTest
             .Received(1)
             .GetByPrimaryKeyAsync(999);
     }
+    
+    
+    [Fact]
+    public async Task GetVariantsOfSongAsync()
+    {
+        // prepare mocks and test data
+        var song = new SongDo
+        {
+            Id = 1234,
+            Title = "QWERTY",
+            Isrc = "5355646",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
+        };
+
+        var variant1 = new SongVariantDo
+        {
+            Song = song,
+            SongId = song.Id,
+            VariantName = "Live with Em",
+            Id = 123,
+            Description = "Something new"
+        };
+        
+        var variant2 = new SongVariantDo
+        {
+            Song = song,
+            SongId = song.Id,
+            VariantName = "Live with Em (Piano Version)",
+            Id = 124
+        };
+        
+        _songVariantRepository
+            .GetVariantsOfSongAsync(song.Id)
+            .Returns([variant1, variant2]);
+
+        // call the service
+        var results = await _songService.GetVariantsOfSong(song.Id);
+        Assert.NotNull(results);
+        Assert.Equal(2, results.Count);
+        
+        var result1 = results[0];
+        Assert.NotNull(result1);
+        Assert.Equal(variant1.Id, result1.Id);
+        Assert.Equal(variant1.VariantName, result1.VariantName);
+        Assert.Equal(variant1.Description, result1.Description);
+        Assert.Equal(variant1.IsrcOverride, result1.IsrcOverride);
+        Assert.Equal(variant1.SongId, result1.SongId);
+        
+        var result2 = results[1];
+        Assert.NotNull(result2);
+        Assert.Equal(variant2.Id, result2.Id);
+        Assert.Equal(variant2.VariantName, result2.VariantName);
+        Assert.Equal(variant2.Description, result2.Description);
+        Assert.Equal(variant2.IsrcOverride, result2.IsrcOverride);
+        Assert.Equal(variant2.SongId, result2.SongId);
+
+        // verify mock calls
+        await _songVariantRepository
+            .Received(1)
+            .GetVariantsOfSongAsync(song.Id);
+    }
 }

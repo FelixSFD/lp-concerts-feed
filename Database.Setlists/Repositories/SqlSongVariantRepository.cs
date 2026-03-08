@@ -1,4 +1,5 @@
 using Database.Setlists.DataObjects;
+using Microsoft.EntityFrameworkCore;
 
 namespace Database.Setlists.Repositories;
 
@@ -13,5 +14,14 @@ public class SqlSongVariantRepository(SetlistsDbContext dbContext)
             .LoadAsync();
         
         return dataObject;
+    }
+    
+    /// <inheritdoc/>
+    public async Task<List<SongVariantDo>> GetVariantsOfSongAsync(uint songId)
+    {
+        return await DbSet.AsQueryable()
+            .Where(v => v.SongId == songId)
+            .Include(v => v.Song)
+            .ToListAsync();
     }
 }
