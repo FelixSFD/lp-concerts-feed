@@ -149,7 +149,7 @@ public class SetlistService(ISetlistRepository setlistRepository, ISetlistEntryR
             Id = setlistDo.Id,
             ConcertId = setlistDo.ConcertId,
             LinkinpediaUrl = setlistDo.LinkinpediaUrl,
-            Entries = setlistDo.Entries?.Select(SetlistEntryDoToDto).ToArray() ?? []
+            Entries = setlistDo.Entries?.Select(SetlistEntryDoToDto).ToList() ?? []
         };
         
         return setlistDto;

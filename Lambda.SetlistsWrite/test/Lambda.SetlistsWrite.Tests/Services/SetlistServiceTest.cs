@@ -187,4 +187,91 @@ public class SetlistServiceTest
             .DidNotReceive()
             .Add(Arg.Any<SongDo>());
     }
+
+
+    [Fact]
+    public async Task GetCompleteSetlistAsync()
+    {
+        var song1 = new SongDo
+        {
+            Id = 1234,
+            Title = "QWERTY",
+            Isrc = "5355646",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
+        };
+        
+        var song2 = new SongDo
+        {
+            Id = 1,
+            Title = "Lost",
+            Isrc = "1",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/Lost"
+        };
+
+        var entry1 = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            SongNumber = 1,
+            SortNumber = 10,
+            PlayedSong = song1,
+            TitleOverride = null,
+            ExtraNotes = "FINALLY!!!",
+            IsPlayedFromRecording = false,
+            IsWorldPremiere = false,
+            IsRotationSong = false
+        };
+        
+        var entry2 = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            SongNumber = 2,
+            SortNumber = 10,
+            PlayedSong = song2,
+            IsPlayedFromRecording = false,
+            IsWorldPremiere = false,
+            IsRotationSong = false
+        };
+        
+        var setlist = new SetlistDo
+        {
+            Id = 1,
+            ConcertId = Guid.NewGuid().ToString(),
+            LinkinpediaUrl = "https://lplive.net",
+            Entries = [entry1,  entry2]
+        };
+        
+        // setup mocks
+        _setlistRepository
+            .GetByPrimaryKeyAsync(setlist.Id)
+            .Returns(setlist);
+        
+        // call the service
+        var result = await _setlistService.GetCompleteSetlist(setlist.Id);
+        
+        // verify result DTO
+        Assert.NotNull(result);
+        Assert.Equal(setlist.Id, result.Id);
+        Assert.Equal(setlist.LinkinpediaUrl, result.LinkinpediaUrl);
+        Assert.Equal(setlist.Entries.Count, result.Entries.Count);
+        Assert.Equal(setlist.ConcertId, result.ConcertId);
+
+        var returnedEntry1 = result.Entries[0];
+        Assert.Equal(entry1.PlayedSong.Title, returnedEntry1.PlayedSong?.Title);
+        Assert.Equal(entry1.PlayedSong.Isrc, returnedEntry1.PlayedSong?.Isrc);
+        Assert.Equal(entry1.IsRotationSong, returnedEntry1.IsRotationSong);
+        Assert.Equal(entry1.IsWorldPremiere, returnedEntry1.IsWorldPremiere);
+        Assert.Equal(entry1.IsPlayedFromRecording, returnedEntry1.IsPlayedFromRecording);
+        
+        var returnedEntry2 = result.Entries[1];
+        Assert.Equal(entry2.PlayedSong.Title, returnedEntry2.PlayedSong?.Title);
+        Assert.Equal(entry2.PlayedSong.Isrc, returnedEntry2.PlayedSong?.Isrc);
+        Assert.Equal(entry2.IsRotationSong, returnedEntry2.IsRotationSong);
+        Assert.Equal(entry2.IsWorldPremiere, returnedEntry2.IsWorldPremiere);
+        Assert.Equal(entry2.IsPlayedFromRecording, returnedEntry2.IsPlayedFromRecording);
+        
+        // verify mock calls
+        await _setlistRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(setlist.Id);
+    }
 }

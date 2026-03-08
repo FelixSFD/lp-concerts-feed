@@ -29,5 +29,5 @@ public class SetlistDto
     /// Entries of the setlist
     /// </summary>
     [JsonPropertyName("entries")]
-    public ICollection<SetlistEntryDto> Entries { get; set; } = [];
+    public List<SetlistEntryDto> Entries { get; set; } = [];
 }
