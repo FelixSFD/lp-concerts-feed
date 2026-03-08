@@ -7,11 +7,21 @@ public class SqlSetlistRepository(SetlistsDbContext dbContext)
     : SingleKeySqlRepositoryBase<SetlistDo, uint>(dbContext, dbContext.Setlists), ISetlistRepository
 {
     /// <inheritdoc/>
+    protected override async Task<SetlistDo> LoadReferences(SetlistDo dataObject)
+    {
+        await Context.Entry(dataObject)
+            .Collection(e => e.Entries)
+            .LoadAsync();
+        return dataObject;
+    }
+
+    /// <inheritdoc/>
     public async Task<SetlistDo?> GetByConcertIdAsync(string concertId)
     {
         return await DbSet
             .AsQueryable()
             .Where(sl => sl.ConcertId == concertId)
+            .Include(sl => sl.Entries)
             .FirstOrDefaultAsync();
     }
 }

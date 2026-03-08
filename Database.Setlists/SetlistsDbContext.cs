@@ -22,11 +22,21 @@ public class SetlistsDbContext(DbContextOptions<SetlistsDbContext> options) : Db
             .HasForeignKey(e => new { e.SetlistId, e.ActNumber })
             .HasPrincipalKey(a => new { a.SetlistId, ActNumber = (uint?)a.ActNumber })
             .IsRequired(false); // because ActNumber is nullable
+
+        modelBuilder.Entity<SetlistEntryDo>()
+            .HasOne(e => e.Setlist)
+            .WithMany(s => s.Entries)
+            .HasForeignKey(e => new { e.SetlistId })
+            .HasPrincipalKey(s => new { s.Id });
         
         modelBuilder.Entity<SetlistEntryDo>()
             .HasMany(e => e.SongExtras)
             .WithOne(extra => extra.SetlistEntry)
             .IsRequired(false);
+
+        modelBuilder.Entity<SetlistEntryDo>()
+            .Navigation(e => e.PlayedSong)
+            .AutoInclude();
 
         modelBuilder.Entity<SongMashupDo>()
             .HasMany(m => m.Songs)

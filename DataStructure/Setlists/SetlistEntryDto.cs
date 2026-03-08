@@ -20,10 +20,10 @@ public class SetlistEntryDto
     public ushort SongNumber { get; set; }
     
     /// <summary>
-    /// Optional property to override the title of the song or mashup in this entry only.
+    /// Title of this setlist entry. This can for example be the title of a song or a mashup
     /// </summary>
-    [JsonPropertyName("titleOverride")]
-    public string? TitleOverride { get; set; }
+    [JsonPropertyName("title")]
+    public required string Title { get; set; }
     
     /// <summary>
     /// Field to store additional notes about this entry

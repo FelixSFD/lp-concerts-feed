@@ -2,6 +2,9 @@ using System.Text.Json.Serialization;
 
 namespace LPCalendar.DataStructure.Setlists;
 
+/// <summary>
+/// Information about a setlist
+/// </summary>
 public class SetlistDto
 {
     /// <summary>
@@ -21,4 +24,10 @@ public class SetlistDto
     /// </summary>
     [JsonPropertyName("linkinpediaUrl")]
     public string? LinkinpediaUrl { get; set; }
+
+    /// <summary>
+    /// Entries of the setlist
+    /// </summary>
+    [JsonPropertyName("entries")]
+    public ICollection<SetlistEntryDto> Entries { get; set; } = [];
 }

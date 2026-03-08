@@ -49,7 +49,7 @@ public class SetlistService(ISetlistRepository setlistRepository, ISetlistEntryR
         var setlist = await setlistRepository.GetByPrimaryKeyAsync(setlistId);
         if (setlist == null)
         {
-            throw new SetlistNotFoundException(setlistId); 
+            throw new SetlistNotFoundException(setlistId);
         }
         
         logger.LogDebug("Adding song to setlist: {setlistId}", setlist.Id);
@@ -125,17 +125,48 @@ public class SetlistService(ISetlistRepository setlistRepository, ISetlistEntryR
         await setlistEntryRepository.SaveChangesAsync();
         logger.LogDebug("Successfully saved.");
 
-        var setlistEntryDto = new SetlistEntryDto
-        {
-            SongNumber = entry.SongNumber,
-            SortNumber = entry.SortNumber,
-            TitleOverride = entry.TitleOverride,
-            ExtraNotes = entry.ExtraNotes,
-            IsPlayedFromRecording = entry.IsPlayedFromRecording,
-            IsRotationSong = entry.IsRotationSong,
-            IsWorldPremiere = entry.IsWorldPremiere
-        };
-
+        var setlistEntryDto = SetlistEntryDoToDto(entry);
         return setlistEntryDto;
+    }
+
+
+    /// <summary>
+    /// Returns a setlist with all entries
+    /// </summary>
+    /// <param name="setlistId">ID of the setlist</param>
+    /// <returns></returns>
+    /// <exception cref="SetlistNotFoundException">if the setlist was not found</exception>
+    public async Task<SetlistDto?> GetCompleteSetlist(uint setlistId)
+    {
+        logger.LogDebug("Retrieve the setlist: {setlistId}", setlistId);
+        var setlistDo = await setlistRepository.GetByPrimaryKeyAsync(setlistId) ?? throw new SetlistNotFoundException(setlistId);
+        logger.LogDebug("Retrieved setlist: {setlistId}", setlistDo.Id);
+        
+        logger.LogDebug("{count} setlist entries", setlistDo.Entries?.Count);
+
+        var setlistDto = new SetlistDto
+        {
+            Id = setlistDo.Id,
+            ConcertId = setlistDo.ConcertId,
+            LinkinpediaUrl = setlistDo.LinkinpediaUrl,
+            Entries = setlistDo.Entries?.Select(SetlistEntryDoToDto).ToArray() ?? []
+        };
+        
+        return setlistDto;
+    }
+
+
+    private static SetlistEntryDto SetlistEntryDoToDto(SetlistEntryDo setlistEntry)
+    {
+        return new SetlistEntryDto
+        {
+            SongNumber = setlistEntry.SongNumber,
+            SortNumber = setlistEntry.SortNumber,
+            Title = setlistEntry.TitleOverride ?? setlistEntry.PlayedSong?.Title ?? "unknown",
+            ExtraNotes = setlistEntry.ExtraNotes,
+            IsPlayedFromRecording = setlistEntry.IsPlayedFromRecording,
+            IsRotationSong = setlistEntry.IsRotationSong,
+            IsWorldPremiere = setlistEntry.IsWorldPremiere
+        };
     }
 }

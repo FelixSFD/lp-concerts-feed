@@ -402,11 +402,9 @@ components:
         songNumber:
           type: number
           description: Number of the song in this setlist. Is displayed as an orientation
-        titleOverride:
+        title:
           type: string
-          description: Optional property to override the title of the song or mashup in this entry only.
-          nullable: true
-          maxLength: 31
+          description: Title of this setlist entry. This can for example be the title of a song or a mashup
         extraNotes:
           type: string
           description: Field to store additional notes about this entry
@@ -421,6 +419,24 @@ components:
         isWorldPremiere:
           type: boolean
           description: true if this song has not only not been played before, but was not released before this show. For example "Heavy Is The Crown" in Hamburg 2024
+    
+    Setlist:
+      type: object
+      description: Information about a setlist including all entries
+      properties:
+        id:
+          type: number
+          description: ID of the setlist
+        concertId:
+          type: string
+          description: ID of the concert where this set was played
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+        entries:
+          type: array
+          items:
+            - $ref: "#/components/schemas/SetlistEntry"
     
     CreateSetlistRequest:
       type: object
@@ -1395,7 +1411,7 @@ paths:
             schema:
               $ref: "#/components/schemas/CreateSetlistRequest"
       responses:
-        "200":
+        "201":
           description: The setlist that has just been created
           content:
             application/json:
@@ -1430,7 +1446,7 @@ paths:
             schema:
               $ref: "#/components/schemas/AddSongToSetlistRequest"
       responses:
-        "200":
+        "201":
           description: The setlist entry that has just been created
           content:
             application/json:
@@ -1438,6 +1454,36 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/AddSongToSetlistResponse"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /setlists/{setlistId}:
+    get:
+      operationId: GetCompleteSetlist
+      summary: Returns the complete setlist
+      description: This contains all entries
+      tags:
+        - setlists
+      responses:
+        "200":
+          description: The complete setlist information
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Setlist"
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:

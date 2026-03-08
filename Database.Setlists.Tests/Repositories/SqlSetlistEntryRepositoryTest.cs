@@ -10,6 +10,7 @@ public class SqlSetlistEntryRepositoryTest : DbIntegrationTestsBase
     public async Task WithMultipleEntries()
     {
         var repo = new SqlSetlistEntryRepository(DbContext);
+        var setlistRepo = new SqlSetlistRepository(DbContext);
 
         var setlist = new SetlistDo
         {
@@ -54,6 +55,13 @@ public class SqlSetlistEntryRepositoryTest : DbIntegrationTestsBase
         retrievedEntry = await repo.GetByPrimaryKeyAsync(entry2.Id);
         Assert.NotNull(retrievedEntry);
         AssertEntriesEqual(entry2, retrievedEntry);
+        
+        // test reading via Setlist header
+        var setlistDo = await setlistRepo.GetByPrimaryKeyAsync(entry1.SetlistId);
+        Assert.NotNull(setlistDo);
+        retrievedEntry = setlistDo.Entries.FirstOrDefault();
+        Assert.NotNull(retrievedEntry);
+        AssertEntriesEqual(entry1, retrievedEntry);
         
         repo.Delete(entry1);
         

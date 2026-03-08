@@ -21,4 +21,9 @@ public class SetlistDo : BaseDo, ILinkinpediaLinkable
     /// <inheritdoc/>
     [MaxLength(63)]
     public string? LinkinpediaUrl { get; set; }
+    
+    /// <summary>
+    /// Setlist entries for this act
+    /// </summary>
+    public virtual ICollection<SetlistEntryDo> Entries { get; set; }
 }

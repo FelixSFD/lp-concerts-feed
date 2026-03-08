@@ -20,7 +20,6 @@ public class SetlistEntryDo : BaseDo
     /// <summary>
     /// Setlist that contains this entry
     /// </summary>
-    [ForeignKey(nameof(SetlistId))]
     public virtual SetlistDo Setlist { get; set; }
     
     /// <summary>
