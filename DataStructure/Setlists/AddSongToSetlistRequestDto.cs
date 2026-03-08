@@ -9,13 +9,6 @@ namespace LPCalendar.DataStructure.Setlists;
 public class AddSongToSetlistRequestDto
 {
     /// <summary>
-    /// ID of the setlist where the Song should be added to
-    /// </summary>
-    [JsonPropertyName("setlistId")]
-    public uint SetlistId { get; set; }
-
-
-    /// <summary>
     /// Parameters of the song for this entry
     /// </summary>
     [JsonPropertyName("songParameters")]

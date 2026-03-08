@@ -392,6 +392,36 @@ components:
           nullable: false
     
     # Setlists
+    SetlistEntry:
+      type: object
+      description: An entry in a setlist
+      properties:
+        sortNumber:
+          type: number
+          description: Number to sort the entries
+        songNumber:
+          type: number
+          description: Number of the song in this setlist. Is displayed as an orientation
+        titleOverride:
+          type: string
+          description: Optional property to override the title of the song or mashup in this entry only.
+          nullable: true
+          maxLength: 31
+        extraNotes:
+          type: string
+          description: Field to store additional notes about this entry
+          nullable: true
+          maxLength: 127
+        isRotationSong:
+          type: boolean
+          description: true if this slot is known to rotate between shows on the same tour.
+        isPlayedFromRecording:
+          type: boolean
+          description: true if the song was played from a recording only. Not played live. (this can happen for pre-show-songs for example)
+        isWorldPremiere:
+          type: boolean
+          description: true if this song has not only not been played before, but was not released before this show. For example "Heavy Is The Crown" in Hamburg 2024
+    
     CreateSetlistRequest:
       type: object
       description: Request to create a new (empty) setlist
@@ -419,26 +449,99 @@ components:
           description: URL to the wiki page on Linkinpedia
           nullable: true
     
-    AddSongToSetlistRequestDto:
+    ActParameters:
+      type: object
+      description: Set of properties used whenever data of an act is passed to the server.
+      properties:
+        setlistId:
+          type: number
+          description: ID of the setlist. Does not need to be passed if this object is included in a request that already contains the ID of the setlist.
+          nullable: true
+        actNumber:
+          type: number
+          description: Number of the act within the setlist
+        title:
+          type: string
+          description: Title of this act
+          nullable: true
+    
+    SongParameters:
+      type: object
+      description: Set of parameters used when song data is passed to the server
+      properties:
+        songId:
+          type: number
+          description: ID of the song. If not set, a new song will be created based on the other parameters
+          nullable: true
+        songTitle:
+          type: string
+          description: Title of the song. If not present, the ID of the song must be set.
+          nullable: true
+        isrc:
+          type: string
+          description: ISRC of the song. If not present, the ID of the song must be set.
+          nullable: true
+    
+    SetlistEntryParameters:
+      type: object
+      description: Common parameters for setlist entries
+      properties:
+        sortNumber:
+          type: number
+          description: Number to sort the entries
+        songNumber:
+          type: number
+          description: Number of the song in this setlist. Is displayed as an orientation
+        titleOverride:
+          type: string
+          description: Optional property to override the title of the song or mashup in this entry only.
+          nullable: true
+          maxLength: 31
+        extraNotes:
+          type: string
+          description: Field to store additional notes about this entry
+          nullable: true
+          maxLength: 127
+        isRotationSong:
+          type: boolean
+          description: true if this slot is known to rotate between shows on the same tour.
+        isPlayedFromRecording:
+          type: boolean
+          description: true if the song was played from a recording only. Not played live. (this can happen for pre-show-songs for example)
+        isWorldPremiere:
+          type: boolean
+          description: true if this song has not only not been played before, but was not released before this show. For example "Heavy Is The Crown" in Hamburg 2024
+    
+    AddSongToSetlistRequest:
       type: object
       description: Request to add a song to an existing setlist
       properties:
-        setlistId:
-          type: number
-          description: ID of the setlist
-        songId:
-          type: number
-          description: ID of the song. To create a new song, don't set this ID. Only set the song parameters.
+        songParameters:
+          type: object
+          description: Parameters of the song for this entry
+          oneOf:
+            - $ref: "#/components/schemas/SongParameters"
+        actParameters:
+          type: object
+          description: If set, the added song will be added to this Act. Title isn't required if the Act already exists.
           nullable: true
+          anyOf:
+            - $ref: "#/components/schemas/ActParameters"
+        entryParameters:
+          type: object
+          description: Common parameters for that entry, no matter if it was a song or mashup
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntryParameters"
     
-    # TODO: Fully define DTO
-    AddSongToSetlistResponseDto:
+    AddSongToSetlistResponse:
       type: object
       description: Response after a song was added to the setlist
       properties:
-        setlistId:
-          type: number
-          description: ID of the setlist
+        addedSetlistEntry:
+          type: object
+          description: The new entry that was added to the setlist
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntry"
 
 paths:
   /addConcert:
@@ -1325,7 +1428,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AddSongToSetlistRequestDto"
+              $ref: "#/components/schemas/AddSongToSetlistRequest"
       responses:
         "200":
           description: The setlist entry that has just been created
@@ -1334,7 +1437,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/AddSongToSetlistResponseDto"
+                  $ref: "#/components/schemas/AddSongToSetlistResponse"
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:

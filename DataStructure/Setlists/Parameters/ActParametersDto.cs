@@ -17,7 +17,7 @@ public class ActParametersDto
     
     
     /// <summary>
-    /// Unique ID of the setlist
+    /// Number of the act within the setlist
     /// </summary>
     [JsonPropertyName("actNumber")]
     public uint ActNumber { get; set; }

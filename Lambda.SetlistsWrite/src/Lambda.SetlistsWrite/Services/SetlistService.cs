@@ -40,18 +40,19 @@ public class SetlistService(ISetlistRepository setlistRepository, ISetlistEntryR
     /// Adds a new song to the setlist and creates the <see cref="SongDo"/> if it does not exist yet.
     /// </summary>
     /// <param name="request">Request to add a new song to the setlist</param>
+    /// <param name="setlistId">ID of the setlist where the song wil be added to</param>
     /// <returns>the newly created setlist entry</returns>
     /// <exception cref="SetlistNotFoundException">if the setlist does not exist. Call <see cref="CreateSetlistAsync"/> to create a setlist first.</exception>
-    public async Task<SetlistEntryDto?> AddSongToSetlistAsync(AddSongToSetlistRequestDto request)
+    public async Task<SetlistEntryDto?> AddSongToSetlistAsync(AddSongToSetlistRequestDto request, uint setlistId)
     {
-        logger.LogDebug("Load setlist: {setlistId}", request.SetlistId);
-        var setlist = await setlistRepository.GetByPrimaryKeyAsync(request.SetlistId);
+        logger.LogDebug("Load setlist: {setlistId}", setlistId);
+        var setlist = await setlistRepository.GetByPrimaryKeyAsync(setlistId);
         if (setlist == null)
         {
-            throw new SetlistNotFoundException(request.SetlistId); 
+            throw new SetlistNotFoundException(setlistId); 
         }
         
-        logger.LogDebug("Adding song to setlist: {setlistId}", request.SetlistId);
+        logger.LogDebug("Adding song to setlist: {setlistId}", setlist.Id);
 
         var songParams = request.SongParameters;
         SongDo? song;
@@ -82,7 +83,7 @@ public class SetlistService(ISetlistRepository setlistRepository, ISetlistEntryR
         else
         {
             logger.LogDebug("Checking if act exists: {actNumber}", request.Act);
-            actDo = await actRepository.GetBy(request.SetlistId, request.Act.ActNumber);
+            actDo = await actRepository.GetBy(setlist.Id, request.Act.ActNumber);
             if (actDo == null)
             {
                 logger.LogDebug("Adding act {actNumber} to setlist", request.Act);

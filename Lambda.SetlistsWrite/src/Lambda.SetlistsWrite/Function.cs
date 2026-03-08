@@ -44,6 +44,9 @@ public class Function
         stopwatch.Stop();
         context.Logger.LogDebug("Init duration of EFCore context: {duration}", stopwatch.ElapsedMilliseconds);
         _setlistRepository = new SqlSetlistRepository(dbContext);
+        _setlistActRepository = new SqlSetlistActRepository(dbContext);
+        _setlistEntryRepository = new SqlSetlistEntryRepository(dbContext);
+        _songRepository = new SqlSongRepository(dbContext);
         _setlistService = new SetlistService(_setlistRepository, _setlistEntryRepository, _concertRepository, _songRepository,  _setlistActRepository, context.Logger);
         
         // TODO: Enable authorization!
@@ -70,7 +73,7 @@ public class Function
         {
             context.Logger.LogInformation("Adding a song to the setlist with ID '{setlistId}' ...", setlistId);
             if (!string.IsNullOrEmpty(setlistId))
-                return await HandleAddSongToSetlist(request.Body, context);
+                return await HandleAddSongToSetlist(request.Body, setlistId, context);
             
             context.Logger.LogError("Invalid setlist ID!");
             return ReturnBadRequest("Invalid setlist ID!");
@@ -189,12 +192,18 @@ public class Function
         };
     }
     
-    private async Task<APIGatewayProxyResponse> HandleAddSongToSetlist(string requestJson,
+    private async Task<APIGatewayProxyResponse> HandleAddSongToSetlist(string requestJson, string setlistIdStr,
         ILambdaContext context)
     {
+        if (!uint.TryParse(setlistIdStr, out var setlistId))
+        {
+            context.Logger.LogError("Invalid setlist ID");
+            return ReturnBadRequest("Invalid setlist ID");
+        }
+        
         var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.AddSongToSetlistRequestDto);
         if (dto != null)
-            return await HandleAddSongToSetlist(dto, context);
+            return await HandleAddSongToSetlist(dto, setlistId, context);
         
         var badRequestResponse = new ErrorResponse
         {
@@ -219,17 +228,18 @@ public class Function
     /// Adds a new song to an existing setlist
     /// </summary>
     /// <param name="request"></param>
+    /// <param name="setlistId">ID of the setlist</param>
     /// <param name="context"></param>
     /// <returns></returns>
-    private async Task<APIGatewayProxyResponse> HandleAddSongToSetlist(AddSongToSetlistRequestDto request,
+    private async Task<APIGatewayProxyResponse> HandleAddSongToSetlist(AddSongToSetlistRequestDto request, uint setlistId,
         ILambdaContext context)
     {
-        var entryDto = await _setlistService.AddSongToSetlistAsync(request);
+        var entryDto = await _setlistService.AddSongToSetlistAsync(request, setlistId);
         if (entryDto == null)
         {
             var internalErrorResponse = new ErrorResponse
             {
-                Message = $"An unknown error occurred while adding song setlist with ID: {request.SetlistId}"
+                Message = $"An unknown error occurred while adding song setlist with ID: {setlistId}"
             };
             
             context.Logger.LogError(internalErrorResponse.Message);
