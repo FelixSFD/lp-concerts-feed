@@ -408,6 +408,28 @@ components:
           description: ISRC of the song
           nullable: true
     
+    SongVariant:
+      type: object
+      description: Information about a variation of a song
+      properties:
+        id:
+          type: number
+          description: ID of the song variant
+        songId:
+          type: string
+          description: ID of the main version of the song
+        isrcOverride:
+          type: string
+          description: ISRC of the variant if it is different from the normal version
+          nullable: true
+        variantName:
+          type: string
+          description: Name of this variant. This will be visible as the Song-Title in the setlist
+        description:
+          type: string
+          description: Optional description of the variant. What makes this variant different from the original?
+          nullable: true
+    
     SetlistEntry:
       type: object
       description: An entry in a setlist
@@ -1506,6 +1528,35 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Setlist"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /songs/{songId}:
+    get:
+      operationId: GetSong
+      summary: Returns information about a song
+      tags:
+        - setlists
+      responses:
+        "200":
+          description: The song information
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Song"
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:

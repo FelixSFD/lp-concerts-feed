@@ -4,7 +4,7 @@ namespace Lambda.SetlistsWrite.Services.Exceptions;
 /// Exception that is thrown when a song was not found
 /// </summary>
 /// <param name="songId">ID the song</param>
-public class SongNotFoundException(uint songId) : SetlistServiceException
+public class SongNotFoundException(uint songId) : SetlistServiceException($"The Song with ID {songId} was not found!")
 {
     /// <summary>
     /// ID of the song that was not found

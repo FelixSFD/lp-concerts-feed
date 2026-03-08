@@ -9,6 +9,7 @@ using Database.Setlists.DataObjects;
 using Database.Setlists.Repositories;
 using Lambda.Auth;
 using Lambda.SetlistsWrite.Services;
+using Lambda.SetlistsWrite.Services.Exceptions;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Responses;
 using LPCalendar.DataStructure.Setlists;
@@ -26,7 +27,9 @@ public class Function
     private ISetlistActRepository _setlistActRepository;
     private ISetlistEntryRepository _setlistEntryRepository;
     private ISongRepository _songRepository;
+    private ISongVariantRepository _songVariantRepository;
     private SetlistService _setlistService;
+    private SongService _songService;
 
     public Function()
     {
@@ -47,17 +50,28 @@ public class Function
         _setlistActRepository = new SqlSetlistActRepository(dbContext);
         _setlistEntryRepository = new SqlSetlistEntryRepository(dbContext);
         _songRepository = new SqlSongRepository(dbContext);
+        _songVariantRepository = new SqlSongVariantRepository(dbContext);
         _setlistService = new SetlistService(_setlistRepository, _setlistEntryRepository, _concertRepository, _songRepository,  _setlistActRepository, context.Logger);
+        _songService = new SongService(_songRepository, _songVariantRepository, context.Logger);
         
         context.Logger.LogInformation("Called {method} {path}", request.HttpMethod, request.Resource);
         
         var hasSetlistIdPathParameter = request.PathParameters.TryGetValue("setlistId", out var setlistIdStr);
         uint? setlistId = hasSetlistIdPathParameter ? uint.Parse(setlistIdStr!) : null;
+        
+        var hasSongIdPathParameter = request.PathParameters.TryGetValue("songId", out var songIdStr);
+        uint? songId = hasSongIdPathParameter ? uint.Parse(songIdStr!) : null;
 
         if (request is { HttpMethod: "GET", Resource: "/setlists/{setlistId}" } && hasSetlistIdPathParameter)
         {
-            context.Logger.LogInformation("Creating a setlist...");
+            context.Logger.LogInformation("Reading a setlist...");
             return await HandleGetSetlist(setlistId ?? 0, context);
+        }
+        
+        if (request is { HttpMethod: "GET", Resource: "/songs/{songId}" } && hasSongIdPathParameter)
+        {
+            context.Logger.LogInformation("Requested song with ID: {songId}", songId);
+            return await HandleGetSong(songId ?? 0, context);
         }
         
         // TODO: Enable authorization!
@@ -313,5 +327,45 @@ public class Function
                 { "Access-Control-Allow-Methods", "OPTIONS, GET" }
             }
         };
+    }
+    
+    
+    private async Task<APIGatewayProxyResponse> HandleGetSong(uint songId, ILambdaContext context)
+    {
+        try
+        {
+            var song = await _songService.GetSongById(songId);
+
+            return new APIGatewayProxyResponse()
+            {
+                StatusCode = (int)HttpStatusCode.OK,
+                Body = JsonSerializer.Serialize(song, SetlistDtoJsonContext.Default.SongDto),
+                Headers = new Dictionary<string, string>
+                {
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                }
+            };
+        }
+        catch (SongNotFoundException e)
+        {
+            var internalErrorResponse = new ErrorResponse
+            {
+                Message = e.Message
+            };
+
+            context.Logger.LogError(internalErrorResponse.Message);
+
+            return new APIGatewayProxyResponse()
+            {
+                StatusCode = (int)HttpStatusCode.BadRequest,
+                Body = JsonSerializer.Serialize(internalErrorResponse, DataStructureJsonContext.Default.ErrorResponse),
+                Headers = new Dictionary<string, string>
+                {
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                }
+            };
+        }
     }
 }
