@@ -25,7 +25,7 @@ public class SongVariantDo : BaseDo
     /// Song that is the base for this variation
     /// </summary>
     [ForeignKey("SongId")]
-    public virtual required SongDo Song { get; set; }
+    public virtual SongDo Song { get; set; }
     
     
     /// <summary>

@@ -37,6 +37,14 @@ public class SetlistsDbContext(DbContextOptions<SetlistsDbContext> options) : Db
         modelBuilder.Entity<SetlistEntryDo>()
             .Navigation(e => e.PlayedSong)
             .AutoInclude();
+        
+        modelBuilder.Entity<SetlistEntryDo>()
+            .Navigation(e => e.PlayedSongVariant)
+            .AutoInclude();
+        
+        modelBuilder.Entity<SetlistEntryDo>()
+            .Navigation(e => e.PlayedMashup)
+            .AutoInclude();
 
         modelBuilder.Entity<SongMashupDo>()
             .HasMany(m => m.Songs)

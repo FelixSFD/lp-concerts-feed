@@ -28,6 +28,26 @@ public static class DtoMapper
     /// </summary>
     /// <param name="songVariantDo">Song variant to map to its DTO</param>
     /// <returns>the DTO</returns>
+    public static SongVariantDto? ToDtoNullable(SongVariantDo? songVariantDo)
+    {
+        if (songVariantDo == null)
+            return null;
+        
+        return new SongVariantDto
+        {
+            Id = songVariantDo.Id,
+            SongId = songVariantDo.SongId,
+            VariantName = songVariantDo.VariantName,
+            IsrcOverride = songVariantDo.IsrcOverride,
+            Description = songVariantDo.Description
+        };
+    }
+    
+    /// <summary>
+    /// Maps a <see cref="SongVariantDo"/> to <see cref="SongVariantDto"/>
+    /// </summary>
+    /// <param name="songVariantDo">Song variant to map to its DTO</param>
+    /// <returns>the DTO</returns>
     public static SongVariantDto ToDto(SongVariantDo songVariantDo)
     {
         return new SongVariantDto

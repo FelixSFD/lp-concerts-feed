@@ -51,7 +51,7 @@ public class Function
         _setlistEntryRepository = new SqlSetlistEntryRepository(dbContext);
         _songRepository = new SqlSongRepository(dbContext);
         _songVariantRepository = new SqlSongVariantRepository(dbContext);
-        _setlistService = new SetlistService(_setlistRepository, _setlistEntryRepository, _concertRepository, _songRepository,  _setlistActRepository, context.Logger);
+        _setlistService = new SetlistService(_setlistRepository, _setlistEntryRepository, _concertRepository, _songRepository, _songVariantRepository, _setlistActRepository, context.Logger);
         _songService = new SongService(_songRepository, _songVariantRepository, context.Logger);
         
         context.Logger.LogInformation("Called {method} {path}", request.HttpMethod, request.Resource);
@@ -108,6 +108,21 @@ public class Function
             context.Logger.LogInformation("Adding a song to the setlist with ID '{setlistId}' ...", setlistId);
             if (setlistId != null)
                 return await HandleAddSongToSetlist(request.Body, setlistId ?? 0, context);
+            
+            context.Logger.LogError("Invalid setlist ID!");
+            return ReturnBadRequest("Invalid setlist ID!");
+        }
+        
+        if (request is { HttpMethod: "POST", Resource: "/setlists/{setlistId}/variants" } && hasSetlistIdPathParameter)
+        {
+            if (request.Body == null)
+            {
+                return ReturnBadRequest("Missing request body!");
+            }
+            
+            context.Logger.LogInformation("Adding a song variant to the setlist with ID '{setlistId}' ...", setlistId);
+            if (setlistId != null)
+                return await HandleAddSongVariantToSetlist(request.Body, setlistId ?? 0, context);
             
             context.Logger.LogError("Invalid setlist ID!");
             return ReturnBadRequest("Invalid setlist ID!");
@@ -299,6 +314,81 @@ public class Function
     }
     
     
+    private async Task<APIGatewayProxyResponse> HandleAddSongVariantToSetlist(string requestJson, uint setlistId,
+        ILambdaContext context)
+    {
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.AddSongVariantToSetlistRequestDto);
+        if (dto != null)
+            return await HandleAddSongVariantToSetlist(dto, setlistId, context);
+        
+        var badRequestResponse = new ErrorResponse
+        {
+            Message = "Failed to deserialize the request body"
+        };
+            
+        context.Logger.LogError(badRequestResponse.Message);
+            
+        return new APIGatewayProxyResponse()
+        {
+            StatusCode = (int)HttpStatusCode.BadRequest,
+            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
+            Headers = new Dictionary<string, string>
+            {
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, POST" }
+            }
+        };
+    }
+    
+    /// <summary>
+    /// Adds a new song to an existing setlist
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="setlistId">ID of the setlist</param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    private async Task<APIGatewayProxyResponse> HandleAddSongVariantToSetlist(AddSongVariantToSetlistRequestDto request, uint setlistId,
+        ILambdaContext context)
+    {
+        try
+        {
+            var entryDto = await _setlistService.AddSongVariantToSetlistAsync(request, setlistId);
+            var responseDto = new AddSongVariantToSetlistResponseDto(entryDto);
+        
+            return new APIGatewayProxyResponse()
+            {
+                StatusCode = (int)HttpStatusCode.Created,
+                Body = JsonSerializer.Serialize(responseDto, SetlistDtoJsonContext.Default.AddSongVariantToSetlistResponseDto),
+                Headers = new Dictionary<string, string>
+                {
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, POST" }
+                }
+            };
+        }
+        catch (SetlistNotFoundException e)
+        {
+            var notFoundErrorResponse = new ErrorResponse
+            {
+                Message = e.Message
+            };
+
+            context.Logger.LogError(notFoundErrorResponse.Message);
+
+            return new APIGatewayProxyResponse()
+            {
+                StatusCode = (int)HttpStatusCode.NotFound,
+                Body = JsonSerializer.Serialize(notFoundErrorResponse, DataStructureJsonContext.Default.ErrorResponse),
+                Headers = new Dictionary<string, string>
+                {
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                }
+            };
+        }
+    }
+    
+    
     private async Task<APIGatewayProxyResponse> HandleGetSetlist(uint setlistId, ILambdaContext context)
     {
         var setlistDto = await _setlistService.GetCompleteSetlist(setlistId);
@@ -364,7 +454,7 @@ public class Function
 
             return new APIGatewayProxyResponse()
             {
-                StatusCode = (int)HttpStatusCode.BadRequest,
+                StatusCode = (int)HttpStatusCode.NotFound,
                 Body = JsonSerializer.Serialize(internalErrorResponse, DataStructureJsonContext.Default.ErrorResponse),
                 Headers = new Dictionary<string, string>
                 {

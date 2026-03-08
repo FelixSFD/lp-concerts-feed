@@ -446,6 +446,12 @@ components:
           nullable: true
           oneOf:
             - $ref: "#/components/schemas/Song"
+        playedSongVariant:
+          type: object
+          description: Song variant that was played. If not set, they didn't play a song variant, but a mashup or normal song instead
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/SongVariant"
         title:
           type: string
           description: Title of this setlist entry. This can for example be the title of a song or a mashup
@@ -542,6 +548,31 @@ components:
           description: ISRC of the song. If not present, the ID of the song must be set.
           nullable: true
     
+    SongVariantParameters:
+      type: object
+      description: Set of parameters used when song variant data is passed to the server
+      properties:
+        songVariantId:
+          type: number
+          description: If you want to add an existing song variant, this parameter must contain the ID of the variant
+          nullable: true
+        songId:
+          type: number
+          description: ID of the song. If this is null, the songVariantId must be set
+          nullable: true
+        variantName:
+          type: string
+          description: Name of this variant. This will be visible as the Song-Title in the setlist. If this is null, the songVariantId must be set
+          nullable: true
+        isrcOverride:
+          type: string
+          description: ISRC of the song. If not present, the ISRC of the original song will be used
+          nullable: true
+        description:
+          type: string
+          description: Optional description of the variant. What makes this variant different from the original?
+          nullable: true
+    
     SetlistEntryParameters:
       type: object
       description: Common parameters for setlist entries
@@ -571,6 +602,37 @@ components:
         isWorldPremiere:
           type: boolean
           description: true if this song has not only not been played before, but was not released before this show. For example "Heavy Is The Crown" in Hamburg 2024
+    
+    AddSongVariantToSetlistRequest:
+      type: object
+      description: Request to add a song variant to an existing setlist
+      properties:
+        songVariantParameters:
+          type: object
+          description: Parameters of the song variant for this entry
+          oneOf:
+            - $ref: "#/components/schemas/SongVariantParameters"
+        actParameters:
+          type: object
+          description: If set, the added song will be added to this Act. Title isn't required if the Act already exists.
+          nullable: true
+          anyOf:
+            - $ref: "#/components/schemas/ActParameters"
+        entryParameters:
+          type: object
+          description: Common parameters for that entry, no matter if it was a song or mashup
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntryParameters"
+    
+    AddSongVariantToSetlistResponse:
+      type: object
+      description: Response after a song variant was added to the setlist
+      properties:
+        addedSetlistEntry:
+          type: object
+          description: The new entry that was added to the setlist
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntry"
     
     AddSongToSetlistRequest:
       type: object
@@ -1512,6 +1574,41 @@ paths:
         httpMethod: "POST"
         contentHandling: "CONVERT_TO_TEXT"
         type: "aws_proxy"
+  /setlists/{setlistId}/variants:
+    post:
+      operationId: AddSongVariantToSetlist
+      summary: Adds a new song variant to the setlist and creates
+      description: In case the song variant doesn't exist yet, its entry in the database will be created, too
+      tags:
+        - setlists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddSongVariantToSetlistRequest"
+      responses:
+        "201":
+          description: The setlist entry that has just been created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AddSongVariantToSetlistResponse"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
   /setlists/{setlistId}:
     get:
       operationId: GetCompleteSetlist
@@ -1545,7 +1642,7 @@ paths:
       operationId: GetSong
       summary: Returns information about a song
       tags:
-        - setlists
+        - songs
       responses:
         "200":
           description: The song information
@@ -1572,7 +1669,7 @@ paths:
       operationId: GetVariantsOfSong
       summary: Returns all variants of a song
       tags:
-        - setlists
+        - songs
       responses:
         "200":
           description: The list of all variants of the song

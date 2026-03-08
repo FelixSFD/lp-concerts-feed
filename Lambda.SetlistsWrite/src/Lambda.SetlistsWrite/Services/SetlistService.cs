@@ -7,7 +7,14 @@ using LPCalendar.DataStructure.Setlists;
 
 namespace Lambda.SetlistsWrite.Services;
 
-public class SetlistService(ISetlistRepository setlistRepository, ISetlistEntryRepository setlistEntryRepository, IConcertRepository concertRepository, ISongRepository songRepository, ISetlistActRepository actRepository, ILambdaLogger logger)
+public class SetlistService(
+    ISetlistRepository setlistRepository,
+    ISetlistEntryRepository setlistEntryRepository,
+    IConcertRepository concertRepository,
+    ISongRepository songRepository,
+    ISongVariantRepository songVariantRepository,
+    ISetlistActRepository actRepository,
+    ILambdaLogger logger)
 {
     /// <summary>
     /// Creates a new (empty) setlist in the database
@@ -33,6 +40,76 @@ public class SetlistService(ISetlistRepository setlistRepository, ISetlistEntryR
         };
         
         return response;
+    }
+
+
+    /// <summary>
+    /// Adds a new entry to the setlist. This method should only be called if all the other data from the <paramref name="request"/> is already processed!
+    /// </summary>
+    /// <param name="request">Request to add a new entry to the setlist</param>
+    /// <param name="setlistId">ID of the setlist where the song wil be added to</param>
+    /// <param name="playedSong">Song that was played. One of these parameters should be set</param>
+    /// <param name="playedSongVariant">Song variant that was played. One of these parameters should be set</param>
+    /// <returns>the newly created setlist entry</returns>
+    /// <exception cref="SetlistNotFoundException">if the setlist does not exist. Call <see cref="CreateSetlistAsync"/> to create a setlist first.</exception>
+    private async Task<SetlistEntryDto> AddToSetlist(AddToSetlistRequestDto request, uint setlistId, SongDo? playedSong = null, SongVariantDo? playedSongVariant = null)
+    {
+        logger.LogDebug("Read or create setlist act: {actNumber}");
+        SetlistActDo? actDo;
+        if (request.Act == null)
+        {
+            logger.LogDebug("This entry does not belong to any act.");
+            actDo = null;
+        }
+        else
+        {
+            logger.LogDebug("Checking if act exists: {actNumber}", request.Act);
+            actDo = await actRepository.GetBy(setlistId, request.Act.ActNumber);
+            if (actDo == null)
+            {
+                logger.LogDebug("Adding act {actNumber} to setlist", request.Act);
+                actDo = new SetlistActDo
+                {
+                    SetlistId = setlistId,
+                    ActNumber = request.Act.ActNumber,
+                    Title = request.Act.Title
+                };
+                
+                actRepository.Add(actDo);
+                logger.LogDebug("Added act.");
+            }
+            else
+            {
+                logger.LogDebug("Read act: {actNumber}; Title: {title}", actDo.ActNumber, actDo.Title);
+            }
+        }
+        
+        logger.LogDebug("Creating setlist entry...");
+        var entry = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            SetlistId = setlistId,
+            SongNumber = request.EntryParameters.SongNumber,
+            Act = actDo,
+            ActNumber = actDo?.ActNumber,
+            PlayedSong = playedSong,
+            PlayedSongVariant = playedSongVariant,
+            ExtraNotes = request.EntryParameters.ExtraNotes,
+            TitleOverride = request.EntryParameters.TitleOverride,
+            SortNumber = request.EntryParameters.SortNumber,
+            IsWorldPremiere = request.EntryParameters.IsWorldPremiere,
+            IsPlayedFromRecording = request.EntryParameters.IsPlayedFromRecording,
+            IsRotationSong = request.EntryParameters.IsRotationSong
+        };
+        
+        setlistEntryRepository.Add(entry);
+        
+        logger.LogDebug("Saving...");
+        await setlistEntryRepository.SaveChangesAsync();
+        logger.LogDebug("Successfully saved.");
+
+        var setlistEntryDto = SetlistEntryDoToDto(entry);
+        return setlistEntryDto;
     }
 
 
@@ -72,61 +149,51 @@ public class SetlistService(ISetlistRepository setlistRepository, ISetlistEntryR
             
             songRepository.Add(song);
         }
-        
-        logger.LogDebug("Read or create setlist act: {actNumber}");
-        SetlistActDo? actDo;
-        if (request.Act == null)
+
+        return await AddToSetlist(request, setlistId, song);
+    }
+    
+    
+    /// <summary>
+    /// Adds a new song variant to the setlist and creates the <see cref="SongVariantDo"/> if it does not exist yet.
+    /// </summary>
+    /// <param name="request">Request to add a new song variant to the setlist</param>
+    /// <param name="setlistId">ID of the setlist where the song variant wil be added to</param>
+    /// <returns>the newly created setlist entry</returns>
+    /// <exception cref="SetlistNotFoundException">if the setlist does not exist. Call <see cref="CreateSetlistAsync"/> to create a setlist first.</exception>
+    public async Task<SetlistEntryDto> AddSongVariantToSetlistAsync(AddSongVariantToSetlistRequestDto request, uint setlistId)
+    {
+        logger.LogDebug("Load setlist: {setlistId}", setlistId);
+        var setlist = await setlistRepository.GetByPrimaryKeyAsync(setlistId);
+        if (setlist == null)
         {
-            logger.LogDebug("This entry does not belong to any act.");
-            actDo = null;
+            throw new SetlistNotFoundException(setlistId);
+        }
+        
+        logger.LogDebug("Adding song to setlist: {setlistId}", setlist.Id);
+
+        var songVariantParams = request.SongVariantParameters;
+        SongVariantDo? songVariant;
+        if (songVariantParams.SongVariantId != null)
+        {
+            logger.LogDebug("Checking if song variant exists: {songVariantId}", songVariantParams.SongVariantId);
+            songVariant = await songVariantRepository.GetByPrimaryKeyAsync(songVariantParams.SongVariantId ?? 0);
         }
         else
         {
-            logger.LogDebug("Checking if act exists: {actNumber}", request.Act);
-            actDo = await actRepository.GetBy(setlist.Id, request.Act.ActNumber);
-            if (actDo == null)
+            logger.LogDebug("Create a new song variant");
+            songVariant = new SongVariantDo
             {
-                logger.LogDebug("Adding act {actNumber} to setlist", request.Act);
-                actDo = new SetlistActDo
-                {
-                    SetlistId = setlist.Id,
-                    ActNumber = request.Act.ActNumber,
-                    Title = request.Act.Title
-                };
-                
-                actRepository.Add(actDo);
-                logger.LogDebug("Added act.");
-            }
-            else
-            {
-                logger.LogDebug("Read act: {actNumber}; Title: {title}", actDo.ActNumber, actDo.Title);
-            }
+                SongId = songVariantParams.SongId ?? 0,
+                VariantName = songVariantParams.VariantName,
+                Description = songVariantParams.Description,
+                IsrcOverride = songVariantParams.IsrcOverride
+            };
+            
+            songVariantRepository.Add(songVariant);
         }
-        
-        logger.LogDebug("Creating setlist entry...");
-        var entry = new SetlistEntryDo
-        {
-            Id = Guid.NewGuid().ToString(),
-            SetlistId = setlist.Id,
-            PlayedSong = song,
-            Act = actDo,
-            SongNumber = request.EntryParameters.SongNumber,
-            ExtraNotes = request.EntryParameters.ExtraNotes,
-            TitleOverride = request.EntryParameters.TitleOverride,
-            SortNumber = request.EntryParameters.SortNumber,
-            IsWorldPremiere = request.EntryParameters.IsWorldPremiere,
-            IsPlayedFromRecording = request.EntryParameters.IsPlayedFromRecording,
-            IsRotationSong = request.EntryParameters.IsRotationSong
-        };
-        
-        setlistEntryRepository.Add(entry);
-        
-        logger.LogDebug("Saving...");
-        await setlistEntryRepository.SaveChangesAsync();
-        logger.LogDebug("Successfully saved.");
 
-        var setlistEntryDto = SetlistEntryDoToDto(entry);
-        return setlistEntryDto;
+        return await AddToSetlist(request, setlistId, null, songVariant);
     }
 
 
@@ -163,12 +230,22 @@ public class SetlistService(ISetlistRepository setlistRepository, ISetlistEntryR
             SongNumber = setlistEntry.SongNumber,
             SortNumber = setlistEntry.SortNumber,
             PlayedSong = setlistEntry.PlayedSong != null ? SongDoToDto(setlistEntry.PlayedSong) : null,
-            Title = setlistEntry.TitleOverride ?? setlistEntry.PlayedSong?.Title ?? "unknown",
+            PlayedSongVariant = DtoMapper.ToDtoNullable(setlistEntry.PlayedSongVariant),
+            Title = setlistEntry.TitleOverride ?? GetEntryTitleForSongVariant(setlistEntry.PlayedSong, setlistEntry.PlayedSongVariant) ?? setlistEntry.PlayedSong?.Title ?? "unknown",
             ExtraNotes = setlistEntry.ExtraNotes,
             IsPlayedFromRecording = setlistEntry.IsPlayedFromRecording,
             IsRotationSong = setlistEntry.IsRotationSong,
             IsWorldPremiere = setlistEntry.IsWorldPremiere
         };
+    }
+
+
+    private static string? GetEntryTitleForSongVariant(SongDo? songDo, SongVariantDo? songVariantDo)
+    {
+        if (songDo == null || songVariantDo == null)
+            return null;
+
+        return $"{songDo} ({songVariantDo})";
     }
     
     

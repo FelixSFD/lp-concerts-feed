@@ -20,7 +20,14 @@ public class SetlistEntryDto
     public ushort SongNumber { get; set; }
 
     /// <summary>
-    /// ID of the song that has been played
+    /// the song variant that has been played
+    /// </summary>
+    [JsonPropertyName("playedSongVariant")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SongVariantDto? PlayedSongVariant { get; set; }
+    
+    /// <summary>
+    /// the song that has been played
     /// </summary>
     [JsonPropertyName("playedSong")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
