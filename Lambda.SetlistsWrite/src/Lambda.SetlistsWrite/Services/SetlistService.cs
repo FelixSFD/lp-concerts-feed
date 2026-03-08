@@ -43,7 +43,7 @@ public class SetlistService(ISetlistRepository setlistRepository, ISetlistEntryR
     /// <param name="setlistId">ID of the setlist where the song wil be added to</param>
     /// <returns>the newly created setlist entry</returns>
     /// <exception cref="SetlistNotFoundException">if the setlist does not exist. Call <see cref="CreateSetlistAsync"/> to create a setlist first.</exception>
-    public async Task<SetlistEntryDto?> AddSongToSetlistAsync(AddSongToSetlistRequestDto request, uint setlistId)
+    public async Task<SetlistEntryDto> AddSongToSetlistAsync(AddSongToSetlistRequestDto request, uint setlistId)
     {
         logger.LogDebug("Load setlist: {setlistId}", setlistId);
         var setlist = await setlistRepository.GetByPrimaryKeyAsync(setlistId);
