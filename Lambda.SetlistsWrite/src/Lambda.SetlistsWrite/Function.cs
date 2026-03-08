@@ -261,7 +261,7 @@ public class Function
         return new APIGatewayProxyResponse()
         {
             StatusCode = (int)HttpStatusCode.Created,
-            Body = JsonSerializer.Serialize(responseDto, SetlistDtoJsonContext.Default.CreateSetlistResponseDto),
+            Body = JsonSerializer.Serialize(responseDto, SetlistDtoJsonContext.Default.AddSongToSetlistResponseDto),
             Headers = new Dictionary<string, string>
             {
                 { "Access-Control-Allow-Origin", "*" },
