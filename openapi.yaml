@@ -1525,9 +1525,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Setlist"
+                $ref: "#/components/schemas/Setlist"
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:
@@ -1554,9 +1552,36 @@ paths:
           content:
             application/json:
               schema:
+                $ref: "#/components/schemas/Song"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /songs/{songId}/variants:
+    get:
+      operationId: GetVariantsOfSong
+      summary: Returns all variants of a song
+      tags:
+        - setlists
+      responses:
+        "200":
+          description: The list of all variants of the song
+          content:
+            application/json:
+              schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Song"
+                  $ref: "#/components/schemas/SongVariant"
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:

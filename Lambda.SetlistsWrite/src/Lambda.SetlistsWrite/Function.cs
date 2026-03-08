@@ -74,6 +74,12 @@ public class Function
             return await HandleGetSong(songId ?? 0, context);
         }
         
+        if (request is { HttpMethod: "GET", Resource: "/songs/{songId}/variants" } && hasSongIdPathParameter)
+        {
+            context.Logger.LogInformation("Requested variants song with ID: {songId}", songId);
+            return await HandleGetVariantsOfSong(songId ?? 0, context);
+        }
+        
         // TODO: Enable authorization!
         /*var hasSetlistPermission = request.CanManageSetlists();
         if (!hasSetlistPermission)
@@ -340,6 +346,46 @@ public class Function
             {
                 StatusCode = (int)HttpStatusCode.OK,
                 Body = JsonSerializer.Serialize(song, SetlistDtoJsonContext.Default.SongDto),
+                Headers = new Dictionary<string, string>
+                {
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                }
+            };
+        }
+        catch (SongNotFoundException e)
+        {
+            var internalErrorResponse = new ErrorResponse
+            {
+                Message = e.Message
+            };
+
+            context.Logger.LogError(internalErrorResponse.Message);
+
+            return new APIGatewayProxyResponse()
+            {
+                StatusCode = (int)HttpStatusCode.BadRequest,
+                Body = JsonSerializer.Serialize(internalErrorResponse, DataStructureJsonContext.Default.ErrorResponse),
+                Headers = new Dictionary<string, string>
+                {
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                }
+            };
+        }
+    }
+    
+    
+    private async Task<APIGatewayProxyResponse> HandleGetVariantsOfSong(uint songId, ILambdaContext context)
+    {
+        try
+        {
+            var variants = await _songService.GetVariantsOfSong(songId);
+
+            return new APIGatewayProxyResponse()
+            {
+                StatusCode = (int)HttpStatusCode.OK,
+                Body = JsonSerializer.Serialize(variants, SetlistDtoJsonContext.Default.ListSongVariantDto),
                 Headers = new Dictionary<string, string>
                 {
                     { "Access-Control-Allow-Origin", "*" },
