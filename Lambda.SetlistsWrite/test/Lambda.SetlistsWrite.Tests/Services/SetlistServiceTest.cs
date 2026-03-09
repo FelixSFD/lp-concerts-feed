@@ -227,7 +227,7 @@ public class SetlistServiceTest
         {
             Id = Guid.NewGuid().ToString(),
             SongNumber = 2,
-            SortNumber = 10,
+            SortNumber = 20,
             PlayedSong = song2,
             IsPlayedFromRecording = false,
             IsWorldPremiere = false,
@@ -239,7 +239,7 @@ public class SetlistServiceTest
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
             LinkinpediaUrl = "https://lplive.net",
-            Entries = [entry1,  entry2]
+            Entries = [entry2, entry1]
         };
         
         // setup mocks

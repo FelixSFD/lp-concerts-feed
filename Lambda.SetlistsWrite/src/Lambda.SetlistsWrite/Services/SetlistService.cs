@@ -216,7 +216,7 @@ public class SetlistService(
             Id = setlistDo.Id,
             ConcertId = setlistDo.ConcertId,
             LinkinpediaUrl = setlistDo.LinkinpediaUrl,
-            Entries = setlistDo.Entries?.Select(SetlistEntryDoToDto).ToList() ?? []
+            Entries = setlistDo.Entries?.Select(SetlistEntryDoToDto).OrderBy(se => se.SortNumber).ToList() ?? []
         };
         
         return setlistDto;
