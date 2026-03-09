@@ -430,6 +430,26 @@ components:
           description: Optional description of the variant. What makes this variant different from the original?
           nullable: true
     
+    SongMashup:
+      type: object
+      description: Information about a song mashup. A mashup is used when the band plays a special mix of two or more songs. For example "Remember The Name" and "When They Come For Me" during the FROM ZERO WORLD TOUR 2024-2026.
+      properties:
+        id:
+          type: number
+          description: ID of the mashup
+        title:
+          type: string
+          description: Title of the mashup
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+        songs:
+          type: array
+          description: Songs that are included in this mashup
+          items:
+            - $ref: "#/components/schemas/Song"
+    
     SetlistEntry:
       type: object
       description: An entry in a setlist
@@ -517,6 +537,26 @@ components:
           type: string
           description: URL to the wiki page on Linkinpedia
           nullable: true
+    
+    CreateSongMashupRequest:
+      type: object
+      description: Request to create a new mashup of two or more songs
+      properties:
+        id:
+          type: number
+          description: ID of the mashup
+        title:
+          type: string
+          description: Title of the mashup
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+        songs:
+          type: array
+          description: IDs of the songs that are included in this mashup
+          items:
+            type: number
     
     ActParameters:
       type: object
@@ -1525,9 +1565,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CreateSetlistResponse"
+                $ref: "#/components/schemas/CreateSetlistResponse"
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:
@@ -1727,6 +1765,39 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/SongVariant"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /mashups:
+    post:
+      operationId: CreateSongMashup
+      summary: Creates a new mashup
+      description: Creates a new mashup of two or more songs
+      tags:
+        - songs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSongMashupRequest"
+      responses:
+        "201":
+          description: The mashup that has just been created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SongMashup"
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:

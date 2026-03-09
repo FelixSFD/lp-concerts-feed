@@ -55,6 +55,8 @@ public class Function
         _songService = new SongService(_songRepository, _songVariantRepository, _songMashupRepository, context.Logger);
         
         context.Logger.LogInformation("Called {method} {path}", request.HttpMethod, request.Resource);
+
+        request.PathParameters ??= new Dictionary<string, string>();
         
         var hasSetlistIdPathParameter = request.PathParameters.TryGetValue("setlistId", out var setlistIdStr);
         uint? setlistId = hasSetlistIdPathParameter ? uint.Parse(setlistIdStr!) : null;
@@ -131,6 +133,17 @@ public class Function
         if (request is { HttpMethod: "DELETE", Resource: "/setlists/{setlistId}" } && hasSetlistIdPathParameter)
         {
             return await HandleDeleteSetlist(setlistId ?? 0, context);
+        }
+        
+        if (request is { HttpMethod: "POST", Resource: "/mashups" })
+        {
+            if (request.Body == null)
+            {
+                return ReturnBadRequest("Missing request body!");
+            }
+            
+            context.Logger.LogInformation("Creating a mashup...");
+            return await HandleCreateMashup(request.Body, context);
         }
         
         var hasSetlistEntryIdPathParameter = request.PathParameters.TryGetValue("setlistEntryId", out var setlistEntryId);
@@ -518,5 +531,63 @@ public class Function
                 { "Access-Control-Allow-Methods", corsMethods }
             }
         };
+    }
+    
+    
+    private async Task<APIGatewayProxyResponse> HandleCreateMashup(string requestJson,
+        ILambdaContext context)
+    {
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.CreateSongMashupRequestDto);
+        if (dto != null)
+            return await HandleCreateMashup(dto, context);
+        
+        var badRequestResponse = new ErrorResponse
+        {
+            Message = "Failed to deserialize the request body"
+        };
+            
+        context.Logger.LogError(badRequestResponse.Message);
+            
+        return new APIGatewayProxyResponse
+        {
+            StatusCode = (int)HttpStatusCode.BadRequest,
+            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
+            Headers = new Dictionary<string, string>
+            {
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, POST" }
+            }
+        };
+    }
+
+    /// <summary>
+    /// Create a new setlist in the database
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    private async Task<APIGatewayProxyResponse> HandleCreateMashup(CreateSongMashupRequestDto request,
+        ILambdaContext context)
+    {
+        try
+        {
+            var responseDto = await _songService.CreateMashupOfSongsAsync(request);
+            context.Logger.LogDebug("Successfully created mashup with ID: {id}", responseDto.Id);
+
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.Created,
+                Body = JsonSerializer.Serialize(responseDto, SetlistDtoJsonContext.Default.SongMashupDto),
+                Headers = new Dictionary<string, string>
+                {
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, POST" }
+                }
+            };
+        }
+        catch (InvalidMashupException e)
+        {
+            return ReturnBadRequest(e.Message, "OPTIONS, POST");
+        }
     }
 }

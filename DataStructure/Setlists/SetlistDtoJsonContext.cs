@@ -5,6 +5,7 @@ namespace LPCalendar.DataStructure.Setlists;
 
 [JsonSerializable(typeof(CreateSetlistRequestDto))]
 [JsonSerializable(typeof(CreateSetlistResponseDto))]
+[JsonSerializable(typeof(CreateSongMashupRequestDto))]
 [JsonSerializable(typeof(AddSongVariantToSetlistRequestDto))]
 [JsonSerializable(typeof(AddSongVariantToSetlistResponseDto))]
 [JsonSerializable(typeof(AddSongToSetlistRequestDto))]
@@ -14,6 +15,7 @@ namespace LPCalendar.DataStructure.Setlists;
 [JsonSerializable(typeof(ActParametersDto))]
 [JsonSerializable(typeof(SetlistDto))]
 [JsonSerializable(typeof(SongDto))]
+[JsonSerializable(typeof(SongMashupDto))]
 [JsonSerializable(typeof(List<SongDto>))]
 [JsonSerializable(typeof(List<SongVariantDto>))]
 public partial class SetlistDtoJsonContext : JsonSerializerContext
