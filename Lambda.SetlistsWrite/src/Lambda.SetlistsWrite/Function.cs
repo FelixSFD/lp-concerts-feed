@@ -128,6 +128,11 @@ public class Function
             return ReturnBadRequest("Invalid setlist ID!");
         }
         
+        if (request is { HttpMethod: "DELETE", Resource: "/setlists/{setlistId}" } && hasSetlistIdPathParameter)
+        {
+            return await HandleDeleteSetlist(setlistId ?? 0, context);
+        }
+        
         var hasSetlistEntryIdPathParameter = request.PathParameters.TryGetValue("setlistEntryId", out var setlistEntryId);
         
         if (request is { HttpMethod: "DELETE", Resource: "/setlists/{setlistId}/entries/{setlistEntryId}" } 
@@ -400,6 +405,28 @@ public class Function
                 }
             };
         }
+    }
+    
+    /// <summary>
+    /// Removes a setlist
+    /// </summary>
+    /// <param name="setlistId">unique ID of the setlist</param>
+    /// <param name="context"></param>
+    /// <returns>HTTP response</returns>
+    private async Task<APIGatewayProxyResponse> HandleDeleteSetlist(uint setlistId, ILambdaContext context)
+    {
+        context.Logger.LogInformation("Deleting setlist with ID: {setlistEntryId}", setlistId);
+        await _setlistService.RemoveSetlist(setlistId);
+        
+        return new APIGatewayProxyResponse()
+        {
+            StatusCode = (int)HttpStatusCode.NoContent,
+            Headers = new Dictionary<string, string>
+            {
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, DELETE" }
+            }
+        };
     }
     
     /// <summary>
