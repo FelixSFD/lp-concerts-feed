@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Net;
+using System.Reflection.Metadata;
 using System.Text.Json;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
@@ -296,20 +297,14 @@ public class Function
     private async Task<APIGatewayProxyResponse> HandleAddSongToSetlist(AddSongToSetlistRequestDto request, uint setlistId,
         ILambdaContext context)
     {
-        var entryDto = await _setlistService.AddSongToSetlistAsync(request, setlistId);
-        if (entryDto == null)
+        try
         {
-            var internalErrorResponse = new ErrorResponse
-            {
-                Message = $"An unknown error occurred while adding song setlist with ID: {setlistId}"
-            };
-            
-            context.Logger.LogError(internalErrorResponse.Message);
-            
+            var entryDto = await _setlistService.AddSongToSetlistAsync(request, setlistId);
+            var responseDto = new AddSongToSetlistResponseDto(entryDto);
             return new APIGatewayProxyResponse()
             {
-                StatusCode = (int)HttpStatusCode.BadRequest,
-                Body = JsonSerializer.Serialize(internalErrorResponse, DataStructureJsonContext.Default.ErrorResponse),
+                StatusCode = (int)HttpStatusCode.Created,
+                Body = JsonSerializer.Serialize(responseDto, SetlistDtoJsonContext.Default.AddSongToSetlistResponseDto),
                 Headers = new Dictionary<string, string>
                 {
                     { "Access-Control-Allow-Origin", "*" },
@@ -317,19 +312,10 @@ public class Function
                 }
             };
         }
-        
-        var responseDto = new AddSongToSetlistResponseDto(entryDto);
-        
-        return new APIGatewayProxyResponse()
+        catch (SetlistNotFoundException e)
         {
-            StatusCode = (int)HttpStatusCode.Created,
-            Body = JsonSerializer.Serialize(responseDto, SetlistDtoJsonContext.Default.AddSongToSetlistResponseDto),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, POST" }
-            }
-        };
+            return HandleNotFoundException(e.Message, "OPTIONS, POST", context.Logger);
+        }
     }
     
     
@@ -387,23 +373,7 @@ public class Function
         }
         catch (SetlistNotFoundException e)
         {
-            var notFoundErrorResponse = new ErrorResponse
-            {
-                Message = e.Message
-            };
-
-            context.Logger.LogError(notFoundErrorResponse.Message);
-
-            return new APIGatewayProxyResponse()
-            {
-                StatusCode = (int)HttpStatusCode.NotFound,
-                Body = JsonSerializer.Serialize(notFoundErrorResponse, DataStructureJsonContext.Default.ErrorResponse),
-                Headers = new Dictionary<string, string>
-                {
-                    { "Access-Control-Allow-Origin", "*" },
-                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
-                }
-            };
+            return HandleNotFoundException(e.Message, "OPTIONS, POST", context.Logger);
         }
     }
     
@@ -454,20 +424,13 @@ public class Function
     
     private async Task<APIGatewayProxyResponse> HandleGetSetlist(uint setlistId, ILambdaContext context)
     {
-        var setlistDto = await _setlistService.GetCompleteSetlist(setlistId);
-        if (setlistDto == null)
+        try
         {
-            var internalErrorResponse = new ErrorResponse
-            {
-                Message = $"An unknown error occurred while adding song setlist with ID: {setlistId}"
-            };
-            
-            context.Logger.LogError(internalErrorResponse.Message);
-            
+            var setlistDto = await _setlistService.GetCompleteSetlist(setlistId);
             return new APIGatewayProxyResponse()
             {
-                StatusCode = (int)HttpStatusCode.BadRequest,
-                Body = JsonSerializer.Serialize(internalErrorResponse, DataStructureJsonContext.Default.ErrorResponse),
+                StatusCode = (int)HttpStatusCode.OK,
+                Body = JsonSerializer.Serialize(setlistDto, SetlistDtoJsonContext.Default.SetlistDto),
                 Headers = new Dictionary<string, string>
                 {
                     { "Access-Control-Allow-Origin", "*" },
@@ -475,17 +438,10 @@ public class Function
                 }
             };
         }
-        
-        return new APIGatewayProxyResponse()
+        catch (SetlistNotFoundException e)
         {
-            StatusCode = (int)HttpStatusCode.OK,
-            Body = JsonSerializer.Serialize(setlistDto, SetlistDtoJsonContext.Default.SetlistDto),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET" }
-            }
-        };
+            return HandleNotFoundException(e.Message, "OPTIONS, GET", context.Logger);
+        }
     }
     
     
@@ -508,23 +464,7 @@ public class Function
         }
         catch (SongNotFoundException e)
         {
-            var internalErrorResponse = new ErrorResponse
-            {
-                Message = e.Message
-            };
-
-            context.Logger.LogError(internalErrorResponse.Message);
-
-            return new APIGatewayProxyResponse()
-            {
-                StatusCode = (int)HttpStatusCode.NotFound,
-                Body = JsonSerializer.Serialize(internalErrorResponse, DataStructureJsonContext.Default.ErrorResponse),
-                Headers = new Dictionary<string, string>
-                {
-                    { "Access-Control-Allow-Origin", "*" },
-                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
-                }
-            };
+            return HandleNotFoundException(e.Message, "OPTIONS, GET", context.Logger);
         }
     }
     
@@ -548,23 +488,36 @@ public class Function
         }
         catch (SongNotFoundException e)
         {
-            var internalErrorResponse = new ErrorResponse
-            {
-                Message = e.Message
-            };
-
-            context.Logger.LogError(internalErrorResponse.Message);
-
-            return new APIGatewayProxyResponse()
-            {
-                StatusCode = (int)HttpStatusCode.BadRequest,
-                Body = JsonSerializer.Serialize(internalErrorResponse, DataStructureJsonContext.Default.ErrorResponse),
-                Headers = new Dictionary<string, string>
-                {
-                    { "Access-Control-Allow-Origin", "*" },
-                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
-                }
-            };
+            return HandleNotFoundException(e.Message, "OPTIONS, GET", context.Logger);
         }
+    }
+
+
+    /// <summary>
+    /// Return an API response with status 404
+    /// </summary>
+    /// <param name="message"></param>
+    /// <param name="corsMethods"></param>
+    /// <param name="logger"></param>
+    /// <returns></returns>
+    private static APIGatewayProxyResponse HandleNotFoundException(string message, string corsMethods, ILambdaLogger logger)
+    {
+        var internalErrorResponse = new ErrorResponse
+        {
+            Message = message
+        };
+
+        logger.LogError("Handle not found error: {message}", internalErrorResponse.Message);
+
+        return new APIGatewayProxyResponse()
+        {
+            StatusCode = (int)HttpStatusCode.NotFound,
+            Body = JsonSerializer.Serialize(internalErrorResponse, DataStructureJsonContext.Default.ErrorResponse),
+            Headers = new Dictionary<string, string>
+            {
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", corsMethods }
+            }
+        };
     }
 }
