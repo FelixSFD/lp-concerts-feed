@@ -26,6 +26,7 @@ public class Function
     private ISetlistEntryRepository _setlistEntryRepository;
     private ISongRepository _songRepository;
     private ISongVariantRepository _songVariantRepository;
+    private ISongMashupRepository _songMashupRepository;
     private SetlistService _setlistService;
     private SongService _songService;
 
@@ -49,8 +50,9 @@ public class Function
         _setlistEntryRepository = new SqlSetlistEntryRepository(dbContext);
         _songRepository = new SqlSongRepository(dbContext);
         _songVariantRepository = new SqlSongVariantRepository(dbContext);
+        _songMashupRepository = new SqlSongMashupRepository(dbContext);
         _setlistService = new SetlistService(_setlistRepository, _setlistEntryRepository, _concertRepository, _songRepository, _songVariantRepository, _setlistActRepository, context.Logger);
-        _songService = new SongService(_songRepository, _songVariantRepository, context.Logger);
+        _songService = new SongService(_songRepository, _songVariantRepository, _songMashupRepository, context.Logger);
         
         context.Logger.LogInformation("Called {method} {path}", request.HttpMethod, request.Resource);
         

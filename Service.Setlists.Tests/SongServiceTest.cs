@@ -2,6 +2,7 @@ using Amazon.Lambda.Core;
 using Amazon.Lambda.TestUtilities;
 using Database.Setlists.DataObjects;
 using Database.Setlists.Repositories;
+using LPCalendar.DataStructure.Setlists;
 using NSubstitute;
 using Service.Setlists.Exceptions;
 
@@ -11,6 +12,7 @@ public class SongServiceTest
 {
     private readonly ISongRepository _songRepository;
     private readonly ISongVariantRepository _songVariantRepository;
+    private readonly ISongMashupRepository _songMashupRepository;
     private readonly ILambdaLogger _logger = new TestLambdaLogger();
     private readonly SongService _songService;
 
@@ -18,8 +20,9 @@ public class SongServiceTest
     {
         _songRepository = Substitute.For<ISongRepository>();
         _songVariantRepository = Substitute.For<ISongVariantRepository>();
+        _songMashupRepository = Substitute.For<ISongMashupRepository>();
         
-        _songService = new SongService(_songRepository, _songVariantRepository, _logger);
+        _songService = new SongService(_songRepository, _songVariantRepository, _songMashupRepository, _logger);
     }
 
     
@@ -217,5 +220,100 @@ public class SongServiceTest
         await _songVariantRepository
             .Received(1)
             .GetVariantsOfSongAsync(song.Id);
+    }
+
+
+    [Fact]
+    public async Task CreateMashupOfSongsAsync()
+    {
+        // prepare mocks and test data
+        var song1 = new SongDo
+        {
+            Id = 1234,
+            Title = "QWERTY",
+            Isrc = "5355646",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
+        };
+        
+        var song2 = new SongDo
+        {
+            Id = 1111,
+            Title = "One More Light",
+            Isrc = "123234"
+        };
+
+        SongDo[] mockSongs = [song1, song2];
+        _songRepository.GetSongsByIds(song1.Id, song2.Id).Returns(mockSongs.ToAsyncEnumerable());
+        
+        // call the service
+        var request = new CreateSongMashupRequestDto
+        {
+            Title = "Weird mashup",
+            LinkinpediaUrl = "https://lplive.net",
+            SongIds = [song1.Id, song2.Id]
+        };
+        
+        var mashup = await _songService.CreateMashupOfSongsAsync(request);
+        Assert.NotNull(mashup);
+        Assert.Equal(request.Title, mashup.Title);
+        Assert.Equal(request.LinkinpediaUrl, mashup.LinkinpediaUrl);
+        Assert.Equal(2, mashup.Songs.Count);
+
+        var addedSong1 = mashup.Songs[0];
+        Assert.NotNull(addedSong1);
+        Assert.Equal(song1.Id, addedSong1.Id);
+        Assert.Equal(song1.Title, addedSong1.Title);
+        Assert.Equal(song1.Isrc, addedSong1.Isrc);
+        
+        var addedSong2 = mashup.Songs[1];
+        Assert.NotNull(addedSong2);
+        Assert.Equal(song2.Id, addedSong2.Id);
+        Assert.Equal(song2.Title, addedSong2.Title);
+        Assert.Equal(song2.Isrc, addedSong2.Isrc);
+        
+        // verify mock calls
+        _songRepository
+            .Received(1)
+            .GetSongsByIds(song1.Id, song2.Id);
+        
+        _songMashupRepository
+            .Received(1)
+            .Add(Arg.Is<SongMashupDo>(m => m.Id == 0 && m.Title == request.Title && m.LinkinpediaUrl == request.LinkinpediaUrl));
+    }
+    
+    
+    [Fact]
+    public async Task CreateMashupOfSongsAsync_NotEnoughSongs()
+    {
+        // prepare mocks and test data
+        var song1 = new SongDo
+        {
+            Id = 1234,
+            Title = "QWERTY",
+            Isrc = "5355646",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
+        };
+
+        SongDo[] mockSongs = [song1];
+        _songRepository.GetSongsByIds(song1.Id).Returns(mockSongs.ToAsyncEnumerable());
+        
+        // call the service
+        var request = new CreateSongMashupRequestDto
+        {
+            Title = "no mashup",
+            SongIds = [song1.Id]
+        };
+        
+        var exception = await Assert.ThrowsAsync<InvalidMashupException>(async () => await _songService.CreateMashupOfSongsAsync(request));
+        Assert.NotNull(exception);
+        
+        // verify mock calls
+        _songRepository
+            .DidNotReceive()
+            .GetSongsByIds(Arg.Any<uint[]>());
+        
+        _songMashupRepository
+            .DidNotReceive()
+            .Add(Arg.Any<SongMashupDo>());
     }
 }

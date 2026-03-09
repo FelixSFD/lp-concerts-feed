@@ -1,4 +1,5 @@
 using Amazon.Lambda.Core;
+using Database.Setlists.DataObjects;
 using Database.Setlists.Repositories;
 using LPCalendar.DataStructure.Setlists;
 using Service.Setlists.Exceptions;
@@ -8,7 +9,7 @@ namespace Service.Setlists;
 /// <summary>
 /// Service class to manage Songs and variants
 /// </summary>
-public class SongService(ISongRepository songRepository, ISongVariantRepository songVariantRepository, ILambdaLogger logger)
+public class SongService(ISongRepository songRepository, ISongVariantRepository songVariantRepository, ISongMashupRepository songMashupRepository, ILambdaLogger logger)
 {
     /// <summary>
     /// Returns a song by its ID
@@ -49,5 +50,36 @@ public class SongService(ISongRepository songRepository, ISongVariantRepository 
         return variants
             .Select(DtoMapper.ToDto)
             .ToList();
+    }
+
+    /// <summary>
+    /// Creates a new mashup of two or more songs
+    /// </summary>
+    /// <param name="request">Request to create the mashup</param>
+    /// <exception cref="InvalidMashupException">if the requested mashup was not allowed</exception>
+    public async Task<SongMashupDto> CreateMashupOfSongsAsync(CreateSongMashupRequestDto request)
+    {
+        var ids = request.SongIds;
+        logger.LogDebug("Creating mashup of {count} songs...", ids.Length);
+        if (ids.Length < 2)
+        {
+            logger.LogError("Could not create mashup. A mashup must consist of at least 2 songs. Requested {count} songs.", ids.Length);
+            throw new InvalidMashupException("A mashup must consist of at least 2 songs.");
+        }
+
+        var songs = await songRepository.GetSongsByIds(ids).ToArrayAsync();
+        logger.LogDebug("Loaded {count} songs.", songs.Length);
+
+        var mashup = new SongMashupDo
+        {
+            Title = request.Title,
+            LinkinpediaUrl = request.LinkinpediaUrl,
+            Songs = songs
+        };
+        
+        songMashupRepository.Add(mashup);
+        await songMashupRepository.SaveChangesAsync();
+        logger.LogDebug("Successfully created mashup '{id}' with {count} songs.", mashup.Id, songs.Length);
+        return DtoMapper.ToDto(mashup);
     }
 }

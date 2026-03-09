@@ -59,4 +59,20 @@ public static class DtoMapper
             Description = songVariantDo.Description
         };
     }
+    
+    /// <summary>
+    /// Maps a <see cref="SongMashupDo"/> to <see cref="SongMashupDto"/>
+    /// </summary>
+    /// <param name="songMashupDo">Song mashup to map to its DTO</param>
+    /// <returns>the DTO</returns>
+    public static SongMashupDto ToDto(SongMashupDo songMashupDo)
+    {
+        return new SongMashupDto
+        {
+            Id = songMashupDo.Id,
+            Title = songMashupDo.Title,
+            LinkinpediaUrl = songMashupDo.LinkinpediaUrl,
+            Songs = songMashupDo.Songs.Select(ToDto).ToList()
+        };
+    }
 }

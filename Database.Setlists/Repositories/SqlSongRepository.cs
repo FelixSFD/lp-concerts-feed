@@ -14,4 +14,14 @@ public class SqlSongRepository(SetlistsDbContext dbContext)
         
         return dataObject;
     }
+
+    /// <inheritdoc/>
+    public IAsyncEnumerable<SongDo> GetSongsByIds(params uint[] songIds)
+    {
+        var idList = songIds.ToList();
+        return DbSet
+            .AsQueryable()
+            .Where(s => idList.Contains(s.Id))
+            .ToAsyncEnumerable();
+    }
 }
