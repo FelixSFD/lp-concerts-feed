@@ -222,6 +222,27 @@ public class SetlistService(
         return setlistDto;
     }
 
+    /// <summary>
+    /// Removes an entry from the setlist
+    /// </summary>
+    /// <param name="setlistEntryId">ID of the entry to delete</param>
+    public async Task RemoveSetlistEntry(string setlistEntryId)
+    {
+        var entryDo = await setlistEntryRepository.GetByPrimaryKeyAsync(setlistEntryId);
+        if (entryDo != null)
+            await RemoveSetlistEntry(entryDo);
+    }
+    
+    /// <summary>
+    /// Removes an entry from the setlist
+    /// </summary>
+    /// <param name="setlistEntry">Entry to delete</param>
+    private async Task RemoveSetlistEntry(SetlistEntryDo setlistEntry)
+    {
+        setlistEntryRepository.Delete(setlistEntry);
+        await setlistEntryRepository.SaveChangesAsync();
+    }
+
 
     private static SetlistEntryDto SetlistEntryDoToDto(SetlistEntryDo setlistEntry)
     {

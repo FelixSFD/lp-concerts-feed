@@ -128,6 +128,20 @@ public class Function
             return ReturnBadRequest("Invalid setlist ID!");
         }
         
+        var hasSetlistEntryIdPathParameter = request.PathParameters.TryGetValue("setlistEntryId", out var setlistEntryId);
+        
+        if (request is { HttpMethod: "DELETE", Resource: "/setlists/{setlistId}/entries/{setlistEntryId}" } 
+            && hasSetlistIdPathParameter
+            && hasSetlistEntryIdPathParameter)
+        {
+            context.Logger.LogInformation("Remove entry ID '{setlistEntryId}' from setlist '{setlistId}' ...", setlistEntryId, setlistId);
+            if (!string.IsNullOrEmpty(setlistEntryId))
+                return await HandleDeleteEntryFromSetlist(setlistEntryId, context);
+            
+            context.Logger.LogError("Invalid setlist entry ID!");
+            return ReturnBadRequest("Invalid setlist entry ID!");
+        }
+        
         context.Logger.LogError("There is no implementation for a HTTP '{method}' request with path '{path}'", request.HttpMethod, request.Path);
 
         var noRouteFoundError = new ErrorResponse
@@ -386,6 +400,28 @@ public class Function
                 }
             };
         }
+    }
+    
+    /// <summary>
+    /// Removes an entry from the setlist
+    /// </summary>
+    /// <param name="setlistEntryId">unique ID of the entry</param>
+    /// <param name="context"></param>
+    /// <returns>HTTP response</returns>
+    private async Task<APIGatewayProxyResponse> HandleDeleteEntryFromSetlist(string setlistEntryId, ILambdaContext context)
+    {
+        context.Logger.LogInformation("Deleting setlist entry with ID: {setlistEntryId}", setlistEntryId);
+        await _setlistService.RemoveSetlistEntry(setlistEntryId);
+        
+        return new APIGatewayProxyResponse()
+        {
+            StatusCode = (int)HttpStatusCode.NoContent,
+            Headers = new Dictionary<string, string>
+            {
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, DELETE" }
+            }
+        };
     }
     
     
