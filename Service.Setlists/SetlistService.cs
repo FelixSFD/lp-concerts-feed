@@ -2,10 +2,10 @@ using Amazon.Lambda.Core;
 using Database.Concerts;
 using Database.Setlists.DataObjects;
 using Database.Setlists.Repositories;
-using Lambda.SetlistsWrite.Services.Exceptions;
 using LPCalendar.DataStructure.Setlists;
+using Service.Setlists.Exceptions;
 
-namespace Lambda.SetlistsWrite.Services;
+namespace Service.Setlists;
 
 public class SetlistService(
     ISetlistRepository setlistRepository,

@@ -1,16 +1,11 @@
 using Amazon.Lambda.Core;
 using Amazon.Lambda.TestUtilities;
-using Database.Concerts;
 using Database.Setlists.DataObjects;
 using Database.Setlists.Repositories;
-using Lambda.SetlistsWrite.Services;
-using Lambda.SetlistsWrite.Services.Exceptions;
-using LPCalendar.DataStructure.Setlists;
-using LPCalendar.DataStructure.Setlists.Parameters;
 using NSubstitute;
-using Xunit;
+using Service.Setlists.Exceptions;
 
-namespace Lambda.SetlistsWrite.Tests.Services;
+namespace Service.Setlists.Tests;
 
 public class SongServiceTest
 {

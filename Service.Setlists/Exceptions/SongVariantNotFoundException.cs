@@ -1,4 +1,4 @@
-namespace Lambda.SetlistsWrite.Services.Exceptions;
+namespace Service.Setlists.Exceptions;
 
 /// <summary>
 /// Exception that is thrown when a song variant was not found

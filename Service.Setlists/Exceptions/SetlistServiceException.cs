@@ -1,4 +1,4 @@
-namespace Lambda.SetlistsWrite.Services.Exceptions;
+namespace Service.Setlists.Exceptions;
 
 /// <summary>
 /// Exception thrown in the <see cref="SetlistService"/>

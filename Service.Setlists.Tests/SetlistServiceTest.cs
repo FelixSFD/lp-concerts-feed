@@ -3,13 +3,11 @@ using Amazon.Lambda.TestUtilities;
 using Database.Concerts;
 using Database.Setlists.DataObjects;
 using Database.Setlists.Repositories;
-using Lambda.SetlistsWrite.Services;
 using LPCalendar.DataStructure.Setlists;
 using LPCalendar.DataStructure.Setlists.Parameters;
 using NSubstitute;
-using Xunit;
 
-namespace Lambda.SetlistsWrite.Tests.Services;
+namespace Service.Setlists.Tests;
 
 public class SetlistServiceTest
 {

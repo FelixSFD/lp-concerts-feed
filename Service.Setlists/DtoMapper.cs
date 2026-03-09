@@ -1,7 +1,7 @@
 using Database.Setlists.DataObjects;
 using LPCalendar.DataStructure.Setlists;
 
-namespace Lambda.SetlistsWrite;
+namespace Service.Setlists;
 
 /// <summary>
 /// Collection of functions to map DOs and DTOs

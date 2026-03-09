@@ -18,9 +18,9 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\Database.Concerts\Database.Concerts.csproj" />
-      <ProjectReference Include="..\..\..\Database.Setlists\Database.Setlists.csproj" />
       <ProjectReference Include="..\..\..\DataStructure\DataStructure.csproj" />
       <ProjectReference Include="..\..\..\Lambda.Auth\Lambda.Auth.csproj" />
       <ProjectReference Include="..\..\..\Lambda.Common.ApiGateway\Lambda.Common.ApiGateway.csproj" />
+      <ProjectReference Include="..\..\..\Service.Setlists\Service.Setlists.csproj" />
     </ItemGroup>
 </Project>

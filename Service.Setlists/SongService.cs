@@ -1,9 +1,9 @@
 using Amazon.Lambda.Core;
 using Database.Setlists.Repositories;
-using Lambda.SetlistsWrite.Services.Exceptions;
 using LPCalendar.DataStructure.Setlists;
+using Service.Setlists.Exceptions;
 
-namespace Lambda.SetlistsWrite.Services;
+namespace Service.Setlists;
 
 /// <summary>
 /// Service class to manage Songs and variants

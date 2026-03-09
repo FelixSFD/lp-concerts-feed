@@ -1,20 +1,17 @@
 using System.Diagnostics;
 using System.Net;
-using System.Reflection.Metadata;
 using System.Text.Json;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Database.Concerts;
 using Database.Setlists;
-using Database.Setlists.DataObjects;
 using Database.Setlists.Repositories;
-using Lambda.Auth;
-using Lambda.SetlistsWrite.Services;
-using Lambda.SetlistsWrite.Services.Exceptions;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Responses;
 using LPCalendar.DataStructure.Setlists;
 using Microsoft.EntityFrameworkCore;
+using Service.Setlists;
+using Service.Setlists.Exceptions;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
