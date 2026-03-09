@@ -434,6 +434,9 @@ components:
       type: object
       description: An entry in a setlist
       properties:
+        id:
+          type: string
+          description: Unique ID of the entry
         sortNumber:
           type: number
           description: Number to sort the entries

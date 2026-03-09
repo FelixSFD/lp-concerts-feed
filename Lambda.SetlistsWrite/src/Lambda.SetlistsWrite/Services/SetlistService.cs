@@ -227,6 +227,7 @@ public class SetlistService(
     {
         return new SetlistEntryDto
         {
+            Id = setlistEntry.Id,
             SongNumber = setlistEntry.SongNumber,
             SortNumber = setlistEntry.SortNumber,
             PlayedSong = setlistEntry.PlayedSong != null ? SongDoToDto(setlistEntry.PlayedSong) : null,

@@ -8,6 +8,12 @@ namespace LPCalendar.DataStructure.Setlists;
 public class SetlistEntryDto
 {
     /// <summary>
+    /// Unique ID of the entry
+    /// </summary>
+    [JsonPropertyName("id")]
+    public required string Id { get; set; }
+    
+    /// <summary>
     /// Number to sort the entries
     /// </summary>
     [JsonPropertyName("sortNumber")]
