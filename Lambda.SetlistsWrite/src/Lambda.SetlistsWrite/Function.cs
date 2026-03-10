@@ -88,6 +88,15 @@ public class Function
             return await HandleGetAllMashups(context);
         }
         
+        var hasMashupIdPathParameter = request.PathParameters.TryGetValue("mashupId", out var mashupIdStr);
+        uint? mashupId = hasMashupIdPathParameter ? uint.Parse(mashupIdStr!) : null;
+        
+        if (request is { HttpMethod: "GET", Resource: "/mashups/{mashupId}" } && hasMashupIdPathParameter)
+        {
+            context.Logger.LogInformation("Get all mashups with ID: {mashupId}", mashupId);
+            return await HandleGetMashupById(mashupId ?? 0, context);
+        }
+        
         // TODO: Enable authorization!
         /*var hasSetlistPermission = request.CanManageSetlists();
         if (!hasSetlistPermission)
@@ -612,6 +621,33 @@ public class Function
         {
             StatusCode = (int)HttpStatusCode.OK,
             Body = JsonSerializer.Serialize(mashups, SetlistDtoJsonContext.Default.ListSongMashupDto),
+            Headers = new Dictionary<string, string>
+            {
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+            }
+        };
+    }
+    
+    
+    /// <summary>
+    /// Returns the mashup
+    /// </summary>
+    /// <param name="mashupId">ID of the mashup</param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    private async Task<APIGatewayProxyResponse> HandleGetMashupById(uint mashupId, ILambdaContext context)
+    {
+        var mashup = await _songService.GetMashupByIdAsync(mashupId);
+        if (mashup == null)
+        {
+            return HandleNotFoundException($"The mashup with ID '{mashupId}' does not exist.", "OPTIONS, GET", context.Logger);
+        }
+
+        return new APIGatewayProxyResponse
+        {
+            StatusCode = (int)HttpStatusCode.OK,
+            Body = JsonSerializer.Serialize(mashup, SetlistDtoJsonContext.Default.SongMashupDto),
             Headers = new Dictionary<string, string>
             {
                 { "Access-Control-Allow-Origin", "*" },

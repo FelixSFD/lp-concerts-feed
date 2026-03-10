@@ -372,4 +372,62 @@ public class SongServiceTest
             .Received(1)
             .QueryAsync(CancellationToken.None);
     }
+    
+    [Fact]
+    public async Task GetMashupByIdAsync()
+    {
+        // prepare mocks and test data
+        var song1 = new SongDo
+        {
+            Id = 1234,
+            Title = "QWERTY",
+            Isrc = "5355646",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
+        };
+        
+        var song2 = new SongDo
+        {
+            Id = 1111,
+            Title = "One More Light",
+            Isrc = "123234"
+        };
+
+        var mashup = new SongMashupDo
+        {
+            Id = 1,
+            Title = "Weird mashup",
+            LinkinpediaUrl = "https://lplive.net",
+            Songs = [song1, song2]
+        };
+
+        _songMashupRepository.GetByPrimaryKeyAsync(mashup.Id).Returns(mashup);
+        
+        // call the service
+        var foundMashup = await _songService.GetMashupByIdAsync(mashup.Id);
+        Assert.NotNull(foundMashup);
+        Assert.Equal(mashup.Title, foundMashup.Title);
+        Assert.Equal(mashup.LinkinpediaUrl, foundMashup.LinkinpediaUrl);
+        Assert.Equal(2, foundMashup.Songs.Count);
+
+        var addedSong1 = foundMashup.Songs[0];
+        Assert.NotNull(addedSong1);
+        Assert.Equal(song1.Id, addedSong1.Id);
+        Assert.Equal(song1.Title, addedSong1.Title);
+        Assert.Equal(song1.Isrc, addedSong1.Isrc);
+        
+        var addedSong2 = foundMashup.Songs[1];
+        Assert.NotNull(addedSong2);
+        Assert.Equal(song2.Id, addedSong2.Id);
+        Assert.Equal(song2.Title, addedSong2.Title);
+        Assert.Equal(song2.Isrc, addedSong2.Isrc);
+        
+        // verify mock calls
+        await _songMashupRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(mashup.Id);
+        
+        _songMashupRepository
+            .DidNotReceive()
+            .QueryAsync(Arg.Any<CancellationToken>());
+    }
 }

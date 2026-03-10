@@ -95,4 +95,20 @@ public class SongService(ISongRepository songRepository, ISongVariantRepository 
             .QueryAsync(cancellationToken)
             .Select(DtoMapper.ToDto);
     }
+    
+    /// <summary>
+    /// Returns a mashup
+    /// </summary>
+    /// <param name="mashupId">ID of the mashup</param>
+    /// <returns>Enumerable of all mashups</returns>
+    public async Task<SongMashupDto?> GetMashupByIdAsync(uint mashupId)
+    {
+        logger.LogDebug("Find mashup with id: {mashupId}", mashupId);
+        var mashup = await songMashupRepository.GetByPrimaryKeyAsync(mashupId);
+        if (mashup != null)
+            return DtoMapper.ToDto(mashup);
+        
+        logger.LogWarning("Mashup '{id}' does not exist.", mashupId);
+        return null;
+    }
 }
