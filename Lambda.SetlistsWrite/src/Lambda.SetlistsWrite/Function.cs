@@ -82,6 +82,12 @@ public class Function
             return await HandleGetVariantsOfSong(songId ?? 0, context);
         }
         
+        if (request is { HttpMethod: "GET", Resource: "/mashups" })
+        {
+            context.Logger.LogInformation("Get all mashups...");
+            return await HandleGetAllMashups(context);
+        }
+        
         // TODO: Enable authorization!
         /*var hasSetlistPermission = request.CanManageSetlists();
         if (!hasSetlistPermission)
@@ -589,5 +595,28 @@ public class Function
         {
             return ReturnBadRequest(e.Message, "OPTIONS, POST");
         }
+    }
+    
+    /// <summary>
+    /// Returns all mashups from the database
+    /// </summary>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    private async Task<APIGatewayProxyResponse> HandleGetAllMashups(ILambdaContext context)
+    {
+        var cancellationToken = context.GetCancellationToken();
+        var mashups = await _songService.GetAllSongMashupsAsync(cancellationToken).ToListAsync(cancellationToken);
+        context.Logger.LogDebug("Found {count} mashups", mashups.Count);
+
+        return new APIGatewayProxyResponse
+        {
+            StatusCode = (int)HttpStatusCode.OK,
+            Body = JsonSerializer.Serialize(mashups, SetlistDtoJsonContext.Default.ListSongMashupDto),
+            Headers = new Dictionary<string, string>
+            {
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+            }
+        };
     }
 }

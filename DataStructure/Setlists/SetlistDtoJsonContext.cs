@@ -18,6 +18,7 @@ namespace LPCalendar.DataStructure.Setlists;
 [JsonSerializable(typeof(SongMashupDto))]
 [JsonSerializable(typeof(List<SongDto>))]
 [JsonSerializable(typeof(List<SongVariantDto>))]
+[JsonSerializable(typeof(List<SongMashupDto>))]
 public partial class SetlistDtoJsonContext : JsonSerializerContext
 {
 }

@@ -82,4 +82,17 @@ public class SongService(ISongRepository songRepository, ISongVariantRepository 
         logger.LogDebug("Successfully created mashup '{id}' with {count} songs.", mashup.Id, songs.Length);
         return DtoMapper.ToDto(mashup);
     }
+    
+    /// <summary>
+    /// Returns all mashups
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Enumerable of all mashups</returns>
+    public IAsyncEnumerable<SongMashupDto> GetAllSongMashupsAsync(CancellationToken cancellationToken)
+    {
+        logger.LogDebug("Getting all mashups...");
+        return songMashupRepository
+            .QueryAsync(cancellationToken)
+            .Select(DtoMapper.ToDto);
+    }
 }

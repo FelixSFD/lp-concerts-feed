@@ -27,7 +27,7 @@ public class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObject> where
 
     public virtual IAsyncEnumerable<TDataObject> QueryAsync(CancellationToken token)
     {
-        throw new NotImplementedException();
+        return DbSet.AsAsyncEnumerable();
     }
 
 

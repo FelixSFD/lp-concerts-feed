@@ -50,5 +50,9 @@ public class SetlistsDbContext(DbContextOptions<SetlistsDbContext> options) : Db
             .HasMany(m => m.Songs)
             .WithMany()
             .UsingEntity(join => join.ToTable("SongInMashup"));
+        
+        modelBuilder.Entity<SongMashupDo>()
+            .Navigation(e => e.Songs)
+            .AutoInclude();
     }
 }

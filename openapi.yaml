@@ -1780,6 +1780,34 @@ paths:
         contentHandling: "CONVERT_TO_TEXT"
         type: "aws_proxy"
   /mashups:
+    get:
+      operationId: GetSongMashups
+      summary: Returns all mashups
+      tags:
+        - songs
+      responses:
+        "200":
+          description: The list of all mashups
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SongMashup"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
     post:
       operationId: CreateSongMashup
       summary: Creates a new mashup
