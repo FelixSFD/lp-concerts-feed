@@ -161,6 +161,11 @@ public class Function
             return await HandleCreateMashup(request.Body, context);
         }
         
+        if (request is { HttpMethod: "DELETE", Resource: "/mashups/{mashupId}" } && hasMashupIdPathParameter)
+        {
+            return await HandleDeleteSongMashup(mashupId ?? 0, context);
+        }
+        
         var hasSetlistEntryIdPathParameter = request.PathParameters.TryGetValue("setlistEntryId", out var setlistEntryId);
         
         if (request is { HttpMethod: "DELETE", Resource: "/setlists/{setlistId}/entries/{setlistEntryId}" } 
@@ -652,6 +657,28 @@ public class Function
             {
                 { "Access-Control-Allow-Origin", "*" },
                 { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+            }
+        };
+    }
+    
+    /// <summary>
+    /// Removes an song mashup
+    /// </summary>
+    /// <param name="mashupId">unique ID of the mashup</param>
+    /// <param name="context"></param>
+    /// <returns>HTTP response</returns>
+    private async Task<APIGatewayProxyResponse> HandleDeleteSongMashup(uint mashupId, ILambdaContext context)
+    {
+        context.Logger.LogInformation("Deleting setlist entry with ID: {mashupId}", mashupId);
+        await _songService.DeleteMashupWithIdAsync(mashupId);
+        
+        return new APIGatewayProxyResponse()
+        {
+            StatusCode = (int)HttpStatusCode.NoContent,
+            Headers = new Dictionary<string, string>
+            {
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, DELETE" }
             }
         };
     }

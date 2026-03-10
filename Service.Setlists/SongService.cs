@@ -111,4 +111,22 @@ public class SongService(ISongRepository songRepository, ISongVariantRepository 
         logger.LogWarning("Mashup '{id}' does not exist.", mashupId);
         return null;
     }
+    
+    /// <summary>
+    /// Deletes a mashup
+    /// </summary>
+    /// <param name="mashupId">ID of the mashup</param>
+    public async Task DeleteMashupWithIdAsync(uint mashupId)
+    {
+        logger.LogDebug("Delete mashup with id: {mashupId}", mashupId);
+        var mashup = await songMashupRepository.GetByPrimaryKeyAsync(mashupId);
+        if (mashup != null)
+        {
+            songMashupRepository.Delete(mashup);
+            logger.LogInformation("Mashup '{id}' was deleted successfully.", mashupId);
+            return;
+        }
+        
+        logger.LogInformation("Mashup '{id}' does not exist.", mashupId);
+    }
 }
