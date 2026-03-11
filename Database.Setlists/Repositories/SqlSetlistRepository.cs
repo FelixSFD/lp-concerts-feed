@@ -16,12 +16,12 @@ public class SqlSetlistRepository(SetlistsDbContext dbContext)
     }
 
     /// <inheritdoc/>
-    public async Task<SetlistDo?> GetByConcertIdAsync(string concertId)
+    public IAsyncEnumerable<SetlistDo> GetByConcertIdAsync(string concertId)
     {
-        return await DbSet
+        return DbSet
             .AsQueryable()
             .Where(sl => sl.ConcertId == concertId)
             .Include(sl => sl.Entries)
-            .FirstOrDefaultAsync();
+            .AsAsyncEnumerable();
     }
 }

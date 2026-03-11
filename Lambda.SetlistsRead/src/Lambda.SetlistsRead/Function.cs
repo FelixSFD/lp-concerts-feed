@@ -63,6 +63,15 @@ public class Function
         
         var hasSongIdPathParameter = request.PathParameters.TryGetValue("songId", out var songIdStr);
         uint? songId = hasSongIdPathParameter ? uint.Parse(songIdStr!) : null;
+        
+        var hasConcertIdPathParameter = request.PathParameters.TryGetValue("id", out var concertId);
+        
+        if (request is { HttpMethod: "GET", Resource: "/concerts/{id}/setlists" } && hasConcertIdPathParameter && !string.IsNullOrEmpty(concertId))
+        {
+            // at some point, this might be cached in DynamoDB. In that case, it would be faster to use a different lambda with AOT and no EFcore
+            context.Logger.LogInformation("Reading setlists for concert with ID: {concertId}");
+            return await HandleGetSetlistsForConcert(concertId, context);
+        }
 
         if (request is { HttpMethod: "GET", Resource: "/setlists/{setlistId}" } && hasSetlistIdPathParameter)
         {
@@ -127,6 +136,29 @@ public class Function
             {
                 StatusCode = (int)HttpStatusCode.OK,
                 Body = JsonSerializer.Serialize(setlistDto, SetlistDtoJsonContext.Default.SetlistDto),
+                Headers = new Dictionary<string, string>
+                {
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                }
+            };
+        }
+        catch (SetlistNotFoundException e)
+        {
+            return HandleNotFoundException(e.Message, "OPTIONS, GET", context.Logger);
+        }
+    }
+    
+    
+    private async Task<APIGatewayProxyResponse> HandleGetSetlistsForConcert(string setlistId, ILambdaContext context)
+    {
+        try
+        {
+            var setlistDtos = await _setlistService.GetSetlistsForConcert(setlistId);
+            return new APIGatewayProxyResponse()
+            {
+                StatusCode = (int)HttpStatusCode.OK,
+                Body = JsonSerializer.Serialize(setlistDtos, SetlistDtoJsonContext.Default.ListSetlistDto),
                 Headers = new Dictionary<string, string>
                 {
                     { "Access-Control-Allow-Origin", "*" },

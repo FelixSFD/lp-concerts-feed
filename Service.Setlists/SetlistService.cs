@@ -258,6 +258,21 @@ public class SetlistService(
     }
     
     /// <summary>
+    /// Returns all setlists for a given concert. A concert usually only has one setlists, but can technically have more than one. (for example rehearsals)
+    /// </summary>
+    /// <param name="concertId">ID of the concert</param>
+    /// <returns></returns>
+    /// <exception cref="SetlistNotFoundException">if the setlist was not found</exception>
+    public async Task<IList<SetlistDto>> GetSetlistsForConcert(string concertId)
+    {
+        logger.LogDebug("Retrieve the setlists for concert: {concertId}", concertId);
+        return await setlistRepository
+            .GetByConcertIdAsync(concertId)
+            .Select(DtoMapper.ToDto)
+            .ToListAsync();
+    }
+    
+    /// <summary>
     /// Removes a setlist
     /// </summary>
     /// <param name="setlistId">ID of the setlist to delete</param>
@@ -300,6 +315,7 @@ public class SetlistService(
     }
 
 
+    [Obsolete]
     private static SetlistEntryDto SetlistEntryDoToDto(SetlistEntryDo setlistEntry)
     {
         return new SetlistEntryDto
@@ -319,6 +335,7 @@ public class SetlistService(
     }
 
 
+    [Obsolete]
     private static string? GetEntryTitleForSongVariant(SongDo? songDo, SongVariantDo? songVariantDo)
     {
         if (songDo == null || songVariantDo == null)

@@ -5,9 +5,9 @@ namespace Database.Setlists.Repositories;
 public interface ISetlistRepository : ISingleKeyRepositoryBase<SetlistDo, uint>, IRepositoryBase<SetlistDo>
 {
     /// <summary>
-    /// Retrieve a setlist for a given concert.
+    /// Retrieve all setlists for a given concert. While a concert usually only has one setlist, it can technically have more. (like soundchecks)
     /// </summary>
     /// <param name="concertId">ID of the concert</param>
     /// <returns>Setlist if one was found for the concert</returns>
-    public Task<SetlistDo?> GetByConcertIdAsync(string concertId);
+    public IAsyncEnumerable<SetlistDo> GetByConcertIdAsync(string concertId);
 }

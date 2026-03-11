@@ -85,4 +85,51 @@ public static class DtoMapper
     {
         return songMashupDo == null ? null : ToDto(songMashupDo);
     }
+
+    /// <summary>
+    /// Maps a <see cref="SetlistDo"/> to <see cref="SetlistDto"/>
+    /// </summary>
+    /// <param name="setlistDo">Setlist to map to its DTO</param>
+    /// <returns>the DTO</returns>
+    public static SetlistDto ToDto(SetlistDo setlistDo)
+    {
+        return new SetlistDto
+        {
+            Id = setlistDo.Id,
+            ConcertId = setlistDo.ConcertId,
+            LinkinpediaUrl = setlistDo.LinkinpediaUrl,
+            Entries = setlistDo.Entries?.Select(ToDto).OrderBy(se => se.SortNumber).ToList() ?? []
+        };
+    }
+    
+    /// <summary>
+    /// Maps a <see cref="SetlistEntryDo"/> to <see cref="SetlistEntryDto"/>
+    /// </summary>
+    /// <param name="setlistEntryDo">Setlist entry to map to its DTO</param>
+    /// <returns>the DTO</returns>
+    private static SetlistEntryDto ToDto(SetlistEntryDo setlistEntryDo)
+    {
+        return new SetlistEntryDto
+        {
+            Id = setlistEntryDo.Id,
+            SongNumber = setlistEntryDo.SongNumber,
+            SortNumber = setlistEntryDo.SortNumber,
+            PlayedSong = setlistEntryDo.PlayedSong != null ? ToDto(setlistEntryDo.PlayedSong) : null,
+            PlayedSongVariant = ToDtoNullable(setlistEntryDo.PlayedSongVariant),
+            PlayedSongMashup = ToDtoNullable(setlistEntryDo.PlayedMashup),
+            Title = setlistEntryDo.TitleOverride ?? GetEntryTitleForSongVariant(setlistEntryDo.PlayedSong, setlistEntryDo.PlayedSongVariant) ?? setlistEntryDo.PlayedSong?.Title ?? "unknown",
+            ExtraNotes = setlistEntryDo.ExtraNotes,
+            IsPlayedFromRecording = setlistEntryDo.IsPlayedFromRecording,
+            IsRotationSong = setlistEntryDo.IsRotationSong,
+            IsWorldPremiere = setlistEntryDo.IsWorldPremiere
+        };
+    }
+    
+    private static string? GetEntryTitleForSongVariant(SongDo? songDo, SongVariantDo? songVariantDo)
+    {
+        if (songDo == null || songVariantDo == null)
+            return null;
+
+        return $"{songDo} ({songVariantDo})";
+    }
 }

@@ -163,6 +163,14 @@ Resources:
         Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/setlists*
+  SetlistsForConcertReadLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue
+        Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/concerts/*/setlists
   SongsWriteLambdaPermission:
     Type: AWS::Lambda::Permission
     Properties:
