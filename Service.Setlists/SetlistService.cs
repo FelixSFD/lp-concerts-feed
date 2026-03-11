@@ -13,6 +13,7 @@ public class SetlistService(
     IConcertRepository concertRepository,
     ISongRepository songRepository,
     ISongVariantRepository songVariantRepository,
+    ISongMashupRepository songMashupRepository,
     ISetlistActRepository actRepository,
     ILambdaLogger logger)
 {
@@ -50,9 +51,10 @@ public class SetlistService(
     /// <param name="setlistId">ID of the setlist where the song wil be added to</param>
     /// <param name="playedSong">Song that was played. One of these parameters should be set</param>
     /// <param name="playedSongVariant">Song variant that was played. One of these parameters should be set</param>
+    /// <param name="playedSongMashup">Song mashup that was played. One of these parameters should be set</param>
     /// <returns>the newly created setlist entry</returns>
     /// <exception cref="SetlistNotFoundException">if the setlist does not exist. Call <see cref="CreateSetlistAsync"/> to create a setlist first.</exception>
-    private async Task<SetlistEntryDto> AddToSetlist(AddToSetlistRequestDto request, uint setlistId, SongDo? playedSong = null, SongVariantDo? playedSongVariant = null)
+    private async Task<SetlistEntryDto> AddToSetlist(AddToSetlistRequestDto request, uint setlistId, SongDo? playedSong = null, SongVariantDo? playedSongVariant = null, SongMashupDo? playedSongMashup = null)
     {
         logger.LogDebug("Read or create setlist act: {actNumber}");
         SetlistActDo? actDo;
@@ -94,6 +96,7 @@ public class SetlistService(
             ActNumber = actDo?.ActNumber,
             PlayedSong = playedSong,
             PlayedSongVariant = playedSongVariant,
+            PlayedMashup = playedSongMashup,
             ExtraNotes = request.EntryParameters.ExtraNotes,
             TitleOverride = request.EntryParameters.TitleOverride,
             SortNumber = request.EntryParameters.SortNumber,
@@ -195,6 +198,38 @@ public class SetlistService(
 
         return await AddToSetlist(request, setlistId, null, songVariant);
     }
+    
+    
+    /// <summary>
+    /// Adds a new song mashup to the setlist
+    /// </summary>
+    /// <param name="request">Request to add a song mashup to the setlist</param>
+    /// <param name="setlistId">ID of the setlist where the song mashup wil be added to</param>
+    /// <returns>the newly created setlist entry</returns>
+    /// <exception cref="SetlistNotFoundException">if the setlist does not exist. Call <see cref="CreateSetlistAsync"/> to create a setlist first.</exception>
+    /// <exception cref="SongMashupNotFoundException">if the provided mashup does not exist. Call <see cref="SongService.CreateMashupOfSongsAsync"/> to create a <see cref="SongMashupDo"/> first.</exception>
+    public async Task<SetlistEntryDto> AddSongMashupToSetlistAsync(AddSongMashupToSetlistRequestDto request, uint setlistId)
+    {
+        logger.LogDebug("Load setlist: {setlistId}", setlistId);
+        var setlist = await setlistRepository.GetByPrimaryKeyAsync(setlistId);
+        if (setlist == null)
+        {
+            throw new SetlistNotFoundException(setlistId);
+        }
+        
+        logger.LogDebug("Adding song to setlist: {setlistId}", setlist.Id);
+
+        var songMashupParams = request.SongMashupParameters;
+        logger.LogDebug("Checking if song mashup exists: {songMashupId}", songMashupParams.SongMashupId);
+        var songMashup = await songMashupRepository.GetByPrimaryKeyAsync(songMashupParams.SongMashupId);
+        if (songMashup == null)
+        {
+            throw new SongMashupNotFoundException(songMashupParams.SongMashupId);
+        }
+
+        logger.LogDebug("Found the mashup. Will add it to the setlist now...");
+        return await AddToSetlist(request, setlistId, null, null, songMashup);
+    }
 
 
     /// <summary>
@@ -274,6 +309,7 @@ public class SetlistService(
             SortNumber = setlistEntry.SortNumber,
             PlayedSong = setlistEntry.PlayedSong != null ? SongDoToDto(setlistEntry.PlayedSong) : null,
             PlayedSongVariant = DtoMapper.ToDtoNullable(setlistEntry.PlayedSongVariant),
+            PlayedSongMashup = DtoMapper.ToDtoNullable(setlistEntry.PlayedMashup),
             Title = setlistEntry.TitleOverride ?? GetEntryTitleForSongVariant(setlistEntry.PlayedSong, setlistEntry.PlayedSongVariant) ?? setlistEntry.PlayedSong?.Title ?? "unknown",
             ExtraNotes = setlistEntry.ExtraNotes,
             IsPlayedFromRecording = setlistEntry.IsPlayedFromRecording,
@@ -291,7 +327,7 @@ public class SetlistService(
         return $"{songDo} ({songVariantDo})";
     }
     
-    
+    [Obsolete("Use DtoMapper")]
     private static SongDto SongDoToDto(SongDo song)
     {
         return new SongDto

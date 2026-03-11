@@ -40,6 +40,13 @@ public class SetlistEntryDto
     public SongDto? PlayedSong { get; set; }
     
     /// <summary>
+    /// the song mashup that has been played
+    /// </summary>
+    [JsonPropertyName("playedSongMashup")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SongMashupDto? PlayedSongMashup { get; set; }
+    
+    /// <summary>
     /// Title of this setlist entry. This can for example be the title of a song or a mashup
     /// </summary>
     [JsonPropertyName("title")]

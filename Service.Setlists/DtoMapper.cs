@@ -75,4 +75,14 @@ public static class DtoMapper
             Songs = songMashupDo.Songs.Select(ToDto).ToList()
         };
     }
+    
+    /// <summary>
+    /// Maps a <see cref="SongMashupDo"/> to <see cref="SongMashupDto"/>
+    /// </summary>
+    /// <param name="songMashupDo">Song mashup to map to its DTO</param>
+    /// <returns>the DTO</returns>
+    public static SongMashupDto? ToDtoNullable(SongMashupDo? songMashupDo)
+    {
+        return songMashupDo == null ? null : ToDto(songMashupDo);
+    }
 }

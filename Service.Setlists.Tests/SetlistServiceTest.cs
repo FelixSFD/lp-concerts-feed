@@ -6,6 +6,7 @@ using Database.Setlists.Repositories;
 using LPCalendar.DataStructure.Setlists;
 using LPCalendar.DataStructure.Setlists.Parameters;
 using NSubstitute;
+using Service.Setlists.Exceptions;
 
 namespace Service.Setlists.Tests;
 
@@ -16,6 +17,7 @@ public class SetlistServiceTest
     private readonly IConcertRepository _concertRepository;
     private readonly ISongRepository _songRepository;
     private readonly ISongVariantRepository _songVariantRepository;
+    private readonly ISongMashupRepository _songMashupRepository;
     private readonly ISetlistActRepository _actRepository;
     private readonly ILambdaLogger _logger = new TestLambdaLogger();
     private readonly SetlistService _setlistService;
@@ -27,9 +29,10 @@ public class SetlistServiceTest
         _concertRepository = Substitute.For<IConcertRepository>();
         _songRepository = Substitute.For<ISongRepository>();
         _songVariantRepository = Substitute.For<ISongVariantRepository>();
+        _songMashupRepository = Substitute.For<ISongMashupRepository>();
         _actRepository = Substitute.For<ISetlistActRepository>();
         
-        _setlistService = new SetlistService(_setlistRepository, _setlistEntryRepository, _concertRepository, _songRepository, _songVariantRepository, _actRepository, _logger);
+        _setlistService = new SetlistService(_setlistRepository, _setlistEntryRepository, _concertRepository, _songRepository, _songVariantRepository, _songMashupRepository, _actRepository, _logger);
     }
 
     [Theory]
@@ -186,6 +189,153 @@ public class SetlistServiceTest
         _songRepository
             .DidNotReceive()
             .Add(Arg.Any<SongDo>());
+    }
+    
+    [Fact]
+    public async Task AddSongMashupToSetlistAsync_MashupNotFound()
+    {
+        // prepare mocks and test data
+        var setlist1 = new SetlistDo
+        {
+            Id = 1,
+            ConcertId = Guid.NewGuid().ToString(),
+            LinkinpediaUrl = "https://lplive.net"
+        };
+
+        var request = new AddSongMashupToSetlistRequestDto
+        {
+            Act = null,
+            EntryParameters = new SetlistEntryParametersDto
+            {
+                SongNumber = 1,
+                SortNumber = 10,
+                TitleOverride = null,
+                ExtraNotes = "something special",
+                IsPlayedFromRecording = false,
+                IsWorldPremiere = true,
+                IsRotationSong = false
+            },
+            SongMashupParameters = new SongMashupParametersDto
+            {
+                SongMashupId = 1234
+            }
+        };
+        
+        _setlistRepository
+            .GetByPrimaryKeyAsync(setlist1.Id)
+            .Returns(setlist1);
+        
+        _songMashupRepository
+            .GetByPrimaryKeyAsync(request.SongMashupParameters.SongMashupId)
+            .Returns((SongMashupDo?)null);
+        
+        // call the service
+        await Assert.ThrowsAsync<SongMashupNotFoundException>(() => _setlistService.AddSongMashupToSetlistAsync(request, setlist1.Id));
+        
+        // verify mock calls
+        await _setlistRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(setlist1.Id);
+        
+        await _songMashupRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(request.SongMashupParameters.SongMashupId);
+        
+        _setlistEntryRepository
+            .DidNotReceive()
+            .Add(Arg.Any<SetlistEntryDo>());
+
+        await _setlistEntryRepository
+            .DidNotReceive()
+            .SaveChangesAsync();
+        _songMashupRepository
+            .DidNotReceive()
+            .Add(Arg.Any<SongMashupDo>());
+    }
+    
+    [Fact]
+    public async Task AddSongMashupToSetlistAsync_ExistingMashup()
+    {
+        // prepare mocks and test data
+        var setlist1 = new SetlistDo
+        {
+            Id = 1,
+            ConcertId = Guid.NewGuid().ToString(),
+            LinkinpediaUrl = "https://lplive.net"
+        };
+        
+        var song1 = new SongDo
+        {
+            Id = 1234,
+            Title = "QWERTY",
+            Isrc = "5355646",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
+        };
+        
+        var song2 = new SongDo
+        {
+            Id = 1,
+            Title = "Lost",
+            Isrc = "123",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/Lost"
+        };
+
+        var mashup = new SongMashupDo
+        {
+            Id = 1,
+            Title = "QWERTY/Lost",
+            Songs =  new List<SongDo> { song1, song2 }
+        };
+
+        var request = new AddSongMashupToSetlistRequestDto
+        {
+            Act = null,
+            EntryParameters = new SetlistEntryParametersDto
+            {
+                SongNumber = 1,
+                SortNumber = 10,
+                TitleOverride = null,
+                ExtraNotes = "something special",
+                IsPlayedFromRecording = false,
+                IsWorldPremiere = true,
+                IsRotationSong = false
+            },
+            SongMashupParameters = new SongMashupParametersDto
+            {
+                SongMashupId = mashup.Id
+            }
+        };
+        
+        _setlistRepository
+            .GetByPrimaryKeyAsync(setlist1.Id)
+            .Returns(setlist1);
+        
+        _songMashupRepository
+            .GetByPrimaryKeyAsync(mashup.Id)
+            .Returns(mashup);
+        
+        _setlistEntryRepository.Add(Arg.Is<SetlistEntryDo>(entry => entry.SetlistId == setlist1.Id && entry.SongNumber == request.EntryParameters.SongNumber));
+        
+        // call the service
+        await _setlistService.AddSongMashupToSetlistAsync(request, setlist1.Id);
+        
+        // verify mock calls
+        await _setlistRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(setlist1.Id);
+        
+        await _songMashupRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(mashup.Id);
+        
+        _setlistEntryRepository
+            .Received(1)
+            .Add(Arg.Is<SetlistEntryDo>(entry => entry.SetlistId == setlist1.Id && entry.SongNumber == request.EntryParameters.SongNumber));
+
+        await _setlistEntryRepository.Received(1).SaveChangesAsync();
+        _songMashupRepository
+            .DidNotReceive()
+            .Add(Arg.Any<SongMashupDo>());
     }
 
 

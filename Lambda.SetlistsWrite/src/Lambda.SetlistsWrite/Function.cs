@@ -51,7 +51,7 @@ public class Function
         _songRepository = new SqlSongRepository(dbContext);
         _songVariantRepository = new SqlSongVariantRepository(dbContext);
         _songMashupRepository = new SqlSongMashupRepository(dbContext);
-        _setlistService = new SetlistService(_setlistRepository, _setlistEntryRepository, _concertRepository, _songRepository, _songVariantRepository, _setlistActRepository, context.Logger);
+        _setlistService = new SetlistService(_setlistRepository, _setlistEntryRepository, _concertRepository, _songRepository, _songVariantRepository, _songMashupRepository, _setlistActRepository, context.Logger);
         _songService = new SongService(_songRepository, _songVariantRepository, _songMashupRepository, context.Logger);
         
         context.Logger.LogInformation("Called {method} {path}", request.HttpMethod, request.Resource);
