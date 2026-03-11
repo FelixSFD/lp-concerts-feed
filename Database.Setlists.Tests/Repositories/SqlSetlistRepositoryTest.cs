@@ -81,19 +81,19 @@ public class SqlSetlistRepositoryTest : DbIntegrationTestsBase
 
         await repo.SaveChangesAsync();
         
-        var retrievedSetlist = await repo.GetByConcertIdAsync(setlist1.ConcertId);
+        var retrievedSetlist = await repo.GetByConcertIdAsync(setlist1.ConcertId).FirstOrDefaultAsync();
         Assert.NotNull(retrievedSetlist);
         Assert.Equal(setlist1.Id, retrievedSetlist.Id);
         Assert.Equal(setlist1.ConcertId, retrievedSetlist.ConcertId);
         Assert.Equal(setlist1.LinkinpediaUrl, retrievedSetlist.LinkinpediaUrl);
         Assert.NotNull(retrievedSetlist.Entries);
-        Assert.Equal(1, retrievedSetlist.Entries.Count);
+        Assert.Single(retrievedSetlist.Entries);
 
         var retrievedSong = retrievedSetlist.Entries.FirstOrDefault()?.PlayedSong;
         Assert.NotNull(retrievedSong);
         Assert.Equal(song1.Title, retrievedSong.Title);
         
-        retrievedSetlist = await repo.GetByConcertIdAsync(setlist2.ConcertId);
+        retrievedSetlist = await repo.GetByConcertIdAsync(setlist2.ConcertId).FirstOrDefaultAsync();
         Assert.NotNull(retrievedSetlist);
         Assert.NotNull(retrievedSetlist.Entries);
         Assert.Empty(retrievedSetlist.Entries);
