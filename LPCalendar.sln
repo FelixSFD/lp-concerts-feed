@@ -133,6 +133,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service.Setlists", "Service
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service.Setlists.Tests", "Service.Setlists.Tests\Service.Setlists.Tests.csproj", "{3491C625-8355-4B64-A0BC-8ED3F95AE644}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.SetlistsRead", "Lambda.SetlistsRead\src\Lambda.SetlistsRead\Lambda.SetlistsRead.csproj", "{270BE9C9-EAD2-49B3-ACF3-71817C42C4A7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.SetlistsRead.Tests", "Lambda.SetlistsRead\test\Lambda.SetlistsRead.Tests\Lambda.SetlistsRead.Tests.csproj", "{6F260797-3DEB-4FCD-9B4E-C7F24A0C020B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -343,5 +347,13 @@ Global
 		{3491C625-8355-4B64-A0BC-8ED3F95AE644}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3491C625-8355-4B64-A0BC-8ED3F95AE644}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3491C625-8355-4B64-A0BC-8ED3F95AE644}.Release|Any CPU.Build.0 = Release|Any CPU
+		{270BE9C9-EAD2-49B3-ACF3-71817C42C4A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{270BE9C9-EAD2-49B3-ACF3-71817C42C4A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{270BE9C9-EAD2-49B3-ACF3-71817C42C4A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{270BE9C9-EAD2-49B3-ACF3-71817C42C4A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F260797-3DEB-4FCD-9B4E-C7F24A0C020B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F260797-3DEB-4FCD-9B4E-C7F24A0C020B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F260797-3DEB-4FCD-9B4E-C7F24A0C020B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F260797-3DEB-4FCD-9B4E-C7F24A0C020B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

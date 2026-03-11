@@ -1766,7 +1766,7 @@ paths:
             - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
             - LambdaArn:
                 Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
         responses:
           default:
             statusCode: "200"
@@ -1815,7 +1815,7 @@ paths:
             - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
             - LambdaArn:
                 Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
         responses:
           default:
             statusCode: "200"
@@ -1844,7 +1844,7 @@ paths:
             - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
             - LambdaArn:
                 Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
         responses:
           default:
             statusCode: "200"
@@ -1873,7 +1873,7 @@ paths:
             - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
             - LambdaArn:
                 Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
         responses:
           default:
             statusCode: "200"
@@ -1932,7 +1932,7 @@ paths:
             - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
             - LambdaArn:
                 Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
         responses:
           default:
             statusCode: "200"

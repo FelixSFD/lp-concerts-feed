@@ -916,6 +916,33 @@ Resources:
                 Resource:
                   - !Sub "${ConcertsDynamoDBTable.Arn}"
                   - !Sub "${ConcertsDynamoDBTable.Arn}*"
+  
+  SetlistsReadLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: "Execution role for Lambda that reads from the DB"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: LambdaDynamoDBAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:DescribeTable
+                  - dynamodb:Query
+                Resource:
+                  - !Sub "${ConcertsDynamoDBTable.Arn}"
+                  - !Sub "${ConcertsDynamoDBTable.Arn}*"
 
 
   CognitoAuthorizerUserPoolV3:
@@ -1733,6 +1760,26 @@ Resources:
       LoggingConfig:
         LogFormat: JSON
         ApplicationLogLevel: DEBUG
+  
+  SetlistsReadFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: Lambda.SetlistsRead::Lambda.SetlistsRead.Function::FunctionHandler
+      Role: !GetAtt SetlistsReadLambdaExecutionRole.Arn
+      Description: .NET function to read Setlist-data into the database
+      CodeUri: ../lambda_packages/Lambda.SetlistsRead.zip
+      Runtime: dotnet10
+      Architectures:
+        - arm64
+      Tracing: Active
+      MemorySize: 1024
+      Environment:
+        Variables:
+          CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
+          SETLISTS_DB_CONNECTION_STRING: !Ref SetlistsDbConnectionStringWrite
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
 
 Outputs:
   ConcertsApiGatewayExport:
@@ -1813,6 +1860,10 @@ Outputs:
     Value: !GetAtt SetlistsWriteFunction.Arn
     Export:
       Name: !Sub '${BaseProductName}-lambda-setlists-write-function'
+  LambdaRefSetlistsReadFunctionExport:
+    Value: !GetAtt SetlistsReadFunction.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-lambda-setlists-read-function'
   OpenApiBucketArn:
     Value: !GetAtt OpenApiBucket.Arn
     Export:

@@ -63,39 +63,9 @@ public class Function
         
         var hasSongIdPathParameter = request.PathParameters.TryGetValue("songId", out var songIdStr);
         uint? songId = hasSongIdPathParameter ? uint.Parse(songIdStr!) : null;
-
-        if (request is { HttpMethod: "GET", Resource: "/setlists/{setlistId}" } && hasSetlistIdPathParameter)
-        {
-            context.Logger.LogInformation("Reading a setlist...");
-            return await HandleGetSetlist(setlistId ?? 0, context);
-        }
-        
-        if (request is { HttpMethod: "GET", Resource: "/songs/{songId}" } && hasSongIdPathParameter)
-        {
-            context.Logger.LogInformation("Requested song with ID: {songId}", songId);
-            return await HandleGetSong(songId ?? 0, context);
-        }
-        
-        if (request is { HttpMethod: "GET", Resource: "/songs/{songId}/variants" } && hasSongIdPathParameter)
-        {
-            context.Logger.LogInformation("Requested variants song with ID: {songId}", songId);
-            return await HandleGetVariantsOfSong(songId ?? 0, context);
-        }
-        
-        if (request is { HttpMethod: "GET", Resource: "/mashups" })
-        {
-            context.Logger.LogInformation("Get all mashups...");
-            return await HandleGetAllMashups(context);
-        }
         
         var hasMashupIdPathParameter = request.PathParameters.TryGetValue("mashupId", out var mashupIdStr);
         uint? mashupId = hasMashupIdPathParameter ? uint.Parse(mashupIdStr!) : null;
-        
-        if (request is { HttpMethod: "GET", Resource: "/mashups/{mashupId}" } && hasMashupIdPathParameter)
-        {
-            context.Logger.LogInformation("Get all mashups with ID: {mashupId}", mashupId);
-            return await HandleGetMashupById(mashupId ?? 0, context);
-        }
         
         // TODO: Enable authorization!
         /*var hasSetlistPermission = request.CanManageSetlists();
@@ -526,78 +496,6 @@ public class Function
         };
     }
     
-    
-    private async Task<APIGatewayProxyResponse> HandleGetSetlist(uint setlistId, ILambdaContext context)
-    {
-        try
-        {
-            var setlistDto = await _setlistService.GetCompleteSetlist(setlistId);
-            return new APIGatewayProxyResponse()
-            {
-                StatusCode = (int)HttpStatusCode.OK,
-                Body = JsonSerializer.Serialize(setlistDto, SetlistDtoJsonContext.Default.SetlistDto),
-                Headers = new Dictionary<string, string>
-                {
-                    { "Access-Control-Allow-Origin", "*" },
-                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
-                }
-            };
-        }
-        catch (SetlistNotFoundException e)
-        {
-            return HandleNotFoundException(e.Message, "OPTIONS, GET", context.Logger);
-        }
-    }
-    
-    
-    private async Task<APIGatewayProxyResponse> HandleGetSong(uint songId, ILambdaContext context)
-    {
-        try
-        {
-            var song = await _songService.GetSongById(songId);
-
-            return new APIGatewayProxyResponse()
-            {
-                StatusCode = (int)HttpStatusCode.OK,
-                Body = JsonSerializer.Serialize(song, SetlistDtoJsonContext.Default.SongDto),
-                Headers = new Dictionary<string, string>
-                {
-                    { "Access-Control-Allow-Origin", "*" },
-                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
-                }
-            };
-        }
-        catch (SongNotFoundException e)
-        {
-            return HandleNotFoundException(e.Message, "OPTIONS, GET", context.Logger);
-        }
-    }
-    
-    
-    private async Task<APIGatewayProxyResponse> HandleGetVariantsOfSong(uint songId, ILambdaContext context)
-    {
-        try
-        {
-            var variants = await _songService.GetVariantsOfSong(songId);
-
-            return new APIGatewayProxyResponse()
-            {
-                StatusCode = (int)HttpStatusCode.OK,
-                Body = JsonSerializer.Serialize(variants, SetlistDtoJsonContext.Default.ListSongVariantDto),
-                Headers = new Dictionary<string, string>
-                {
-                    { "Access-Control-Allow-Origin", "*" },
-                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
-                }
-            };
-        }
-        catch (SongNotFoundException e)
-        {
-            return HandleNotFoundException(e.Message, "OPTIONS, GET", context.Logger);
-        }
-    }
-
-
     /// <summary>
     /// Return an API response with status 404
     /// </summary>
@@ -682,56 +580,6 @@ public class Function
         {
             return ReturnBadRequest(e.Message, "OPTIONS, POST");
         }
-    }
-    
-    /// <summary>
-    /// Returns all mashups from the database
-    /// </summary>
-    /// <param name="context"></param>
-    /// <returns></returns>
-    private async Task<APIGatewayProxyResponse> HandleGetAllMashups(ILambdaContext context)
-    {
-        var cancellationToken = context.GetCancellationToken();
-        var mashups = await _songService.GetAllSongMashupsAsync(cancellationToken).ToListAsync(cancellationToken);
-        context.Logger.LogDebug("Found {count} mashups", mashups.Count);
-
-        return new APIGatewayProxyResponse
-        {
-            StatusCode = (int)HttpStatusCode.OK,
-            Body = JsonSerializer.Serialize(mashups, SetlistDtoJsonContext.Default.ListSongMashupDto),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET" }
-            }
-        };
-    }
-    
-    
-    /// <summary>
-    /// Returns the mashup
-    /// </summary>
-    /// <param name="mashupId">ID of the mashup</param>
-    /// <param name="context"></param>
-    /// <returns></returns>
-    private async Task<APIGatewayProxyResponse> HandleGetMashupById(uint mashupId, ILambdaContext context)
-    {
-        var mashup = await _songService.GetMashupByIdAsync(mashupId);
-        if (mashup == null)
-        {
-            return HandleNotFoundException($"The mashup with ID '{mashupId}' does not exist.", "OPTIONS, GET", context.Logger);
-        }
-
-        return new APIGatewayProxyResponse
-        {
-            StatusCode = (int)HttpStatusCode.OK,
-            Body = JsonSerializer.Serialize(mashup, SetlistDtoJsonContext.Default.SongMashupDto),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET" }
-            }
-        };
     }
     
     /// <summary>
