@@ -145,6 +145,21 @@ public class Function
             return ReturnBadRequest("Invalid setlist ID!");
         }
         
+        if (request is { HttpMethod: "POST", Resource: "/setlists/{setlistId}/mashups" } && hasSetlistIdPathParameter)
+        {
+            if (request.Body == null)
+            {
+                return ReturnBadRequest("Missing request body!");
+            }
+            
+            context.Logger.LogInformation("Adding a song mashup to the setlist with ID '{setlistId}' ...", setlistId);
+            if (setlistId != null)
+                return await HandleAddSongMashupToSetlist(request.Body, setlistId ?? 0, context);
+            
+            context.Logger.LogError("Invalid setlist ID!");
+            return ReturnBadRequest("Invalid setlist ID!");
+        }
+        
         if (request is { HttpMethod: "DELETE", Resource: "/setlists/{setlistId}" } && hasSetlistIdPathParameter)
         {
             return await HandleDeleteSetlist(setlistId ?? 0, context);
@@ -396,6 +411,64 @@ public class Function
             {
                 StatusCode = (int)HttpStatusCode.Created,
                 Body = JsonSerializer.Serialize(responseDto, SetlistDtoJsonContext.Default.AddSongVariantToSetlistResponseDto),
+                Headers = new Dictionary<string, string>
+                {
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, POST" }
+                }
+            };
+        }
+        catch (SetlistNotFoundException e)
+        {
+            return HandleNotFoundException(e.Message, "OPTIONS, POST", context.Logger);
+        }
+    }
+    
+    private async Task<APIGatewayProxyResponse> HandleAddSongMashupToSetlist(string requestJson, uint setlistId,
+        ILambdaContext context)
+    {
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.AddSongMashupToSetlistRequestDto);
+        if (dto != null)
+            return await HandleAddSongMashupToSetlist(dto, setlistId, context);
+        
+        var badRequestResponse = new ErrorResponse
+        {
+            Message = "Failed to deserialize the request body"
+        };
+            
+        context.Logger.LogError(badRequestResponse.Message);
+            
+        return new APIGatewayProxyResponse()
+        {
+            StatusCode = (int)HttpStatusCode.BadRequest,
+            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
+            Headers = new Dictionary<string, string>
+            {
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, POST" }
+            }
+        };
+    }
+    
+    /// <summary>
+    /// Adds a new song mashup to an existing setlist
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="setlistId">ID of the setlist</param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    private async Task<APIGatewayProxyResponse> HandleAddSongMashupToSetlist(AddSongMashupToSetlistRequestDto request, uint setlistId,
+        ILambdaContext context)
+    {
+        try
+        {
+            var entryDto = await _setlistService.AddSongMashupToSetlistAsync(request, setlistId);
+            var responseDto = new AddSongMashupToSetlistResponseDto(entryDto);
+        
+            return new APIGatewayProxyResponse()
+            {
+                StatusCode = (int)HttpStatusCode.Created,
+                Body = JsonSerializer.Serialize(responseDto, SetlistDtoJsonContext.Default.AddSongMashupToSetlistResponseDto),
                 Headers = new Dictionary<string, string>
                 {
                     { "Access-Control-Allow-Origin", "*" },

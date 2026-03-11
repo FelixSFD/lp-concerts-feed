@@ -616,6 +616,14 @@ components:
           description: Optional description of the variant. What makes this variant different from the original?
           nullable: true
     
+    SongMashupParameters:
+      type: object
+      description: Set of parameters used when song mashup data is passed to the server
+      properties:
+        songMashupId:
+          type: number
+          description: ID of the mashup
+    
     SetlistEntryParameters:
       type: object
       description: Common parameters for setlist entries
@@ -670,6 +678,37 @@ components:
     AddSongVariantToSetlistResponse:
       type: object
       description: Response after a song variant was added to the setlist
+      properties:
+        addedSetlistEntry:
+          type: object
+          description: The new entry that was added to the setlist
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntry"
+    
+    AddSongMashupToSetlistRequest:
+      type: object
+      description: Request to add a song mashup to an existing setlist
+      properties:
+        songVariantParameters:
+          type: object
+          description: Parameters of the song mashup for this entry
+          oneOf:
+            - $ref: "#/components/schemas/SongMashupParameters"
+        actParameters:
+          type: object
+          description: If set, the added song will be added to this Act. Title isn't required if the Act already exists.
+          nullable: true
+          anyOf:
+            - $ref: "#/components/schemas/ActParameters"
+        entryParameters:
+          type: object
+          description: Common parameters for that entry, no matter if it was a song or mashup
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntryParameters"
+
+    AddSongMashupToSetlistResponse:
+      type: object
+      description: Response after a song mashup was added to the setlist
       properties:
         addedSetlistEntry:
           type: object
@@ -1643,6 +1682,40 @@ paths:
       operationId: AddSongVariantToSetlist
       summary: Adds a new song variant to the setlist and creates
       description: In case the song variant doesn't exist yet, its entry in the database will be created, too
+      tags:
+        - setlists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddSongVariantToSetlistRequest"
+      responses:
+        "201":
+          description: The setlist entry that has just been created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AddSongVariantToSetlistResponse"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /setlists/{setlistId}/mashups:
+    post:
+      operationId: AddSongMashupToSetlist
+      summary: Adds a new song mashup to the setlist
       tags:
         - setlists
       requestBody:

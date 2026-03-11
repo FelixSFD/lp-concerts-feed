@@ -4,7 +4,7 @@ namespace Service.Setlists.Exceptions;
 /// Exception that is thrown when a song mashup was not found
 /// </summary>
 /// <param name="songMashupId">ID the song mashup</param>
-public class SongMashupNotFoundException(uint songMashupId) : SetlistServiceException
+public class SongMashupNotFoundException(uint songMashupId) : SetlistServiceException($"The mashup with ID '{songMashupId}' was not found!")
 {
     /// <summary>
     /// ID of the song mashup that was not found
