@@ -22,6 +22,12 @@ public class SqlSetlistRepository(SetlistsDbContext dbContext)
             .AsQueryable()
             .Where(sl => sl.ConcertId == concertId)
             .Include(sl => sl.Entries)
+            .ThenInclude(entry => entry.PlayedSong)
+            .Include(sl => sl.Entries)
+            .ThenInclude(entry => entry.PlayedSongVariant)
+            .ThenInclude(variant => variant!.Song)
+            .Include(sl => sl.Entries)
+            .ThenInclude(entry => entry.PlayedMashup)
             .AsAsyncEnumerable();
     }
 }
