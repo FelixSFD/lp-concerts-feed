@@ -12,6 +12,8 @@ import {ImprintComponent} from './imprint/imprint.component';
 import {UsersListComponent} from './admin/users/users-list/users-list.component';
 import {EditUserComponent} from './admin/users/edit-user/edit-user.component';
 import {AppInfoPageComponent} from './app-info-page/app-info-page.component';
+import {AddSetlistPageComponent} from './admin/setlists/add-setlist-page/add-setlist-page.component';
+import {ManageSetlistsPageComponent} from './admin/setlists/manage-setlists-page/manage-setlists-page.component';
 
 let baseTitle = "LP Concerts - ";
 
@@ -81,6 +83,16 @@ export const routes: Routes = [
     path: 'users/:id',
     component: EditUserComponent,
     title: baseTitle + 'Edit user',
+  },
+  {
+    path: 'admin/setlists',
+    component: ManageSetlistsPageComponent,
+    title: baseTitle + 'Manage setlists',
+  },
+  {
+    path: 'admin/setlists/add',
+    component: AddSetlistPageComponent,
+    title: baseTitle + 'Create a new setlist',
   },
   {
     path: 'app',

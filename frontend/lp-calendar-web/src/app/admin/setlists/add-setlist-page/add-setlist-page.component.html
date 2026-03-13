@@ -1,0 +1,46 @@
+<form #form="ngForm" [formGroup]="setlistForm" class="form">
+  <div class="card mt-3">
+    <div class="card-header">
+      General information
+    </div>
+    <div class="card-body edit-form-card">
+      <!-- Concert selection -->
+      <div class="form-group">
+        <label for="concert">Concert</label>
+        <input id="concert" type="text" formControlName="concertId" class="form-control"
+               [ngClass]="{ 'is-invalid': setlistForm.controls.concertId.invalid }">
+        @if (setlistForm.controls.concertId.invalid) {
+          <div class="text-danger">
+            @if (setlistForm.controls.concertId.errors) {
+              <small>Concert is invalid.</small>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Linkinpedia URL -->
+      <div class="form-group">
+        <label for="linkinpediaUrl">Linkinpedia URL:</label>
+        <input id="linkinpediaUrl" type="text" formControlName="linkinpediaUrl" class="form-control"
+               [ngClass]="{ 'is-invalid': setlistForm.controls.linkinpediaUrl.invalid }">
+        @if (setlistForm.controls.linkinpediaUrl.invalid) {
+          <div class="text-danger">
+            @if (setlistForm.controls.linkinpediaUrl.errors) {
+              <small>URL is invalid.</small>
+            }
+          </div>
+        }
+      </div>
+    </div>
+    <div class="card-footer">
+      <div class="row">
+        <div class="col text-end">
+          <button class="btn btn-success" (click)="onSaveClicked()" [disabled]="isSaving$ || !setlistForm.valid">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!isSaving$"></span>
+            <span class="sr-only">{{ isSaving$ ? "Saving..." : "Save" }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
