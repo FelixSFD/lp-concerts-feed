@@ -1,3 +1,4 @@
+<h1>Create a new setlist</h1>
 <form #form="ngForm" [formGroup]="setlistForm" class="form">
   <div class="card mt-3">
     <div class="card-header">
@@ -7,8 +8,11 @@
       <!-- Concert selection -->
       <div class="form-group">
         <label for="concert">Concert</label>
-        <input id="concert" type="text" formControlName="concertId" class="form-control"
-               [ngClass]="{ 'is-invalid': setlistForm.controls.concertId.invalid }">
+        <div class="input-group mb-3">
+          <input id="concert" type="text" formControlName="concertId" class="form-control"
+                 [ngClass]="{ 'is-invalid': setlistForm.controls.concertId.invalid }">
+          <button class="btn btn-outline-info" (click)="openConcertDetailsClicked()"><i class="bi bi-box-arrow-up-right"></i><span class="d-none d-sm-none d-md-inline ms-2">Open details</span></button>
+        </div>
         @if (setlistForm.controls.concertId.invalid) {
           <div class="text-danger">
             @if (setlistForm.controls.concertId.errors) {
@@ -21,8 +25,11 @@
       <!-- Linkinpedia URL -->
       <div class="form-group">
         <label for="linkinpediaUrl">Linkinpedia URL:</label>
-        <input id="linkinpediaUrl" type="text" formControlName="linkinpediaUrl" class="form-control"
-               [ngClass]="{ 'is-invalid': setlistForm.controls.linkinpediaUrl.invalid }">
+        <div class="input-group mb-3">
+          <input id="linkinpediaUrl" type="text" formControlName="linkinpediaUrl" class="form-control"
+                 [ngClass]="{ 'is-invalid': setlistForm.controls.linkinpediaUrl.invalid }">
+          <button class="btn btn-outline-info" (click)="openLinkinpediaUrlClicked()"><i class="bi bi-box-arrow-up-right"></i><span class="d-none d-sm-none d-md-inline ms-2">Open link</span></button>
+        </div>
         @if (setlistForm.controls.linkinpediaUrl.invalid) {
           <div class="text-danger">
             @if (setlistForm.controls.linkinpediaUrl.errors) {
