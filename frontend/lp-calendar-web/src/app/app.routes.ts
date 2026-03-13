@@ -95,6 +95,11 @@ export const routes: Routes = [
     title: baseTitle + 'Create a new setlist',
   },
   {
+    path: 'admin/setlists/add/:concertId',
+    component: AddSetlistPageComponent,
+    title: baseTitle + 'Create a new setlist',
+  },
+  {
     path: 'app',
     component: AppInfoPageComponent,
     title: baseTitle + 'iOS App',

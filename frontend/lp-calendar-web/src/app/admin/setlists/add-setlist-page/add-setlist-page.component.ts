@@ -1,6 +1,7 @@
-import {Component, inject, Input} from '@angular/core';
+import {Component, inject, Input, OnInit} from '@angular/core';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {NgClass} from '@angular/common';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-add-setlist-page',
@@ -12,8 +13,9 @@ import {NgClass} from '@angular/common';
   templateUrl: './add-setlist-page.component.html',
   styleUrl: './add-setlist-page.component.css',
 })
-export class AddSetlistPageComponent {
+export class AddSetlistPageComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
+  private route = inject(ActivatedRoute);
 
   setlistForm = this.formBuilder.group({
     concertId: new FormControl('', [Validators.required]),
@@ -21,6 +23,16 @@ export class AddSetlistPageComponent {
   });
 
   isSaving$: boolean = false;
+
+  ngOnInit() {
+    this.route.params.subscribe(params => {
+      let concertId = params['concertId'];
+      if (concertId != null && concertId.length > 0) {
+        this.setlistForm.controls.concertId.setValue(params['concertId']);
+        this.setlistForm.controls.concertId.disable();
+      }
+    })
+  }
 
   onSaveClicked() {
     this.isSaving$ = true;
