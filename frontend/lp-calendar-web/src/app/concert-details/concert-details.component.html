@@ -61,6 +61,17 @@
     {{ concert$?.showType }}
   </p>
   <div class="container">
+    @if (setlists$?.length ?? 0 > 0) {
+      <div class="row justify-content-center mt-4 mb-5">
+        <div class="col-xxl-8 col-xl-9 col-lg-10 col-md-12 col-sm-12 col-xs-12">
+          @for (setlist of setlists$; track setlist) {
+            <div class="mt-4 w-100">
+              <app-setlist [setlist]="setlist" />
+            </div>
+          }
+        </div>
+      </div>
+    }
     <div class="row row-cols-xxl-4 row-cols-xl-3 row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-xs-1 row-cols-1 gy-4 gx-4">
       @if (concert$?.mainStageTime != undefined) {
         <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12">

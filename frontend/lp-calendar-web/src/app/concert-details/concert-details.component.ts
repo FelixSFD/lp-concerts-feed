@@ -17,12 +17,14 @@ import {
   ConcertBookmarkUpdateRequestDto,
   ConcertDto,
   ErrorResponseDto,
-  GetConcertBookmarkCountsResponseDto
+  GetConcertBookmarkCountsResponseDto, SetlistDto
 } from '../modules/lpshows-api';
 import {AuthService} from '../auth/auth.service';
 import {ToastrService} from 'ngx-toastr';
 import {HttpErrorResponse} from '@angular/common/http';
 import {load, MapKit, Map as AppleMap} from '@apple/mapkit-loader';
+import {SetlistsService} from '../services/setlists.service';
+import {SetlistComponent} from '../setlists/setlist/setlist.component';
 
 @Component({
   selector: 'app-concert-details',
@@ -31,8 +33,9 @@ import {load, MapKit, Map as AppleMap} from '@apple/mapkit-loader';
     RouterLink,
     ConcertBadgesComponent,
     TimeSpanPipe,
-    NgbTooltip
-],
+    NgbTooltip,
+    SetlistComponent
+  ],
   templateUrl: './concert-details.component.html',
   styleUrl: './concert-details.component.css'
 })
@@ -56,7 +59,9 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
 
   hasWriteAccess$ = false;
 
-  constructor(private route: ActivatedRoute, private concertsService: ConcertsService, private metaService: Meta) {
+  setlists$: SetlistDto[] = [];
+
+  constructor(private route: ActivatedRoute, private concertsService: ConcertsService, private setlistService: SetlistsService, private metaService: Meta) {
     this.oidcSecurityService.checkAuth().subscribe(({ isAuthenticated }) => {
       this.hasWriteAccess$ = isAuthenticated;
     });
@@ -203,6 +208,7 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
 
     // delete current concert data to show a loading spinner
     this.concert$ = null;
+    this.setlists$ = [];
 
     this.concertsService.getAdjacentConcerts(this.concertId)
       .subscribe(adjacentConcerts => {
@@ -238,6 +244,20 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
 
         return this.concert$ = result;
       });
+
+    // load setlist
+    this.setlistService
+      .getSetlistsForConcert(this.concertId)
+      .subscribe({
+        next: result => {
+          this.setlists$ = result;
+        },
+        error: err => {
+          // TODO: 404 probably needs silent handling
+          let errorResponse: ErrorResponseDto = err.error;
+          this.toastr.error(errorResponse.message, "Could not load setlist");
+        }
+      })
   }
 
 

@@ -1,8 +1,25 @@
 <div class="card">
   <div class="card-header">
-    Setlist
+    {{ setlistTitle$ }}
   </div>
   <div class="card-body edit-form-card">
-
+    <table class="table">
+      <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Song</th>
+        <th scope="col">Notes</th>
+      </tr>
+      </thead>
+      <tbody>
+        @for (entry of setlist?.entries; track entry) {
+          <tr>
+            <td>{{ entry.songNumber == 0 ? "" : entry.songNumber }}</td>
+            <td>{{ entry.title }}</td>
+            <td>{{ entry.extraNotes }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
   </div>
 </div>
