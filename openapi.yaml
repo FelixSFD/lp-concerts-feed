@@ -1668,7 +1668,7 @@ paths:
           description: ID of the setlist
           required: true
           schema:
-            type: string
+            type: number
         - in: path
           name: setlistEntryId
           description: ID of the setlist entry
@@ -1705,7 +1705,7 @@ paths:
           description: ID of the setlist
           required: true
           schema:
-            type: string
+            type: number
       requestBody:
         content:
           application/json:
@@ -1747,7 +1747,7 @@ paths:
           description: ID of the setlist
           required: true
           schema:
-            type: string
+            type: number
       requestBody:
         content:
           application/json:
@@ -1788,7 +1788,7 @@ paths:
           description: ID of the setlist
           required: true
           schema:
-            type: string
+            type: number
       requestBody:
         content:
           application/json:
@@ -1830,7 +1830,7 @@ paths:
           description: ID of the setlist
           required: true
           schema:
-            type: string
+            type: number
       responses:
         "200":
           description: The complete setlist information
@@ -1863,7 +1863,7 @@ paths:
           description: ID of the setlist
           required: true
           schema:
-            type: string
+            type: number
       responses:
         "204":
           description: No content
@@ -1893,7 +1893,7 @@ paths:
           description: ID of the song
           required: true
           schema:
-            type: string
+            type: number
       responses:
         "200":
           description: The song information
@@ -1927,7 +1927,7 @@ paths:
           description: ID of the song
           required: true
           schema:
-            type: string
+            type: number
       responses:
         "200":
           description: The list of all variants of the song
@@ -2024,7 +2024,7 @@ paths:
           description: ID of the mashup
           required: true
           schema:
-            type: string
+            type: number
       responses:
         "200":
           description: The song mashup
@@ -2057,7 +2057,7 @@ paths:
           description: ID of the mashup
           required: true
           schema:
-            type: string
+            type: number
       responses:
         "204":
           description: No content
