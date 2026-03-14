@@ -79,6 +79,12 @@ public class Function
             return await HandleGetSetlist(setlistId ?? 0, context);
         }
         
+        if (request is { HttpMethod: "GET", Resource: "/setlists" })
+        {
+            context.Logger.LogInformation("Reading all setlists...");
+            return await HandleGetSetlistHeaders(context);
+        }
+        
         if (request is { HttpMethod: "GET", Resource: "/songs/{songId}" } && hasSongIdPathParameter)
         {
             context.Logger.LogInformation("Requested song with ID: {songId}", songId);
@@ -136,6 +142,29 @@ public class Function
             {
                 StatusCode = (int)HttpStatusCode.OK,
                 Body = JsonSerializer.Serialize(setlistDto, SetlistDtoJsonContext.Default.SetlistDto),
+                Headers = new Dictionary<string, string>
+                {
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                }
+            };
+        }
+        catch (SetlistNotFoundException e)
+        {
+            return HandleNotFoundException(e.Message, "OPTIONS, GET", context.Logger);
+        }
+    }
+    
+    
+    private async Task<APIGatewayProxyResponse> HandleGetSetlistHeaders(ILambdaContext context)
+    {
+        try
+        {
+            var setlists = await _setlistService.GetSetlistHeaders(context.GetCancellationToken()).ToListAsync();
+            return new APIGatewayProxyResponse()
+            {
+                StatusCode = (int)HttpStatusCode.OK,
+                Body = JsonSerializer.Serialize(setlists, SetlistDtoJsonContext.Default.ListSetlistHeaderDto),
                 Headers = new Dictionary<string, string>
                 {
                     { "Access-Control-Allow-Origin", "*" },

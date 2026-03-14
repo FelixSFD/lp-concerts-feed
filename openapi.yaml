@@ -512,6 +512,20 @@ components:
           type: boolean
           description: true if this song has not only not been played before, but was not released before this show. For example "Heavy Is The Crown" in Hamburg 2024
     
+    SetlistHeader:
+      type: object
+      description: Information about a setlist including all entries
+      properties:
+        id:
+          type: number
+          description: ID of the setlist
+        concertId:
+          type: string
+          description: ID of the concert where this set was played
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+    
     Setlist:
       type: object
       description: Information about a setlist including all entries
@@ -1648,6 +1662,35 @@ paths:
         type: "aws_proxy"
 
   /setlists:
+    get:
+      operationId: GetSetlists
+      summary: Returns all setlist headers
+      description: This contains all header info for setlists
+      tags:
+        - setlists
+      responses:
+        "200":
+          description: The header data of each setlist
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SetlistHeader"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
     post:
       operationId: CreateSetlist
       summary: Creates a new setlist
