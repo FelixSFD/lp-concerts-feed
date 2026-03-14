@@ -25,6 +25,7 @@ import {HttpErrorResponse} from '@angular/common/http';
 import {load, MapKit, Map as AppleMap} from '@apple/mapkit-loader';
 import {SetlistsService} from '../services/setlists.service';
 import {SetlistComponent} from '../setlists/setlist/setlist.component';
+import {Setlist} from '../data/setlists/setlist';
 
 @Component({
   selector: 'app-concert-details',
@@ -59,7 +60,7 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
 
   hasWriteAccess$ = false;
 
-  setlists$: SetlistDto[] = [];
+  setlists$: Setlist[] = [];
 
   constructor(private route: ActivatedRoute, private concertsService: ConcertsService, private setlistService: SetlistsService, private metaService: Meta) {
     this.oidcSecurityService.checkAuth().subscribe(({ isAuthenticated }) => {
@@ -250,7 +251,7 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
       .getSetlistsForConcert(this.concertId)
       .subscribe({
         next: result => {
-          this.setlists$ = result;
+          this.setlists$ = result.map(s => Setlist.fromDto(s));
         },
         error: err => {
           // TODO: 404 probably needs silent handling
