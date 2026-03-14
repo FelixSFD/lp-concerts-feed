@@ -27,8 +27,7 @@
       <div class="form-group">
         <label for="linkinpediaUrl">Linkinpedia URL:</label>
         <div class="input-group mb-3">
-          <input id="linkinpediaUrl" type="text" formControlName="linkinpediaUrl" class="form-control"
-                 [ngClass]="{ 'is-invalid': setlistForm.controls.linkinpediaUrl.invalid }">
+          <input id="linkinpediaUrl" type="text" formControlName="linkinpediaUrl" class="form-control" [ngClass]="{ 'is-invalid': setlistForm.controls.linkinpediaUrl.invalid }">
           <button class="btn btn-outline-info" (click)="openLinkinpediaUrlClicked()"><i class="bi bi-box-arrow-up-right"></i><span class="d-none d-sm-none d-md-inline ms-2">Open link</span></button>
         </div>
         @if (setlistForm.controls.linkinpediaUrl.invalid) {

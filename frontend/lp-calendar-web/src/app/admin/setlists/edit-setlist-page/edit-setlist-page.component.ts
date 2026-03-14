@@ -1,22 +1,26 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {CreateSetlistRequestDto, ErrorResponseDto} from '../../../modules/lpshows-api';
-import {Router} from '@angular/router';
+import {CreateSetlistRequestDto, ErrorResponseDto, SetlistDto} from '../../../modules/lpshows-api';
+import {ActivatedRoute, Router} from '@angular/router';
 import {SetlistsService} from '../../../services/setlists.service';
 import {ToastrService} from 'ngx-toastr';
+import {NgClass} from '@angular/common';
+import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-edit-setlist-page',
   imports: [
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgClass
   ],
   templateUrl: './edit-setlist-page.component.html',
   styleUrl: './edit-setlist-page.component.css',
 })
-export class EditSetlistPageComponent {
+export class EditSetlistPageComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
   private router = inject(Router);
+  private activeRoute = inject(ActivatedRoute);
   private setlistService = inject(SetlistsService);
   private toastr = inject(ToastrService);
 
@@ -29,6 +33,29 @@ export class EditSetlistPageComponent {
 
   isSaving$: boolean = false;
 
+  ngOnInit() {
+    this.activeRoute.params.subscribe(params => {
+      let setlistId = params['setlistId'];
+      if (setlistId != null && setlistId > 0) {
+        this.loadSetlist(setlistId);
+      }
+    });
+  }
+
+  private loadSetlist(setlistId: number) {
+    this.setlistService
+      .getSetlist(setlistId)
+      .subscribe(setlist => {
+        this.fillFormFromDto(setlist);
+      });
+  }
+
+  private fillFormFromDto(setlist: SetlistDto) {
+    this.setlistForm.controls.concertId.setValue(setlist.concertId ?? null);
+    this.setlistForm.controls.concertTitle.setValue(setlist.concertTitle ?? null);
+    this.setlistForm.controls.linkinpediaUrl.setValue(setlist.linkinpediaUrl ?? null);
+    this.setlistForm.controls.setName.setValue(setlist.setName ?? null);
+  }
 
   private makeRequestDtoFromFormData(): CreateSetlistRequestDto {
     let concertId = this.setlistForm.getRawValue().concertId?.valueOf();
