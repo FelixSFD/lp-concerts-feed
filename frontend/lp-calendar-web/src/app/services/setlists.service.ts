@@ -27,6 +27,14 @@ export class SetlistsService {
   }
 
   /**
+   * Deletes a setlists by its ID
+   * @param setlistId ID of the setlist to delete
+   */
+  public deleteSetlist(setlistId: number) : Observable<any> {
+    return this.setlistsApiClient.deleteSetlist(setlistId);
+  }
+
+  /**
    * Returns a setlists by its ID
    * @param setlistId ID of the setlist
    */

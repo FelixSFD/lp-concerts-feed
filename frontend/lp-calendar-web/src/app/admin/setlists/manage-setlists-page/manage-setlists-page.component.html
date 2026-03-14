@@ -1,3 +1,36 @@
+<!-- DeleteSetlist confirmation modal -->
+<ng-template #deleteSetlistContent let-deleteSetlistModal>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h1 class="modal-title fs-5" id="deleteSetlistModalLabel">Delete setlist?</h1>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <p>Do you really want to delete this setlist?</p>
+      <table>
+        <tr>
+          <td class="fw-bold">Concert Title:</td>
+          <td>&nbsp;</td>
+          <td>{{ setlistToDelete?.concertTitle }}</td>
+        </tr>
+        <tr>
+          <td class="fw-bold">Set Name:</td>
+          <td>&nbsp;</td>
+          <td>{{ setlistToDelete?.setName }}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" [disabled]="setlistDeleting$" (click)="dismissSetlistConfirmModal()">Cancel</button>
+      <button type="button" class="btn btn-danger" id="deleteConcertConfirmBtn" (click)="onDeleteSetlistConfirm()" [disabled]="setlistDeleting$">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!setlistDeleting$"></span>
+        <span class="sr-only">{{ setlistDeleting$ ? "Deleting..." : "Delete" }}</span>
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+
 <h1>Manage setlists</h1>
 <button class="btn btn-outline-primary" [routerLink]="['add']">Add setlist</button>
 
@@ -16,7 +49,7 @@
         <td>{{ setlist.setName }}</td>
         <td>
           <button class="btn btn-outline-info" [routerLink]="[setlist.id.toString()]">Edit</button>
-          <button class="btn btn-outline-danger ms-2 disabled">Delete</button>
+          <button class="btn btn-outline-danger ms-2" (click)="onDeleteSetlistClicked(deleteSetlistContent, setlist)">Delete</button>
         </td>
       </tr>
     }
