@@ -131,6 +131,21 @@ public static class DtoMapper
     }
     
     /// <summary>
+    /// Maps a <see cref="SetlistDo"/> to <see cref="SetlistHeaderDto"/>
+    /// </summary>
+    /// <param name="setlistDo">Setlist to map to its DTO</param>
+    /// <returns>the DTO</returns>
+    public static SetlistHeaderDto ToHeaderOnlyDto(SetlistDo setlistDo)
+    {
+        return new SetlistHeaderDto
+        {
+            Id = setlistDo.Id,
+            ConcertId = setlistDo.ConcertId,
+            LinkinpediaUrl = setlistDo.LinkinpediaUrl
+        };
+    }
+    
+    /// <summary>
     /// Maps a <see cref="SetlistEntryDo"/> to <see cref="SetlistEntryDto"/>
     /// </summary>
     /// <param name="setlistEntryDo">Setlist entry to map to its DTO</param>

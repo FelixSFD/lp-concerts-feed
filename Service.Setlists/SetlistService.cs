@@ -230,6 +230,21 @@ public class SetlistService(
         logger.LogDebug("Found the mashup. Will add it to the setlist now...");
         return await AddToSetlist(request, setlistId, null, null, songMashup);
     }
+    
+    
+    /// <summary>
+    /// Returns a setlist with all entries
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns></returns>
+    /// <exception cref="SetlistNotFoundException">if the setlist was not found</exception>
+    public IAsyncEnumerable<SetlistHeaderDto> GetSetlistHeaders(CancellationToken cancellationToken)
+    {
+        logger.LogDebug("Retrieve setlist headers");
+        return setlistRepository
+            .QueryAsync(cancellationToken)
+            .Select(DtoMapper.ToHeaderOnlyDto);
+    }
 
 
     /// <summary>

@@ -337,6 +337,83 @@ public class SetlistServiceTest
             .DidNotReceive()
             .Add(Arg.Any<SongMashupDo>());
     }
+    
+    
+    [Fact]
+    public async Task GetSetlistHeaders()
+    {
+        var song1 = new SongDo
+        {
+            Id = 1234,
+            Title = "QWERTY",
+            Isrc = "5355646",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
+        };
+        
+        var song2 = new SongDo
+        {
+            Id = 1,
+            Title = "Lost",
+            Isrc = "1",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/Lost"
+        };
+
+        var entry1 = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            SongNumber = 1,
+            SortNumber = 10,
+            PlayedSong = song1,
+            TitleOverride = null,
+            ExtraNotes = "FINALLY!!!",
+            IsPlayedFromRecording = false,
+            IsWorldPremiere = false,
+            IsRotationSong = false
+        };
+        
+        var entry2 = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            SongNumber = 2,
+            SortNumber = 20,
+            PlayedSong = song2,
+            IsPlayedFromRecording = false,
+            IsWorldPremiere = false,
+            IsRotationSong = false
+        };
+        
+        var setlist = new SetlistDo
+        {
+            Id = 1,
+            ConcertId = Guid.NewGuid().ToString(),
+            LinkinpediaUrl = "https://lplive.net",
+            Entries = [entry2, entry1]
+        };
+
+        List<SetlistDo> setlists = [setlist];
+        
+        // setup mocks
+        _setlistRepository
+            .QueryAsync(CancellationToken.None)
+            .Returns(setlists.ToAsyncEnumerable());
+        
+        // call the service
+        var result = await _setlistService.GetSetlistHeaders(CancellationToken.None).FirstOrDefaultAsync();
+        
+        // verify result DTO
+        Assert.NotNull(result);
+        Assert.Equal(setlist.Id, result.Id);
+        Assert.Equal(setlist.LinkinpediaUrl, result.LinkinpediaUrl);
+        Assert.Equal(setlist.ConcertId, result.ConcertId);
+        
+        // verify mock calls
+        _setlistRepository
+            .Received(1)
+            .QueryAsync(CancellationToken.None);
+        await _setlistRepository
+            .DidNotReceive()
+            .GetByPrimaryKeyAsync(setlist.Id);
+    }
 
 
     [Fact]
