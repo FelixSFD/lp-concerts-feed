@@ -1,0 +1,63 @@
+<h1>Edit setlist</h1>
+
+<form #form="ngForm" [formGroup]="setlistForm" class="form">
+  <div class="card mt-3">
+    <div class="card-header">
+      General information
+    </div>
+    <div class="card-body edit-form-card">
+      <!-- Concert selection -->
+      <div class="form-group">
+        <label for="concert">Concert</label>
+        <div class="input-group mb-3">
+          <input id="concert" type="text" formControlName="concertId" class="form-control"
+                 [ngClass]="{ 'is-invalid': setlistForm.controls.concertId.invalid }">
+          <button class="btn btn-outline-info" (click)="openConcertDetailsClicked()"><i class="bi bi-box-arrow-up-right"></i><span class="d-none d-sm-none d-md-inline ms-2">Open details</span></button>
+        </div>
+        @if (setlistForm.controls.concertId.invalid) {
+          <div class="text-danger">
+            @if (setlistForm.controls.concertId.errors) {
+              <small>Concert is invalid.</small>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Linkinpedia URL -->
+      <div class="form-group">
+        <label for="linkinpediaUrl">Linkinpedia URL:</label>
+        <div class="input-group mb-3">
+          <input id="linkinpediaUrl" type="text" formControlName="linkinpediaUrl" class="form-control"
+                 [ngClass]="{ 'is-invalid': setlistForm.controls.linkinpediaUrl.invalid }">
+          <button class="btn btn-outline-info" (click)="openLinkinpediaUrlClicked()"><i class="bi bi-box-arrow-up-right"></i><span class="d-none d-sm-none d-md-inline ms-2">Open link</span></button>
+        </div>
+        @if (setlistForm.controls.linkinpediaUrl.invalid) {
+          <div class="text-danger">
+            @if (setlistForm.controls.linkinpediaUrl.errors) {
+              <small>URL is invalid.</small>
+            }
+          </div>
+        }
+      </div>
+    </div>
+    <div class="card-footer">
+      <div class="row">
+        <div class="col text-end">
+          <button class="btn btn-success" (click)="onSaveClicked()" [disabled]="isSaving$ || !setlistForm.valid">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!isSaving$"></span>
+            <span class="sr-only">{{ isSaving$ ? "Saving..." : "Save" }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="card mt-5">
+    <div class="card-header">
+      Entries
+    </div>
+    <div class="card-body edit-form-card">
+    </div>
+  </div>
+</form>
