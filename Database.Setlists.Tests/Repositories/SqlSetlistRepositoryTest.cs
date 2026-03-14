@@ -7,6 +7,42 @@ namespace Database.Setlists.Tests.Repositories;
 public class SqlSetlistRepositoryTest : DbIntegrationTestsBase
 {
     [Fact]
+    public async Task UpdateSetlist()
+    {
+        var repo = new SqlSetlistRepository(DbContext);
+
+        var setlist = new SetlistDo
+        {
+            ConcertId = Guid.NewGuid().ToString(),
+            ConcertTitle = "Setlist 1",
+            SetName = "Set A2",
+            LinkinpediaUrl = "https://lplive.net"
+        };
+        
+        repo.Add(setlist);
+
+        await repo.SaveChangesAsync();
+        
+        setlist.LinkinpediaUrl = "https://linkinpedia.com";
+        setlist.ConcertTitle = "Concert 1";
+        setlist.SetName = "Set A2.1";
+        
+        repo.Update(setlist);
+        await repo.SaveChangesAsync();
+        
+        var retrievedSetlist = await repo.GetByConcertIdAsync(setlist.ConcertId).FirstOrDefaultAsync();
+        Assert.NotNull(retrievedSetlist);
+        Assert.Equal(setlist.Id, retrievedSetlist.Id);
+        Assert.Equal(setlist.ConcertId, retrievedSetlist.ConcertId);
+        Assert.Equal(setlist.LinkinpediaUrl, retrievedSetlist.LinkinpediaUrl);
+        Assert.Equal(setlist.ConcertTitle, retrievedSetlist.ConcertTitle);
+        Assert.Equal(setlist.SetName, retrievedSetlist.SetName);
+        Assert.NotNull(retrievedSetlist.Entries);
+        Assert.Empty(retrievedSetlist.Entries);
+    }
+    
+    
+    [Fact]
     public async Task GetByIdAsync()
     {
         var repo = new SqlSetlistRepository(DbContext);

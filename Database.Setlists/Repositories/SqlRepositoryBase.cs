@@ -19,6 +19,11 @@ public class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObject> where
     {
         DbSet.Add(data);
     }
+    
+    public virtual void Update(TDataObject data)
+    {
+        DbSet.Update(data);
+    }
 
     public virtual void Delete(TDataObject data)
     {
