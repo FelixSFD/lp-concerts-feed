@@ -5,7 +5,7 @@ import {
   CreateSetlistRequestDto,
   CreateSetlistResponseDto, SetlistDto,
   SetlistsService as SetlistsApiClient,
-  ConcertsService as ConcertsApiClient,
+  ConcertsService as ConcertsApiClient, UpdateSetlistHeaderRequestDto,
 } from '../modules/lpshows-api';
 import {Observable} from 'rxjs';
 import {Guid} from 'guid-typescript';
@@ -25,6 +25,15 @@ export class SetlistsService {
    */
   public createSetlist(request: CreateSetlistRequestDto) : Observable<CreateSetlistResponseDto> {
     return this.setlistsApiClient.createSetlist(request);
+  }
+
+  /**
+   * Updates a new setlist
+   * @param setlistId ID of the setlist
+   * @param request Data of the setlist
+   */
+  public updateSetlistHeader(setlistId: number, request: UpdateSetlistHeaderRequestDto) : Observable<any> {
+    return this.setlistsApiClient.updateSetlistHeader(setlistId, request);
   }
 
   /**

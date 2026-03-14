@@ -1,6 +1,11 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {CreateSetlistRequestDto, ErrorResponseDto, SetlistDto} from '../../../modules/lpshows-api';
+import {
+  CreateSetlistRequestDto,
+  ErrorResponseDto,
+  SetlistDto,
+  UpdateSetlistHeaderRequestDto
+} from '../../../modules/lpshows-api';
 import {ActivatedRoute, Router} from '@angular/router';
 import {SetlistsService} from '../../../services/setlists.service';
 import {ToastrService} from 'ngx-toastr';
@@ -24,6 +29,8 @@ export class EditSetlistPageComponent implements OnInit {
   private setlistService = inject(SetlistsService);
   private toastr = inject(ToastrService);
 
+  private currentSetlistId: number = 0;
+
   setlistForm = this.formBuilder.group({
     concertId: new FormControl('', [Validators.required]),
     concertTitle: new FormControl('', [Validators.required]),
@@ -38,6 +45,7 @@ export class EditSetlistPageComponent implements OnInit {
       let setlistId = params['setlistId'];
       if (setlistId != null && setlistId > 0) {
         this.loadSetlist(setlistId);
+        this.currentSetlistId = setlistId;
       }
     });
   }
@@ -57,15 +65,17 @@ export class EditSetlistPageComponent implements OnInit {
     this.setlistForm.controls.setName.setValue(setlist.setName ?? null);
   }
 
-  private makeRequestDtoFromFormData(): CreateSetlistRequestDto {
+  private makeRequestDtoFromFormData(): UpdateSetlistHeaderRequestDto {
     let concertId = this.setlistForm.getRawValue().concertId?.valueOf();
     let linkinpediaUrl = this.setlistForm.value.linkinpediaUrl?.valueOf();
+    let setName = this.setlistForm.value.setName?.valueOf();
 
     console.log('concertId', concertId);
     console.log('linkinpediaUrl', linkinpediaUrl);
 
-    let request: CreateSetlistRequestDto = {
-      concertId: concertId,
+    let request: UpdateSetlistHeaderRequestDto = {
+      //concertId: concertId!,
+      setName: setName,
       linkinpediaUrl: linkinpediaUrl,
     };
 
@@ -75,27 +85,21 @@ export class EditSetlistPageComponent implements OnInit {
   }
 
   onSaveClicked() {
-    /*this.isSaving$ = true;
+    this.isSaving$ = true;
     let request = this.makeRequestDtoFromFormData();
-    this.setlistService.createSetlist(request)
+    this.setlistService.updateSetlistHeader(this.currentSetlistId, request)
       .subscribe({
         next: (response) => {
-          let toast = this.toastr.success("Setlist was created successfully");
-          toast.onTap.subscribe(toast => {
-            this.navigateToSetlist(response.id);
-          });
-
-          this.navigateToSetlist(response.id);
+          this.toastr.success("Setlist was updated successfully");
 
           this.isSaving$ = false;
-          this.setlistForm.reset();
         },
         error: err => {
           let errorResponse: ErrorResponseDto = err.error;
-          this.toastr.error(errorResponse.message, "Could not create setlist");
+          this.toastr.error(errorResponse.message, "Could not update setlist");
           this.isSaving$ = false;
         }
-      });*/
+      });
   }
 
   private navigateToSetlist(id: string | undefined) {

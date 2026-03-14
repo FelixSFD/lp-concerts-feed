@@ -613,6 +613,20 @@ components:
           type: string
           description: URL to the wiki page on Linkinpedia
           nullable: true
+          
+    UpdateSetlistHeaderRequest:
+      type: object
+      description: Request to update header-information of a setlist
+      properties:
+        setName:
+          type: string
+          description: Name of the set
+          example: Set A
+          nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
     
     CreateSongMashupRequest:
       type: object
@@ -1958,6 +1972,46 @@ paths:
             - LambdaArn:
                 Fn::ImportValue:
                   Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+    post:
+      operationId: UpdateSetlistHeader
+      summary: Updates the header information of a setlist
+      description: The setlist entries are managed by a different API
+      tags:
+        - setlists
+      parameters:
+        - in: path
+          name: setlistId
+          description: ID of the setlist
+          required: true
+          schema:
+            type: number
+      requestBody:
+        description: The updated values
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSetlistHeaderRequest"
+      responses:
+        "200":
+          description: The complete setlist information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Setlist"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
         responses:
           default:
             statusCode: "200"
