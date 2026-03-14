@@ -1,10 +1,11 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {SetlistsService} from '../../services/setlists.service';
-import {Router} from '@angular/router';
 import {ToastrService} from 'ngx-toastr';
-import {ErrorResponseDto, SetlistDto} from '../../modules/lpshows-api';
+import {ErrorResponseDto} from '../../modules/lpshows-api';
 import {Setlist} from '../../data/setlists/setlist';
+import {SetlistEntry} from '../../data/setlists/setlist-entry';
+import { SetlistActWithEntries } from "../../data/setlists/setlist-act";
 
 @Component({
   selector: 'app-setlist',
@@ -45,5 +46,11 @@ export class SetlistComponent implements OnInit {
         }
       })
     }
+  }
+
+  isAct(
+    item: SetlistEntry | SetlistActWithEntries
+  ): item is SetlistActWithEntries {
+    return (item as SetlistActWithEntries).entries !== undefined;
   }
 }

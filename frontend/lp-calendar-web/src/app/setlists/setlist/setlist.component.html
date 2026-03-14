@@ -12,12 +12,28 @@
       </tr>
       </thead>
       <tbody>
-        @for (entry of setlist?.entries; track entry) {
-          <tr>
-            <td>{{ entry.songNumber == 0 ? "" : entry.songNumber }}</td>
-            <td>{{ entry.title }}</td>
-            <td>{{ entry.extraNotes }}</td>
-          </tr>
+        @for (structuredEntry of setlist?.structuredEntries; track structuredEntry) {
+          @if (isAct(structuredEntry)) {
+            <tr>
+              <td>Act {{ structuredEntry.actNumber }}</td>
+              <td>{{ structuredEntry.title }}</td>
+              <td></td>
+            </tr>
+
+            @for (entry of structuredEntry.entries; track entry) {
+              <tr>
+                <td>&nbsp;&nbsp;{{ entry.songNumber == 0 ? "" : entry.songNumber }}</td>
+                <td>&nbsp;&nbsp;{{ entry.title }}</td>
+                <td>&nbsp;&nbsp;{{ entry.extraNotes }}</td>
+              </tr>
+            }
+          } @else {
+            <tr>
+              <td>{{ structuredEntry.songNumber == 0 ? "" : structuredEntry.songNumber }}</td>
+              <td>{{ structuredEntry.title }}</td>
+              <td>{{ structuredEntry.extraNotes }}</td>
+            </tr>
+          }
         }
       </tbody>
     </table>

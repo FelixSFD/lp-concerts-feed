@@ -1,4 +1,5 @@
-import {SetlistActDto, SetlistDto} from '../../modules/lpshows-api';
+import {SetlistActDto} from '../../modules/lpshows-api';
+import {SetlistEntry} from './setlist-entry';
 
 export class SetlistAct {
   setlistId!: number;
@@ -11,6 +12,19 @@ export class SetlistAct {
       setlistId: dto.setlistId!,
       actNumber: dto.actNumber!,
       title: dto.title ?? `Act ${dto.actNumber}`,
+    };
+  }
+}
+
+export class SetlistActWithEntries extends SetlistAct {
+  entries: SetlistEntry[] = [];
+
+  static withEntries(act: SetlistAct, entries: SetlistEntry[]): SetlistActWithEntries {
+    return {
+      setlistId: act.setlistId!,
+      actNumber: act.actNumber!,
+      title: act.title ?? `Act ${act.actNumber}`,
+      entries: entries
     };
   }
 }
