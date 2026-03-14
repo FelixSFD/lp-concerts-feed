@@ -15,6 +15,12 @@ public class CreateSetlistRequestDto
     public required string ConcertId { get; set; }
     
     /// <summary>
+    /// Title of this setlist
+    /// </summary>
+    [JsonPropertyName("title")]
+    public required string Title { get; set; }
+    
+    /// <summary>
     /// URL to the wiki page on Linkinpedia
     /// </summary>
     [MaxLength(63)]

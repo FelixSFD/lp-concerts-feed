@@ -18,6 +18,12 @@ public class SetlistDo : BaseDo, ILinkinpediaLinkable
     [MaxLength(63)]
     public required string ConcertId { get; set; }
     
+    /// <summary>
+    /// Title for the setlist
+    /// </summary>
+    [MaxLength(63)]
+    public required string Title { get; set; }
+    
     /// <inheritdoc/>
     [MaxLength(63)]
     public string? LinkinpediaUrl { get; set; }

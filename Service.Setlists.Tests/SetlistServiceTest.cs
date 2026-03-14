@@ -47,6 +47,7 @@ public class SetlistServiceTest
         var createRequest = new CreateSetlistRequestDto
         {
             ConcertId = concertId,
+            Title = "Setlist 1",
             LinkinpediaUrl = linkinpediaUrl
         };
         var response = await _setlistService.CreateSetlistAsync(createRequest);
@@ -71,6 +72,7 @@ public class SetlistServiceTest
         {
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
+            Title = "Setlist 1",
             LinkinpediaUrl = "https://lplive.net"
         };
 
@@ -129,6 +131,7 @@ public class SetlistServiceTest
         {
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
+            Title = "Setlist 1",
             LinkinpediaUrl = "https://lplive.net"
         };
         
@@ -199,6 +202,7 @@ public class SetlistServiceTest
         {
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
+            Title = "Setlist 1",
             LinkinpediaUrl = "https://lplive.net"
         };
 
@@ -261,6 +265,7 @@ public class SetlistServiceTest
         {
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
+            Title = "Setlist 1",
             LinkinpediaUrl = "https://lplive.net"
         };
         
@@ -386,6 +391,7 @@ public class SetlistServiceTest
         {
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
+            Title = "Setlist 1",
             LinkinpediaUrl = "https://lplive.net",
             Entries = [entry2, entry1]
         };
@@ -463,6 +469,7 @@ public class SetlistServiceTest
         {
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
+            Title = "Setlist 1",
             LinkinpediaUrl = "https://lplive.net",
             Entries = [entry2, entry1]
         };
@@ -601,6 +608,7 @@ public class SetlistServiceTest
         {
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
+            Title = "Setlist 1",
             LinkinpediaUrl = "https://lplive.net",
             Entries = [entry0PreShowSong, entry2, entry1, entry3]
         };

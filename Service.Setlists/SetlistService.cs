@@ -27,6 +27,7 @@ public class SetlistService(
         var setlistDo = new SetlistDo
         {
             ConcertId = request.ConcertId,
+            Title = request.Title,
             LinkinpediaUrl = request.LinkinpediaUrl
         };
         
