@@ -292,6 +292,25 @@ public class SetlistService(
             .Select(DtoMapper.ToDto)
             .ToListAsync();
     }
+
+
+    /// <summary>
+    /// Updates the header information of a setlist
+    /// </summary>
+    /// <param name="setlistId">ID of the setlist</param>
+    /// <param name="request">Updated data</param>
+    /// <exception cref="SetlistNotFoundException">if the setlist does not exist</exception>
+    public async Task UpdateSetlistHeader(uint setlistId, UpdateSetlistHeaderRequestDto request)
+    {
+        logger.LogDebug("Load setlist: {setlistId}", setlistId);
+        var setlist = await setlistRepository.GetByPrimaryKeyAsync(setlistId) ?? throw new SetlistNotFoundException(setlistId);
+
+        setlist.SetName = request.SetName;
+        setlist.LinkinpediaUrl = request.LinkinpediaUrl;
+        
+        setlistRepository.Update(setlist);
+        await setlistRepository.SaveChangesAsync();
+    }
     
     /// <summary>
     /// Removes a setlist

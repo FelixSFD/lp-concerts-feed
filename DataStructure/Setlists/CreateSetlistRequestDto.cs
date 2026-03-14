@@ -17,6 +17,7 @@ public class CreateSetlistRequestDto
     /// <summary>
     /// Title of the concert
     /// </summary>
+    [MaxLength(63)]
     [JsonPropertyName("concertTitle")]
     public required string ConcertTitle { get; set; }
     
@@ -24,6 +25,7 @@ public class CreateSetlistRequestDto
     /// Name of the set.
     /// Example: Set A
     /// </summary>
+    [MaxLength(63)]
     [JsonPropertyName("setName")]
     public string? SetName { get; set; }
     

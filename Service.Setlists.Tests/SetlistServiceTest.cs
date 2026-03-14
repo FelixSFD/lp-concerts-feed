@@ -345,6 +345,72 @@ public class SetlistServiceTest
             .DidNotReceive()
             .Add(Arg.Any<SongMashupDo>());
     }
+
+
+    [Fact]
+    public async Task UpdateSetlistHeader()
+    {
+        var setlist = new SetlistDo
+        {
+            Id = 1,
+            ConcertId = Guid.NewGuid().ToString(),
+            ConcertTitle = "Setlist 1",
+            LinkinpediaUrl = "https://lplive.net",
+            Entries = []
+        };
+
+        var updateRequest = new UpdateSetlistHeaderRequestDto
+        {
+            SetName = "Set H5",
+            LinkinpediaUrl =  "https://linkinpedia.com/"
+        };
+        
+        // setup mocks
+        _setlistRepository
+            .Update(Arg.Is<SetlistDo>(s => s.Id == setlist.Id && s.ConcertId == setlist.ConcertId));
+        _setlistRepository
+            .GetByPrimaryKeyAsync(Arg.Is<uint>(id => id == setlist.Id))
+            .Returns(setlist);
+        
+        // call the service
+        await _setlistService.UpdateSetlistHeader(setlist.Id, updateRequest);
+        
+        // verify mock calls
+        _setlistRepository
+            .Received(1)
+            .Update(Arg.Is<SetlistDo>(s => s.Id == setlist.Id && s.ConcertId == setlist.ConcertId && s.LinkinpediaUrl == updateRequest.LinkinpediaUrl && s.SetName == updateRequest.SetName));
+        await _setlistRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(Arg.Is<uint>(id => id == setlist.Id));
+    }
+    
+    
+    [Fact]
+    public async Task UpdateSetlistHeader_SetlistNotFound()
+    {
+        var updateRequest = new UpdateSetlistHeaderRequestDto
+        {
+            SetName = "Set H5",
+            LinkinpediaUrl =  "https://linkinpedia.com/"
+        };
+        
+        // setup mocks
+        _setlistRepository
+            .GetByPrimaryKeyAsync(Arg.Any<uint>())
+            .Returns((SetlistDo?) null);
+        
+        // call the service
+        var exception = await Assert.ThrowsAsync<SetlistNotFoundException>(() => _setlistService.UpdateSetlistHeader(404u, updateRequest));
+        Assert.Equal(404u, exception.SetlistId);
+        
+        // verify mock calls
+        _setlistRepository
+            .DidNotReceive()
+            .Update(Arg.Any<SetlistDo>());
+        await _setlistRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(Arg.Any<uint>());
+    }
     
     
     [Fact]
