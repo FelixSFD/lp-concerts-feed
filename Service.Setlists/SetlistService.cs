@@ -111,7 +111,7 @@ public class SetlistService(
         await setlistEntryRepository.SaveChangesAsync();
         logger.LogDebug("Successfully saved.");
 
-        var setlistEntryDto = SetlistEntryDoToDto(entry);
+        var setlistEntryDto = DtoMapper.ToDto(entry);
         return setlistEntryDto;
     }
 
@@ -243,7 +243,6 @@ public class SetlistService(
         logger.LogDebug("Retrieve the setlist: {setlistId}", setlistId);
         var setlistDo = await setlistRepository.GetByPrimaryKeyAsync(setlistId) ?? throw new SetlistNotFoundException(setlistId);
         logger.LogDebug("Retrieved setlist: {setlistId}", setlistDo.Id);
-        
         logger.LogDebug("{count} setlist entries", setlistDo.Entries?.Count);
 
         var setlistDto = new SetlistDto
@@ -251,7 +250,7 @@ public class SetlistService(
             Id = setlistDo.Id,
             ConcertId = setlistDo.ConcertId,
             LinkinpediaUrl = setlistDo.LinkinpediaUrl,
-            Entries = setlistDo.Entries?.Select(SetlistEntryDoToDto).OrderBy(se => se.SortNumber).ToList() ?? []
+            Entries = setlistDo.Entries?.Select(DtoMapper.ToDto).OrderBy(se => se.SortNumber).ToList() ?? []
         };
         
         return setlistDto;
@@ -272,6 +271,7 @@ public class SetlistService(
             {
                 foreach (var setlistEntryDo in sl.Entries)
                 {
+                    logger.LogDebug("Act: {actNumber}", setlistEntryDo.Act?.ActNumber);
                     logger.LogDebug("Entry with Song ID: {id} (Title: {title})", setlistEntryDo.PlayedSong?.Id, setlistEntryDo.PlayedSong?.Title);
                     logger.LogDebug("Entry with Song variant ID: {id} (Title: {title}; Variant: {variantName})", setlistEntryDo.PlayedSongVariant?.Id, setlistEntryDo.PlayedSongVariant?.Song.Title, setlistEntryDo.PlayedSongVariant?.VariantName);
                     logger.LogDebug("Entry with Song mashup ID: {id}(Title: {title})", setlistEntryDo.PlayedMashup?.Id, setlistEntryDo.PlayedMashup?.Title);
@@ -323,46 +323,5 @@ public class SetlistService(
     {
         setlistEntryRepository.Delete(setlistEntry);
         await setlistEntryRepository.SaveChangesAsync();
-    }
-
-
-    [Obsolete]
-    private static SetlistEntryDto SetlistEntryDoToDto(SetlistEntryDo setlistEntry)
-    {
-        return new SetlistEntryDto
-        {
-            Id = setlistEntry.Id,
-            SongNumber = setlistEntry.SongNumber,
-            SortNumber = setlistEntry.SortNumber,
-            PlayedSong = setlistEntry.PlayedSong != null ? SongDoToDto(setlistEntry.PlayedSong) : null,
-            PlayedSongVariant = DtoMapper.ToDtoNullable(setlistEntry.PlayedSongVariant),
-            PlayedSongMashup = DtoMapper.ToDtoNullable(setlistEntry.PlayedMashup),
-            Title = setlistEntry.TitleOverride ?? GetEntryTitleForSongVariant(setlistEntry.PlayedSong, setlistEntry.PlayedSongVariant) ?? setlistEntry.PlayedSong?.Title ?? "unknown",
-            ExtraNotes = setlistEntry.ExtraNotes,
-            IsPlayedFromRecording = setlistEntry.IsPlayedFromRecording,
-            IsRotationSong = setlistEntry.IsRotationSong,
-            IsWorldPremiere = setlistEntry.IsWorldPremiere
-        };
-    }
-
-
-    [Obsolete]
-    private static string? GetEntryTitleForSongVariant(SongDo? songDo, SongVariantDo? songVariantDo)
-    {
-        if (songDo == null || songVariantDo == null)
-            return null;
-
-        return $"{songDo} ({songVariantDo})";
-    }
-    
-    [Obsolete("Use DtoMapper")]
-    private static SongDto SongDoToDto(SongDo song)
-    {
-        return new SongDto
-        {
-            Id = song.Id,
-            Title = song.Title,
-            Isrc = song.Isrc
-        };
     }
 }

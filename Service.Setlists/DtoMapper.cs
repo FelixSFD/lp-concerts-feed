@@ -85,6 +85,21 @@ public static class DtoMapper
     {
         return songMashupDo == null ? null : ToDto(songMashupDo);
     }
+    
+    /// <summary>
+    /// Maps a <see cref="SetlistActDo"/> to <see cref="SetlistActDto"/>
+    /// </summary>
+    /// <param name="actDo">Setlist act to map to its DTO</param>
+    /// <returns>the DTO</returns>
+    public static SetlistActDto ToDto(SetlistActDo actDo)
+    {
+        return new SetlistActDto
+        {
+            SetlistId = actDo.SetlistId,
+            ActNumber = actDo.ActNumber,
+            Title = actDo.Title
+        };
+    }
 
     /// <summary>
     /// Maps a <see cref="SetlistDo"/> to <see cref="SetlistDto"/>
@@ -93,12 +108,25 @@ public static class DtoMapper
     /// <returns>the DTO</returns>
     public static SetlistDto ToDto(SetlistDo setlistDo)
     {
+        var entries = setlistDo.Entries?
+            .OrderBy(se => se.SortNumber)
+            .ToList() ?? [];
+
+        var acts = entries
+            .Where(entry => entry.Act != null)
+            .Select(entry => entry.Act!)
+            .DistinctBy(entry => entry.ActNumber)
+            .OrderBy(entry => entry.ActNumber)
+            .Select(ToDto)
+            .ToList();
+        
         return new SetlistDto
         {
             Id = setlistDo.Id,
             ConcertId = setlistDo.ConcertId,
             LinkinpediaUrl = setlistDo.LinkinpediaUrl,
-            Entries = setlistDo.Entries?.Select(ToDto).OrderBy(se => se.SortNumber).ToList() ?? []
+            Entries = entries.Select(ToDto).ToList(),
+            Acts = acts
         };
     }
     
@@ -107,11 +135,12 @@ public static class DtoMapper
     /// </summary>
     /// <param name="setlistEntryDo">Setlist entry to map to its DTO</param>
     /// <returns>the DTO</returns>
-    private static SetlistEntryDto ToDto(SetlistEntryDo setlistEntryDo)
+    public static SetlistEntryDto ToDto(SetlistEntryDo setlistEntryDo)
     {
         return new SetlistEntryDto
         {
             Id = setlistEntryDo.Id,
+            ActNumber = setlistEntryDo.ActNumber,
             SongNumber = setlistEntryDo.SongNumber,
             SortNumber = setlistEntryDo.SortNumber,
             PlayedSong = setlistEntryDo.PlayedSong != null ? ToDto(setlistEntryDo.PlayedSong) : null,

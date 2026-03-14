@@ -12,7 +12,7 @@ public abstract class AddToSetlistRequestDto
     /// If set, the added song will be added to this Act.
     /// Title isn't required if the Act already exists.
     /// </summary>
-    [JsonPropertyName("act")]
+    [JsonPropertyName("actParameters")]
     public ActParametersDto? Act { get; set; }
 
     

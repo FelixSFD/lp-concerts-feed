@@ -424,4 +424,178 @@ public class SetlistServiceTest
             .Received(1)
             .GetByPrimaryKeyAsync(setlist.Id);
     }
+    
+    
+    [Fact]
+    public async Task GetSetlistsForConcert()
+    {
+        var concertId = Guid.NewGuid().ToString();
+        
+        var song1 = new SongDo
+        {
+            Id = 1234,
+            Title = "QWERTY",
+            Isrc = "5355646",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
+        };
+        
+        var song2 = new SongDo
+        {
+            Id = 1,
+            Title = "Lost",
+            Isrc = "1",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/Lost"
+        };
+        
+        var song3 = new SongDo
+        {
+            Id = 1,
+            Title = "Bleed It Out",
+            Isrc = "1234123"
+        };
+        
+        var act1 = new SetlistActDo
+        {
+            ActNumber = 1,
+            Title = "Inception Intro A",
+        };
+        
+        var act2 = new SetlistActDo
+        {
+            ActNumber = 2,
+            Title = "Encore",
+        };
+        
+        var entry0PreShowSong = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            SongNumber = 0,
+            SortNumber = 10,
+            PlayedSong = null,
+            TitleOverride = "Some pre-show song",
+            ExtraNotes = "played during countdown",
+            IsPlayedFromRecording = true,
+            IsWorldPremiere = false,
+            IsRotationSong = false
+        };
+
+        var entry1 = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            ActNumber = act1.ActNumber,
+            Act = act1,
+            SongNumber = 1,
+            SortNumber = 10,
+            PlayedSong = song1,
+            TitleOverride = null,
+            ExtraNotes = "FINALLY!!!",
+            IsPlayedFromRecording = false,
+            IsWorldPremiere = false,
+            IsRotationSong = false
+        };
+        
+        var entry2 = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            ActNumber = act1.ActNumber,
+            Act = act1,
+            SongNumber = 2,
+            SortNumber = 20,
+            PlayedSong = song2,
+            IsPlayedFromRecording = false,
+            IsWorldPremiere = false,
+            IsRotationSong = false
+        };
+        
+        var entry3 = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            ActNumber = act2.ActNumber,
+            Act = act2,
+            SongNumber = 3,
+            SortNumber = 30,
+            PlayedSong = song3,
+            IsPlayedFromRecording = false,
+            IsWorldPremiere = false,
+            IsRotationSong = false
+        };
+        
+        var setlist = new SetlistDo
+        {
+            Id = 1,
+            ConcertId = Guid.NewGuid().ToString(),
+            LinkinpediaUrl = "https://lplive.net",
+            Entries = [entry0PreShowSong, entry2, entry1, entry3]
+        };
+        
+        List<SetlistDo> concertSetlists = [setlist];
+        
+        // setup mocks
+        _setlistRepository
+            .GetByConcertIdAsync(concertId)
+            .Returns(concertSetlists.ToAsyncEnumerable());
+        
+        // call the service
+        var results = await _setlistService.GetSetlistsForConcert(concertId);
+        var result = results.FirstOrDefault();
+        
+        // verify result DTO
+        Assert.NotNull(result);
+        Assert.Equal(setlist.Id, result.Id);
+        Assert.Equal(setlist.LinkinpediaUrl, result.LinkinpediaUrl);
+        Assert.Equal(setlist.ConcertId, result.ConcertId);
+        
+        // check if acts are returned
+        var foundActs = result.Acts;
+        Assert.NotNull(foundActs);
+        Assert.Equal(2, foundActs.Count);
+        
+        var foundAct1 = result.Acts[0];
+        Assert.NotNull(foundAct1);
+        Assert.Equal(act1.ActNumber, foundAct1.ActNumber);
+        Assert.Equal(act1.Title, foundAct1.Title);
+        
+        var foundAct2 = result.Acts[1];
+        Assert.NotNull(foundAct2);
+        Assert.Equal(act2.ActNumber, foundAct2.ActNumber);
+        Assert.Equal(act2.Title, foundAct2.Title);
+
+        // check entries
+        Assert.Equal(4, result.Entries.Count);
+        var returnedEntry0 = result.Entries[0];
+        Assert.Null(returnedEntry0.PlayedSong);
+        Assert.Equal(entry0PreShowSong.IsRotationSong, returnedEntry0.IsRotationSong);
+        Assert.Equal(entry0PreShowSong.IsWorldPremiere, returnedEntry0.IsWorldPremiere);
+        Assert.Equal(entry0PreShowSong.IsPlayedFromRecording, returnedEntry0.IsPlayedFromRecording);
+        Assert.Equal(entry0PreShowSong.ActNumber, returnedEntry0.ActNumber);
+        
+        var returnedEntry1 = result.Entries[1];
+        Assert.Equal(entry1.PlayedSong.Title, returnedEntry1.PlayedSong?.Title);
+        Assert.Equal(entry1.PlayedSong.Isrc, returnedEntry1.PlayedSong?.Isrc);
+        Assert.Equal(entry1.IsRotationSong, returnedEntry1.IsRotationSong);
+        Assert.Equal(entry1.IsWorldPremiere, returnedEntry1.IsWorldPremiere);
+        Assert.Equal(entry1.IsPlayedFromRecording, returnedEntry1.IsPlayedFromRecording);
+        Assert.Equal(entry1.ActNumber, returnedEntry1.ActNumber);
+        
+        var returnedEntry2 = result.Entries[2];
+        Assert.Equal(entry2.PlayedSong.Title, returnedEntry2.PlayedSong?.Title);
+        Assert.Equal(entry2.PlayedSong.Isrc, returnedEntry2.PlayedSong?.Isrc);
+        Assert.Equal(entry2.IsRotationSong, returnedEntry2.IsRotationSong);
+        Assert.Equal(entry2.IsWorldPremiere, returnedEntry2.IsWorldPremiere);
+        Assert.Equal(entry2.IsPlayedFromRecording, returnedEntry2.IsPlayedFromRecording);
+        Assert.Equal(entry2.ActNumber, returnedEntry2.ActNumber);
+        
+        var returnedEntry3 = result.Entries[3];
+        Assert.Equal(entry3.PlayedSong.Title, returnedEntry3.PlayedSong?.Title);
+        Assert.Equal(entry3.PlayedSong.Isrc, returnedEntry3.PlayedSong?.Isrc);
+        Assert.Equal(entry3.IsRotationSong, returnedEntry3.IsRotationSong);
+        Assert.Equal(entry3.IsWorldPremiere, returnedEntry3.IsWorldPremiere);
+        Assert.Equal(entry3.IsPlayedFromRecording, returnedEntry3.IsPlayedFromRecording);
+        Assert.Equal(entry3.ActNumber, returnedEntry3.ActNumber);
+        
+        // verify mock calls
+        _setlistRepository
+            .Received(1)
+            .GetByConcertIdAsync(concertId);
+    }
 }

@@ -450,6 +450,21 @@ components:
           items:
             $ref: "#/components/schemas/Song"
     
+    SetlistAct:
+      type: object
+      description: Act within a setlist
+      properties:
+        setlistId:
+          type: number
+          description: ID of the setlist that contains this act
+        actNumber:
+          type: number
+          description: Number of the act within the setlist
+        title:
+          type: string
+          description: Title of this act
+          nullable: true
+    
     SetlistEntry:
       type: object
       description: An entry in a setlist
@@ -457,6 +472,10 @@ components:
         id:
           type: string
           description: Unique ID of the entry
+        actNumber:
+          type: number
+          description: Number of the act in which this song was played
+          nullable: true
         sortNumber:
           type: number
           description: Number to sort the entries
@@ -506,6 +525,11 @@ components:
         linkinpediaUrl:
           type: string
           description: URL to the wiki page on Linkinpedia
+        acts:
+          type: array
+          description: All acts in this setlist. The act numbers are referenced in the entries, so that not every entry must contain all the act information.
+          items:
+            $ref: "#/components/schemas/SetlistAct"
         entries:
           type: array
           items:

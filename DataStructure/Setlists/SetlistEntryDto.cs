@@ -14,6 +14,12 @@ public class SetlistEntryDto
     public required string Id { get; set; }
     
     /// <summary>
+    /// Number of the act. The full object should not always be returned in order to keep the JSON smaller
+    /// </summary>
+    [JsonPropertyName("actNumber")]
+    public uint? ActNumber { get; set; }
+    
+    /// <summary>
     /// Number to sort the entries
     /// </summary>
     [JsonPropertyName("sortNumber")]

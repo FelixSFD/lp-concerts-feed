@@ -101,4 +101,72 @@ public class SqlSetlistRepositoryTest : DbIntegrationTestsBase
         Assert.Equal(setlist2.ConcertId, retrievedSetlist.ConcertId);
         Assert.Equal(setlist2.LinkinpediaUrl, retrievedSetlist.LinkinpediaUrl);
     }
+    
+    [Fact]
+    public async Task GetByConcertIdAsync_WithAct()
+    {
+        var repo = new SqlSetlistRepository(DbContext);
+        var entriesRepo = new SqlSetlistEntryRepository(DbContext);
+        var actRepo = new SqlSetlistActRepository(DbContext);
+        
+        var setlist1 = new SetlistDo
+        {
+            ConcertId = Guid.NewGuid().ToString(),
+            LinkinpediaUrl = "https://lplive.net"
+        };
+        
+        repo.Add(setlist1);
+        
+        var song1 = new SongDo
+        {
+            Title = "QWERTY",
+            Isrc = "5355646",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
+        };
+        var entry1 = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            Setlist = setlist1,
+            ExtraNotes = "Notes for this entry",
+            TitleOverride = "Custom title",
+            SongNumber = 1,
+            PlayedSong = song1,
+            IsWorldPremiere = false,
+            IsPlayedFromRecording = false,
+            IsRotationSong = true
+        };
+
+        var act1 = new SetlistActDo
+        {
+            SetlistId = setlist1.Id,
+            ActNumber = 1,
+            Title = "Act 1 Title",
+            Setlist = setlist1
+        };
+
+        entry1.ActNumber = act1.ActNumber;
+        
+        actRepo.Add(act1);
+        entriesRepo.Add(entry1);
+
+        await repo.SaveChangesAsync();
+        
+        var retrievedSetlist = await repo.GetByConcertIdAsync(setlist1.ConcertId).FirstOrDefaultAsync();
+        Assert.NotNull(retrievedSetlist);
+        Assert.Equal(setlist1.Id, retrievedSetlist.Id);
+        Assert.Equal(setlist1.ConcertId, retrievedSetlist.ConcertId);
+        Assert.Equal(setlist1.LinkinpediaUrl, retrievedSetlist.LinkinpediaUrl);
+        Assert.NotNull(retrievedSetlist.Entries);
+        Assert.Single(retrievedSetlist.Entries);
+        
+        var retrievedAct = retrievedSetlist.Entries.FirstOrDefault()?.Act;
+        Assert.NotNull(retrievedAct);
+        Assert.Equal(act1.Title, retrievedAct.Title);
+        Assert.Equal(act1.SetlistId, retrievedAct.SetlistId);
+        Assert.Equal(act1.ActNumber, retrievedAct.ActNumber);
+
+        var retrievedSong = retrievedSetlist.Entries.FirstOrDefault()?.PlayedSong;
+        Assert.NotNull(retrievedSong);
+        Assert.Equal(song1.Title, retrievedSong.Title);
+    }
 }
