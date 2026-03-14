@@ -41,4 +41,11 @@ export class SetlistsService {
   public getSetlistsForConcert(concertId: string) : Observable<SetlistDto[]> {
     return this.concertsApiClient.getSetlistsForConcert(concertId);
   }
+
+  /**
+   * Returns all setlists
+   */
+  public getSetlists() : Observable<SetlistDto[]> {
+    return this.setlistsApiClient.getSetlists();
+  }
 }

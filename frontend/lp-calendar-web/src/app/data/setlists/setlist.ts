@@ -5,7 +5,8 @@ import {SetlistAct, SetlistActWithEntries} from './setlist-act';
 export class Setlist {
   id!: number;
   concertId: string | undefined;
-  title!: string;
+  concertTitle!: string;
+  setName: string | undefined | null;
   entries: SetlistEntry[] = [];
   acts: SetlistAct[] = [];
 
@@ -18,7 +19,8 @@ export class Setlist {
   static fromDto(dto: SetlistDto): Setlist {
     let setlist: Setlist = {
       id: dto.id!,
-      title: "Setlist",
+      concertTitle: dto.concertTitle!,
+      setName: dto.setName,
       concertId: dto.concertId,
       entries: dto.entries?.map(entry => SetlistEntry.fromDto(entry)) ?? [],
       acts: dto.acts?.map(entry => SetlistAct.fromDto(entry)) ?? [],

@@ -1,1 +1,24 @@
+<h1>Manage setlists</h1>
 <button class="btn btn-outline-primary" [routerLink]="['add']">Add setlist</button>
+
+<table class="table">
+  <thead>
+  <tr>
+    <th scope="col">Concert Title</th>
+    <th scope="col">Set Name</th>
+    <th scope="col"></th>
+  </tr>
+  </thead>
+  <tbody>
+    @for (setlist of setlists$; track setlist) {
+      <tr>
+        <td>{{ setlist.concertTitle }}</td>
+        <td>{{ setlist.setName }}</td>
+        <td>
+          <button class="btn btn-outline-info" [routerLink]="[setlist.id.toString()]">Edit</button>
+          <button class="btn btn-outline-danger ms-2 disabled">Delete</button>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>
