@@ -34,12 +34,12 @@ export class ManageSetlistsPageComponent implements OnInit {
 
 
   ngOnInit() {
-    this.reloadList();
+    this.reloadList(true);
   }
 
 
-  private reloadList() {
-    this.setlistService.getSetlists().subscribe(setlists => {
+  private reloadList(cache: boolean) {
+    this.setlistService.getSetlists(cache).subscribe(setlists => {
       this.setlists$ = setlists.map(setlist => Setlist.fromDto(setlist));
     });
   }
@@ -76,7 +76,7 @@ export class ManageSetlistsPageComponent implements OnInit {
         console.debug("DELETE setlist request finished");
         console.debug(result);
 
-        this.reloadList();
+        this.reloadList(false);
         this.deleteSetlistModal?.dismiss();
         this.setlistDeleting$ = false;
       },

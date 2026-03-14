@@ -1706,6 +1706,14 @@ paths:
       description: This contains all header info for setlists
       tags:
         - setlists
+      parameters:
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
       responses:
         "200":
           description: The header data of each setlist

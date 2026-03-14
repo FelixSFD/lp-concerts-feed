@@ -8,6 +8,7 @@ import {
   ConcertsService as ConcertsApiClient,
 } from '../modules/lpshows-api';
 import {Observable} from 'rxjs';
+import {Guid} from 'guid-typescript';
 
 @Injectable({
   providedIn: 'root',
@@ -53,7 +54,11 @@ export class SetlistsService {
   /**
    * Returns all setlists
    */
-  public getSetlists() : Observable<SetlistDto[]> {
-    return this.setlistsApiClient.getSetlists();
+  public getSetlists(cached: boolean) : Observable<SetlistDto[]> {
+    if (cached) {
+      return this.setlistsApiClient.getSetlists();
+    } else {
+      return this.setlistsApiClient.getSetlists(Guid.create().toString(), "body", false);
+    }
   }
 }
