@@ -27,7 +27,8 @@ public class SetlistService(
         var setlistDo = new SetlistDo
         {
             ConcertId = request.ConcertId,
-            Title = request.Title,
+            ConcertTitle = request.ConcertTitle,
+            SetName = request.SetName,
             LinkinpediaUrl = request.LinkinpediaUrl
         };
         
@@ -38,6 +39,8 @@ public class SetlistService(
         {
             Id = setlistDo.Id,
             ConcertId = setlistDo.ConcertId,
+            ConcertTitle = setlistDo.ConcertTitle,
+            SetName = setlistDo.SetName,
             LinkinpediaUrl = setlistDo.LinkinpediaUrl
         };
         
@@ -260,16 +263,7 @@ public class SetlistService(
         var setlistDo = await setlistRepository.GetByPrimaryKeyAsync(setlistId) ?? throw new SetlistNotFoundException(setlistId);
         logger.LogDebug("Retrieved setlist: {setlistId}", setlistDo.Id);
         logger.LogDebug("{count} setlist entries", setlistDo.Entries?.Count);
-
-        var setlistDto = new SetlistDto
-        {
-            Id = setlistDo.Id,
-            ConcertId = setlistDo.ConcertId,
-            LinkinpediaUrl = setlistDo.LinkinpediaUrl,
-            Entries = setlistDo.Entries?.Select(DtoMapper.ToDto).OrderBy(se => se.SortNumber).ToList() ?? []
-        };
-        
-        return setlistDto;
+        return DtoMapper.ToDto(setlistDo);
     }
     
     /// <summary>

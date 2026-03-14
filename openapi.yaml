@@ -522,6 +522,15 @@ components:
         concertId:
           type: string
           description: ID of the concert where this set was played
+        concertTitle:
+          type: string
+          description: Title of the concert
+          example: Hamburg 22.09.2024
+        setName:
+          type: string
+          description: Name of the set
+          example: Set A
+          nullable: true
         linkinpediaUrl:
           type: string
           description: URL to the wiki page on Linkinpedia
@@ -533,9 +542,20 @@ components:
         id:
           type: number
           description: ID of the setlist
+          example: 1
         concertId:
           type: string
           description: ID of the concert where this set was played
+          example: e710bebe-13b8-4cfb-aa84-ff6c208d5c21
+        concertTitle:
+          type: string
+          description: Title of the concert
+          example: Hamburg 22.09.2024
+        setName:
+          type: string
+          description: Name of the set
+          example: Set A
+          nullable: true
         linkinpediaUrl:
           type: string
           description: URL to the wiki page on Linkinpedia
@@ -556,6 +576,15 @@ components:
         concertId:
           type: string
           description: ID of the concert where this setlist was played
+        concertTitle:
+          type: string
+          description: Title of the concert
+          example: Hamburg 22.09.2024
+        setName:
+          type: string
+          description: Name of the set
+          example: Set A
+          nullable: true
         linkinpediaUrl:
           type: string
           description: URL to the wiki page on Linkinpedia
@@ -571,6 +600,15 @@ components:
         concertId:
           type: string
           description: ID of the concert where this setlist was played
+        concertTitle:
+          type: string
+          description: Title of the concert
+          example: Hamburg 22.09.2024
+        setName:
+          type: string
+          description: Name of the set
+          example: Set A
+          nullable: true
         linkinpediaUrl:
           type: string
           description: URL to the wiki page on Linkinpedia

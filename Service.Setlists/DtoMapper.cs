@@ -124,6 +124,8 @@ public static class DtoMapper
         {
             Id = setlistDo.Id,
             ConcertId = setlistDo.ConcertId,
+            ConcertTitle = setlistDo.ConcertTitle,
+            SetName = setlistDo.SetName,
             LinkinpediaUrl = setlistDo.LinkinpediaUrl,
             Entries = entries.Select(ToDto).ToList(),
             Acts = acts
@@ -141,6 +143,8 @@ public static class DtoMapper
         {
             Id = setlistDo.Id,
             ConcertId = setlistDo.ConcertId,
+            ConcertTitle = setlistDo.ConcertTitle,
+            SetName = setlistDo.SetName,
             LinkinpediaUrl = setlistDo.LinkinpediaUrl
         };
     }

@@ -19,10 +19,18 @@ public class SetlistDo : BaseDo, ILinkinpediaLinkable
     public required string ConcertId { get; set; }
     
     /// <summary>
-    /// Title for the setlist
+    /// Title of the concert
+    /// Example: Hamburg 2024
     /// </summary>
     [MaxLength(63)]
-    public required string Title { get; set; }
+    public required string ConcertTitle { get; set; }
+    
+    /// <summary>
+    /// Name of the set.
+    /// Example: Set A
+    /// </summary>
+    [MaxLength(63)]
+    public string? SetName { get; set; }
     
     /// <inheritdoc/>
     [MaxLength(63)]

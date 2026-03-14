@@ -14,7 +14,8 @@ public class SqlSetlistRepositoryTest : DbIntegrationTestsBase
         var setlist = new SetlistDo
         {
             ConcertId = Guid.NewGuid().ToString(),
-            Title = "Setlist 1",
+            ConcertTitle = "Setlist 1",
+            SetName = "Set A2",
             LinkinpediaUrl = "https://lplive.net"
         };
         
@@ -29,6 +30,8 @@ public class SqlSetlistRepositoryTest : DbIntegrationTestsBase
         Assert.Equal(setlist.Id, retrievedSetlist.Id);
         Assert.Equal(setlist.ConcertId, retrievedSetlist.ConcertId);
         Assert.Equal(setlist.LinkinpediaUrl, retrievedSetlist.LinkinpediaUrl);
+        Assert.Equal(setlist.ConcertTitle, retrievedSetlist.ConcertTitle);
+        Assert.Equal(setlist.SetName, retrievedSetlist.SetName);
         
         repo.Delete(retrievedSetlist);
         
@@ -48,14 +51,15 @@ public class SqlSetlistRepositoryTest : DbIntegrationTestsBase
         var setlist1 = new SetlistDo
         {
             ConcertId = Guid.NewGuid().ToString(),
-            Title = "Setlist 1",
+            ConcertTitle = "Setlist 1",
             LinkinpediaUrl = "https://lplive.net"
         };
         
         var setlist2 = new SetlistDo
         {
             ConcertId = Guid.NewGuid().ToString(),
-            Title = "Setlist 2",
+            ConcertTitle = "Setlist 2",
+            SetName = "Set B1",
             LinkinpediaUrl = "https://lplive.net"
         };
         
@@ -89,6 +93,8 @@ public class SqlSetlistRepositoryTest : DbIntegrationTestsBase
         Assert.Equal(setlist1.Id, retrievedSetlist.Id);
         Assert.Equal(setlist1.ConcertId, retrievedSetlist.ConcertId);
         Assert.Equal(setlist1.LinkinpediaUrl, retrievedSetlist.LinkinpediaUrl);
+        Assert.Equal(setlist1.ConcertTitle, retrievedSetlist.ConcertTitle);
+        Assert.Equal(setlist1.SetName, retrievedSetlist.SetName);
         Assert.NotNull(retrievedSetlist.Entries);
         Assert.Single(retrievedSetlist.Entries);
 
@@ -103,6 +109,8 @@ public class SqlSetlistRepositoryTest : DbIntegrationTestsBase
         Assert.Equal(setlist2.Id, retrievedSetlist.Id);
         Assert.Equal(setlist2.ConcertId, retrievedSetlist.ConcertId);
         Assert.Equal(setlist2.LinkinpediaUrl, retrievedSetlist.LinkinpediaUrl);
+        Assert.Equal(setlist2.ConcertTitle, retrievedSetlist.ConcertTitle);
+        Assert.Equal(setlist2.SetName, retrievedSetlist.SetName);
     }
     
     [Fact]
@@ -112,14 +120,14 @@ public class SqlSetlistRepositoryTest : DbIntegrationTestsBase
         var entriesRepo = new SqlSetlistEntryRepository(DbContext);
         var actRepo = new SqlSetlistActRepository(DbContext);
         
-        var setlist1 = new SetlistDo
+        var setlist = new SetlistDo
         {
             ConcertId = Guid.NewGuid().ToString(),
-            Title = "Setlist 1",
+            ConcertTitle = "Setlist 1",
             LinkinpediaUrl = "https://lplive.net"
         };
         
-        repo.Add(setlist1);
+        repo.Add(setlist);
         
         var song1 = new SongDo
         {
@@ -130,7 +138,7 @@ public class SqlSetlistRepositoryTest : DbIntegrationTestsBase
         var entry1 = new SetlistEntryDo
         {
             Id = Guid.NewGuid().ToString(),
-            Setlist = setlist1,
+            Setlist = setlist,
             ExtraNotes = "Notes for this entry",
             TitleOverride = "Custom title",
             SongNumber = 1,
@@ -142,10 +150,10 @@ public class SqlSetlistRepositoryTest : DbIntegrationTestsBase
 
         var act1 = new SetlistActDo
         {
-            SetlistId = setlist1.Id,
+            SetlistId = setlist.Id,
             ActNumber = 1,
             Title = "Act 1 Title",
-            Setlist = setlist1
+            Setlist = setlist
         };
 
         entry1.ActNumber = act1.ActNumber;
@@ -155,11 +163,13 @@ public class SqlSetlistRepositoryTest : DbIntegrationTestsBase
 
         await repo.SaveChangesAsync();
         
-        var retrievedSetlist = await repo.GetByConcertIdAsync(setlist1.ConcertId).FirstOrDefaultAsync();
+        var retrievedSetlist = await repo.GetByConcertIdAsync(setlist.ConcertId).FirstOrDefaultAsync();
         Assert.NotNull(retrievedSetlist);
-        Assert.Equal(setlist1.Id, retrievedSetlist.Id);
-        Assert.Equal(setlist1.ConcertId, retrievedSetlist.ConcertId);
-        Assert.Equal(setlist1.LinkinpediaUrl, retrievedSetlist.LinkinpediaUrl);
+        Assert.Equal(setlist.Id, retrievedSetlist.Id);
+        Assert.Equal(setlist.ConcertId, retrievedSetlist.ConcertId);
+        Assert.Equal(setlist.LinkinpediaUrl, retrievedSetlist.LinkinpediaUrl);
+        Assert.Equal(setlist.ConcertTitle, retrievedSetlist.ConcertTitle);
+        Assert.Equal(setlist.SetName, retrievedSetlist.SetName);
         Assert.NotNull(retrievedSetlist.Entries);
         Assert.Single(retrievedSetlist.Entries);
         

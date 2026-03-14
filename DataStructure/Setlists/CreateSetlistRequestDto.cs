@@ -15,10 +15,17 @@ public class CreateSetlistRequestDto
     public required string ConcertId { get; set; }
     
     /// <summary>
-    /// Title of this setlist
+    /// Title of the concert
     /// </summary>
-    [JsonPropertyName("title")]
-    public required string Title { get; set; }
+    [JsonPropertyName("concertTitle")]
+    public required string ConcertTitle { get; set; }
+    
+    /// <summary>
+    /// Name of the set.
+    /// Example: Set A
+    /// </summary>
+    [JsonPropertyName("setName")]
+    public string? SetName { get; set; }
     
     /// <summary>
     /// URL to the wiki page on Linkinpedia

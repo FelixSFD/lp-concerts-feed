@@ -47,7 +47,8 @@ public class SetlistServiceTest
         var createRequest = new CreateSetlistRequestDto
         {
             ConcertId = concertId,
-            Title = "Setlist 1",
+            ConcertTitle = "Setlist 1",
+            SetName = "Set A1",
             LinkinpediaUrl = linkinpediaUrl
         };
         var response = await _setlistService.CreateSetlistAsync(createRequest);
@@ -60,6 +61,8 @@ public class SetlistServiceTest
         // validate result
         Assert.NotNull(response);
         Assert.Equal(createRequest.ConcertId, response.ConcertId);
+        Assert.Equal(createRequest.ConcertTitle, response.ConcertTitle);
+        Assert.Equal(createRequest.SetName, response.SetName);
         Assert.Equal(createRequest.LinkinpediaUrl, response.LinkinpediaUrl);
     }
 
@@ -72,7 +75,7 @@ public class SetlistServiceTest
         {
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
-            Title = "Setlist 1",
+            ConcertTitle = "Setlist 1",
             LinkinpediaUrl = "https://lplive.net"
         };
 
@@ -131,7 +134,7 @@ public class SetlistServiceTest
         {
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
-            Title = "Setlist 1",
+            ConcertTitle = "Setlist 1",
             LinkinpediaUrl = "https://lplive.net"
         };
         
@@ -202,7 +205,7 @@ public class SetlistServiceTest
         {
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
-            Title = "Setlist 1",
+            ConcertTitle = "Setlist 1",
             LinkinpediaUrl = "https://lplive.net"
         };
 
@@ -265,7 +268,7 @@ public class SetlistServiceTest
         {
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
-            Title = "Setlist 1",
+            ConcertTitle = "Setlist 1",
             LinkinpediaUrl = "https://lplive.net"
         };
         
@@ -391,7 +394,7 @@ public class SetlistServiceTest
         {
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
-            Title = "Setlist 1",
+            ConcertTitle = "Setlist 1",
             LinkinpediaUrl = "https://lplive.net",
             Entries = [entry2, entry1]
         };
@@ -469,7 +472,8 @@ public class SetlistServiceTest
         {
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
-            Title = "Setlist 1",
+            ConcertTitle = "Setlist 1",
+            SetName = "Set C5",
             LinkinpediaUrl = "https://lplive.net",
             Entries = [entry2, entry1]
         };
@@ -488,6 +492,8 @@ public class SetlistServiceTest
         Assert.Equal(setlist.LinkinpediaUrl, result.LinkinpediaUrl);
         Assert.Equal(setlist.Entries.Count, result.Entries.Count);
         Assert.Equal(setlist.ConcertId, result.ConcertId);
+        Assert.Equal(setlist.ConcertTitle, result.ConcertTitle);
+        Assert.Equal(setlist.SetName, result.SetName);
 
         var returnedEntry1 = result.Entries[0];
         Assert.Equal(entry1.PlayedSong.Title, returnedEntry1.PlayedSong?.Title);
@@ -608,7 +614,7 @@ public class SetlistServiceTest
         {
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
-            Title = "Setlist 1",
+            ConcertTitle = "Setlist 1",
             LinkinpediaUrl = "https://lplive.net",
             Entries = [entry0PreShowSong, entry2, entry1, entry3]
         };

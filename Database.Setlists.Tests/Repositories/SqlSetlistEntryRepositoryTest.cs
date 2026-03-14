@@ -15,7 +15,7 @@ public class SqlSetlistEntryRepositoryTest : DbIntegrationTestsBase
         var setlist = new SetlistDo
         {
             ConcertId = Guid.NewGuid().ToString(),
-            Title = "Setlist 1",
+            ConcertTitle = "Setlist 1",
             LinkinpediaUrl = "https://lplive.net"
         };
 
@@ -83,7 +83,7 @@ public class SqlSetlistEntryRepositoryTest : DbIntegrationTestsBase
         var setlist = new SetlistDo
         {
             ConcertId = Guid.NewGuid().ToString(),
-            Title = "Setlist 1",
+            ConcertTitle = "Setlist 1",
             LinkinpediaUrl = "https://lplive.net"
         };
         
