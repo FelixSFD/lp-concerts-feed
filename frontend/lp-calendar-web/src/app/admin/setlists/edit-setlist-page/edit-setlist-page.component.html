@@ -10,7 +10,7 @@
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-secondary" [disabled]="isAddingEntry$" (click)="dismissAddEntryModal()">Cancel</button>
-      <button type="button" class="btn btn-primary" id="deleteConcertConfirmBtn" (click)="onAddEntryConfirm()" [disabled]="isAddingEntry$">
+      <button type="button" class="btn btn-primary" id="addEntryConfirmBtn" (click)="onAddEntryConfirm()" [disabled]="isAddingEntry$">
         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!isAddingEntry$"></span>
         <span class="sr-only">{{ isAddingEntry$ ? "Adding..." : "Add" }}</span>
       </button>

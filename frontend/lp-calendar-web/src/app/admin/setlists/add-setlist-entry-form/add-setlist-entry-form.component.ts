@@ -1,7 +1,7 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, EventEmitter, inject, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from "@angular/forms";
 import {SongsService} from '../../../services/songs.service';
-import {ErrorResponseDto, SongDto, SongVariantDto} from '../../../modules/lpshows-api';
+import {ConcertDto, ErrorResponseDto, SongDto, SongVariantDto} from '../../../modules/lpshows-api';
 import {ToastrService} from 'ngx-toastr';
 import {NgClass} from '@angular/common';
 
@@ -20,12 +20,13 @@ export class AddSetlistEntryFormComponent implements OnInit {
   private songService = inject(SongsService);
 
   setlistEntryForm = this.formBuilder.group({
-    sortNumber: new FormControl('', [Validators.min(1), Validators.max(10000), Validators.required]),
-    songNumber: new FormControl('', [Validators.max(99)]),
+    entryType: new FormControl(AddSetlistEntryFormContent.entryTypeSong, [Validators.required]),
+    sortNumber: new FormControl(0, [Validators.min(1), Validators.max(10000), Validators.required]),
+    songNumber: new FormControl(0, [Validators.max(99)]),
     titleOverride: new FormControl('', [Validators.maxLength(31)]),
     extraNotes: new FormControl('', [Validators.maxLength(127)]),
-    selectedSongId: new FormControl('', []),
-    songTitle: new FormControl('', []),
+    selectedSongId: new FormControl(0, []),
+    songTitle: new FormControl('', [Validators.maxLength(31)]),
     songIsrc: new FormControl('', []),
     selectedSongVariantId: new FormControl(0, []),
     songVariantName: new FormControl('', []),
@@ -35,6 +36,8 @@ export class AddSetlistEntryFormComponent implements OnInit {
     wasWorldPremiere: new FormControl(false, []),
   });
 
+  selectedEntryType$: string = AddSetlistEntryFormContent.entryTypeSong;
+
   availableSongs$: SongDto[] = [];
 
   variantsOfSelectedSong$: SongVariantDto[] = [];
@@ -42,9 +45,12 @@ export class AddSetlistEntryFormComponent implements OnInit {
   showAddSongFields: boolean = false;
   showAddNewVariantFields: boolean = false;
 
-
   ngOnInit(): void {
     this.setlistEntryForm.controls.selectedSongVariantId.disable();
+
+    this.setlistEntryForm.controls.entryType.valueChanges.subscribe(value => {
+      this.selectedEntryType$ = value ?? AddSetlistEntryFormContent.entryTypeSong;
+    });
 
     this.songService
       .getAllSongs(true)
@@ -92,4 +98,125 @@ export class AddSetlistEntryFormComponent implements OnInit {
         this.variantsOfSelectedSong$ = variants;
       });
   }
+
+
+  public readValuesFromForm(): AddSetlistEntryFormContent {
+    let entryType = this.selectedEntryType$;
+    let content: AddSetlistEntryFormContent = {
+      entryType: entryType,
+      sortNumber: this.setlistEntryForm.value.sortNumber?.valueOf(),
+      songNumber: this.setlistEntryForm.value.songNumber?.valueOf(),
+      titleOverride: this.setlistEntryForm.value.titleOverride?.valueOf(),
+      extraNotes: this.setlistEntryForm.value.extraNotes?.valueOf(),
+      wasRotationSong: this.setlistEntryForm.value.wasRotationSong?.valueOf() ?? false,
+      wasPlayedFromRecording: this.setlistEntryForm.value.wasPlayedFromRecording?.valueOf() ?? false,
+      wasWorldPremiere: this.setlistEntryForm.value.wasWorldPremiere?.valueOf() ?? false,
+      // these fields are not present in every case
+      selectedSongId: undefined,
+      selectedSongVariantId: undefined,
+      songIsrc: undefined,
+      songTitle: undefined,
+      songVariantDescription: undefined,
+      songVariantName: undefined,
+    }
+
+    if (entryType == AddSetlistEntryFormContent.entryTypeSong) {
+      console.debug("Adding fields about a song...");
+
+      content.selectedSongId = this.setlistEntryForm.value.selectedSongId?.valueOf();
+      content.songTitle = this.setlistEntryForm.value.songTitle?.valueOf();
+      content.songIsrc = this.setlistEntryForm.value.songIsrc?.valueOf();
+
+      if (this.setlistEntryForm.value.selectedSongVariantId?.valueOf() != 0) {
+        console.debug("The entry is a song variant!");
+        content.entryType = AddSetlistEntryFormContent.entryTypeSongVariant;
+
+        content.selectedSongVariantId = this.setlistEntryForm.value.selectedSongVariantId?.valueOf();
+        content.songVariantName = this.setlistEntryForm.value.songVariantName?.valueOf();
+        content.songVariantDescription = this.setlistEntryForm.value.songVariantDescription?.valueOf();
+      }
+    }
+
+    return content;
+  }
+
+
+  public AddSetlistEntryFormContent = AddSetlistEntryFormContent;
+}
+
+
+export class AddSetlistEntryFormContent {
+  static entryTypeSong = "song";
+  static entryTypeSongVariant = "songVariant";
+  static entryTypeSongMashup = "songMashup";
+
+  /**
+   * Type of the entry.
+   */
+  entryType: string | undefined;
+
+  /**
+   * Number that is only used for sorting
+   */
+  sortNumber: number | undefined;
+
+  /**
+   * Number of the song in the setlist.
+   */
+  songNumber: number | undefined;
+
+  /**
+   * optional title that would override the title of the song or mashup in this entry
+   */
+  titleOverride: string | undefined | null;
+
+  /**
+   * Additional notes about this entry
+   */
+  extraNotes: string | undefined | null;
+
+  /**
+   * ID of the song that was selected. null if this entry does not contain a song. "-1" if a new song will be added
+   */
+  selectedSongId: number | undefined | null;
+
+  /**
+   * If the selectedSongId is "-1", this field contains the title of the new song
+   */
+  songTitle: string | undefined | null;
+
+  /**
+   * If the selectedSongId is "-1", this field contains the ISRC of the new song
+   */
+  songIsrc: string | undefined | null;
+
+  /**
+   * ID of the song variant that was selected. null if this entry does not contain a song. "-1" if a new song will be added
+   */
+  selectedSongVariantId: number | undefined | null;
+
+  /**
+   * If the selectedSongVariantId is "-1", this field contains the name of the new variant
+   */
+  songVariantName: string | undefined | null;
+
+  /**
+   * If the selectedSongVariantId is "-1", this field contains the description of the new variant
+   */
+  songVariantDescription: string | undefined | null;
+
+  /**
+   * true if the song was played from a recording
+   */
+  wasPlayedFromRecording: boolean = false;
+
+  /**
+   * true if this song changes between different sets on the same tour
+   */
+  wasRotationSong: boolean = false;
+
+  /**
+   * true if this was the world premiere of a new song
+   */
+  wasWorldPremiere: boolean = false;
 }

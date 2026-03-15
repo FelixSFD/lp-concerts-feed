@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, TemplateRef} from '@angular/core';
+import {Component, contentChild, inject, OnInit, TemplateRef, viewChild} from '@angular/core';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {
   CreateSetlistRequestDto,
@@ -14,7 +14,10 @@ import {Observable} from 'rxjs';
 import {SetlistEntry} from '../../../data/setlists/setlist-entry';
 import {Setlist} from '../../../data/setlists/setlist';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
-import {AddSetlistEntryFormComponent} from '../add-setlist-entry-form/add-setlist-entry-form.component';
+import {
+  AddSetlistEntryFormComponent,
+  AddSetlistEntryFormContent
+} from '../add-setlist-entry-form/add-setlist-entry-form.component';
 
 @Component({
   selector: 'app-edit-setlist-page',
@@ -34,6 +37,8 @@ export class EditSetlistPageComponent implements OnInit {
   private activeRoute = inject(ActivatedRoute);
   private setlistService = inject(SetlistsService);
   private toastr = inject(ToastrService);
+
+  private addEntryFormComponent = viewChild(AddSetlistEntryFormComponent);
 
   private currentSetlistId: number = 0;
 
@@ -157,6 +162,20 @@ export class EditSetlistPageComponent implements OnInit {
 
 
   onAddEntryConfirm() {
+    this.isAddingEntry$ = true;
+
+    // read the values from the form
+    console.debug("Found component: ", this.addEntryFormComponent);
+    let formValues = this.addEntryFormComponent()?.readValuesFromForm();
+    console.debug("Values read from form: ", formValues);
+
+    if (formValues?.entryType == AddSetlistEntryFormContent.entryTypeSong) {
+      // TODO: service needs to be implemented
+    } else {
+      this.toastr.error("The selected entry type is not implemented!");
+      this.isAddingEntry$ = false;
+    }
+
     /*this.isAddingEntry$ = true;
     if (this.setlistToDelete == null) {
       this.addEntryModal?.dismiss();
