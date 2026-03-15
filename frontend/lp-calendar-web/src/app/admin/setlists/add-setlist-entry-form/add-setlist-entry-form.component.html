@@ -1,4 +1,19 @@
 <form #form="ngForm" [formGroup]="setlistEntryForm" class="form">
+  <!-- Song Number -->
+  <div class="form-group">
+    <label for="songNumber">Number of the entry:</label>
+    <div class="input-group mb-3">
+      <input id="songNumber" type="number" formControlName="songNumber" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.songNumber.invalid }" placeholder="Number of the entry in the setlist">
+    </div>
+    @if (setlistEntryForm.controls.songNumber.invalid) {
+      <div class="text-danger">
+        @if (setlistEntryForm.controls.songNumber.errors) {
+          <small>Number is invalid.</small>
+        }
+      </div>
+    }
+  </div>
+
   <!-- Type of entry -->
   <div class="form-group">
     <label for="song">Select type of entry:</label>
