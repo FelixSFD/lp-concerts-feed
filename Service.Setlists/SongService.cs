@@ -12,6 +12,20 @@ namespace Service.Setlists;
 public class SongService(ISongRepository songRepository, ISongVariantRepository songVariantRepository, ISongMashupRepository songMashupRepository, ILambdaLogger logger)
 {
     /// <summary>
+    /// Returns all songs ordered by title
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Enumerable of all songs</returns>
+    public IAsyncEnumerable<SongDto> GetAllSongsAsync(CancellationToken cancellationToken)
+    {
+        logger.LogDebug("Getting all songs...");
+        return songRepository
+            .QueryAsync(cancellationToken)
+            .Select(DtoMapper.ToDto)
+            .OrderBy(s => s.Title);
+    }
+    
+    /// <summary>
     /// Returns a song by its ID
     /// </summary>
     /// <param name="songId">ID of the song</param>

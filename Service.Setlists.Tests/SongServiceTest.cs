@@ -24,6 +24,57 @@ public class SongServiceTest
         
         _songService = new SongService(_songRepository, _songVariantRepository, _songMashupRepository, _logger);
     }
+    
+    
+    [Fact]
+    public async Task GetAllSongsAsync()
+    {
+        // prepare mocks and test data
+        var song = new SongDo
+        {
+            Id = 1234,
+            Title = "QWERTY",
+            Isrc = "5355646",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
+        };
+        
+        var song2 = new SongDo
+        {
+            Id = 3121,
+            Title = "Lost",
+            Isrc = "1",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/Lost"
+        };
+
+        List<SongDo> mockSongs = [song, song2];
+        
+        _songRepository
+            .QueryAsync(CancellationToken.None)
+            .Returns(mockSongs.ToAsyncEnumerable());
+
+        // call the service
+        var allSongs = await _songService.GetAllSongsAsync(CancellationToken.None).ToListAsync();
+        Assert.NotNull(allSongs);
+        Assert.Equal(mockSongs.Count, allSongs.Count);
+        
+        // Results are ordered by title. That's why song2 is returned first
+        var result1 = allSongs[0];
+        Assert.NotNull(result1);
+        Assert.Equal(song2.Title, result1.Title);
+        Assert.Equal(song2.Isrc, result1.Isrc);
+        Assert.Equal(song2.Id, result1.Id);
+        
+        var result2 = allSongs[1];
+        Assert.NotNull(result2);
+        Assert.Equal(song.Title, result2.Title);
+        Assert.Equal(song.Isrc, result2.Isrc);
+        Assert.Equal(song.Id, result2.Id);
+        
+        // verify mock calls
+        _songRepository
+            .Received(1)
+            .QueryAsync(CancellationToken.None);
+    }
 
     
     [Fact]
