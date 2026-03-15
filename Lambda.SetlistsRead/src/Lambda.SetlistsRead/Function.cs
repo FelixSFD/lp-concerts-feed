@@ -91,6 +91,12 @@ public class Function
             return await HandleGetSong(songId ?? 0, context);
         }
         
+        if (request is { HttpMethod: "GET", Resource: "/songs" })
+        {
+            context.Logger.LogInformation("Requested all songs");
+            return await HandleGetAllSongs(context);
+        }
+        
         if (request is { HttpMethod: "GET", Resource: "/songs/{songId}/variants" } && hasSongIdPathParameter)
         {
             context.Logger.LogInformation("Requested variants song with ID: {songId}", songId);
@@ -212,6 +218,31 @@ public class Function
             {
                 StatusCode = (int)HttpStatusCode.OK,
                 Body = JsonSerializer.Serialize(song, SetlistDtoJsonContext.Default.SongDto),
+                Headers = new Dictionary<string, string>
+                {
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                }
+            };
+        }
+        catch (SongNotFoundException e)
+        {
+            return HandleNotFoundException(e.Message, "OPTIONS, GET", context.Logger);
+        }
+    }
+    
+    
+    private async Task<APIGatewayProxyResponse> HandleGetAllSongs(ILambdaContext context)
+    {
+        try
+        {
+            var songs = await _songService.GetAllSongsAsync(context.GetCancellationToken()).ToListAsync();
+            context.Logger.LogDebug("Found {songCount} songs", songs.Count);
+
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.OK,
+                Body = JsonSerializer.Serialize(songs, SetlistDtoJsonContext.Default.ListSongDto),
                 Headers = new Dictionary<string, string>
                 {
                     { "Access-Control-Allow-Origin", "*" },
