@@ -169,10 +169,20 @@ export class EditSetlistPageComponent implements OnInit {
     let formValues = this.addEntryFormComponent()?.readValuesFromForm();
     console.debug("Values read from form: ", formValues);
 
-    if (formValues?.entryType == AddSetlistEntryFormContent.entryTypeSong) {
-      // TODO: service needs to be implemented
+    if (formValues != null) {
+      this.setlistService.addSetlistEntry(formValues, this.currentSetlistId)
+        .subscribe({
+          next: () => {
+            this.toastr.success("Setlist was updated successfully");
+            this.isAddingEntry$ = false;
+          },
+          error: err => {
+            let errorResponse: ErrorResponseDto = err.error;
+            this.toastr.error(errorResponse.message, "Could not update setlist");
+          }
+        });
     } else {
-      this.toastr.error("The selected entry type is not implemented!");
+      this.toastr.error("Failed to read form data!");
       this.isAddingEntry$ = false;
     }
 

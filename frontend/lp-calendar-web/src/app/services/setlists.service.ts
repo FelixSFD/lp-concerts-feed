@@ -5,10 +5,12 @@ import {
   CreateSetlistRequestDto,
   CreateSetlistResponseDto, SetlistDto,
   SetlistsService as SetlistsApiClient,
-  ConcertsService as ConcertsApiClient, UpdateSetlistHeaderRequestDto,
+  ConcertsService as ConcertsApiClient, UpdateSetlistHeaderRequestDto, AddSongToSetlistRequestDto,
+  SetlistEntryParametersDto, AddSongVariantToSetlistRequestDto,
 } from '../modules/lpshows-api';
 import {Observable} from 'rxjs';
 import {Guid} from 'guid-typescript';
+import {AddSetlistEntryFormContent} from '../admin/setlists/add-setlist-entry-form/add-setlist-entry-form.component';
 
 @Injectable({
   providedIn: 'root',
@@ -42,6 +44,50 @@ export class SetlistsService {
    */
   public deleteSetlist(setlistId: number) : Observable<any> {
     return this.setlistsApiClient.deleteSetlist(setlistId);
+  }
+
+  public addSetlistEntry(content: AddSetlistEntryFormContent, setlistId: number): Observable<any> {
+    let entryType = content.entryType;
+    console.debug("Entry type: ", entryType);
+
+    let entryParameters: SetlistEntryParametersDto = {
+      songNumber: content.songNumber,
+      sortNumber: content.sortNumber,
+      titleOverride: content.titleOverride,
+      extraNotes: content.extraNotes,
+      isPlayedFromRecording: content.wasPlayedFromRecording,
+      isRotationSong: content.wasRotationSong,
+      isWorldPremiere: content.wasWorldPremiere
+    };
+
+    if (entryType == AddSetlistEntryFormContent.entryTypeSong) {
+      let addSongRequest: AddSongToSetlistRequestDto = {
+        entryParameters: entryParameters,
+        songParameters: {
+          songId: content.selectedSongId,
+          songTitle: content.songTitle,
+          isrc: content.songIsrc
+        },
+        actParameters: null // TODO: implement acts
+      };
+
+      return this.setlistsApiClient.addSongToSetlist(setlistId, addSongRequest);
+    } else if (entryType == AddSetlistEntryFormContent.entryTypeSongVariant) {
+      let addSongVariantRequest: AddSongVariantToSetlistRequestDto = {
+        entryParameters: entryParameters,
+        songVariantParameters: {
+          songId: content.selectedSongId,
+          songVariantId: content.selectedSongVariantId,
+          variantName: content.songVariantName,
+          description: content.songVariantDescription,
+        },
+        actParameters: null // TODO: implement acts
+      };
+
+      return this.setlistsApiClient.addSongVariantToSetlist(setlistId, addSongVariantRequest);
+    } else {
+      throw new Error(`The entry type '${entryType}' is not implemented`);
+    }
   }
 
   /**
