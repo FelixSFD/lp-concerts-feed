@@ -23,6 +23,21 @@
         }
       </div>
 
+      <!-- Set Name -->
+      <div class="form-group">
+        <label for="setName">Name of the set:</label>
+        <div class="input-group mb-3">
+          <input id="setName" type="text" formControlName="setName" class="form-control" [ngClass]="{ 'is-invalid': setlistForm.controls.setName.invalid }">
+        </div>
+        @if (setlistForm.controls.setName.invalid) {
+          <div class="text-danger">
+            @if (setlistForm.controls.setName.errors) {
+              <small>Name is invalid.</small>
+            }
+          </div>
+        }
+      </div>
+
       <!-- Linkinpedia URL -->
       <div class="form-group">
         <label for="linkinpediaUrl">Linkinpedia URL:</label>
