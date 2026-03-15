@@ -26,6 +26,9 @@ export class AddSetlistEntryFormComponent implements OnInit {
     selectedSongVariantId: new FormControl(0, []),
     songVariantName: new FormControl('', []),
     songVariantDescription: new FormControl('', []),
+    wasPlayedFromRecording: new FormControl(false, []),
+    wasRotationSong: new FormControl(false, []),
+    wasWorldPremiere: new FormControl(false, []),
   });
 
   availableSongs$: SongDto[] = [];

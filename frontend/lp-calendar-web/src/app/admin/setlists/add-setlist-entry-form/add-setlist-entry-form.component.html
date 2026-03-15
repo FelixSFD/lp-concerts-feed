@@ -114,4 +114,20 @@
       }
     </div>
   }
+
+  <!-- Switches for boolean fields -->
+  <div class="form-check form-switch">
+    <input class="form-check-input" type="checkbox" id="wasPlayedFromRecording" [checked]="setlistEntryForm.controls.wasPlayedFromRecording.value" formControlName="wasPlayedFromRecording">
+    <label class="form-check-label" for="wasPlayedFromRecording"><i class="bi bi-cassette-fill"></i> Was played from recording</label>
+  </div>
+
+  <div class="form-check form-switch">
+    <input class="form-check-input" type="checkbox" id="wasRotationSong" [checked]="setlistEntryForm.controls.wasRotationSong.value" formControlName="wasRotationSong">
+    <label class="form-check-label" for="wasRotationSong"><i class="bi bi-arrow-counterclockwise"></i> This is a rotation slot</label>
+  </div>
+
+  <div class="form-check form-switch">
+    <input class="form-check-input" type="checkbox" id="wasWorldPremiere" [checked]="setlistEntryForm.controls.wasWorldPremiere.value" formControlName="wasWorldPremiere">
+    <label class="form-check-label" for="wasWorldPremiere"><i class="bi bi-globe-americas"></i> Was a world premiere</label>
+  </div>
 </form>
