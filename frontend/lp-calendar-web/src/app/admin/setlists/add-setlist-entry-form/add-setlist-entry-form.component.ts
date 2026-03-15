@@ -20,6 +20,10 @@ export class AddSetlistEntryFormComponent implements OnInit {
   private songService = inject(SongsService);
 
   setlistEntryForm = this.formBuilder.group({
+    sortNumber: new FormControl('', [Validators.min(1), Validators.max(10000), Validators.required]),
+    songNumber: new FormControl('', [Validators.max(99)]),
+    titleOverride: new FormControl('', [Validators.maxLength(31)]),
+    extraNotes: new FormControl('', [Validators.maxLength(127)]),
     selectedSongId: new FormControl('', []),
     songTitle: new FormControl('', []),
     songIsrc: new FormControl('', []),

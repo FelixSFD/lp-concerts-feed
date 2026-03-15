@@ -29,7 +29,7 @@
     <div class="form-group">
       <label for="songTitle">Title of the song:</label>
       <div class="input-group mb-3">
-        <input id="songTitle" type="text" formControlName="songTitle" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.songTitle.invalid }" placeholder="For example: Lost">
+        <input id="songTitle" type="text" formControlName="songTitle" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.songTitle.invalid }" placeholder="Example: Lost">
       </div>
       @if (setlistEntryForm.controls.songTitle.invalid) {
         <div class="text-danger">
@@ -88,7 +88,7 @@
     <div class="form-group">
       <label for="songVariantName">Name of the variant:</label>
       <div class="input-group mb-3">
-        <input id="songVariantName" type="text" formControlName="songVariantName" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.songVariantName.invalid }" placeholder="For example: Piano Version">
+        <input id="songVariantName" type="text" formControlName="songVariantName" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.songVariantName.invalid }" placeholder="Example: Piano Version">
       </div>
       @if (setlistEntryForm.controls.songVariantName.invalid) {
         <div class="text-danger">
@@ -114,6 +114,36 @@
       }
     </div>
   }
+
+  <!-- Optionally override the title of the song or mashup -->
+  <div class="form-group">
+    <label for="titleOverride">(Optional) Override the title for this entry:</label>
+    <div class="input-group mb-3">
+      <input id="titleOverride" type="text" formControlName="titleOverride" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.titleOverride.invalid }" placeholder="if empty, the name of the song/mashup will be used by default">
+    </div>
+    @if (setlistEntryForm.controls.titleOverride.invalid) {
+      <div class="text-danger">
+        @if (setlistEntryForm.controls.titleOverride.errors) {
+          <small>Title is invalid.</small>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Optionally add extra notes -->
+  <div class="form-group">
+    <label for="extraNotes">(Optional) Additional notes:</label>
+    <div class="input-group mb-3">
+      <input id="extraNotes" type="text" formControlName="extraNotes" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.extraNotes.invalid }" placeholder="Example: Joe threw a cake into the crowd">
+    </div>
+    @if (setlistEntryForm.controls.extraNotes.invalid) {
+      <div class="text-danger">
+        @if (setlistEntryForm.controls.extraNotes.errors) {
+          <small>Input is invalid.</small>
+        }
+      </div>
+    }
+  </div>
 
   <!-- Switches for boolean fields -->
   <div class="form-check form-switch">
