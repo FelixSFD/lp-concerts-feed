@@ -26,7 +26,6 @@ export class AddSetlistEntryFormComponent implements OnInit {
     songVariantDescription: new FormControl('', []),
   });
 
-
   availableSongs$: SongDto[] = [];
 
   variantsOfSelectedSong$: SongVariantDto[] = [];
@@ -35,6 +34,8 @@ export class AddSetlistEntryFormComponent implements OnInit {
 
 
   ngOnInit(): void {
+    this.setlistEntryForm.controls.selectedSongVariantId.disable();
+
     this.songService
       .getAllSongs(true)
       .subscribe({
@@ -50,7 +51,15 @@ export class AddSetlistEntryFormComponent implements OnInit {
 
 
   onSongSelectionChanged() {
-    this.loadVariantsOfSelectedSong();
+    let songId = Number(this.setlistEntryForm.value.selectedSongId?.valueOf());
+    console.debug("Song selected: ", songId);
+
+    if (songId > 0) {
+      this.loadVariantsOfSelectedSong(songId);
+      this.setlistEntryForm.controls.selectedSongVariantId.enable();
+    } else {
+      this.setlistEntryForm.controls.selectedSongVariantId.disable();
+    }
   }
 
 
@@ -62,11 +71,10 @@ export class AddSetlistEntryFormComponent implements OnInit {
   }
 
 
-  private loadVariantsOfSelectedSong() {
+  private loadVariantsOfSelectedSong(songId: number) {
     console.debug("Load Variants of selectedSong");
     this.variantsOfSelectedSong$ = [];
 
-    let songId = Number(this.setlistEntryForm.value.selectedSongId?.valueOf());
     this.songService.getVariantsOfSong(songId)
       .subscribe(variants => {
         this.variantsOfSelectedSong$ = variants;
