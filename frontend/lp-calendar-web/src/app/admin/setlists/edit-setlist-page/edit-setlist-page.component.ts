@@ -1,4 +1,4 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, inject, OnInit, TemplateRef} from '@angular/core';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {
   CreateSetlistRequestDto,
@@ -11,6 +11,9 @@ import {SetlistsService} from '../../../services/setlists.service';
 import {ToastrService} from 'ngx-toastr';
 import {NgClass} from '@angular/common';
 import {Observable} from 'rxjs';
+import {SetlistEntry} from '../../../data/setlists/setlist-entry';
+import {Setlist} from '../../../data/setlists/setlist';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-edit-setlist-page',
@@ -23,6 +26,7 @@ import {Observable} from 'rxjs';
   styleUrl: './edit-setlist-page.component.css',
 })
 export class EditSetlistPageComponent implements OnInit {
+  private modalService = inject(NgbModal);
   private formBuilder = inject(FormBuilder);
   private router = inject(Router);
   private activeRoute = inject(ActivatedRoute);
@@ -40,6 +44,13 @@ export class EditSetlistPageComponent implements OnInit {
 
   isSaving$: boolean = false;
 
+  isAddingEntry$: boolean = false;
+
+  // if open, the modal is referenced here
+  addEntryModal: NgbModalRef | undefined;
+
+  setlistEntries$: SetlistEntry[] = [];
+
   ngOnInit() {
     this.activeRoute.params.subscribe(params => {
       let setlistId = params['setlistId'];
@@ -55,6 +66,7 @@ export class EditSetlistPageComponent implements OnInit {
       .getSetlist(setlistId)
       .subscribe(setlist => {
         this.fillFormFromDto(setlist);
+        this.setlistEntries$ = setlist.entries?.map(SetlistEntry.fromDto) ?? [];
       });
   }
 
@@ -123,5 +135,57 @@ export class EditSetlistPageComponent implements OnInit {
     }
 
     window.open(url, "_blank");
+  }
+
+
+  openModal(content: TemplateRef<any>) {
+    return this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
+  }
+
+
+  onAddEntryClicked(content: TemplateRef<any>) {
+    //this.setlistToDelete = setlist;
+
+    /*if (this.setlistToDelete == null) {
+      return;
+    }*/
+
+    this.addEntryModal = this.openModal(content);
+  }
+
+
+  onAddEntryConfirm() {
+    /*this.isAddingEntry$ = true;
+    if (this.setlistToDelete == null) {
+      this.addEntryModal?.dismiss();
+      return;
+    }*/
+
+    /*let id = this.setlistToDelete!.id;
+    console.debug("Will delete setlist: " + id);
+
+    this.setlistService.deleteSetlist(id).subscribe({
+      next: result => {
+        console.debug("DELETE setlist request finished");
+        console.debug(result);
+
+        this.loadSetlist(this.currentSetlistId);
+        this.addEntryModal?.dismiss();
+        this.isAddingEntry$ = false;
+      },
+      error: err => {
+        let errorResponse: ErrorResponseDto = err.error;
+        console.warn("Failed to delete setlist:", err);
+        this.addEntryModal?.dismiss();
+        this.isAddingEntry$ = false;
+
+        this.toastr.error(errorResponse.message, "Could not delete setlist!");
+      }
+    });*/
+  }
+
+
+  dismissAddEntryModal() {
+    this.addEntryModal?.dismiss();
   }
 }

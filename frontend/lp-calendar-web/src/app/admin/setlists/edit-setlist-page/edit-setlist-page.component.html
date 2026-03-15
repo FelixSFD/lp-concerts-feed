@@ -1,3 +1,24 @@
+<!-- add setlist entry modal -->
+<ng-template #addEntryContent let-addEntryModal>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h1 class="modal-title fs-5" id="addEntryModalLabel">Add a new entry</h1>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <p>TODO: form content</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" [disabled]="isAddingEntry$" (click)="dismissAddEntryModal()">Cancel</button>
+      <button type="button" class="btn btn-primary" id="deleteConcertConfirmBtn" (click)="onAddEntryConfirm()" [disabled]="isAddingEntry$">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!isAddingEntry$"></span>
+        <span class="sr-only">{{ isAddingEntry$ ? "Adding..." : "Add" }}</span>
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+
 <h1>Edit setlist</h1>
 
 <form #form="ngForm" [formGroup]="setlistForm" class="form">
@@ -70,8 +91,20 @@
   <div class="card mt-5">
     <div class="card-header">
       Entries
+      <button class="btn btn-sm btn-primary" (click)="onAddEntryClicked(addEntryContent)">Add</button>
     </div>
     <div class="card-body edit-form-card">
+      <table>
+        <tbody>
+          @for (entry of setlistEntries$; track entry.id) {
+            <tr>
+              <td>{{ entry.songNumber }}</td>
+              <td>{{ entry.title }}</td>
+              <td>{{ entry.extraNotes }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
   </div>
 </form>
