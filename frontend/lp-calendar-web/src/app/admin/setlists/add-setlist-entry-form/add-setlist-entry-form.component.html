@@ -1,2 +1,83 @@
 <form #form="ngForm" [formGroup]="setlistEntryForm" class="form">
+  <!-- Song selection -->
+  <div class="form-group">
+    <label for="song">Played Song</label>
+    <div class="input-group mb-3">
+      <select class="form-select form-control" (change)="onSongSelectionChanged()"
+              formControlName="selectedSongId"
+              [ngClass]="{ 'is-invalid': setlistEntryForm.controls.selectedSongId.invalid }">
+        <option selected disabled>Select song</option>
+        <option value="-1">Add new song...</option>
+        <option disabled>---------------</option>
+        @for (song of availableSongs$; track song.id) {
+          <option [value]="song.id">{{ song.title }}</option>
+        }
+      </select>
+    </div>
+    @if (setlistEntryForm.controls.selectedSongId.invalid) {
+      <div class="text-danger">
+        @if (setlistEntryForm.controls.selectedSongId.errors) {
+          <small>Selection is invalid.</small>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Song variant -->
+  <div class="form-group">
+    <label for="songVariant">Played variation of the song</label>
+    <div class="input-group mb-3">
+      <select class="form-select form-control" (change)="onSongVariantSelectionChanged()"
+              formControlName="selectedSongVariantId"
+              [ngClass]="{ 'is-invalid': setlistEntryForm.controls.selectedSongVariantId.invalid }">
+        <option selected>Normal version</option>
+        <option disabled>---------------</option>
+        <option value="-1">Add new variant</option>
+        <option disabled>---------------</option>
+        @for (variant of variantsOfSelectedSong$; track variant.id) {
+          <option [value]="variant.id">{{ variant.variantName }} ({{ variant.description }})</option>
+        }
+      </select>
+    </div>
+    @if (setlistEntryForm.controls.selectedSongVariantId.invalid) {
+      <div class="text-danger">
+        @if (setlistEntryForm.controls.selectedSongVariantId.errors) {
+          <small>Selection is invalid.</small>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- fields for the song variant. Only displayed if "Add new variant" is selected -->
+  @if (showAddNewVariantFields) {
+    <!-- Variant Name -->
+    <div class="form-group">
+      <label for="songVariantName">Name of the variant:</label>
+      <div class="input-group mb-3">
+        <input id="songVariantName" type="text" formControlName="songVariantName" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.songVariantName.invalid }" placeholder="For example: Piano Version">
+      </div>
+      @if (setlistEntryForm.controls.songVariantName.invalid) {
+        <div class="text-danger">
+          @if (setlistEntryForm.controls.songVariantName.errors) {
+            <small>Name is invalid.</small>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Variant Description -->
+    <div class="form-group">
+      <label for="songVariantDescription">Description of the variant:</label>
+      <div class="input-group mb-3">
+        <input id="songVariantDescription" type="text" formControlName="songVariantDescription" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.songVariantDescription.invalid }" placeholder="(optional) What makes this variant different?">
+      </div>
+      @if (setlistEntryForm.controls.songVariantDescription.invalid) {
+        <div class="text-danger">
+          @if (setlistEntryForm.controls.songVariantDescription.errors) {
+            <small>Description is invalid.</small>
+          }
+        </div>
+      }
+    </div>
+  }
 </form>

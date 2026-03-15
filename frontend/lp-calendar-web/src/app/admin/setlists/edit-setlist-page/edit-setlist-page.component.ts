@@ -14,13 +14,15 @@ import {Observable} from 'rxjs';
 import {SetlistEntry} from '../../../data/setlists/setlist-entry';
 import {Setlist} from '../../../data/setlists/setlist';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import {AddSetlistEntryFormComponent} from '../add-setlist-entry-form/add-setlist-entry-form.component';
 
 @Component({
   selector: 'app-edit-setlist-page',
   imports: [
     FormsModule,
     ReactiveFormsModule,
-    NgClass
+    NgClass,
+    AddSetlistEntryFormComponent
   ],
   templateUrl: './edit-setlist-page.component.html',
   styleUrl: './edit-setlist-page.component.css',
