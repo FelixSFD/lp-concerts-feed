@@ -23,6 +23,40 @@
     }
   </div>
 
+  <!-- fields for the song . Only displayed if "Add new song" is selected -->
+  @if (showAddSongFields) {
+    <!-- Song Title -->
+    <div class="form-group">
+      <label for="songTitle">Title of the song:</label>
+      <div class="input-group mb-3">
+        <input id="songTitle" type="text" formControlName="songTitle" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.songTitle.invalid }" placeholder="For example: Lost">
+      </div>
+      @if (setlistEntryForm.controls.songTitle.invalid) {
+        <div class="text-danger">
+          @if (setlistEntryForm.controls.songTitle.errors) {
+            <small>Song title is invalid.</small>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Song ISRC -->
+    <div class="form-group">
+      <label for="songIsrc">ISRC:</label>
+      <small>This is a unique code to identify an official recording of a song.</small>
+      <div class="input-group mb-3">
+        <input id="songIsrc" type="text" formControlName="songIsrc" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.songIsrc.invalid }" placeholder="(optional) ISRC">
+      </div>
+      @if (setlistEntryForm.controls.songIsrc.invalid) {
+        <div class="text-danger">
+          @if (setlistEntryForm.controls.songIsrc.errors) {
+            <small>ISRC is invalid.</small>
+          }
+        </div>
+      }
+    </div>
+  }
+
   <!-- Song variant -->
   <div class="form-group">
     <label for="songVariant">Played variation of the song</label>

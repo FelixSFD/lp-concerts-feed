@@ -21,6 +21,8 @@ export class AddSetlistEntryFormComponent implements OnInit {
 
   setlistEntryForm = this.formBuilder.group({
     selectedSongId: new FormControl('', []),
+    songTitle: new FormControl('', []),
+    songIsrc: new FormControl('', []),
     selectedSongVariantId: new FormControl(0, []),
     songVariantName: new FormControl('', []),
     songVariantDescription: new FormControl('', []),
@@ -30,6 +32,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
 
   variantsOfSelectedSong$: SongVariantDto[] = [];
 
+  showAddSongFields: boolean = false;
   showAddNewVariantFields: boolean = false;
 
 
@@ -60,6 +63,8 @@ export class AddSetlistEntryFormComponent implements OnInit {
     } else {
       this.setlistEntryForm.controls.selectedSongVariantId.disable();
     }
+
+    this.showAddSongFields = songId == -1;
   }
 
 
