@@ -127,11 +127,12 @@ export class AddSetlistEntryFormComponent implements OnInit {
       content.songTitle = this.setlistEntryForm.value.songTitle?.valueOf();
       content.songIsrc = this.setlistEntryForm.value.songIsrc?.valueOf();
 
-      if (this.setlistEntryForm.value.selectedSongVariantId?.valueOf() != 0) {
+      let songVariantId = this.setlistEntryForm.value.selectedSongVariantId?.valueOf() ?? 0;
+      if (songVariantId != 0) {
         console.debug("The entry is a song variant!");
         content.entryType = AddSetlistEntryFormContent.entryTypeSongVariant;
 
-        content.selectedSongVariantId = this.setlistEntryForm.value.selectedSongVariantId?.valueOf();
+        content.selectedSongVariantId = songVariantId;
         content.songVariantName = this.setlistEntryForm.value.songVariantName?.valueOf();
         content.songVariantDescription = this.setlistEntryForm.value.songVariantDescription?.valueOf();
       }

@@ -60,11 +60,13 @@ export class SetlistsService {
       isWorldPremiere: content.wasWorldPremiere
     };
 
+    let songId = content.selectedSongId == -1 ? 0 : Number(content.selectedSongId);
+
     if (entryType == AddSetlistEntryFormContent.entryTypeSong) {
       let addSongRequest: AddSongToSetlistRequestDto = {
         entryParameters: entryParameters,
         songParameters: {
-          songId: content.selectedSongId,
+          songId: songId,
           songTitle: content.songTitle,
           isrc: content.songIsrc
         },
@@ -73,11 +75,12 @@ export class SetlistsService {
 
       return this.setlistsApiClient.addSongToSetlist(setlistId, addSongRequest);
     } else if (entryType == AddSetlistEntryFormContent.entryTypeSongVariant) {
+      let songVariantId = content.selectedSongVariantId == -1 ? 0 : Number(content.selectedSongVariantId);
       let addSongVariantRequest: AddSongVariantToSetlistRequestDto = {
         entryParameters: entryParameters,
         songVariantParameters: {
-          songId: content.selectedSongId,
-          songVariantId: content.selectedSongVariantId,
+          songId: songId,
+          songVariantId: songVariantId,
           variantName: content.songVariantName,
           description: content.songVariantDescription,
         },

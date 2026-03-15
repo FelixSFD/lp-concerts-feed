@@ -140,7 +140,7 @@ public class SetlistService(
 
         var songParams = request.SongParameters;
         SongDo? song;
-        if (songParams.SongId > 0)
+        if (songParams.SongId is > 0)
         {
             logger.LogDebug("Checking if song exists: {songId}", songParams.SongId);
             song = await songRepository.GetByPrimaryKeyAsync(songParams.SongId ?? 0);
@@ -181,7 +181,7 @@ public class SetlistService(
 
         var songVariantParams = request.SongVariantParameters;
         SongVariantDo? songVariant;
-        if (songVariantParams.SongVariantId != null)
+        if (songVariantParams.SongVariantId is > 0)
         {
             logger.LogDebug("Checking if song variant exists: {songVariantId}", songVariantParams.SongVariantId);
             songVariant = await songVariantRepository.GetByPrimaryKeyAsync(songVariantParams.SongVariantId ?? 0);
