@@ -5,6 +5,8 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {CreateSetlistRequestDto, ErrorResponseDto} from '../../../modules/lpshows-api';
 import {SetlistsService} from '../../../services/setlists.service';
 import {ToastrService} from 'ngx-toastr';
+import {ConcertsService} from '../../../services/concerts.service';
+import {DateTime} from 'luxon';
 
 @Component({
   selector: 'app-add-setlist-page',
@@ -20,10 +22,13 @@ export class AddSetlistPageComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private concertsService = inject(ConcertsService);
 
   setlistForm = this.formBuilder.group({
     concertId: new FormControl('', [Validators.required]),
-    linkinpediaUrl: new FormControl('', [Validators.pattern(/^https?:\/\/[a-z0-9]+(?:[-.][a-z0-9]+)*(?::[0-9]{1,5})?(?:\/[^\/\r\n]+)*\.[a-z]{2,5}(?:[?#]\S*)?$/)]),
+    concertTitle: new FormControl('', [Validators.min(5)]),
+    setName: new FormControl('', []),
+    linkinpediaUrl: new FormControl('', [Validators.pattern(/^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/)]),
   });
 
   isSaving$: boolean = false;
@@ -32,17 +37,33 @@ export class AddSetlistPageComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.setlistForm.controls.concertId.valueChanges.subscribe(id => {
+      console.debug("Changed concertId", id);
+      if (id != null) {
+        this.concertsService.getConcert(id).subscribe(concert => {
+          let startDate = DateTime.fromISO(concert.postedStartTime!);
+          let year = startDate.year.toString();
+          let month = startDate.month < 10 ? '0' + startDate.month : startDate.month;
+          let day = startDate.day < 10 ? '0' + startDate.day : startDate.day;
+          this.setlistForm.controls.concertTitle.setValue(`${concert.locationShort} - ${year}-${month}-${day}`);
+          this.setlistForm.controls.linkinpediaUrl.setValue(`https://linkinpedia.com/wiki/Live:${year}${month}${day}`);
+        });
+      }
+    });
+
     this.route.params.subscribe(params => {
       let concertId = params['concertId'];
       if (concertId != null && concertId.length > 0) {
-        this.setlistForm.controls.concertId.setValue(params['concertId']);
+        this.setlistForm.controls.concertId.setValue(params['concertId'], { emitEvent: true });
         this.setlistForm.controls.concertId.disable();
       }
-    })
+    });
   }
 
   private makeRequestDtoFromFormData(): CreateSetlistRequestDto {
     let concertId = this.setlistForm.getRawValue().concertId?.valueOf();
+    let concertTitle = this.setlistForm.value.concertTitle?.valueOf();
+    let setName = this.setlistForm.value.setName?.valueOf();
     let linkinpediaUrl = this.setlistForm.value.linkinpediaUrl?.valueOf();
 
     console.log('concertId', concertId);
@@ -50,6 +71,8 @@ export class AddSetlistPageComponent implements OnInit {
 
     let request: CreateSetlistRequestDto = {
       concertId: concertId,
+      concertTitle: concertTitle,
+      setName: setName,
       linkinpediaUrl: linkinpediaUrl,
     };
 

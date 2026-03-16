@@ -22,8 +22,37 @@
         }
       </div>
 
+      <!-- Concert Title -->
+      <div class="form-group mb-3">
+        <label for="concert">Concert Title:</label>
+        <input id="concert" type="text" formControlName="concertTitle" class="form-control"
+               [ngClass]="{ 'is-invalid': setlistForm.controls.concertTitle.invalid }">
+        @if (setlistForm.controls.concertTitle.invalid) {
+          <div class="text-danger">
+            @if (setlistForm.controls.concertTitle.errors) {
+              <small>Title is invalid.</small>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Set Name -->
+      <div class="form-group mb-3">
+        <label for="setName">Set Name:</label>
+        <input id="setName" type="text" formControlName="setName" class="form-control"
+               placeholder="Example: Set A3"
+               [ngClass]="{ 'is-invalid': setlistForm.controls.setName.invalid }">
+        @if (setlistForm.controls.setName.invalid) {
+          <div class="text-danger">
+            @if (setlistForm.controls.setName.errors) {
+              <small>Name is invalid.</small>
+            }
+          </div>
+        }
+      </div>
+
       <!-- Linkinpedia URL -->
-      <div class="form-group">
+      <div class="form-group mb-3">
         <label for="linkinpediaUrl">Linkinpedia URL:</label>
         <div class="input-group mb-3">
           <input id="linkinpediaUrl" type="text" formControlName="linkinpediaUrl" class="form-control"

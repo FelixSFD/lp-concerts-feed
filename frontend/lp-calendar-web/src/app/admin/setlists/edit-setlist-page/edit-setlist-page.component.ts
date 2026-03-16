@@ -46,7 +46,7 @@ export class EditSetlistPageComponent implements OnInit {
     concertId: new FormControl('', [Validators.required]),
     concertTitle: new FormControl('', [Validators.required]),
     setName: new FormControl('', []),
-    linkinpediaUrl: new FormControl('', [Validators.pattern(/^https?:\/\/[a-z0-9]+(?:[-.][a-z0-9]+)*(?::[0-9]{1,5})?(?:\/[^\/\r\n]+)*\.[a-z]{2,5}(?:[?#]\S*)?$/)]),
+    linkinpediaUrl: new FormControl('', [Validators.pattern(/^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/)]),
   });
 
   isSaving$: boolean = false;
