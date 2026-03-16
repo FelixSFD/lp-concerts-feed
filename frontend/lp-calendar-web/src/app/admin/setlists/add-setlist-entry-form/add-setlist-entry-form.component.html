@@ -100,7 +100,7 @@
         <select class="form-select form-control" (change)="onSongVariantSelectionChanged()"
                 formControlName="selectedSongVariantId"
                 [ngClass]="{ 'is-invalid': setlistEntryForm.controls.selectedSongVariantId.invalid }">
-          <option selected>Normal version</option>
+          <option selected value="0">Normal version</option>
           <option disabled>---------------</option>
           <option value="-1">Add new variant</option>
           <option disabled>---------------</option>
