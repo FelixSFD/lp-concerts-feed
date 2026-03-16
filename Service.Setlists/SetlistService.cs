@@ -1,4 +1,5 @@
 using Amazon.Lambda.Core;
+using Common.Utils;
 using Database.Concerts;
 using Database.Setlists.DataObjects;
 using Database.Setlists.Repositories;
@@ -28,8 +29,8 @@ public class SetlistService(
         {
             ConcertId = request.ConcertId,
             ConcertTitle = request.ConcertTitle,
-            SetName = request.SetName,
-            LinkinpediaUrl = request.LinkinpediaUrl
+            SetName = StringUtils.NullIfEmpty(request.SetName),
+            LinkinpediaUrl = StringUtils.NullIfEmpty(request.LinkinpediaUrl)
         };
         
         setlistRepository.Add(setlistDo);
@@ -78,7 +79,7 @@ public class SetlistService(
                 {
                     SetlistId = setlistId,
                     ActNumber = request.Act.ActNumber,
-                    Title = request.Act.Title
+                    Title = StringUtils.NullIfEmpty(request.Act.Title)
                 };
                 
                 actRepository.Add(actDo);
@@ -101,8 +102,8 @@ public class SetlistService(
             PlayedSong = playedSong,
             PlayedSongVariant = playedSongVariant,
             PlayedMashup = playedSongMashup,
-            ExtraNotes = request.EntryParameters.ExtraNotes,
-            TitleOverride = request.EntryParameters.TitleOverride,
+            ExtraNotes = StringUtils.NullIfEmpty(request.EntryParameters.ExtraNotes),
+            TitleOverride = StringUtils.NullIfEmpty(request.EntryParameters.TitleOverride),
             SortNumber = request.EntryParameters.SortNumber,
             IsWorldPremiere = request.EntryParameters.IsWorldPremiere,
             IsPlayedFromRecording = request.EntryParameters.IsPlayedFromRecording,
@@ -151,7 +152,7 @@ public class SetlistService(
             song = new SongDo
             {
                 Title = songParams.SongTitle!,
-                Isrc = songParams.Isrc
+                Isrc = StringUtils.NullIfEmpty(songParams.Isrc)
             };
             
             songRepository.Add(song);
@@ -192,9 +193,9 @@ public class SetlistService(
             songVariant = new SongVariantDo
             {
                 SongId = songVariantParams.SongId ?? 0,
-                VariantName = songVariantParams.VariantName,
-                Description = songVariantParams.Description,
-                IsrcOverride = songVariantParams.IsrcOverride
+                VariantName = StringUtils.NullIfEmpty(songVariantParams.VariantName),
+                Description = StringUtils.NullIfEmpty(songVariantParams.Description),
+                IsrcOverride = StringUtils.NullIfEmpty(songVariantParams.IsrcOverride)
             };
             
             songVariantRepository.Add(songVariant);

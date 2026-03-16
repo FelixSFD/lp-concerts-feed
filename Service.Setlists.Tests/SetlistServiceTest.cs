@@ -198,6 +198,77 @@ public class SetlistServiceTest
     }
     
     [Fact]
+    public async Task AddSongToSetlistAsync_EmptyTitleOverride()
+    {
+        // prepare mocks and test data
+        var setlist1 = new SetlistDo
+        {
+            Id = 1,
+            ConcertId = Guid.NewGuid().ToString(),
+            ConcertTitle = "Setlist 1",
+            LinkinpediaUrl = "https://lplive.net"
+        };
+        
+        var song1 = new SongDo
+        {
+            Id = 1234,
+            Title = "QWERTY",
+            Isrc = "5355646",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
+        };
+
+        var request = new AddSongToSetlistRequestDto
+        {
+            Act = null,
+            EntryParameters = new SetlistEntryParametersDto
+            {
+                SongNumber = 1,
+                SortNumber = 10,
+                TitleOverride = "", // this empty string should be stored as null in the DB!
+                ExtraNotes = "something special",
+                IsPlayedFromRecording = false,
+                IsWorldPremiere = true,
+                IsRotationSong = false
+            },
+            SongParameters = new SongParametersDto
+            {
+                SongId = song1.Id
+            }
+        };
+        
+        _setlistRepository
+            .GetByPrimaryKeyAsync(setlist1.Id)
+            .Returns(setlist1);
+        
+        _songRepository
+            .GetByPrimaryKeyAsync(song1.Id)
+            .Returns(song1);
+        
+        _setlistEntryRepository.Add(Arg.Is<SetlistEntryDo>(entry => entry.SetlistId == setlist1.Id && entry.SongNumber == request.EntryParameters.SongNumber && entry.TitleOverride == null));
+        
+        // call the service
+        await _setlistService.AddSongToSetlistAsync(request, setlist1.Id);
+        
+        // verify mock calls
+        await _setlistRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(setlist1.Id);
+        
+        await _songRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(song1.Id);
+        
+        _setlistEntryRepository
+            .Received(1)
+            .Add(Arg.Is<SetlistEntryDo>(entry => entry.SetlistId == setlist1.Id && entry.SongNumber == request.EntryParameters.SongNumber && entry.TitleOverride == null));
+
+        await _setlistEntryRepository.Received(1).SaveChangesAsync();
+        _songRepository
+            .DidNotReceive()
+            .Add(Arg.Any<SongDo>());
+    }
+    
+    [Fact]
     public async Task AddSongMashupToSetlistAsync_MashupNotFound()
     {
         // prepare mocks and test data

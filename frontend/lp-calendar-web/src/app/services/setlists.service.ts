@@ -52,7 +52,7 @@ export class SetlistsService {
 
     let entryParameters: SetlistEntryParametersDto = {
       songNumber: content.songNumber,
-      sortNumber: content.sortNumber,
+      sortNumber: content.sortNumber ?? content.songNumber,
       titleOverride: content.titleOverride,
       extraNotes: content.extraNotes,
       isPlayedFromRecording: content.wasPlayedFromRecording,
