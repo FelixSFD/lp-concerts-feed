@@ -826,4 +826,80 @@ public class SetlistServiceTest
             .Received(1)
             .GetByConcertIdAsync(concertId);
     }
+    
+    
+    [Fact]
+    public async Task ReorderSetlistEntriesAsync()
+    {
+        var song1 = new SongDo
+        {
+            Id = 1234,
+            Title = "QWERTY",
+            Isrc = "5355646",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
+        };
+        
+        var song2 = new SongDo
+        {
+            Id = 1,
+            Title = "Lost",
+            Isrc = "1",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/Lost"
+        };
+
+        var entry1 = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            SongNumber = 1,
+            SortNumber = 5,
+            PlayedSong = song1,
+            TitleOverride = null,
+            ExtraNotes = "FINALLY!!!",
+            IsPlayedFromRecording = false,
+            IsWorldPremiere = false,
+            IsRotationSong = false
+        };
+        
+        var entry2 = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            SongNumber = 2,
+            SortNumber = 9,
+            PlayedSong = song2,
+            IsPlayedFromRecording = false,
+            IsWorldPremiere = false,
+            IsRotationSong = false
+        };
+        
+        var setlist = new SetlistDo
+        {
+            Id = 1,
+            ConcertId = Guid.NewGuid().ToString(),
+            ConcertTitle = "Setlist 1",
+            SetName = "Set C5",
+            LinkinpediaUrl = "https://lplive.net",
+            Entries = [entry2, entry1]
+        };
+        
+        // define the new order
+        string[] newOrder = [entry1.Id, entry2.Id];
+        
+        // setup mocks
+        _setlistRepository
+            .GetByPrimaryKeyAsync(setlist.Id)
+            .Returns(setlist);
+        
+        // call the service
+        await _setlistService.ReorderSetlistEntriesAsync(setlist.Id, newOrder);
+        
+        // verify mock calls
+        await _setlistRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(setlist.Id);
+        
+        _setlistEntryRepository.Update(Arg.Is<SetlistEntryDo>(e => e.SongNumber == 1 && e.SortNumber == 10));
+        _setlistEntryRepository.Update(Arg.Is<SetlistEntryDo>(e => e.SongNumber == 2 && e.SortNumber == 20));
+        
+        await _setlistEntryRepository.Received(1).SaveChangesAsync();
+    }
 }
