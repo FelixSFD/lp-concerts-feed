@@ -216,6 +216,42 @@ export class EditSetlistPageComponent implements OnInit {
   }
 
 
+  onEntryMoveUpClicked(entryId: string) {
+    let currentIndex = this.setlistEntries$.findIndex(e => e.id === entryId);
+    let newIndex = currentIndex - 1;
+
+    console.debug("Current index: ", currentIndex);
+    console.debug("New index: ", newIndex);
+
+    if (newIndex >= 0) {
+      const updated = [...this.setlistEntries$];
+      [updated[newIndex], updated[currentIndex]] = [updated[currentIndex], updated[newIndex]];
+
+      this.setlistEntries$ = updated;
+    } else {
+      console.warn("Already on top of the list");
+    }
+  }
+
+
+  onEntryMoveDownClicked(entryId: string) {
+    let currentIndex = this.setlistEntries$.findIndex(e => e.id === entryId);
+    let newIndex = currentIndex + 1;
+
+    console.debug("Current index: ", currentIndex);
+    console.debug("New index: ", newIndex);
+
+    if (newIndex < this.setlistEntries$.length) {
+      const updated = [...this.setlistEntries$];
+      [updated[newIndex], updated[currentIndex]] = [updated[currentIndex], updated[newIndex]];
+
+      this.setlistEntries$ = updated;
+    } else {
+      console.warn("Already at the end of the list");
+    }
+  }
+
+
   dismissAddEntryModal() {
     this.addEntryModal?.dismiss();
   }
