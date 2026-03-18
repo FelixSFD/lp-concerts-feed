@@ -836,6 +836,26 @@ components:
           description: The new entry that was added to the setlist
           oneOf:
             - $ref: "#/components/schemas/SetlistEntry"
+    
+    ReorderSetlistEntriesRequest:
+      type: object
+      description: Request to update the order of entries in a setlist. It's important that ALL entries are used here!
+      properties:
+        entryIds:
+          type: array
+          description: The IDs of all entries in that setlist in the preferred order
+          items:
+            type: string
+            
+    ReorderSetlistEntriesResponse:
+      type: object
+      description: Response after a setlist was reordered
+      properties:
+        reorderedEntries:
+          type: array
+          description: The newly ordered entries
+          items:
+            $ref: "#/components/schemas/SetlistEntry"
 
 paths:
   /addConcert:
@@ -1930,6 +1950,47 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/AddSongVariantToSetlistResponse"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /setlists/{setlistId}/reorder:
+    post:
+      operationId: ReorderSetlistEntries
+      summary: Reorders the entries in a setlist
+      description: This always sets the new order for ALL entries in that setlist!
+      tags:
+        - setlists
+      parameters:
+        - in: path
+          name: setlistId
+          description: ID of the setlist
+          required: true
+          schema:
+            type: number
+      requestBody:
+        description: The updated values
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReorderSetlistEntriesRequest"
+      responses:
+        "200":
+          description: The reordered entries
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReorderSetlistEntriesRequest"
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:

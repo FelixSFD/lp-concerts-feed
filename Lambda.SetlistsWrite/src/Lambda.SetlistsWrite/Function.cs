@@ -135,6 +135,11 @@ public class Function
             return await HandleUpdateSetlistHeader(setlistId ?? 0, request.Body, context);
         }
         
+        if (request is { HttpMethod: "POST", Resource: "/setlists/{setlistId}/reorder" } && hasSetlistIdPathParameter)
+        {
+            return await HandleReorderEntries(setlistId ?? 0, request.Body, context);
+        }
+        
         if (request is { HttpMethod: "DELETE", Resource: "/setlists/{setlistId}" } && hasSetlistIdPathParameter)
         {
             return await HandleDeleteSetlist(setlistId ?? 0, context);
@@ -327,6 +332,64 @@ public class Function
             return new APIGatewayProxyResponse()
             {
                 StatusCode = (int)HttpStatusCode.NoContent,
+                Headers = new Dictionary<string, string>
+                {
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, POST" }
+                }
+            };
+        }
+        catch (SetlistNotFoundException e)
+        {
+            return HandleNotFoundException(e.Message, "OPTIONS, POST", context.Logger);
+        }
+    }
+    
+    private async Task<APIGatewayProxyResponse> HandleReorderEntries(uint setlistId, string requestJson,
+        ILambdaContext context)
+    {
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.ReorderSetlistEntriesRequestDto);
+        if (dto != null)
+            return await HandleReorderEntries(setlistId, dto, context);
+        
+        var badRequestResponse = new ErrorResponse
+        {
+            Message = "Failed to deserialize the request body"
+        };
+            
+        context.Logger.LogError(badRequestResponse.Message);
+            
+        return new APIGatewayProxyResponse
+        {
+            StatusCode = (int)HttpStatusCode.BadRequest,
+            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
+            Headers = new Dictionary<string, string>
+            {
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, POST" }
+            }
+        };
+    }
+    
+    /// <summary>
+    /// Reorderes all entries of a setlist
+    /// </summary>
+    /// <param name="setlistId">ID of the setlist to reorder</param>
+    /// <param name="request"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    private async Task<APIGatewayProxyResponse> HandleReorderEntries(uint setlistId, ReorderSetlistEntriesRequestDto request,
+        ILambdaContext context)
+    {
+        try
+        {
+            await _setlistService.ReorderSetlistEntriesAsync(setlistId, request.EntryIds);
+            context.Logger.LogDebug("Successfully reordered setlist with ID: {id}", setlistId);
+
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.OK,
+                Body = JsonSerializer.Serialize(request, SetlistDtoJsonContext.Default.ReorderSetlistEntriesResponseDto),
                 Headers = new Dictionary<string, string>
                 {
                     { "Access-Control-Allow-Origin", "*" },
