@@ -890,7 +890,15 @@ public class SetlistServiceTest
             .Returns(setlist);
         
         // call the service
-        await _setlistService.ReorderSetlistEntriesAsync(setlist.Id, newOrder);
+        var ordered = await _setlistService.ReorderSetlistEntriesAsync(setlist.Id, newOrder);
+        Assert.Equal(2, ordered.Count);
+        Assert.Equal(entry2.Id, ordered[0].Id);
+        Assert.Equal(entry2.SortNumber, ordered[0].SortNumber);
+        Assert.Equal(entry2.SongNumber, ordered[0].SongNumber);
+        
+        Assert.Equal(entry1.Id, ordered[1].Id);
+        Assert.Equal(entry1.SortNumber, ordered[1].SortNumber);
+        Assert.Equal(entry1.SongNumber, ordered[1].SongNumber);
         
         // verify mock calls
         await _setlistRepository

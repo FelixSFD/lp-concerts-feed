@@ -363,31 +363,37 @@ public class SetlistService(
     /// </summary>
     /// <param name="setlistId">ID of the setlist</param>
     /// <param name="orderedEntryIds">new order of all entries. ALL entries must be passed here!</param>
+    /// <returns>the newly ordered (and saved) entries</returns>
     /// <exception cref="SetlistNotFoundException">If the setlist <paramref name="setlistId"/> does not exist</exception>
     /// <exception cref="InvalidEntryOrderException">If the new order could not be applied</exception>
-    public async Task ReorderSetlistEntriesAsync(uint setlistId, string[] orderedEntryIds)
+    public async Task<List<SetlistEntryDo>> ReorderSetlistEntriesAsync(uint setlistId, string[] orderedEntryIds)
     {
         logger.LogDebug("Load setlist: {setlistId}", setlistId);
         var setlist = await setlistRepository.GetByPrimaryKeyAsync(setlistId) ?? throw new SetlistNotFoundException(setlistId);
-        var entries = setlist.Entries.ToArray();
-        if (entries.Length != orderedEntryIds.Length)
+        var entries = setlist.Entries.ToList();
+        if (entries.Count != orderedEntryIds.Length)
         {
             logger.LogError("Could not reorder entries, because the number of given IDs did not match the number of entries.");
             throw new InvalidEntryOrderException("Number of ID does not match the number of entries.");
         }
         
-        logger.LogDebug("Reorder {count} entries...", entries.Length);
+        logger.LogDebug("Reorder {count} entries...", entries.Count);
 
-        for (var i = 0u; i < entries.Length; i++)
+        for (var i = 0u; i < entries.Count; i++)
         {
-            var entry = entries[i];
+            var entry = entries[(int)i];
             var oldSortNumber = entry.SortNumber;
             entry.SortNumber = (i + 1) * 10;
             logger.LogDebug("Apply new position for entry with ID '{entryId}'. From {old} to {new}", entry.Id, oldSortNumber, entry.SortNumber);
             setlistEntryRepository.Update(entry);
         }
         
-        logger.LogDebug("Reordered {count} entries!", entries.Length);
+        logger.LogDebug("Reordered {count} entries!", entries.Count);
         await setlistEntryRepository.SaveChangesAsync();
+
+        return entries
+            .OrderBy(entry => entry.SortNumber)
+            .ThenBy(entry => entry.SongNumber)
+            .ToList();
     }
 }
