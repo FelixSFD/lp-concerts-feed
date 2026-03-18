@@ -43,7 +43,7 @@ public class SqlSetlistRepositoryTest : DbIntegrationTestsBase
     
     
     [Fact]
-    public async Task GetByIdAsync()
+    public async Task GetByIdAsync_HeaderOnly()
     {
         var repo = new SqlSetlistRepository(DbContext);
 
@@ -75,6 +75,136 @@ public class SqlSetlistRepositoryTest : DbIntegrationTestsBase
         
         retrievedSetlist = await repo.GetByPrimaryKeyAsync(setlist.Id);
         Assert.Null(retrievedSetlist);
+    }
+    
+    
+    [Fact]
+    public async Task GetByIdAsync_WithEntries()
+    {
+        var repo = new SqlSetlistRepository(DbContext);
+        var entriesRepo = new SqlSetlistEntryRepository(DbContext);
+
+        var setlist = new SetlistDo
+        {
+            ConcertId = Guid.NewGuid().ToString(),
+            ConcertTitle = "Setlist 1",
+            SetName = "Set A2",
+            LinkinpediaUrl = "https://lplive.net"
+        };
+        
+        repo.Add(setlist);
+
+        await repo.SaveChangesAsync();
+        
+        var song1 = new SongDo
+        {
+            Title = "QWERTY",
+            Isrc = "5355646",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
+        };
+        var song2 = new SongDo
+        {
+            Title = "Lost",
+            Isrc = "1234",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/Lost"
+        };
+        var song2Piano = new SongVariantDo
+        {
+            Song = song2,
+            SongId = song2.Id,
+            VariantName = "Piano Version",
+            Description = "just beautiful",
+            IsrcOverride = null
+        };
+        
+        var entryCustomTitle = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            Setlist = setlist,
+            ExtraNotes = "Notes for this entry",
+            TitleOverride = "Custom title",
+            SongNumber = 1,
+            PlayedSong = song1,
+            IsWorldPremiere = false,
+            IsPlayedFromRecording = false,
+            IsRotationSong = true
+        };
+        entriesRepo.Add(entryCustomTitle);
+        
+        var entrySong = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            Setlist = setlist,
+            ExtraNotes = "entry with default song title",
+            SongNumber = 2,
+            PlayedSong = song2,
+            IsWorldPremiere = false,
+            IsPlayedFromRecording = false,
+            IsRotationSong = true
+        };
+        entriesRepo.Add(entrySong);
+        
+        var entrySongPiano = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            Setlist = setlist,
+            ExtraNotes = "entry with default song variant name",
+            SongNumber = 3,
+            PlayedSongVariant = song2Piano,
+            IsWorldPremiere = false,
+            IsPlayedFromRecording = false,
+            IsRotationSong = true
+        };
+        entriesRepo.Add(entrySongPiano);
+
+        await repo.SaveChangesAsync();
+        
+        // retrieve the setlist and validate the result
+        var retrievedSetlist = await repo.GetByPrimaryKeyAsync(setlist.Id);
+        Assert.NotNull(retrievedSetlist);
+        Assert.Equal(setlist.Id, retrievedSetlist.Id);
+        Assert.Equal(setlist.ConcertId, retrievedSetlist.ConcertId);
+        Assert.Equal(setlist.LinkinpediaUrl, retrievedSetlist.LinkinpediaUrl);
+        Assert.Equal(setlist.ConcertTitle, retrievedSetlist.ConcertTitle);
+        Assert.Equal(setlist.SetName, retrievedSetlist.SetName);
+        
+        Assert.NotNull(retrievedSetlist.Entries);
+        var entriesList = retrievedSetlist.Entries
+            .OrderBy(e => e.SortNumber)
+            .ThenBy(e => e.SongNumber)
+            .ToList();
+        Assert.Equal(3, entriesList.Count);
+        AssertSetlistEntry(entryCustomTitle, entriesList[0]);
+        AssertSetlistEntry(entrySong, entriesList[1]);
+        AssertSetlistEntry(entrySongPiano, entriesList[2]);
+        
+        // clean up
+        repo.Delete(retrievedSetlist);
+        
+        await repo.SaveChangesAsync();
+        
+        retrievedSetlist = await repo.GetByPrimaryKeyAsync(setlist.Id);
+        Assert.Null(retrievedSetlist);
+    }
+
+
+    private static void AssertSetlistEntry(SetlistEntryDo expected, SetlistEntryDo actual)
+    {
+        Assert.Equal(expected.Id, actual.Id);
+        Assert.Equal(expected.PlayedSong?.Title, actual.PlayedSong?.Title);
+        Assert.Equal(expected.PlayedSong?.LinkinpediaUrl, actual.PlayedSong?.LinkinpediaUrl);
+        Assert.Equal(expected.PlayedSong?.Isrc, actual.PlayedSong?.Isrc);
+        Assert.Equal(expected.ExtraNotes, actual.ExtraNotes);
+        Assert.Equal(expected.TitleOverride, actual.TitleOverride);
+        Assert.Equal(expected.SongNumber, actual.SongNumber);
+        Assert.Equal(expected.IsWorldPremiere, actual.IsWorldPremiere);
+        Assert.Equal(expected.IsPlayedFromRecording, actual.IsPlayedFromRecording);
+        Assert.Equal(expected.IsRotationSong, actual.IsRotationSong);
+        
+        Assert.Equal(expected.PlayedSongVariant?.Song.Id, actual.PlayedSongVariant?.Song.Id);
+        Assert.Equal(expected.PlayedSongVariant?.VariantName, actual.PlayedSongVariant?.VariantName);
+        Assert.Equal(expected.PlayedSongVariant?.Description, actual.PlayedSongVariant?.Description);
+        Assert.Equal(expected.PlayedSongVariant?.IsrcOverride, actual.PlayedSongVariant?.IsrcOverride);
     }
 
 
