@@ -278,20 +278,23 @@ public class SetlistService(
         logger.LogDebug("Retrieve the setlists for concert: {concertId}", concertId);
         return await setlistRepository
             .GetByConcertIdAsync(concertId)
-            .Select(sl =>
-            {
-                foreach (var setlistEntryDo in sl.Entries)
-                {
-                    logger.LogDebug("Act: {actNumber}", setlistEntryDo.Act?.ActNumber);
-                    logger.LogDebug("Entry with Song ID: {id} (Title: {title})", setlistEntryDo.PlayedSong?.Id, setlistEntryDo.PlayedSong?.Title);
-                    logger.LogDebug("Entry with Song variant ID: {id} (Title: {title}; Variant: {variantName})", setlistEntryDo.PlayedSongVariant?.Id, setlistEntryDo.PlayedSongVariant?.Song.Title, setlistEntryDo.PlayedSongVariant?.VariantName);
-                    logger.LogDebug("Entry with Song mashup ID: {id}(Title: {title})", setlistEntryDo.PlayedMashup?.Id, setlistEntryDo.PlayedMashup?.Title);
-                }
-
-                return sl;
-            })
+            .Select(DebugSetlistEntries)
             .Select(DtoMapper.ToDto)
             .ToListAsync();
+    }
+
+    private SetlistDo DebugSetlistEntries(SetlistDo sl)
+    {
+        logger.LogDebug("DEBUG the setlist entries for setlist: {setlistId}", sl.Id);
+        foreach (var setlistEntryDo in sl.Entries)
+        {
+            logger.LogDebug("Act: {actNumber}", setlistEntryDo.Act?.ActNumber);
+            logger.LogDebug("Entry with Song ID: {id} (Title: {title})", setlistEntryDo.PlayedSong?.Id, setlistEntryDo.PlayedSong?.Title);
+            logger.LogDebug("Entry with Song variant ID: {id} (Title: {title}; Variant: {variantName})", setlistEntryDo.PlayedSongVariant?.Id, setlistEntryDo.PlayedSongVariant?.Song.Title, setlistEntryDo.PlayedSongVariant?.VariantName);
+            logger.LogDebug("Entry with Song mashup ID: {id}(Title: {title})", setlistEntryDo.PlayedMashup?.Id, setlistEntryDo.PlayedMashup?.Title);
+        }
+
+        return sl;
     }
 
 
