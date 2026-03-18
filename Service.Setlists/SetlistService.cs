@@ -370,7 +370,11 @@ public class SetlistService(
     {
         logger.LogDebug("Load setlist: {setlistId}", setlistId);
         var setlist = await setlistRepository.GetByPrimaryKeyAsync(setlistId) ?? throw new SetlistNotFoundException(setlistId);
-        var entries = setlist.Entries.ToList();
+        var entries = setlist
+            .Entries
+            .OrderBy(e => e.SortNumber)
+            .ThenBy(e => e.SongNumber)
+            .ToList();
         if (entries.Count != orderedEntryIds.Length)
         {
             logger.LogError("Could not reorder entries, because the number of given IDs did not match the number of entries.");
@@ -379,9 +383,10 @@ public class SetlistService(
         
         logger.LogDebug("Reorder {count} entries...", entries.Count);
 
-        for (var i = 0u; i < entries.Count; i++)
+        for (var i = 0u; i < orderedEntryIds.Length; i++)
         {
-            var entry = entries[(int)i];
+            var entryId = orderedEntryIds[i];
+            var entry = entries.Find(e => e.Id == entryId) ?? throw new InvalidEntryOrderException($"The setlist entry with ID '{entryId}' did not exist.");
             var oldSortNumber = entry.SortNumber;
             entry.SortNumber = (i + 1) * 10;
             logger.LogDebug("Apply new position for entry with ID '{entryId}'. From {old} to {new}", entry.Id, oldSortNumber, entry.SortNumber);

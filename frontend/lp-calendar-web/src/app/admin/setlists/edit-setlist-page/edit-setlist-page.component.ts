@@ -2,7 +2,7 @@ import {Component, contentChild, inject, OnInit, TemplateRef, viewChild} from '@
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {
   CreateSetlistRequestDto,
-  ErrorResponseDto,
+  ErrorResponseDto, ReorderSetlistEntriesRequestDto,
   SetlistDto,
   UpdateSetlistHeaderRequestDto
 } from '../../../modules/lpshows-api';
@@ -52,6 +52,8 @@ export class EditSetlistPageComponent implements OnInit {
   isSaving$: boolean = false;
 
   isAddingEntry$: boolean = false;
+
+  isPendingReorder$: boolean = false;
 
   // if open, the modal is referenced here
   addEntryModal: NgbModalRef | undefined;
@@ -228,6 +230,7 @@ export class EditSetlistPageComponent implements OnInit {
       [updated[newIndex], updated[currentIndex]] = [updated[currentIndex], updated[newIndex]];
 
       this.setlistEntries$ = updated;
+      this.isPendingReorder$ = true;
     } else {
       console.warn("Already on top of the list");
     }
@@ -246,9 +249,30 @@ export class EditSetlistPageComponent implements OnInit {
       [updated[newIndex], updated[currentIndex]] = [updated[currentIndex], updated[newIndex]];
 
       this.setlistEntries$ = updated;
+      this.isPendingReorder$ = true;
     } else {
       console.warn("Already at the end of the list");
     }
+  }
+
+
+  onSaveOrderClicked() {
+    console.debug("Save new order...");
+    this.isSaving$ = true;
+
+    this.setlistService.applyNewEntryOrder(this.currentSetlistId, this.setlistEntries$.map(e => e.id))
+      .subscribe({
+        next: () => {
+          this.toastr.success("Setlist was reordered successfully");
+          this.isPendingReorder$ = false;
+          this.isSaving$ = false;
+        },
+        error: err => {
+          let errorResponse: ErrorResponseDto = err.error;
+          this.toastr.error(errorResponse.message, "Could not reorder setlist");
+          this.isSaving$ = false;
+        }
+      })
   }
 
 

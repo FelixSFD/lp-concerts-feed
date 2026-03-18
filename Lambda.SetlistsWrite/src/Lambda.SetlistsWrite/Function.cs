@@ -383,13 +383,17 @@ public class Function
     {
         try
         {
-            await _setlistService.ReorderSetlistEntriesAsync(setlistId, request.EntryIds);
+            var reorderedEntries = await _setlistService.ReorderSetlistEntriesAsync(setlistId, request.EntryIds);
             context.Logger.LogDebug("Successfully reordered setlist with ID: {id}", setlistId);
+            var response = new ReorderSetlistEntriesResponseDto
+            {
+                ReorderedEntries = reorderedEntries.Select(DtoMapper.ToDto).ToList()
+            };
 
             return new APIGatewayProxyResponse
             {
                 StatusCode = (int)HttpStatusCode.OK,
-                Body = JsonSerializer.Serialize(request, SetlistDtoJsonContext.Default.ReorderSetlistEntriesResponseDto),
+                Body = JsonSerializer.Serialize(response, SetlistDtoJsonContext.Default.ReorderSetlistEntriesResponseDto),
                 Headers = new Dictionary<string, string>
                 {
                     { "Access-Control-Allow-Origin", "*" },

@@ -1990,7 +1990,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ReorderSetlistEntriesRequest"
+                $ref: "#/components/schemas/ReorderSetlistEntriesResponse"
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:

@@ -91,7 +91,11 @@
   <div class="card mt-5">
     <div class="card-header">
       Entries
-      <button class="btn btn-sm btn-primary" (click)="onAddEntryClicked(addEntryContent)">Add</button>
+      <button class="btn btn-sm btn-primary" (click)="onAddEntryClicked(addEntryContent)" [disabled]="isSaving$">Add</button>
+
+      @if (isPendingReorder$) {
+        <button class="btn btn-sm btn-success" (click)="onSaveOrderClicked()" [disabled]="isSaving$">Save order</button>
+      }
     </div>
     <div class="card-body edit-form-card">
       <table class="table">
@@ -109,8 +113,8 @@
             <tr>
               <td>
                 <div class="btn-group btn-group-sm">
-                  <button class="btn btn-sm btn-outline-secondary" (click)="onEntryMoveUpClicked(entry.id)"><i class="bi bi-arrow-up"></i></button>
-                  <button class="btn btn-sm btn-outline-secondary" (click)="onEntryMoveDownClicked(entry.id)"><i class="bi bi-arrow-down"></i></button>
+                  <button class="btn btn-sm btn-outline-secondary" (click)="onEntryMoveUpClicked(entry.id)" [disabled]="isSaving$"><i class="bi bi-arrow-up"></i></button>
+                  <button class="btn btn-sm btn-outline-secondary" (click)="onEntryMoveDownClicked(entry.id)" [disabled]="isSaving$"><i class="bi bi-arrow-down"></i></button>
                 </div>
               </td>
               <td>{{ entry.songNumber }}</td>

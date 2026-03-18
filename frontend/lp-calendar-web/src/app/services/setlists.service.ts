@@ -6,11 +6,12 @@ import {
   CreateSetlistResponseDto, SetlistDto,
   SetlistsService as SetlistsApiClient,
   ConcertsService as ConcertsApiClient, UpdateSetlistHeaderRequestDto, AddSongToSetlistRequestDto,
-  SetlistEntryParametersDto, AddSongVariantToSetlistRequestDto,
+  SetlistEntryParametersDto, AddSongVariantToSetlistRequestDto, SetlistEntryDto,
 } from '../modules/lpshows-api';
-import {Observable} from 'rxjs';
+import {map, Observable} from 'rxjs';
 import {Guid} from 'guid-typescript';
 import {AddSetlistEntryFormContent} from '../admin/setlists/add-setlist-entry-form/add-setlist-entry-form.component';
+import {SetlistEntry} from '../data/setlists/setlist-entry';
 
 @Injectable({
   providedIn: 'root',
@@ -118,5 +119,17 @@ export class SetlistsService {
     } else {
       return this.setlistsApiClient.getSetlists(Guid.create().toString(), "body", false);
     }
+  }
+
+
+  /**
+   * Applies a new order for the entries of a setlist
+   * @param setlistId ID of the setlist
+   * @param orderedEntryIds IDs of all entries in the new order
+   */
+  public applyNewEntryOrder(setlistId: number, orderedEntryIds: string[]) : Observable<SetlistEntryDto[]> {
+    return this.setlistsApiClient.reorderSetlistEntries(setlistId, { entryIds: orderedEntryIds }).pipe(
+      map(response => response.reorderedEntries ?? [])
+    );
   }
 }
