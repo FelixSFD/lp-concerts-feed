@@ -167,6 +167,7 @@ public static class DtoMapper
             PlayedSongMashup = ToDtoNullable(setlistEntryDo.PlayedMashup),
             Title = setlistEntryDo.TitleOverride ?? GetEntryTitleForSongVariant(setlistEntryDo.PlayedSongVariant?.Song, setlistEntryDo.PlayedSongVariant) ?? setlistEntryDo.PlayedSong?.Title ?? setlistEntryDo.PlayedMashup?.Title ?? "unknown",
             ExtraNotes = setlistEntryDo.ExtraNotes,
+            LinkinpediaUrl = setlistEntryDo.PlayedSong?.LinkinpediaUrl ?? setlistEntryDo.PlayedSongVariant?.Song.LinkinpediaUrl ?? setlistEntryDo.PlayedMashup?.LinkinpediaUrl,
             IsPlayedFromRecording = setlistEntryDo.IsPlayedFromRecording,
             IsRotationSong = setlistEntryDo.IsRotationSong,
             IsWorldPremiere = setlistEntryDo.IsWorldPremiere

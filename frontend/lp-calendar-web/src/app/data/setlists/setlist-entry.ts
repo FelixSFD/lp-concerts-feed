@@ -5,6 +5,7 @@ export class SetlistEntry {
   songNumber!: number;
   title!: string;
   extraNotes!: string | null;
+  linkinpediaUrl!: string | null;
 
 
   static fromDto(dto: SetlistEntryDto): SetlistEntry {
@@ -13,7 +14,8 @@ export class SetlistEntry {
       id: dto.id!,
       songNumber: dto.songNumber ?? 0,
       title: title ?? dto.playedSong?.title ?? dto.playedSongVariant?.variantName ?? "",
-      extraNotes: dto.extraNotes ?? null
+      extraNotes: dto.extraNotes ?? null,
+      linkinpediaUrl: dto.linkinpediaUrl ?? null,
     };
 
     // TODO: Mashups

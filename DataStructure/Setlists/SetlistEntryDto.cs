@@ -65,6 +65,12 @@ public class SetlistEntryDto
     public string? ExtraNotes { get; set; }
     
     /// <summary>
+    /// URL to a page in Linkinpedia about the song/variant/mashup
+    /// </summary>
+    [JsonPropertyName("linkinpediaUrl")]
+    public string? LinkinpediaUrl { get; set; }
+    
+    /// <summary>
     /// true if this slot is known to rotate between shows on the same tour.
     /// </summary>
     [JsonPropertyName("isRotationSong")]

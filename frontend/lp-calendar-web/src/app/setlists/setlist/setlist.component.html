@@ -23,14 +23,22 @@
             @for (entry of structuredEntry.entries; track entry) {
               <tr>
                 <td>&nbsp;&nbsp;{{ entry.songNumber == 0 ? "" : entry.songNumber }}</td>
-                <td>&nbsp;&nbsp;{{ entry.title }}</td>
+                @if ("linkinpediaUrl" in entry && entry.linkinpediaUrl) {
+                  <td>&nbsp;&nbsp;<a [href]="entry.linkinpediaUrl" target="_blank" class="link-info">{{ entry.title }}</a></td>
+                } @else {
+                  <td>&nbsp;&nbsp;{{ entry.title }}</td>
+                }
                 <td style="font-style: italic">&nbsp;&nbsp;{{ entry.extraNotes }}</td>
               </tr>
             }
           } @else {
             <tr>
-              <td>{{ structuredEntry.songNumber == 0 ? "" : structuredEntry.songNumber }}</td>
-              <td>{{ structuredEntry.title }}</td>
+              <td>{{ structuredEntry.songNumber == 0 ? "" : structuredEntry.songNumber }}.</td>
+              @if (structuredEntry.linkinpediaUrl) {
+                <td><a [href]="structuredEntry.linkinpediaUrl" target="_blank" class="link-info">{{ structuredEntry.title }}</a></td>
+              } @else {
+                <td>{{ structuredEntry.title }}</td>
+              }
               <td style="font-style: italic">{{ structuredEntry.extraNotes }}</td>
             </tr>
           }

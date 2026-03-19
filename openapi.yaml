@@ -502,6 +502,10 @@ components:
           description: Field to store additional notes about this entry
           nullable: true
           maxLength: 127
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia. This value is stored either in the song or the mashup
+          nullable: true
         isRotationSong:
           type: boolean
           description: true if this slot is known to rotate between shows on the same tour.
