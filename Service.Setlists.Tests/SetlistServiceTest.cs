@@ -829,6 +829,137 @@ public class SetlistServiceTest
     
     
     [Fact]
+    public async Task GetActsWithinSetlistAsync()
+    {
+        var song1 = new SongDo
+        {
+            Id = 1234,
+            Title = "QWERTY",
+            Isrc = "5355646",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
+        };
+        
+        var song2 = new SongDo
+        {
+            Id = 1,
+            Title = "Lost",
+            Isrc = "1",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/Lost"
+        };
+        
+        var song3 = new SongDo
+        {
+            Id = 1,
+            Title = "Bleed It Out",
+            Isrc = "1234123"
+        };
+        
+        var act1 = new SetlistActDo
+        {
+            ActNumber = 1,
+            Title = "Inception Intro A",
+        };
+        
+        var act2 = new SetlistActDo
+        {
+            ActNumber = 2,
+            Title = "Encore",
+        };
+        
+        var entry0PreShowSong = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            SongNumber = 0,
+            SortNumber = 10,
+            PlayedSong = null,
+            TitleOverride = "Some pre-show song",
+            ExtraNotes = "played during countdown",
+            IsPlayedFromRecording = true,
+            IsWorldPremiere = false,
+            IsRotationSong = false
+        };
+
+        var entry1 = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            ActNumber = act1.ActNumber,
+            Act = act1,
+            SongNumber = 1,
+            SortNumber = 10,
+            PlayedSong = song1,
+            TitleOverride = null,
+            ExtraNotes = "FINALLY!!!",
+            IsPlayedFromRecording = false,
+            IsWorldPremiere = false,
+            IsRotationSong = false
+        };
+        
+        var entry2 = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            ActNumber = act1.ActNumber,
+            Act = act1,
+            SongNumber = 2,
+            SortNumber = 20,
+            PlayedSong = song2,
+            IsPlayedFromRecording = false,
+            IsWorldPremiere = false,
+            IsRotationSong = false
+        };
+        
+        var entry3 = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            ActNumber = act2.ActNumber,
+            Act = act2,
+            SongNumber = 3,
+            SortNumber = 30,
+            PlayedSong = song3,
+            IsPlayedFromRecording = false,
+            IsWorldPremiere = false,
+            IsRotationSong = false
+        };
+        
+        var setlist = new SetlistDo
+        {
+            Id = 1,
+            ConcertId = Guid.NewGuid().ToString(),
+            ConcertTitle = "Setlist 1",
+            LinkinpediaUrl = "https://lplive.net",
+            Entries = [entry0PreShowSong, entry2, entry1, entry3]
+        };
+        
+        // setup mocks
+        _setlistRepository
+            .GetByPrimaryKeyAsync(setlist.Id)
+            .Returns(setlist);
+        
+        // call the service
+        var results = _setlistService.GetActsWithinSetlistAsync(setlist.Id);
+        
+        // check if acts are returned
+        var foundActs = await results.ToListAsync();
+        Assert.NotNull(foundActs);
+        Assert.Equal(2, foundActs.Count);
+        
+        var foundAct1 = foundActs[0];
+        Assert.NotNull(foundAct1);
+        Assert.Equal(act1.ActNumber, foundAct1.ActNumber);
+        Assert.Equal(act1.Title, foundAct1.Title);
+        
+        var foundAct2 = foundActs[1];
+        Assert.NotNull(foundAct2);
+        Assert.Equal(act2.ActNumber, foundAct2.ActNumber);
+        Assert.Equal(act2.Title, foundAct2.Title);
+        
+        // verify mock calls
+        await _setlistRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(setlist.Id);
+    }
+    
+    
+    [Fact]
     public async Task ReorderSetlistEntriesAsync()
     {
         var song1 = new SongDo

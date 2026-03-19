@@ -235,6 +235,34 @@ public class SetlistService(
         logger.LogDebug("Found the mashup. Will add it to the setlist now...");
         return await AddToSetlist(request, setlistId, null, null, songMashup);
     }
+
+
+    /// <summary>
+    /// Returns all acts within a setlist
+    /// </summary>
+    /// <param name="setlistId">ID of the setlist</param>
+    /// <returns></returns>
+    /// <exception cref="SetlistNotFoundException">if the setlist does not exist</exception>
+    public async IAsyncEnumerable<SetlistActDto> GetActsWithinSetlistAsync(uint setlistId)
+    {
+        var setlist = await setlistRepository.GetByPrimaryKeyAsync(setlistId) ?? throw new SetlistNotFoundException(setlistId);
+        logger.LogDebug("Found setlist.");
+        
+        var acts = setlist
+            .Entries
+            .GroupBy(e => e.Act)
+            .Select(g => g.Key)
+            .Where(act => act != null)
+            .Cast<SetlistActDo>()
+            .Select(DtoMapper.ToDto);
+
+        logger.LogDebug("Start returning the acts...");
+        foreach (var act in acts)
+        {
+            yield return act;
+        }
+        logger.LogDebug("Finished returning the acts.");
+    }
     
     
     /// <summary>

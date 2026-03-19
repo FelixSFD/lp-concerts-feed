@@ -6,7 +6,7 @@ import {
   CreateSetlistResponseDto, SetlistDto,
   SetlistsService as SetlistsApiClient,
   ConcertsService as ConcertsApiClient, UpdateSetlistHeaderRequestDto, AddSongToSetlistRequestDto,
-  SetlistEntryParametersDto, AddSongVariantToSetlistRequestDto, SetlistEntryDto,
+  SetlistEntryParametersDto, AddSongVariantToSetlistRequestDto, SetlistEntryDto, ActParametersDto,
 } from '../modules/lpshows-api';
 import {map, Observable} from 'rxjs';
 import {Guid} from 'guid-typescript';
@@ -61,6 +61,12 @@ export class SetlistsService {
       isWorldPremiere: content.wasWorldPremiere
     };
 
+    let actParameters: ActParametersDto = {
+      setlistId: Number(setlistId),
+      actNumber: content.actNumber ?? 0,
+      title: content.actTitle ?? null,
+    };
+
     let songId = content.selectedSongId == -1 ? 0 : Number(content.selectedSongId);
 
     if (entryType == AddSetlistEntryFormContent.entryTypeSong) {
@@ -71,7 +77,7 @@ export class SetlistsService {
           songTitle: content.songTitle,
           isrc: content.songIsrc
         },
-        actParameters: null // TODO: implement acts
+        actParameters: actParameters
       };
 
       return this.setlistsApiClient.addSongToSetlist(setlistId, addSongRequest);
@@ -85,7 +91,7 @@ export class SetlistsService {
           variantName: content.songVariantName,
           description: content.songVariantDescription,
         },
-        actParameters: null // TODO: implement acts
+        actParameters: actParameters
       };
 
       return this.setlistsApiClient.addSongVariantToSetlist(setlistId, addSongVariantRequest);

@@ -3,6 +3,7 @@ import {SetlistEntryDto} from '../../modules/lpshows-api';
 export class SetlistEntry {
   id!: string;
   songNumber!: number;
+  actNumber!: number | null;
   title!: string;
   extraNotes!: string | null;
   linkinpediaUrl!: string | null;
@@ -13,6 +14,7 @@ export class SetlistEntry {
     let entry: SetlistEntry = {
       id: dto.id!,
       songNumber: dto.songNumber ?? 0,
+      actNumber: dto.actNumber ?? null,
       title: title ?? dto.playedSong?.title ?? dto.playedSongVariant?.variantName ?? "",
       extraNotes: dto.extraNotes ?? null,
       linkinpediaUrl: dto.linkinpediaUrl ?? null,

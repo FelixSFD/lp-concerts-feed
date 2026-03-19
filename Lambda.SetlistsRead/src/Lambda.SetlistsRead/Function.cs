@@ -79,6 +79,12 @@ public class Function
             return await HandleGetSetlist(setlistId ?? 0, context);
         }
         
+        if (request is { HttpMethod: "GET", Resource: "/setlists/{setlistId}/acts" } && hasSetlistIdPathParameter)
+        {
+            context.Logger.LogInformation("Reading the acts of a setlist...");
+            return await HandleGetActsInSetlist(setlistId ?? 0, context);
+        }
+        
         if (request is { HttpMethod: "GET", Resource: "/setlists" })
         {
             context.Logger.LogInformation("Reading all setlists...");
@@ -357,5 +363,28 @@ public class Function
                 { "Access-Control-Allow-Methods", "OPTIONS, GET" }
             }
         };
+    }
+    
+    
+    private async Task<APIGatewayProxyResponse> HandleGetActsInSetlist(uint setlistId, ILambdaContext context)
+    {
+        try
+        {
+            var setlistActs = await _setlistService.GetActsWithinSetlistAsync(setlistId).ToListAsync(context.GetCancellationToken());
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.OK,
+                Body = JsonSerializer.Serialize(setlistActs, SetlistDtoJsonContext.Default.ListSetlistActDto),
+                Headers = new Dictionary<string, string>
+                {
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                }
+            };
+        }
+        catch (SetlistNotFoundException e)
+        {
+            return HandleNotFoundException(e.Message, "OPTIONS, GET", context.Logger);
+        }
     }
 }

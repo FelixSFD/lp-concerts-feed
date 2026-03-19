@@ -1,7 +1,7 @@
 import {Component, EventEmitter, inject, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from "@angular/forms";
 import {SongsService} from '../../../services/songs.service';
-import {ConcertDto, ErrorResponseDto, SongDto, SongVariantDto} from '../../../modules/lpshows-api';
+import {ConcertDto, ErrorResponseDto, SetlistActDto, SongDto, SongVariantDto} from '../../../modules/lpshows-api';
 import {ToastrService} from 'ngx-toastr';
 import {NgClass} from '@angular/common';
 
@@ -25,6 +25,9 @@ export class AddSetlistEntryFormComponent implements OnInit {
     songNumber: new FormControl(0, [Validators.max(99)]),
     titleOverride: new FormControl('', [Validators.maxLength(31)]),
     extraNotes: new FormControl('', [Validators.maxLength(127)]),
+    selectedActNumber: new FormControl(0, []),
+    actNumber: new FormControl('', []),
+    actTitle: new FormControl('', [Validators.maxLength(31)]),
     selectedSongId: new FormControl(0, []),
     songTitle: new FormControl('', [Validators.maxLength(31)]),
     songIsrc: new FormControl('', []),
@@ -39,9 +42,11 @@ export class AddSetlistEntryFormComponent implements OnInit {
   selectedEntryType$: string = AddSetlistEntryFormContent.entryTypeSong;
 
   availableSongs$: SongDto[] = [];
+  availableActs$: SetlistActDto[] = [];
 
   variantsOfSelectedSong$: SongVariantDto[] = [];
 
+  showAddActFields: boolean = false;
   showAddSongFields: boolean = false;
   showAddNewVariantFields: boolean = false;
 
@@ -63,6 +68,14 @@ export class AddSetlistEntryFormComponent implements OnInit {
           this.toastr.error(errorResponse.message, "Could not load songs");
         }
       });
+  }
+
+
+  onActSelectionChanged() {
+    let actNumber = Number(this.setlistEntryForm.value.selectedActNumber?.valueOf());
+    console.debug("Act selected: ", actNumber);
+
+    this.showAddActFields = actNumber == -1;
   }
 
 
@@ -111,13 +124,21 @@ export class AddSetlistEntryFormComponent implements OnInit {
       wasRotationSong: this.setlistEntryForm.value.wasRotationSong?.valueOf() ?? false,
       wasPlayedFromRecording: this.setlistEntryForm.value.wasPlayedFromRecording?.valueOf() ?? false,
       wasWorldPremiere: this.setlistEntryForm.value.wasWorldPremiere?.valueOf() ?? false,
+      selectedActNumber: this.setlistEntryForm.value.selectedActNumber?.valueOf(),
       // these fields are not present in every case
+      actNumber: undefined,
+      actTitle: undefined,
       selectedSongId: undefined,
       selectedSongVariantId: undefined,
       songIsrc: undefined,
       songTitle: undefined,
       songVariantDescription: undefined,
       songVariantName: undefined,
+    }
+
+    if (content.selectedActNumber ?? 0 < 0) {
+      content.actNumber = Number(this.setlistEntryForm.value.actNumber?.valueOf());
+      content.actTitle = this.setlistEntryForm.value.actTitle?.valueOf() ?? null;
     }
 
     if (entryType == AddSetlistEntryFormContent.entryTypeSong) {
@@ -175,6 +196,21 @@ export class AddSetlistEntryFormContent {
    * Additional notes about this entry
    */
   extraNotes: string | undefined | null;
+
+  /**
+   * ID of the act that was selected. null if this entry does not contain a song. "-1" if a new act will be added
+   */
+  selectedActNumber: number | undefined | null;
+
+  /**
+   * Number of the act within the setlist. null if this entry is not part of an Act
+   */
+  actNumber: number | undefined;
+
+  /**
+   * Optional title of the act within the setlist. null if this entry is not part of an Act
+   */
+  actTitle: string | undefined | null;
 
   /**
    * ID of the song that was selected. null if this entry does not contain a song. "-1" if a new song will be added

@@ -103,6 +103,7 @@
         <tr>
           <th></th>
           <th>#</th>
+          <th>Act</th>
           <th>Title</th>
           <th>Extra Notes</th>
           <th></th>
@@ -118,6 +119,11 @@
                 </div>
               </td>
               <td>{{ entry.songNumber }}</td>
+              @if (entry.actNumber) {
+                <td>Act {{ entry.actNumber }}</td>
+              } @else {
+                <td></td>
+              }
               <td>{{ entry.title }}</td>
               <td>{{ entry.extraNotes }}</td>
               <td>

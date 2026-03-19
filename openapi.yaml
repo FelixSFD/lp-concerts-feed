@@ -1843,6 +1843,42 @@ paths:
         httpMethod: "POST"
         contentHandling: "CONVERT_TO_TEXT"
         type: "aws_proxy"
+  /setlists/{setlistId}/acts:
+    get:
+      operationId: GetActsWithinSetlist
+      summary: Returns all acts in a setlist
+      tags:
+        - setlists
+      parameters:
+        - in: path
+          name: setlistId
+          description: ID of the setlist
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: The acts within the given setlist
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SetlistAct"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
   /setlists/{setlistId}/songs:
     post:
       operationId: AddSongToSetlist

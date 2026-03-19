@@ -14,6 +14,62 @@
     }
   </div>
 
+  <!-- Act selection -->
+  <div class="form-group">
+    <label for="selectedActId">Act</label>
+    <div class="input-group mb-3">
+      <select class="form-select form-control" (change)="onActSelectionChanged()"
+              formControlName="selectedActNumber"
+              [ngClass]="{ 'is-invalid': setlistEntryForm.controls.selectedActNumber.invalid }">
+        <option selected disabled>Select act</option>
+        <option value="-1">Add new act...</option>
+        <option disabled>---------------</option>
+        @for (act of availableActs$; track act.actNumber) {
+          <option [value]="act.actNumber">{{ act.title }}</option>
+        }
+      </select>
+    </div>
+    @if (setlistEntryForm.controls.selectedActNumber.invalid) {
+      <div class="text-danger">
+        @if (setlistEntryForm.controls.selectedActNumber.errors) {
+          <small>Selection is invalid.</small>
+        }
+      </div>
+    }
+  </div>
+
+  @if (showAddActFields) {
+    <!-- Act Number -->
+    <div class="form-group">
+      <label for="actNumber">Number of the act:</label>
+      <div class="input-group mb-3">
+        <input id="actNumber" type="number" formControlName="actNumber" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.actNumber.invalid }" placeholder="Number of the act in the setlist">
+      </div>
+      @if (setlistEntryForm.controls.actNumber.invalid) {
+        <div class="text-danger">
+          @if (setlistEntryForm.controls.actNumber.errors) {
+            <small>Number is invalid.</small>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Act Title -->
+    <div class="form-group">
+      <label for="actTitle">Title of the act:</label>
+      <div class="input-group mb-3">
+        <input id="actTitle" type="text" formControlName="actTitle" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.actTitle.invalid }" placeholder="Example: Inception Intro A">
+      </div>
+      @if (setlistEntryForm.controls.actTitle.invalid) {
+        <div class="text-danger">
+          @if (setlistEntryForm.controls.actTitle.errors) {
+            <small>Act title is invalid.</small>
+          }
+        </div>
+      }
+    </div>
+  }
+
   <!-- Type of entry -->
   <div class="form-group">
     <label for="song">Select type of entry:</label>
