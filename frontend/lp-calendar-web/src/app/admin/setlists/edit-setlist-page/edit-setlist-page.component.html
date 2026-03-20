@@ -18,6 +18,38 @@
   </div>
 </ng-template>
 
+<!-- Delete setlist entry confirmation modal -->
+<ng-template #deleteEntryContent let-deleteEntryModal>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h1 class="modal-title fs-5" id="deleteEntryModalLabel">Delete entry?</h1>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <p>Do you really want to delete this entry?</p>
+      <table>
+        <tr>
+          <td class="fw-bold">Title:</td>
+          <td>&nbsp;</td>
+          <td>{{ entryToDelete?.title }}</td>
+        </tr>
+        <tr>
+          <td class="fw-bold">Song Number:</td>
+          <td>&nbsp;</td>
+          <td>{{ entryToDelete?.songNumber }}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" [disabled]="entryDeleting$" (click)="dismissEntryConfirmModal()">Cancel</button>
+      <button type="button" class="btn btn-danger" id="deleteConcertConfirmBtn" (click)="onDeleteEntryConfirm()" [disabled]="entryDeleting$">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!entryDeleting$"></span>
+        <span class="sr-only">{{ entryDeleting$ ? "Deleting..." : "Delete" }}</span>
+      </button>
+    </div>
+  </div>
+</ng-template>
+
 
 <h1>Edit setlist</h1>
 
@@ -129,7 +161,7 @@
               <td>
                 <div class="btn-group btn-group-sm">
                   <button class="btn btn-outline-primary" disabled>Edit</button>
-                  <button class="btn btn-outline-danger" disabled>Delete</button>
+                  <button class="btn btn-outline-danger" (click)="onDeleteEntryClicked(deleteEntryContent, entry)">Delete</button>
                 </div>
               </td>
             </tr>

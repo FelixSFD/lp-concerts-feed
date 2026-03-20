@@ -47,6 +47,15 @@ export class SetlistsService {
     return this.setlistsApiClient.deleteSetlist(setlistId);
   }
 
+  /**
+   * Deletes a setlist entry by its ID
+   * @param setlistId ID of the setlist
+   * @param entryId ID of the entry in the setlist
+   */
+  public deleteSetlistEntry(setlistId: number, entryId: string) : Observable<any> {
+    return this.setlistsApiClient.deleteSetlistEntry(setlistId, entryId);
+  }
+
   public addSetlistEntry(content: AddSetlistEntryFormContent, setlistId: number): Observable<any> {
     let entryType = content.entryType;
     console.debug("Entry type: ", entryType);

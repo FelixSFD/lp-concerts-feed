@@ -55,8 +55,17 @@ export class EditSetlistPageComponent implements OnInit {
 
   isPendingReorder$: boolean = false;
 
+  // Setlist entry that will be deleted. Is used to store the data for the confirmation modal
+  entryToDelete: SetlistEntry | undefined;
+
+  // property to show whether the setlist is currently being deleted
+  entryDeleting$ = false;
+
   // if open, the modal is referenced here
   addEntryModal: NgbModalRef | undefined;
+
+  // if open, the modal is referenced here
+  deleteEntryModal: NgbModalRef | undefined;
 
   setlistEntries$: SetlistEntry[] = [];
 
@@ -278,5 +287,51 @@ export class EditSetlistPageComponent implements OnInit {
 
   dismissAddEntryModal() {
     this.addEntryModal?.dismiss();
+  }
+
+
+  onDeleteEntryClicked(content: TemplateRef<any>, entry: SetlistEntry) {
+    this.entryToDelete = entry;
+
+    if (this.entryToDelete == null) {
+      return;
+    }
+
+    this.deleteEntryModal = this.openModal(content);
+  }
+
+
+  onDeleteEntryConfirm() {
+    this.entryDeleting$ = true;
+    if (this.entryToDelete == null) {
+      this.deleteEntryModal?.dismiss();
+      return;
+    }
+
+    let id = this.entryToDelete!.id;
+    console.debug("Will delete setlist entry: " + id);
+
+    this.setlistService.deleteSetlistEntry(this.currentSetlistId, id).subscribe({
+      next: result => {
+        console.debug("DELETE setlist request entry finished");
+        console.debug(result);
+
+        this.deleteEntryModal?.dismiss();
+        this.entryDeleting$ = false;
+      },
+      error: err => {
+        let errorResponse: ErrorResponseDto = err.error;
+        console.warn("Failed to delete setlist entry:", err);
+        this.deleteEntryModal?.dismiss();
+        this.entryDeleting$ = false;
+
+        this.toastr.error(errorResponse.message, "Could not delete setlist!");
+      }
+    });
+  }
+
+
+  dismissEntryConfirmModal() {
+    this.deleteEntryModal?.dismiss();
   }
 }
