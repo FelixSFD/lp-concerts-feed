@@ -184,7 +184,7 @@ public class Function
             return new APIGatewayProxyResponse
             {
                 StatusCode = (int)HttpStatusCode.OK,
-                Body = JsonSerializer.Serialize(setlistEntryDto, SetlistDtoJsonContext.Default.SetlistEntryDto),
+                Body = JsonSerializer.Serialize(setlistEntryDto, SetlistDtoJsonContext.Default.RawSetlistEntryDto),
                 Headers = new Dictionary<string, string>
                 {
                     { "Access-Control-Allow-Origin", "*" },

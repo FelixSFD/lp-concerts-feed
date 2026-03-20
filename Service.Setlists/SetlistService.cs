@@ -302,11 +302,11 @@ public class SetlistService(
     /// <param name="entryId">ID of the entry</param>
     /// <returns></returns>
     /// <exception cref="SetlistEntryNotFoundException">if the setlist entry was not found</exception>
-    public async Task<SetlistEntryDto> GetSetlistEntryAsync(uint setlistId, string entryId)
+    public async Task<RawSetlistEntryDto> GetSetlistEntryAsync(uint setlistId, string entryId)
     {
         logger.LogDebug("Retrieve the setlist entry: {entryId}", entryId);
         var entry = await setlistEntryRepository.GetByPrimaryKeyAsync(entryId) ?? throw new SetlistEntryNotFoundException(setlistId, entryId);
-        return DtoMapper.ToDto(entry);
+        return DtoMapper.ToRawDto(entry);
     }
     
     /// <summary>

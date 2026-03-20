@@ -1006,6 +1006,10 @@ public class SetlistServiceTest
         Assert.Equal(entry.IsWorldPremiere, result.IsWorldPremiere);
         Assert.Equal(entry.IsPlayedFromRecording, result.IsPlayedFromRecording);
         Assert.Equal(entry.ActNumber, result.ActNumber);
+        Assert.Equal(entry.SongNumber, result.SongNumber);
+        Assert.Equal(entry.SortNumber, result.SortNumber);
+        Assert.Equal(entry.TitleOverride, result.TitleOverride);
+        Assert.Equal(entry.ExtraNotes, result.ExtraNotes);
         
         // verify mock calls
         await _setlistEntryRepository

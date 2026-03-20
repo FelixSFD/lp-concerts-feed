@@ -1,7 +1,14 @@
 import {Component, EventEmitter, inject, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from "@angular/forms";
 import {SongsService} from '../../../services/songs.service';
-import {ConcertDto, ErrorResponseDto, SetlistActDto, SongDto, SongVariantDto} from '../../../modules/lpshows-api';
+import {
+  ConcertDto,
+  ErrorResponseDto,
+  RawSetlistEntryDto,
+  SetlistActDto,
+  SongDto,
+  SongVariantDto
+} from '../../../modules/lpshows-api';
 import {ToastrService} from 'ngx-toastr';
 import {NgClass} from '@angular/common';
 import {SetlistsService} from '../../../services/setlists.service';
@@ -52,6 +59,9 @@ export class AddSetlistEntryFormComponent implements OnInit {
   showAddSongFields: boolean = false;
   showAddNewVariantFields: boolean = false;
 
+  // To wort around race conditions (entry loading before the select-fields), the entry can be stored here
+  private storedEntry: RawSetlistEntryDto | null = null;
+
   ngOnInit(): void {
     this.setlistEntryForm.controls.selectedSongVariantId.disable();
 
@@ -64,6 +74,20 @@ export class AddSetlistEntryFormComponent implements OnInit {
       .subscribe({
         next: data => {
           this.availableSongs$ = data;
+          console.debug("Loaded songs: ", this.availableSongs$);
+
+          if (this.storedEntry) {
+            console.debug("Has a stored entry: ", this.storedEntry);
+            let songId = this.storedEntry.playedSong?.id ?? 0;
+            if (songId <= 0) {
+              songId = this.storedEntry.playedSongVariant?.songId ?? 0;
+            }
+
+            if (songId > 0) {
+              this.setlistEntryForm.controls.selectedSongId.setValue(songId);
+              this.loadVariantsOfSelectedSong(songId);
+            }
+          }
         },
         error: err => {
           let errorResponse: ErrorResponseDto = err.error;
@@ -110,7 +134,13 @@ export class AddSetlistEntryFormComponent implements OnInit {
 
     this.songService.getVariantsOfSong(songId)
       .subscribe(variants => {
+        console.debug("Loaded Variants of selectedSong", variants);
         this.variantsOfSelectedSong$ = variants;
+
+        if (this.storedEntry) {
+          let songVariantId = this.storedEntry.playedSongVariant?.id;
+          this.setlistEntryForm.controls.selectedSongVariantId.setValue(songVariantId ?? 0);
+        }
       });
   }
 
@@ -121,7 +151,21 @@ export class AddSetlistEntryFormComponent implements OnInit {
     this.setlistsService.getSetlistEntry(setlistId, entryId)
       .subscribe({
         next: entry => {
+          this.storedEntry = entry;
+
+          console.debug("Available songs: ", this.availableSongs$);
+
+          this.setlistEntryForm.controls.sortNumber.setValue(entry.sortNumber ?? null);
           this.setlistEntryForm.controls.songNumber.setValue(entry.songNumber ?? null);
+          this.setlistEntryForm.controls.titleOverride.setValue(entry.titleOverride ?? null);
+          this.setlistEntryForm.controls.extraNotes.setValue(entry.extraNotes ?? null);
+          this.setlistEntryForm.controls.selectedActNumber.setValue(entry.actNumber ?? null);
+          this.setlistEntryForm.controls.selectedSongId.setValue(entry.playedSong?.id ?? null);
+          this.setlistEntryForm.controls.selectedSongVariantId.setValue(entry.playedSongVariant?.id ?? null);
+          this.setlistEntryForm.controls.wasWorldPremiere.setValue(entry.isWorldPremiere ?? false);
+          this.setlistEntryForm.controls.wasPlayedFromRecording.setValue(entry.isPlayedFromRecording ?? false);
+          this.setlistEntryForm.controls.wasRotationSong.setValue(entry.isRotationSong ?? false);
+
           this.setlistEntryForm.enable();
         },
         error: err => {

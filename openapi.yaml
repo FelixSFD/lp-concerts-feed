@@ -416,7 +416,7 @@ components:
           type: number
           description: ID of the song variant
         songId:
-          type: string
+          type: number
           description: ID of the main version of the song
         isrcOverride:
           type: string
@@ -497,6 +497,58 @@ components:
         title:
           type: string
           description: Title of this setlist entry. This can for example be the title of a song or a mashup
+        extraNotes:
+          type: string
+          description: Field to store additional notes about this entry
+          nullable: true
+          maxLength: 127
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia. This value is stored either in the song or the mashup
+          nullable: true
+        isRotationSong:
+          type: boolean
+          description: true if this slot is known to rotate between shows on the same tour.
+        isPlayedFromRecording:
+          type: boolean
+          description: true if the song was played from a recording only. Not played live. (this can happen for pre-show-songs for example)
+        isWorldPremiere:
+          type: boolean
+          description: true if this song has not only not been played before, but was not released before this show. For example "Heavy Is The Crown" in Hamburg 2024
+    
+    RawSetlistEntry:
+      type: object
+      description: An entry in a setlist
+      properties:
+        id:
+          type: string
+          description: Unique ID of the entry
+        actNumber:
+          type: number
+          description: Number of the act in which this song was played
+          nullable: true
+        sortNumber:
+          type: number
+          description: Number to sort the entries
+        songNumber:
+          type: number
+          description: Number of the song in this setlist. Is displayed as an orientation
+        playedSong:
+          type: object
+          description: Song that was played. If not set, they didn't play a song, but a mashup or song variant instead
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/Song"
+        playedSongVariant:
+          type: object
+          description: Song variant that was played. If not set, they didn't play a song variant, but a mashup or normal song instead
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/SongVariant"
+        titleOverride:
+          type: string
+          description: Optional field to override the title of a setlist entry
+          nullable: true
         extraNotes:
           type: string
           description: Field to store additional notes about this entry
@@ -1832,7 +1884,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SetlistEntry"
+                $ref: "#/components/schemas/RawSetlistEntry"
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:

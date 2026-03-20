@@ -24,11 +24,29 @@ public static class DtoMapper
     }
     
     /// <summary>
+    /// Maps a <see cref="SongDo"/> to <see cref="SongDto"/>
+    /// </summary>
+    /// <param name="songDo">Song to map to its DTO</param>
+    /// <returns>the DTO</returns>
+    private static SongDto? ToDtoNullable(SongDo? songDo)
+    {
+        if (songDo == null)
+            return null;
+        
+        return new SongDto
+        {
+            Id = songDo.Id,
+            Title = songDo.Title,
+            Isrc = songDo.Isrc
+        };
+    }
+    
+    /// <summary>
     /// Maps a <see cref="SongVariantDo"/> to <see cref="SongVariantDto"/>
     /// </summary>
     /// <param name="songVariantDo">Song variant to map to its DTO</param>
     /// <returns>the DTO</returns>
-    public static SongVariantDto? ToDtoNullable(SongVariantDo? songVariantDo)
+    private static SongVariantDto? ToDtoNullable(SongVariantDo? songVariantDo)
     {
         if (songVariantDo == null)
             return null;
@@ -81,7 +99,7 @@ public static class DtoMapper
     /// </summary>
     /// <param name="songMashupDo">Song mashup to map to its DTO</param>
     /// <returns>the DTO</returns>
-    public static SongMashupDto? ToDtoNullable(SongMashupDo? songMashupDo)
+    private static SongMashupDto? ToDtoNullable(SongMashupDo? songMashupDo)
     {
         return songMashupDo == null ? null : ToDto(songMashupDo);
     }
@@ -180,5 +198,30 @@ public static class DtoMapper
             return null;
 
         return $"{songDo.Title} ({songVariantDo.VariantName})";
+    }
+    
+    /// <summary>
+    /// Maps a <see cref="SetlistEntryDo"/> to <see cref="SetlistEntryDto"/>
+    /// </summary>
+    /// <param name="setlistEntryDo">Setlist entry to map to its DTO</param>
+    /// <returns>the DTO</returns>
+    public static RawSetlistEntryDto ToRawDto(SetlistEntryDo setlistEntryDo)
+    {
+        return new RawSetlistEntryDto
+        {
+            Id = setlistEntryDo.Id,
+            ActNumber = setlistEntryDo.ActNumber,
+            SongNumber = setlistEntryDo.SongNumber,
+            SortNumber = setlistEntryDo.SortNumber,
+            PlayedSong = ToDtoNullable(setlistEntryDo.PlayedSong),
+            PlayedSongVariant = ToDtoNullable(setlistEntryDo.PlayedSongVariant),
+            PlayedSongMashup = ToDtoNullable(setlistEntryDo.PlayedMashup),
+            TitleOverride = setlistEntryDo.TitleOverride,
+            ExtraNotes = setlistEntryDo.ExtraNotes,
+            LinkinpediaUrl = setlistEntryDo.PlayedSong?.LinkinpediaUrl ?? setlistEntryDo.PlayedSongVariant?.Song.LinkinpediaUrl ?? setlistEntryDo.PlayedMashup?.LinkinpediaUrl,
+            IsPlayedFromRecording = setlistEntryDo.IsPlayedFromRecording,
+            IsRotationSong = setlistEntryDo.IsRotationSong,
+            IsWorldPremiere = setlistEntryDo.IsWorldPremiere
+        };
     }
 }
