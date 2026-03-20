@@ -39,6 +39,7 @@ export class EditSetlistPageComponent implements OnInit {
   private toastr = inject(ToastrService);
 
   private addEntryFormComponent = viewChild(AddSetlistEntryFormComponent);
+  private editEntryFormComponent = viewChild(AddSetlistEntryFormComponent);
 
   private currentSetlistId: number = 0;
 
@@ -52,17 +53,24 @@ export class EditSetlistPageComponent implements OnInit {
   isSaving$: boolean = false;
 
   isAddingEntry$: boolean = false;
+  isEditingEntry$: boolean = false;
 
   isPendingReorder$: boolean = false;
 
   // Setlist entry that will be deleted. Is used to store the data for the confirmation modal
   entryToDelete: SetlistEntry | undefined;
 
+  // Setlist entry that will be edited. Is used to store the data for the form
+  entryToEdit: SetlistEntry | undefined;
+
   // property to show whether the setlist is currently being deleted
   entryDeleting$ = false;
 
   // if open, the modal is referenced here
   addEntryModal: NgbModalRef | undefined;
+
+  // if open, the modal is referenced here
+  editEntryModal: NgbModalRef | undefined;
 
   // if open, the modal is referenced here
   deleteEntryModal: NgbModalRef | undefined;
@@ -196,34 +204,6 @@ export class EditSetlistPageComponent implements OnInit {
       this.toastr.error("Failed to read form data!");
       this.isAddingEntry$ = false;
     }
-
-    /*this.isAddingEntry$ = true;
-    if (this.setlistToDelete == null) {
-      this.addEntryModal?.dismiss();
-      return;
-    }*/
-
-    /*let id = this.setlistToDelete!.id;
-    console.debug("Will delete setlist: " + id);
-
-    this.setlistService.deleteSetlist(id).subscribe({
-      next: result => {
-        console.debug("DELETE setlist request finished");
-        console.debug(result);
-
-        this.loadSetlist(this.currentSetlistId);
-        this.addEntryModal?.dismiss();
-        this.isAddingEntry$ = false;
-      },
-      error: err => {
-        let errorResponse: ErrorResponseDto = err.error;
-        console.warn("Failed to delete setlist:", err);
-        this.addEntryModal?.dismiss();
-        this.isAddingEntry$ = false;
-
-        this.toastr.error(errorResponse.message, "Could not delete setlist!");
-      }
-    });*/
   }
 
 
@@ -331,7 +311,39 @@ export class EditSetlistPageComponent implements OnInit {
   }
 
 
-  dismissEntryConfirmModal() {
+  dismissDeleteEntryConfirmModal() {
     this.deleteEntryModal?.dismiss();
+  }
+
+
+  onEditEntryClicked(content: TemplateRef<any>, entry: SetlistEntry) {
+    this.entryToEdit = entry;
+
+    if (this.entryToEdit == null) {
+      return;
+    }
+
+    this.editEntryModal = this.openModal(content);
+    this.editEntryFormComponent()?.loadEntry(this.currentSetlistId, entry.id);
+  }
+
+
+  onEditEntryConfirm() {
+    this.isEditingEntry$ = true;
+    if (this.entryToEdit == null) {
+      this.editEntryModal?.dismiss();
+      return;
+    }
+
+    let id = this.entryToEdit!.id;
+    console.debug("Will edit setlist entry: " + id);
+
+    let formValues = this.editEntryFormComponent()?.readValuesFromForm();
+    console.debug("Values read from form: ", formValues);
+  }
+
+
+  dismissEditEntryConfirmModal() {
+    this.editEntryModal?.dismiss();
   }
 }

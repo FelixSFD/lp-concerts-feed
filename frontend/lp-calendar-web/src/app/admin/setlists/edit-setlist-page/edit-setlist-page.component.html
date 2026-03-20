@@ -18,6 +18,26 @@
   </div>
 </ng-template>
 
+<!-- edit setlist entry modal -->
+<ng-template #editEntryContent let-editEntryModal>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h1 class="modal-title fs-5" id="editEntryModalLabel">Edit a setlist entry</h1>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <app-add-setlist-entry-form />
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" [disabled]="isEditingEntry$" (click)="dismissEditEntryConfirmModal()">Cancel</button>
+      <button type="button" class="btn btn-primary" id="editEntryConfirmBtn" (click)="onEditEntryConfirm()" [disabled]="isEditingEntry$">
+        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" [hidden]="!isEditingEntry$"></span>
+        <span class="sr-only">{{ isEditingEntry$ ? "Saving..." : "Save" }}</span>
+      </button>
+    </div>
+  </div>
+</ng-template>
+
 <!-- Delete setlist entry confirmation modal -->
 <ng-template #deleteEntryContent let-deleteEntryModal>
   <div class="modal-content">
@@ -41,7 +61,7 @@
       </table>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" [disabled]="entryDeleting$" (click)="dismissEntryConfirmModal()">Cancel</button>
+      <button type="button" class="btn btn-secondary" [disabled]="entryDeleting$" (click)="dismissDeleteEntryConfirmModal()">Cancel</button>
       <button type="button" class="btn btn-danger" id="deleteConcertConfirmBtn" (click)="onDeleteEntryConfirm()" [disabled]="entryDeleting$">
         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!entryDeleting$"></span>
         <span class="sr-only">{{ entryDeleting$ ? "Deleting..." : "Delete" }}</span>
@@ -160,7 +180,7 @@
               <td>{{ entry.extraNotes }}</td>
               <td>
                 <div class="btn-group btn-group-sm">
-                  <button class="btn btn-outline-primary" disabled>Edit</button>
+                  <button class="btn btn-outline-primary" (click)="onEditEntryClicked(editEntryContent, entry)">Edit</button>
                   <button class="btn btn-outline-danger" (click)="onDeleteEntryClicked(deleteEntryContent, entry)">Delete</button>
                 </div>
               </td>

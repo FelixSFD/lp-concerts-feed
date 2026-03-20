@@ -296,6 +296,20 @@ public class SetlistService(
     }
     
     /// <summary>
+    /// Returns a setlist entry
+    /// </summary>
+    /// <param name="setlistId">ID of the setlist</param>
+    /// <param name="entryId">ID of the entry</param>
+    /// <returns></returns>
+    /// <exception cref="SetlistEntryNotFoundException">if the setlist entry was not found</exception>
+    public async Task<SetlistEntryDto> GetSetlistEntryAsync(uint setlistId, string entryId)
+    {
+        logger.LogDebug("Retrieve the setlist entry: {entryId}", entryId);
+        var entry = await setlistEntryRepository.GetByPrimaryKeyAsync(entryId) ?? throw new SetlistEntryNotFoundException(setlistId, entryId);
+        return DtoMapper.ToDto(entry);
+    }
+    
+    /// <summary>
     /// Returns all setlists for a given concert. A concert usually only has one setlists, but can technically have more than one. (for example rehearsals)
     /// </summary>
     /// <param name="concertId">ID of the concert</param>

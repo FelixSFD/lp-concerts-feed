@@ -61,6 +61,8 @@ public class Function
         var hasSetlistIdPathParameter = request.PathParameters.TryGetValue("setlistId", out var setlistIdStr);
         uint? setlistId = hasSetlistIdPathParameter ? uint.Parse(setlistIdStr!) : null;
         
+        var hasSetlistEntryIdPathParameter = request.PathParameters.TryGetValue("setlistEntryId", out var setlistEntryId);
+        
         var hasSongIdPathParameter = request.PathParameters.TryGetValue("songId", out var songIdStr);
         uint? songId = hasSongIdPathParameter ? uint.Parse(songIdStr!) : null;
         
@@ -77,6 +79,12 @@ public class Function
         {
             context.Logger.LogInformation("Reading a setlist...");
             return await HandleGetSetlist(setlistId ?? 0, context);
+        }
+        
+        if (request is { HttpMethod: "GET", Resource: "/setlists/{setlistId}/entries/{setlistEntryId}" } && hasSetlistIdPathParameter && hasSetlistEntryIdPathParameter)
+        {
+            context.Logger.LogInformation("Reading setlist entry: {setlistEntryId}", setlistEntryId);
+            return await HandleGetSetlistEntry(setlistId ?? 0, setlistEntryId!, context);
         }
         
         if (request is { HttpMethod: "GET", Resource: "/setlists/{setlistId}/acts" } && hasSetlistIdPathParameter)
@@ -154,6 +162,29 @@ public class Function
             {
                 StatusCode = (int)HttpStatusCode.OK,
                 Body = JsonSerializer.Serialize(setlistDto, SetlistDtoJsonContext.Default.SetlistDto),
+                Headers = new Dictionary<string, string>
+                {
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                }
+            };
+        }
+        catch (SetlistNotFoundException e)
+        {
+            return HandleNotFoundException(e.Message, "OPTIONS, GET", context.Logger);
+        }
+    }
+    
+    
+    private async Task<APIGatewayProxyResponse> HandleGetSetlistEntry(uint setlistId, string entryId, ILambdaContext context)
+    {
+        try
+        {
+            var setlistEntryDto = await _setlistService.GetSetlistEntryAsync(setlistId, entryId);
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.OK,
+                Body = JsonSerializer.Serialize(setlistEntryDto, SetlistDtoJsonContext.Default.SetlistEntryDto),
                 Headers = new Dictionary<string, string>
                 {
                     { "Access-Control-Allow-Origin", "*" },

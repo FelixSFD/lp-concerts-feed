@@ -960,6 +960,61 @@ public class SetlistServiceTest
     
     
     [Fact]
+    public async Task GetSetlistEntryAsync()
+    {
+        var song = new SongDo
+        {
+            Id = 1,
+            Title = "Lost",
+            Isrc = "1",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/Lost"
+        };
+        
+        var act = new SetlistActDo
+        {
+            ActNumber = 1,
+            Title = "Inception Intro A",
+        };
+
+        var entry = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            SetlistId = 1,
+            ActNumber = act.ActNumber,
+            Act = act,
+            SongNumber = 1,
+            SortNumber = 10,
+            PlayedSong = song,
+            TitleOverride = null,
+            IsPlayedFromRecording = false,
+            IsWorldPremiere = false,
+            IsRotationSong = false
+        };
+        
+        // setup mocks
+        _setlistEntryRepository
+            .GetByPrimaryKeyAsync(entry.Id)
+            .Returns(entry);
+        
+        // call the service
+        var result = await _setlistService.GetSetlistEntryAsync(entry.SetlistId, entry.Id);
+        
+        // check result
+        Assert.Equal(entry.PlayedSong.Title, result.PlayedSong?.Title);
+        Assert.Equal(entry.PlayedSong.Isrc, result.PlayedSong?.Isrc);
+        Assert.Equal(entry.IsRotationSong, result.IsRotationSong);
+        Assert.Equal(entry.IsWorldPremiere, result.IsWorldPremiere);
+        Assert.Equal(entry.IsPlayedFromRecording, result.IsPlayedFromRecording);
+        Assert.Equal(entry.ActNumber, result.ActNumber);
+        
+        // verify mock calls
+        await _setlistEntryRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(entry.Id);
+    }
+    
+    
+    [Fact]
     public async Task ReorderSetlistEntriesAsync()
     {
         var song1 = new SongDo

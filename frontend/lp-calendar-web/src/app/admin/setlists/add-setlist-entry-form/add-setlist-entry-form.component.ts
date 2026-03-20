@@ -4,6 +4,7 @@ import {SongsService} from '../../../services/songs.service';
 import {ConcertDto, ErrorResponseDto, SetlistActDto, SongDto, SongVariantDto} from '../../../modules/lpshows-api';
 import {ToastrService} from 'ngx-toastr';
 import {NgClass} from '@angular/common';
+import {SetlistsService} from '../../../services/setlists.service';
 
 @Component({
   selector: 'app-add-setlist-entry-form',
@@ -18,6 +19,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
   private toastr = inject(ToastrService);
   private formBuilder = inject(FormBuilder);
   private songService = inject(SongsService);
+  private setlistsService = inject(SetlistsService);
 
   setlistEntryForm = this.formBuilder.group({
     entryType: new FormControl(AddSetlistEntryFormContent.entryTypeSong, [Validators.required]),
@@ -110,6 +112,24 @@ export class AddSetlistEntryFormComponent implements OnInit {
       .subscribe(variants => {
         this.variantsOfSelectedSong$ = variants;
       });
+  }
+
+
+  public loadEntry(setlistId: number, entryId: string) {
+    this.setlistEntryForm.disable();
+
+    this.setlistsService.getSetlistEntry(setlistId, entryId)
+      .subscribe({
+        next: entry => {
+          this.setlistEntryForm.controls.songNumber.setValue(entry.songNumber ?? null);
+          this.setlistEntryForm.enable();
+        },
+        error: err => {
+          let errorResponse: ErrorResponseDto = err.error;
+          this.toastr.error(errorResponse.message, "Could not load entry");
+        }
+      })
+    //this.setlistEntryForm.controls.entryType.setValue(data.entryType ?? null);
   }
 
 

@@ -1808,6 +1808,45 @@ paths:
         contentHandling: "CONVERT_TO_TEXT"
         type: "aws_proxy"
   /setlists/{setlistId}/entries/{setlistEntryId}:
+    get:
+      operationId: GetSetlistEntry
+      summary: Gets an entry of a setlist
+      tags:
+        - setlists
+      parameters:
+        - in: path
+          name: setlistId
+          description: ID of the setlist
+          required: true
+          schema:
+            type: number
+        - in: path
+          name: setlistEntryId
+          description: ID of the setlist entry
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The complete setlist entry information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SetlistEntry"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
     delete:
       operationId: DeleteSetlistEntry
       summary: Deletes an entry of a setlist

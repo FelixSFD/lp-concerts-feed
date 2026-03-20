@@ -110,11 +110,21 @@ export class SetlistsService {
   }
 
   /**
-   * Returns a setlists by its ID
+   * Returns a setlist by its ID
    * @param setlistId ID of the setlist
    */
   public getSetlist(setlistId: number) : Observable<SetlistDto> {
     return this.setlistsApiClient.getCompleteSetlist(setlistId);
+  }
+
+
+  /**
+   * Returns a setlist entry by its ID
+   * @param setlistId ID of the setlist
+   * @param entryId ID of the entry
+   */
+  public getSetlistEntry(setlistId: number, entryId: string) : Observable<SetlistEntryDto> {
+    return this.setlistsApiClient.getSetlistEntry(setlistId, entryId);
   }
 
   /**
