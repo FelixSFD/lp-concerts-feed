@@ -89,11 +89,15 @@ export class EditSetlistPageComponent implements OnInit {
 
   private loadSetlist(setlistId: number) {
     this.setlistService
-      .getSetlist(setlistId)
+      .getSetlist(setlistId, false)
       .subscribe(setlist => {
         this.fillFormFromDto(setlist);
         this.setlistEntries$ = setlist.entries?.map(SetlistEntry.fromDto) ?? [];
       });
+  }
+
+  private reloadCurrentSetlist() {
+    this.loadSetlist(this.currentSetlistId);
   }
 
   private fillFormFromDto(setlist: SetlistDto) {
@@ -170,12 +174,6 @@ export class EditSetlistPageComponent implements OnInit {
 
 
   onAddEntryClicked(content: TemplateRef<any>) {
-    //this.setlistToDelete = setlist;
-
-    /*if (this.setlistToDelete == null) {
-      return;
-    }*/
-
     this.addEntryModal = this.openModal(content);
   }
 
@@ -194,6 +192,8 @@ export class EditSetlistPageComponent implements OnInit {
           next: () => {
             this.toastr.success("Setlist was updated successfully");
             this.isAddingEntry$ = false;
+
+            this.reloadCurrentSetlist();
           },
           error: err => {
             let errorResponse: ErrorResponseDto = err.error;
@@ -298,6 +298,7 @@ export class EditSetlistPageComponent implements OnInit {
 
         this.deleteEntryModal?.dismiss();
         this.entryDeleting$ = false;
+        this.reloadCurrentSetlist();
       },
       error: err => {
         let errorResponse: ErrorResponseDto = err.error;
@@ -347,6 +348,7 @@ export class EditSetlistPageComponent implements OnInit {
           next: () => {
             this.toastr.success("Entry was updated successfully");
             this.isEditingEntry$ = false;
+            this.reloadCurrentSetlist();
           },
           error: err => {
             let errorResponse: ErrorResponseDto = err.error;

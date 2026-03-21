@@ -1909,6 +1909,13 @@ paths:
           required: true
           schema:
             type: string
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
       responses:
         "200":
           description: The complete setlist entry information
@@ -2228,6 +2235,13 @@ paths:
           required: true
           schema:
             type: number
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
       responses:
         "200":
           description: The complete setlist information
@@ -2368,6 +2382,13 @@ paths:
           required: true
           schema:
             type: number
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
       responses:
         "200":
           description: The song information
@@ -2402,6 +2423,13 @@ paths:
           required: true
           schema:
             type: number
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
       responses:
         "200":
           description: The list of all variants of the song
@@ -2431,6 +2459,14 @@ paths:
       summary: Returns all mashups
       tags:
         - songs
+      parameters:
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
       responses:
         "200":
           description: The list of all mashups
@@ -2499,6 +2535,13 @@ paths:
           required: true
           schema:
             type: number
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
       responses:
         "200":
           description: The song mashup

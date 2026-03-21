@@ -159,9 +159,14 @@ export class SetlistsService {
   /**
    * Returns a setlist by its ID
    * @param setlistId ID of the setlist
+   * @param cached true if the setlist can be read from cache
    */
-  public getSetlist(setlistId: number) : Observable<SetlistDto> {
-    return this.setlistsApiClient.getCompleteSetlist(setlistId);
+  public getSetlist(setlistId: number, cached: boolean = true) : Observable<SetlistDto> {
+    if (cached) {
+      return this.setlistsApiClient.getCompleteSetlist(setlistId);
+    } else {
+      return this.setlistsApiClient.getCompleteSetlist(setlistId, Guid.create().toString(), "body", false);
+    }
   }
 
 
