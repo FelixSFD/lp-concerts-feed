@@ -356,6 +356,8 @@ public class SetlistService(
         
         // update general parameters
         var entryParams = request.EntryParameters;
+        setlistEntry.SongNumber = entryParams.SongNumber;
+        setlistEntry.SortNumber = entryParams.SortNumber;
         setlistEntry.TitleOverride = entryParams.TitleOverride;
         setlistEntry.ExtraNotes = entryParams.ExtraNotes;
         setlistEntry.IsPlayedFromRecording = entryParams.IsPlayedFromRecording;

@@ -646,8 +646,8 @@ public class SetlistServiceTest
             ActParameters = null,
             EntryParameters = new SetlistEntryParametersDto
             {
-                SongNumber = 1,
-                SortNumber = 10,
+                SongNumber = 1337,
+                SortNumber = 15,
                 TitleOverride = null,
                 ExtraNotes = "something special",
                 IsPlayedFromRecording = false,
@@ -686,7 +686,8 @@ public class SetlistServiceTest
             .Received(1)
             .Update(Arg.Is<SetlistEntryDo>(e => e.SetlistId == entry.SetlistId 
                                                 && e.Id == entry.Id 
-                                                && e.SongNumber == updateRequest.EntryParameters.SongNumber 
+                                                && e.SongNumber == updateRequest.EntryParameters.SongNumber
+                                                && e.SortNumber == updateRequest.EntryParameters.SortNumber
                                                 && e.PlayedSongId == updateRequest.SongParameters!.SongId
                                                 && e.ExtraNotes == updateRequest.EntryParameters.ExtraNotes
                                                 && entry.TitleOverride == updateRequest.EntryParameters.TitleOverride
