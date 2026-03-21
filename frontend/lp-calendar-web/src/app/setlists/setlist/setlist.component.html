@@ -1,6 +1,10 @@
 <div class="card">
   <div class="card-header">
-    {{ setlistTitle$ }}
+    @if (setlist?.setName) {
+      Setlist: {{ setlist?.setName }}
+    } @else {
+      Setlist
+    }
   </div>
   <div class="card-body edit-form-card">
     <table class="table">
