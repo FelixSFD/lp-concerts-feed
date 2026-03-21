@@ -163,6 +163,18 @@ public class Function
         
         var hasSetlistEntryIdPathParameter = request.PathParameters.TryGetValue("setlistEntryId", out var setlistEntryId);
         
+        if (request is { HttpMethod: "POST", Resource: "/setlists/{setlistId}/entries/{setlistEntryId}" } 
+            && hasSetlistIdPathParameter
+            && hasSetlistEntryIdPathParameter)
+        {
+            context.Logger.LogInformation("Update entry ID '{setlistEntryId}' in setlist '{setlistId}' ...", setlistEntryId, setlistId);
+            if (!string.IsNullOrEmpty(setlistEntryId))
+                return await HandleUpdateSetlistEntry(request.Body, setlistId ?? 0, setlistEntryId, context);
+            
+            context.Logger.LogError("Invalid setlist entry ID!");
+            return ReturnBadRequest("Invalid setlist entry ID!");
+        }
+        
         if (request is { HttpMethod: "DELETE", Resource: "/setlists/{setlistId}/entries/{setlistEntryId}" } 
             && hasSetlistIdPathParameter
             && hasSetlistEntryIdPathParameter)
@@ -394,6 +406,62 @@ public class Function
             {
                 StatusCode = (int)HttpStatusCode.OK,
                 Body = JsonSerializer.Serialize(response, SetlistDtoJsonContext.Default.ReorderSetlistEntriesResponseDto),
+                Headers = new Dictionary<string, string>
+                {
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, POST" }
+                }
+            };
+        }
+        catch (SetlistNotFoundException e)
+        {
+            return HandleNotFoundException(e.Message, "OPTIONS, POST", context.Logger);
+        }
+    }
+    
+    private async Task<APIGatewayProxyResponse> HandleUpdateSetlistEntry(string requestJson, uint setlistId, string entryId,
+        ILambdaContext context)
+    {
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.UpdateSetlistEntryRequestDto);
+        if (dto != null)
+            return await HandleUpdateSetlistEntry(dto, setlistId, entryId, context);
+        
+        var badRequestResponse = new ErrorResponse
+        {
+            Message = "Failed to deserialize the request body"
+        };
+            
+        context.Logger.LogError(badRequestResponse.Message);
+            
+        return new APIGatewayProxyResponse()
+        {
+            StatusCode = (int)HttpStatusCode.BadRequest,
+            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
+            Headers = new Dictionary<string, string>
+            {
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, GET, POST" }
+            }
+        };
+    }
+    
+    /// <summary>
+    /// Updates a setlist entry
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="setlistId">ID of the setlist</param>
+    /// <param name="entryId">ID of the entry</param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    private async Task<APIGatewayProxyResponse> HandleUpdateSetlistEntry(UpdateSetlistEntryRequestDto request, uint setlistId, string entryId,
+        ILambdaContext context)
+    {
+        try
+        {
+            await _setlistService.UpdateSetlistEntryAsync(setlistId, entryId, request);
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.NoContent,
                 Headers = new Dictionary<string, string>
                 {
                     { "Access-Control-Allow-Origin", "*" },

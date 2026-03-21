@@ -893,6 +893,37 @@ components:
           oneOf:
             - $ref: "#/components/schemas/SetlistEntry"
     
+    UpdateSetlistEntryRequest:
+      type: object
+      description: Request to update a single setlist entry
+      properties:
+        songParameters:
+          type: object
+          description: Parameters of the song for this entry
+          oneOf:
+            - $ref: "#/components/schemas/SongParameters"
+        songVariantParameters:
+          type: object
+          description: Parameters of the song variant for this entry
+          oneOf:
+            - $ref: "#/components/schemas/SongVariantParameters"
+        songMashupParameters:
+          type: object
+          description: Parameters of the song mashup for this entry
+          oneOf:
+            - $ref: "#/components/schemas/SongMashupParameters"
+        actParameters:
+          type: object
+          description: If set, the added song will be added to this Act. Title isn't required if the Act already exists.
+          nullable: true
+          anyOf:
+            - $ref: "#/components/schemas/ActParameters"
+        entryParameters:
+          type: object
+          description: Common parameters for that entry, no matter if it was a song or mashup
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntryParameters"
+    
     ReorderSetlistEntriesRequest:
       type: object
       description: Request to update the order of entries in a setlist. It's important that ALL entries are used here!
@@ -1892,6 +1923,46 @@ paths:
             - LambdaArn:
                 Fn::ImportValue:
                   Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+    post:
+      operationId: UpdateSetlistEntry
+      summary: Updates an entry of a setlist
+      tags:
+        - setlists
+      parameters:
+        - in: path
+          name: setlistId
+          description: ID of the setlist
+          required: true
+          schema:
+            type: number
+        - in: path
+          name: setlistEntryId
+          description: ID of the setlist entry
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSetlistEntryRequest"
+      responses:
+        "204":
+          description: No content
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
         responses:
           default:
             statusCode: "200"
