@@ -87,9 +87,10 @@ export class SetlistsService {
   }
 
   private getActParametersFromFormContent(content: AddSetlistEntryFormContent, setlistId: number): ActParametersDto {
+    let usedActNumber = Number(content.selectedActNumber ?? 0) >= 0 ? Number(content.selectedActNumber) : Number(content.actNumber);
     return {
       setlistId: Number(setlistId),
-      actNumber: content.selectedActNumber ?? content.actNumber ?? 0,
+      actNumber: usedActNumber ?? 0,
       title: content.actTitle ?? null,
     };
   }
