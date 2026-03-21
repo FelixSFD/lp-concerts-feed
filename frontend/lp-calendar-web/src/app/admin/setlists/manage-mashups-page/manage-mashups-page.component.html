@@ -1,3 +1,31 @@
+<!-- Delete mashup confirmation modal -->
+<ng-template #deleteMashupContent let-deleteMashupModal>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h1 class="modal-title fs-5" id="deleteEntryModalLabel">Delete mashup?</h1>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <p>Do you really want to delete this mashup?</p>
+      <table>
+        <tr>
+          <td class="fw-bold">Title:</td>
+          <td>&nbsp;</td>
+          <td>{{ mashupToDelete?.title }}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" [disabled]="isDeletingMashup$" (click)="dismissDeleteMashupConfirmModal()">Cancel</button>
+      <button type="button" class="btn btn-danger" id="deleteConcertConfirmBtn" (click)="onDeleteMashupConfirm()" [disabled]="isDeletingMashup$">
+        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" [hidden]="!isDeletingMashup$"></span>
+        <span class="sr-only">{{ isDeletingMashup$ ? "Deleting..." : "Delete" }}</span>
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+
 <h1>Manage mashups</h1>
 <p>Mashups are used to group multiple songs in a single setlist entry. This can be used for medleys, too.</p>
 
@@ -16,7 +44,7 @@
         <td>{{ mashup.title }}</td>
         <td>
           <button class="btn btn-outline-info" [routerLink]="[mashup.id?.toString()]">Edit</button>
-          <button class="btn btn-outline-danger ms-2" disabled>Delete</button>
+          <button class="btn btn-outline-danger ms-2" (click)="onDeleteSetlistClicked(deleteMashupContent, mashup)">Delete</button>
         </td>
       </tr>
     }

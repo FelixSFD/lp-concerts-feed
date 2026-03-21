@@ -137,6 +137,8 @@ public class SongService(ISongRepository songRepository, ISongVariantRepository 
         if (mashup != null)
         {
             songMashupRepository.Delete(mashup);
+            await songMashupRepository.SaveChangesAsync();
+            
             logger.LogInformation("Mashup '{id}' was deleted successfully.", mashupId);
             return;
         }

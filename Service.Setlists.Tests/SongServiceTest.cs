@@ -481,4 +481,55 @@ public class SongServiceTest
             .DidNotReceive()
             .QueryAsync(Arg.Any<CancellationToken>());
     }
+
+
+    [Fact]
+    public async Task DeleteMashupWithIdAsync()
+    {
+        // prepare mocks and test data
+        var song1 = new SongDo
+        {
+            Id = 1234,
+            Title = "QWERTY",
+            Isrc = "5355646",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
+        };
+        
+        var song2 = new SongDo
+        {
+            Id = 1111,
+            Title = "One More Light",
+            Isrc = "123234"
+        };
+
+        var mashup = new SongMashupDo
+        {
+            Id = 1,
+            Title = "Weird mashup",
+            LinkinpediaUrl = "https://lplive.net",
+            Songs = [song1, song2]
+        };
+        
+        _songMashupRepository
+            .GetByPrimaryKeyAsync(mashup.Id)
+            .Returns(mashup);
+        _songMashupRepository
+            .Delete(Arg.Is<SongMashupDo>(m => m.Id == mashup.Id));
+        
+        // call the service
+        await _songService.DeleteMashupWithIdAsync(mashup.Id);
+        
+        // verify mock calls
+        await _songMashupRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(mashup.Id);
+        
+        _songMashupRepository
+            .Received(1)
+            .Delete(Arg.Is<SongMashupDo>(m => m.Id == mashup.Id));
+
+        await _songMashupRepository
+            .Received(1)
+            .SaveChangesAsync();
+    }
 }

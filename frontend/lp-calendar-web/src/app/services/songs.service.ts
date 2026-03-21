@@ -59,4 +59,13 @@ export class SongsService {
   public createMashup(request: CreateSongMashupRequestDto): Observable<SongMashupDto> {
     return this.songsApiClient.createSongMashup(request);
   }
+
+
+  /**
+   * Deletes a mashup
+   * @param id Mashup to delete
+   */
+  public deleteMashup(id: number): Observable<any> {
+    return this.songsApiClient.deleteSongMashup(id);
+  }
 }
