@@ -1,6 +1,6 @@
-import {Component, inject, OnInit, TemplateRef} from '@angular/core';
+import {Component, EventEmitter, inject, OnInit, Output, TemplateRef} from '@angular/core';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
-import {ErrorResponseDto, SongDto} from '../../../modules/lpshows-api';
+import {ErrorResponseDto, SongDto, SongMashupDto} from '../../../modules/lpshows-api';
 import {NgClass} from '@angular/common';
 import {AddSetlistEntryFormComponent} from '../add-setlist-entry-form/add-setlist-entry-form.component';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
@@ -25,6 +25,9 @@ export class MashupFormComponent implements OnInit {
   private toastr = inject(ToastrService);
   private formBuilder = inject(FormBuilder);
   private songsService = inject(SongsService);
+
+  @Output("saveClicked")
+  saveClicked = new EventEmitter<MashupFormContent>();
 
   mashupForm = this.formBuilder.group({
     title: new FormControl('', [Validators.required]),
@@ -76,6 +79,10 @@ export class MashupFormComponent implements OnInit {
 
 
   onSaveClicked() {
+    let content = this.readFromForm();
+    if (content) {
+      this.saveClicked.emit(content!);
+    }
   }
 
 
@@ -92,4 +99,28 @@ export class MashupFormComponent implements OnInit {
 
     this.addSongModal?.dismiss();
   }
+
+
+  private readFromForm(): MashupFormContent | null {
+    let title = this.mashupForm.value.title?.valueOf();
+    let linkinpediaUrl = this.mashupForm.value.linkinpediaUrl?.valueOf();
+
+    if (title == undefined) {
+      this.toastr.error("Title is required");
+      return null;
+    }
+
+    return {
+      title: title!,
+      linkinpediaUrl: linkinpediaUrl ?? null,
+      songs: this.songsInMashup$
+    };
+  }
+}
+
+
+export class MashupFormContent {
+  title!: string;
+  linkinpediaUrl: string | null = null;
+  songs!: SongDto[];
 }

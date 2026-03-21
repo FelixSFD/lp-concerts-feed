@@ -1,7 +1,13 @@
 import {inject, Injectable} from '@angular/core';
 import {AuthService} from '../auth/auth.service';
 import {HttpClient} from '@angular/common/http';
-import {SongDto, SongMashupDto, SongsService as SongsApiClient, SongVariantDto} from '../modules/lpshows-api';
+import {
+  CreateSongMashupRequestDto,
+  SongDto,
+  SongMashupDto,
+  SongsService as SongsApiClient,
+  SongVariantDto
+} from '../modules/lpshows-api';
 import {Observable} from 'rxjs';
 import {Guid} from 'guid-typescript';
 
@@ -43,5 +49,14 @@ export class SongsService {
    */
   public getVariantsOfSong(songId: number) : Observable<SongVariantDto[]> {
     return this.songsApiClient.getVariantsOfSong(songId);
+  }
+
+
+  /**
+   * Creates a mashup of two or more songs
+   * @param request Mashup data
+   */
+  public createMashup(request: CreateSongMashupRequestDto): Observable<SongMashupDto> {
+    return this.songsApiClient.createSongMashup(request);
   }
 }

@@ -688,9 +688,6 @@ components:
       type: object
       description: Request to create a new mashup of two or more songs
       properties:
-        id:
-          type: number
-          description: ID of the mashup
         title:
           type: string
           description: Title of the mashup
@@ -698,7 +695,7 @@ components:
           type: string
           description: URL to the wiki page on Linkinpedia
           nullable: true
-        songs:
+        songIds:
           type: array
           description: IDs of the songs that are included in this mashup
           items:
