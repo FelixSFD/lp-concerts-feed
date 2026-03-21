@@ -371,6 +371,15 @@ public class SetlistService(
         logger.LogDebug("Load setlist entry: {entryId}", entryId);
         var setlistEntry = await setlistEntryRepository.GetByPrimaryKeyAsync(entryId) ?? throw new SetlistEntryNotFoundException(setlistId, entryId);
         
+        // update general parameters
+        var entryParams = request.EntryParameters;
+        setlistEntry.TitleOverride = entryParams.TitleOverride;
+        setlistEntry.ExtraNotes = entryParams.ExtraNotes;
+        setlistEntry.IsPlayedFromRecording = entryParams.IsPlayedFromRecording;
+        setlistEntry.IsRotationSong = entryParams.IsRotationSong;
+        setlistEntry.IsWorldPremiere = entryParams.IsWorldPremiere;
+        
+        // update song
         var songParams = request.SongParameters;
         if (songParams != null)
         {
@@ -384,6 +393,7 @@ public class SetlistService(
             setlistEntry.PlayedSongId = null;
         }
         
+        // update variant
         var songVariantParams = request.SongVariantParameters;
         if (songVariantParams != null)
         {

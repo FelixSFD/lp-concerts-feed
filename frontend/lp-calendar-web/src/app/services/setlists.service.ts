@@ -7,6 +7,7 @@ import {
   SetlistsService as SetlistsApiClient,
   ConcertsService as ConcertsApiClient, UpdateSetlistHeaderRequestDto, AddSongToSetlistRequestDto,
   SetlistEntryParametersDto, AddSongVariantToSetlistRequestDto, SetlistEntryDto, ActParametersDto, RawSetlistEntryDto,
+  UpdateSetlistEntryRequestDto, SongParametersDto, SongVariantParametersDto,
 } from '../modules/lpshows-api';
 import {map, Observable} from 'rxjs';
 import {Guid} from 'guid-typescript';
@@ -31,12 +32,28 @@ export class SetlistsService {
   }
 
   /**
-   * Updates a new setlist
+   * Updates a setlist
    * @param setlistId ID of the setlist
    * @param request Data of the setlist
    */
   public updateSetlistHeader(setlistId: number, request: UpdateSetlistHeaderRequestDto) : Observable<any> {
     return this.setlistsApiClient.updateSetlistHeader(setlistId, request);
+  }
+
+  /**
+   * Updates a setlist entry
+   * @param setlistId ID of the setlist
+   * @param entryId ID of the entry
+   * @param formContent new Data of the setlist entry
+   */
+  public updateSetlistEntry(formContent: AddSetlistEntryFormContent, setlistId: number, entryId: string) : Observable<any> {
+    let request: UpdateSetlistEntryRequestDto = {
+      entryParameters: this.getEntryParametersFromFormContent(formContent),
+      actParameters: this.getActParametersFromFormContent(formContent, setlistId),
+      songParameters: this.getSongParametersFromFormContent(formContent),
+      songVariantParameters: this.getSongVariantParametersFromFormContent(formContent),
+    };
+    return this.setlistsApiClient.updateSetlistEntry(setlistId, entryId, request);
   }
 
   /**
@@ -56,11 +73,9 @@ export class SetlistsService {
     return this.setlistsApiClient.deleteSetlistEntry(setlistId, entryId);
   }
 
-  public addSetlistEntry(content: AddSetlistEntryFormContent, setlistId: number): Observable<any> {
-    let entryType = content.entryType;
-    console.debug("Entry type: ", entryType);
 
-    let entryParameters: SetlistEntryParametersDto = {
+  private getEntryParametersFromFormContent(content: AddSetlistEntryFormContent): SetlistEntryParametersDto {
+    return {
       songNumber: content.songNumber,
       sortNumber: content.sortNumber ?? content.songNumber,
       titleOverride: content.titleOverride,
@@ -69,37 +84,55 @@ export class SetlistsService {
       isRotationSong: content.wasRotationSong,
       isWorldPremiere: content.wasWorldPremiere
     };
+  }
 
-    let actParameters: ActParametersDto = {
+  private getActParametersFromFormContent(content: AddSetlistEntryFormContent, setlistId: number): ActParametersDto {
+    return {
       setlistId: Number(setlistId),
       actNumber: content.actNumber ?? 0,
       title: content.actTitle ?? null,
     };
+  }
 
+  private getSongParametersFromFormContent(content: AddSetlistEntryFormContent): SongParametersDto {
     let songId = content.selectedSongId == -1 ? 0 : Number(content.selectedSongId);
+    return {
+      songId: songId,
+      songTitle: content.songTitle,
+      isrc: content.songIsrc
+    };
+  }
+
+  private getSongVariantParametersFromFormContent(content: AddSetlistEntryFormContent): SongVariantParametersDto {
+    let songId = content.selectedSongId == -1 ? 0 : Number(content.selectedSongId);
+    let songVariantId = content.selectedSongVariantId == -1 ? 0 : Number(content.selectedSongVariantId);
+    return {
+      songId: songId,
+      songVariantId: songVariantId,
+      variantName: content.songVariantName,
+      description: content.songVariantDescription,
+    };
+  }
+
+  public addSetlistEntry(content: AddSetlistEntryFormContent, setlistId: number): Observable<any> {
+    let entryType = content.entryType;
+    console.debug("Entry type: ", entryType);
+
+    let entryParameters: SetlistEntryParametersDto = this.getEntryParametersFromFormContent(content);
+    let actParameters: ActParametersDto = this.getActParametersFromFormContent(content, setlistId);
 
     if (entryType == AddSetlistEntryFormContent.entryTypeSong) {
       let addSongRequest: AddSongToSetlistRequestDto = {
         entryParameters: entryParameters,
-        songParameters: {
-          songId: songId,
-          songTitle: content.songTitle,
-          isrc: content.songIsrc
-        },
+        songParameters: this.getSongParametersFromFormContent(content),
         actParameters: actParameters
       };
 
       return this.setlistsApiClient.addSongToSetlist(setlistId, addSongRequest);
     } else if (entryType == AddSetlistEntryFormContent.entryTypeSongVariant) {
-      let songVariantId = content.selectedSongVariantId == -1 ? 0 : Number(content.selectedSongVariantId);
       let addSongVariantRequest: AddSongVariantToSetlistRequestDto = {
         entryParameters: entryParameters,
-        songVariantParameters: {
-          songId: songId,
-          songVariantId: songVariantId,
-          variantName: content.songVariantName,
-          description: content.songVariantDescription,
-        },
+        songVariantParameters: this.getSongVariantParametersFromFormContent(content),
         actParameters: actParameters
       };
 

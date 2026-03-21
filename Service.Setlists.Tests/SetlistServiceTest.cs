@@ -501,11 +501,11 @@ public class SetlistServiceTest
             SongNumber = 1,
             SortNumber = 10,
             PlayedSong = song,
-            TitleOverride = null,
+            TitleOverride = "new title",
             ExtraNotes = "FINALLY!!!",
             IsPlayedFromRecording = false,
             IsWorldPremiere = false,
-            IsRotationSong = false
+            IsRotationSong = true
         };
         
         var setlist = new SetlistDo
@@ -563,7 +563,13 @@ public class SetlistServiceTest
             .Update(Arg.Is<SetlistEntryDo>(e => e.SetlistId == entry.SetlistId 
                                                 && e.Id == entry.Id 
                                                 && e.SongNumber == updateRequest.EntryParameters.SongNumber 
-                                                && e.PlayedSongId == updateRequest.SongParameters!.SongId));
+                                                && e.PlayedSongId == updateRequest.SongParameters!.SongId
+                                                && e.ExtraNotes == updateRequest.EntryParameters.ExtraNotes
+                                                && entry.TitleOverride == updateRequest.EntryParameters.TitleOverride
+                                                && entry.IsWorldPremiere == updateRequest.EntryParameters.IsWorldPremiere
+                                                && entry.IsRotationSong == updateRequest.EntryParameters.IsRotationSong
+                                                && entry.IsPlayedFromRecording == updateRequest.EntryParameters.IsPlayedFromRecording
+                    ));
 
         await _setlistEntryRepository
             .Received(1)
