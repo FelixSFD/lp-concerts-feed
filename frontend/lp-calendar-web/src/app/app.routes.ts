@@ -16,6 +16,7 @@ import {AddSetlistPageComponent} from './admin/setlists/add-setlist-page/add-set
 import {ManageSetlistsPageComponent} from './admin/setlists/manage-setlists-page/manage-setlists-page.component';
 import {EditSetlistPageComponent} from './admin/setlists/edit-setlist-page/edit-setlist-page.component';
 import {ManageMashupsPageComponent} from './admin/setlists/manage-mashups-page/manage-mashups-page.component';
+import {AddMashupPageComponent} from './admin/setlists/add-mashup-page/add-mashup-page.component';
 
 let baseTitle = "LP Concerts - ";
 
@@ -90,6 +91,11 @@ export const routes: Routes = [
     path: 'admin/mashups',
     component: ManageMashupsPageComponent,
     title: baseTitle + 'Manage mashups',
+  },
+  {
+    path: 'admin/mashups/add',
+    component: AddMashupPageComponent,
+    title: baseTitle + 'Add mashup',
   },
   {
     path: 'admin/setlists',

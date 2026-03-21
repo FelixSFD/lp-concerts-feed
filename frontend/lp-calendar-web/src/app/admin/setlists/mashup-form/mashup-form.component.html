@@ -1,0 +1,49 @@
+<form #form="ngForm" [formGroup]="mashupForm" class="form">
+  <div class="card mt-3">
+    <div class="card-header">
+      General information
+    </div>
+    <div class="card-body edit-form-card">
+      <!-- Mashup title -->
+      <div class="form-group mb-3">
+        <label for="title">Title:</label>
+        <div class="input-group">
+          <input id="title" type="text" formControlName="title" class="form-control" [ngClass]="{ 'is-invalid': mashupForm.controls.title.invalid }" placeholder="Example: Where'd You Go/Waiting For The End">
+        </div>
+        @if (mashupForm.controls.title.invalid) {
+          <div class="text-danger">
+            @if (mashupForm.controls.title.errors) {
+              <small>Title is invalid.</small>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Linkinpedia URL -->
+      <div class="form-group mb-3">
+        <label for="linkinpediaUrl">Linkinpedia URL:</label>
+        <div class="input-group">
+          <input id="linkinpediaUrl" type="text" formControlName="linkinpediaUrl" class="form-control" [ngClass]="{ 'is-invalid': mashupForm.controls.linkinpediaUrl.invalid }" placeholder="(Optional) Link to the page in Linkinpedia">
+          <button class="btn btn-outline-info" (click)="openLinkinpediaUrlClicked()"><i class="bi bi-box-arrow-up-right"></i><span class="d-none d-sm-none d-md-inline ms-2">Open link</span></button>
+        </div>
+        @if (mashupForm.controls.linkinpediaUrl.invalid) {
+          <div class="text-danger">
+            @if (mashupForm.controls.linkinpediaUrl.errors) {
+              <small>URL is invalid.</small>
+            }
+          </div>
+        }
+      </div>
+    </div>
+    <div class="card-footer">
+      <div class="row">
+        <div class="col text-end">
+          <button class="btn btn-success" (click)="onSaveClicked()" [disabled]="isSaving$ || !mashupForm.valid">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!isSaving$"></span>
+            <span class="sr-only">{{ isSaving$ ? "Saving..." : "Save" }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
