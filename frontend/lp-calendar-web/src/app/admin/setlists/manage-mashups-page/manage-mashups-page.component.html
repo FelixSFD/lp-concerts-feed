@@ -1,0 +1,22 @@
+<h1>Manage mashups</h1>
+<p>Mashups are used to group multiple songs in a single setlist entry. This can be used for medleys, too.</p>
+
+<table class="table">
+  <thead>
+  <tr>
+    <th scope="col">Title</th>
+    <th scope="col"></th>
+  </tr>
+  </thead>
+  <tbody>
+    @for (mashup of mashups$; track mashup) {
+      <tr>
+        <td>{{ mashup.title }}</td>
+        <td>
+          <button class="btn btn-outline-info" [routerLink]="[mashup.id?.toString()]">Edit</button>
+          <button class="btn btn-outline-danger ms-2" disabled>Delete</button>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>

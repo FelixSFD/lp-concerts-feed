@@ -15,6 +15,7 @@ import {AppInfoPageComponent} from './app-info-page/app-info-page.component';
 import {AddSetlistPageComponent} from './admin/setlists/add-setlist-page/add-setlist-page.component';
 import {ManageSetlistsPageComponent} from './admin/setlists/manage-setlists-page/manage-setlists-page.component';
 import {EditSetlistPageComponent} from './admin/setlists/edit-setlist-page/edit-setlist-page.component';
+import {ManageMashupsPageComponent} from './admin/setlists/manage-mashups-page/manage-mashups-page.component';
 
 let baseTitle = "LP Concerts - ";
 
@@ -84,6 +85,11 @@ export const routes: Routes = [
     path: 'users/:id',
     component: EditUserComponent,
     title: baseTitle + 'Edit user',
+  },
+  {
+    path: 'admin/mashups',
+    component: ManageMashupsPageComponent,
+    title: baseTitle + 'Manage mashups',
   },
   {
     path: 'admin/setlists',

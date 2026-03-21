@@ -1,7 +1,7 @@
 import {inject, Injectable} from '@angular/core';
 import {AuthService} from '../auth/auth.service';
 import {HttpClient} from '@angular/common/http';
-import {SongDto, SongsService as SongsApiClient, SongVariantDto} from '../modules/lpshows-api';
+import {SongDto, SongMashupDto, SongsService as SongsApiClient, SongVariantDto} from '../modules/lpshows-api';
 import {Observable} from 'rxjs';
 import {Guid} from 'guid-typescript';
 
@@ -22,6 +22,18 @@ export class SongsService {
       return this.songsApiClient.getAllSongs();
     } else {
       return this.songsApiClient.getAllSongs(Guid.create().toString(), "body", false);
+    }
+  }
+
+
+  /**
+   * Returns all mashups
+   */
+  public getAllMashups(cached: boolean) : Observable<SongMashupDto[]> {
+    if (cached) {
+      return this.songsApiClient.getSongMashups();
+    } else {
+      return this.songsApiClient.getSongMashups(Guid.create().toString(), "body", false);
     }
   }
 
