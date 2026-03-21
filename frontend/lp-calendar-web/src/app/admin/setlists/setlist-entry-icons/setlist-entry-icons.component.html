@@ -7,5 +7,9 @@
 }
 
 @if (showGlobeSymbol$) {
-  <i class="bi bi-globe-americas ms-1" ngbTooltip="World premiere!" placement="top"></i>
+  <i class="bi bi-globe-americas ms-1" ngbTooltip="World premiere! This song was not even released yet when it was played." placement="top"></i>
+}
+
+@if (showLivePremiereSymbol$) {
+  <i class="bi bi-stars ms-1" ngbTooltip="Live premiere! This is the first time this song has been played live." placement="top"></i>
 }

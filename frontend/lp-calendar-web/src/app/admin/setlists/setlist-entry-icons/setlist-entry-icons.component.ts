@@ -18,4 +18,7 @@ export class SetlistEntryIconsComponent {
 
   @Input("world-premiere")
   showGlobeSymbol$ = false;
+
+  @Input("live-premiere")
+  showLivePremiereSymbol$ = false;
 }
