@@ -7,7 +7,7 @@ import {
   SetlistsService as SetlistsApiClient,
   ConcertsService as ConcertsApiClient, UpdateSetlistHeaderRequestDto, AddSongToSetlistRequestDto,
   SetlistEntryParametersDto, AddSongVariantToSetlistRequestDto, SetlistEntryDto, ActParametersDto, RawSetlistEntryDto,
-  UpdateSetlistEntryRequestDto, SongParametersDto, SongVariantParametersDto,
+  UpdateSetlistEntryRequestDto, SongParametersDto, SongVariantParametersDto, SetlistActDto,
 } from '../modules/lpshows-api';
 import {map, Observable} from 'rxjs';
 import {Guid} from 'guid-typescript';
@@ -89,7 +89,7 @@ export class SetlistsService {
   private getActParametersFromFormContent(content: AddSetlistEntryFormContent, setlistId: number): ActParametersDto {
     return {
       setlistId: Number(setlistId),
-      actNumber: content.actNumber ?? 0,
+      actNumber: content.selectedActNumber ?? content.actNumber ?? 0,
       title: content.actTitle ?? null,
     };
   }
@@ -176,6 +176,18 @@ export class SetlistsService {
       return this.setlistsApiClient.getSetlists();
     } else {
       return this.setlistsApiClient.getSetlists(Guid.create().toString(), "body", false);
+    }
+  }
+
+
+  /**
+   * Returns all acts in a setlist
+   */
+  public getSetlistActs(setlistId: number, cached: boolean) : Observable<SetlistActDto[]> {
+    if (cached) {
+      return this.setlistsApiClient.getActsWithinSetlist(setlistId);
+    } else {
+      return this.setlistsApiClient.getActsWithinSetlist(setlistId, Guid.create().toString(), "body", false);
     }
   }
 

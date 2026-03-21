@@ -485,6 +485,130 @@ public class SetlistServiceTest
     
     
     [Fact]
+    public async Task UpdateSetlistEntryAsync_ExistingAct()
+    {
+        var song = new SongDo
+        {
+            Id = 1234,
+            Title = "QWERTY",
+            Isrc = "5355646",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
+        };
+        
+        var entry = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            SongNumber = 1,
+            SortNumber = 10,
+            PlayedSong = song,
+            TitleOverride = "new title",
+            ExtraNotes = "FINALLY!!!",
+            IsPlayedFromRecording = false,
+            IsWorldPremiere = false,
+            IsRotationSong = true
+        };
+        
+        var setlist = new SetlistDo
+        {
+            Id = 1,
+            ConcertId = Guid.NewGuid().ToString(),
+            ConcertTitle = "Setlist 1",
+            LinkinpediaUrl = "https://lplive.net",
+            Entries = [entry]
+        };
+
+        var act = new SetlistActDo
+        {
+            SetlistId = setlist.Id,
+            ActNumber = 1,
+            Setlist = setlist,
+            Title = "Act title 1"
+        };
+        entry.Act = act;
+        entry.ActNumber = act.ActNumber;
+
+        var updateRequest = new UpdateSetlistEntryRequestDto
+        {
+            ActParameters = new ActParametersDto
+            {
+                ActNumber = 1,
+                SetlistId = setlist.Id,
+            },
+            EntryParameters = new SetlistEntryParametersDto
+            {
+                SongNumber = 1,
+                SortNumber = 10,
+                TitleOverride = null,
+                ExtraNotes = "something special",
+                IsPlayedFromRecording = false,
+                IsWorldPremiere = true,
+                IsRotationSong = false
+            },
+            SongParameters = new SongParametersDto
+            {
+                SongId = song.Id
+            }
+        };
+        
+        // setup mocks
+        _setlistEntryRepository
+            .GetByPrimaryKeyAsync(entry.Id)
+            .Returns(entry);
+        _setlistEntryRepository
+            .Update(Arg.Is<SetlistEntryDo>(e => e.SetlistId == setlist.Id && e.SongNumber == updateRequest.EntryParameters.SongNumber));
+        _songRepository
+            .GetByPrimaryKeyAsync(song.Id)
+            .Returns(song);
+        _actRepository
+            .GetBy(setlist.Id, updateRequest.ActParameters.ActNumber)
+            .Returns(act);
+        
+        // call the service
+        await _setlistService.UpdateSetlistEntryAsync(setlist.Id, entry.Id, updateRequest);
+        
+        // verify mock calls
+        await _songRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(song.Id);
+        
+        await _songVariantRepository
+            .DidNotReceive()
+            .GetByPrimaryKeyAsync(Arg.Any<uint>());
+        
+        _setlistEntryRepository
+            .Received(1)
+            .Update(Arg.Is<SetlistEntryDo>(e => e.SetlistId == entry.SetlistId 
+                                                && e.Id == entry.Id 
+                                                && e.Act!.SetlistId == setlist.Id
+                                                && e.Act.ActNumber == updateRequest.ActParameters.ActNumber
+                                                && e.SongNumber == updateRequest.EntryParameters.SongNumber 
+                                                && e.PlayedSongId == updateRequest.SongParameters!.SongId
+                                                && e.ExtraNotes == updateRequest.EntryParameters.ExtraNotes
+                                                && e.TitleOverride == updateRequest.EntryParameters.TitleOverride
+                                                && e.IsWorldPremiere == updateRequest.EntryParameters.IsWorldPremiere
+                                                && e.IsRotationSong == updateRequest.EntryParameters.IsRotationSong
+                                                && e.IsPlayedFromRecording == updateRequest.EntryParameters.IsPlayedFromRecording
+                    ));
+
+        await _setlistEntryRepository
+            .Received(1)
+            .SaveChangesAsync();
+        
+        _songRepository
+            .DidNotReceive()
+            .Add(Arg.Any<SongDo>());
+        
+        _songVariantRepository
+            .DidNotReceive()
+            .Add(Arg.Any<SongVariantDo>());
+
+        await _actRepository
+            .Received(1)
+            .GetBy(setlist.Id, updateRequest.ActParameters.ActNumber);
+    }
+    
+    
+    [Fact]
     public async Task UpdateSetlistEntryAsync_ExistingSong()
     {
         var song = new SongDo
@@ -519,7 +643,7 @@ public class SetlistServiceTest
 
         var updateRequest = new UpdateSetlistEntryRequestDto
         {
-            Act = null,
+            ActParameters = null,
             EntryParameters = new SetlistEntryParametersDto
             {
                 SongNumber = 1,
@@ -632,7 +756,7 @@ public class SetlistServiceTest
 
         var updateRequest = new UpdateSetlistEntryRequestDto
         {
-            Act = null,
+            ActParameters = null,
             EntryParameters = new SetlistEntryParametersDto
             {
                 SongNumber = 1,

@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from "@angular/forms";
 import {SongsService} from '../../../services/songs.service';
 import {
@@ -27,6 +27,9 @@ export class AddSetlistEntryFormComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
   private songService = inject(SongsService);
   private setlistsService = inject(SetlistsService);
+
+  @Input("setlist-id")
+  setlistId: number | undefined;
 
   setlistEntryForm = this.formBuilder.group({
     entryType: new FormControl(AddSetlistEntryFormContent.entryTypeSong, [Validators.required]),
@@ -94,6 +97,19 @@ export class AddSetlistEntryFormComponent implements OnInit {
           this.toastr.error(errorResponse.message, "Could not load songs");
         }
       });
+
+    this.setlistsService
+      .getSetlistActs(this.setlistId!, false)
+      .subscribe({
+        next: data => {
+          this.availableActs$ = data;
+          console.debug("Loaded acts: ", this.availableActs$);
+        },
+        error: err => {
+          let errorResponse: ErrorResponseDto = err.error;
+          this.toastr.error(errorResponse.message, "Could not load acts");
+        }
+      })
   }
 
 
@@ -188,7 +204,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
       wasRotationSong: this.setlistEntryForm.value.wasRotationSong?.valueOf() ?? false,
       wasPlayedFromRecording: this.setlistEntryForm.value.wasPlayedFromRecording?.valueOf() ?? false,
       wasWorldPremiere: this.setlistEntryForm.value.wasWorldPremiere?.valueOf() ?? false,
-      selectedActNumber: this.setlistEntryForm.value.selectedActNumber?.valueOf(),
+      selectedActNumber: Number(this.setlistEntryForm.value.selectedActNumber?.valueOf()),
       // these fields are not present in every case
       actNumber: undefined,
       actTitle: undefined,

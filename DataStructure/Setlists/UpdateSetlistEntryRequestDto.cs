@@ -13,7 +13,7 @@ public class UpdateSetlistEntryRequestDto
     /// Title isn't required if the Act already exists.
     /// </summary>
     [JsonPropertyName("actParameters")]
-    public ActParametersDto? Act { get; set; }
+    public ActParametersDto? ActParameters { get; set; }
 
     
     /// <summary>

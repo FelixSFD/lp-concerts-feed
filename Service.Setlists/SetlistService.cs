@@ -71,25 +71,8 @@ public class SetlistService(
         }
         else
         {
-            logger.LogDebug("Checking if act exists: {actNumber}", request.Act);
-            actDo = await actRepository.GetBy(setlistId, request.Act.ActNumber);
-            if (actDo == null)
-            {
-                logger.LogDebug("Adding act {actNumber} to setlist", request.Act);
-                actDo = new SetlistActDo
-                {
-                    SetlistId = setlistId,
-                    ActNumber = request.Act.ActNumber,
-                    Title = StringUtils.NullIfEmpty(request.Act.Title)
-                };
-                
-                actRepository.Add(actDo);
-                logger.LogDebug("Added act.");
-            }
-            else
-            {
-                logger.LogDebug("Read act: {actNumber}; Title: {title}", actDo.ActNumber, actDo.Title);
-            }
+            logger.LogDebug("Checking if act exists: {actNumber}", request.Act!.ActNumber);
+            actDo = await GetOrAddFromParameters(request.Act!, setlistId);
         }
         
         logger.LogDebug("Creating setlist entry...");
@@ -247,7 +230,7 @@ public class SetlistService(
     public async IAsyncEnumerable<SetlistActDto> GetActsWithinSetlistAsync(uint setlistId)
     {
         var setlist = await setlistRepository.GetByPrimaryKeyAsync(setlistId) ?? throw new SetlistNotFoundException(setlistId);
-        logger.LogDebug("Found setlist.");
+        logger.LogDebug("Found setlist with {entries} entries.", setlist.Entries.Count);
         
         var acts = setlist
             .Entries
@@ -379,6 +362,19 @@ public class SetlistService(
         setlistEntry.IsRotationSong = entryParams.IsRotationSong;
         setlistEntry.IsWorldPremiere = entryParams.IsWorldPremiere;
         
+        // update act
+        var actParams = request.ActParameters;
+        if (actParams != null)
+        {
+            setlistEntry.Act = await GetOrAddFromParameters(actParams, setlistId);
+            setlistEntry.ActNumber = actParams.ActNumber;
+        }
+        else
+        {
+            setlistEntry.Act = null;
+            setlistEntry.ActNumber = null;
+        }
+        
         // update song
         var songParams = request.SongParameters;
         if (songParams != null)
@@ -410,6 +406,37 @@ public class SetlistService(
         setlistEntryRepository.Update(setlistEntry);
         await setlistEntryRepository.SaveChangesAsync();
         logger.LogDebug("Updated setlist entry: {entryId}", entryId);
+    }
+    
+    /// <summary>
+    /// Either creates a new <see cref="SetlistActDo"/> or returns the stored object for the <see cref="ActParametersDto.ActNumber"/>
+    /// </summary>
+    /// <param name="actParams"></param>
+    /// <param name="setlistId"></param>
+    /// <returns></returns>
+    /// <exception cref="SongNotFoundException">if an act number was passed, but the song does not exist</exception>
+    private async Task<SetlistActDo> GetOrAddFromParameters(ActParametersDto actParams, uint setlistId)
+    {
+        var actDo = await actRepository.GetBy(setlistId, actParams.ActNumber);
+        if (actDo == null)
+        {
+            logger.LogDebug("Adding act {actNumber} to setlist", actParams.ActNumber);
+            actDo = new SetlistActDo
+            {
+                SetlistId = setlistId,
+                ActNumber = actParams.ActNumber,
+                Title = StringUtils.NullIfEmpty(actParams.Title)
+            };
+                
+            actRepository.Add(actDo);
+            logger.LogDebug("Added act.");
+        }
+        else
+        {
+            logger.LogDebug("Read act: {actNumber}; Title: {title}", actDo.ActNumber, actDo.Title);
+        }
+        
+        return actDo;
     }
 
     /// <summary>

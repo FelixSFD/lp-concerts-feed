@@ -95,6 +95,14 @@ public class SqlSetlistRepositoryTest : DbIntegrationTestsBase
         repo.Add(setlist);
 
         await repo.SaveChangesAsync();
+
+        var act = new SetlistActDo
+        {
+            ActNumber = 1,
+            SetlistId = setlist.Id,
+            Setlist = setlist,
+            Title = "Intro"
+        };
         
         var song1 = new SongDo
         {
@@ -121,6 +129,7 @@ public class SqlSetlistRepositoryTest : DbIntegrationTestsBase
         {
             Id = Guid.NewGuid().ToString(),
             Setlist = setlist,
+            Act = act,
             ExtraNotes = "Notes for this entry",
             TitleOverride = "Custom title",
             SongNumber = 1,
@@ -205,6 +214,11 @@ public class SqlSetlistRepositoryTest : DbIntegrationTestsBase
         Assert.Equal(expected.PlayedSongVariant?.VariantName, actual.PlayedSongVariant?.VariantName);
         Assert.Equal(expected.PlayedSongVariant?.Description, actual.PlayedSongVariant?.Description);
         Assert.Equal(expected.PlayedSongVariant?.IsrcOverride, actual.PlayedSongVariant?.IsrcOverride);
+        
+        // check act
+        Assert.Equal(expected.Act?.ActNumber, actual.Act?.ActNumber);
+        Assert.Equal(expected.Act?.SetlistId, actual.Act?.SetlistId);
+        Assert.Equal(expected.Act?.Title, actual.Act?.Title);
     }
 
 

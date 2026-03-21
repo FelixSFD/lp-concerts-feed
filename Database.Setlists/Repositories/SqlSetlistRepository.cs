@@ -11,9 +11,8 @@ public class SqlSetlistRepository(SetlistsDbContext dbContext)
     {
         await Context.Entry(dataObject)
             .Collection(e => e.Entries)
-            //.Query()
-            //.Include(e => e.PlayedSongVariant)
-            //.ThenInclude(variant => variant!.Song)
+            .Query()
+            .Include(e => e.Act)
             .LoadAsync();
         return dataObject;
     }

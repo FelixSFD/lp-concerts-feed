@@ -41,7 +41,7 @@ export class EditSetlistPageComponent implements OnInit {
   private addEntryFormComponent = viewChild(AddSetlistEntryFormComponent);
   private editEntryFormComponent = viewChild(AddSetlistEntryFormComponent);
 
-  private currentSetlistId: number = 0;
+  currentSetlistId: number = 0;
 
   setlistForm = this.formBuilder.group({
     concertId: new FormControl('', [Validators.required]),
