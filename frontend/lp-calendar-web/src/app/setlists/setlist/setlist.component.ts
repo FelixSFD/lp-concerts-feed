@@ -6,13 +6,15 @@ import {ErrorResponseDto} from '../../modules/lpshows-api';
 import {Setlist} from '../../data/setlists/setlist';
 import {SetlistEntry} from '../../data/setlists/setlist-entry';
 import { SetlistActWithEntries } from "../../data/setlists/setlist-act";
+import {SetlistEntryIconsComponent} from '../../admin/setlists/setlist-entry-icons/setlist-entry-icons.component';
 
 @Component({
   selector: 'app-setlist',
-    imports: [
-        FormsModule,
-        ReactiveFormsModule
-    ],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    SetlistEntryIconsComponent
+  ],
   templateUrl: './setlist.component.html',
   styleUrl: './setlist.component.css',
 })

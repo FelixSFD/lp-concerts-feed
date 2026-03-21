@@ -7,6 +7,9 @@ export class SetlistEntry {
   title!: string;
   extraNotes!: string | null;
   linkinpediaUrl!: string | null;
+  isPlayedFromRecording: boolean = false;
+  isWorldPremiere: boolean = false;
+  isRotationSong: boolean = false;
 
 
   static fromDto(dto: SetlistEntryDto): SetlistEntry {
@@ -18,6 +21,9 @@ export class SetlistEntry {
       title: title ?? dto.playedSong?.title ?? dto.playedSongVariant?.variantName ?? "",
       extraNotes: dto.extraNotes ?? null,
       linkinpediaUrl: dto.linkinpediaUrl ?? null,
+      isPlayedFromRecording: dto.isPlayedFromRecording ?? false,
+      isWorldPremiere: dto.isWorldPremiere ?? false,
+      isRotationSong: dto.isRotationSong ?? false,
     };
 
     // TODO: Mashups

@@ -11,6 +11,7 @@
       <thead>
       <tr>
         <th scope="col">#</th>
+        <th scope="col"></th>
         <th scope="col">Song</th>
         <th scope="col">Notes</th>
       </tr>
@@ -20,15 +21,17 @@
           @if (isAct(structuredEntry)) {
             <tr>
               <td>Act {{ structuredEntry.actNumber }}</td>
+              <td></td>
               <td>{{ structuredEntry.title }}</td>
               <td></td>
             </tr>
 
             @for (entry of structuredEntry.entries; track entry) {
-              <tr>
+              <tr [class]="entry.isWorldPremiere ? 'table-success' : ''">
                 <td>&nbsp;&nbsp;{{ entry.songNumber == 0 ? "" : entry.songNumber }}.</td>
+                <td><app-setlist-entry-icons [record-tape]="entry.isPlayedFromRecording" /></td>
                 @if ("linkinpediaUrl" in entry && entry.linkinpediaUrl) {
-                  <td>&nbsp;&nbsp;<a [href]="entry.linkinpediaUrl" target="_blank" class="link-info">{{ entry.title }}</a></td>
+                  <td>&nbsp;&nbsp;<a [href]="entry.linkinpediaUrl" target="_blank" class="link-info">{{ entry.title }}</a> <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" /></td>
                 } @else {
                   <td>&nbsp;&nbsp;{{ entry.title }}</td>
                 }
@@ -36,10 +39,11 @@
               </tr>
             }
           } @else {
-            <tr>
-              <td>{{ structuredEntry.songNumber == 0 ? "" : structuredEntry.songNumber }}.</td>
+            <tr [class]="structuredEntry.isWorldPremiere ? 'table-success' : ''">
+              <td>{{ structuredEntry.songNumber == 0 ? "" : `${structuredEntry.songNumber}}.` }}</td>
+              <td><app-setlist-entry-icons [record-tape]="structuredEntry.isPlayedFromRecording" /></td>
               @if (structuredEntry.linkinpediaUrl) {
-                <td><a [href]="structuredEntry.linkinpediaUrl" target="_blank" class="link-info">{{ structuredEntry.title }}</a></td>
+                <td><a [href]="structuredEntry.linkinpediaUrl" target="_blank" class="link-info">{{ structuredEntry.title }}</a> <app-setlist-entry-icons [rotation-song]="structuredEntry.isRotationSong" [world-premiere]="structuredEntry.isWorldPremiere" /></td>
               } @else {
                 <td>{{ structuredEntry.title }}</td>
               }

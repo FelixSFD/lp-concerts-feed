@@ -18,6 +18,7 @@ import {
   AddSetlistEntryFormComponent,
   AddSetlistEntryFormContent
 } from '../add-setlist-entry-form/add-setlist-entry-form.component';
+import {SetlistEntryIconsComponent} from '../setlist-entry-icons/setlist-entry-icons.component';
 
 @Component({
   selector: 'app-edit-setlist-page',
@@ -25,7 +26,8 @@ import {
     FormsModule,
     ReactiveFormsModule,
     NgClass,
-    AddSetlistEntryFormComponent
+    AddSetlistEntryFormComponent,
+    SetlistEntryIconsComponent
   ],
   templateUrl: './edit-setlist-page.component.html',
   styleUrl: './edit-setlist-page.component.css',

@@ -155,6 +155,7 @@
         <tr>
           <th></th>
           <th>#</th>
+          <th></th>
           <th>Act</th>
           <th>Title</th>
           <th>Extra Notes</th>
@@ -171,6 +172,7 @@
                 </div>
               </td>
               <td>{{ entry.songNumber }}</td>
+              <td><app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [record-tape]="entry.isPlayedFromRecording" [world-premiere]="entry.isWorldPremiere" /></td>
               @if (entry.actNumber) {
                 <td>Act {{ entry.actNumber }}</td>
               } @else {
