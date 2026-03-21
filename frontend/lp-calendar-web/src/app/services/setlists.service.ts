@@ -86,8 +86,13 @@ export class SetlistsService {
     };
   }
 
-  private getActParametersFromFormContent(content: AddSetlistEntryFormContent, setlistId: number): ActParametersDto {
+  private getActParametersFromFormContent(content: AddSetlistEntryFormContent, setlistId: number): ActParametersDto | undefined {
     let usedActNumber = Number(content.selectedActNumber ?? 0) >= 0 ? Number(content.selectedActNumber) : Number(content.actNumber);
+
+    if (usedActNumber == 0) {
+      return undefined;
+    }
+
     return {
       setlistId: Number(setlistId),
       actNumber: usedActNumber ?? 0,
@@ -95,7 +100,11 @@ export class SetlistsService {
     };
   }
 
-  private getSongParametersFromFormContent(content: AddSetlistEntryFormContent): SongParametersDto {
+  private getSongParametersFromFormContent(content: AddSetlistEntryFormContent): SongParametersDto | undefined {
+    if (content.selectedSongId == null) {
+      return undefined;
+    }
+
     let songId = content.selectedSongId == -1 ? 0 : Number(content.selectedSongId);
     return {
       songId: songId,
@@ -104,7 +113,11 @@ export class SetlistsService {
     };
   }
 
-  private getSongVariantParametersFromFormContent(content: AddSetlistEntryFormContent): SongVariantParametersDto {
+  private getSongVariantParametersFromFormContent(content: AddSetlistEntryFormContent): SongVariantParametersDto | undefined {
+    if (content.selectedSongVariantId == null) {
+      return undefined;
+    }
+
     let songId = content.selectedSongId == -1 ? 0 : Number(content.selectedSongId);
     let songVariantId = content.selectedSongVariantId == -1 ? 0 : Number(content.selectedSongVariantId);
     return {
@@ -120,7 +133,7 @@ export class SetlistsService {
     console.debug("Entry type: ", entryType);
 
     let entryParameters: SetlistEntryParametersDto = this.getEntryParametersFromFormContent(content);
-    let actParameters: ActParametersDto = this.getActParametersFromFormContent(content, setlistId);
+    let actParameters: ActParametersDto | undefined = this.getActParametersFromFormContent(content, setlistId);
 
     if (entryType == AddSetlistEntryFormContent.entryTypeSong) {
       let addSongRequest: AddSongToSetlistRequestDto = {
