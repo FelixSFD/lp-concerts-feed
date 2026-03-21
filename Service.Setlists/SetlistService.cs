@@ -4,6 +4,7 @@ using Database.Concerts;
 using Database.Setlists.DataObjects;
 using Database.Setlists.Repositories;
 using LPCalendar.DataStructure.Setlists;
+using LPCalendar.DataStructure.Setlists.Parameters;
 using Service.Setlists.Exceptions;
 
 namespace Service.Setlists;
@@ -356,6 +357,109 @@ public class SetlistService(
         
         setlistRepository.Update(setlist);
         await setlistRepository.SaveChangesAsync();
+    }
+    
+    /// <summary>
+    /// Updates the information of a setlist entry
+    /// </summary>
+    /// <param name="setlistId">ID of the setlist</param>
+    /// <param name="entryId">ID of the setlist entry</param>
+    /// <param name="request">Updated data</param>
+    /// <exception cref="SetlistEntryNotFoundException">if the setlist entry does not exist</exception>
+    public async Task UpdateSetlistEntryAsync(uint setlistId, string entryId, UpdateSetlistEntryRequestDto request)
+    {
+        logger.LogDebug("Load setlist entry: {entryId}", entryId);
+        var setlistEntry = await setlistEntryRepository.GetByPrimaryKeyAsync(entryId) ?? throw new SetlistEntryNotFoundException(setlistId, entryId);
+        
+        var songParams = request.SongParameters;
+        if (songParams != null)
+        {
+            logger.LogDebug("This entry contains a song.");
+            setlistEntry.PlayedSong = await GetOrAddFromParameters(songParams);
+            setlistEntry.PlayedSongId = setlistEntry.PlayedSong?.Id;
+        }
+        else
+        {
+            setlistEntry.PlayedSong = null;
+            setlistEntry.PlayedSongId = null;
+        }
+        
+        var songVariantParams = request.SongVariantParameters;
+        if (songVariantParams != null)
+        {
+            logger.LogDebug("This entry contains a song variant.");
+            setlistEntry.PlayedSongVariant = await GetOrAddFromParameters(songVariantParams);
+            setlistEntry.PlayedSongVariantId = setlistEntry.PlayedSongVariant?.Id;
+        }
+        else
+        {
+            setlistEntry.PlayedSongVariant = null;
+            setlistEntry.PlayedSongVariantId = null;
+        }
+        
+        setlistEntryRepository.Update(setlistEntry);
+        await setlistEntryRepository.SaveChangesAsync();
+        logger.LogDebug("Updated setlist entry: {entryId}", entryId);
+    }
+
+    /// <summary>
+    /// Either creates a new <see cref="SongDo"/> or returns the stored object for the <see cref="SongParametersDto.SongId"/>
+    /// </summary>
+    /// <param name="songParams"></param>
+    /// <returns></returns>
+    /// <exception cref="SongNotFoundException">if a Song ID was passed, but the song does not exist</exception>
+    private async Task<SongDo> GetOrAddFromParameters(SongParametersDto songParams)
+    {
+        SongDo song;
+        if (songParams.SongId is > 0)
+        {
+            logger.LogDebug("Checking if song exists: {songId}", songParams.SongId);
+            song = await songRepository.GetByPrimaryKeyAsync(songParams.SongId ?? 0) ?? throw new SongNotFoundException(songParams.SongId ?? 0);
+        }
+        else
+        {
+            logger.LogDebug("Create a new song");
+            song = new SongDo
+            {
+                Title = songParams.SongTitle!,
+                Isrc = StringUtils.NullIfEmpty(songParams.Isrc)
+            };
+            
+            songRepository.Add(song);
+        }
+        
+        return song;
+    }
+    
+    /// <summary>
+    /// Either creates a new <see cref="SongVariantDo"/> or returns the stored object for the <see cref="SongVariantParametersDto.SongVariantId"/>
+    /// </summary>
+    /// <param name="songVariantParams"></param>
+    /// <returns></returns>
+    /// <exception cref="SongVariantNotFoundException">if a Song variant ID was passed, but the variant does not exist</exception>
+    private async Task<SongVariantDo> GetOrAddFromParameters(SongVariantParametersDto songVariantParams)
+    {
+        SongVariantDo songVariant;
+        if (songVariantParams.SongVariantId is > 0)
+        {
+            logger.LogDebug("Checking if song variant exists: {songVariantId}", songVariantParams.SongVariantId);
+            songVariant = await songVariantRepository.GetByPrimaryKeyAsync(songVariantParams.SongVariantId ?? 0) ?? throw new SongVariantNotFoundException(songVariantParams.SongVariantId ?? 0);
+        }
+        else
+        {
+            logger.LogDebug("Create a new song variant");
+            songVariant = new SongVariantDo
+            {
+                SongId = songVariantParams.SongId ?? 0,
+                VariantName = StringUtils.NullIfEmpty(songVariantParams.VariantName),
+                Description = StringUtils.NullIfEmpty(songVariantParams.Description),
+                IsrcOverride = StringUtils.NullIfEmpty(songVariantParams.IsrcOverride)
+            };
+            
+            songVariantRepository.Add(songVariant);
+        }
+        
+        return songVariant;
     }
     
     /// <summary>
