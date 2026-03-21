@@ -1,0 +1,6 @@
+<select class="form-select form-control" (change)="onSongSelectionChanged(songSelector.value)" #songSelector>
+  <option selected disabled>Select song</option>
+  @for (song of availableSongs$; track song.id) {
+    <option [value]="song.id">{{ song.title }}</option>
+  }
+</select>

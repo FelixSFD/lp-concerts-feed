@@ -1,3 +1,29 @@
+<!-- add song modal -->
+<ng-template #addSongContent let-addSongModal>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h1 class="modal-title fs-5" id="addSongModalLabel">Add a new song</h1>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <!-- Song selection -->
+      <div class="form-group">
+        <label for="song">Played Song</label>
+        <div class="input-group mb-3">
+          <app-select-song [available-songs]="availableSongs$" (songSelected)="onSongSelected($event)" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary">Cancel</button>
+      <button type="button" class="btn btn-primary" id="addEntryConfirmBtn" (click)="onConfirmSongSelectionClicked()">
+        <span class="sr-only">Add</span>
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+
 <form #form="ngForm" [formGroup]="mashupForm" class="form">
   <div class="card mt-3">
     <div class="card-header">
@@ -44,6 +70,39 @@
           </button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div class="card mt-3">
+    <div class="card-header">
+      <div class="row">
+        <div class="col text-start align-content-center">
+          Songs in this mashup
+        </div>
+        <div class="col text-end">
+          <button class="btn btn-sm btn-outline-primary" [disabled]="isSaving$" (click)="onAddSongClicked(addSongContent)">
+            <span class="sr-only">Add song</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body edit-form-card">
+      <table class="table table-striped">
+        <thead>
+        <tr>
+          <th scope="col">Title</th>
+          <th scope="col">ISRC</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (song of songsInMashup$; track song.id) {
+            <tr>
+              <td>{{ song.title }}</td>
+              <td>{{ song.isrc }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
   </div>
 </form>
