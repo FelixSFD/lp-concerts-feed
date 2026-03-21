@@ -30,8 +30,8 @@ export class Setlist {
     let currentAct: SetlistActWithEntries | null = null;
     for (let entry of dto.entries ?? []) {
       if (entry.actNumber ?? 0 > 0) {
-        // this entry is part of an act. If currentAct is not set, it needs to be created
-        if (currentAct == null) {
+        // this entry is part of an act. If currentAct is not set or different from this entry, it needs to be created
+        if (currentAct == null || currentAct.actNumber !== entry.actNumber) {
           // create new act
           let foundAct = setlist.acts.find(a => a.actNumber == entry.actNumber);
           if (foundAct) {

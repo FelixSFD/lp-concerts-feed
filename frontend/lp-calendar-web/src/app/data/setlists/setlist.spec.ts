@@ -105,7 +105,7 @@ describe('Setlist', () => {
           playedSongVariant: {
             id: 1,
             variantName: "Piano Version",
-            songId: "5",
+            songId: 5,
             description: "Shortened. Only first verse and chorus"
           }
         },
