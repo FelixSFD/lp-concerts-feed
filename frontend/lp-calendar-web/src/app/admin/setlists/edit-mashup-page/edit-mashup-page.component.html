@@ -1,3 +1,4 @@
 <h1>Edit mashup</h1>
+<button class="btn btn-outline-secondary" [routerLink]="['../']"><i class="bi bi-arrow-left"></i> Mashup list</button>
 
-<app-mashup-form (saveClicked)="onSaveClicked($event)" />
+<app-mashup-form (saveClicked)="onSaveClicked($event)" [is-saving]="isSaving$" />

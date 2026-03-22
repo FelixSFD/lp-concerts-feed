@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, OnInit, Output, TemplateRef} from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnInit, Output, TemplateRef} from '@angular/core';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ErrorResponseDto, SongDto, SongMashupDto} from '../../../modules/lpshows-api';
 import {NgClass} from '@angular/common';
@@ -26,6 +26,9 @@ export class MashupFormComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
   private songsService = inject(SongsService);
 
+  @Input("is-saving")
+  isSaving$: boolean = false;
+
   @Output("saveClicked")
   saveClicked = new EventEmitter<MashupFormContent>();
 
@@ -33,8 +36,6 @@ export class MashupFormComponent implements OnInit {
     title: new FormControl('', [Validators.required]),
     linkinpediaUrl: new FormControl('', [Validators.pattern(/^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/)]),
   });
-
-  isSaving$: boolean = false;
 
   // if open, the modal is referenced here
   addSongModal: NgbModalRef | undefined;

@@ -1,21 +1,18 @@
 import {Component, inject, OnInit, viewChild} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {ToastrService} from 'ngx-toastr';
-import {SetlistEntry} from '../../../data/setlists/setlist-entry';
 import {SongsService} from '../../../services/songs.service';
 import {
-  CreateSongMashupRequestDto,
   ErrorResponseDto,
-  SongMashupDto,
   UpdateSongMashupRequestDto
 } from '../../../modules/lpshows-api';
-import {AddSetlistEntryFormComponent} from '../add-setlist-entry-form/add-setlist-entry-form.component';
 import {MashupFormComponent, MashupFormContent} from '../mashup-form/mashup-form.component';
 
 @Component({
   selector: 'app-edit-mashup-page',
   imports: [
-    MashupFormComponent
+    MashupFormComponent,
+    RouterLink
   ],
   templateUrl: './edit-mashup-page.component.html',
   styleUrl: './edit-mashup-page.component.css',
@@ -30,6 +27,8 @@ export class EditMashupPageComponent implements OnInit {
 
   currentMashupId: number = 0;
 
+  isSaving$ = false;
+
 
   ngOnInit() {
     this.activeRoute.params.subscribe(params => {
@@ -43,6 +42,8 @@ export class EditMashupPageComponent implements OnInit {
 
 
   onSaveClicked(formContent: MashupFormContent) {
+    this.isSaving$ = true;
+
     let request: UpdateSongMashupRequestDto = {
       title: formContent.title,
       linkinpediaUrl: formContent.linkinpediaUrl,
@@ -53,10 +54,12 @@ export class EditMashupPageComponent implements OnInit {
       next: createdMashup => {
         console.debug('Update mashup', createdMashup);
         this.toastr.success("Successfully saved mashup");
+        this.isSaving$ = false;
       },
       error: err => {
         let errorResponse: ErrorResponseDto = err.error;
         this.toastr.error(errorResponse.message, "Could not update mashup");
+        this.isSaving$ = false;
       }
     });
   }

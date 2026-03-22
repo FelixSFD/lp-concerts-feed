@@ -64,12 +64,12 @@ export class ManageMashupsPageComponent implements OnInit {
           next: () => {
             this.reloadList(false);
             this.deleteMashupModal?.dismiss();
-            this.isDeletingMashup$ = true;
+            this.isDeletingMashup$ = false;
           },
           error: err => {
             let errorResponse: ErrorResponseDto = err.error;
             this.toastr.error(errorResponse.message, "Could not delete mashup!");
-            this.isDeletingMashup$ = true;
+            this.isDeletingMashup$ = false;
           }
         });
     }
