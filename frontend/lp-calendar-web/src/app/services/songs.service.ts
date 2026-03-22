@@ -6,7 +6,7 @@ import {
   SongDto,
   SongMashupDto,
   SongsService as SongsApiClient,
-  SongVariantDto
+  SongVariantDto, UpdateSongMashupRequestDto
 } from '../modules/lpshows-api';
 import {Observable} from 'rxjs';
 import {Guid} from 'guid-typescript';
@@ -62,10 +62,34 @@ export class SongsService {
 
 
   /**
+   * Updates a mashup of two or more songs
+   * @param id Mashup to update
+   * @param request Mashup data
+   */
+  public updateMashup(id: number, request: UpdateSongMashupRequestDto): Observable<SongMashupDto> {
+    return this.songsApiClient.updateSongMashup(id, request);
+  }
+
+
+  /**
    * Deletes a mashup
    * @param id Mashup to delete
    */
   public deleteMashup(id: number): Observable<any> {
     return this.songsApiClient.deleteSongMashup(id);
+  }
+
+
+  /**
+   * Returns a mashup by its ID
+   * @param id Mashup to find
+   * @param cached true if cache can be used
+   */
+  public getMashup(id: number, cached: boolean): Observable<SongMashupDto> {
+    if (cached) {
+      return this.songsApiClient.getSongMashupById(id);
+    } else {
+      return this.songsApiClient.getSongMashupById(id, Guid.create().toString(), "body", false);
+    }
   }
 }

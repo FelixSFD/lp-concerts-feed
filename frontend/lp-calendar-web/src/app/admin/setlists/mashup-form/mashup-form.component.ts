@@ -116,6 +116,15 @@ export class MashupFormComponent implements OnInit {
       songs: this.songsInMashup$
     };
   }
+
+
+  public fillFormWith(mashup: SongMashupDto) {
+    console.debug("Fill form with data:", mashup);
+    this.mashupForm.controls.title.setValue(mashup.title ?? null);
+    this.mashupForm.controls.linkinpediaUrl.setValue(mashup.linkinpediaUrl ?? null);
+
+    this.songsInMashup$ = mashup.songs ?? [];
+  }
 }
 
 

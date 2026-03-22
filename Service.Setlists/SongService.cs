@@ -145,4 +145,32 @@ public class SongService(ISongRepository songRepository, ISongVariantRepository 
         
         logger.LogInformation("Mashup '{id}' does not exist.", mashupId);
     }
+
+    /// <summary>
+    /// Updates the information of a mashup
+    /// </summary>
+    /// <param name="mashupId">ID of the mashup to update</param>
+    /// <param name="request">new information for the mashup</param>
+    /// <returns>the saved mashup</returns>
+    /// <exception cref="SongMashupNotFoundException">if the mashup does not exist</exception>
+    public async Task<SongMashupDto> UpdateMashupAsync(uint mashupId, UpdateSongMashupRequestDto request)
+    {
+        logger.LogDebug("Load mashup with id: {mashupId}", mashupId);
+        var mashup = await songMashupRepository.GetByPrimaryKeyAsync(mashupId) ?? throw new SongMashupNotFoundException(mashupId);
+        logger.LogDebug("Load {count} songs in the mashup...", request.SongIds.Length);
+        var songs = await songRepository
+            .GetSongsByIds(request.SongIds)
+            .ToArrayAsync();
+        logger.LogDebug("Found {count} songs in the mashup.", songs.Length);
+        mashup.Title = request.Title;
+        mashup.LinkinpediaUrl = request.LinkinpediaUrl;
+        mashup.Songs = songs;
+        logger.LogDebug("Save mashup...");
+        songMashupRepository.Update(mashup);
+
+        await songMashupRepository.SaveChangesAsync();
+        logger.LogDebug("Successfully saved mashup.");
+        
+        return DtoMapper.ToDto(mashup);
+    }
 }

@@ -532,4 +532,95 @@ public class SongServiceTest
             .Received(1)
             .SaveChangesAsync();
     }
+    
+    
+    [Fact]
+    public async Task UpdateMashupAsync()
+    {
+        // prepare mocks and test data
+        var song1 = new SongDo
+        {
+            Id = 1234,
+            Title = "QWERTY",
+            Isrc = "5355646",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
+        };
+        
+        var song2 = new SongDo
+        {
+            Id = 1111,
+            Title = "One More Light",
+            Isrc = "123234"
+        };
+        
+        var song3 = new SongDo
+        {
+            Id = 1,
+            Title = "Lost",
+            Isrc = "1"
+        };
+
+        var mashup = new SongMashupDo
+        {
+            Id = 1,
+            Title = "Weird mashup",
+            LinkinpediaUrl = "https://lplive.net",
+            Songs = [song1, song2]
+        };
+
+        var request = new UpdateSongMashupRequestDto
+        {
+            Title = "new title",
+            LinkinpediaUrl = "https://linkinpedia.com/",
+            SongIds = [song1.Id, song3.Id]
+        };
+
+        List<SongDo> mockSongs = [song1, song3];
+
+        _songRepository
+            .GetSongsByIds(song1.Id, song3.Id)
+            .Returns(mockSongs.ToAsyncEnumerable());
+        _songMashupRepository
+            .GetByPrimaryKeyAsync(mashup.Id)
+            .Returns(mashup);
+        _songMashupRepository
+            .Update(Arg.Is<SongMashupDo>(m => m.Id == mashup.Id
+                                              && m.Title == request.Title
+                                              && m.LinkinpediaUrl == request.LinkinpediaUrl
+                                              && m.Songs.Any(s => s.Id == song1.Id)
+                                              && m.Songs.Any(s => s.Id == song3.Id)
+                                              && m.Songs.All(s => s.Id != song2.Id)
+            ));
+        
+        // call the service
+        var result = await _songService.UpdateMashupAsync(mashup.Id, request);
+        
+        // verify results
+        Assert.Equal(request.Title, result.Title);
+        Assert.Equal(result.LinkinpediaUrl, request.LinkinpediaUrl);
+        Assert.Equal(result.Songs.Count, mockSongs.Count);
+        
+        // verify mock calls
+        await _songMashupRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(mashup.Id);
+
+        _songRepository
+            .Received(1)
+            .GetSongsByIds(song1.Id, song3.Id);
+        
+        _songMashupRepository
+            .Received(1)
+            .Update(Arg.Is<SongMashupDo>(m => m.Id == mashup.Id
+                                              && m.Title == request.Title
+                                              && m.LinkinpediaUrl == request.LinkinpediaUrl
+                                              && m.Songs.Any(s => s.Id == song1.Id)
+                                              && m.Songs.Any(s => s.Id == song3.Id)
+                                              && m.Songs.All(s => s.Id != song2.Id)
+            ));
+
+        await _songMashupRepository
+            .Received(1)
+            .SaveChangesAsync();
+    }
 }

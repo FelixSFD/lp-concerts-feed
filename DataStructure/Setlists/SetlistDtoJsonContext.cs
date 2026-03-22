@@ -6,6 +6,7 @@ namespace LPCalendar.DataStructure.Setlists;
 [JsonSerializable(typeof(CreateSetlistRequestDto))]
 [JsonSerializable(typeof(CreateSetlistResponseDto))]
 [JsonSerializable(typeof(CreateSongMashupRequestDto))]
+[JsonSerializable(typeof(UpdateSongMashupRequestDto))]
 [JsonSerializable(typeof(UpdateSetlistHeaderRequestDto))]
 [JsonSerializable(typeof(UpdateSetlistEntryRequestDto))]
 [JsonSerializable(typeof(ReorderSetlistEntriesRequestDto))]

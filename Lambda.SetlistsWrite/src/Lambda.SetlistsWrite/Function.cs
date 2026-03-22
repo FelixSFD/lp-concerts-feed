@@ -156,6 +156,11 @@ public class Function
             return await HandleCreateMashup(request.Body, context);
         }
         
+        if (request is { HttpMethod: "POST", Resource: "/mashups/{mashupId}" } && hasMashupIdPathParameter)
+        {
+            return await HandleUpdateMashup(mashupId ?? 0, request.Body, context);
+        }
+        
         if (request is { HttpMethod: "DELETE", Resource: "/mashups/{mashupId}" } && hasMashupIdPathParameter)
         {
             return await HandleDeleteSongMashup(mashupId ?? 0, context);
@@ -749,7 +754,7 @@ public class Function
     }
 
     /// <summary>
-    /// Create a new setlist in the database
+    /// Create a new mashup in the database
     /// </summary>
     /// <param name="request"></param>
     /// <param name="context"></param>
@@ -780,7 +785,7 @@ public class Function
     }
     
     /// <summary>
-    /// Removes an song mashup
+    /// Removes a song mashup
     /// </summary>
     /// <param name="mashupId">unique ID of the mashup</param>
     /// <param name="context"></param>
@@ -799,5 +804,63 @@ public class Function
                 { "Access-Control-Allow-Methods", "OPTIONS, DELETE" }
             }
         };
+    }
+    
+    private async Task<APIGatewayProxyResponse> HandleUpdateMashup(uint mashupId, string requestJson,
+        ILambdaContext context)
+    {
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.UpdateSongMashupRequestDto);
+        if (dto != null)
+            return await HandleUpdateMashup(mashupId, dto, context);
+        
+        var badRequestResponse = new ErrorResponse
+        {
+            Message = "Failed to deserialize the request body"
+        };
+            
+        context.Logger.LogError(badRequestResponse.Message);
+            
+        return new APIGatewayProxyResponse
+        {
+            StatusCode = (int)HttpStatusCode.BadRequest,
+            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
+            Headers = new Dictionary<string, string>
+            {
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, POST" }
+            }
+        };
+    }
+
+    /// <summary>
+    /// Updates a mashup in the database
+    /// </summary>
+    /// <param name="mashupId">ID of the mashup to update</param>
+    /// <param name="request">new data</param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    private async Task<APIGatewayProxyResponse> HandleUpdateMashup(uint mashupId, UpdateSongMashupRequestDto request,
+        ILambdaContext context)
+    {
+        try
+        {
+            var responseDto = await _songService.UpdateMashupAsync(mashupId, request);
+            context.Logger.LogDebug("Successfully updated mashup with ID: {id}", responseDto.Id);
+
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.OK,
+                Body = JsonSerializer.Serialize(responseDto, SetlistDtoJsonContext.Default.SongMashupDto),
+                Headers = new Dictionary<string, string>
+                {
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, POST" }
+                }
+            };
+        }
+        catch (InvalidMashupException e)
+        {
+            return ReturnBadRequest(e.Message, "OPTIONS, POST");
+        }
     }
 }

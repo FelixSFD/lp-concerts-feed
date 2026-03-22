@@ -17,7 +17,6 @@ export class AddMashupPageComponent {
   private songsService = inject(SongsService);
 
   onSaveClicked(formContent: MashupFormContent) {
-    console.log(formContent);
     let request: CreateSongMashupRequestDto = {
       title: formContent.title,
       linkinpediaUrl: formContent.linkinpediaUrl,
@@ -32,6 +31,6 @@ export class AddMashupPageComponent {
         let errorResponse: ErrorResponseDto = err.error;
         this.toastr.error(errorResponse.message, "Could not create mashup");
       }
-    })
+    });
   }
 }
