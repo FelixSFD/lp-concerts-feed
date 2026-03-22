@@ -8,11 +8,11 @@ import {
   ConcertsService as ConcertsApiClient, UpdateSetlistHeaderRequestDto, AddSongToSetlistRequestDto,
   SetlistEntryParametersDto, AddSongVariantToSetlistRequestDto, SetlistEntryDto, ActParametersDto, RawSetlistEntryDto,
   UpdateSetlistEntryRequestDto, SongParametersDto, SongVariantParametersDto, SetlistActDto,
+  AddSongMashupToSetlistRequestDto, SongMashupParametersDto,
 } from '../modules/lpshows-api';
 import {map, Observable} from 'rxjs';
 import {Guid} from 'guid-typescript';
 import {AddSetlistEntryFormContent} from '../admin/setlists/add-setlist-entry-form/add-setlist-entry-form.component';
-import {SetlistEntry} from '../data/setlists/setlist-entry';
 
 @Injectable({
   providedIn: 'root',
@@ -128,6 +128,17 @@ export class SetlistsService {
     };
   }
 
+  private getSongMashupParametersFromFormContent(content: AddSetlistEntryFormContent): SongMashupParametersDto | undefined {
+    if (content.selectedSongMashupId == null) {
+      return undefined;
+    }
+
+    let mashupId = content.selectedSongMashupId == -1 ? 0 : Number(content.selectedSongMashupId);
+    return {
+      songMashupId: mashupId
+    };
+  }
+
   public addSetlistEntry(content: AddSetlistEntryFormContent, setlistId: number): Observable<any> {
     let entryType = content.entryType;
     console.debug("Entry type: ", entryType);
@@ -151,6 +162,15 @@ export class SetlistsService {
       };
 
       return this.setlistsApiClient.addSongVariantToSetlist(setlistId, addSongVariantRequest);
+    } else if (entryType == AddSetlistEntryFormContent.entryTypeSongMashup) {
+      let addSongMashupRequest: AddSongMashupToSetlistRequestDto = {
+        entryParameters: entryParameters,
+        songMashupParameters: this.getSongMashupParametersFromFormContent(content),
+        actParameters: actParameters
+      };
+      console.debug("addSongMashupRequest: ", addSongMashupRequest);
+
+      return this.setlistsApiClient.addSongMashupToSetlist(setlistId, addSongMashupRequest);
     } else {
       throw new Error(`The entry type '${entryType}' is not implemented`);
     }

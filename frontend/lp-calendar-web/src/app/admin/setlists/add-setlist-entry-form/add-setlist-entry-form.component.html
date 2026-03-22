@@ -78,7 +78,7 @@
         <input type="radio" class="btn-check" name="entryType" id="song" formControlName="entryType" [value]="AddSetlistEntryFormContent.entryTypeSong" autocomplete="off">
         <label class="btn btn-outline-primary" for="song">Song</label>
         <input type="radio" class="btn-check" name="entryType" id="songMashup" formControlName="entryType" [value]="AddSetlistEntryFormContent.entryTypeSongMashup" autocomplete="off">
-        <label class="btn btn-outline-info" for="songMashup">Mashup</label>
+        <label class="btn btn-outline-info" for="songMashup">Mashup/Medley</label>
       </div>
     </div>
     @if (setlistEntryForm.controls.selectedSongId.invalid) {
@@ -168,6 +168,28 @@
       @if (setlistEntryForm.controls.selectedSongVariantId.invalid) {
         <div class="text-danger">
           @if (setlistEntryForm.controls.selectedSongVariantId.errors) {
+            <small>Selection is invalid.</small>
+          }
+        </div>
+      }
+    </div>
+  } @else if (selectedEntryType$ == AddSetlistEntryFormContent.entryTypeSongMashup) {
+    <!-- Mashup -->
+    <div class="form-group">
+      <label for="selectedSongMashupId">Mashup/Medley</label>
+      <div class="input-group mb-3">
+        <select class="form-select form-control"
+                formControlName="selectedSongMashupId"
+                [ngClass]="{ 'is-invalid': setlistEntryForm.controls.selectedSongMashupId.invalid }">
+          <option selected value="0" disabled>Select mashup...</option>
+          @for (mashup of availableSongMashups$; track mashup.id) {
+            <option [value]="mashup.id">{{ mashup.title }}</option>
+          }
+        </select>
+      </div>
+      @if (setlistEntryForm.controls.selectedSongMashupId.invalid) {
+        <div class="text-danger">
+          @if (setlistEntryForm.controls.selectedSongMashupId.errors) {
             <small>Selection is invalid.</small>
           }
         </div>

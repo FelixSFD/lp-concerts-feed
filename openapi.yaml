@@ -494,6 +494,12 @@ components:
           nullable: true
           oneOf:
             - $ref: "#/components/schemas/SongVariant"
+        playedSongMashup:
+          type: object
+          description: Song mashup or medley that was played. If not set, they didn't play a mashup, but a song or song variant instead
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/SongMashup"
         title:
           type: string
           description: Title of this setlist entry. This can for example be the title of a song or a mashup
@@ -545,6 +551,12 @@ components:
           nullable: true
           oneOf:
             - $ref: "#/components/schemas/SongVariant"
+        playedSongMashup:
+          type: object
+          description: Song mashup or medley that was played. If not set, they didn't play a mashup, but a song or song variant instead
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/SongMashup"
         titleOverride:
           type: string
           description: Optional field to override the title of a setlist entry
@@ -849,7 +861,7 @@ components:
       type: object
       description: Request to add a song mashup to an existing setlist
       properties:
-        songVariantParameters:
+        songMashupParameters:
           type: object
           description: Parameters of the song mashup for this entry
           oneOf:
@@ -2170,7 +2182,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AddSongVariantToSetlistRequest"
+              $ref: "#/components/schemas/AddSongMashupToSetlistRequest"
       responses:
         "201":
           description: The setlist entry that has just been created
@@ -2179,7 +2191,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/AddSongVariantToSetlistResponse"
+                  $ref: "#/components/schemas/AddSongMashupToSetlistResponse"
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:

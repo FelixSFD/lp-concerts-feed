@@ -6,7 +6,7 @@ import {
   ErrorResponseDto,
   RawSetlistEntryDto,
   SetlistActDto,
-  SongDto,
+  SongDto, SongMashupDto,
   SongVariantDto
 } from '../../../modules/lpshows-api';
 import {ToastrService} from 'ngx-toastr';
@@ -46,6 +46,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
     selectedSongVariantId: new FormControl(0, []),
     songVariantName: new FormControl('', []),
     songVariantDescription: new FormControl('', []),
+    selectedSongMashupId: new FormControl(0, []),
     wasPlayedFromRecording: new FormControl(false, []),
     wasRotationSong: new FormControl(false, []),
     wasWorldPremiere: new FormControl(false, []),
@@ -53,6 +54,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
 
   selectedEntryType$: string = AddSetlistEntryFormContent.entryTypeSong;
 
+  availableSongMashups$: SongMashupDto[] = [];
   availableSongs$: SongDto[] = [];
   availableActs$: SetlistActDto[] = [];
 
@@ -95,6 +97,28 @@ export class AddSetlistEntryFormComponent implements OnInit {
         error: err => {
           let errorResponse: ErrorResponseDto = err.error;
           this.toastr.error(errorResponse.message, "Could not load songs");
+        }
+      });
+
+    this.songService
+      .getAllMashups(true)
+      .subscribe({
+        next: data => {
+          this.availableSongMashups$ = data;
+          console.debug("Loaded mashups: ", this.availableSongMashups$);
+
+          if (this.storedEntry) {
+            console.debug("Has a stored entry: ", this.storedEntry);
+            let mashupId = this.storedEntry.playedSongMashup?.id ?? 0;
+
+            if (mashupId > 0) {
+              this.setlistEntryForm.controls.selectedSongMashupId.setValue(mashupId);
+            }
+          }
+        },
+        error: err => {
+          let errorResponse: ErrorResponseDto = err.error;
+          this.toastr.error(errorResponse.message, "Could not load mashups");
         }
       });
 
@@ -214,6 +238,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
       songTitle: undefined,
       songVariantDescription: undefined,
       songVariantName: undefined,
+      selectedSongMashupId: undefined,
     }
 
     if (content.selectedActNumber ?? 0 < 0) {
@@ -237,6 +262,9 @@ export class AddSetlistEntryFormComponent implements OnInit {
         content.songVariantName = this.setlistEntryForm.value.songVariantName?.valueOf();
         content.songVariantDescription = this.setlistEntryForm.value.songVariantDescription?.valueOf();
       }
+    } else if (entryType == AddSetlistEntryFormContent.entryTypeSongMashup) {
+      console.debug("This entry is a song mashup...");
+      content.selectedSongMashupId = this.setlistEntryForm.value.selectedSongMashupId?.valueOf();
     }
 
     return content;
@@ -321,6 +349,11 @@ export class AddSetlistEntryFormContent {
    * If the selectedSongVariantId is "-1", this field contains the description of the new variant
    */
   songVariantDescription: string | undefined | null;
+
+  /**
+   * ID of the song mashup that was selected. null if this entry does not contain a song.
+   */
+  selectedSongMashupId: number | undefined | null;
 
   /**
    * true if the song was played from a recording
