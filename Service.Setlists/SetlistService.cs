@@ -405,6 +405,21 @@ public class SetlistService(
             setlistEntry.PlayedSongVariantId = null;
         }
         
+        // update mashup
+        var songMashupParams = request.SongMashupParameters;
+        if (songMashupParams != null)
+        {
+            logger.LogDebug("This entry contains a song mashup.");
+            var foundMashup = await songMashupRepository.GetByPrimaryKeyAsync(songMashupParams.SongMashupId) ?? throw new SongMashupNotFoundException(songMashupParams.SongMashupId);
+            setlistEntry.PlayedMashup = foundMashup;
+            setlistEntry.PlayedMashupId = foundMashup.Id;
+        }
+        else
+        {
+            setlistEntry.PlayedMashup = null;
+            setlistEntry.PlayedMashupId = null;
+        }
+        
         setlistEntryRepository.Update(setlistEntry);
         await setlistEntryRepository.SaveChangesAsync();
         logger.LogDebug("Updated setlist entry: {entryId}", entryId);

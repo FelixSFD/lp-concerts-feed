@@ -25,7 +25,7 @@ public class UpdateSetlistEntryRequestDto
     
     /// <summary>
     /// If set, this contains the data of the song that was played.
-    /// Only one of <see cref="SongParameters"/> or <see cref="SongVariantParameters"/> can be set.
+    /// Only one of <see cref="SongMashupParameters"/>, <see cref="SongParameters"/> or <see cref="SongVariantParameters"/> can be set.
     /// </summary>
     [JsonPropertyName("songParameters")]
     public SongParametersDto? SongParameters { get; set; }
@@ -33,8 +33,16 @@ public class UpdateSetlistEntryRequestDto
     
     /// <summary>
     /// If set, this contains the data of the song variant that was played.
-    /// Only one of <see cref="SongParameters"/> or <see cref="SongVariantParameters"/> can be set.
+    /// Only one of <see cref="SongMashupParameters"/>, <see cref="SongParameters"/> or <see cref="SongVariantParameters"/> can be set.
     /// </summary>
     [JsonPropertyName("songVariantParameters")]
     public SongVariantParametersDto? SongVariantParameters { get; set; }
+    
+    
+    /// <summary>
+    /// If set, this contains the data of the song mashup that was played.
+    /// Only one of <see cref="SongMashupParameters"/>, <see cref="SongParameters"/> or <see cref="SongVariantParameters"/> can be set.
+    /// </summary>
+    [JsonPropertyName("songMashupParameters")]
+    public SongMashupParametersDto? SongMashupParameters { get; set; }
 }

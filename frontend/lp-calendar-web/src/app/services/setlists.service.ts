@@ -52,6 +52,7 @@ export class SetlistsService {
       actParameters: this.getActParametersFromFormContent(formContent, setlistId),
       songParameters: this.getSongParametersFromFormContent(formContent),
       songVariantParameters: this.getSongVariantParametersFromFormContent(formContent),
+      songMashupParameters: this.getSongMashupParametersFromFormContent(formContent),
     };
     return this.setlistsApiClient.updateSetlistEntry(setlistId, entryId, request);
   }
@@ -194,9 +195,14 @@ export class SetlistsService {
    * Returns a setlist entry by its ID
    * @param setlistId ID of the setlist
    * @param entryId ID of the entry
+   * @param cached true if the setlist entry can be read from cache
    */
-  public getSetlistEntry(setlistId: number, entryId: string) : Observable<RawSetlistEntryDto> {
-    return this.setlistsApiClient.getSetlistEntry(setlistId, entryId);
+  public getSetlistEntry(setlistId: number, entryId: string, cached: boolean = true) : Observable<RawSetlistEntryDto> {
+    if (cached) {
+      return this.setlistsApiClient.getSetlistEntry(setlistId, entryId);
+    } else {
+      return this.setlistsApiClient.getSetlistEntry(setlistId, entryId, Guid.create().toString(), "body", false);
+    }
   }
 
   /**

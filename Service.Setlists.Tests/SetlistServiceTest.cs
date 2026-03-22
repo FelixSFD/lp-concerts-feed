@@ -609,6 +609,124 @@ public class SetlistServiceTest
     
     
     [Fact]
+    public async Task UpdateSetlistEntryAsync_ExistingMashup()
+    {
+        var song1 = new SongDo
+        {
+            Id = 1234,
+            Title = "QWERTY",
+            Isrc = "5355646",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
+        };
+        
+        var song2 = new SongDo
+        {
+            Id = 321,
+            Title = "My December",
+            Isrc = "42342"
+        };
+
+        var mashup = new SongMashupDo
+        {
+            Title = "weird mashup",
+            Songs = [song1, song2]
+        };
+        
+        var entry = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            SongNumber = 1,
+            SortNumber = 10,
+            PlayedMashup = mashup,
+            ExtraNotes = "very strange",
+            IsPlayedFromRecording = false,
+            IsWorldPremiere = false,
+            IsRotationSong = true
+        };
+        
+        var setlist = new SetlistDo
+        {
+            Id = 1,
+            ConcertId = Guid.NewGuid().ToString(),
+            ConcertTitle = "Setlist 1",
+            LinkinpediaUrl = "https://lplive.net",
+            Entries = [entry]
+        };
+
+        var updateRequest = new UpdateSetlistEntryRequestDto
+        {
+            ActParameters = null,
+            EntryParameters = new SetlistEntryParametersDto
+            {
+                SongNumber = 1337,
+                SortNumber = 15,
+                TitleOverride = null,
+                ExtraNotes = "something special",
+                IsPlayedFromRecording = false,
+                IsWorldPremiere = true,
+                IsRotationSong = false
+            },
+            SongMashupParameters = new SongMashupParametersDto
+            {
+                SongMashupId = mashup.Id
+            }
+        };
+        
+        // setup mocks
+        _setlistEntryRepository
+            .GetByPrimaryKeyAsync(entry.Id)
+            .Returns(entry);
+        _setlistEntryRepository
+            .Update(Arg.Is<SetlistEntryDo>(e => e.SetlistId == setlist.Id && e.SongNumber == updateRequest.EntryParameters.SongNumber));
+        _songMashupRepository
+            .GetByPrimaryKeyAsync(mashup.Id)
+            .Returns(mashup);
+        
+        // call the service
+        await _setlistService.UpdateSetlistEntryAsync(setlist.Id, entry.Id, updateRequest);
+        
+        // verify mock calls
+        await _songMashupRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(mashup.Id);
+        
+        await _songRepository
+            .DidNotReceive()
+            .GetByPrimaryKeyAsync(Arg.Any<uint>());
+        
+        await _songVariantRepository
+            .DidNotReceive()
+            .GetByPrimaryKeyAsync(Arg.Any<uint>());
+        
+        _setlistEntryRepository
+            .Received(1)
+            .Update(Arg.Is<SetlistEntryDo>(e => e.SetlistId == entry.SetlistId 
+                                                && e.Id == entry.Id 
+                                                && e.SongNumber == updateRequest.EntryParameters.SongNumber
+                                                && e.SortNumber == updateRequest.EntryParameters.SortNumber
+                                                && e.PlayedMashupId == updateRequest.SongMashupParameters!.SongMashupId
+                                                && e.ExtraNotes == updateRequest.EntryParameters.ExtraNotes
+                                                && entry.TitleOverride == updateRequest.EntryParameters.TitleOverride
+                                                && entry.IsWorldPremiere == updateRequest.EntryParameters.IsWorldPremiere
+                                                && entry.IsRotationSong == updateRequest.EntryParameters.IsRotationSong
+                                                && entry.IsPlayedFromRecording == updateRequest.EntryParameters.IsPlayedFromRecording
+                    ));
+
+        await _setlistEntryRepository
+            .Received(1)
+            .SaveChangesAsync();
+        
+        _songRepository
+            .DidNotReceive()
+            .Add(Arg.Any<SongDo>());
+        
+        _songVariantRepository
+            .DidNotReceive()
+            .Add(Arg.Any<SongVariantDo>());
+    }
+    
+    
+    [Fact]
     public async Task UpdateSetlistEntryAsync_ExistingSong()
     {
         var song = new SongDo

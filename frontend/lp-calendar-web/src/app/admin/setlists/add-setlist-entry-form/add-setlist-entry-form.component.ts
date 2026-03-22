@@ -188,7 +188,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
   public loadEntry(setlistId: number, entryId: string) {
     this.setlistEntryForm.disable();
 
-    this.setlistsService.getSetlistEntry(setlistId, entryId)
+    this.setlistsService.getSetlistEntry(setlistId, entryId, false)
       .subscribe({
         next: entry => {
           this.storedEntry = entry;
