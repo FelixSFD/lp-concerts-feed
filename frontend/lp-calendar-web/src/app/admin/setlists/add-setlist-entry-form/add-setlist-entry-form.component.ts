@@ -1,8 +1,7 @@
-import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
+import {Component, inject, Input, OnInit} from '@angular/core';
 import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from "@angular/forms";
 import {SongsService} from '../../../services/songs.service';
 import {
-  ConcertDto,
   ErrorResponseDto,
   RawSetlistEntryDto,
   SetlistActDto,
@@ -12,6 +11,7 @@ import {
 import {ToastrService} from 'ngx-toastr';
 import {NgClass} from '@angular/common';
 import {SetlistsService} from '../../../services/setlists.service';
+import {nullIfEmpty} from '../../../helper/string-helper'
 
 @Component({
   selector: 'app-add-setlist-entry-form',
@@ -202,9 +202,14 @@ export class AddSetlistEntryFormComponent implements OnInit {
           this.setlistEntryForm.controls.selectedActNumber.setValue(entry.actNumber ?? null);
           this.setlistEntryForm.controls.selectedSongId.setValue(entry.playedSong?.id ?? null);
           this.setlistEntryForm.controls.selectedSongVariantId.setValue(entry.playedSongVariant?.id ?? null);
+          this.setlistEntryForm.controls.selectedSongMashupId.setValue(entry.playedSongMashup?.id ?? null);
           this.setlistEntryForm.controls.wasWorldPremiere.setValue(entry.isWorldPremiere ?? false);
           this.setlistEntryForm.controls.wasPlayedFromRecording.setValue(entry.isPlayedFromRecording ?? false);
           this.setlistEntryForm.controls.wasRotationSong.setValue(entry.isRotationSong ?? false);
+
+          if (entry.playedSongMashup != null) {
+            this.setlistEntryForm.controls.entryType.setValue(AddSetlistEntryFormContent.entryTypeSongMashup);
+          }
 
           this.setlistEntryForm.enable();
         },
@@ -219,16 +224,26 @@ export class AddSetlistEntryFormComponent implements OnInit {
 
   public readValuesFromForm(): AddSetlistEntryFormContent {
     let entryType = this.selectedEntryType$;
+
+    let sortNumber = this.setlistEntryForm.value.sortNumber?.valueOf();
+    let songNumber = this.setlistEntryForm.value.songNumber?.valueOf();
+    let titleOverride = this.setlistEntryForm.value.titleOverride?.valueOf() ?? null;
+    let extraNotes = this.setlistEntryForm.value.extraNotes?.valueOf();
+    let wasRotationSong = this.setlistEntryForm.value.wasRotationSong?.valueOf() ?? false;
+    let wasPlayedFromRecording = this.setlistEntryForm.value.wasPlayedFromRecording?.valueOf() ?? false;
+    let wasWorldPremiere = this.setlistEntryForm.value.wasWorldPremiere?.valueOf() ?? false;
+    let selectedActNumber = Number(this.setlistEntryForm.value.selectedActNumber?.valueOf());
+
     let content: AddSetlistEntryFormContent = {
       entryType: entryType,
-      sortNumber: this.setlistEntryForm.value.sortNumber?.valueOf(),
-      songNumber: this.setlistEntryForm.value.songNumber?.valueOf(),
-      titleOverride: this.setlistEntryForm.value.titleOverride?.valueOf(),
-      extraNotes: this.setlistEntryForm.value.extraNotes?.valueOf(),
-      wasRotationSong: this.setlistEntryForm.value.wasRotationSong?.valueOf() ?? false,
-      wasPlayedFromRecording: this.setlistEntryForm.value.wasPlayedFromRecording?.valueOf() ?? false,
-      wasWorldPremiere: this.setlistEntryForm.value.wasWorldPremiere?.valueOf() ?? false,
-      selectedActNumber: Number(this.setlistEntryForm.value.selectedActNumber?.valueOf()),
+      sortNumber: sortNumber,
+      songNumber: songNumber,
+      titleOverride: nullIfEmpty(titleOverride),
+      extraNotes: nullIfEmpty(extraNotes),
+      wasRotationSong: wasRotationSong,
+      wasPlayedFromRecording: wasPlayedFromRecording,
+      wasWorldPremiere: wasWorldPremiere,
+      selectedActNumber: selectedActNumber,
       // these fields are not present in every case
       actNumber: undefined,
       actTitle: undefined,
@@ -243,15 +258,15 @@ export class AddSetlistEntryFormComponent implements OnInit {
 
     if (content.selectedActNumber ?? 0 < 0) {
       content.actNumber = Number(this.setlistEntryForm.value.actNumber?.valueOf());
-      content.actTitle = this.setlistEntryForm.value.actTitle?.valueOf() ?? null;
+      content.actTitle = nullIfEmpty(this.setlistEntryForm.value.actTitle?.valueOf() ?? null);
     }
 
     if (entryType == AddSetlistEntryFormContent.entryTypeSong) {
       console.debug("Adding fields about a song...");
 
       content.selectedSongId = this.setlistEntryForm.value.selectedSongId?.valueOf();
-      content.songTitle = this.setlistEntryForm.value.songTitle?.valueOf();
-      content.songIsrc = this.setlistEntryForm.value.songIsrc?.valueOf();
+      content.songTitle = nullIfEmpty(this.setlistEntryForm.value.songTitle?.valueOf());
+      content.songIsrc = nullIfEmpty(this.setlistEntryForm.value.songIsrc?.valueOf());
 
       let songVariantId = this.setlistEntryForm.value.selectedSongVariantId?.valueOf() ?? 0;
       if (songVariantId != 0) {
@@ -259,8 +274,8 @@ export class AddSetlistEntryFormComponent implements OnInit {
         content.entryType = AddSetlistEntryFormContent.entryTypeSongVariant;
 
         content.selectedSongVariantId = songVariantId;
-        content.songVariantName = this.setlistEntryForm.value.songVariantName?.valueOf();
-        content.songVariantDescription = this.setlistEntryForm.value.songVariantDescription?.valueOf();
+        content.songVariantName = nullIfEmpty(this.setlistEntryForm.value.songVariantName?.valueOf());
+        content.songVariantDescription = nullIfEmpty(this.setlistEntryForm.value.songVariantDescription?.valueOf());
       }
     } else if (entryType == AddSetlistEntryFormContent.entryTypeSongMashup) {
       console.debug("This entry is a song mashup...");
