@@ -78,7 +78,7 @@ export class SetlistsService {
   private getEntryParametersFromFormContent(content: AddSetlistEntryFormContent): SetlistEntryParametersDto {
     return {
       songNumber: content.songNumber,
-      sortNumber: content.sortNumber ?? content.songNumber,
+      sortNumber: content.sortNumber ?? ((content.songNumber ?? 1) * 10),
       titleOverride: content.titleOverride,
       extraNotes: content.extraNotes,
       isPlayedFromRecording: content.wasPlayedFromRecording,

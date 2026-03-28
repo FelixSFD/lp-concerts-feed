@@ -6,7 +6,7 @@ import {
   SetlistDto,
   UpdateSetlistHeaderRequestDto
 } from '../../../modules/lpshows-api';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {SetlistsService} from '../../../services/setlists.service';
 import {ToastrService} from 'ngx-toastr';
 import {NgClass} from '@angular/common';
@@ -27,7 +27,8 @@ import {SetlistEntryIconsComponent} from '../setlist-entry-icons/setlist-entry-i
     ReactiveFormsModule,
     NgClass,
     AddSetlistEntryFormComponent,
-    SetlistEntryIconsComponent
+    SetlistEntryIconsComponent,
+    RouterLink
   ],
   templateUrl: './edit-setlist-page.component.html',
   styleUrl: './edit-setlist-page.component.css',
@@ -193,9 +194,10 @@ export class EditSetlistPageComponent implements OnInit {
         .subscribe({
           next: () => {
             this.toastr.success("Setlist was updated successfully");
-            this.isAddingEntry$ = false;
-
             this.reloadCurrentSetlist();
+
+            this.isAddingEntry$ = false;
+            this.addEntryModal?.dismiss()
           },
           error: err => {
             let errorResponse: ErrorResponseDto = err.error;
