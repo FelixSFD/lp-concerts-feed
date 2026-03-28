@@ -166,6 +166,11 @@ public class Function
             return await HandleDeleteSongMashup(mashupId ?? 0, context);
         }
         
+        if (request is { HttpMethod: "DELETE", Resource: "/songs/{songId}" } && hasSongIdPathParameter)
+        {
+            return await HandleDeleteSong(songId ?? 0, context);
+        }
+        
         var hasSetlistEntryIdPathParameter = request.PathParameters.TryGetValue("setlistEntryId", out var setlistEntryId);
         
         if (request is { HttpMethod: "POST", Resource: "/setlists/{setlistId}/entries/{setlistEntryId}" } 
@@ -862,5 +867,27 @@ public class Function
         {
             return ReturnBadRequest(e.Message, "OPTIONS, POST");
         }
+    }
+    
+    /// <summary>
+    /// Removes a song
+    /// </summary>
+    /// <param name="songId">unique ID of the song</param>
+    /// <param name="context"></param>
+    /// <returns>HTTP response</returns>
+    private async Task<APIGatewayProxyResponse> HandleDeleteSong(uint songId, ILambdaContext context)
+    {
+        context.Logger.LogInformation("Deleting song with ID: {songId}", songId);
+        await _songService.DeleteSongWithIdAsync(songId);
+        
+        return new APIGatewayProxyResponse
+        {
+            StatusCode = (int)HttpStatusCode.NoContent,
+            Headers = new Dictionary<string, string>
+            {
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, DELETE" }
+            }
+        };
     }
 }

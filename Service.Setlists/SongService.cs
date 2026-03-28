@@ -39,6 +39,26 @@ public class SongService(ISongRepository songRepository, ISongVariantRepository 
     }
     
     /// <summary>
+    /// Deletes a song
+    /// </summary>
+    /// <param name="songId">ID of the song</param>
+    public async Task DeleteSongWithIdAsync(uint songId)
+    {
+        logger.LogDebug("Delete song with id: {songId}", songId);
+        var song = await songRepository.GetByPrimaryKeyAsync(songId);
+        if (song != null)
+        {
+            songRepository.Delete(song);
+            await songRepository.SaveChangesAsync();
+            
+            logger.LogInformation("Song '{id}' was deleted successfully.", songId);
+            return;
+        }
+        
+        logger.LogInformation("Song '{id}' does not exist.", songId);
+    }
+    
+    /// <summary>
     /// Returns a song variant by its ID
     /// </summary>
     /// <param name="variantId">ID of the song</param>

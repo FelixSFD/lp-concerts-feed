@@ -136,6 +136,42 @@ public class SongServiceTest
     
     
     [Fact]
+    public async Task DeleteSongWithIdAsync()
+    {
+        // prepare mocks and test data
+        var song = new SongDo
+        {
+            Id = 1234,
+            Title = "QWERTY",
+            Isrc = "5355646",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
+        };
+        
+        _songRepository
+            .GetByPrimaryKeyAsync(song.Id)
+            .Returns(song);
+        _songRepository
+            .Delete(Arg.Is<SongDo>(m => m.Id == song.Id));
+        
+        // call the service
+        await _songService.DeleteSongWithIdAsync(song.Id);
+        
+        // verify mock calls
+        await _songRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(song.Id);
+        
+        _songRepository
+            .Received(1)
+            .Delete(Arg.Is<SongDo>(m => m.Id == song.Id));
+
+        await _songRepository
+            .Received(1)
+            .SaveChangesAsync();
+    }
+    
+    
+    [Fact]
     public async Task GetSongVariantByIdAsync()
     {
         // prepare mocks and test data
