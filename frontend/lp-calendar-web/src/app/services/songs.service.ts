@@ -2,7 +2,7 @@ import {inject, Injectable} from '@angular/core';
 import {AuthService} from '../auth/auth.service';
 import {HttpClient} from '@angular/common/http';
 import {
-  CreateSongMashupRequestDto,
+  CreateSongMashupRequestDto, CreateSongRequestDto,
   SongDto,
   SongMashupDto,
   SongsService as SongsApiClient,
@@ -18,6 +18,15 @@ export class SongsService {
   private readonly authService = inject(AuthService);
 
   constructor(private httpClient: HttpClient, private songsApiClient: SongsApiClient) { }
+
+
+  /**
+   * Creates a new song
+   * @param request Song data
+   */
+  public createSong(request: CreateSongRequestDto): Observable<SongDto> {
+    return this.songsApiClient.createSong(request);
+  }
 
 
   /**

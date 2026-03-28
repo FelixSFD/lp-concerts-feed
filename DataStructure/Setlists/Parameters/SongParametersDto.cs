@@ -26,4 +26,11 @@ public class SongParametersDto
     /// </summary>
     [JsonPropertyName("isrc")]
     public string? Isrc { get; set; }
+    
+    
+    /// <summary>
+    /// Link to the wiki page on Linkinpedia
+    /// </summary>
+    [JsonPropertyName("linkinpediaUrl")]
+    public string? LinkinpediaUrl { get; set; }
 }

@@ -7,10 +7,31 @@ using Service.Setlists.Exceptions;
 namespace Service.Setlists;
 
 /// <summary>
-/// Service class to manage Songs and variants
+/// Service class to manage Songs, variants and mashups
 /// </summary>
 public class SongService(ISongRepository songRepository, ISongVariantRepository songVariantRepository, ISongMashupRepository songMashupRepository, ILambdaLogger logger)
 {
+    /// <summary>
+    /// Creates a new song
+    /// </summary>
+    /// <param name="request">Request to create the song</param>
+    public async Task<SongDto> CreateSongAsync(CreateSongRequestDto request)
+    {
+        logger.LogDebug("Creating song with title '{title}'...", request.Title);
+
+        var song = new SongDo
+        {
+            Title = request.Title,
+            Isrc = request.Isrc,
+            LinkinpediaUrl = request.LinkinpediaUrl
+        };
+        
+        songRepository.Add(song);
+        await songRepository.SaveChangesAsync();
+        logger.LogDebug("Successfully created song '{id}'.", song.Id);
+        return DtoMapper.ToDto(song);
+    }
+    
     /// <summary>
     /// Returns all songs ordered by title
     /// </summary>

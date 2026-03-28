@@ -19,7 +19,8 @@ public static class DtoMapper
         {
             Id = songDo.Id,
             Title = songDo.Title,
-            Isrc = songDo.Isrc
+            Isrc = songDo.Isrc,
+            LinkinpediaUrl = songDo.LinkinpediaUrl
         };
     }
     

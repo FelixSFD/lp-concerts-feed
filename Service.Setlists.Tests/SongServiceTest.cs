@@ -27,6 +27,30 @@ public class SongServiceTest
     
     
     [Fact]
+    public async Task CreateSongAsync()
+    {
+        // call the service
+        var request = new CreateSongRequestDto
+        {
+            Title = "QWERTY",
+            Isrc = "5355646",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
+        };
+        
+        var song = await _songService.CreateSongAsync(request);
+        Assert.NotNull(song);
+        Assert.Equal(request.Title, song.Title);
+        Assert.Equal(request.Isrc, song.Isrc);
+        Assert.Equal(request.LinkinpediaUrl, song.LinkinpediaUrl);
+        
+        // verify mock calls
+        _songRepository
+            .Received(1)
+            .Add(Arg.Is<SongDo>(m => m.Id == 0 && m.Title == request.Title && m.Isrc == request.Isrc && m.LinkinpediaUrl == request.LinkinpediaUrl));
+    }
+    
+    
+    [Fact]
     public async Task GetAllSongsAsync()
     {
         // prepare mocks and test data

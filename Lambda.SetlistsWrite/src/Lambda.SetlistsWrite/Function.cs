@@ -145,6 +145,17 @@ public class Function
             return await HandleDeleteSetlist(setlistId ?? 0, context);
         }
         
+        if (request is { HttpMethod: "POST", Resource: "/songs" })
+        {
+            if (request.Body == null)
+            {
+                return ReturnBadRequest("Missing request body!");
+            }
+            
+            context.Logger.LogInformation("Creating a song...");
+            return await HandleCreateSong(request.Body, context);
+        }
+        
         if (request is { HttpMethod: "POST", Resource: "/mashups" })
         {
             if (request.Body == null)
@@ -889,5 +900,62 @@ public class Function
                 { "Access-Control-Allow-Methods", "OPTIONS, DELETE" }
             }
         };
+    }
+    
+    private async Task<APIGatewayProxyResponse> HandleCreateSong(string requestJson,
+        ILambdaContext context)
+    {
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.CreateSongRequestDto);
+        if (dto != null)
+            return await HandleCreateSong(dto, context);
+        
+        var badRequestResponse = new ErrorResponse
+        {
+            Message = "Failed to deserialize the request body"
+        };
+            
+        context.Logger.LogError(badRequestResponse.Message);
+            
+        return new APIGatewayProxyResponse
+        {
+            StatusCode = (int)HttpStatusCode.BadRequest,
+            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
+            Headers = new Dictionary<string, string>
+            {
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, POST" }
+            }
+        };
+    }
+
+    /// <summary>
+    /// Create a new song in the database
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    private async Task<APIGatewayProxyResponse> HandleCreateSong(CreateSongRequestDto request,
+        ILambdaContext context)
+    {
+        try
+        {
+            var responseDto = await _songService.CreateSongAsync(request);
+            context.Logger.LogDebug("Successfully created song with ID: {id}", responseDto.Id);
+
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.Created,
+                Body = JsonSerializer.Serialize(responseDto, SetlistDtoJsonContext.Default.SongDto),
+                Headers = new Dictionary<string, string>
+                {
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, POST" }
+                }
+            };
+        }
+        catch (InvalidMashupException e)
+        {
+            return ReturnBadRequest(e.Message, "OPTIONS, POST");
+        }
     }
 }
