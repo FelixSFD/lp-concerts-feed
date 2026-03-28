@@ -1,23 +1,20 @@
-import {Component, inject, viewChild} from '@angular/core';
-import {ActivatedRoute, Router, RouterLink} from '@angular/router';
+import {Component, inject, OnInit, viewChild} from '@angular/core';
+import {ActivatedRoute, RouterLink} from '@angular/router';
 import {ToastrService} from 'ngx-toastr';
 import {SongsService} from '../../../services/songs.service';
-import {ErrorResponseDto, UpdateSongMashupRequestDto} from '../../../modules/lpshows-api';
+import {ErrorResponseDto, UpdateSongRequestDto} from '../../../modules/lpshows-api';
 import {SongFormComponent, SongFormContent} from '../song-form/song-form.component';
-import {MashupFormComponent} from '../mashup-form/mashup-form.component';
 
 @Component({
   selector: 'app-edit-song-page',
   imports: [
-    MashupFormComponent,
     RouterLink,
     SongFormComponent
   ],
   templateUrl: './edit-song-page.component.html',
   styleUrl: './edit-song-page.component.css',
 })
-export class EditSongPageComponent {
-  private router = inject(Router);
+export class EditSongPageComponent implements OnInit {
   private activeRoute = inject(ActivatedRoute);
   private toastr = inject(ToastrService);
   private songsService = inject(SongsService);
@@ -41,29 +38,26 @@ export class EditSongPageComponent {
 
 
   onSaveClicked(formContent: SongFormContent) {
-    /*
     this.isSaving$ = true;
 
-    let request: UpdateSongMashupRequestDto = {
+    let request: UpdateSongRequestDto = {
       title: formContent.title,
+      isrc: formContent.isrc,
       linkinpediaUrl: formContent.linkinpediaUrl,
-      songIds: formContent.songs.map(s => s.id!)
     };
 
-    this.songsService.updateMashup(this.currentMashupId, request).subscribe({
-      next: createdMashup => {
-        console.debug('Update mashup', createdMashup);
-        this.toastr.success("Successfully saved mashup");
+    this.songsService.updateSong(this.currentSongId, request).subscribe({
+      next: createdSong => {
+        console.debug('Updated song', createdSong);
+        this.toastr.success("Successfully saved song");
         this.isSaving$ = false;
       },
       error: err => {
         let errorResponse: ErrorResponseDto = err.error;
-        this.toastr.error(errorResponse.message, "Could not update mashup");
+        this.toastr.error(errorResponse.message, "Could not update song");
         this.isSaving$ = false;
       }
     });
-
-     */
   }
 
 

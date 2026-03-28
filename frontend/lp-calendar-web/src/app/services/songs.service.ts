@@ -6,7 +6,7 @@ import {
   SongDto,
   SongMashupDto,
   SongsService as SongsApiClient,
-  SongVariantDto, UpdateSongMashupRequestDto
+  SongVariantDto, UpdateSongMashupRequestDto, UpdateSongRequestDto
 } from '../modules/lpshows-api';
 import {Observable} from 'rxjs';
 import {Guid} from 'guid-typescript';
@@ -26,6 +26,16 @@ export class SongsService {
    */
   public createSong(request: CreateSongRequestDto): Observable<SongDto> {
     return this.songsApiClient.createSong(request);
+  }
+
+
+  /**
+   * Updates a song
+   * @param id ID of the song to modify
+   * @param request new Song data
+   */
+  public updateSong(id: number, request: UpdateSongRequestDto): Observable<SongDto> {
+    return this.songsApiClient.updateSong(id, request);
   }
 
 
