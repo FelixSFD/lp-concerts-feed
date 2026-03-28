@@ -33,6 +33,15 @@ export class SongsService {
 
 
   /**
+   * Deletes a song
+   * @param id Song to delete
+   */
+  public deleteSong(id: number): Observable<any> {
+    return this.songsApiClient.deleteSong(id);
+  }
+
+
+  /**
    * Returns all mashups
    */
   public getAllMashups(cached: boolean) : Observable<SongMashupDto[]> {

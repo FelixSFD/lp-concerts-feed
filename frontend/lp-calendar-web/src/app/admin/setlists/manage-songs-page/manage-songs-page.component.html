@@ -1,0 +1,58 @@
+<!-- Delete song confirmation modal -->
+<ng-template #deleteSongContent let-deleteSongModal>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h1 class="modal-title fs-5" id="deleteEntryModalLabel">Delete song?</h1>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <p>Do you really want to delete this song?</p>
+      <table>
+        <tr>
+          <td class="fw-bold">Title:</td>
+          <td>&nbsp;</td>
+          <td>{{ songToDelete?.title }}</td>
+        </tr>
+        <tr>
+          <td class="fw-bold">ISRC:</td>
+          <td>&nbsp;</td>
+          <td>{{ songToDelete?.isrc }}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" [disabled]="isDeletingSong$" (click)="dismissDeleteSongConfirmModal()">Cancel</button>
+      <button type="button" class="btn btn-danger" id="deleteConcertConfirmBtn" (click)="onDeleteSongConfirm()" [disabled]="isDeletingSong$">
+        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" [hidden]="!isDeletingSong$"></span>
+        <span class="sr-only">{{ isDeletingSong$ ? "Deleting..." : "Delete" }}</span>
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+
+<h1>Manage songs</h1>
+
+<button class="btn btn-outline-primary" [routerLink]="['add']">Add song</button>
+
+<table class="table">
+  <thead>
+  <tr>
+    <th scope="col">Title</th>
+    <th scope="col">ISRC</th>
+    <th scope="col"></th>
+  </tr>
+  </thead>
+  <tbody>
+    @for (song of songs$; track song) {
+      <tr>
+        <td>{{ song.title }}</td>
+        <td>{{ song.isrc }}</td>
+        <td>
+          <button class="btn btn-outline-info" [routerLink]="[song.id?.toString()]">Edit</button>
+          <button class="btn btn-outline-danger ms-2" (click)="onDeleteSongClicked(deleteSongContent, song)">Delete</button>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>

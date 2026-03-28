@@ -18,6 +18,7 @@ import {EditSetlistPageComponent} from './admin/setlists/edit-setlist-page/edit-
 import {ManageMashupsPageComponent} from './admin/setlists/manage-mashups-page/manage-mashups-page.component';
 import {AddMashupPageComponent} from './admin/setlists/add-mashup-page/add-mashup-page.component';
 import {EditMashupPageComponent} from './admin/setlists/edit-mashup-page/edit-mashup-page.component';
+import {ManageSongsPageComponent} from './admin/setlists/manage-songs-page/manage-songs-page.component';
 
 let baseTitle = "LP Concerts - ";
 
@@ -122,6 +123,11 @@ export const routes: Routes = [
     path: 'admin/setlists/add/:concertId',
     component: AddSetlistPageComponent,
     title: baseTitle + 'Create a new setlist',
+  },
+  {
+    path: 'admin/songs',
+    component: ManageSongsPageComponent,
+    title: baseTitle + 'Manage songs',
   },
   {
     path: 'app',
