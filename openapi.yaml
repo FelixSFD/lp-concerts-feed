@@ -407,6 +407,10 @@ components:
           type: string
           description: ISRC of the song
           nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
     
     SongVariant:
       type: object

@@ -19,10 +19,15 @@ public class SongDto
     [JsonPropertyName("title")]
     public string? Title { get; set; }
     
-    
     /// <summary>
     /// ISRC of the song
     /// </summary>
     [JsonPropertyName("isrc")]
     public string? Isrc { get; set; }
+    
+    /// <summary>
+    /// Link to the wiki page on Linkinpedia
+    /// </summary>
+    [JsonPropertyName("linkinpediaUrl")]
+    public string? LinkinpediaUrl { get; set; }
 }

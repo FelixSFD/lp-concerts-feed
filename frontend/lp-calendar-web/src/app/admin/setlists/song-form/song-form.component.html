@@ -1,0 +1,64 @@
+<form #form="ngForm" [formGroup]="songForm" class="form">
+  <div class="card mt-3">
+    <div class="card-header">
+      General information
+    </div>
+    <div class="card-body edit-form-card">
+      <!-- Mashup title -->
+      <div class="form-group mb-3">
+        <label for="title">Title:</label>
+        <div class="input-group">
+          <input id="title" type="text" formControlName="title" class="form-control" [ngClass]="{ 'is-invalid': songForm.controls.title.invalid }" placeholder="Example: Robot Boy">
+        </div>
+        @if (songForm.controls.title.invalid) {
+          <div class="text-danger">
+            @if (songForm.controls.title.errors) {
+              <small>Title is invalid.</small>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- ISRC -->
+      <div class="form-group mb-3">
+        <label for="isrc">ISRC:</label>
+        <div class="input-group">
+          <input id="isrc" type="text" formControlName="isrc" class="form-control" [ngClass]="{ 'is-invalid': songForm.controls.isrc.invalid }" placeholder="Example: USWB11101594">
+        </div>
+        @if (songForm.controls.isrc.invalid) {
+          <div class="text-danger">
+            @if (songForm.controls.isrc.errors) {
+              <small>ISRC has an invalid format.</small>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Linkinpedia URL -->
+      <div class="form-group mb-3">
+        <label for="linkinpediaUrl">Linkinpedia URL:</label>
+        <div class="input-group">
+          <input id="linkinpediaUrl" type="text" formControlName="linkinpediaUrl" class="form-control" [ngClass]="{ 'is-invalid': songForm.controls.linkinpediaUrl.invalid }" placeholder="(Optional) Link to the page in Linkinpedia">
+          <button class="btn btn-outline-info" (click)="openLinkinpediaUrlClicked()"><i class="bi bi-box-arrow-up-right"></i><span class="d-none d-sm-none d-md-inline ms-2">Open link</span></button>
+        </div>
+        @if (songForm.controls.linkinpediaUrl.invalid) {
+          <div class="text-danger">
+            @if (songForm.controls.linkinpediaUrl.errors) {
+              <small>URL is invalid.</small>
+            }
+          </div>
+        }
+      </div>
+    </div>
+    <div class="card-footer">
+      <div class="row">
+        <div class="col text-end">
+          <button class="btn btn-success" (click)="onSaveClicked()" [disabled]="isSaving$ || !songForm.valid">
+            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" [hidden]="!isSaving$"></span>
+            <span class="sr-only">{{ isSaving$ ? "Saving..." : "Save" }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
