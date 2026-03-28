@@ -102,6 +102,11 @@ export class MashupFormComponent implements OnInit {
   }
 
 
+  onRemoveSongFromMashupClicked(id: number) {
+    this.songsInMashup$ = this.songsInMashup$.filter(song => song.id !== id);
+  }
+
+
   private readFromForm(): MashupFormContent | null {
     let title = this.mashupForm.value.title?.valueOf();
     let linkinpediaUrl = this.mashupForm.value.linkinpediaUrl?.valueOf();

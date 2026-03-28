@@ -101,8 +101,8 @@
               <td>{{ song.title }}</td>
               <td>{{ song.isrc }}</td>
               <td>
-                <a class="btn btn-outline-info" href="/admin/songs/{{ song.id?.toString() }}" target="_blank"><i class="bi bi-box-arrow-up-right"></i> Edit song</a>
-                <button class="btn btn-outline-danger ms-2" disabled>Delete</button>
+                <a class="btn btn-sm btn-outline-info" href="/admin/songs/{{ song.id?.toString() }}" target="_blank"><i class="bi bi-box-arrow-up-right"></i> Edit song</a>
+                <button class="btn btn-sm btn-outline-danger ms-2" (click)="onRemoveSongFromMashupClicked(song.id ?? 0)">Remove</button>
               </td>
             </tr>
           }
