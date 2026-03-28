@@ -156,6 +156,11 @@ public class Function
             return await HandleCreateSong(request.Body, context);
         }
         
+        if (request is { HttpMethod: "POST", Resource: "/songs/{songId}" } && hasSongIdPathParameter)
+        {
+            return await HandleUpdateSong(songId ?? 0, request.Body, context);
+        }
+        
         if (request is { HttpMethod: "POST", Resource: "/mashups" })
         {
             if (request.Body == null)
@@ -945,6 +950,64 @@ public class Function
             return new APIGatewayProxyResponse
             {
                 StatusCode = (int)HttpStatusCode.Created,
+                Body = JsonSerializer.Serialize(responseDto, SetlistDtoJsonContext.Default.SongDto),
+                Headers = new Dictionary<string, string>
+                {
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, POST" }
+                }
+            };
+        }
+        catch (InvalidMashupException e)
+        {
+            return ReturnBadRequest(e.Message, "OPTIONS, POST");
+        }
+    }
+    
+    private async Task<APIGatewayProxyResponse> HandleUpdateSong(uint songId, string requestJson,
+        ILambdaContext context)
+    {
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.UpdateSongRequestDto);
+        if (dto != null)
+            return await HandleUpdateSong(songId, dto, context);
+        
+        var badRequestResponse = new ErrorResponse
+        {
+            Message = "Failed to deserialize the request body"
+        };
+            
+        context.Logger.LogError(badRequestResponse.Message);
+            
+        return new APIGatewayProxyResponse
+        {
+            StatusCode = (int)HttpStatusCode.BadRequest,
+            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
+            Headers = new Dictionary<string, string>
+            {
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, POST" }
+            }
+        };
+    }
+
+    /// <summary>
+    /// Updates a song in the database
+    /// </summary>
+    /// <param name="songId">ID of the song to update</param>
+    /// <param name="request">new data</param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    private async Task<APIGatewayProxyResponse> HandleUpdateSong(uint songId, UpdateSongRequestDto request,
+        ILambdaContext context)
+    {
+        try
+        {
+            var responseDto = await _songService.UpdateSongAsync(songId, request);
+            context.Logger.LogDebug("Successfully updated song with ID: {id}", responseDto.Id);
+
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.OK,
                 Body = JsonSerializer.Serialize(responseDto, SetlistDtoJsonContext.Default.SongDto),
                 Headers = new Dictionary<string, string>
                 {

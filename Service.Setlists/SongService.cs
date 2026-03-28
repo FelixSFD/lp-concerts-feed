@@ -60,6 +60,29 @@ public class SongService(ISongRepository songRepository, ISongVariantRepository 
     }
     
     /// <summary>
+    /// Updates the information of a song
+    /// </summary>
+    /// <param name="songId">ID of the song to update</param>
+    /// <param name="request">new information for the song</param>
+    /// <returns>the saved song</returns>
+    /// <exception cref="SongNotFoundException">if the song does not exist</exception>
+    public async Task<SongDto> UpdateSongAsync(uint songId, UpdateSongRequestDto request)
+    {
+        logger.LogDebug("Load song with id: {songId}", songId);
+        var song = await songRepository.GetByPrimaryKeyAsync(songId) ?? throw new SongNotFoundException(songId);
+        song.Title = request.Title;
+        song.Isrc = request.Isrc;
+        song.LinkinpediaUrl = request.LinkinpediaUrl;
+        logger.LogDebug("Save song...");
+        songRepository.Update(song);
+
+        await songRepository.SaveChangesAsync();
+        logger.LogDebug("Successfully saved song.");
+        
+        return DtoMapper.ToDto(song);
+    }
+    
+    /// <summary>
     /// Deletes a song
     /// </summary>
     /// <param name="songId">ID of the song</param>

@@ -47,6 +47,51 @@ public class SongServiceTest
         _songRepository
             .Received(1)
             .Add(Arg.Is<SongDo>(m => m.Id == 0 && m.Title == request.Title && m.Isrc == request.Isrc && m.LinkinpediaUrl == request.LinkinpediaUrl));
+        
+        await _songRepository
+            .Received(1)
+            .SaveChangesAsync();
+    }
+    
+    
+    [Fact]
+    public async Task UpdateSongAsync()
+    {
+        // prepare mocks
+        var mockSong = new SongDo
+        {
+            Id = 1234,
+            Title = "QWERTY",
+            Isrc = "5355646",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
+        };
+        
+        _songRepository
+            .GetByPrimaryKeyAsync(mockSong.Id)
+            .Returns(mockSong);
+        
+        // call the service
+        var request = new UpdateSongRequestDto
+        {
+            Title = "QWERTY 2.0",
+            Isrc = "1337",
+            LinkinpediaUrl = null
+        };
+        
+        var song = await _songService.UpdateSongAsync(mockSong.Id, request);
+        Assert.NotNull(song);
+        Assert.Equal(request.Title, song.Title);
+        Assert.Equal(request.Isrc, song.Isrc);
+        Assert.Equal(request.LinkinpediaUrl, song.LinkinpediaUrl);
+        
+        // verify mock calls
+        _songRepository
+            .Received(1)
+            .Update(Arg.Is<SongDo>(m => m.Id == mockSong.Id && m.Title == request.Title && m.Isrc == request.Isrc && m.LinkinpediaUrl == request.LinkinpediaUrl));
+        
+        await _songRepository
+            .Received(1)
+            .SaveChangesAsync();
     }
     
     

@@ -750,6 +750,22 @@ components:
           description: URL to the wiki page on Linkinpedia
           nullable: true
     
+    UpdateSongRequest:
+      type: object
+      description: Request to create a new song
+      properties:
+        title:
+          type: string
+          description: Title of the song
+        isrc:
+          type: string
+          description: ISRC of the song
+          nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+    
     ActParameters:
       type: object
       description: Set of properties used whenever data of an act is passed to the server.
@@ -2485,6 +2501,44 @@ paths:
             - LambdaArn:
                 Fn::ImportValue:
                   Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+    post:
+      operationId: UpdateSong
+      summary: Updates the song in the database
+      tags:
+        - songs
+      parameters:
+        - in: path
+          name: songId
+          description: ID of the song
+          required: true
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSongRequest"
+      responses:
+        "200":
+          description: The updated song
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Song"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
         responses:
           default:
             statusCode: "200"
