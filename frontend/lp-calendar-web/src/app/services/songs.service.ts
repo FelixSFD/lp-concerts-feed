@@ -30,6 +30,20 @@ export class SongsService {
 
 
   /**
+   * Returns a song by its ID
+   * @param id song to find
+   * @param cached true if cache can be used
+   */
+  public getSong(id: number, cached: boolean): Observable<SongDto> {
+    if (cached) {
+      return this.songsApiClient.getSong(id);
+    } else {
+      return this.songsApiClient.getSong(id, Guid.create().toString(), "body", false);
+    }
+  }
+
+
+  /**
    * Returns all songs
    */
   public getAllSongs(cached: boolean) : Observable<SongDto[]> {

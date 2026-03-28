@@ -20,6 +20,7 @@ import {AddMashupPageComponent} from './admin/setlists/add-mashup-page/add-mashu
 import {EditMashupPageComponent} from './admin/setlists/edit-mashup-page/edit-mashup-page.component';
 import {ManageSongsPageComponent} from './admin/setlists/manage-songs-page/manage-songs-page.component';
 import {AddSongPageComponent} from './admin/setlists/add-song-page/add-song-page.component';
+import {EditSongPageComponent} from './admin/setlists/edit-song-page/edit-song-page.component';
 
 let baseTitle = "LP Concerts - ";
 
@@ -134,6 +135,11 @@ export const routes: Routes = [
     path: 'admin/songs/add',
     component: AddSongPageComponent,
     title: baseTitle + 'Add song',
+  },
+  {
+    path: 'admin/songs/:songId',
+    component: EditSongPageComponent,
+    title: baseTitle + 'Edit song',
   },
   {
     path: 'app',
