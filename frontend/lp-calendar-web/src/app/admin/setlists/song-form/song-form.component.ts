@@ -28,7 +28,7 @@ export class SongFormComponent {
 
   songForm = this.formBuilder.group({
     title: new FormControl('', [Validators.required]),
-    isrc: new FormControl('', [Validators.pattern(/^(?<country>\w{2})(?<issuedBy>\w{2}\d)(?<year>\d{2})(?<number>\d{5})$/)]),
+    isrc: new FormControl('', [Validators.pattern(/^(?<country>[A-Z]{2})(?<issuedBy>[A-Z0-9]{3})(?<year>\d{2})(?<number>\d{5})$/)]),
     linkinpediaUrl: new FormControl('', [Validators.pattern(/^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/)]),
   });
 
