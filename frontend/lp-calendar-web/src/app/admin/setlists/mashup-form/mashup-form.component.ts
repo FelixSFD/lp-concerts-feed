@@ -7,6 +7,7 @@ import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {SelectSongComponent} from '../select-song/select-song.component';
 import {SongsService} from '../../../services/songs.service';
 import {ToastrService} from 'ngx-toastr';
+import {RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-mashup-form',
@@ -14,7 +15,6 @@ import {ToastrService} from 'ngx-toastr';
     FormsModule,
     ReactiveFormsModule,
     NgClass,
-    AddSetlistEntryFormComponent,
     SelectSongComponent
   ],
   templateUrl: './mashup-form.component.html',
