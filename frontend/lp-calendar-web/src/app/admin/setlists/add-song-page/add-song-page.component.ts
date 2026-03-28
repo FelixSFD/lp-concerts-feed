@@ -3,12 +3,11 @@ import {ToastrService} from 'ngx-toastr';
 import {SongsService} from '../../../services/songs.service';
 import {Router, RouterLink} from '@angular/router';
 import {SongFormComponent, SongFormContent} from '../song-form/song-form.component';
-import {MashupFormComponent} from '../mashup-form/mashup-form.component';
+import {CreateSongRequestDto, ErrorResponseDto} from '../../../modules/lpshows-api';
 
 @Component({
   selector: 'app-add-song-page',
   imports: [
-    MashupFormComponent,
     RouterLink,
     SongFormComponent
   ],
@@ -23,18 +22,19 @@ export class AddSongPageComponent {
   isAdding$ = false;
 
   onSaveClicked(formContent: SongFormContent) {
-    /*this.isAdding$ = true;
+    this.isAdding$ = true;
 
-    let request: CreateSongMashupRequestDto = {
+    let request: CreateSongRequestDto = {
       title: formContent.title,
+      isrc: formContent.isrc,
       linkinpediaUrl: formContent.linkinpediaUrl,
     };
 
-    this.songsService.createMashup(request).subscribe({
-      next: createdMashup => {
-        console.debug('Created new mashup', createdMashup);
+    this.songsService.createSong(request).subscribe({
+      next: createdSong => {
+        console.debug('Created new song', createdSong);
         this.isAdding$ = false;
-        this.router.navigate(["/", "admin", "mashups", createdMashup.id]).catch(err => {
+        this.router.navigate(["/", "admin", "songs", createdSong.id]).catch(err => {
           this.toastr.error(err.message);
         });
       },
@@ -44,6 +44,5 @@ export class AddSongPageComponent {
         this.isAdding$ = false;
       }
     });
-   */
   }
 }
