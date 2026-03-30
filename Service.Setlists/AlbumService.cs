@@ -57,4 +57,24 @@ public class AlbumService(IAlbumRepository albumRepository, ILambdaLogger logger
             .Select(DtoMapper.ToDto)
             .OrderBy(s => s.Title);
     }
+    
+    /// <summary>
+    /// Deletes an album
+    /// </summary>
+    /// <param name="albumId">ID of the album</param>
+    public async Task DeleteAlbumWithIdAsync(uint albumId)
+    {
+        logger.LogDebug("Delete album with id: {albumId}", albumId);
+        var album = await albumRepository.GetByPrimaryKeyAsync(albumId);
+        if (album != null)
+        {
+            albumRepository.Delete(album);
+            await albumRepository.SaveChangesAsync();
+            
+            logger.LogInformation("Album with ID '{id}' was deleted successfully.", albumId);
+            return;
+        }
+        
+        logger.LogInformation("Album with ID '{id}' does not exist.", albumId);
+    }
 }

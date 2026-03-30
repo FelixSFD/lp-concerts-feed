@@ -136,4 +136,37 @@ public class AlbumServiceTest
             .Received(1)
             .QueryAsync(CancellationToken.None);
     }
+    
+    [Fact]
+    public async Task DeleteSongWithIdAsync()
+    {
+        // prepare mocks and test data
+        var album = new AlbumDo
+        {
+            Id = 8,
+            Title = "Mmm... cookies"
+        };
+        
+        _albumRepository
+            .GetByPrimaryKeyAsync(album.Id)
+            .Returns(album);
+        _albumRepository
+            .Delete(Arg.Is<AlbumDo>(m => m.Id == album.Id));
+        
+        // call the service
+        await _albumService.DeleteAlbumWithIdAsync(album.Id);
+        
+        // verify mock calls
+        await _albumRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(album.Id);
+        
+        _albumRepository
+            .Received(1)
+            .Delete(Arg.Is<AlbumDo>(m => m.Id == album.Id));
+
+        await _albumRepository
+            .Received(1)
+            .SaveChangesAsync();
+    }
 }
