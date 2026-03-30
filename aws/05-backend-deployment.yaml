@@ -1090,6 +1090,22 @@ Resources:
       GroupName: DeleteConcerts
       Precedence: 3
       UserPoolId: !Ref CognitoAuthorizerUserPoolV3
+  
+  ManageSetlistsUserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      Description: People in this group can manage setlists
+      GroupName: ManageSetlists
+      Precedence: 3
+      UserPoolId: !Ref CognitoAuthorizerUserPoolV3
+  
+  DeleteSongsUserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      Description: People in this group can delete songs
+      GroupName: DeleteSongs
+      Precedence: 3
+      UserPoolId: !Ref CognitoAuthorizerUserPoolV3
 
   # REST API that is secured by cognito
   ConcertsApi:

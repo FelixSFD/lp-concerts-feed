@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using Amazon.Lambda.APIGatewayEvents;
+using Amazon.Runtime.Logging;
 using LPCalendar.DataStructure.Responses;
 
 namespace Lambda.Auth;

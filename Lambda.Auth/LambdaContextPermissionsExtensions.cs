@@ -5,6 +5,14 @@ namespace Lambda.Auth;
 public static class ApiGatewayProxyRequestPermissionsExtensions
 {
     /// <summary>
+    /// Checks if the client is authenticated. To check for the actual permissions, use methods like <see cref="IsMemberOfOrAdmin(Amazon.Lambda.APIGatewayEvents.APIGatewayProxyRequest,string)"/>
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns>true, if the client is authenticated</returns>
+    public static bool IsAuthenticated(this APIGatewayProxyRequest request) 
+        => request.GetUserId() != null;
+    
+    /// <summary>
     /// Tries to find the UserID in the request context
     /// </summary>
     /// <param name="request"></param>
@@ -54,14 +62,14 @@ public static class ApiGatewayProxyRequestPermissionsExtensions
     /// <returns>true, if current user is member of the group</returns>
     public static bool IsMemberOf(this APIGatewayProxyRequest request, params string[] groupNames)
     {
-        return request.RequestContext.Authorizer.Claims
+        return request.RequestContext.Authorizer?.Claims
             // find claims for groups
             .Where(c => c.Key == "cognito:groups")
             .Select(c => c.Value)
             // split string to get groups
             .SelectMany(v => v.Split(","))
             // check if group is included
-            .Any(groupNames.Contains);
+            .Any(groupNames.Contains) ?? false;
     }
 
 
@@ -107,4 +115,12 @@ public static class ApiGatewayProxyRequestPermissionsExtensions
     /// <returns></returns>
     public static bool CanManageSetlists(this APIGatewayProxyRequest request)
         => request.IsMemberOfOrAdmin("ManageSetlists");
+    
+    /// <summary>
+    /// Checks if the user of the request is allowed to delete data like songs or albums
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public static bool CanDeleteSongs(this APIGatewayProxyRequest request)
+        => request.IsMemberOfOrAdmin("DeleteSongs");
 }

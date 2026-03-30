@@ -6,6 +6,7 @@ using Amazon.Lambda.Core;
 using Database.Concerts;
 using Database.Setlists;
 using Database.Setlists.Repositories;
+using Lambda.Auth;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Responses;
 using LPCalendar.DataStructure.Setlists;
@@ -37,6 +38,19 @@ public class Function
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
+        context.Logger.LogInformation("Has authorzier: {check}", request.RequestContext.Authorizer);
+        context.Logger.LogInformation("User ID: {userId}", request.GetUserId());
+        var isAuthenticated = request.IsAuthenticated();
+        context.Logger.LogInformation("IsAuthenticated: {isAuthenticated}", isAuthenticated);
+        if (!isAuthenticated)
+            return UnauthorizedResponseHelper.GetResponse($"OPTIONS, {request.HttpMethod}");
+        
+        var hasSetlistPermission = request.CanManageSetlists();
+        if (!hasSetlistPermission)
+        {
+            return ForbiddenResponseHelper.GetResponse($"OPTIONS, {request.HttpMethod}");
+        }
+        
         _concertRepository = DynamoDbConcertRepository.CreateDefault(context.Logger);
         var connectionString = Environment.GetEnvironmentVariable("SETLISTS_DB_CONNECTION_STRING") ?? throw new Exception("Missing environment variable 'SETLISTS_DB_CONNECTION_STRING'!");
         var stopwatch = Stopwatch.StartNew();
@@ -67,12 +81,7 @@ public class Function
         var hasMashupIdPathParameter = request.PathParameters.TryGetValue("mashupId", out var mashupIdStr);
         uint? mashupId = hasMashupIdPathParameter ? uint.Parse(mashupIdStr!) : null;
         
-        // TODO: Enable authorization!
-        /*var hasSetlistPermission = request.CanManageSetlists();
-        if (!hasSetlistPermission)
-        {
-            return ForbiddenResponseHelper.GetResponse("OPTIONS, GET, POST");
-        }*/
+        var hasDeletePermission = request.CanDeleteSongs();
 
         if (request is { HttpMethod: "POST", Resource: "/setlists" })
         {
@@ -142,6 +151,11 @@ public class Function
         
         if (request is { HttpMethod: "DELETE", Resource: "/setlists/{setlistId}" } && hasSetlistIdPathParameter)
         {
+            if (!hasDeletePermission)
+            {
+                return ForbiddenResponseHelper.GetResponse("OPTIONS, DELETE");
+            }
+            
             return await HandleDeleteSetlist(setlistId ?? 0, context);
         }
         
@@ -179,11 +193,21 @@ public class Function
         
         if (request is { HttpMethod: "DELETE", Resource: "/mashups/{mashupId}" } && hasMashupIdPathParameter)
         {
+            if (!hasDeletePermission)
+            {
+                return ForbiddenResponseHelper.GetResponse("OPTIONS, DELETE");
+            }
+            
             return await HandleDeleteSongMashup(mashupId ?? 0, context);
         }
         
         if (request is { HttpMethod: "DELETE", Resource: "/songs/{songId}" } && hasSongIdPathParameter)
         {
+            if (!hasDeletePermission)
+            {
+                return ForbiddenResponseHelper.GetResponse("OPTIONS, DELETE");
+            }
+            
             return await HandleDeleteSong(songId ?? 0, context);
         }
         

@@ -1942,6 +1942,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CreateSetlistResponse"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:
@@ -2029,6 +2031,8 @@ paths:
       responses:
         "204":
           description: No content
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:
@@ -2064,6 +2068,8 @@ paths:
       responses:
         "204":
           description: No content
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:
@@ -2149,6 +2155,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/AddSongToSetlistResponse"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:
@@ -2191,6 +2199,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/AddSongVariantToSetlistResponse"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:
@@ -2232,6 +2242,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/AddSongMashupToSetlistResponse"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:
@@ -2273,6 +2285,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ReorderSetlistEntriesResponse"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:
@@ -2355,6 +2369,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Setlist"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:
@@ -2384,6 +2400,8 @@ paths:
       responses:
         "204":
           description: No content
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:
@@ -2453,6 +2471,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Song"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:
@@ -2532,6 +2552,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Song"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:
@@ -2561,6 +2583,8 @@ paths:
       responses:
         "204":
           description: No content
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:
@@ -2673,6 +2697,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SongMashup"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:
@@ -2752,6 +2778,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SongMashup"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:
@@ -2781,6 +2809,8 @@ paths:
       responses:
         "204":
           description: No content
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:
