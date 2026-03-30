@@ -4,6 +4,7 @@ using Database.Setlists.DataObjects;
 using Database.Setlists.Repositories;
 using LPCalendar.DataStructure.Setlists;
 using NSubstitute;
+using Service.Setlists.Exceptions;
 
 namespace Service.Setlists.Tests;
 
@@ -42,6 +43,53 @@ public class AlbumServiceTest
         await _albumRepository
             .Received(1)
             .SaveChangesAsync();
+    }
+    
+    [Fact]
+    public async Task GetAlbumByIdAsync()
+    {
+        // prepare mocks and test data
+        var album = new AlbumDo
+        {
+            Id = 123,
+            Title = "A Thousand Suns",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/A_Thousand_Suns"
+        };
+        
+        _albumRepository
+            .GetByPrimaryKeyAsync(album.Id)
+            .Returns(album);
+
+        // call the service
+        var result = await _albumService.GetAlbumById(album.Id);
+        Assert.NotNull(result);
+        Assert.Equal(album.Title, result.Title);
+        Assert.Equal(album.Id, result.Id);
+        
+        // verify mock calls
+        await _albumRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(album.Id);
+    }
+    
+    [Fact]
+    public async Task GetAlbumByIdAsync_NotFound()
+    {
+        const uint albumId = 123u;
+        
+        // prepare mocks and test data
+        _albumRepository
+            .GetByPrimaryKeyAsync(albumId)
+            .Returns((AlbumDo?)null);
+
+        // call the service
+        var exception = await Assert.ThrowsAsync<AlbumNotFoundException>(() => _albumService.GetAlbumById(albumId));
+        Assert.Equal(albumId, exception.AlbumId);
+        
+        // verify mock calls
+        await _albumRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(albumId);
     }
     
     [Fact]

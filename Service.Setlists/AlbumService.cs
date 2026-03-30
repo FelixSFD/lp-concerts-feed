@@ -2,6 +2,7 @@ using Amazon.Lambda.Core;
 using Database.Setlists.DataObjects;
 using Database.Setlists.Repositories;
 using LPCalendar.DataStructure.Setlists;
+using Service.Setlists.Exceptions;
 
 namespace Service.Setlists;
 
@@ -27,6 +28,19 @@ public class AlbumService(IAlbumRepository albumRepository, ILambdaLogger logger
         albumRepository.Add(album);
         await albumRepository.SaveChangesAsync();
         logger.LogDebug("Successfully created album with ID '{id}' and title '{title}'.", album.Id, album.Title);
+        return DtoMapper.ToDto(album);
+    }
+    
+    /// <summary>
+    /// Returns an album by its ID
+    /// </summary>
+    /// <param name="albumId">ID of the album</param>
+    /// <returns></returns>
+    /// <exception cref="AlbumNotFoundException">if the album was not found</exception>
+    public async Task<AlbumDto> GetAlbumById(uint albumId)
+    {
+        logger.LogDebug("Getting album with id: {albumId}", albumId);
+        var album = await albumRepository.GetByPrimaryKeyAsync(albumId) ?? throw new AlbumNotFoundException(albumId);
         return DtoMapper.ToDto(album);
     }
     
