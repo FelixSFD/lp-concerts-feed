@@ -38,10 +38,7 @@ public class Function
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        context.Logger.LogInformation("Has authorzier: {check}", request.RequestContext.Authorizer);
-        context.Logger.LogInformation("User ID: {userId}", request.GetUserId());
         var isAuthenticated = request.IsAuthenticated();
-        context.Logger.LogInformation("IsAuthenticated: {isAuthenticated}", isAuthenticated);
         if (!isAuthenticated)
             return UnauthorizedResponseHelper.GetResponse($"OPTIONS, {request.HttpMethod}");
         
