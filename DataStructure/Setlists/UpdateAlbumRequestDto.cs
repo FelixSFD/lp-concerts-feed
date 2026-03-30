@@ -4,9 +4,9 @@ using System.Text.Json.Serialization;
 namespace LPCalendar.DataStructure.Setlists;
 
 /// <summary>
-/// Creates a new album
+/// Updates an album
 /// </summary>
-public class CreateAlbumRequestDto
+public class UpdateAlbumRequestDto
 {
     /// <summary>
     /// Name of the album

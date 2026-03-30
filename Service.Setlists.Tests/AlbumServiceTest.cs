@@ -46,6 +46,43 @@ public class AlbumServiceTest
     }
     
     [Fact]
+    public async Task UpdateAlbumAsync()
+    {
+        // prepare mocks
+        var mockAlbum = new AlbumDo
+        {
+            Id = 1,
+            Title = "From Zero",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/From_Zero"
+        };
+        
+        _albumRepository
+            .GetByPrimaryKeyAsync(mockAlbum.Id)
+            .Returns(mockAlbum);
+        
+        // call the service
+        var request = new UpdateAlbumRequestDto
+        {
+            Title = "Mmm... cookies",
+            LinkinpediaUrl = null
+        };
+        
+        var album = await _albumService.UpdateAlbumAsync(mockAlbum.Id, request);
+        Assert.NotNull(album);
+        Assert.Equal(request.Title, album.Title);
+        Assert.Equal(request.LinkinpediaUrl, album.LinkinpediaUrl);
+        
+        // verify mock calls
+        _albumRepository
+            .Received(1)
+            .Update(Arg.Is<AlbumDo>(m => m.Id == mockAlbum.Id && m.Title == request.Title && m.LinkinpediaUrl == request.LinkinpediaUrl));
+        
+        await _albumRepository
+            .Received(1)
+            .SaveChangesAsync();
+    }
+    
+    [Fact]
     public async Task GetAlbumByIdAsync()
     {
         // prepare mocks and test data

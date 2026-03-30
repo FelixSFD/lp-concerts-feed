@@ -59,6 +59,28 @@ public class AlbumService(IAlbumRepository albumRepository, ILambdaLogger logger
     }
     
     /// <summary>
+    /// Updates the information of an album
+    /// </summary>
+    /// <param name="albumId">ID of the album to update</param>
+    /// <param name="request">new information for the album</param>
+    /// <returns>the saved album</returns>
+    /// <exception cref="AlbumNotFoundException">if the album does not exist</exception>
+    public async Task<AlbumDto> UpdateAlbumAsync(uint albumId, UpdateAlbumRequestDto request)
+    {
+        logger.LogDebug("Load song with id: {albumId}", albumId);
+        var album = await albumRepository.GetByPrimaryKeyAsync(albumId) ?? throw new AlbumNotFoundException(albumId);
+        album.Title = request.Title;
+        album.LinkinpediaUrl = request.LinkinpediaUrl;
+        logger.LogDebug("Save album...");
+        albumRepository.Update(album);
+
+        await albumRepository.SaveChangesAsync();
+        logger.LogDebug("Successfully saved album.");
+        
+        return DtoMapper.ToDto(album);
+    }
+    
+    /// <summary>
     /// Deletes an album
     /// </summary>
     /// <param name="albumId">ID of the album</param>
