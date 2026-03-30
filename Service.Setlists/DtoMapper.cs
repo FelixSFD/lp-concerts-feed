@@ -9,6 +9,29 @@ namespace Service.Setlists;
 public static class DtoMapper
 {
     /// <summary>
+    /// Maps a <see cref="AlbumDo"/> to <see cref="AlbumDto"/>
+    /// </summary>
+    /// <param name="albumDo">Song to map to its DTO</param>
+    /// <returns>the DTO</returns>
+    public static AlbumDto ToDto(AlbumDo albumDo)
+    {
+        return new AlbumDto
+        {
+            Id = albumDo.Id,
+            Title = albumDo.Title,
+            LinkinpediaUrl = albumDo.LinkinpediaUrl
+        };
+    }
+    
+    /// <summary>
+    /// Maps a <see cref="AlbumDo"/> to <see cref="AlbumDto"/>
+    /// </summary>
+    /// <param name="albumDo">Song to map to its DTO</param>
+    /// <returns>the DTO</returns>
+    public static AlbumDto? ToDtoNullable(AlbumDo? albumDo) 
+        => albumDo == null ? null : ToDto(albumDo);
+
+    /// <summary>
     /// Maps a <see cref="SongDo"/> to <see cref="SongDto"/>
     /// </summary>
     /// <param name="songDo">Song to map to its DTO</param>
