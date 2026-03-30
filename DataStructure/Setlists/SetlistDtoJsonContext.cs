@@ -3,6 +3,7 @@ using LPCalendar.DataStructure.Setlists.Parameters;
 
 namespace LPCalendar.DataStructure.Setlists;
 
+[JsonSerializable(typeof(CreateAlbumRequestDto))]
 [JsonSerializable(typeof(CreateSetlistRequestDto))]
 [JsonSerializable(typeof(CreateSetlistResponseDto))]
 [JsonSerializable(typeof(CreateSongMashupRequestDto))]
@@ -25,8 +26,10 @@ namespace LPCalendar.DataStructure.Setlists;
 [JsonSerializable(typeof(ActParametersDto))]
 [JsonSerializable(typeof(SetlistDto))]
 [JsonSerializable(typeof(SetlistHeaderDto))]
+[JsonSerializable(typeof(AlbumDto))]
 [JsonSerializable(typeof(SongDto))]
 [JsonSerializable(typeof(SongMashupDto))]
+[JsonSerializable(typeof(List<AlbumDto>))]
 [JsonSerializable(typeof(List<SetlistActDto>))]
 [JsonSerializable(typeof(List<SetlistDto>))]
 [JsonSerializable(typeof(List<SetlistHeaderDto>))]

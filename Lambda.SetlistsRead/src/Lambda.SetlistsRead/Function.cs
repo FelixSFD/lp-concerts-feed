@@ -24,11 +24,13 @@ public class Function
     private ISetlistRepository _setlistRepository;
     private ISetlistActRepository _setlistActRepository;
     private ISetlistEntryRepository _setlistEntryRepository;
+    private IAlbumRepository _albumRepository;
     private ISongRepository _songRepository;
     private ISongVariantRepository _songVariantRepository;
     private ISongMashupRepository _songMashupRepository;
     private SetlistService _setlistService;
     private SongService _songService;
+    private AlbumService _albumService;
 
     public Function()
     {
@@ -48,10 +50,12 @@ public class Function
         _setlistRepository = new SqlSetlistRepository(dbContext);
         _setlistActRepository = new SqlSetlistActRepository(dbContext);
         _setlistEntryRepository = new SqlSetlistEntryRepository(dbContext);
+        _albumRepository = new SqlAlbumRepository(dbContext);
         _songRepository = new SqlSongRepository(dbContext);
         _songVariantRepository = new SqlSongVariantRepository(dbContext);
         _songMashupRepository = new SqlSongMashupRepository(dbContext);
         _setlistService = new SetlistService(_setlistRepository, _setlistEntryRepository, _concertRepository, _songRepository, _songVariantRepository, _songMashupRepository, _setlistActRepository, context.Logger);
+        _albumService = new AlbumService(_albumRepository, context.Logger);
         _songService = new SongService(_songRepository, _songVariantRepository, _songMashupRepository, context.Logger);
         
         context.Logger.LogInformation("Called {method} {path}", request.HttpMethod, request.Resource);
@@ -130,6 +134,12 @@ public class Function
         {
             context.Logger.LogInformation("Get all mashups with ID: {mashupId}", mashupId);
             return await HandleGetMashupById(mashupId ?? 0, context);
+        }
+        
+        if (request is { HttpMethod: "GET", Resource: "/albums" })
+        {
+            context.Logger.LogInformation("Requested all albums");
+            return await HandleGetAllAlbums(context);
         }
         
         context.Logger.LogError("There is no implementation for a HTTP '{method}' request with path '{path}'", request.HttpMethod, request.Path);
@@ -280,6 +290,31 @@ public class Function
             {
                 StatusCode = (int)HttpStatusCode.OK,
                 Body = JsonSerializer.Serialize(songs, SetlistDtoJsonContext.Default.ListSongDto),
+                Headers = new Dictionary<string, string>
+                {
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                }
+            };
+        }
+        catch (SongNotFoundException e)
+        {
+            return HandleNotFoundException(e.Message, "OPTIONS, GET", context.Logger);
+        }
+    }
+    
+    
+    private async Task<APIGatewayProxyResponse> HandleGetAllAlbums(ILambdaContext context)
+    {
+        try
+        {
+            var albums = await _albumService.GetAllAlbumsAsync(context.GetCancellationToken()).ToListAsync();
+            context.Logger.LogDebug("Found {albumCount} albums", albums.Count);
+
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.OK,
+                Body = JsonSerializer.Serialize(albums, SetlistDtoJsonContext.Default.ListAlbumDto),
                 Headers = new Dictionary<string, string>
                 {
                     { "Access-Control-Allow-Origin", "*" },

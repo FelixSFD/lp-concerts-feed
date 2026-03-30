@@ -25,10 +25,12 @@ public class Function
     private ISetlistRepository _setlistRepository;
     private ISetlistActRepository _setlistActRepository;
     private ISetlistEntryRepository _setlistEntryRepository;
+    private IAlbumRepository _albumRepository;
     private ISongRepository _songRepository;
     private ISongVariantRepository _songVariantRepository;
     private ISongMashupRepository _songMashupRepository;
     private SetlistService _setlistService;
+    private AlbumService _albumService;
     private SongService _songService;
 
     public Function()
@@ -59,10 +61,12 @@ public class Function
         _setlistRepository = new SqlSetlistRepository(dbContext);
         _setlistActRepository = new SqlSetlistActRepository(dbContext);
         _setlistEntryRepository = new SqlSetlistEntryRepository(dbContext);
+        _albumRepository = new SqlAlbumRepository(dbContext);
         _songRepository = new SqlSongRepository(dbContext);
         _songVariantRepository = new SqlSongVariantRepository(dbContext);
         _songMashupRepository = new SqlSongMashupRepository(dbContext);
         _setlistService = new SetlistService(_setlistRepository, _setlistEntryRepository, _concertRepository, _songRepository, _songVariantRepository, _songMashupRepository, _setlistActRepository, context.Logger);
+        _albumService = new AlbumService(_albumRepository, context.Logger);
         _songService = new SongService(_songRepository, _songVariantRepository, _songMashupRepository, context.Logger);
         
         context.Logger.LogInformation("Called {method} {path}", request.HttpMethod, request.Resource);
@@ -232,6 +236,17 @@ public class Function
             
             context.Logger.LogError("Invalid setlist entry ID!");
             return ReturnBadRequest("Invalid setlist entry ID!");
+        }
+        
+        if (request is { HttpMethod: "POST", Resource: "/albums" })
+        {
+            if (request.Body == null)
+            {
+                return ReturnBadRequest("Missing request body!");
+            }
+            
+            context.Logger.LogInformation("Creating an album...");
+            return await HandleCreateAlbum(request.Body, context);
         }
         
         context.Logger.LogError("There is no implementation for a HTTP '{method}' request with path '{path}'", request.HttpMethod, request.Path);
@@ -764,6 +779,57 @@ public class Function
             {
                 { "Access-Control-Allow-Origin", "*" },
                 { "Access-Control-Allow-Methods", corsMethods }
+            }
+        };
+    }
+    
+    
+    private async Task<APIGatewayProxyResponse> HandleCreateAlbum(string requestJson,
+        ILambdaContext context)
+    {
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.CreateAlbumRequestDto);
+        if (dto != null)
+            return await HandleCreateAlbum(dto, context);
+        
+        var badRequestResponse = new ErrorResponse
+        {
+            Message = "Failed to deserialize the request body"
+        };
+            
+        context.Logger.LogError(badRequestResponse.Message);
+            
+        return new APIGatewayProxyResponse
+        {
+            StatusCode = (int)HttpStatusCode.BadRequest,
+            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
+            Headers = new Dictionary<string, string>
+            {
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, POST" }
+            }
+        };
+    }
+
+    /// <summary>
+    /// Create a new album in the database
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    private async Task<APIGatewayProxyResponse> HandleCreateAlbum(CreateAlbumRequestDto request,
+        ILambdaContext context)
+    {
+        var responseDto = await _albumService.CreateAlbumAsync(request);
+        context.Logger.LogDebug("Successfully created album with ID: {id}", responseDto.Id);
+
+        return new APIGatewayProxyResponse
+        {
+            StatusCode = (int)HttpStatusCode.Created,
+            Body = JsonSerializer.Serialize(responseDto, SetlistDtoJsonContext.Default.AlbumDto),
+            Headers = new Dictionary<string, string>
+            {
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, POST" }
             }
         };
     }

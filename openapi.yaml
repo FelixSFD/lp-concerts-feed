@@ -392,6 +392,22 @@ components:
           nullable: false
     
     # Setlists
+    Album:
+      type: object
+      description: Information about an album
+      properties:
+        id:
+          type: number
+          description: ID of the album
+        title:
+          type: string
+          description: Title of the album
+          nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+          
     Song:
       type: object
       description: Information about a song
@@ -733,6 +749,18 @@ components:
           description: IDs of the songs that are included in this mashup
           items:
             type: number
+    
+    CreateAlbumRequest:
+      type: object
+      description: Request to create a new album
+      properties:
+        title:
+          type: string
+          description: Title of the album
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
     
     CreateSongRequest:
       type: object
@@ -2400,6 +2428,77 @@ paths:
       responses:
         "204":
           description: No content
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /albums:
+    get:
+      operationId: GetAllAlbums
+      summary: Returns all albums sorted alphabetically
+      tags:
+        - albums
+      parameters:
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The album information
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Album"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+    post:
+      operationId: CreateAlbum
+      summary: Creates a new album
+      description: Creates a new album
+      tags:
+        - albums
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAlbumRequest"
+      responses:
+        "201":
+          description: The album that has just been created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Album"
       security:
         - ConcertsCognitoAuthorizer: [ "openid" ]
       x-amazon-apigateway-integration:
