@@ -132,7 +132,7 @@ public class Function
         
         if (request is { HttpMethod: "GET", Resource: "/mashups/{mashupId}" } && hasMashupIdPathParameter)
         {
-            context.Logger.LogInformation("Get all mashups with ID: {mashupId}", mashupId);
+            context.Logger.LogInformation("Get mashup with ID: {mashupId}", mashupId);
             return await HandleGetMashupById(mashupId ?? 0, context);
         }
         
@@ -140,6 +140,15 @@ public class Function
         {
             context.Logger.LogInformation("Requested all albums");
             return await HandleGetAllAlbums(context);
+        }
+        
+        var hasAlbumIdPathParameter = request.PathParameters.TryGetValue("albumId", out var albumIdStr);
+        uint? albumId = hasAlbumIdPathParameter ? uint.Parse(albumIdStr!) : null;
+        
+        if (request is { HttpMethod: "GET", Resource: "/albums/{albumId}" } && hasAlbumIdPathParameter)
+        {
+            context.Logger.LogInformation("Get album with ID: {albumId}", albumId);
+            return await HandleGetAlbumById(albumId ?? 0, context);
         }
         
         context.Logger.LogError("There is no implementation for a HTTP '{method}' request with path '{path}'", request.HttpMethod, request.Path);
@@ -323,6 +332,35 @@ public class Function
             };
         }
         catch (SongNotFoundException e)
+        {
+            return HandleNotFoundException(e.Message, "OPTIONS, GET", context.Logger);
+        }
+    }
+    
+    /// <summary>
+    /// Returns the album
+    /// </summary>
+    /// <param name="albumId">ID of the album</param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    private async Task<APIGatewayProxyResponse> HandleGetAlbumById(uint albumId, ILambdaContext context)
+    {
+        try
+        {
+            var album = await _albumService.GetAlbumById(albumId);
+
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.OK,
+                Body = JsonSerializer.Serialize(album, SetlistDtoJsonContext.Default.AlbumDto),
+                Headers = new Dictionary<string, string>
+                {
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                }
+            };
+        }
+        catch (AlbumNotFoundException e)
         {
             return HandleNotFoundException(e.Message, "OPTIONS, GET", context.Logger);
         }

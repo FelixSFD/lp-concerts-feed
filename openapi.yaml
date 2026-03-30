@@ -762,6 +762,18 @@ components:
           description: URL to the wiki page on Linkinpedia
           nullable: true
     
+    UpdateAlbumRequest:
+      type: object
+      description: Request to update an album
+      properties:
+        title:
+          type: string
+          description: Title of the album
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+    
     CreateSongRequest:
       type: object
       description: Request to create a new song
@@ -2499,6 +2511,118 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Album"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /albums/{albumId}:
+    get:
+      operationId: GetAlbum
+      summary: Returns information about a album
+      tags:
+        - albums
+      parameters:
+        - in: path
+          name: albumId
+          description: ID of the album
+          required: true
+          schema:
+            type: number
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The album information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Album"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+    post:
+      operationId: UpdateAlbum
+      summary: Updates the album in the database
+      tags:
+        - albums
+      parameters:
+        - in: path
+          name: albumId
+          description: ID of the album
+          required: true
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAlbumRequest"
+      responses:
+        "200":
+          description: The updated album
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Album"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+    delete:
+      operationId: DeleteAlbum
+      summary: Deletes a album
+      tags:
+        - albums
+      parameters:
+        - in: path
+          name: albumId
+          description: ID of the album
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: No content
       security:
         - ConcertsCognitoAuthorizer: [ "openid" ]
       x-amazon-apigateway-integration:

@@ -249,6 +249,24 @@ public class Function
             return await HandleCreateAlbum(request.Body, context);
         }
         
+        var hasAlbumIdPathParameter = request.PathParameters.TryGetValue("albumId", out var albumIdStr);
+        uint? albumId = hasAlbumIdPathParameter ? uint.Parse(albumIdStr!) : null;
+        
+        if (request is { HttpMethod: "POST", Resource: "/albums/{albumId}" } && hasAlbumIdPathParameter)
+        {
+            return await HandleUpdateAlbum(albumId ?? 0, request.Body, context);
+        }
+        
+        if (request is { HttpMethod: "DELETE", Resource: "/albums/{albumId}" } && hasAlbumIdPathParameter)
+        {
+            if (!hasDeletePermission)
+            {
+                return ForbiddenResponseHelper.GetResponse("OPTIONS, DELETE");
+            }
+            
+            return await HandleDeleteAlbum(albumId ?? 0, context);
+        }
+        
         context.Logger.LogError("There is no implementation for a HTTP '{method}' request with path '{path}'", request.HttpMethod, request.Path);
 
         var noRouteFoundError = new ErrorResponse
@@ -832,6 +850,86 @@ public class Function
                 { "Access-Control-Allow-Methods", "OPTIONS, POST" }
             }
         };
+    }
+    
+    private async Task<APIGatewayProxyResponse> HandleUpdateAlbum(uint albumId, string requestJson,
+        ILambdaContext context)
+    {
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.UpdateAlbumRequestDto);
+        if (dto != null)
+            return await HandleUpdateAlbum(albumId, dto, context);
+        
+        var badRequestResponse = new ErrorResponse
+        {
+            Message = "Failed to deserialize the request body"
+        };
+            
+        context.Logger.LogError(badRequestResponse.Message);
+            
+        return new APIGatewayProxyResponse
+        {
+            StatusCode = (int)HttpStatusCode.BadRequest,
+            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
+            Headers = new Dictionary<string, string>
+            {
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, POST" }
+            }
+        };
+    }
+    
+    /// <summary>
+    /// Removes an album
+    /// </summary>
+    /// <param name="albumId">unique ID of the album</param>
+    /// <param name="context"></param>
+    /// <returns>HTTP response</returns>
+    private async Task<APIGatewayProxyResponse> HandleDeleteAlbum(uint albumId, ILambdaContext context)
+    {
+        context.Logger.LogInformation("Deleting song with ID: {albumId}", albumId);
+        await _albumService.DeleteAlbumWithIdAsync(albumId);
+        
+        return new APIGatewayProxyResponse
+        {
+            StatusCode = (int)HttpStatusCode.NoContent,
+            Headers = new Dictionary<string, string>
+            {
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, DELETE" }
+            }
+        };
+    }
+    
+    /// <summary>
+    /// Updates an album in the database
+    /// </summary>
+    /// <param name="albumId">ID of the album to update</param>
+    /// <param name="request">new data</param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    private async Task<APIGatewayProxyResponse> HandleUpdateAlbum(uint albumId, UpdateAlbumRequestDto request,
+        ILambdaContext context)
+    {
+        try
+        {
+            var responseDto = await _albumService.UpdateAlbumAsync(albumId, request);
+            context.Logger.LogDebug("Successfully updated album with ID: {id}", responseDto.Id);
+
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.OK,
+                Body = JsonSerializer.Serialize(responseDto, SetlistDtoJsonContext.Default.AlbumDto),
+                Headers = new Dictionary<string, string>
+                {
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, POST" }
+                }
+            };
+        }
+        catch (AlbumNotFoundException e)
+        {
+            return HandleNotFoundException(e.Message, "OPTIONS, POST", context.Logger);
+        }
     }
     
     
