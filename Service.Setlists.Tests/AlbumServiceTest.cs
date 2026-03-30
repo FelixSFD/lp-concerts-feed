@@ -43,4 +43,49 @@ public class AlbumServiceTest
             .Received(1)
             .SaveChangesAsync();
     }
+    
+    [Fact]
+    public async Task GetAllAlbumsAsync()
+    {
+        // prepare mocks and test data
+        var album = new AlbumDo
+        {
+            Id = 1,
+            Title = "Hybrid Theory",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/Hybrid_Theroy"
+        };
+        
+        var album2 = new AlbumDo
+        {
+            Id = 2,
+            Title = "Mmm... Cookies",
+        };
+
+        List<AlbumDo> mockAlbums = [album, album2];
+        
+        _albumRepository
+            .QueryAsync(CancellationToken.None)
+            .Returns(mockAlbums.ToAsyncEnumerable());
+
+        // call the service
+        var allAlbums = await _albumService.GetAllAlbumsAsync(CancellationToken.None).ToListAsync();
+        Assert.NotNull(allAlbums);
+        Assert.Equal(mockAlbums.Count, allAlbums.Count);
+        
+        // Results are ordered by title. That's why song2 is returned first
+        var result1 = allAlbums[1];
+        Assert.NotNull(result1);
+        Assert.Equal(album2.Title, result1.Title);
+        Assert.Equal(album2.Id, result1.Id);
+        
+        var result2 = allAlbums[0];
+        Assert.NotNull(result2);
+        Assert.Equal(album.Title, result2.Title);
+        Assert.Equal(album.Id, result2.Id);
+        
+        // verify mock calls
+        _albumRepository
+            .Received(1)
+            .QueryAsync(CancellationToken.None);
+    }
 }

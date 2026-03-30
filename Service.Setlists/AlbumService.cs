@@ -29,4 +29,18 @@ public class AlbumService(IAlbumRepository albumRepository, ILambdaLogger logger
         logger.LogDebug("Successfully created album with ID '{id}' and title '{title}'.", album.Id, album.Title);
         return DtoMapper.ToDto(album);
     }
+    
+    /// <summary>
+    /// Returns all albums ordered by title
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Enumerable of all albums</returns>
+    public IAsyncEnumerable<AlbumDto> GetAllAlbumsAsync(CancellationToken cancellationToken)
+    {
+        logger.LogDebug("Getting all albums...");
+        return albumRepository
+            .QueryAsync(cancellationToken)
+            .Select(DtoMapper.ToDto)
+            .OrderBy(s => s.Title);
+    }
 }
