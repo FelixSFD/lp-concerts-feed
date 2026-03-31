@@ -1,6 +1,4 @@
-import {inject, Injectable} from '@angular/core';
-import {AuthService} from '../auth/auth.service';
-import {HttpClient} from '@angular/common/http';
+import {Injectable} from '@angular/core';
 import {
   CreateSongMashupRequestDto, CreateSongRequestDto,
   SongDto,
@@ -15,9 +13,7 @@ import {Guid} from 'guid-typescript';
   providedIn: 'root',
 })
 export class SongsService {
-  private readonly authService = inject(AuthService);
-
-  constructor(private httpClient: HttpClient, private songsApiClient: SongsApiClient) { }
+  constructor(private songsApiClient: SongsApiClient) { }
 
 
   /**
