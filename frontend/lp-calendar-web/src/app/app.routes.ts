@@ -23,6 +23,7 @@ import {AddSongPageComponent} from './admin/setlists/add-song-page/add-song-page
 import {EditSongPageComponent} from './admin/setlists/edit-song-page/edit-song-page.component';
 import {ManageAlbumsPageComponent} from './admin/setlists/manage-albums-page/manage-albums-page.component';
 import {AddAlbumPageComponent} from './admin/setlists/add-album-page/add-album-page.component';
+import {EditAlbumPageComponent} from './admin/setlists/edit-album-page/edit-album-page.component';
 
 let baseTitle = "LP Concerts - ";
 
@@ -152,6 +153,11 @@ export const routes: Routes = [
     path: 'admin/albums/add',
     component: AddAlbumPageComponent,
     title: baseTitle + 'Add album',
+  },
+  {
+    path: 'admin/albums/:albumId',
+    component: EditAlbumPageComponent,
+    title: baseTitle + 'Edit album',
   },
   {
     path: 'app',
