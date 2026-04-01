@@ -4,7 +4,7 @@
       General information
     </div>
     <div class="card-body edit-form-card">
-      <!-- Mashup title -->
+      <!-- Song title -->
       <div class="form-group mb-3">
         <label for="title">Title:</label>
         <div class="input-group">
@@ -14,6 +14,29 @@
           <div class="text-danger">
             @if (songForm.controls.title.errors) {
               <small>Title is invalid.</small>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Album selection -->
+      <div class="form-group">
+        <label for="selectedAlbumId">Album</label>
+        <div class="input-group mb-3">
+          <select class="form-select form-control"
+                  formControlName="selectedAlbumId"
+                  [ngClass]="{ 'is-invalid': songForm.controls.selectedAlbumId.invalid }">
+            <option selected disabled>Select album</option>
+            <option disabled>---------------</option>
+            @for (album of availableAlbums$; track album.id) {
+              <option [value]="album.id">{{ album.title }}</option>
+            }
+          </select>
+        </div>
+        @if (songForm.controls.selectedAlbumId.invalid) {
+          <div class="text-danger">
+            @if (songForm.controls.selectedAlbumId.errors) {
+              <small>Selection is invalid.</small>
             }
           </div>
         }

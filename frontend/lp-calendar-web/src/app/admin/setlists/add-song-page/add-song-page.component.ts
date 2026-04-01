@@ -26,6 +26,7 @@ export class AddSongPageComponent {
 
     let request: CreateSongRequestDto = {
       title: formContent.title,
+      albumId: Number(formContent.albumId),
       isrc: formContent.isrc,
       linkinpediaUrl: formContent.linkinpediaUrl,
     };

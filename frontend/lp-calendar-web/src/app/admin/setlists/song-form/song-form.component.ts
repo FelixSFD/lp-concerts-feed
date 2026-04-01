@@ -1,9 +1,11 @@
-import {Component, EventEmitter, inject, Input, Output, TemplateRef} from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnInit, Output, TemplateRef} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ToastrService} from 'ngx-toastr';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {SongDto} from '../../../modules/lpshows-api';
+import {AlbumDto, ErrorResponseDto, SongDto} from '../../../modules/lpshows-api';
 import {NgClass} from '@angular/common';
+import {SongsService} from '../../../services/songs.service';
+import {AlbumsService} from '../../../services/music/albums.service';
 
 @Component({
   selector: 'app-song-form',
@@ -15,10 +17,11 @@ import {NgClass} from '@angular/common';
   templateUrl: './song-form.component.html',
   styleUrl: './song-form.component.css',
 })
-export class SongFormComponent {
+export class SongFormComponent implements OnInit {
   private modalService = inject(NgbModal);
   private toastr = inject(ToastrService);
   private formBuilder = inject(FormBuilder);
+  private albumsService = inject(AlbumsService);
 
   @Input("is-saving")
   isSaving$: boolean = false;
@@ -28,9 +31,25 @@ export class SongFormComponent {
 
   songForm = this.formBuilder.group({
     title: new FormControl('', [Validators.required]),
+    selectedAlbumId: new FormControl(0, []),
     isrc: new FormControl('', [Validators.pattern(/^(?<country>[A-Z]{2})(?<issuedBy>[A-Z0-9]{3})(?<year>\d{2})(?<number>\d{5})$/)]),
     linkinpediaUrl: new FormControl('', [Validators.pattern(/^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/)]),
   });
+
+  availableAlbums$: AlbumDto[] = [];
+
+  ngOnInit() {
+    this.albumsService.getAllAlbums(true)
+      .subscribe({
+        next: data => {
+          this.availableAlbums$ = data;
+        },
+        error: err => {
+          let errorResponse: ErrorResponseDto = err.error;
+          this.toastr.error(errorResponse.message, "Could load albums");
+        }
+      });
+  }
 
   openModal(content: TemplateRef<any>) {
     return this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
@@ -57,6 +76,7 @@ export class SongFormComponent {
 
   private readFromForm(): SongFormContent | null {
     let title = this.songForm.value.title?.valueOf();
+    let albumId = this.songForm.value.selectedAlbumId?.valueOf();
     let isrc = this.songForm.value.isrc?.valueOf();
     let linkinpediaUrl = this.songForm.value.linkinpediaUrl?.valueOf();
 
@@ -67,7 +87,8 @@ export class SongFormComponent {
 
     return {
       title: title!,
-      isrc: isrc!,
+      albumId: albumId ?? null,
+      isrc: isrc ?? null,
       linkinpediaUrl: linkinpediaUrl ?? null
     };
   }
@@ -76,6 +97,7 @@ export class SongFormComponent {
   public fillFormWith(song: SongDto) {
     console.debug("Fill form with data:", song);
     this.songForm.controls.title.setValue(song.title ?? null);
+    this.songForm.controls.selectedAlbumId.setValue(song.album?.id ?? null);
     this.songForm.controls.isrc.setValue(song.isrc ?? null);
     this.songForm.controls.linkinpediaUrl.setValue(song.linkinpediaUrl ?? null);
   }
@@ -83,6 +105,7 @@ export class SongFormComponent {
 
 export class SongFormContent {
   title!: string;
+  albumId: number | null = null;
   isrc: string | null = null;
   linkinpediaUrl: string | null = null;
 }
