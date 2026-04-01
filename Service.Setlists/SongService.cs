@@ -1,4 +1,5 @@
 using Amazon.Lambda.Core;
+using Common.Utils;
 using Database.Setlists.DataObjects;
 using Database.Setlists.Repositories;
 using LPCalendar.DataStructure.Setlists;
@@ -23,8 +24,8 @@ public class SongService(ISongRepository songRepository, ISongVariantRepository 
         {
             Title = request.Title,
             AlbumId = request.AlbumId,
-            Isrc = request.Isrc,
-            LinkinpediaUrl = request.LinkinpediaUrl
+            Isrc = StringUtils.NullIfEmpty(request.Isrc),
+            LinkinpediaUrl = StringUtils.NullIfEmpty(request.LinkinpediaUrl)
         };
         
         songRepository.Add(song);
@@ -43,6 +44,11 @@ public class SongService(ISongRepository songRepository, ISongVariantRepository 
         logger.LogDebug("Getting all songs...");
         return songRepository
             .QueryAsync(cancellationToken)
+            .Select(s =>
+            {
+                logger.LogDebug("Found song with id: {songId}; Album: {albumId}", s.Id, s.Album?.Id);
+                return s;
+            })
             .Select(DtoMapper.ToDto)
             .OrderBy(s => s.Title);
     }
@@ -73,8 +79,8 @@ public class SongService(ISongRepository songRepository, ISongVariantRepository 
         var song = await songRepository.GetByPrimaryKeyAsync(songId) ?? throw new SongNotFoundException(songId);
         song.Title = request.Title;
         song.AlbumId = request.AlbumId;
-        song.Isrc = request.Isrc;
-        song.LinkinpediaUrl = request.LinkinpediaUrl;
+        song.Isrc = StringUtils.NullIfEmpty(request.Isrc);
+        song.LinkinpediaUrl = StringUtils.NullIfEmpty(request.LinkinpediaUrl);
         logger.LogDebug("Save song...");
         songRepository.Update(song);
 

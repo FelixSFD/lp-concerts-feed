@@ -39,6 +39,7 @@
   <thead>
   <tr>
     <th scope="col">Title</th>
+    <th scope="col">Album</th>
     <th scope="col">ISRC</th>
     <th scope="col"></th>
   </tr>
@@ -47,6 +48,11 @@
     @for (song of songs$; track song) {
       <tr>
         <td>{{ song.title }}</td>
+        <td>
+          @if (song.album) {
+            <a class="link-info" [routerLink]="['..', 'albums', song.album.id]" target="_blank">{{ song.album.title }}</a>
+          }
+        </td>
         <td>{{ song.isrc }}</td>
         <td>
           <button class="btn btn-outline-info" [routerLink]="[song.id?.toString()]">Edit</button>
