@@ -419,6 +419,12 @@ components:
           type: string
           description: Title of the song
           nullable: true
+        album:
+          type: object
+          description: Album that contains this song
+          nullable: true
+          anyOf:
+            - $ref: "#/components/schemas/Album"
         isrc:
           type: string
           description: ISRC of the song
@@ -781,6 +787,10 @@ components:
         title:
           type: string
           description: Title of the song
+        albumId:
+          type: number
+          description: ID of the album that contains this song
+          nullable: true
         isrc:
           type: string
           description: ISRC of the song
@@ -797,6 +807,10 @@ components:
         title:
           type: string
           description: Title of the song
+        albumId:
+          type: number
+          description: ID of the album that contains this song
+          nullable: true
         isrc:
           type: string
           description: ISRC of the song

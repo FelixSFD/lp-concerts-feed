@@ -20,6 +20,12 @@ public class SongDto
     public string? Title { get; set; }
     
     /// <summary>
+    /// Album that contains this song
+    /// </summary>
+    [JsonPropertyName("album")]
+    public AlbumDto? Album { get; set; }
+    
+    /// <summary>
     /// ISRC of the song
     /// </summary>
     [JsonPropertyName("isrc")]

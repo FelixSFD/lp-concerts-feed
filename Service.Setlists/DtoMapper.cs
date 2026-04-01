@@ -42,6 +42,7 @@ public static class DtoMapper
         {
             Id = songDo.Id,
             Title = songDo.Title,
+            Album = ToDtoNullable(songDo.Album),
             Isrc = songDo.Isrc,
             LinkinpediaUrl = songDo.LinkinpediaUrl
         };

@@ -14,6 +14,12 @@ public class UpdateSongRequestDto
     public required string Title { get; set; }
     
     /// <summary>
+    /// ID of the album
+    /// </summary>
+    [JsonPropertyName("albumId")]
+    public uint? AlbumId { get; set; }
+    
+    /// <summary>
     /// ISRC of the song
     /// </summary>
     [JsonPropertyName("isrc")]

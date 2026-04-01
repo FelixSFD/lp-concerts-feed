@@ -22,6 +22,7 @@ public class SongService(ISongRepository songRepository, ISongVariantRepository 
         var song = new SongDo
         {
             Title = request.Title,
+            AlbumId = request.AlbumId,
             Isrc = request.Isrc,
             LinkinpediaUrl = request.LinkinpediaUrl
         };
@@ -71,6 +72,7 @@ public class SongService(ISongRepository songRepository, ISongVariantRepository 
         logger.LogDebug("Load song with id: {songId}", songId);
         var song = await songRepository.GetByPrimaryKeyAsync(songId) ?? throw new SongNotFoundException(songId);
         song.Title = request.Title;
+        song.AlbumId = request.AlbumId;
         song.Isrc = request.Isrc;
         song.LinkinpediaUrl = request.LinkinpediaUrl;
         logger.LogDebug("Save song...");
