@@ -7,6 +7,7 @@ import {Setlist} from '../../data/setlists/setlist';
 import {SetlistEntry} from '../../data/setlists/setlist-entry';
 import { SetlistActWithEntries } from "../../data/setlists/setlist-act";
 import {SetlistEntryIconsComponent} from '../../admin/setlists/setlist-entry-icons/setlist-entry-icons.component';
+import {Chart} from 'chart.js/auto';
 
 @Component({
   selector: 'app-setlist',
@@ -27,12 +28,15 @@ export class SetlistComponent implements OnInit {
 
   setlistTitle$: string = "Setlist";
 
+  public chart: any;
+
   constructor(private setlistService: SetlistsService, private toastr: ToastrService) {
   }
 
   private didLoadSetlist() {
     console.debug("Found setlist", this.setlist);
     this.setlistTitle$ = this.setlist?.concertId ?? "Setlist";
+    this.makePieChart();
   }
 
   ngOnInit() {
@@ -47,7 +51,54 @@ export class SetlistComponent implements OnInit {
           this.toastr.error(errorResponse.message, "Could not load setlist");
         }
       })
+    } else {
+      this.makePieChart();
     }
+  }
+
+
+  private makePieChart() {
+    console.debug("Make PieChart");
+    let albumNames = this.setlist?.entries.map((entry => entry.albumTitle ?? "Other"));
+    let albumStats = new Map<string, number>();
+    for (const albumName of albumNames ?? []) {
+      let currentSongCount = albumStats.get(albumName);
+      if (currentSongCount) {
+        currentSongCount = currentSongCount + 1;
+      } else {
+        currentSongCount = 1;
+      }
+
+      albumStats.set(albumName, currentSongCount);
+    }
+
+    let labels: string[] = Array.from(albumStats.keys());
+    let values: number[] = Array.from(albumStats.values());
+    console.debug(values);
+
+    this.chart = new Chart("MyChart", {
+      type: 'doughnut',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Songs',
+          data: values,
+          backgroundColor: [
+            'red',
+            'pink',
+            'green',
+            'yellow',
+            'orange',
+            'blue',
+            'purple',
+          ],
+          hoverOffset: 4
+        }],
+      },
+      options: {
+        aspectRatio:2.5
+      }
+    });
   }
 
   isAct(

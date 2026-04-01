@@ -14,7 +14,7 @@ export const authTokenInterceptor: HttpInterceptorFn = (req, next) => {
   let authRequired = false;
   for (let i = 0; i < authRoutePatterns.length; i++) {
     let pattern = authRoutePatterns[i];
-    console.log("Testing pattern:", pattern);
+    //console.log("Testing pattern:", pattern);
     if (pattern.test(req.url)) {
       console.log("auth will be added");
       authRequired = true;

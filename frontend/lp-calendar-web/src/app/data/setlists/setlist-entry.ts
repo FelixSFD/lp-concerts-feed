@@ -5,6 +5,7 @@ export class SetlistEntry {
   songNumber!: number;
   actNumber!: number | null;
   title!: string;
+  albumTitle: string | null = null;
   extraNotes!: string | null;
   linkinpediaUrl!: string | null;
   isPlayedFromRecording: boolean = false;
@@ -19,6 +20,7 @@ export class SetlistEntry {
       songNumber: dto.songNumber ?? 0,
       actNumber: dto.actNumber ?? null,
       title: title ?? dto.playedSong?.title ?? dto.playedSongVariant?.variantName ?? "",
+      albumTitle: dto.playedSong?.album?.title ?? null,
       extraNotes: dto.extraNotes ?? null,
       linkinpediaUrl: dto.linkinpediaUrl ?? null,
       isPlayedFromRecording: dto.isPlayedFromRecording ?? false,
