@@ -33,7 +33,7 @@
             }
           } @else {
             <tr [class]="structuredEntry.isWorldPremiere ? 'table-success' : ''">
-              <td>{{ structuredEntry.songNumber == 0 ? "" : `${structuredEntry.songNumber}}.` }}</td>
+              <td>{{ structuredEntry.songNumber == 0 ? "" : `${structuredEntry.songNumber}.` }}</td>
               <td><app-setlist-entry-icons [record-tape]="structuredEntry.isPlayedFromRecording" /></td>
               @if (structuredEntry.linkinpediaUrl) {
                 <td><a [href]="structuredEntry.linkinpediaUrl" target="_blank" class="link-info">{{ structuredEntry.title }}</a> <app-setlist-entry-icons [rotation-song]="structuredEntry.isRotationSong" [world-premiere]="structuredEntry.isWorldPremiere" /></td>
