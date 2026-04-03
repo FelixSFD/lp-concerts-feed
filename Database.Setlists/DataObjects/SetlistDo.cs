@@ -10,12 +10,14 @@ public class SetlistDo : BaseDo, ILinkinpediaLinkable
     /// Unique ID of the setlist
     /// </summary>
     [Key]
+    [Column("Id")]
     public uint Id { get; set; }
 
     /// <summary>
     /// ID of the Concert
     /// </summary>
     [MaxLength(63)]
+    [Column("ConcertId")]
     public required string ConcertId { get; set; }
     
     /// <summary>
@@ -23,6 +25,7 @@ public class SetlistDo : BaseDo, ILinkinpediaLinkable
     /// Example: Hamburg 2024
     /// </summary>
     [MaxLength(63)]
+    [Column("ConcertTitle")]
     public required string ConcertTitle { get; set; }
     
     /// <summary>
@@ -30,10 +33,12 @@ public class SetlistDo : BaseDo, ILinkinpediaLinkable
     /// Example: Set A
     /// </summary>
     [MaxLength(63)]
+    [Column("SetName")]
     public string? SetName { get; set; }
     
     /// <inheritdoc/>
     [MaxLength(63)]
+    [Column("LinkinpediaUrl")]
     public string? LinkinpediaUrl { get; set; }
     
     /// <summary>

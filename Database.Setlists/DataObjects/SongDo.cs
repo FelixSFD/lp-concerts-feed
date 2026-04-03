@@ -10,11 +10,13 @@ public class SongDo : BaseDo, ILinkinpediaLinkable
     /// Unique ID of the song
     /// </summary>
     [Key]
+    [Column("Id")]
     public uint Id { get; set; }
     
     /// <summary>
     /// ID of the Album that contains this song
     /// </summary>
+    [Column("AlbumId")]
     public uint? AlbumId { get; set; }
     
     /// <summary>

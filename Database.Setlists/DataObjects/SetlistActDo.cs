@@ -11,12 +11,14 @@ public class SetlistActDo : BaseDo
     /// <summary>
     /// ID of the setlist
     /// </summary>
+    [Column("SetlistId")]
     public uint SetlistId { get; set; }
     
     
     /// <summary>
     /// Unique ID of the setlist
     /// </summary>
+    [Column("ActNumber")]
     public uint ActNumber { get; set; }
 
 
@@ -24,6 +26,7 @@ public class SetlistActDo : BaseDo
     /// Title of this act
     /// </summary>
     [MaxLength(31)]
+    [Column("Title")]
     public string? Title { get; set; }
     
     

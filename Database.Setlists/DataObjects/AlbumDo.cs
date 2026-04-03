@@ -10,6 +10,7 @@ public class AlbumDo : BaseDo, ILinkinpediaLinkable
     /// Unique ID of the album
     /// </summary>
     [Key]
+    [Column("Id")]
     public uint Id { get; set; }
 
     /// <summary>

@@ -53,11 +53,16 @@ public class SetlistsDbContext(DbContextOptions<SetlistsDbContext> options) : Db
         modelBuilder.Entity<SetlistEntryDo>()
             .Navigation(e => e.PlayedMashup)
             .AutoInclude();
-
-        modelBuilder.Entity<SongMashupDo>()
-            .HasMany(m => m.Songs)
-            .WithMany()
-            .UsingEntity(join => join.ToTable("SongInMashup"));
+        
+        modelBuilder.Entity<SongInMashupDo>(entity =>
+        {
+            entity.ToTable("SongInMashup");
+            entity.HasKey(x => new { x.MashupId, x.SongId });
+            entity.Property(x => x.MashupId)
+                .HasColumnName("MashupId");
+            entity.Property(x => x.SongId)
+                .HasColumnName("SongId");
+        });
         
         modelBuilder.Entity<SongMashupDo>()
             .Navigation(e => e.Songs)

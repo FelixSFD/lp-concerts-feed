@@ -13,12 +13,14 @@ public class SongVariantDo : BaseDo
     /// Unique ID of the variant
     /// </summary>
     [Key]
+    [Column("Id")]
     public uint Id { get; set; }
     
     
     /// <summary>
     /// ID of the <see cref="SongDo"/> that is the base for this variation
     /// </summary>
+    [Column("SongId")]
     public uint SongId { get; set; }
     
     /// <summary>
@@ -32,6 +34,7 @@ public class SongVariantDo : BaseDo
     /// Overrides the <see cref="SongDo.Isrc"/> code which helps to find the song on Apple Music or Spotify.
     /// </summary>
     [MaxLength(15)]
+    [Column("IsrcOverride")]
     public string? IsrcOverride { get; set; }
     
     
@@ -39,6 +42,7 @@ public class SongVariantDo : BaseDo
     /// Name of this variant. This will be visible as the Song-Title in the setlist
     /// </summary>
     [MaxLength(31)]
+    [Column("VariantName")]
     public string? VariantName { get; set; }
     
     
@@ -46,5 +50,6 @@ public class SongVariantDo : BaseDo
     /// Optional description of the variant. What makes this variant different from the original?
     /// </summary>
     [MaxLength(63)]
+    [Column("Description")]
     public string? Description { get; set; }
 }

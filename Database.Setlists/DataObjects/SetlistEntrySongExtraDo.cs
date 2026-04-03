@@ -20,11 +20,13 @@ public class SetlistEntrySongExtraDo : BaseDo
     /// ID of this extra
     /// </summary>
     [Key]
+    [Column("Id")]
     public required string Id { get; set; }
     
     /// <summary>
     /// ID of the <see cref="SetlistEntryDo"/> where this extra was included.
     /// </summary>
+    [Column("SetlistEntryId")]
     public string SetlistEntryId { get; set; }
     
     /// <summary>
@@ -36,6 +38,7 @@ public class SetlistEntrySongExtraDo : BaseDo
     /// <summary>
     /// Optional ID of the <see cref="SongDo"/> that was added to a different song if it's a song that is referenced in our database.
     /// </summary>
+    [Column("SongId")]
     public uint? SongId { get; set; }
     
     /// <summary>
@@ -52,5 +55,7 @@ public class SetlistEntrySongExtraDo : BaseDo
     /// <summary>
     /// Description of the extra
     /// </summary>
+    [Column("Description")]
+    [MaxLength(127)]
     public required string Description { get; set; }
 }

@@ -14,14 +14,19 @@ public class SongMashupDo: BaseDo, ILinkinpediaLinkable
     /// ID of this mashup
     /// </summary>
     [Key]
+    [Column("Id")]
     public uint Id { get; set; }
 
     /// <summary>
     /// Name of this mashup
     /// </summary>
+    [Column("Title")]
+    [MaxLength(127)]
     public required string Title { get; set; }
     
     /// <inheritdoc/>
+    [Column("LinkinpediaUrl")]
+    [MaxLength(63)]
     public string? LinkinpediaUrl { get; set; }
     
     /// <summary>
