@@ -117,7 +117,11 @@ public static class DtoMapper
             Id = songMashupDo.Id,
             Title = songMashupDo.Title,
             LinkinpediaUrl = songMashupDo.LinkinpediaUrl,
-            Songs = songMashupDo.Songs.Select(ToDto).ToList()
+            Songs = songMashupDo
+                .Songs
+                .Select(s => s.Song)
+                .Select(ToDto)
+                .ToList()
         };
     }
     

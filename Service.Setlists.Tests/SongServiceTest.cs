@@ -498,8 +498,20 @@ public class SongServiceTest
             Id = 1,
             Title = "Weird mashup",
             LinkinpediaUrl = "https://lplive.net",
-            Songs = [song1, song2]
+            Songs = []
         };
+        mashup.Songs.Add(new SongInMashupDo
+        {
+            Song = song1,
+            SongId = song1.Id,
+            Mashup = mashup
+        });
+        mashup.Songs.Add(new SongInMashupDo
+        {
+            Song = song2,
+            SongId = song2.Id,
+            Mashup = mashup
+        });
 
         List<SongMashupDo> mashups = [mashup];
         _songMashupRepository.QueryAsync(CancellationToken.None).Returns(mashups.ToAsyncEnumerable());
@@ -553,8 +565,20 @@ public class SongServiceTest
             Id = 1,
             Title = "Weird mashup",
             LinkinpediaUrl = "https://lplive.net",
-            Songs = [song1, song2]
+            Songs = []
         };
+        mashup.Songs.Add(new SongInMashupDo
+        {
+            Song = song1,
+            SongId = song1.Id,
+            Mashup = mashup
+        });
+        mashup.Songs.Add(new SongInMashupDo
+        {
+            Song = song2,
+            SongId = song2.Id,
+            Mashup = mashup
+        });
 
         _songMashupRepository.GetByPrimaryKeyAsync(mashup.Id).Returns(mashup);
         
@@ -612,8 +636,20 @@ public class SongServiceTest
             Id = 1,
             Title = "Weird mashup",
             LinkinpediaUrl = "https://lplive.net",
-            Songs = [song1, song2]
+            Songs = []
         };
+        mashup.Songs.Add(new SongInMashupDo
+        {
+            Song = song1,
+            SongId = song1.Id,
+            Mashup = mashup
+        });
+        mashup.Songs.Add(new SongInMashupDo
+        {
+            Song = song2,
+            SongId = song2.Id,
+            Mashup = mashup
+        });
         
         _songMashupRepository
             .GetByPrimaryKeyAsync(mashup.Id)
@@ -670,8 +706,20 @@ public class SongServiceTest
             Id = 1,
             Title = "Weird mashup",
             LinkinpediaUrl = "https://lplive.net",
-            Songs = [song1, song2]
+            Songs = []
         };
+        mashup.Songs.Add(new SongInMashupDo
+        {
+            Song = song1,
+            SongId = song1.Id,
+            Mashup = mashup
+        });
+        mashup.Songs.Add(new SongInMashupDo
+        {
+            Song = song2,
+            SongId = song2.Id,
+            Mashup = mashup
+        });
 
         var request = new UpdateSongMashupRequestDto
         {
@@ -692,9 +740,9 @@ public class SongServiceTest
             .Update(Arg.Is<SongMashupDo>(m => m.Id == mashup.Id
                                               && m.Title == request.Title
                                               && m.LinkinpediaUrl == request.LinkinpediaUrl
-                                              && m.Songs.Any(s => s.Id == song1.Id)
-                                              && m.Songs.Any(s => s.Id == song3.Id)
-                                              && m.Songs.All(s => s.Id != song2.Id)
+                                              && m.Songs.Any(s => s.Song.Id == song1.Id)
+                                              && m.Songs.Any(s => s.Song.Id == song3.Id)
+                                              && m.Songs.All(s => s.Song.Id != song2.Id)
             ));
         
         // call the service
@@ -719,9 +767,9 @@ public class SongServiceTest
             .Update(Arg.Is<SongMashupDo>(m => m.Id == mashup.Id
                                               && m.Title == request.Title
                                               && m.LinkinpediaUrl == request.LinkinpediaUrl
-                                              && m.Songs.Any(s => s.Id == song1.Id)
-                                              && m.Songs.Any(s => s.Id == song3.Id)
-                                              && m.Songs.All(s => s.Id != song2.Id)
+                                              && m.Songs.Any(s => s.Song.Id == song1.Id)
+                                              && m.Songs.Any(s => s.Song.Id == song3.Id)
+                                              && m.Songs.All(s => s.Song.Id != song2.Id)
             ));
 
         await _songMashupRepository

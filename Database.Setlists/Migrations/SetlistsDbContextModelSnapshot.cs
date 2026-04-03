@@ -221,9 +221,6 @@ namespace Database.Setlists.Migrations
                         .HasColumnType("varchar(63)")
                         .HasColumnName("LinkinpediaUrl");
 
-                    b.Property<uint?>("SongMashupDoId")
-                        .HasColumnType("int unsigned");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(31)
@@ -233,8 +230,6 @@ namespace Database.Setlists.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AlbumId");
-
-                    b.HasIndex("SongMashupDoId");
 
                     b.ToTable("Song");
                 });
@@ -250,6 +245,8 @@ namespace Database.Setlists.Migrations
                         .HasColumnName("SongId");
 
                     b.HasKey("MashupId", "SongId");
+
+                    b.HasIndex("SongId");
 
                     b.ToTable("SongInMashup", (string)null);
                 });
@@ -377,11 +374,26 @@ namespace Database.Setlists.Migrations
                         .WithMany()
                         .HasForeignKey("AlbumId");
 
-                    b.HasOne("Database.Setlists.DataObjects.SongMashupDo", null)
-                        .WithMany("Songs")
-                        .HasForeignKey("SongMashupDoId");
-
                     b.Navigation("Album");
+                });
+
+            modelBuilder.Entity("Database.Setlists.DataObjects.SongInMashupDo", b =>
+                {
+                    b.HasOne("Database.Setlists.DataObjects.SongMashupDo", "Mashup")
+                        .WithMany("Songs")
+                        .HasForeignKey("MashupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Database.Setlists.DataObjects.SongDo", "Song")
+                        .WithMany()
+                        .HasForeignKey("SongId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Mashup");
+
+                    b.Navigation("Song");
                 });
 
             modelBuilder.Entity("Database.Setlists.DataObjects.SongVariantDo", b =>

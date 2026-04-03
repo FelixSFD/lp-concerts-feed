@@ -47,19 +47,6 @@ namespace Database.Setlists.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "SongInMashup",
-                columns: table => new
-                {
-                    SongId = table.Column<uint>(type: "int unsigned", nullable: false),
-                    MashupId = table.Column<uint>(type: "int unsigned", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SongInMashup", x => new { x.MashupId, x.SongId });
-                })
-                .Annotation("MySQL:Charset", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "SongMashup",
                 columns: table => new
                 {
@@ -71,6 +58,28 @@ namespace Database.Setlists.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SongMashup", x => x.Id);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Song",
+                columns: table => new
+                {
+                    Id = table.Column<uint>(type: "int unsigned", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    AlbumId = table.Column<uint>(type: "int unsigned", nullable: true),
+                    Title = table.Column<string>(type: "varchar(31)", maxLength: 31, nullable: false),
+                    Isrc = table.Column<string>(type: "varchar(15)", maxLength: 15, nullable: true),
+                    LinkinpediaUrl = table.Column<string>(type: "varchar(63)", maxLength: 63, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Song", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Song_Album_AlbumId",
+                        column: x => x.AlbumId,
+                        principalTable: "Album",
+                        principalColumn: "Id");
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -95,30 +104,27 @@ namespace Database.Setlists.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Song",
+                name: "SongInMashup",
                 columns: table => new
                 {
-                    Id = table.Column<uint>(type: "int unsigned", nullable: false)
-                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    AlbumId = table.Column<uint>(type: "int unsigned", nullable: true),
-                    Title = table.Column<string>(type: "varchar(31)", maxLength: 31, nullable: false),
-                    Isrc = table.Column<string>(type: "varchar(15)", maxLength: 15, nullable: true),
-                    LinkinpediaUrl = table.Column<string>(type: "varchar(63)", maxLength: 63, nullable: true),
-                    SongMashupDoId = table.Column<uint>(type: "int unsigned", nullable: true)
+                    SongId = table.Column<uint>(type: "int unsigned", nullable: false),
+                    MashupId = table.Column<uint>(type: "int unsigned", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Song", x => x.Id);
+                    table.PrimaryKey("PK_SongInMashup", x => new { x.MashupId, x.SongId });
                     table.ForeignKey(
-                        name: "FK_Song_Album_AlbumId",
-                        column: x => x.AlbumId,
-                        principalTable: "Album",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Song_SongMashup_SongMashupDoId",
-                        column: x => x.SongMashupDoId,
+                        name: "FK_SongInMashup_SongMashup_MashupId",
+                        column: x => x.MashupId,
                         principalTable: "SongMashup",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SongInMashup_Song_SongId",
+                        column: x => x.SongId,
+                        principalTable: "Song",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -258,9 +264,9 @@ namespace Database.Setlists.Migrations
                 column: "AlbumId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Song_SongMashupDoId",
-                table: "Song",
-                column: "SongMashupDoId");
+                name: "IX_SongInMashup_SongId",
+                table: "SongInMashup",
+                column: "SongId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SongVariant_SongId",
@@ -284,6 +290,9 @@ namespace Database.Setlists.Migrations
                 name: "SetlistAct");
 
             migrationBuilder.DropTable(
+                name: "SongMashup");
+
+            migrationBuilder.DropTable(
                 name: "SongVariant");
 
             migrationBuilder.DropTable(
@@ -294,9 +303,6 @@ namespace Database.Setlists.Migrations
 
             migrationBuilder.DropTable(
                 name: "Album");
-
-            migrationBuilder.DropTable(
-                name: "SongMashup");
         }
     }
 }

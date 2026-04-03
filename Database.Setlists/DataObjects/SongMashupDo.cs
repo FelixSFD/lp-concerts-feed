@@ -32,5 +32,5 @@ public class SongMashupDo: BaseDo, ILinkinpediaLinkable
     /// <summary>
     /// Songs that are included in this mashup
     /// </summary>
-    public virtual ICollection<SongDo> Songs { get; set; }
+    public virtual ICollection<SongInMashupDo> Songs { get; set; }
 }

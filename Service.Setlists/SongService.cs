@@ -161,6 +161,11 @@ public class SongService(ISongRepository songRepository, ISongVariantRepository 
             Title = request.Title,
             LinkinpediaUrl = request.LinkinpediaUrl,
             Songs = songs
+                .Select(song => new SongInMashupDo
+                {
+                    Song = song
+                })
+                .ToList()
         };
         
         songMashupRepository.Add(mashup);
@@ -236,7 +241,14 @@ public class SongService(ISongRepository songRepository, ISongVariantRepository 
         logger.LogDebug("Found {count} songs in the mashup.", songs.Length);
         mashup.Title = request.Title;
         mashup.LinkinpediaUrl = request.LinkinpediaUrl;
-        mashup.Songs = songs;
+        mashup.Songs = songs
+            .Select(song => new SongInMashupDo
+            {
+                Song = song,
+                Mashup = mashup
+            })
+            .ToList();
+        
         logger.LogDebug("Save mashup...");
         songMashupRepository.Update(mashup);
 

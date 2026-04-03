@@ -42,8 +42,20 @@ public class SqlSongMashupRepositoryTest : DbIntegrationTestsBase
         {
             Title = "Test Mashup",
             LinkinpediaUrl = "https://lplive.net",
-            Songs = [song, song2]
+            Songs = []
         };
+        mashup.Songs.Add(new SongInMashupDo
+        {
+            SongId = song.Id,
+            Song = song,
+            Mashup = mashup
+        });
+        mashup.Songs.Add(new SongInMashupDo
+        {
+            SongId = song2.Id,
+            Song = song2,
+            Mashup = mashup
+        });
         
         repo.Add(mashup);
         await repo.SaveChangesAsync();

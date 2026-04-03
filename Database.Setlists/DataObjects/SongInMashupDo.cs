@@ -9,10 +9,20 @@ public class SongInMashupDo
     /// </summary>
     [Column("SongId")]
     public uint SongId { get; set; }
+    
+    /// <summary>
+    /// Song in the mashup
+    /// </summary>
+    public SongDo Song { get; set; }
 
     /// <summary>
     /// ID of the <see cref="SongMashupDo"/>
     /// </summary>
     [Column("MashupId")]
     public uint MashupId { get; set; }
+    
+    /// <summary>
+    /// Mashup that contains the song
+    /// </summary>
+    public SongMashupDo Mashup { get; set; }
 }

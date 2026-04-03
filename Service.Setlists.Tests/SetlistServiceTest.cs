@@ -363,8 +363,20 @@ public class SetlistServiceTest
         {
             Id = 1,
             Title = "QWERTY/Lost",
-            Songs =  new List<SongDo> { song1, song2 }
+            Songs = []
         };
+        mashup.Songs.Add(new SongInMashupDo
+        {
+            Song = song1,
+            SongId = song1.Id,
+            Mashup = mashup
+        });
+        mashup.Songs.Add(new SongInMashupDo
+        {
+            Song = song2,
+            SongId = song2.Id,
+            Mashup = mashup
+        });
 
         var request = new AddSongMashupToSetlistRequestDto
         {
@@ -629,8 +641,20 @@ public class SetlistServiceTest
         var mashup = new SongMashupDo
         {
             Title = "weird mashup",
-            Songs = [song1, song2]
+            Songs = []
         };
+        mashup.Songs.Add(new SongInMashupDo
+        {
+            Song = song1,
+            SongId = song1.Id,
+            Mashup = mashup
+        });
+        mashup.Songs.Add(new SongInMashupDo
+        {
+            Song = song2,
+            SongId = song2.Id,
+            Mashup = mashup
+        });
         
         var entry = new SetlistEntryDo
         {

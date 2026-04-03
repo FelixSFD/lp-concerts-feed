@@ -57,11 +57,16 @@ public class SetlistsDbContext(DbContextOptions<SetlistsDbContext> options) : Db
         modelBuilder.Entity<SongInMashupDo>(entity =>
         {
             entity.ToTable("SongInMashup");
+
             entity.HasKey(x => new { x.MashupId, x.SongId });
-            entity.Property(x => x.MashupId)
-                .HasColumnName("MashupId");
-            entity.Property(x => x.SongId)
-                .HasColumnName("SongId");
+
+            entity.HasOne(x => x.Mashup)
+                .WithMany(m => m.Songs)
+                .HasForeignKey(x => x.MashupId);
+
+            entity.HasOne(x => x.Song)
+                .WithMany()
+                .HasForeignKey(x => x.SongId);
         });
         
         modelBuilder.Entity<SongMashupDo>()
