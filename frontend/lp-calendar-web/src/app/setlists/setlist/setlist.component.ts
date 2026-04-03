@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, inject, Input, OnInit} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {SetlistsService} from '../../services/setlists.service';
 import {ToastrService} from 'ngx-toastr';
@@ -8,6 +8,7 @@ import {SetlistEntry} from '../../data/setlists/setlist-entry';
 import { SetlistActWithEntries } from "../../data/setlists/setlist-act";
 import {SetlistEntryIconsComponent} from '../../admin/setlists/setlist-entry-icons/setlist-entry-icons.component';
 import {SetlistAlbumChartComponent} from '../setlist-album-chart/setlist-album-chart.component';
+import {MatomoTracker} from 'ngx-matomo-client';
 
 @Component({
   selector: 'app-setlist',
@@ -21,6 +22,8 @@ import {SetlistAlbumChartComponent} from '../setlist-album-chart/setlist-album-c
   styleUrl: './setlist.component.css',
 })
 export class SetlistComponent implements OnInit {
+  private readonly tracker = inject(MatomoTracker);
+
   @Input({ required: false })
   setlistId: number | undefined;
 
@@ -51,6 +54,14 @@ export class SetlistComponent implements OnInit {
           this.toastr.error(errorResponse.message, "Could not load setlist");
         }
       })
+    }
+  }
+
+  onToggleExpendedClicked() {
+    this.isExpanded$ = !this.isExpanded$;
+
+    if (this.isExpanded$) {
+      this.tracker.trackEvent("setlist", "expand_view", this.setlistTitle$);
     }
   }
 
