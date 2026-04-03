@@ -21,14 +21,14 @@
 
             @for (entry of structuredEntry.entries; track entry) {
               <tr [class]="entry.isWorldPremiere ? 'table-success' : ''">
-                <td class="text-end">&nbsp;&nbsp;{{ entry.songNumber == 0 ? "" : entry.songNumber }}.</td>
+                <td class="ps-4">&nbsp;&nbsp;{{ entry.songNumber == 0 ? "" : entry.songNumber }}.</td>
                 <td><app-setlist-entry-icons [record-tape]="entry.isPlayedFromRecording" /></td>
                 @if ("linkinpediaUrl" in entry && entry.linkinpediaUrl) {
-                  <td>&nbsp;&nbsp;<a [href]="entry.linkinpediaUrl" target="_blank" class="link-info">{{ entry.title }}</a> <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" /></td>
+                  <td class="ps-4"><a [href]="entry.linkinpediaUrl" target="_blank" class="link-info">{{ entry.title }}</a> <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" /></td>
                 } @else {
-                  <td>&nbsp;&nbsp;{{ entry.title }} <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" /></td>
+                  <td class="ps-4">{{ entry.title }} <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" /></td>
                 }
-                <td style="font-style: italic">&nbsp;&nbsp;{{ entry.extraNotes }}</td>
+                <td class="ps-4" style="font-style: italic">{{ entry.extraNotes }}</td>
               </tr>
             }
           } @else {
