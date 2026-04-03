@@ -9,6 +9,7 @@ import { SetlistActWithEntries } from "../../data/setlists/setlist-act";
 import {SetlistEntryIconsComponent} from '../../admin/setlists/setlist-entry-icons/setlist-entry-icons.component';
 import {SetlistAlbumChartComponent} from '../setlist-album-chart/setlist-album-chart.component';
 import {MatomoTracker} from 'ngx-matomo-client';
+import {ViewportScroller} from '@angular/common';
 
 @Component({
   selector: 'app-setlist',
@@ -23,6 +24,7 @@ import {MatomoTracker} from 'ngx-matomo-client';
 })
 export class SetlistComponent implements OnInit {
   private readonly tracker = inject(MatomoTracker);
+  private readonly scroller = inject(ViewportScroller);
 
   @Input({ required: false })
   setlistId: number | undefined;
@@ -59,6 +61,10 @@ export class SetlistComponent implements OnInit {
 
   onToggleExpendedClicked() {
     this.isExpanded$ = !this.isExpanded$;
+    this.scroller.setOffset([0, 120]);
+    this.scroller.scrollToAnchor(`setlist-container-${this.setlist?.id}`, {
+      behavior: 'smooth'
+    });
 
     if (this.isExpanded$) {
       this.tracker.trackEvent("setlist", "expand_view", this.setlistTitle$);

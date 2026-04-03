@@ -1,7 +1,7 @@
 .table-container {
   max-height: 350px;
   overflow: hidden;
-  transition: max-height 0.8s ease;
+  transition: max-height 0.4s ease;
   position: relative;
 }
 
