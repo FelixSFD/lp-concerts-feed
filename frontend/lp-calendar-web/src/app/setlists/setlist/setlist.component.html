@@ -1,12 +1,5 @@
-<div class="card">
-  <div class="card-header">
-    @if (setlist?.setName) {
-      Setlist: {{ setlist?.setName }}
-    } @else {
-      Setlist
-    }
-  </div>
-  <div class="card-body edit-form-card">
+<div class="table-wrapper position-relative" [class.expanded]="isExpanded$">
+  <div class="table-container">
     <table class="table">
       <thead>
       <tr>
@@ -54,9 +47,25 @@
       </tbody>
     </table>
 
-    <!-- pie chart -->
-    <div class="chart-container">
-      <canvas id="MyChart" >{{ chart }}</canvas>
-    </div>
+    @if (setlist) {
+      <app-setlist-album-chart [setlist]="setlist" />
+    }
   </div>
+
+  <!-- Fade overlay (only visible when collapsed) -->
+  @if (!isExpanded$) {
+    <div class="fade-overlay"></div>
+  }
 </div>
+
+<div class="text-center mt-2">
+  <button class="btn btn-outline-primary btn-sm"
+          (click)="isExpanded$ = !isExpanded$">
+    @if (!isExpanded$) {
+      <i class="bi bi-plus-circle"></i> Show full setlist
+    } @else {
+      <i class="bi bi-dash-circle"></i> Hide setlist
+    }
+  </button>
+</div>
+

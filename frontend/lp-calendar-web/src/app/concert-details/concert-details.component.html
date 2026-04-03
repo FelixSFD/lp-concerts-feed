@@ -66,7 +66,14 @@
         <div class="col-xxl-10 col-xl-10 col-lg-11 col-md-12 col-sm-12 col-xs-12">
           @for (setlist of setlists$; track setlist) {
             <div class="mt-4 w-100">
-              <app-setlist [setlist]="setlist" />
+              <div class="card w-100" style="width: 18rem;">
+                <div class="card-header">
+                  Setlist: {{ setlist.setName }}
+                </div>
+                <div class="card-body">
+                  <app-setlist [setlist]="setlist" />
+                </div>
+              </div>
             </div>
           }
         </div>
