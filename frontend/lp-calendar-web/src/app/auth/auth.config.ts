@@ -35,6 +35,8 @@ export const authRoutePatterns: RegExp[] = [
   /\/requestFileUpload/,
   /\/users/,
   /\/users\/[^/]+/,
+  /\/setlists/,
+  /\/setlists\/[^/]+/,
   /\/songs/,
   /\/songs\/[^/]+/,
   /\/albums/,
