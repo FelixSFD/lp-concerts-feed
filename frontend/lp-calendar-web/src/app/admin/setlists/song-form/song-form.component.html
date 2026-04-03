@@ -27,6 +27,7 @@
                   formControlName="selectedAlbumId"
                   [ngClass]="{ 'is-invalid': songForm.controls.selectedAlbumId.invalid }">
             <option selected disabled>Select album</option>
+            <option>Not part of any album</option>
             <option disabled>---------------</option>
             @for (album of availableAlbums$; track album.id) {
               <option [value]="album.id">{{ album.title }}</option>

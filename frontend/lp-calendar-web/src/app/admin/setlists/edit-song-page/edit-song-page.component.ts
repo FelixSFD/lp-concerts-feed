@@ -42,7 +42,7 @@ export class EditSongPageComponent implements OnInit {
 
     let request: UpdateSongRequestDto = {
       title: formContent.title,
-      albumId: Number(formContent.albumId),
+      albumId: formContent.albumId != null ? Number(formContent.albumId) : null,
       isrc: formContent.isrc,
       linkinpediaUrl: formContent.linkinpediaUrl,
     };

@@ -4,7 +4,6 @@ import {ToastrService} from 'ngx-toastr';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {AlbumDto, ErrorResponseDto, SongDto} from '../../../modules/lpshows-api';
 import {NgClass} from '@angular/common';
-import {SongsService} from '../../../services/songs.service';
 import {AlbumsService} from '../../../services/music/albums.service';
 
 @Component({
