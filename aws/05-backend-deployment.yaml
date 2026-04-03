@@ -29,6 +29,9 @@ Parameters:
   TimeZoneApiKey:
     Type: String
     Description: Key for the TimezoneDB API
+  SetlistsDbConnectionStringRead:
+    Type: String
+    Description: Connection string to read from the setlist database
   SetlistsDbConnectionStringWrite:
     Type: String
     Description: Connection string to write into the setlist database
@@ -1782,7 +1785,7 @@ Resources:
     Properties:
       Handler: Lambda.SetlistsRead::Lambda.SetlistsRead.Function::FunctionHandler
       Role: !GetAtt SetlistsReadLambdaExecutionRole.Arn
-      Description: .NET function to read Setlist-data into the database
+      Description: .NET function to read Setlist-data from the database
       CodeUri: ../lambda_packages/Lambda.SetlistsRead.zip
       Runtime: dotnet10
       Architectures:
@@ -1792,7 +1795,7 @@ Resources:
       Environment:
         Variables:
           CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
-          SETLISTS_DB_CONNECTION_STRING: !Ref SetlistsDbConnectionStringWrite
+          SETLISTS_DB_CONNECTION_STRING: !Ref SetlistsDbConnectionStringRead
       LoggingConfig:
         LogFormat: JSON
         ApplicationLogLevel: DEBUG
