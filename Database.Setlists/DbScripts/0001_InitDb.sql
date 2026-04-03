@@ -39,7 +39,8 @@ create table SongInMashup (
 create table Setlist (
     Id int primary key AUTO_INCREMENT,
     ConcertId varchar(63) not null,
-    Title varchar(31) not null,
+    ConcertTitle varchar(63) not null,
+    SetName varchar(63) not null,
     LinkinpediaUrl varchar(63)
 );
 
@@ -64,7 +65,8 @@ create table SetlistEntry (
     FOREIGN KEY (SetlistId) REFERENCES Setlist(Id),
     FOREIGN KEY (SetlistId, ActNumber) REFERENCES SetlistAct(SetlistId, ActNumber),
     FOREIGN KEY (PlayedSongId) REFERENCES Song(Id),
-    FOREIGN KEY (PlayedVariantId) REFERENCES SongVariant(Id)
+    FOREIGN KEY (PlayedVariantId) REFERENCES SongVariant(Id),
+    FOREIGN KEY (PlayedMashupId) REFERENCES SongMashup(Id)
 );
 
 create table SetlistEntrySongExtra (

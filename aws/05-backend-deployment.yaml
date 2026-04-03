@@ -1799,6 +1799,26 @@ Resources:
       LoggingConfig:
         LogFormat: JSON
         ApplicationLogLevel: DEBUG
+  
+  SetlistsDbMigrationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: Lambda.SetlistsDbMigration::Lambda.SetlistsDbMigration.Function::FunctionHandler
+      Role: !GetAtt SetlistsWriteLambdaExecutionRole.Arn
+      Description: .NET function to run the Entity Framework DB Migrations for Setlist data
+      CodeUri: ../lambda_packages/Lambda.SetlistsDbMigration.zip
+      Runtime: dotnet10
+      Architectures:
+        - arm64
+      Tracing: Active
+      MemorySize: 1024
+      Environment:
+        Variables:
+          CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
+          SETLISTS_DB_CONNECTION_STRING: !Ref SetlistsDbConnectionStringWrite
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
 
 Outputs:
   ConcertsApiGatewayExport:

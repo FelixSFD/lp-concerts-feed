@@ -4,6 +4,8 @@ namespace Lambda.Auth;
 
 public static class ApiGatewayProxyRequestPermissionsExtensions
 {
+    private const string GroupNameAdmin = "Admin";
+    
     /// <summary>
     /// Checks if the client is authenticated. To check for the actual permissions, use methods like <see cref="IsMemberOfOrAdmin(Amazon.Lambda.APIGatewayEvents.APIGatewayProxyRequest,string)"/>
     /// </summary>
@@ -23,6 +25,13 @@ public static class ApiGatewayProxyRequestPermissionsExtensions
             .Select(kv => kv.Value)
             .FirstOrDefault();
 
+    /// <summary>
+    /// Checks in the request if the user is in the admin group
+    /// </summary>
+    /// <param name="request">Request that contains the claims</param>
+    /// <returns>true, if current user is member of the group</returns>
+    public static bool IsAdmin(this APIGatewayProxyRequest request) 
+        => IsMemberOf(request, [GroupNameAdmin]);
 
     /// <summary>
     /// Checks in the request if the user is member of a given group
@@ -41,7 +50,7 @@ public static class ApiGatewayProxyRequestPermissionsExtensions
     /// <param name="groupName">name of the group</param>
     /// <returns>true, if current user is member of the group or in the admin group</returns>
     public static bool IsMemberOfOrAdmin(this APIGatewayProxyRequest request, string groupName) 
-        => IsMemberOf(request, groupName, "Admin");
+        => IsMemberOf(request, groupName, GroupNameAdmin);
     
     
     /// <summary>
@@ -51,7 +60,7 @@ public static class ApiGatewayProxyRequestPermissionsExtensions
     /// <param name="groupNames">name of the groups; Only one of the groups has to match</param>
     /// <returns>true, if current user is member of the group or in the admin group</returns>
     public static bool IsMemberOfOrAdmin(this APIGatewayProxyRequest request, params string[] groupNames) 
-        => IsMemberOf(request, groupNames.Append("Admin").ToArray());
+        => IsMemberOf(request, groupNames.Append(GroupNameAdmin).ToArray());
     
     
     /// <summary>

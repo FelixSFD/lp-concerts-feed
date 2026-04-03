@@ -137,6 +137,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.SetlistsRead", "Lamb
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.SetlistsRead.Tests", "Lambda.SetlistsRead\test\Lambda.SetlistsRead.Tests\Lambda.SetlistsRead.Tests.csproj", "{6F260797-3DEB-4FCD-9B4E-C7F24A0C020B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda.SetlistsDbMigration", "Lambda.SetlistsDbMigration\src\Lambda.SetlistsDbMigration\Lambda.SetlistsDbMigration.csproj", "{67139F68-8F19-4978-831D-5FD07FC5F1AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -355,5 +357,9 @@ Global
 		{6F260797-3DEB-4FCD-9B4E-C7F24A0C020B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F260797-3DEB-4FCD-9B4E-C7F24A0C020B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F260797-3DEB-4FCD-9B4E-C7F24A0C020B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67139F68-8F19-4978-831D-5FD07FC5F1AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67139F68-8F19-4978-831D-5FD07FC5F1AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67139F68-8F19-4978-831D-5FD07FC5F1AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67139F68-8F19-4978-831D-5FD07FC5F1AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

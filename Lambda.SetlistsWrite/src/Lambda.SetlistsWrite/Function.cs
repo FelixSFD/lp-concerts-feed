@@ -57,7 +57,7 @@ public class Function
         optBuilder.UseMySQL(connectionString);
         var dbContext = new SetlistsDbContext(optBuilder.Options);
         stopwatch.Stop();
-        context.Logger.LogDebug("Init duration of EFCore context: {duration}", stopwatch.ElapsedMilliseconds);
+        context.Logger.LogDebug("Init duration of EFCore context: {duration} ms", stopwatch.ElapsedMilliseconds);
         _setlistRepository = new SqlSetlistRepository(dbContext);
         _setlistActRepository = new SqlSetlistActRepository(dbContext);
         _setlistEntryRepository = new SqlSetlistEntryRepository(dbContext);
