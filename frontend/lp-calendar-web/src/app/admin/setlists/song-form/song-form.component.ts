@@ -5,6 +5,7 @@ import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} 
 import {AlbumDto, ErrorResponseDto, SongDto} from '../../../modules/lpshows-api';
 import {NgClass} from '@angular/common';
 import {AlbumsService} from '../../../services/music/albums.service';
+import {AppleMusicService} from '../../../services/music/apple-music.service';
 
 @Component({
   selector: 'app-song-form',
@@ -21,6 +22,7 @@ export class SongFormComponent implements OnInit {
   private toastr = inject(ToastrService);
   private formBuilder = inject(FormBuilder);
   private albumsService = inject(AlbumsService);
+  private appleMusicService = inject(AppleMusicService);
 
   @Input("is-saving")
   isSaving$: boolean = false;
@@ -48,6 +50,10 @@ export class SongFormComponent implements OnInit {
           this.toastr.error(errorResponse.message, "Could load albums");
         }
       });
+
+    this.songForm.controls.isrc.valueChanges.subscribe(isrc => {
+      this.onIsrcChanged();
+    })
   }
 
   openModal(content: TemplateRef<any>) {
@@ -99,6 +105,17 @@ export class SongFormComponent implements OnInit {
     this.songForm.controls.selectedAlbumId.setValue(song.album?.id ?? null);
     this.songForm.controls.isrc.setValue(song.isrc ?? null);
     this.songForm.controls.linkinpediaUrl.setValue(song.linkinpediaUrl ?? null);
+  }
+
+
+  onIsrcChanged() {
+    let isrc = this.songForm.value.isrc?.valueOf();
+    if (isrc) {
+      this.appleMusicService.getSongsForIsrc(isrc ?? "").then(songs => {
+        console.debug("Songs from Isrc:", songs);
+        console.debug("Albums:", songs.map(song => song.attributes?.albumName));
+      })
+    }
   }
 }
 
