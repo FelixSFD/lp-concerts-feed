@@ -216,6 +216,7 @@ public static class DtoMapper
             PlayedSongMashup = ToDtoNullable(setlistEntryDo.PlayedMashup),
             Title = setlistEntryDo.TitleOverride ?? GetEntryTitleForSongVariant(setlistEntryDo.PlayedSongVariant?.Song, setlistEntryDo.PlayedSongVariant) ?? setlistEntryDo.PlayedSong?.Title ?? setlistEntryDo.PlayedMashup?.Title ?? "unknown",
             ExtraNotes = setlistEntryDo.ExtraNotes,
+            Isrc = GetIsrcForSongVariant(setlistEntryDo.PlayedSong, setlistEntryDo.PlayedSongVariant),
             LinkinpediaUrl = setlistEntryDo.PlayedSong?.LinkinpediaUrl ?? setlistEntryDo.PlayedSongVariant?.Song.LinkinpediaUrl ?? setlistEntryDo.PlayedMashup?.LinkinpediaUrl,
             IsPlayedFromRecording = setlistEntryDo.IsPlayedFromRecording,
             IsRotationSong = setlistEntryDo.IsRotationSong,
@@ -229,6 +230,12 @@ public static class DtoMapper
             return null;
 
         return $"{songDo.Title} ({songVariantDo.VariantName})";
+    }
+
+
+    private static string? GetIsrcForSongVariant(SongDo? songDo, SongVariantDo? songVariantDo)
+    {
+        return songVariantDo?.IsrcOverride ?? songDo?.Isrc;
     }
     
     /// <summary>

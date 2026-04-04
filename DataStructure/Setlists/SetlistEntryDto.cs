@@ -65,6 +65,12 @@ public class SetlistEntryDto
     public string? ExtraNotes { get; set; }
     
     /// <summary>
+    /// ISRC for this entry. This can be used to find the song on Apple Music or Spotify
+    /// </summary>
+    [JsonPropertyName("isrc")]
+    public string? Isrc { get; set; }
+    
+    /// <summary>
     /// URL to a page in Linkinpedia about the song/variant/mashup
     /// </summary>
     [JsonPropertyName("linkinpediaUrl")]

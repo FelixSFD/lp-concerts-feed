@@ -534,6 +534,10 @@ components:
           description: Field to store additional notes about this entry
           nullable: true
           maxLength: 127
+        isrc:
+          type: string
+          description: ISRC for this entry. This can be used to find the song on Apple Music or Spotify
+          nullable: true
         linkinpediaUrl:
           type: string
           description: URL to the wiki page on Linkinpedia. This value is stored either in the song or the mashup
