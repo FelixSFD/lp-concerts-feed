@@ -35,6 +35,15 @@ Parameters:
   SetlistsDbConnectionStringWrite:
     Type: String
     Description: Connection string to write into the setlist database
+  AppleMusicApiPrivateKey:
+    Type: String
+    Description: Private Key for the Apple Music API as text. This key is used to generate developer tokens
+  AppleMusicApiKeyId:
+    Type: String
+    Description: ID of the AppleMusicApiPrivateKey
+  AppleMusicApiTeamId:
+    Type: String
+    Description: ID of the developer team
 
 
 Globals:
@@ -946,7 +955,20 @@ Resources:
                 Resource:
                   - !Sub "${ConcertsDynamoDBTable.Arn}"
                   - !Sub "${ConcertsDynamoDBTable.Arn}*"
-
+  
+  AppleMusicLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: "Execution role for Lambda that generates Apple Music API tokens"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
 
   CognitoAuthorizerUserPoolV3:
     Type: AWS::Cognito::UserPool
@@ -1819,6 +1841,27 @@ Resources:
       LoggingConfig:
         LogFormat: JSON
         ApplicationLogLevel: DEBUG
+  
+  AppleMusicFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: Lambda.AppleMusic::Lambda.AppleMusic.Function::FunctionHandler
+      Role: !GetAtt AppleMusicLambdaExecutionRole.Arn
+      Description: .NET function to run the Entity Framework DB Migrations for Setlist data
+      CodeUri: ../lambda_packages/Lambda.AppleMusic.zip
+      Runtime: dotnet10
+      Architectures:
+        - arm64
+      Tracing: Active
+      MemorySize: 1024
+      Environment:
+        Variables:
+          APPLE_MUSIC_PRIVATE_KEY: !Ref AppleMusicApiPrivateKey
+          APPLE_MUSIC_KEY_ID: !Ref AppleMusicApiKeyId
+          APPLE_TEAM_ID: !Ref AppleMusicApiTeamId
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
 
 Outputs:
   ConcertsApiGatewayExport:
@@ -1903,6 +1946,10 @@ Outputs:
     Value: !GetAtt SetlistsReadFunction.Arn
     Export:
       Name: !Sub '${BaseProductName}-lambda-setlists-read-function'
+  LambdaRefAppleMusicFunctionExport:
+    Value: !GetAtt AppleMusicFunction.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-lambda-apple-music-function'
   OpenApiBucketArn:
     Value: !GetAtt OpenApiBucket.Arn
     Export:

@@ -219,6 +219,14 @@ Resources:
         Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/mashups*
+  AppleMusicLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue
+        Fn::Sub: "${BaseProductName}-lambda-apple-music-function"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/apple-music*
 
 
 Outputs:

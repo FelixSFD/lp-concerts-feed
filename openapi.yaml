@@ -3094,3 +3094,30 @@ paths:
         httpMethod: "POST"
         contentHandling: "CONVERT_TO_TEXT"
         type: "aws_proxy"
+  /apple-music/token:
+    get:
+      operationId: GetAppleMusicDeveloperToken
+      summary: Returns a developer token to access the Apple Music API
+      tags:
+        - appleMusic
+      responses:
+        "201":
+          description: The token as plain text
+          content:
+            text/plain:
+              schema:
+                type: string
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-apple-music-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
