@@ -25,6 +25,7 @@ public class SongService(ISongRepository songRepository, ISongVariantRepository 
             Title = request.Title,
             AlbumId = request.AlbumId,
             Isrc = StringUtils.NullIfEmpty(request.Isrc),
+            AppleMusicId = StringUtils.NullIfEmpty(request.AppleMusicId),
             LinkinpediaUrl = StringUtils.NullIfEmpty(request.LinkinpediaUrl)
         };
         
@@ -80,6 +81,7 @@ public class SongService(ISongRepository songRepository, ISongVariantRepository 
         song.Title = request.Title;
         song.AlbumId = request.AlbumId;
         song.Isrc = StringUtils.NullIfEmpty(request.Isrc);
+        song.AppleMusicId = StringUtils.NullIfEmpty(request.AppleMusicId);
         song.LinkinpediaUrl = StringUtils.NullIfEmpty(request.LinkinpediaUrl);
         logger.LogDebug("Save song...");
         songRepository.Update(song);
@@ -240,7 +242,7 @@ public class SongService(ISongRepository songRepository, ISongVariantRepository 
             .ToArrayAsync();
         logger.LogDebug("Found {count} songs in the mashup.", songs.Length);
         mashup.Title = request.Title;
-        mashup.LinkinpediaUrl = request.LinkinpediaUrl;
+        mashup.LinkinpediaUrl = StringUtils.NullIfEmpty(request.LinkinpediaUrl);
         mashup.Songs = songs
             .Select(song => new SongInMashupDo
             {

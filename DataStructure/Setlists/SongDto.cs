@@ -32,6 +32,12 @@ public class SongDto
     public string? Isrc { get; set; }
     
     /// <summary>
+    /// Unique ID for the Song on Apple Music
+    /// </summary>
+    [JsonPropertyName("appleMusicId")]
+    public string? AppleMusicId { get; set; }
+    
+    /// <summary>
     /// Link to the wiki page on Linkinpedia
     /// </summary>
     [JsonPropertyName("linkinpediaUrl")]

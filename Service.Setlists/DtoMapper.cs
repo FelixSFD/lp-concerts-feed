@@ -44,6 +44,7 @@ public static class DtoMapper
             Title = songDo.Title,
             Album = ToDtoNullable(songDo.Album),
             Isrc = songDo.Isrc,
+            AppleMusicId = songDo.AppleMusicId,
             LinkinpediaUrl = songDo.LinkinpediaUrl
         };
     }
@@ -64,6 +65,7 @@ public static class DtoMapper
             Title = songDo.Title,
             Album = ToDtoNullable(songDo.Album),
             Isrc = songDo.Isrc,
+            AppleMusicId = songDo.AppleMusicId,
             LinkinpediaUrl = songDo.LinkinpediaUrl
         };
     }
@@ -84,6 +86,7 @@ public static class DtoMapper
             SongId = songVariantDo.SongId,
             VariantName = songVariantDo.VariantName,
             IsrcOverride = songVariantDo.IsrcOverride,
+            AppleMusicIdOverride = songVariantDo.AppleMusicIdOverride,
             Description = songVariantDo.Description
         };
     }
@@ -101,6 +104,7 @@ public static class DtoMapper
             SongId = songVariantDo.SongId,
             VariantName = songVariantDo.VariantName,
             IsrcOverride = songVariantDo.IsrcOverride,
+            AppleMusicIdOverride = songVariantDo.AppleMusicIdOverride,
             Description = songVariantDo.Description
         };
     }
@@ -217,6 +221,7 @@ public static class DtoMapper
             Title = setlistEntryDo.TitleOverride ?? GetEntryTitleForSongVariant(setlistEntryDo.PlayedSongVariant?.Song, setlistEntryDo.PlayedSongVariant) ?? setlistEntryDo.PlayedSong?.Title ?? setlistEntryDo.PlayedMashup?.Title ?? "unknown",
             ExtraNotes = setlistEntryDo.ExtraNotes,
             Isrc = GetIsrcForSongVariant(setlistEntryDo.PlayedSong, setlistEntryDo.PlayedSongVariant),
+            AppleMusicId = setlistEntryDo.PlayedSongVariant?.AppleMusicIdOverride ?? setlistEntryDo.PlayedSongVariant?.Song.AppleMusicId ?? setlistEntryDo.PlayedSong?.AppleMusicId,
             LinkinpediaUrl = setlistEntryDo.PlayedSong?.LinkinpediaUrl ?? setlistEntryDo.PlayedSongVariant?.Song.LinkinpediaUrl ?? setlistEntryDo.PlayedMashup?.LinkinpediaUrl,
             IsPlayedFromRecording = setlistEntryDo.IsPlayedFromRecording,
             IsRotationSong = setlistEntryDo.IsRotationSong,

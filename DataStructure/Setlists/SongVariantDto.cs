@@ -28,6 +28,12 @@ public class SongVariantDto
     public string? IsrcOverride { get; set; }
     
     /// <summary>
+    /// Overrides the <see cref="SongDto.AppleMusicId"/> which is a unique ID for the Song on Apple Music
+    /// </summary>
+    [JsonPropertyName("appleMusicIdOverride")]
+    public string? AppleMusicIdOverride { get; set; }
+    
+    /// <summary>
     /// Name of this variant. This will be visible as the Song-Title in the setlist
     /// </summary>
     [MaxLength(31)]

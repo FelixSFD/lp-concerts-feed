@@ -41,4 +41,11 @@ public class SongVariantParametersDto
     /// </summary>
     [JsonPropertyName("isrcOverride")]
     public string? IsrcOverride { get; set; }
+    
+    
+    /// <summary>
+    /// Overrides the <see cref="SongDto.AppleMusicId"/> which is a unique ID for the Song on Apple Music
+    /// </summary>
+    [JsonPropertyName("appleMusicIdOverride")]
+    public string? AppleMusicIdOverride { get; set; }
 }

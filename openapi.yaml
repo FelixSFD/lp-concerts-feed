@@ -429,6 +429,10 @@ components:
           type: string
           description: ISRC of the song
           nullable: true
+        appleMusicId:
+          type: string
+          description: Unique ID for the Song on Apple Music
+          nullable: true
         linkinpediaUrl:
           type: string
           description: URL to the wiki page on Linkinpedia
@@ -447,6 +451,10 @@ components:
         isrcOverride:
           type: string
           description: ISRC of the variant if it is different from the normal version
+          nullable: true
+        appleMusicIdOverride:
+          type: string
+          description: unique ID for the Song on Apple Music. If not present, the ID of the original song will be used
           nullable: true
         variantName:
           type: string
@@ -537,6 +545,10 @@ components:
         isrc:
           type: string
           description: ISRC for this entry. This can be used to find the song on Apple Music or Spotify
+          nullable: true
+        appleMusicId:
+          type: string
+          description: Unique ID for the Song on Apple Music
           nullable: true
         linkinpediaUrl:
           type: string
@@ -799,6 +811,10 @@ components:
           type: string
           description: ISRC of the song
           nullable: true
+        appleMusicId:
+          type: string
+          description: Unique ID for the Song on Apple Music
+          nullable: true
         linkinpediaUrl:
           type: string
           description: URL to the wiki page on Linkinpedia
@@ -818,6 +834,10 @@ components:
         isrc:
           type: string
           description: ISRC of the song
+          nullable: true
+        appleMusicId:
+          type: string
+          description: Unique ID for the Song on Apple Music
           nullable: true
         linkinpediaUrl:
           type: string
@@ -856,6 +876,10 @@ components:
           type: string
           description: ISRC of the song. If not present, the ID of the song must be set.
           nullable: true
+        appleMusicId:
+          type: string
+          description: Unique ID for the Song on Apple Music
+          nullable: true
         linkinpediaUrl:
           type: string
           description: URL to the wiki page on Linkinpedia
@@ -880,6 +904,10 @@ components:
         isrcOverride:
           type: string
           description: ISRC of the song. If not present, the ISRC of the original song will be used
+          nullable: true
+        appleMusicIdOverride:
+          type: string
+          description: unique ID for the Song on Apple Music. If not present, the ID of the original song will be used
           nullable: true
         description:
           type: string

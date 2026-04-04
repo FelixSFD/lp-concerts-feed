@@ -34,6 +34,7 @@ public class SongServiceTest
         {
             Title = "QWERTY",
             Isrc = "5355646",
+            AppleMusicId = "12434245",
             LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
         };
         
@@ -41,12 +42,13 @@ public class SongServiceTest
         Assert.NotNull(song);
         Assert.Equal(request.Title, song.Title);
         Assert.Equal(request.Isrc, song.Isrc);
+        Assert.Equal(request.AppleMusicId, song.AppleMusicId);
         Assert.Equal(request.LinkinpediaUrl, song.LinkinpediaUrl);
         
         // verify mock calls
         _songRepository
             .Received(1)
-            .Add(Arg.Is<SongDo>(m => m.Id == 0 && m.Title == request.Title && m.Isrc == request.Isrc && m.LinkinpediaUrl == request.LinkinpediaUrl));
+            .Add(Arg.Is<SongDo>(m => m.Id == 0 && m.Title == request.Title && m.Isrc == request.Isrc && m.AppleMusicId == request.AppleMusicId && m.LinkinpediaUrl == request.LinkinpediaUrl));
         
         await _songRepository
             .Received(1)
@@ -63,6 +65,7 @@ public class SongServiceTest
             Id = 1234,
             Title = "QWERTY",
             Isrc = "5355646",
+            AppleMusicId = "12434245",
             LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
         };
         
@@ -82,12 +85,13 @@ public class SongServiceTest
         Assert.NotNull(song);
         Assert.Equal(request.Title, song.Title);
         Assert.Equal(request.Isrc, song.Isrc);
+        Assert.Equal(request.AppleMusicId, song.AppleMusicId);
         Assert.Equal(request.LinkinpediaUrl, song.LinkinpediaUrl);
         
         // verify mock calls
         _songRepository
             .Received(1)
-            .Update(Arg.Is<SongDo>(m => m.Id == mockSong.Id && m.Title == request.Title && m.Isrc == request.Isrc && m.LinkinpediaUrl == request.LinkinpediaUrl));
+            .Update(Arg.Is<SongDo>(m => m.Id == mockSong.Id && m.Title == request.Title && m.Isrc == request.Isrc && m.AppleMusicId == request.AppleMusicId && m.LinkinpediaUrl == request.LinkinpediaUrl));
         
         await _songRepository
             .Received(1)
