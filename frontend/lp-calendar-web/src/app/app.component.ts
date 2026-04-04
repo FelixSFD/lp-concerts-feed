@@ -16,6 +16,7 @@ import {UserDto} from './modules/lpshows-api';
 import {AuthService} from './auth/auth.service';
 import {DateTime} from 'luxon';
 import {ClockService} from './services/clock.service';
+import {AppleMusicService} from './services/music/apple-music.service';
 
 @Component({
   selector: 'app-root',
@@ -27,6 +28,7 @@ export class AppComponent implements OnInit, OnDestroy {
   title = 'lp-calendar-web';
 
   private readonly authStateService = inject(AuthService);
+  private readonly appleMusicService = inject(AppleMusicService);
   private readonly oidcSecurityService = inject(OidcSecurityService);
   private cookieService = inject(NgcCookieConsentService);
   private readonly tracker = inject(MatomoTracker);
@@ -83,6 +85,9 @@ export class AppComponent implements OnInit, OnDestroy {
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
       this.updateTheme();
     });
+
+    // init apple music
+    this.appleMusicService.init().then();
   }
 
 
