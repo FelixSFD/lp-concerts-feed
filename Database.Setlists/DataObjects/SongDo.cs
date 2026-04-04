@@ -39,6 +39,13 @@ public class SongDo : BaseDo, ILinkinpediaLinkable
     [MaxLength(15)]
     public string? Isrc { get; set; }
     
+    /// <summary>
+    /// Unique ID for the Song on Apple Music
+    /// </summary>
+    [Column("appleMusicId")]
+    [MaxLength(31)]
+    public string? AppleMusicId { get; set; }
+    
     /// <inheritdoc/>
     [Column("LinkinpediaUrl")]
     [MaxLength(63)]

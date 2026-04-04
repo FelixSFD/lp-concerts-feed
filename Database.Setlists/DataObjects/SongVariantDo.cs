@@ -39,6 +39,14 @@ public class SongVariantDo : BaseDo
     
     
     /// <summary>
+    /// Overrides the <see cref="SongDo.AppleMusicId"/> which is a unique ID for the Song on Apple Music
+    /// </summary>
+    [Column("appleMusicIdOverride")]
+    [MaxLength(31)]
+    public string? AppleMusicIdOverride { get; set; }
+    
+    
+    /// <summary>
     /// Name of this variant. This will be visible as the Song-Title in the setlist
     /// </summary>
     [MaxLength(31)]

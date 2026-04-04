@@ -22,6 +22,7 @@ public class SqlSongRepositoryTest : DbIntegrationTestsBase
             Album = album,
             Title = "Test Song",
             Isrc = "1337",
+            AppleMusicId = "1234567890234",
             LinkinpediaUrl = "https://lplive.net"
         };
         
@@ -34,6 +35,7 @@ public class SqlSongRepositoryTest : DbIntegrationTestsBase
         Assert.Equal(retrievedSong.Id, song.Id);
         Assert.Equal(retrievedSong.Title, song.Title);
         Assert.Equal(retrievedSong.Isrc, song.Isrc);
+        Assert.Equal(retrievedSong.AppleMusicId, song.AppleMusicId);
         Assert.Equal(retrievedSong.LinkinpediaUrl, song.LinkinpediaUrl);
         
         var retrievedAlbum = retrievedSong.Album;
