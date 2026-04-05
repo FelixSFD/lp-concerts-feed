@@ -11,7 +11,7 @@
       </tr>
       </thead>
       <tbody>
-        @for (structuredEntry of setlist?.structuredEntries; track structuredEntry) {
+        @for (structuredEntry of setlist?.structuredEntries; track structuredEntry; let outerIndex = $index) {
           @if (isAct(structuredEntry)) {
             <tr>
               <td>Act {{ structuredEntry.actNumber }}</td>
@@ -21,13 +21,13 @@
               <td></td>
             </tr>
 
-            @for (entry of structuredEntry.entries; track entry) {
+            @for (entry of structuredEntry.entries; track entry; let i = $index) {
               <tr [class]="entry.isWorldPremiere ? 'table-success' : ''">
                 <td class="ps-4">&nbsp;&nbsp;{{ entry.songNumber == 0 ? "" : entry.songNumber }}.</td>
                 <td><app-setlist-entry-icons [record-tape]="entry.isPlayedFromRecording" /></td>
                 <td>
-                  @if (setlistEntriesArtwork$[$index] != null) {
-                    <app-apple-music-artwork [artwork]="setlistEntriesArtwork$[$index]!" [width]="25" />
+                  @if (setlistEntriesArtwork$[i] != null) {
+                    <app-apple-music-artwork [artwork]="setlistEntriesArtwork$[i]!" [width]="25" />
                   }
                 </td>
                 @if ("linkinpediaUrl" in entry && entry.linkinpediaUrl) {
