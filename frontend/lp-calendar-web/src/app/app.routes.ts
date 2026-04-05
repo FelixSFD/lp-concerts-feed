@@ -44,7 +44,6 @@ export const adminGuard: CanActivateFn = (
   state: RouterStateSnapshot,
 ) => {
   const authService = inject(AuthService);
-  console.log("adminGuard");
   return authService.currentUserGroups.pipe(map(groups => groups.some(g => g == "Admin")));
 };
 
@@ -53,25 +52,22 @@ export const manageUsersGuard: CanActivateFn = (
   state: RouterStateSnapshot,
 ) => {
   const authService = inject(AuthService);
-  console.log("adminGuard");
-  return authService.currentUserGroups.pipe(map(groups => groups.some(g => g == "ManageUsers" || g == "Admin")));
+  return authService.canManageUsers;
 };
 
-export const addConcerts: CanActivateFn = (
+export const addConcertsGuard: CanActivateFn = (
   route: ActivatedRouteSnapshot,
   state: RouterStateSnapshot,
 ) => {
   const authService = inject(AuthService);
-  console.log("adminGuard");
   return authService.currentUserGroups.pipe(map(groups => groups.some(g => g == "AddConcerts" || g == "Admin")));
 };
 
-export const updateConcerts: CanActivateFn = (
+export const updateConcertsGuard: CanActivateFn = (
   route: ActivatedRouteSnapshot,
   state: RouterStateSnapshot,
 ) => {
   const authService = inject(AuthService);
-  console.log("adminGuard");
   return authService.currentUserGroups.pipe(map(groups => groups.some(g => g == "UpdateConcerts" || g == "Admin")));
 };
 
@@ -80,8 +76,7 @@ export const manageSetlistsGuard: CanActivateFn = (
   state: RouterStateSnapshot,
 ) => {
   const authService = inject(AuthService);
-  console.log("manageSetlistsGuard");
-  return authService.currentUserGroups.pipe(map(groups => groups.some(g => g == "ManageSetlists")));
+  return authService.canManageSetlists;
 };
 
 export const routes: Routes = [
@@ -128,7 +123,7 @@ export const routes: Routes = [
     path: 'concerts/add',
     component: AddConcertPageComponent,
     title: baseTitle + 'Add concert',
-    canActivate: [addConcerts]
+    canActivate: [addConcertsGuard]
   },
   {
     path: 'concerts/:id',
@@ -139,7 +134,7 @@ export const routes: Routes = [
     path: 'concerts/:id/edit',
     component: EditConcertPageComponent,
     title: baseTitle + 'Edit concert',
-    canActivate: [updateConcerts]
+    canActivate: [updateConcertsGuard]
   },
   {
     path: 'users',

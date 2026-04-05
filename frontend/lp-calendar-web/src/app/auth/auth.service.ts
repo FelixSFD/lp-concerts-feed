@@ -74,7 +74,7 @@ export class AuthService {
    */
   get currentUserGroups() {
     return this.oidcSecurityService.getPayloadFromAccessToken().pipe(map(payload => {
-      console.debug(payload);
+      //console.debug(payload);
       if (payload.hasOwnProperty("cognito:groups")) {
         return payload["cognito:groups"] as string[] ?? [];
       }
