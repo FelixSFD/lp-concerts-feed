@@ -44,13 +44,17 @@
               <i class="bi bi-gear-fill"></i>
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
-              <li><h6 class="dropdown-header">Songs & Setlists</h6></li>
-              <li><a class="dropdown-item" [routerLink]="['/admin/setlists']" [routerLinkActive]="['active']">Setlists</a></li>
-              <li><a class="dropdown-item" [routerLink]="['/admin/albums']" [routerLinkActive]="['active']">Albums</a></li>
-              <li><a class="dropdown-item" [routerLink]="['/admin/songs']" [routerLinkActive]="['active']">Songs</a></li>
-              <li><a class="dropdown-item" [routerLink]="['/admin/mashups']" [routerLinkActive]="['active']">Mashups</a></li>
-              <li><h6 class="dropdown-header">Administration</h6></li>
-              <li><a class="dropdown-item" [routerLink]="['/users']" [routerLinkActive]="['active']">Users</a></li>
+              @if (authStateService.canManageSetlists | async) {
+                <li><h6 class="dropdown-header">Songs & Setlists</h6></li>
+                <li><a class="dropdown-item" [routerLink]="['/admin/setlists']" [routerLinkActive]="['active']">Setlists</a></li>
+                <li><a class="dropdown-item" [routerLink]="['/admin/albums']" [routerLinkActive]="['active']">Albums</a></li>
+                <li><a class="dropdown-item" [routerLink]="['/admin/songs']" [routerLinkActive]="['active']">Songs</a></li>
+                <li><a class="dropdown-item" [routerLink]="['/admin/mashups']" [routerLinkActive]="['active']">Mashups</a></li>
+              }
+              @if (authStateService.canManageUsers | async) {
+                <li><h6 class="dropdown-header">Administration</h6></li>
+                <li><a class="dropdown-item" [routerLink]="['/users']" [routerLinkActive]="['active']">Users</a></li>
+              }
               <li><hr class="dropdown-divider"></li>
               <li><h6 class="dropdown-header">{{ currentUser$?.username ?? "You" }}</h6></li>
               <li><a class="dropdown-item" [routerLink]="['/profile']">Your profile</a></li>

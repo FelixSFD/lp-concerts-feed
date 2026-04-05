@@ -81,5 +81,23 @@ export class AuthService {
       return [];
     }));
   }
+
+  private isMemberOfOrAdmin(group: string) {
+    return this.currentUserGroups.pipe(map(groups => groups.some(g => g == group || g == "Admin")));
+  }
+
+  /**
+   * true if the user can manage setlists and songs
+   */
+  get canManageSetlists() {
+    return this.isMemberOfOrAdmin("ManageSetlists");
+  }
+
+  /**
+   * true if the user can manage users
+   */
+  get canManageUsers() {
+    return this.isMemberOfOrAdmin("ManageUsers");
+  }
 }
 

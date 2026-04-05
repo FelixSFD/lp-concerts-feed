@@ -2,7 +2,7 @@ import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
-import { DatePipe, NgOptimizedImage } from '@angular/common';
+import {AsyncPipe, DatePipe, NgOptimizedImage} from '@angular/common';
 import {environment} from '../environments/environment';
 import {
   NgcCookieConsentService,
@@ -20,14 +20,14 @@ import {AppleMusicService} from './services/music/apple-music.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NgbModule, RouterLink, RouterLinkActive, DatePipe],
+  imports: [RouterOutlet, NgbModule, RouterLink, RouterLinkActive, DatePipe, AsyncPipe],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'lp-calendar-web';
 
-  private readonly authStateService = inject(AuthService);
+  readonly authStateService = inject(AuthService);
   private readonly appleMusicService = inject(AppleMusicService);
   private readonly oidcSecurityService = inject(OidcSecurityService);
   private cookieService = inject(NgcCookieConsentService);
