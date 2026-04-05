@@ -1,63 +1,65 @@
 <div class="table-wrapper position-relative" [class.expanded]="isExpanded$" id="setlist-container-{{ setlist?.id }}">
   <div class="table-container">
-    <table class="table">
-      <thead>
-      <tr>
-        <th scope="col">#</th>
-        <th scope="col"></th>
-        <th scope="col" style="max-width: 30px"></th><!-- Artwork -->
-        <th scope="col">Song</th>
-        <th scope="col">Notes</th>
-      </tr>
-      </thead>
-      <tbody>
-        @for (structuredEntry of setlist?.structuredEntries; track structuredEntry) {
-          @if (isAct(structuredEntry)) {
-            <tr>
-              <td>Act {{ structuredEntry.actNumber }}</td>
-              <td></td>
-              <td></td>
-              <td>{{ structuredEntry.title }}</td>
-              <td></td>
-            </tr>
+    <div class="table-responsive" style="overflow-x: auto">
+      <table class="table table-sm">
+        <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col"></th>
+          <th scope="col" style="max-width: 30px"></th><!-- Artwork -->
+          <th scope="col">Song</th>
+          <th scope="col">Notes</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (structuredEntry of setlist?.structuredEntries; track structuredEntry) {
+            @if (isAct(structuredEntry)) {
+              <tr>
+                <td>Act {{ structuredEntry.actNumber }}</td>
+                <td></td>
+                <td></td>
+                <td>{{ structuredEntry.title }}</td>
+                <td></td>
+              </tr>
 
-            @for (entry of structuredEntry.entries; track entry) {
-              <tr [class]="entry.isWorldPremiere ? 'table-success' : ''">
-                <td class="ps-4">&nbsp;&nbsp;{{ entry.songNumber == 0 ? "" : entry.songNumber }}.</td>
-                <td><app-setlist-entry-icons [record-tape]="entry.isPlayedFromRecording" /></td>
+              @for (entry of structuredEntry.entries; track entry) {
+                <tr [class]="entry.isWorldPremiere ? 'table-success' : ''">
+                  <td class="ps-4">&nbsp;&nbsp;{{ entry.songNumber == 0 ? "" : entry.songNumber }}.</td>
+                  <td><app-setlist-entry-icons [record-tape]="entry.isPlayedFromRecording" /></td>
+                  <td>
+                    @if (entry.appleMusicId != null && songArtworks$.get(entry.appleMusicId) != null) {
+                      <app-apple-music-artwork [artwork]="songArtworks$.get(entry.appleMusicId)!" [width]="25" ngbTooltip="{{ entry.albumTitle }}" />
+                    }
+                  </td>
+                  @if ("linkinpediaUrl" in entry && entry.linkinpediaUrl) {
+                    <td class="ps-4"><a [href]="entry.linkinpediaUrl" target="_blank" class="link-info">{{ entry.title }}</a> <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" /></td>
+                  } @else {
+                    <td class="ps-4">{{ entry.title }} <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" /></td>
+                  }
+                  <td class="ps-4" style="font-style: italic">{{ entry.extraNotes }}</td>
+                </tr>
+              }
+            } @else {
+              <tr [class]="structuredEntry.isWorldPremiere ? 'table-success' : ''">
+                <td>{{ structuredEntry.songNumber == 0 ? "" : `${structuredEntry.songNumber}.` }}</td>
+                <td><app-setlist-entry-icons [record-tape]="structuredEntry.isPlayedFromRecording" /></td>
                 <td>
-                  @if (entry.appleMusicId != null && songArtworks$.get(entry.appleMusicId) != null) {
-                    <app-apple-music-artwork [artwork]="songArtworks$.get(entry.appleMusicId)!" [width]="25" ngbTooltip="{{ entry.albumTitle }}" />
+                  @if (structuredEntry.appleMusicId != null && songArtworks$.get(structuredEntry.appleMusicId) != null) {
+                    <app-apple-music-artwork [artwork]="songArtworks$.get(structuredEntry.appleMusicId)!" [width]="25" ngbTooltip="{{ structuredEntry.albumTitle }}" />
                   }
                 </td>
-                @if ("linkinpediaUrl" in entry && entry.linkinpediaUrl) {
-                  <td class="ps-4"><a [href]="entry.linkinpediaUrl" target="_blank" class="link-info">{{ entry.title }}</a> <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" /></td>
+                @if (structuredEntry.linkinpediaUrl) {
+                  <td><a [href]="structuredEntry.linkinpediaUrl" target="_blank" class="link-info">{{ structuredEntry.title }}</a> <app-setlist-entry-icons [rotation-song]="structuredEntry.isRotationSong" [world-premiere]="structuredEntry.isWorldPremiere" /></td>
                 } @else {
-                  <td class="ps-4">{{ entry.title }} <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" /></td>
+                  <td>{{ structuredEntry.title }} <app-setlist-entry-icons [rotation-song]="structuredEntry.isRotationSong" [world-premiere]="structuredEntry.isWorldPremiere" /></td>
                 }
-                <td class="ps-4" style="font-style: italic">{{ entry.extraNotes }}</td>
+                <td style="font-style: italic">{{ structuredEntry.extraNotes }}</td>
               </tr>
             }
-          } @else {
-            <tr [class]="structuredEntry.isWorldPremiere ? 'table-success' : ''">
-              <td>{{ structuredEntry.songNumber == 0 ? "" : `${structuredEntry.songNumber}.` }}</td>
-              <td><app-setlist-entry-icons [record-tape]="structuredEntry.isPlayedFromRecording" /></td>
-              <td>
-                @if (structuredEntry.appleMusicId != null && songArtworks$.get(structuredEntry.appleMusicId) != null) {
-                  <app-apple-music-artwork [artwork]="songArtworks$.get(structuredEntry.appleMusicId)!" [width]="25" ngbTooltip="{{ structuredEntry.albumTitle }}" />
-                }
-              </td>
-              @if (structuredEntry.linkinpediaUrl) {
-                <td><a [href]="structuredEntry.linkinpediaUrl" target="_blank" class="link-info">{{ structuredEntry.title }}</a> <app-setlist-entry-icons [rotation-song]="structuredEntry.isRotationSong" [world-premiere]="structuredEntry.isWorldPremiere" /></td>
-              } @else {
-                <td>{{ structuredEntry.title }} <app-setlist-entry-icons [rotation-song]="structuredEntry.isRotationSong" [world-premiere]="structuredEntry.isWorldPremiere" /></td>
-              }
-              <td style="font-style: italic">{{ structuredEntry.extraNotes }}</td>
-            </tr>
           }
-        }
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+    </div>
 
     @if (setlist) {
       <app-setlist-album-chart [setlist]="setlist" />
