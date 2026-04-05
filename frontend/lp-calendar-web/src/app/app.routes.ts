@@ -24,6 +24,7 @@ import {EditSongPageComponent} from './admin/setlists/edit-song-page/edit-song-p
 import {ManageAlbumsPageComponent} from './admin/setlists/manage-albums-page/manage-albums-page.component';
 import {AddAlbumPageComponent} from './admin/setlists/add-album-page/add-album-page.component';
 import {EditAlbumPageComponent} from './admin/setlists/edit-album-page/edit-album-page.component';
+import {SetlistAdminWrapperComponent} from './admin/setlist-admin-wrapper/setlist-admin-wrapper.component';
 
 let baseTitle = "LP Concerts - ";
 
@@ -95,69 +96,80 @@ export const routes: Routes = [
     title: baseTitle + 'Edit user',
   },
   {
-    path: 'admin/mashups',
-    component: ManageMashupsPageComponent,
-    title: baseTitle + 'Manage mashups',
-  },
-  {
-    path: 'admin/mashups/add',
-    component: AddMashupPageComponent,
-    title: baseTitle + 'Add mashup',
-  },
-  {
-    path: 'admin/mashups/:mashupId',
-    component: EditMashupPageComponent,
-    title: baseTitle + 'Edit mashup',
-  },
-  {
-    path: 'admin/setlists',
-    component: ManageSetlistsPageComponent,
-    title: baseTitle + 'Manage setlists',
-  },
-  {
-    path: 'admin/setlists/:setlistId',
-    component: EditSetlistPageComponent,
-    title: baseTitle + 'Edit setlist',
-  },
-  {
-    path: 'admin/setlists/add',
-    component: AddSetlistPageComponent,
-    title: baseTitle + 'Create a new setlist',
-  },
-  {
-    path: 'admin/setlists/add/:concertId',
-    component: AddSetlistPageComponent,
-    title: baseTitle + 'Create a new setlist',
-  },
-  {
-    path: 'admin/songs',
-    component: ManageSongsPageComponent,
-    title: baseTitle + 'Manage songs',
-  },
-  {
-    path: 'admin/songs/add',
-    component: AddSongPageComponent,
-    title: baseTitle + 'Add song',
-  },
-  {
-    path: 'admin/songs/:songId',
-    component: EditSongPageComponent,
-    title: baseTitle + 'Edit song',
-  },
-  {
-    path: 'admin/albums',
-    component: ManageAlbumsPageComponent,
-    title: baseTitle + 'Manage albums',
-  },
-  {
-    path: 'admin/albums/add',
-    component: AddAlbumPageComponent,
-    title: baseTitle + 'Add album',
-  },
-  {
-    path: 'admin/albums/:albumId',
-    component: EditAlbumPageComponent,
-    title: baseTitle + 'Edit album',
+    path: 'admin',
+    component: SetlistAdminWrapperComponent,
+    children: [
+      {
+        path: '',
+        redirectTo: 'setlists',
+        pathMatch: 'full',
+      },
+      {
+        path: 'mashups',
+        component: ManageMashupsPageComponent,
+        title: baseTitle + 'Manage mashups',
+      },
+      {
+        path: 'mashups/add',
+        component: AddMashupPageComponent,
+        title: baseTitle + 'Add mashup',
+      },
+      {
+        path: 'mashups/:mashupId',
+        component: EditMashupPageComponent,
+        title: baseTitle + 'Edit mashup',
+      },
+      {
+        path: 'setlists',
+        component: ManageSetlistsPageComponent,
+        title: baseTitle + 'Manage setlists',
+      },
+      {
+        path: 'setlists/:setlistId',
+        component: EditSetlistPageComponent,
+        title: baseTitle + 'Edit setlist',
+      },
+      {
+        path: 'setlists/add',
+        component: AddSetlistPageComponent,
+        title: baseTitle + 'Create a new setlist',
+      },
+      {
+        path: 'setlists/add/:concertId',
+        component: AddSetlistPageComponent,
+        title: baseTitle + 'Create a new setlist',
+      },
+      {
+        path: 'songs',
+        component: ManageSongsPageComponent,
+        title: baseTitle + 'Manage songs',
+      },
+      {
+        path: 'songs/add',
+        component: AddSongPageComponent,
+        title: baseTitle + 'Add song',
+      },
+      {
+        path: 'songs/:songId',
+        component: EditSongPageComponent,
+        title: baseTitle + 'Edit song',
+      },
+      {
+        path: 'albums',
+        component: ManageAlbumsPageComponent,
+        title: baseTitle + 'Manage albums',
+      },
+      {
+        path: 'albums/add',
+        component: AddAlbumPageComponent,
+        title: baseTitle + 'Add album',
+      },
+      {
+        path: 'albums/:albumId',
+        component: EditAlbumPageComponent,
+        title: baseTitle + 'Edit album',
+      }
+    ]
   },
   {
     path: 'app',
