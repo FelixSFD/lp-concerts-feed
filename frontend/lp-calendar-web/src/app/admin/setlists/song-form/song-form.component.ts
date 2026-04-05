@@ -52,7 +52,7 @@ export class SongFormComponent implements OnInit {
       });
 
     this.songForm.controls.isrc.valueChanges.subscribe(isrc => {
-      this.onIsrcChanged();
+      this.onIsrcChanged(isrc);
     })
   }
 
@@ -108,13 +108,11 @@ export class SongFormComponent implements OnInit {
   }
 
 
-  onIsrcChanged() {
-    let isrc = this.songForm.value.isrc?.valueOf();
+  onIsrcChanged(isrc: string | undefined | null) {
     if (isrc) {
       this.appleMusicService.getSongsForIsrc(isrc ?? "").then(songs => {
         console.debug("Songs from Isrc:", songs);
-        console.debug("Albums:", songs.map(song => song.attributes?.albumName));
-      })
+      });
     }
   }
 }

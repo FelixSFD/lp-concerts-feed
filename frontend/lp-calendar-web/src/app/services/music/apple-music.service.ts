@@ -5,6 +5,7 @@ import {SearchResponse} from '@apple/mapkit-loader';
 import SongSearchResponse = MusicKit.SongSearchResponse;
 import SearchResult = MusicKit.SearchResult;
 import Songs = MusicKit.Songs;
+import {AppleMusicSong} from '../../data/music/apple/apple-music-song';
 
 @Injectable({
   providedIn: 'root',
@@ -37,7 +38,7 @@ export class AppleMusicService {
     );
   }
 
-  public async getSongsForIsrc(isrc: string) {
+  public async getSongsForIsrc(isrc: string) : Promise<AppleMusicSong[]> {
     console.debug("GetSongsForIsrc", isrc);
     const storefront = this.music!.api.storefrontId ?? "us";
 
@@ -52,6 +53,7 @@ export class AppleMusicService {
 
     console.debug("GetSongsForIsrc result", response);
 
-    return response.data.data as Songs[];
+    let songs = response.data.data as Songs[];
+    return songs.map(AppleMusicSong.fromMusicKit);
   }
 }
