@@ -3,6 +3,7 @@ using System.Text.Json;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using AppleDeveloperToken;
+using Common.Utils.Cache;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Responses;
 
@@ -28,15 +29,16 @@ public class Function
         if (request is { Resource: "/apple-music/token", HttpMethod: "GET" })
         {
             var tokenGenerator = new TokenGenerator(_privateKey, _teamId, _keyId);
-            var token = tokenGenerator.Generate(TimeSpan.FromDays(1));
+            var token = tokenGenerator.Generate(TimeSpan.FromDays(3));
             return new APIGatewayProxyResponse
             {
-                StatusCode = (int)HttpStatusCode.Created,
+                StatusCode = (int)HttpStatusCode.OK,
                 Body = token,
                 Headers = new Dictionary<string, string>
                 {
                     { "Access-Control-Allow-Origin", "*" },
-                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
+                    { "Access-Control-Allow-Methods", "OPTIONS, GET" },
+                    { "Cache-Control", CacheControlHeaderFactory.CacheFor(CacheExpiration.Maximum) }
                 }
             };
         }
