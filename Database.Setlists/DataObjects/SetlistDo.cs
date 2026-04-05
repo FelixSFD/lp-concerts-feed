@@ -29,6 +29,29 @@ public class SetlistDo : BaseDo, ILinkinpediaLinkable
     public required string ConcertTitle { get; set; }
     
     /// <summary>
+    /// Tour Name of the concert.
+    /// Is read from the concerts-database.
+    /// </summary>
+    [MaxLength(63)]
+    [Column("ConcertTourName")]
+    public string? ConcertTourName { get; set; }
+    
+    /// <summary>
+    /// Type of the concert.
+    /// Is read from the concerts-database.
+    /// </summary>
+    [MaxLength(63)]
+    [Column("ConcertType")]
+    public required string ConcertType { get; set; }
+
+    /// <summary>
+    /// Date of the concert happened (in venue's timezone)
+    /// Is read from the concerts-database.
+    /// </summary>
+    [Column("ConcertDate")]
+    public required DateTime ConcertDate { get; set; }
+    
+    /// <summary>
     /// Name of the set.
     /// Example: Set A
     /// </summary>

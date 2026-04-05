@@ -16,6 +16,8 @@ public class SqlSetlistEntryRepositoryTest : DbIntegrationTestsBase
         {
             ConcertId = Guid.NewGuid().ToString(),
             ConcertTitle = "Setlist 1",
+            ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today,
             LinkinpediaUrl = "https://lplive.net"
         };
 
@@ -84,6 +86,8 @@ public class SqlSetlistEntryRepositoryTest : DbIntegrationTestsBase
         {
             ConcertId = Guid.NewGuid().ToString(),
             ConcertTitle = "Setlist 1",
+            ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today,
             LinkinpediaUrl = "https://lplive.net"
         };
         

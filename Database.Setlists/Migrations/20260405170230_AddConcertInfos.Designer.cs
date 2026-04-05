@@ -3,6 +3,7 @@ using System;
 using Database.Setlists;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Setlists.Migrations
 {
     [DbContext(typeof(SetlistsDbContext))]
-    partial class SetlistsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260405170230_AddConcertInfos")]
+    partial class AddConcertInfos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

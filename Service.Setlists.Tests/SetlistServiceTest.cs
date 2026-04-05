@@ -3,6 +3,7 @@ using Amazon.Lambda.TestUtilities;
 using Database.Concerts;
 using Database.Setlists.DataObjects;
 using Database.Setlists.Repositories;
+using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Setlists;
 using LPCalendar.DataStructure.Setlists.Parameters;
 using NSubstitute;
@@ -41,7 +42,15 @@ public class SetlistServiceTest
     public async Task CreateSetlistAsync(string concertId, string? linkinpediaUrl)
     {
         // setup mock
+        var concert = new Concert
+        {
+            Id = concertId,
+            PostedStartTime = new DateTimeOffset(2024, 9, 24, 20, 0, 0, TimeSpan.FromHours(2)),
+            Status = "PUBLISHED",
+            ShowType = "Linkin Park",
+        };
         _setlistRepository.Add(Arg.Is<SetlistDo>(setlist => setlist.ConcertId == concertId && setlist.LinkinpediaUrl == linkinpediaUrl && setlist.Id == 0));
+        _concertRepository.GetByIdAsync(concertId).Returns(concert);
         
         // call the service
         var createRequest = new CreateSetlistRequestDto
@@ -56,7 +65,7 @@ public class SetlistServiceTest
         // validate if repo was called correctly
         _setlistRepository
             .Received(1)
-            .Add(Arg.Is<SetlistDo>(setlist => setlist.ConcertId == concertId && setlist.LinkinpediaUrl == linkinpediaUrl && setlist.Id == 0));
+            .Add(Arg.Is<SetlistDo>(setlist => setlist.ConcertId == concertId && setlist.LinkinpediaUrl == linkinpediaUrl && setlist.Id == 0 && setlist.ConcertType == concert.ShowType));
         
         // validate result
         Assert.NotNull(response);
@@ -76,6 +85,8 @@ public class SetlistServiceTest
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
             ConcertTitle = "Setlist 1",
+            ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today,
             LinkinpediaUrl = "https://lplive.net"
         };
 
@@ -135,6 +146,8 @@ public class SetlistServiceTest
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
             ConcertTitle = "Setlist 1",
+            ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today,
             LinkinpediaUrl = "https://lplive.net"
         };
         
@@ -206,6 +219,8 @@ public class SetlistServiceTest
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
             ConcertTitle = "Setlist 1",
+            ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today,
             LinkinpediaUrl = "https://lplive.net"
         };
         
@@ -277,6 +292,8 @@ public class SetlistServiceTest
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
             ConcertTitle = "Setlist 1",
+            ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today,
             LinkinpediaUrl = "https://lplive.net"
         };
 
@@ -340,6 +357,8 @@ public class SetlistServiceTest
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
             ConcertTitle = "Setlist 1",
+            ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today,
             LinkinpediaUrl = "https://lplive.net"
         };
         
@@ -438,6 +457,8 @@ public class SetlistServiceTest
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
             ConcertTitle = "Setlist 1",
+            ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today,
             LinkinpediaUrl = "https://lplive.net",
             Entries = []
         };
@@ -525,6 +546,8 @@ public class SetlistServiceTest
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
             ConcertTitle = "Setlist 1",
+            ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today,
             LinkinpediaUrl = "https://lplive.net",
             Entries = [entry]
         };
@@ -673,6 +696,8 @@ public class SetlistServiceTest
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
             ConcertTitle = "Setlist 1",
+            ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today,
             LinkinpediaUrl = "https://lplive.net",
             Entries = [entry]
         };
@@ -779,6 +804,8 @@ public class SetlistServiceTest
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
             ConcertTitle = "Setlist 1",
+            ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today,
             LinkinpediaUrl = "https://lplive.net",
             Entries = [entry]
         };
@@ -893,6 +920,8 @@ public class SetlistServiceTest
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
             ConcertTitle = "Setlist 1",
+            ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today,
             LinkinpediaUrl = "https://lplive.net",
             Entries = [entry]
         };
@@ -1008,6 +1037,8 @@ public class SetlistServiceTest
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
             ConcertTitle = "Setlist 1",
+            ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today,
             LinkinpediaUrl = "https://lplive.net",
             Entries = [entry2, entry1]
         };
@@ -1087,6 +1118,8 @@ public class SetlistServiceTest
             ConcertId = Guid.NewGuid().ToString(),
             ConcertTitle = "Setlist 1",
             SetName = "Set C5",
+            ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today,
             LinkinpediaUrl = "https://lplive.net",
             Entries = [entry2, entry1]
         };
@@ -1228,6 +1261,8 @@ public class SetlistServiceTest
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
             ConcertTitle = "Setlist 1",
+            ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today,
             LinkinpediaUrl = "https://lplive.net",
             Entries = [entry0PreShowSong, entry2, entry1, entry3]
         };
@@ -1401,6 +1436,8 @@ public class SetlistServiceTest
             Id = 1,
             ConcertId = Guid.NewGuid().ToString(),
             ConcertTitle = "Setlist 1",
+            ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today,
             LinkinpediaUrl = "https://lplive.net",
             Entries = [entry0PreShowSong, entry2, entry1, entry3]
         };
@@ -1543,6 +1580,8 @@ public class SetlistServiceTest
             ConcertId = Guid.NewGuid().ToString(),
             ConcertTitle = "Setlist 1",
             SetName = "Set C5",
+            ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today,
             LinkinpediaUrl = "https://lplive.net",
             Entries = [entry2, entry1]
         };

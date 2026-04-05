@@ -26,10 +26,16 @@ public class SetlistService(
     /// <returns></returns>
     public async Task<CreateSetlistResponseDto> CreateSetlistAsync(CreateSetlistRequestDto request)
     {
+        logger.LogDebug("Read Concert information: {concertId}", request.ConcertId);
+        var concert = await concertRepository.GetByIdAsync(request.ConcertId) ?? throw new ConcertNotFoundException(request.ConcertId);
+        
         var setlistDo = new SetlistDo
         {
             ConcertId = request.ConcertId,
             ConcertTitle = request.ConcertTitle,
+            ConcertType = concert.ShowType,
+            ConcertTourName = concert.TourName,
+            ConcertDate = concert.PostedStartTime!.Value.Date,
             SetName = StringUtils.NullIfEmpty(request.SetName),
             LinkinpediaUrl = StringUtils.NullIfEmpty(request.LinkinpediaUrl)
         };

@@ -15,6 +15,8 @@ public class SqlSetlistRepositoryTest : DbIntegrationTestsBase
         {
             ConcertId = Guid.NewGuid().ToString(),
             ConcertTitle = "Setlist 1",
+            ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today,
             SetName = "Set A2",
             LinkinpediaUrl = "https://lplive.net"
         };
@@ -51,6 +53,8 @@ public class SqlSetlistRepositoryTest : DbIntegrationTestsBase
         {
             ConcertId = Guid.NewGuid().ToString(),
             ConcertTitle = "Setlist 1",
+            ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today,
             SetName = "Set A2",
             LinkinpediaUrl = "https://lplive.net"
         };
@@ -88,6 +92,8 @@ public class SqlSetlistRepositoryTest : DbIntegrationTestsBase
         {
             ConcertId = Guid.NewGuid().ToString(),
             ConcertTitle = "Setlist 1",
+            ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today,
             SetName = "Set A2",
             LinkinpediaUrl = "https://lplive.net"
         };
@@ -232,6 +238,8 @@ public class SqlSetlistRepositoryTest : DbIntegrationTestsBase
         {
             ConcertId = Guid.NewGuid().ToString(),
             ConcertTitle = "Setlist 1",
+            ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today,
             LinkinpediaUrl = "https://lplive.net"
         };
         
@@ -239,6 +247,8 @@ public class SqlSetlistRepositoryTest : DbIntegrationTestsBase
         {
             ConcertId = Guid.NewGuid().ToString(),
             ConcertTitle = "Setlist 2",
+            ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today,
             SetName = "Set B1",
             LinkinpediaUrl = "https://lplive.net"
         };
@@ -304,6 +314,8 @@ public class SqlSetlistRepositoryTest : DbIntegrationTestsBase
         {
             ConcertId = Guid.NewGuid().ToString(),
             ConcertTitle = "Setlist 1",
+            ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today,
             LinkinpediaUrl = "https://lplive.net"
         };
         
