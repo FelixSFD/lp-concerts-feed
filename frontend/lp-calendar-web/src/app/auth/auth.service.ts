@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, map} from 'rxjs';
 import {OidcSecurityService, UserDataResult, LoginResponse} from 'angular-auth-oidc-client';
 import {User} from '../data/users/user';
 import {UserDto} from '../modules/lpshows-api';
@@ -67,6 +67,19 @@ export class AuthService {
 
   get isLoggedIn() {
     return this.isAuthenticatedSubject.value;
+  }
+
+  /**
+   * Returns an Observable that returns the list of groups of the current user
+   */
+  get currentUserGroups() {
+    return this.oidcSecurityService.getPayloadFromAccessToken().pipe(map(payload => {
+      console.debug(payload);
+      if (payload.hasOwnProperty("cognito:groups")) {
+        return payload["cognito:groups"] as string[] ?? [];
+      }
+      return [];
+    }));
   }
 }
 

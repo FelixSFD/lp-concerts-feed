@@ -27,6 +27,7 @@ import {EditAlbumPageComponent} from './admin/setlists/edit-album-page/edit-albu
 import {SetlistAdminWrapperComponent} from './admin/setlist-admin-wrapper/setlist-admin-wrapper.component';
 import {inject} from '@angular/core';
 import {AuthService} from './auth/auth.service';
+import {map} from 'rxjs';
 
 let baseTitle = "LP Concerts - ";
 
@@ -36,6 +37,51 @@ export const authGuard: CanActivateFn = (
 ) => {
   const authService = inject(AuthService);
   return authService.isAuthenticated$;
+};
+
+export const adminGuard: CanActivateFn = (
+  route: ActivatedRouteSnapshot,
+  state: RouterStateSnapshot,
+) => {
+  const authService = inject(AuthService);
+  console.log("adminGuard");
+  return authService.currentUserGroups.pipe(map(groups => groups.some(g => g == "Admin")));
+};
+
+export const manageUsersGuard: CanActivateFn = (
+  route: ActivatedRouteSnapshot,
+  state: RouterStateSnapshot,
+) => {
+  const authService = inject(AuthService);
+  console.log("adminGuard");
+  return authService.currentUserGroups.pipe(map(groups => groups.some(g => g == "ManageUsers" || g == "Admin")));
+};
+
+export const addConcerts: CanActivateFn = (
+  route: ActivatedRouteSnapshot,
+  state: RouterStateSnapshot,
+) => {
+  const authService = inject(AuthService);
+  console.log("adminGuard");
+  return authService.currentUserGroups.pipe(map(groups => groups.some(g => g == "AddConcerts" || g == "Admin")));
+};
+
+export const updateConcerts: CanActivateFn = (
+  route: ActivatedRouteSnapshot,
+  state: RouterStateSnapshot,
+) => {
+  const authService = inject(AuthService);
+  console.log("adminGuard");
+  return authService.currentUserGroups.pipe(map(groups => groups.some(g => g == "UpdateConcerts" || g == "Admin")));
+};
+
+export const manageSetlistsGuard: CanActivateFn = (
+  route: ActivatedRouteSnapshot,
+  state: RouterStateSnapshot,
+) => {
+  const authService = inject(AuthService);
+  console.log("manageSetlistsGuard");
+  return authService.currentUserGroups.pipe(map(groups => groups.some(g => g == "ManageSetlists")));
 };
 
 export const routes: Routes = [
@@ -82,6 +128,7 @@ export const routes: Routes = [
     path: 'concerts/add',
     component: AddConcertPageComponent,
     title: baseTitle + 'Add concert',
+    canActivate: [addConcerts]
   },
   {
     path: 'concerts/:id',
@@ -92,21 +139,24 @@ export const routes: Routes = [
     path: 'concerts/:id/edit',
     component: EditConcertPageComponent,
     title: baseTitle + 'Edit concert',
+    canActivate: [updateConcerts]
   },
   {
     path: 'users',
     component: UsersListComponent,
     title: baseTitle + 'Manage users',
+    canActivate: [authGuard, manageUsersGuard],
   },
   {
     path: 'users/:id',
     component: EditUserComponent,
     title: baseTitle + 'Edit user',
+    canActivate: [authGuard, manageUsersGuard],
   },
   {
     path: 'admin',
     component: SetlistAdminWrapperComponent,
-    canActivateChild: [authGuard],
+    canActivateChild: [authGuard, manageSetlistsGuard],
     children: [
       {
         path: '',
@@ -117,79 +167,79 @@ export const routes: Routes = [
         path: 'mashups',
         component: ManageMashupsPageComponent,
         title: baseTitle + 'Manage mashups',
-        canActivate: [authGuard],
+        canActivate: [authGuard, manageSetlistsGuard],
       },
       {
         path: 'mashups/add',
         component: AddMashupPageComponent,
         title: baseTitle + 'Add mashup',
-        canActivate: [authGuard],
+        canActivate: [authGuard, manageSetlistsGuard],
       },
       {
         path: 'mashups/:mashupId',
         component: EditMashupPageComponent,
         title: baseTitle + 'Edit mashup',
-        canActivate: [authGuard],
+        canActivate: [authGuard, manageSetlistsGuard],
       },
       {
         path: 'setlists',
         component: ManageSetlistsPageComponent,
         title: baseTitle + 'Manage setlists',
-        canActivate: [authGuard],
+        canActivate: [authGuard, manageSetlistsGuard],
       },
       {
         path: 'setlists/:setlistId',
         component: EditSetlistPageComponent,
         title: baseTitle + 'Edit setlist',
-        canActivate: [authGuard],
+        canActivate: [authGuard, manageSetlistsGuard],
       },
       {
         path: 'setlists/add',
         component: AddSetlistPageComponent,
         title: baseTitle + 'Create a new setlist',
-        canActivate: [authGuard],
+        canActivate: [authGuard, manageSetlistsGuard],
       },
       {
         path: 'setlists/add/:concertId',
         component: AddSetlistPageComponent,
         title: baseTitle + 'Create a new setlist',
-        canActivate: [authGuard],
+        canActivate: [authGuard, manageSetlistsGuard],
       },
       {
         path: 'songs',
         component: ManageSongsPageComponent,
         title: baseTitle + 'Manage songs',
-        canActivate: [authGuard],
+        canActivate: [authGuard, manageSetlistsGuard],
       },
       {
         path: 'songs/add',
         component: AddSongPageComponent,
         title: baseTitle + 'Add song',
-        canActivate: [authGuard],
+        canActivate: [authGuard, manageSetlistsGuard],
       },
       {
         path: 'songs/:songId',
         component: EditSongPageComponent,
         title: baseTitle + 'Edit song',
-        canActivate: [authGuard],
+        canActivate: [authGuard, manageSetlistsGuard],
       },
       {
         path: 'albums',
         component: ManageAlbumsPageComponent,
         title: baseTitle + 'Manage albums',
-        canActivate: [authGuard],
+        canActivate: [authGuard, manageSetlistsGuard],
       },
       {
         path: 'albums/add',
         component: AddAlbumPageComponent,
         title: baseTitle + 'Add album',
-        canActivate: [authGuard],
+        canActivate: [authGuard, manageSetlistsGuard],
       },
       {
         path: 'albums/:albumId',
         component: EditAlbumPageComponent,
         title: baseTitle + 'Edit album',
-        canActivate: [authGuard],
+        canActivate: [authGuard, manageSetlistsGuard],
       }
     ]
   },
