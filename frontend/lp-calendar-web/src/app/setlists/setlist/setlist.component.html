@@ -11,7 +11,7 @@
       </tr>
       </thead>
       <tbody>
-        @for (structuredEntry of setlist?.structuredEntries; track structuredEntry; let outerIndex = $index) {
+        @for (structuredEntry of setlist?.structuredEntries; track structuredEntry) {
           @if (isAct(structuredEntry)) {
             <tr>
               <td>Act {{ structuredEntry.actNumber }}</td>
@@ -21,13 +21,13 @@
               <td></td>
             </tr>
 
-            @for (entry of structuredEntry.entries; track entry; let i = $index) {
+            @for (entry of structuredEntry.entries; track entry) {
               <tr [class]="entry.isWorldPremiere ? 'table-success' : ''">
                 <td class="ps-4">&nbsp;&nbsp;{{ entry.songNumber == 0 ? "" : entry.songNumber }}.</td>
                 <td><app-setlist-entry-icons [record-tape]="entry.isPlayedFromRecording" /></td>
                 <td>
-                  @if (setlistEntriesArtwork$[i] != null) {
-                    <app-apple-music-artwork [artwork]="setlistEntriesArtwork$[i]!" [width]="25" />
+                  @if (entry.appleMusicId != null && songArtworks$.get(entry.appleMusicId) != null) {
+                    <app-apple-music-artwork [artwork]="songArtworks$.get(entry.appleMusicId)!" [width]="25" />
                   }
                 </td>
                 @if ("linkinpediaUrl" in entry && entry.linkinpediaUrl) {
@@ -43,8 +43,8 @@
               <td>{{ structuredEntry.songNumber == 0 ? "" : `${structuredEntry.songNumber}.` }}</td>
               <td><app-setlist-entry-icons [record-tape]="structuredEntry.isPlayedFromRecording" /></td>
               <td>
-                @if (setlistEntriesArtwork$[$index] != null) {
-                  <app-apple-music-artwork [artwork]="setlistEntriesArtwork$[$index]!" [width]="25" />
+                @if (structuredEntry.appleMusicId != null && songArtworks$.get(structuredEntry.appleMusicId) != null) {
+                  <app-apple-music-artwork [artwork]="songArtworks$.get(structuredEntry.appleMusicId)!" [width]="25" />
                 }
               </td>
               @if (structuredEntry.linkinpediaUrl) {

@@ -39,6 +39,9 @@ export class SetlistComponent implements OnInit {
 
   setlistEntriesArtwork$: (Artwork | null)[] = [];
 
+  // map that stores the artwork for an Apple Music Song ID
+  songArtworks$ = new Map<string, Artwork>();
+
   setlistTitle$: string = "Setlist";
 
   isExpanded$ = false;
@@ -60,10 +63,13 @@ export class SetlistComponent implements OnInit {
         // find the song in foundSongs to get the artwork
         let song = foundSongs.find(song => song.id == appleMusicId);
         console.debug("Found song", song);
-        this.setlistEntriesArtwork$.push(song?.attributes?.artwork ?? null);
+        if (song?.attributes?.artwork) {
+          this.songArtworks$.set(appleMusicId!, song?.attributes?.artwork!);
+        } else {
+          console.debug("Song has no artwork");
+        }
       } else {
         // entry doesn't have an Apple Music ID
-        this.setlistEntriesArtwork$.push(null);
       }
     }
   }
