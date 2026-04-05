@@ -1,8 +1,7 @@
-import {Component, contentChild, inject, OnInit, TemplateRef, viewChild} from '@angular/core';
+import {Component, inject, OnInit, TemplateRef, viewChild} from '@angular/core';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {
-  CreateSetlistRequestDto,
-  ErrorResponseDto, ReorderSetlistEntriesRequestDto,
+  ErrorResponseDto,
   SetlistDto,
   UpdateSetlistHeaderRequestDto
 } from '../../../modules/lpshows-api';
@@ -10,13 +9,10 @@ import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {SetlistsService} from '../../../services/setlists.service';
 import {ToastrService} from 'ngx-toastr';
 import {NgClass} from '@angular/common';
-import {Observable} from 'rxjs';
 import {SetlistEntry} from '../../../data/setlists/setlist-entry';
-import {Setlist} from '../../../data/setlists/setlist';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {
-  AddSetlistEntryFormComponent,
-  AddSetlistEntryFormContent
+  AddSetlistEntryFormComponent
 } from '../add-setlist-entry-form/add-setlist-entry-form.component';
 import {SetlistEntryIconsComponent} from '../setlist-entry-icons/setlist-entry-icons.component';
 
@@ -119,7 +115,7 @@ export class EditSetlistPageComponent implements OnInit {
     console.log('linkinpediaUrl', linkinpediaUrl);
 
     let request: UpdateSetlistHeaderRequestDto = {
-      //concertId: concertId!,
+      concertId: concertId!,
       setName: setName,
       linkinpediaUrl: linkinpediaUrl,
     };

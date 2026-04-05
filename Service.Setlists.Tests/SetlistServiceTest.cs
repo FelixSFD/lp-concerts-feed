@@ -466,15 +466,25 @@ public class SetlistServiceTest
         var updateRequest = new UpdateSetlistHeaderRequestDto
         {
             SetName = "Set H5",
+            ConcertId = setlist.ConcertId,
             LinkinpediaUrl =  "https://linkinpedia.com/"
+        };
+        
+        var concert = new Concert
+        {
+            Id = setlist.ConcertId,
+            PostedStartTime = new DateTimeOffset(2024, 9, 24, 20, 0, 0, TimeSpan.FromHours(2)),
+            Status = "PUBLISHED",
+            ShowType = "Linkin Park",
         };
         
         // setup mocks
         _setlistRepository
-            .Update(Arg.Is<SetlistDo>(s => s.Id == setlist.Id && s.ConcertId == setlist.ConcertId));
+            .Update(Arg.Is<SetlistDo>(s => s.Id == setlist.Id && s.ConcertId == setlist.ConcertId && s.ConcertTourName == concert.TourName && s.ConcertType == concert.ShowType && s.ConcertDate == concert.PostedStartTime.Value.Date));
         _setlistRepository
             .GetByPrimaryKeyAsync(Arg.Is<uint>(id => id == setlist.Id))
             .Returns(setlist);
+        _concertRepository.GetByIdAsync(concert.Id).Returns(concert);
         
         // call the service
         await _setlistService.UpdateSetlistHeader(setlist.Id, updateRequest);
@@ -482,7 +492,7 @@ public class SetlistServiceTest
         // verify mock calls
         _setlistRepository
             .Received(1)
-            .Update(Arg.Is<SetlistDo>(s => s.Id == setlist.Id && s.ConcertId == setlist.ConcertId && s.LinkinpediaUrl == updateRequest.LinkinpediaUrl && s.SetName == updateRequest.SetName));
+            .Update(Arg.Is<SetlistDo>(s => s.Id == setlist.Id && s.ConcertId == setlist.ConcertId && s.ConcertTourName == concert.TourName && s.ConcertType == concert.ShowType && s.ConcertDate == concert.PostedStartTime.Value.Date));
         await _setlistRepository
             .Received(1)
             .GetByPrimaryKeyAsync(Arg.Is<uint>(id => id == setlist.Id));
@@ -490,11 +500,51 @@ public class SetlistServiceTest
     
     
     [Fact]
+    public async Task UpdateSetlistHeader_ConcertNotFound()
+    {
+        var updateRequest = new UpdateSetlistHeaderRequestDto
+        {
+            SetName = "Set H5",
+            ConcertId = Guid.NewGuid().ToString(),
+            LinkinpediaUrl =  "https://linkinpedia.com/"
+        };
+        
+        var setlist = new SetlistDo
+        {
+            Id = 1,
+            ConcertId = Guid.NewGuid().ToString(),
+            ConcertTitle = "Setlist 1",
+            ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today,
+            LinkinpediaUrl = "https://lplive.net",
+            Entries = []
+        };
+        
+        // setup mocks
+        _setlistRepository
+            .GetByPrimaryKeyAsync(Arg.Any<uint>())
+            .Returns(setlist);
+        
+        // call the service
+        var exception = await Assert.ThrowsAsync<ConcertNotFoundException>(() => _setlistService.UpdateSetlistHeader(404u, updateRequest));
+        Assert.Equal(updateRequest.ConcertId, exception.ConcertId);
+        
+        // verify mock calls
+        _setlistRepository
+            .DidNotReceive()
+            .Update(Arg.Any<SetlistDo>());
+        await _setlistRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(Arg.Any<uint>());
+    }
+    
+    [Fact]
     public async Task UpdateSetlistHeader_SetlistNotFound()
     {
         var updateRequest = new UpdateSetlistHeaderRequestDto
         {
             SetName = "Set H5",
+            ConcertId = Guid.NewGuid().ToString(),
             LinkinpediaUrl =  "https://linkinpedia.com/"
         };
         

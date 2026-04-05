@@ -728,6 +728,9 @@ components:
       type: object
       description: Request to update header-information of a setlist
       properties:
+        concertId:
+          type: string
+          description: ID of the concert where this set was played
         setName:
           type: string
           description: Name of the set

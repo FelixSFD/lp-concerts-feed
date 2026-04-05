@@ -338,11 +338,18 @@ public class SetlistService(
     /// <exception cref="SetlistNotFoundException">if the setlist does not exist</exception>
     public async Task UpdateSetlistHeader(uint setlistId, UpdateSetlistHeaderRequestDto request)
     {
-        logger.LogDebug("Load setlist: {setlistId}", setlistId);
-        var setlist = await setlistRepository.GetByPrimaryKeyAsync(setlistId) ?? throw new SetlistNotFoundException(setlistId);
-
+        logger.LogDebug("Load setlist '{setlistId}' and concert '{concertId}'", setlistId, request.ConcertId);
+        var (setlist, concert) = (await setlistRepository.GetByPrimaryKeyAsync(setlistId) ?? throw new SetlistNotFoundException(setlistId), await concertRepository.GetByIdAsync(request.ConcertId) ?? throw new ConcertNotFoundException(request.ConcertId));
+        logger.LogDebug("Finished loading setlist and concert.");
+        
+        // update setlist fields
         setlist.SetName = request.SetName;
         setlist.LinkinpediaUrl = request.LinkinpediaUrl;
+        
+        // set concert related fields
+        setlist.ConcertType = concert.ShowType;
+        setlist.ConcertDate = concert.PostedStartTime!.Value.Date;
+        setlist.ConcertTourName = concert.TourName;
         
         setlistRepository.Update(setlist);
         await setlistRepository.SaveChangesAsync();

@@ -9,6 +9,12 @@ namespace LPCalendar.DataStructure.Setlists;
 public class UpdateSetlistHeaderRequestDto
 {
     /// <summary>
+    /// ID of the <see cref="Concert"/> where this set was played
+    /// </summary>
+    [JsonPropertyName("concertId")]
+    public required string ConcertId { get; set; }
+    
+    /// <summary>
     /// Name of the set
     /// </summary>
     [MaxLength(63)]
