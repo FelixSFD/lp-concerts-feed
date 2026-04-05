@@ -13,6 +13,7 @@ import {ViewportScroller} from '@angular/common';
 import {AppleMusicService} from '../../services/music/apple-music.service';
 import Artwork = MusicKit.Artwork;
 import {AppleMusicArtworkComponent} from '../../components/music/apple-music-artwork/apple-music-artwork.component';
+import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-setlist',
@@ -21,7 +22,8 @@ import {AppleMusicArtworkComponent} from '../../components/music/apple-music-art
     ReactiveFormsModule,
     SetlistEntryIconsComponent,
     SetlistAlbumChartComponent,
-    AppleMusicArtworkComponent
+    AppleMusicArtworkComponent,
+    NgbTooltip
   ],
   templateUrl: './setlist.component.html',
   styleUrl: './setlist.component.css',

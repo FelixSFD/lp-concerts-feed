@@ -27,7 +27,7 @@
                 <td><app-setlist-entry-icons [record-tape]="entry.isPlayedFromRecording" /></td>
                 <td>
                   @if (entry.appleMusicId != null && songArtworks$.get(entry.appleMusicId) != null) {
-                    <app-apple-music-artwork [artwork]="songArtworks$.get(entry.appleMusicId)!" [width]="25" />
+                    <app-apple-music-artwork [artwork]="songArtworks$.get(entry.appleMusicId)!" [width]="25" ngbTooltip="{{ entry.albumTitle }}" />
                   }
                 </td>
                 @if ("linkinpediaUrl" in entry && entry.linkinpediaUrl) {
@@ -44,7 +44,7 @@
               <td><app-setlist-entry-icons [record-tape]="structuredEntry.isPlayedFromRecording" /></td>
               <td>
                 @if (structuredEntry.appleMusicId != null && songArtworks$.get(structuredEntry.appleMusicId) != null) {
-                  <app-apple-music-artwork [artwork]="songArtworks$.get(structuredEntry.appleMusicId)!" [width]="25" />
+                  <app-apple-music-artwork [artwork]="songArtworks$.get(structuredEntry.appleMusicId)!" [width]="25" ngbTooltip="{{ structuredEntry.albumTitle }}" />
                 }
               </td>
               @if (structuredEntry.linkinpediaUrl) {
