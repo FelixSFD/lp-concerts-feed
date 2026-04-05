@@ -83,7 +83,8 @@ export class SetlistsService {
       extraNotes: content.extraNotes,
       isPlayedFromRecording: content.wasPlayedFromRecording,
       isRotationSong: content.wasRotationSong,
-      isWorldPremiere: content.wasWorldPremiere
+      isWorldPremiere: content.wasWorldPremiere,
+      isLivePremiere: content.wasLivePremiere
     };
   }
 

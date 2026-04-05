@@ -12,6 +12,7 @@ export class SetlistEntry {
   isPlayedFromRecording: boolean = false;
   isWorldPremiere: boolean = false;
   isRotationSong: boolean = false;
+  isLivePremiere: boolean = false;
 
 
   static fromDto(dto: SetlistEntryDto): SetlistEntry {
@@ -28,6 +29,7 @@ export class SetlistEntry {
       isPlayedFromRecording: dto.isPlayedFromRecording ?? false,
       isWorldPremiere: dto.isWorldPremiere ?? false,
       isRotationSong: dto.isRotationSong ?? false,
+      isLivePremiere: dto.isLivePremiere ?? false,
     };
 
     // TODO: Mashups

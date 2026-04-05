@@ -50,6 +50,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
     wasPlayedFromRecording: new FormControl(false, []),
     wasRotationSong: new FormControl(false, []),
     wasWorldPremiere: new FormControl(false, []),
+    wasLivePremiere: new FormControl(false, []),
   });
 
   selectedEntryType$: string = AddSetlistEntryFormContent.entryTypeSong;
@@ -206,6 +207,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
           this.setlistEntryForm.controls.wasWorldPremiere.setValue(entry.isWorldPremiere ?? false);
           this.setlistEntryForm.controls.wasPlayedFromRecording.setValue(entry.isPlayedFromRecording ?? false);
           this.setlistEntryForm.controls.wasRotationSong.setValue(entry.isRotationSong ?? false);
+          this.setlistEntryForm.controls.wasLivePremiere.setValue(entry.isRotationSong ?? false);
 
           if (entry.playedSongMashup != null) {
             this.setlistEntryForm.controls.entryType.setValue(AddSetlistEntryFormContent.entryTypeSongMashup);
@@ -232,6 +234,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
     let wasRotationSong = this.setlistEntryForm.value.wasRotationSong?.valueOf() ?? false;
     let wasPlayedFromRecording = this.setlistEntryForm.value.wasPlayedFromRecording?.valueOf() ?? false;
     let wasWorldPremiere = this.setlistEntryForm.value.wasWorldPremiere?.valueOf() ?? false;
+    let wasLivePremiere = this.setlistEntryForm.value.wasLivePremiere?.valueOf() ?? false;
     let selectedActNumber = Number(this.setlistEntryForm.value.selectedActNumber?.valueOf());
 
     let content: AddSetlistEntryFormContent = {
@@ -243,6 +246,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
       wasRotationSong: wasRotationSong,
       wasPlayedFromRecording: wasPlayedFromRecording,
       wasWorldPremiere: wasWorldPremiere,
+      wasLivePremiere: wasLivePremiere,
       selectedActNumber: selectedActNumber,
       // these fields are not present in every case
       actNumber: undefined,
@@ -384,4 +388,9 @@ export class AddSetlistEntryFormContent {
    * true if this was the world premiere of a new song
    */
   wasWorldPremiere: boolean = false;
+
+  /**
+   * true if this was the live premiere of a new song
+   */
+  wasLivePremiere: boolean = false;
 }
