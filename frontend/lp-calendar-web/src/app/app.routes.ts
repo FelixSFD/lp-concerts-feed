@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+import {ActivatedRouteSnapshot, CanActivateFn, RouterStateSnapshot, Routes} from '@angular/router';
 import {UserProfileComponent} from './user-profile/user-profile.component';
 import {HomeComponent} from './home/home.component';
 import {ConcertsListComponent} from './concerts-list/concerts-list.component';
@@ -25,20 +25,28 @@ import {ManageAlbumsPageComponent} from './admin/setlists/manage-albums-page/man
 import {AddAlbumPageComponent} from './admin/setlists/add-album-page/add-album-page.component';
 import {EditAlbumPageComponent} from './admin/setlists/edit-album-page/edit-album-page.component';
 import {SetlistAdminWrapperComponent} from './admin/setlist-admin-wrapper/setlist-admin-wrapper.component';
+import {inject} from '@angular/core';
+import {AuthService} from './auth/auth.service';
 
 let baseTitle = "LP Concerts - ";
 
+export const authGuard: CanActivateFn = (
+  route: ActivatedRouteSnapshot,
+  state: RouterStateSnapshot,
+) => {
+  const authService = inject(AuthService);
+  return authService.isAuthenticated$;
+};
+
 export const routes: Routes = [
+  {
+    path: 'home',
+    redirectTo: '',
+  },
   {
     path: '',
     component: HomeComponent,
     title: baseTitle + 'Overview',
-  },
-  {
-    path: 'home',
-    component: HomeComponent,
-    title: baseTitle + 'Overview',
-    redirectTo: ''
   },
   {
     path: 'privacy',
@@ -98,6 +106,7 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: SetlistAdminWrapperComponent,
+    canActivateChild: [authGuard],
     children: [
       {
         path: '',
@@ -108,66 +117,79 @@ export const routes: Routes = [
         path: 'mashups',
         component: ManageMashupsPageComponent,
         title: baseTitle + 'Manage mashups',
+        canActivate: [authGuard],
       },
       {
         path: 'mashups/add',
         component: AddMashupPageComponent,
         title: baseTitle + 'Add mashup',
+        canActivate: [authGuard],
       },
       {
         path: 'mashups/:mashupId',
         component: EditMashupPageComponent,
         title: baseTitle + 'Edit mashup',
+        canActivate: [authGuard],
       },
       {
         path: 'setlists',
         component: ManageSetlistsPageComponent,
         title: baseTitle + 'Manage setlists',
+        canActivate: [authGuard],
       },
       {
         path: 'setlists/:setlistId',
         component: EditSetlistPageComponent,
         title: baseTitle + 'Edit setlist',
+        canActivate: [authGuard],
       },
       {
         path: 'setlists/add',
         component: AddSetlistPageComponent,
         title: baseTitle + 'Create a new setlist',
+        canActivate: [authGuard],
       },
       {
         path: 'setlists/add/:concertId',
         component: AddSetlistPageComponent,
         title: baseTitle + 'Create a new setlist',
+        canActivate: [authGuard],
       },
       {
         path: 'songs',
         component: ManageSongsPageComponent,
         title: baseTitle + 'Manage songs',
+        canActivate: [authGuard],
       },
       {
         path: 'songs/add',
         component: AddSongPageComponent,
         title: baseTitle + 'Add song',
+        canActivate: [authGuard],
       },
       {
         path: 'songs/:songId',
         component: EditSongPageComponent,
         title: baseTitle + 'Edit song',
+        canActivate: [authGuard],
       },
       {
         path: 'albums',
         component: ManageAlbumsPageComponent,
         title: baseTitle + 'Manage albums',
+        canActivate: [authGuard],
       },
       {
         path: 'albums/add',
         component: AddAlbumPageComponent,
         title: baseTitle + 'Add album',
+        canActivate: [authGuard],
       },
       {
         path: 'albums/:albumId',
         component: EditAlbumPageComponent,
         title: baseTitle + 'Edit album',
+        canActivate: [authGuard],
       }
     ]
   },
@@ -175,5 +197,5 @@ export const routes: Routes = [
     path: 'app',
     component: AppInfoPageComponent,
     title: baseTitle + 'iOS App',
-  },
+  }
 ];
