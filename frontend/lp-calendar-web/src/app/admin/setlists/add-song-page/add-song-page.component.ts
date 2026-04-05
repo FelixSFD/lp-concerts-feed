@@ -28,6 +28,7 @@ export class AddSongPageComponent {
       title: formContent.title,
       albumId: Number(formContent.albumId),
       isrc: formContent.isrc,
+      appleMusicId: formContent.appleMusicId,
       linkinpediaUrl: formContent.linkinpediaUrl,
     };
 

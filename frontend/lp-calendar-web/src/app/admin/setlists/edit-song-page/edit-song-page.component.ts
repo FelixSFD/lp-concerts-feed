@@ -44,6 +44,7 @@ export class EditSongPageComponent implements OnInit {
       title: formContent.title,
       albumId: formContent.albumId != null ? Number(formContent.albumId) : null,
       isrc: formContent.isrc,
+      appleMusicId: formContent.appleMusicId,
       linkinpediaUrl: formContent.linkinpediaUrl,
     };
 

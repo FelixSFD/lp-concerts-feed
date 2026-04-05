@@ -45,7 +45,7 @@
 
       <!-- ISRC -->
       <div class="form-group mb-3">
-        <label for="isrc">ISRC:</label>
+        <label for="isrc" ngbTooltip="International Standard Recording Code">ISRC:</label>
         <div class="input-group">
           <input id="isrc" type="text" formControlName="isrc" class="form-control" [ngClass]="{ 'is-invalid': songForm.controls.isrc.invalid }" placeholder="Example: USWB11101594">
         </div>
@@ -53,6 +53,30 @@
           <div class="text-danger">
             @if (songForm.controls.isrc.errors) {
               <small>ISRC has an invalid format.</small>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Apple Music ID selection -->
+      <div class="form-group">
+        <label for="selectedAppleMusicId" ngbTooltip="Unique ID to identify this song in Apple Music">Apple Music ID:</label>
+        <div class="input-group mb-3">
+          <select class="form-select form-control"
+                  formControlName="selectedAppleMusicId"
+                  [ngClass]="{ 'is-invalid': songForm.controls.selectedAppleMusicId.invalid }">
+            <option selected>Select Song on Apple Music</option>
+            <option value="null">Not available</option>
+            <option disabled>---------------</option>
+            @for (song of appleMusicSongsForIsrc$; track song.id) {
+              <option [value]="song.id">{{ song.title }} - {{ song.albumName }} ({{ song.id }})</option>
+            }
+          </select>
+        </div>
+        @if (songForm.controls.selectedAppleMusicId.invalid) {
+          <div class="text-danger">
+            @if (songForm.controls.selectedAppleMusicId.errors) {
+              <small>Selection is invalid.</small>
             }
           </div>
         }
