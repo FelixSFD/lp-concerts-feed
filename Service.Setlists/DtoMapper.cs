@@ -225,7 +225,8 @@ public static class DtoMapper
             LinkinpediaUrl = setlistEntryDo.PlayedSong?.LinkinpediaUrl ?? setlistEntryDo.PlayedSongVariant?.Song.LinkinpediaUrl ?? setlistEntryDo.PlayedMashup?.LinkinpediaUrl,
             IsPlayedFromRecording = setlistEntryDo.IsPlayedFromRecording,
             IsRotationSong = setlistEntryDo.IsRotationSong,
-            IsWorldPremiere = setlistEntryDo.IsWorldPremiere
+            IsWorldPremiere = setlistEntryDo.IsWorldPremiere,
+            IsLivePremiere = setlistEntryDo.IsLivePremiere,
         };
     }
     
@@ -264,7 +265,8 @@ public static class DtoMapper
             LinkinpediaUrl = setlistEntryDo.PlayedSong?.LinkinpediaUrl ?? setlistEntryDo.PlayedSongVariant?.Song.LinkinpediaUrl ?? setlistEntryDo.PlayedMashup?.LinkinpediaUrl,
             IsPlayedFromRecording = setlistEntryDo.IsPlayedFromRecording,
             IsRotationSong = setlistEntryDo.IsRotationSong,
-            IsWorldPremiere = setlistEntryDo.IsWorldPremiere
+            IsWorldPremiere = setlistEntryDo.IsWorldPremiere,
+            IsLivePremiere = setlistEntryDo.IsLivePremiere,
         };
     }
 }

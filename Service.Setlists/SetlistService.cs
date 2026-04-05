@@ -97,7 +97,8 @@ public class SetlistService(
             SortNumber = request.EntryParameters.SortNumber,
             IsWorldPremiere = request.EntryParameters.IsWorldPremiere,
             IsPlayedFromRecording = request.EntryParameters.IsPlayedFromRecording,
-            IsRotationSong = request.EntryParameters.IsRotationSong
+            IsRotationSong = request.EntryParameters.IsRotationSong,
+            IsLivePremiere = request.EntryParameters.IsLivePremiere
         };
         
         setlistEntryRepository.Add(entry);
@@ -376,6 +377,7 @@ public class SetlistService(
         setlistEntry.IsPlayedFromRecording = entryParams.IsPlayedFromRecording;
         setlistEntry.IsRotationSong = entryParams.IsRotationSong;
         setlistEntry.IsWorldPremiere = entryParams.IsWorldPremiere;
+        setlistEntry.IsLivePremiere = entryParams.IsLivePremiere;
         
         // update act
         var actParams = request.ActParameters;

@@ -44,7 +44,8 @@ public class SqlSetlistEntryRepositoryTest : DbIntegrationTestsBase
             SongNumber = 2,
             IsWorldPremiere = true,
             IsPlayedFromRecording = false,
-            IsRotationSong = false
+            IsRotationSong = false,
+            IsLivePremiere = true
         };
         
         repo.Add(entry2);
@@ -220,6 +221,7 @@ public class SqlSetlistEntryRepositoryTest : DbIntegrationTestsBase
         Assert.Equal(expected.IsWorldPremiere, actual.IsWorldPremiere);
         Assert.Equal(expected.IsPlayedFromRecording, actual.IsPlayedFromRecording);
         Assert.Equal(expected.IsRotationSong, actual.IsRotationSong);
+        Assert.Equal(expected.IsLivePremiere, actual.IsLivePremiere);
 
         var expectedAct = expected.Act;
         var actualAct = actual.Act;

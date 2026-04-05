@@ -101,7 +101,8 @@ public class SetlistServiceTest
                 ExtraNotes = "something special",
                 IsPlayedFromRecording = false,
                 IsWorldPremiere = true,
-                IsRotationSong = false
+                IsRotationSong = false,
+                IsLivePremiere = true
             },
             SongParameters = new SongParametersDto
             {
@@ -117,7 +118,7 @@ public class SetlistServiceTest
         _songRepository
             .Add(Arg.Is<SongDo>(song => song.Title == request.SongParameters.SongTitle && song.Isrc == request.SongParameters.Isrc && song.Id == 0));
         
-        _setlistEntryRepository.Add(Arg.Is<SetlistEntryDo>(entry => entry.SetlistId == setlist1.Id && entry.SongNumber == request.EntryParameters.SongNumber));
+        _setlistEntryRepository.Add(Arg.Is<SetlistEntryDo>(entry => entry.SetlistId == setlist1.Id && entry.SongNumber == request.EntryParameters.SongNumber && entry.IsLivePremiere == request.EntryParameters.IsLivePremiere));
         
         // call the service
         await _setlistService.AddSongToSetlistAsync(request, setlist1.Id);
@@ -129,7 +130,7 @@ public class SetlistServiceTest
         
         _setlistEntryRepository
             .Received(1)
-            .Add(Arg.Is<SetlistEntryDo>(entry => entry.SetlistId == setlist1.Id && entry.SongNumber == request.EntryParameters.SongNumber));
+            .Add(Arg.Is<SetlistEntryDo>(entry => entry.SetlistId == setlist1.Id && entry.SongNumber == request.EntryParameters.SongNumber && entry.IsLivePremiere == request.EntryParameters.IsLivePremiere));
         
         // as this is a new song without an ID, there should be no call to the song repo
         await _songRepository.DidNotReceive().GetByPrimaryKeyAsync(Arg.Any<uint>());

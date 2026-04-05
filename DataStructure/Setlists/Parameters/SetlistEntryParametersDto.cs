@@ -52,4 +52,11 @@ public class SetlistEntryParametersDto
     /// </summary>
     [JsonPropertyName("isWorldPremiere")]
     public bool IsWorldPremiere { get; set; }
+    
+    /// <summary>
+    /// true if this song was already released, but played live for the first time.
+    /// Example: "Keys To The Kingdom" in Los Angeles 2024
+    /// </summary>
+    [JsonPropertyName("isLivePremiere")]
+    public bool IsLivePremiere { get; set; }
 }

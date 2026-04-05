@@ -563,6 +563,9 @@ components:
         isWorldPremiere:
           type: boolean
           description: true if this song has not only not been played before, but was not released before this show. For example "Heavy Is The Crown" in Hamburg 2024
+        isLivePremiere:
+          type: boolean
+          description: true if this song was already released, but played live for the first time. For example "Keys To The Kingdom" in Los Angeles 2024
     
     RawSetlistEntry:
       type: object
@@ -621,6 +624,9 @@ components:
         isWorldPremiere:
           type: boolean
           description: true if this song has not only not been played before, but was not released before this show. For example "Heavy Is The Crown" in Hamburg 2024
+        isLivePremiere:
+          type: boolean
+          description: true if this song was already released, but played live for the first time. For example "Keys To The Kingdom" in Los Angeles 2024
     
     SetlistHeader:
       type: object
@@ -954,6 +960,9 @@ components:
         isWorldPremiere:
           type: boolean
           description: true if this song has not only not been played before, but was not released before this show. For example "Heavy Is The Crown" in Hamburg 2024
+        isLivePremiere:
+          type: boolean
+          description: true if this song was already released, but played live for the first time. For example "Keys To The Kingdom" in Los Angeles 2024
     
     AddSongVariantToSetlistRequest:
       type: object
