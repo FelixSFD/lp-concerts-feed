@@ -7,6 +7,7 @@ export class SetlistEntry {
   title!: string;
   albumTitle: string | null = null;
   extraNotes!: string | null;
+  appleMusicId!: string | null;
   linkinpediaUrl!: string | null;
   isPlayedFromRecording: boolean = false;
   isWorldPremiere: boolean = false;
@@ -22,6 +23,7 @@ export class SetlistEntry {
       title: title ?? dto.playedSong?.title ?? dto.playedSongVariant?.variantName ?? "",
       albumTitle: dto.playedSong?.album?.title ?? null,
       extraNotes: dto.extraNotes ?? null,
+      appleMusicId: dto.appleMusicId ?? null,
       linkinpediaUrl: dto.linkinpediaUrl ?? null,
       isPlayedFromRecording: dto.isPlayedFromRecording ?? false,
       isWorldPremiere: dto.isWorldPremiere ?? false,

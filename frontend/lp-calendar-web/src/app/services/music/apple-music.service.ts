@@ -1,11 +1,8 @@
-import { Injectable } from '@angular/core';
-import {firstValueFrom, Observable} from 'rxjs';
+import {Injectable} from '@angular/core';
+import {firstValueFrom} from 'rxjs';
 import {AppleMusicService as AppleMusicApiClient} from '../../modules/lpshows-api/api/apple-music.service';
-import {SearchResponse} from '@apple/mapkit-loader';
-import SongSearchResponse = MusicKit.SongSearchResponse;
-import SearchResult = MusicKit.SearchResult;
-import Songs = MusicKit.Songs;
 import {AppleMusicSong} from '../../data/music/apple/apple-music-song';
+import Songs = MusicKit.Songs;
 
 @Injectable({
   providedIn: 'root',
@@ -55,5 +52,21 @@ export class AppleMusicService {
 
     let songs = response.data.data as Songs[];
     return songs.map(AppleMusicSong.fromMusicKit);
+  }
+
+
+  public async getSongsById(ids: string[]) : Promise<Songs[]> {
+    const storefront = this.music!.api.storefrontId ?? "us";
+
+    const response = await this.music!.api.music(
+      `/v1/catalog/${storefront}/songs`,
+      {
+        ids: ids
+      }
+    ) as any;
+
+    console.debug("GetSongsForIsrc result", response);
+
+    return response.data.data as Songs[];
   }
 }

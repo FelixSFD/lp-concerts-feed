@@ -10,6 +10,9 @@ import {SetlistEntryIconsComponent} from '../../admin/setlists/setlist-entry-ico
 import {SetlistAlbumChartComponent} from '../setlist-album-chart/setlist-album-chart.component';
 import {MatomoTracker} from 'ngx-matomo-client';
 import {ViewportScroller} from '@angular/common';
+import {AppleMusicService} from '../../services/music/apple-music.service';
+import Artwork = MusicKit.Artwork;
+import {AppleMusicArtworkComponent} from '../../components/music/apple-music-artwork/apple-music-artwork.component';
 
 @Component({
   selector: 'app-setlist',
@@ -17,7 +20,8 @@ import {ViewportScroller} from '@angular/common';
     FormsModule,
     ReactiveFormsModule,
     SetlistEntryIconsComponent,
-    SetlistAlbumChartComponent
+    SetlistAlbumChartComponent,
+    AppleMusicArtworkComponent
   ],
   templateUrl: './setlist.component.html',
   styleUrl: './setlist.component.css',
@@ -25,12 +29,15 @@ import {ViewportScroller} from '@angular/common';
 export class SetlistComponent implements OnInit {
   private readonly tracker = inject(MatomoTracker);
   private readonly scroller = inject(ViewportScroller);
+  private readonly appleMusicService = inject(AppleMusicService);
 
   @Input({ required: false })
   setlistId: number | undefined;
 
   @Input({ required: false })
   setlist: Setlist | undefined;
+
+  setlistEntriesArtwork$: (Artwork | null)[] = [];
 
   setlistTitle$: string = "Setlist";
 
@@ -39,23 +46,42 @@ export class SetlistComponent implements OnInit {
   constructor(private setlistService: SetlistsService, private toastr: ToastrService) {
   }
 
-  private didLoadSetlist() {
+  private async didLoadSetlist() {
     console.debug("Found setlist", this.setlist);
     this.setlistTitle$ = this.setlist?.concertId ?? "Setlist";
+
+    let appleMusicIds = this.setlist?.entries.filter(entry => entry.appleMusicId != null).map(entry => entry.appleMusicId!);
+    let foundSongs = appleMusicIds ? await this.appleMusicService.getSongsById(appleMusicIds ?? []) : [];
+    this.setlistEntriesArtwork$ = [];
+    for (let i = 0; i < (this.setlist?.entries.length ?? 0); i++) {
+      let appleMusicId = this.setlist?.entries[i].appleMusicId ?? null;
+      if (appleMusicId != null) {
+        // entry exists and has an Apple Music ID
+        // find the song in foundSongs to get the artwork
+        let song = foundSongs.find(song => song.id == appleMusicId);
+        console.debug("Found song", song);
+        this.setlistEntriesArtwork$.push(song?.attributes?.artwork ?? null);
+      } else {
+        // entry doesn't have an Apple Music ID
+        this.setlistEntriesArtwork$.push(null);
+      }
+    }
   }
 
   ngOnInit() {
     if (this.setlist == undefined && this.setlistId !== undefined) {
       this.setlistService.getSetlist(this.setlistId).subscribe({
-        next: data => {
+        next: async data => {
           this.setlist = Setlist.fromDto(data);
-          this.didLoadSetlist();
+          await this.didLoadSetlist();
         },
         error: err => {
           let errorResponse: ErrorResponseDto = err.error;
           this.toastr.error(errorResponse.message, "Could not load setlist");
         }
       })
+    } else {
+      this.didLoadSetlist().then();
     }
   }
 

@@ -5,6 +5,7 @@
       <tr>
         <th scope="col">#</th>
         <th scope="col"></th>
+        <th scope="col" style="max-width: 30px"></th><!-- Artwork -->
         <th scope="col">Song</th>
         <th scope="col">Notes</th>
       </tr>
@@ -15,6 +16,7 @@
             <tr>
               <td>Act {{ structuredEntry.actNumber }}</td>
               <td></td>
+              <td></td>
               <td>{{ structuredEntry.title }}</td>
               <td></td>
             </tr>
@@ -23,6 +25,11 @@
               <tr [class]="entry.isWorldPremiere ? 'table-success' : ''">
                 <td class="ps-4">&nbsp;&nbsp;{{ entry.songNumber == 0 ? "" : entry.songNumber }}.</td>
                 <td><app-setlist-entry-icons [record-tape]="entry.isPlayedFromRecording" /></td>
+                <td>
+                  @if (setlistEntriesArtwork$[$index] != null) {
+                    <app-apple-music-artwork [artwork]="setlistEntriesArtwork$[$index]!" [width]="25" />
+                  }
+                </td>
                 @if ("linkinpediaUrl" in entry && entry.linkinpediaUrl) {
                   <td class="ps-4"><a [href]="entry.linkinpediaUrl" target="_blank" class="link-info">{{ entry.title }}</a> <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" /></td>
                 } @else {
@@ -35,6 +42,11 @@
             <tr [class]="structuredEntry.isWorldPremiere ? 'table-success' : ''">
               <td>{{ structuredEntry.songNumber == 0 ? "" : `${structuredEntry.songNumber}.` }}</td>
               <td><app-setlist-entry-icons [record-tape]="structuredEntry.isPlayedFromRecording" /></td>
+              <td>
+                @if (setlistEntriesArtwork$[$index] != null) {
+                  <app-apple-music-artwork [artwork]="setlistEntriesArtwork$[$index]!" [width]="25" />
+                }
+              </td>
               @if (structuredEntry.linkinpediaUrl) {
                 <td><a [href]="structuredEntry.linkinpediaUrl" target="_blank" class="link-info">{{ structuredEntry.title }}</a> <app-setlist-entry-icons [rotation-song]="structuredEntry.isRotationSong" [world-premiere]="structuredEntry.isWorldPremiere" /></td>
               } @else {
