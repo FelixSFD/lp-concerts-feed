@@ -123,7 +123,7 @@ export class SongFormComponent implements OnInit {
     if (isrc) {
       this.appleMusicService.getSongsForIsrc(isrc ?? "").then(songs => {
         console.debug("Songs from Isrc:", songs);
-        this.appleMusicSongsForIsrc$ = songs.sort((a, b) => a.id.localeCompare(b.id));
+        this.appleMusicSongsForIsrc$ = songs.sort((a, b) => a.albumName != null ? a.albumName.localeCompare(b.albumName ?? "") : a.id.localeCompare(b.id));
       });
 
       this.songForm.controls.selectedAppleMusicId.enable();
