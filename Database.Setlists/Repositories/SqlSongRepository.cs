@@ -24,4 +24,13 @@ public class SqlSongRepository(SetlistsDbContext dbContext)
             .Where(s => idList.Contains(s.Id))
             .ToAsyncEnumerable();
     }
+
+    /// <inheritdoc/>
+    public IAsyncEnumerable<SongDo> GetSongsByTitle(string title)
+    {
+        return DbSet
+            .AsQueryable()
+            .Where(s => s.Title == title)
+            .ToAsyncEnumerable();
+    }
 }
