@@ -1107,6 +1107,48 @@ components:
           description: The newly ordered entries
           items:
             $ref: "#/components/schemas/SetlistEntry"
+    
+    ImportSetlistEntryPreview:
+      type: object
+      description: Contains data of a setlist entry. Some entries might have IDs for existing songs/mashups, some only a title.
+      properties:
+        title:
+          type: string
+          description: Title of this entry
+        extraNotes:
+          type: string
+          description: Additional notes for this entry
+          nullable: true
+        foundSongId:
+          type: number
+          description: If an existing song was found, the ID will be in this property. If not, you either have to select an existing song or create it.
+          nullable: true
+        foundSongIds:
+          type: array
+          description: If more than 1 matching song was found, the possible IDs are listed here
+          items:
+            type: number
+        foundSongVariantId:
+          type: number
+          description: If an existing song variant was found, the ID will be in this property. If not, you either have to select an existing song variant or create it.
+          nullable: true
+        foundMashupId:
+          type: number
+          description: If an existing mashup was found, the ID will be in this property. If not, you either have to select an existing mashup or create it.
+          nullable: true
+    
+    ImportSetlistPreview:
+      type: object
+      description: Contains data of a setlist that could be created
+      properties:
+        concertId:
+          type: string
+          description: ID of the concert where this setlist will be added
+        entries:
+          type: array
+          description: The entries that could be added to the new setlist
+          items:
+            $ref: "#/components/schemas/ImportSetlistEntryPreview"
 
 paths:
   /addConcert:
