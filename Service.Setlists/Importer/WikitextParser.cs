@@ -6,7 +6,7 @@ namespace Service.Setlists.Importer;
 /// <summary>
 /// Class to parse the source wikitext from Linkinpedia
 /// </summary>
-public partial class WikitextParser
+public partial class WikitextParser : IWikitextParser
 {
     [GeneratedRegex(@"{{Setlist[\s\S-[}]]*}}", RegexOptions.IgnoreCase, "en-US")]
     private static partial Regex ExtractSetlistFromSourceRegex { get; }

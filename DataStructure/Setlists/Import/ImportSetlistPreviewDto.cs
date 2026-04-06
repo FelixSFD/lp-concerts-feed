@@ -2,9 +2,9 @@ namespace LPCalendar.DataStructure.Setlists.Import;
 
 public class ImportSetlistPreviewDto
 {
-    public string ConcertId { get; set; }
+    public string? ConcertId { get; set; }
 
-    public List<ImportSetlistEntryPreviewDto> Entries { get; set; }
+    public required List<ImportSetlistEntryPreviewDto> Entries { get; set; }
 }
 
 

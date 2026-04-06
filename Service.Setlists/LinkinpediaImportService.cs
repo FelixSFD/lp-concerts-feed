@@ -1,6 +1,8 @@
 using Amazon.Lambda.Core;
 using Common.WikiMedia.Repositories;
+using LPCalendar.DataStructure.Setlists.Import;
 using Service.Setlists.Importer;
+using Service.Setlists.Importer.DataStructure;
 using Service.Setlists.Importer.Exceptions;
 
 namespace Service.Setlists;
@@ -8,18 +10,13 @@ namespace Service.Setlists;
 /// <summary>
 /// Service to import data from Linkinpedia
 /// </summary>
-public class LinkinpediaImportService(WikiMediaRepository wikiMediaRepository, WikitextParser wikitextParser, ILambdaLogger logger)
+public class LinkinpediaImportService(IWikiMediaRepository wikiMediaRepository, IWikitextParser wikitextParser, ILambdaLogger logger)
 {
     const string LinkinpediaRestApiBaseUrl = "https://linkinpedia.com/w/rest.php/v1";
     
-    public async Task ImportSetlistFromPage(string wikiPageId)
+    public async Task<ImportSetlistPreviewDto> GetImportPlanForSetlistFromPageAsync(string wikiPageId)
     {
-        var wikiPage = await wikiMediaRepository.GetWikiPageAsync(wikiPageId);
-        if (wikiPage == null)
-        {
-            logger.LogError($"Wiki Page {wikiPageId} not found");
-            return;
-        }
+        var wikiPage = await wikiMediaRepository.GetWikiPageAsync(wikiPageId) ?? throw new InvalidWikiContentException($"Could not find WikiPage: {wikiPageId}");
         
         // read the content for the page
         var wikiContent = wikiPage.Source ?? throw new InvalidWikiContentException("Page source is empty");
@@ -27,5 +24,31 @@ public class LinkinpediaImportService(WikiMediaRepository wikiMediaRepository, W
 
         var parsedEntries = wikitextParser.GetEntries(setlistWikitext);
         logger.LogDebug("Found {count} entries in setlist.", parsedEntries.Length);
+
+        var songEntries = parsedEntries.Where(e => e.GetType() == typeof(SongWikiSetlistEntry));
+
+        var setlistPreview = new ImportSetlistPreviewDto
+        {
+            ConcertId = "1234",
+            Entries = songEntries.Select(GetPreviewEntry).ToList()
+        };
+        
+        return setlistPreview;
+    }
+
+    private ImportSetlistEntryPreviewDto GetPreviewEntry(WikiSetlistEntry wikiSetlistEntry)
+    {
+        ImportSetlistEntryPreviewDto preview = new()
+        {
+            Title = wikiSetlistEntry.Name ?? "Unknown",
+            ExtraNotes = wikiSetlistEntry.Note
+        };
+
+        if (wikiSetlistEntry.GetType() == typeof(SongWikiSetlistEntry))
+        {
+            
+        }
+        
+        return preview;
     }
 }
