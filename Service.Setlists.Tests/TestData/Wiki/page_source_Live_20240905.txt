@@ -1,0 +1,159 @@
+{{Tourdate
+| ShowType = concert
+| Last show = 2018.03.24
+| Artist = Linkin Park
+| Next show = 2024.09.11
+| Year = 2024
+| Month = September
+| Day = 05
+| Country = United States
+| City = Burbank, CA
+| Venue = Warner Bros. Studios - Stage 30
+}}
+
+== Setlist ==
+
+{{Setlist
+| ActNo0 = 1
+| ActName0 = Inception Intro A
+| ActNote0 = w/ "[[Castle Of Glass]]" Vocals
+| Song1 = The Emptiness Machine
+| Note1 = Live Debut
+| Song2 = Somewhere I Belong
+| Note2 = First Time w/ Emily, Colin and Alex
+| Song3 = Crawling
+| Note3 = First Time w/ Emily, Colin and Alex
+| Song4 = Lying From You
+| Note4 = First Time w/ Emily, Colin and Alex
+| ActNo4 = 2
+| ActName4 = Creation Intro A
+| ActNote4 = w/ "Castle Of Glass" Vocals
+| Song5 = The Catalyst
+| Note5 = Shortened (No Third Chorus/Breakdown); First Time w/ Emily, Colin and Alex
+| Song6 = Waiting For The End
+| Note6 = 2024 Intro; First Time w/ Emily, Colin and Alex
+| Song7 = Numb
+| Note7 = 'Numb/Encore' Intro; First Time w/ Emily, Colin and Alex
+| Song8 = One Step Closer
+| Note8 = 2024 Intro; Ext. Outro w/ Chorus Riff; First Time w/ Emily, Colin and Alex
+| ActNo8 = 3
+| ActName8 = Break/Collapse Transition
+| Song9 = Lost
+| Note9 = Live Debut; Piano Version; Shortened (First Verse/Chorus Only)
+| Song10 = What I've Done
+| Note10 = First Time w/ Emily, Colin and Alex
+| ActNo10 = 4
+| ActName10 = Kintsugi Transition
+| Song11 = In The End
+| Note11 = First Time w/ Emily, Colin and Alex
+| Song12 = Faint
+| Note12 = Ext. Outro; First Time w/ Emily, Colin and Alex
+| Break12 = Encore
+| ActNo12 = 5
+| ActName12 = Resolution Intro A
+| ActNote12 = w/ "Castle Of Glass" Vocals
+| Song13 = Papercut
+| Note13 = 2024 Intro; First Time w/ Emily, Colin and Alex
+| Song14 = Bleed It Out
+| Note14 = Ext. Bridge w/ "[[A Place For My Head]]" Verse 1; Ext. Outro; First Time w/ Emily, Colin and Alex
+}}
+
+== Show Notes ==
+
+* This show marks Linkin Park's first performance together as a band since the LP & Friends: Chester Bennington Celebration on [[Live:20171027|October 27, 2017]] in Los Angeles, CA.
+* The band performed in the center of the venue in a circular stage, offering a 360Â° view of the whole band for the crowd. An LED ceiling above the stage and lasers provided space for the band's usual live visuals.
+* This was the first show the feature Emily Armstrong (on vocals) and Colin Brittain (on drums) as members of the band. As Brad Delson decided not to make touring appearances, Alex Feder replaced him on guitar. Mike introduced the band members after "[[Somewhere I Belong]]".
+* Multiple songs were performed in a new key to better fit Emily"s comfortable vocal register: "Somewhere I Belong", "[[Crawling]]", "[[Waiting For The End]]", "[[Numb]]", "[[One Step Closer]]", "[[Lost]]", "[[What I've Done]]", "[[In The End]]", "[[Faint]]", and 'Bleed It Out".
+* During the intro of "Crawling", Mike said to the crowd, ''"in the roll of Chester Bennington this afternoon, is each of you. Are you ready to sing with us?"''
+* "[[Lying From You]]" was performed as its regular studio version for the first time since [[Live:20130817|August 17, 2013 in Taipei, Taiwan]]. The ''[[Collision Course]]'' remix "[[Dirt Off Your Shoulder/Lying From You]]" was performed in 2014 and 2015 on ''[[The Hunting Party]]'' Tour, making the last appearance of the song [[Live:20150117|January 17, 2015 in Nashville, TN]].
+* Joe messed up the timing at the start of "[[The Catalyst]]". The song was performed as the same shortened version that Linkin Park played in 2017 on the ''[[One More Light]]'' Tour.
+* "Waiting For The End" featured a brand new intro, but no extended outro like in previous tours.
+* The band jammed to "[[Numb/Encore]]" at the start of "Numb".
+* "One Step Closer" featured a new extended intro that was a sort of mashup of all its previous intros: the Reanimated synths, the guitar buildup, and the main riff coming together into the song's intro. The extended outro was mostly the same as previous years, with a new twist at the end, the band going back to the chorus riff before finishing off the song.
+* Mike went into the crowd during "In The End".
+* "[[Bleed It Out]]" featured its regular extended moments, including an extended bridge where Mike rapped the first verse of "A Place For My Head".
+
+== Debuts ==
+
+* The band used a brand new intro at this show, entitled "Inception Intro A" on the setlist, featuring elements of "Castle Of Glass", "[[The Requiem]]", "The Catalyst", "Somewhere I Belong", 'In the End' and "Numb" along with a full band jam.
+* This was the world premiere of "[[The Emptiness Machine]]". As it was being performed live for the first time, the song also launched on streaming platforms. The music video launched after the event ended.
+* "Lost" was performed live for the first time, as a shortened piano version played up until the second verse. This was the first performance by the band since the song was released in 2023.
+* The band used several new transitions during this show: the "Break/Collapse' transition after "One Step Closer", and the 'Kintsugi' transition before 'In The End".
+* Another new intro was used to open the encore, segueing right into "[[Papercut]]". This intro, called "Resolution Intro A," features elements of "Castle Of Glass" and "The Requiem". Despite the title, no elements of the ''[[Meteora]]'' demo of the same name are present in it.
+
+== Other Notes ==
+
+* This performance was announced on August 29, 2024, the message ''"Be part of something. Tune in September 5 3PM PST"'' replacing the countdown timer that had teased the date of this performance and the band's return to performing. Around 1,000 tickets went exclusively to LPU members, mailing list subscribers, and previous Los Angeles-area attendees for Linkin Park shows. The performance itself was a complete surprise to attendees until they entered the studio.
+* The location of this event was kept secret until the attendees got there. Instructions from the LPU had everyone meet at a Universal Studios parking lot to then be bussed off with a police escort to a secret location that turned out to be Warner Bros. Studios, Studio 30.
+* Before "Bleed It Out", Mike announced to the crowd that more information regarding the band's current lineup and what's going on would be coming soon. He also announced the release of "The Emptiness Machine" on streaming services, the band's new album ''[[From Zero]]'', and that tour dates for the coming weeks were up too.
+* During the encore break, screens shared that the band would be selling event-exclusive merchandise after the show. A CD single of "The Emptiness Machine" was one of the featured items, which sold out quickly.
+* This was the first show the band ever performed without Rob Bourdon.
+* Brad Delson was at this show backstage with the band.
+
+== {{Sources}} ==
+
+{{Tabs
+| Title1 = Source 0: Audio - SBD (Official Release)
+| Tab1 =
+
+* Format: CD + Digital
+* Comments: "The Emptiness Machine" only. Released on theÂ [[From Zero#tabber-Deluxe Edition Bonus Tracks|From Zero (Expanded/Deluxe Edition)]] album.
+
+| Title2 = Source 1a: Video - PROSHOT (Linkin Park)
+| Tab2 =
+
+* Taper: Lexx
+* Time: 63:45 mins
+* Format: .mp4 / 936mb
+* Comments: Webcasted live by Linkin Park on [https://youtu.be/IL1nlWOciL0 YouTube].
+
+| Title3 = Source 1b: Video - PROSHOT (Linkin Park)
+| Tab3 =
+
+* Time: 3:15 mins
+* Comments: "The Emptiness Machine" only. Uploaded by Linkin Park to [https://youtu.be/7F5MKaJMxDc?si=5VOvWGgJr6gQzOfj YouTube] on September 7. Audio mixed professionally by Ethan Mates. Video edited professionally by Igor Kovalik, using different camera angles than the live broadcast. Begins when Mike Shinoda says, ''"It's good to see you again"'' after the live show intro.
+
+| Title4 = Source 1c: Video - PROSHOT (Linkin Park)
+| Tab4 =
+
+* Time: 3:13 mins
+* Comments: "Numb" only. Uploaded by Linkin Park to [https://youtu.be/7i4s-NXfkPk YouTube] on September 8. Audio mixed professionally by Ethan Mates. Video edited professionally by Igor Kovalik, using different camera angles than the live broadcast.
+
+}}
+
+== {{Gallery}} ==
+
+<gallery mode=packed style=text-align:left>
+20240905-ticket1.png|Ticket
+20240905-ticket2.png|Ticket
+20240905-setlist1.jpeg|Setlist
+20240905-setlist2.jpg|Setlist
+20240905-setlist3.jpg|Setlist
+20240905-show1.jpeg|Show
+</gallery>
+
+=== Photos of the Show ===
+
+{{Photo}}
+
+<gallery mode="packed" style="text-align:left">
+20240905-linkinpark.jpg
+20240905-linkinpark2.jpg
+20240905-linkinpark3.jpg
+20240905-linkinpark4.jpg
+20240905-linkinpark5.jpg
+20240905-linkinpark6.jpg
+20240905-linkinpark7.jpg
+20240905-linkinpark8.jpg
+20240905-linkinpark9.jpg
+20240905-linkinpark10.jpg
+20240905-linkinpark11.jpg
+20240905-linkinpark12.jpg
+20240905-linkinpark13.jpg
+20240905-linkinpark14.jpg
+20240905-linkinpark15.jpg
+20240905-linkinpark16.jpg
+20240905-linkinpark17.jpg
+20240905-linkinpark18.jpg
+20240905-linkinpark19.jpg
+</gallery>

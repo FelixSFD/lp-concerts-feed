@@ -1,18 +1,24 @@
 using Amazon.Lambda.Core;
+using Common.WikiMedia.Repositories;
 
 namespace Service.Setlists;
 
 /// <summary>
 /// Service to import data from Linkinpedia
 /// </summary>
-public class LinkinpediaImportService(HttpClient httpClient, ILambdaLogger logger)
+public class LinkinpediaImportService(WikiMediaRepository wikiMediaRepository, ILambdaLogger logger)
 {
     const string LinkinpediaRestApiBaseUrl = "https://linkinpedia.com/w/rest.php/v1";
     
     public async Task ImportSetlistFromPage(string wikiPageId)
     {
-        var url = new Uri(LinkinpediaRestApiBaseUrl + "/page/" + wikiPageId);
-        logger.LogDebug("Download the wiki page at: {url}", url);
-        await httpClient.GetAsync(url);
+        var wikiPage = await wikiMediaRepository.GetWikiPageAsync(wikiPageId);
+        if (wikiPage == null)
+        {
+            return;
+        }
+        
+        // read the content for the page
+        var wikiContent = wikiPage.Source;
     }
 }

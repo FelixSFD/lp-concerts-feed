@@ -16,7 +16,7 @@ public class WikiMediaRepository(HttpClient httpClient, string baseUrl) : IWikiM
     private readonly ApiUrlBuilder _apiUrlBuilder = new(baseUrl);
     
     /// <inheritdoc/>
-    public async Task<WikiPageDto?> GetWikiPage(string wikiPageId)
+    public async Task<WikiPageDto?> GetWikiPageAsync(string wikiPageId)
     {
         var url = _apiUrlBuilder.GetPageUrl(wikiPageId);
         var httpResponseMessage = await httpClient.GetAsync(url);
