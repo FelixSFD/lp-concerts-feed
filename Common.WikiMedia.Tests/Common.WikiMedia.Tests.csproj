@@ -9,6 +9,7 @@
 
     <ItemGroup>
         <PackageReference Include="MSTest" Version="4.0.1"/>
+        <PackageReference Include="NSubstitute" Version="5.3.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -17,6 +18,12 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Common.WikiMedia\Common.WikiMedia.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="TestData\wiki_page_Live_20240905.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>
