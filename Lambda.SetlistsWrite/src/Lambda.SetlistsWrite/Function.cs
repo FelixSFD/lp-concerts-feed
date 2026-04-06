@@ -3,6 +3,7 @@ using System.Net;
 using System.Text.Json;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Common.WikiMedia.Repositories;
 using Database.Concerts;
 using Database.Setlists;
 using Database.Setlists.Repositories;
@@ -10,9 +11,11 @@ using Lambda.Auth;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Responses;
 using LPCalendar.DataStructure.Setlists;
+using LPCalendar.DataStructure.Setlists.Import;
 using Microsoft.EntityFrameworkCore;
 using Service.Setlists;
 using Service.Setlists.Exceptions;
+using Service.Setlists.Importer;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -29,9 +32,12 @@ public class Function
     private ISongRepository _songRepository;
     private ISongVariantRepository _songVariantRepository;
     private ISongMashupRepository _songMashupRepository;
+    private IWikiMediaRepository _wikiMediaRepository;
+    private IWikitextParser _wikitextParser = new WikitextParser();
     private SetlistService _setlistService;
     private AlbumService _albumService;
     private SongService _songService;
+    private LinkinpediaImportService _linkinpediaImportService;
 
     public Function()
     {
@@ -68,6 +74,8 @@ public class Function
         _setlistService = new SetlistService(_setlistRepository, _setlistEntryRepository, _concertRepository, _songRepository, _songVariantRepository, _songMashupRepository, _setlistActRepository, context.Logger);
         _albumService = new AlbumService(_albumRepository, context.Logger);
         _songService = new SongService(_songRepository, _songVariantRepository, _songMashupRepository, context.Logger);
+        _wikiMediaRepository = new WikiMediaRepository(new HttpClient(), LinkinpediaImportService.LinkinpediaRestApiBaseUrl); // TODO: env variable?
+        _linkinpediaImportService = new LinkinpediaImportService(_wikiMediaRepository, _wikitextParser, _songRepository, context.Logger);
         
         context.Logger.LogInformation("Called {method} {path}", request.HttpMethod, request.Resource);
 
@@ -265,6 +273,11 @@ public class Function
             }
             
             return await HandleDeleteAlbum(albumId ?? 0, context);
+        }
+        
+        if (request is { HttpMethod: "POST", Resource: "/concert/{id}/setlists/import" })
+        {
+            return await HandleImportSetlist(request.Body, context);
         }
         
         context.Logger.LogError("There is no implementation for a HTTP '{method}' request with path '{path}'", request.HttpMethod, request.Path);
@@ -1205,5 +1218,56 @@ public class Function
         {
             return ReturnBadRequest(e.Message, "OPTIONS, POST");
         }
+    }
+    
+    private async Task<APIGatewayProxyResponse> HandleImportSetlist(string requestJson,
+        ILambdaContext context)
+    {
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.ImportSetlistRequestDto);
+        if (dto != null)
+            return await HandleImportSetlist(dto, context);
+        
+        var badRequestResponse = new ErrorResponse
+        {
+            Message = "Failed to deserialize the request body"
+        };
+            
+        context.Logger.LogError(badRequestResponse.Message);
+            
+        return new APIGatewayProxyResponse()
+        {
+            StatusCode = (int)HttpStatusCode.BadRequest,
+            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
+            Headers = new Dictionary<string, string>
+            {
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, POST" }
+            }
+        };
+    }
+
+    /// <summary>
+    /// Import a setlist from Linkinpedia
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    private async Task<APIGatewayProxyResponse> HandleImportSetlist(ImportSetlistRequestDto request,
+        ILambdaContext context)
+    {
+        context.Logger.LogDebug("Importing from URL: {url}", request.LinkinpediaUrl);
+        var responseDto = await _linkinpediaImportService.GetImportPlanForSetlistFromPageAsync(request.LinkinpediaUrl.Split("/").Last());
+        context.Logger.LogDebug("Successfully generated import instructions.");
+        
+        return new APIGatewayProxyResponse()
+        {
+            StatusCode = (int)HttpStatusCode.OK,
+            Body = JsonSerializer.Serialize(responseDto, SetlistDtoJsonContext.Default.ImportSetlistPreviewDto),
+            Headers = new Dictionary<string, string>
+            {
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, POST" }
+            }
+        };
     }
 }

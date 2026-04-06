@@ -1,6 +1,5 @@
 using Amazon.Lambda.Core;
 using Common.WikiMedia.Repositories;
-using Database.Setlists.DataObjects;
 using Database.Setlists.Repositories;
 using LPCalendar.DataStructure.Setlists.Import;
 using Service.Setlists.Importer;
@@ -14,11 +13,13 @@ namespace Service.Setlists;
 /// </summary>
 public class LinkinpediaImportService(IWikiMediaRepository wikiMediaRepository, IWikitextParser wikitextParser, ISongRepository songRepository, ILambdaLogger logger)
 {
-    const string LinkinpediaRestApiBaseUrl = "https://linkinpedia.com/w/rest.php/v1";
+    public const string LinkinpediaRestApiBaseUrl = "https://linkinpedia.com/w/rest.php/v1";
     
     public async Task<ImportSetlistPreviewDto> GetImportPlanForSetlistFromPageAsync(string wikiPageId)
     {
+        logger.LogDebug("Importing from Linkinpedia Page: {page}", wikiPageId);
         var wikiPage = await wikiMediaRepository.GetWikiPageAsync(wikiPageId) ?? throw new InvalidWikiContentException($"Could not find WikiPage: {wikiPageId}");
+        logger.LogDebug("Downloaded page '{title}', which was last updated: {lastUpdated}", wikiPage.Title, wikiPage.Latest?.Timestamp);
         
         // read the content for the page
         var wikiContent = wikiPage.Source ?? throw new InvalidWikiContentException("Page source is empty");

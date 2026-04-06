@@ -1108,6 +1108,17 @@ components:
           items:
             $ref: "#/components/schemas/SetlistEntry"
     
+    ImportSetlistRequest:
+      type: object
+      description: Request to import a setlist
+      properties:
+        concertId:
+          type: string
+          description: ID of the concert where this setlist will be added
+        linkinpediaUrl:
+          type: string
+          description: Link to the concert page on Linkinpedia. This page must contain the setlist
+          
     ImportSetlistEntryPreview:
       type: object
       description: Contains data of a setlist entry. Some entries might have IDs for existing songs/mashups, some only a title.
@@ -1537,6 +1548,48 @@ paths:
             - LambdaArn:
                 Fn::ImportValue:
                   Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  
+  /concerts/{id}/setlists/import:
+    post:
+      operationId: ImportSetlistFromLinkinpedia
+      summary: Imports a setlist for the concert by using the data on Linkinpedia
+      tags:
+        - concerts
+      parameters:
+        - in: path
+          name: id
+          description: ID of the concert
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImportSetlistRequest"
+      responses:
+        "200":
+          description: A JSON object with the setlist information
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ImportSetlistPreview"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
         responses:
           default:
             statusCode: "200"

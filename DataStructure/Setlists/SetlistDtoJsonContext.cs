@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using LPCalendar.DataStructure.Setlists.Import;
 using LPCalendar.DataStructure.Setlists.Parameters;
 
 namespace LPCalendar.DataStructure.Setlists;
@@ -30,6 +31,9 @@ namespace LPCalendar.DataStructure.Setlists;
 [JsonSerializable(typeof(AlbumDto))]
 [JsonSerializable(typeof(SongDto))]
 [JsonSerializable(typeof(SongMashupDto))]
+[JsonSerializable(typeof(ImportSetlistRequestDto))]
+[JsonSerializable(typeof(ImportSetlistPreviewDto))]
+[JsonSerializable(typeof(List<ImportSetlistEntryPreviewDto>))]
 [JsonSerializable(typeof(List<AlbumDto>))]
 [JsonSerializable(typeof(List<SetlistActDto>))]
 [JsonSerializable(typeof(List<SetlistDto>))]
