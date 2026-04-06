@@ -1,0 +1,37 @@
+<h1>Import concert from Linkinpedia</h1>
+
+<form #sourceForm="ngForm" [formGroup]="sourceDataForm" class="form">
+  <div class="card mt-3">
+    <div class="card-header">
+      Source information
+    </div>
+    <div class="card-body edit-form-card">
+      <!-- Linkinpedia URL -->
+      <div class="form-group">
+        <label for="linkinpediaUrl">Linkinpedia URL:</label>
+        <div class="input-group mb-3">
+          <input id="linkinpediaUrl" type="text" formControlName="linkinpediaUrl" class="form-control" [ngClass]="{ 'is-invalid': sourceDataForm.controls.linkinpediaUrl.invalid }" placeholder="URL to the concert page in the wiki">
+        </div>
+        @if (sourceDataForm.controls.linkinpediaUrl.invalid) {
+          <div class="text-danger">
+            @if (sourceDataForm.controls.linkinpediaUrl.errors) {
+              <small>URL is invalid or missing.</small>
+            }
+          </div>
+        }
+      </div>
+    </div>
+    <div class="card-footer">
+      <div class="row">
+        <div class="col text-end">
+          <button class="btn btn-success" (click)="onLoadSourceClicked()" [disabled]="isReadingSource$ || !sourceDataForm.valid">
+            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" [hidden]="!isReadingSource$"></span>
+            <span class="sr-only">{{ isReadingSource$ ? "Loading..." : "Load" }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+{{ tmpLinkinpediaSource$ ?? "No source loaded" }}

@@ -1580,9 +1580,9 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ImportSetlistPreview"
+                $ref: "#/components/schemas/ImportSetlistPreview"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:

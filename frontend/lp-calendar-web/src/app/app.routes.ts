@@ -28,6 +28,9 @@ import {SetlistAdminWrapperComponent} from './admin/setlist-admin-wrapper/setlis
 import {inject} from '@angular/core';
 import {AuthService} from './auth/auth.service';
 import {map} from 'rxjs';
+import {
+  LinkinpediaConcertImporterPageComponent
+} from './admin/linkinpedia-concert-importer-page/linkinpedia-concert-importer-page.component';
 
 let baseTitle = "LP Concerts - ";
 
@@ -235,7 +238,13 @@ export const routes: Routes = [
         component: EditAlbumPageComponent,
         title: baseTitle + 'Edit album',
         canActivate: [authGuard, manageSetlistsGuard],
-      }
+      },
+      {
+        path: 'concerts/import',
+        component: LinkinpediaConcertImporterPageComponent,
+        title: baseTitle + 'Import concert',
+        canActivate: [authGuard, addConcertsGuard, manageSetlistsGuard],
+      },
     ]
   },
   {

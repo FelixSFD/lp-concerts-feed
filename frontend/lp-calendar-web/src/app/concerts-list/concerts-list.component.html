@@ -22,8 +22,12 @@
 
 <!-- Button to add concert -->
 @if (hasWriteAccess$) {
-  <button type="button" class="btn btn-outline-primary mb-2" [disabled]="!hasWriteAccess$" [routerLink]="['/concerts/add']">
+  <button type="button" class="btn btn-outline-primary mb-2 me-2" [disabled]="!hasWriteAccess$" [routerLink]="['/concerts/add']">
     Add concert
+  </button>
+
+  <button type="button" class="btn btn-outline-primary mb-2" [disabled]="!hasWriteAccess$" [routerLink]="['/admin/concerts/import']">
+    Import concert
   </button>
 }
 

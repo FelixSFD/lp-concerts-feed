@@ -28,6 +28,7 @@ export const authConfig: PassedInitialConfig = {
  */
 export const authRoutePatterns: RegExp[] = [
   /\/concerts\/(bookmarked|attending)$/,
+  /\/concerts\/[^/]+\/setlists\/import$/,
   /\/concerts\/[^/]+\/bookmarks$/,
   /\/concerts\/[^/]+\/bookmarks\/status$/,
   /\/deleteConcert\//,

@@ -8,7 +8,7 @@ import {
   ConcertsService as ConcertsApiClient, UpdateSetlistHeaderRequestDto, AddSongToSetlistRequestDto,
   SetlistEntryParametersDto, AddSongVariantToSetlistRequestDto, SetlistEntryDto, ActParametersDto, RawSetlistEntryDto,
   UpdateSetlistEntryRequestDto, SongParametersDto, SongVariantParametersDto, SetlistActDto,
-  AddSongMashupToSetlistRequestDto, SongMashupParametersDto,
+  AddSongMashupToSetlistRequestDto, SongMashupParametersDto, ImportSetlistRequestDto, ImportSetlistPreviewDto,
 } from '../modules/lpshows-api';
 import {map, Observable} from 'rxjs';
 import {Guid} from 'guid-typescript';
@@ -247,5 +247,15 @@ export class SetlistsService {
     return this.setlistsApiClient.reorderSetlistEntries(setlistId, { entryIds: orderedEntryIds }).pipe(
       map(response => response.reorderedEntries ?? [])
     );
+  }
+
+
+  public getImportInfosFromLinkinpedia(url: string) : Observable<ImportSetlistPreviewDto> {
+    let request: ImportSetlistRequestDto = {
+      concertId: "123",
+      linkinpediaUrl: url
+    };
+
+    return this.concertsApiClient.importSetlistFromLinkinpedia("123", request);
   }
 }

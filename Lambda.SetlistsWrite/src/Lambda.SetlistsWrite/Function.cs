@@ -46,6 +46,8 @@ public class Function
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
+        context.Logger.LogInformation("Called {method} {path}", request.HttpMethod, request.Resource);
+        
         var isAuthenticated = request.IsAuthenticated();
         if (!isAuthenticated)
             return UnauthorizedResponseHelper.GetResponse($"OPTIONS, {request.HttpMethod}");
@@ -76,8 +78,6 @@ public class Function
         _songService = new SongService(_songRepository, _songVariantRepository, _songMashupRepository, context.Logger);
         _wikiMediaRepository = new WikiMediaRepository(new HttpClient(), LinkinpediaImportService.LinkinpediaRestApiBaseUrl); // TODO: env variable?
         _linkinpediaImportService = new LinkinpediaImportService(_wikiMediaRepository, _wikitextParser, _songRepository, context.Logger);
-        
-        context.Logger.LogInformation("Called {method} {path}", request.HttpMethod, request.Resource);
 
         request.PathParameters ??= new Dictionary<string, string>();
         
@@ -275,7 +275,7 @@ public class Function
             return await HandleDeleteAlbum(albumId ?? 0, context);
         }
         
-        if (request is { HttpMethod: "POST", Resource: "/concert/{id}/setlists/import" })
+        if (request is { HttpMethod: "POST", Resource: "/concerts/{id}/setlists/import" })
         {
             return await HandleImportSetlist(request.Body, context);
         }
