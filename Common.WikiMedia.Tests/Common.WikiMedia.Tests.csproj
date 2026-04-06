@@ -2,17 +2,21 @@
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>LPCalendar.DataStructure</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="AWSSDK.DynamoDBv2" Version="4.0.14" />
+        <PackageReference Include="MSTest" Version="4.0.1"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Setlists\Import\" />
+        <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Common.WikiMedia\Common.WikiMedia.csproj" />
     </ItemGroup>
 
 </Project>
