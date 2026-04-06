@@ -13,7 +13,16 @@ public class ImportSetlistEntryPreviewDto
     public required string Title { get; set; }
     public string? ExtraNotes { get; set; }
 
+    /// <summary>
+    /// If a song was uniquely identified by title, its ID will be added here
+    /// </summary>
     public uint? FoundSongId { get; set; }
+
+    /// <summary>
+    /// If multiple songs were found, this is the list of IDs that could match the song
+    /// </summary>
+    public uint[] FoundSongIds { get; set; } = [];
+    
     public uint? FoundSongVariantId { get; set; }
     public uint? FoundMashupId { get; set; }
 }

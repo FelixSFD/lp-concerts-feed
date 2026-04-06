@@ -1,5 +1,7 @@
 using Amazon.Lambda.Core;
 using Common.WikiMedia.Repositories;
+using Database.Setlists.DataObjects;
+using Database.Setlists.Repositories;
 using LPCalendar.DataStructure.Setlists.Import;
 using Service.Setlists.Importer;
 using Service.Setlists.Importer.DataStructure;
@@ -10,7 +12,7 @@ namespace Service.Setlists;
 /// <summary>
 /// Service to import data from Linkinpedia
 /// </summary>
-public class LinkinpediaImportService(IWikiMediaRepository wikiMediaRepository, IWikitextParser wikitextParser, ILambdaLogger logger)
+public class LinkinpediaImportService(IWikiMediaRepository wikiMediaRepository, IWikitextParser wikitextParser, ISongRepository songRepository, ILambdaLogger logger)
 {
     const string LinkinpediaRestApiBaseUrl = "https://linkinpedia.com/w/rest.php/v1";
     
@@ -27,16 +29,18 @@ public class LinkinpediaImportService(IWikiMediaRepository wikiMediaRepository, 
 
         var songEntries = parsedEntries.Where(e => e.GetType() == typeof(SongWikiSetlistEntry));
 
+        var mappedEntries = await Task.WhenAll(songEntries.Select(GetPreviewEntryAsync));
+
         var setlistPreview = new ImportSetlistPreviewDto
         {
             ConcertId = "1234",
-            Entries = songEntries.Select(GetPreviewEntry).ToList()
+            Entries = mappedEntries.ToList()
         };
         
         return setlistPreview;
     }
 
-    private ImportSetlistEntryPreviewDto GetPreviewEntry(WikiSetlistEntry wikiSetlistEntry)
+    private async Task<ImportSetlistEntryPreviewDto> GetPreviewEntryAsync(WikiSetlistEntry wikiSetlistEntry)
     {
         ImportSetlistEntryPreviewDto preview = new()
         {
@@ -46,7 +50,26 @@ public class LinkinpediaImportService(IWikiMediaRepository wikiMediaRepository, 
 
         if (wikiSetlistEntry.GetType() == typeof(SongWikiSetlistEntry))
         {
-            
+            logger.LogDebug("Entry is a song. Check if the song '{title}' exists in our database...", wikiSetlistEntry.Name);
+            var existingSongs = await songRepository.GetSongsByTitle(preview.Title).ToArrayAsync();
+            try
+            {
+                var uniqueSong = existingSongs.SingleOrDefault();
+                if (uniqueSong != null)
+                {
+                    logger.LogDebug("Song '{title}' has an exact match with ID {songId}.", wikiSetlistEntry.Name, uniqueSong.Id);
+                    preview.FoundSongId = uniqueSong.Id;
+                }
+                else
+                {
+                    logger.LogWarning("Song '{title}' could not be found.", wikiSetlistEntry.Name);
+                }
+            }
+            catch (InvalidOperationException exception)
+            {
+                logger.LogInformation("Song '{title}' has {count} matches.", wikiSetlistEntry.Name, existingSongs.Length);
+                preview.FoundSongIds = existingSongs.Select(s => s.Id).ToArray();
+            }
         }
         
         return preview;

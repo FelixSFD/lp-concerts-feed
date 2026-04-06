@@ -1,6 +1,8 @@
 using Amazon.Lambda.TestUtilities;
 using Common.WikiMedia.DTOs;
 using Common.WikiMedia.Repositories;
+using Database.Setlists.DataObjects;
+using Database.Setlists.Repositories;
 using LPCalendar.DataStructure.Setlists.Import;
 using NSubstitute;
 using Service.Setlists.Importer;
@@ -13,20 +15,45 @@ public class LinkinpediaImportServiceTest
 {
     private readonly IWikiMediaRepository _wikiMediaRepository;
     private readonly IWikitextParser _wikitextParser;
+    private readonly ISongRepository _songRepository;
     private readonly LinkinpediaImportService _sut;
 
     public LinkinpediaImportServiceTest()
     {
         _wikiMediaRepository = Substitute.For<IWikiMediaRepository>();
         _wikitextParser = Substitute.For<IWikitextParser>();
+        _songRepository = Substitute.For<ISongRepository>();
         
-        _sut = new LinkinpediaImportService(_wikiMediaRepository, _wikitextParser, new TestLambdaLogger());
+        _sut = new LinkinpediaImportService(_wikiMediaRepository, _wikitextParser, _songRepository, new TestLambdaLogger());
     }
     
     [Fact]
     public async Task GetImportPlanForSetlistFromPageAsync()
     {
         var pageId = "Test_Page";
+        
+        var song1 = new SongDo
+        {
+            Id = 1,
+            Title = "Song 1",
+            Isrc = "1234"
+        };
+        
+        var song3 = new SongDo
+        {
+            Id = 3,
+            Title = "yet another song",
+            Isrc = "33331"
+        };
+        var song3SameName = new SongDo
+        {
+            Id = 4,
+            Title = "yet another song",
+            Isrc = "33332"
+        };
+
+        List<SongDo> mockSongsSong1 = [song1];
+        List<SongDo> mockSongsSong3 = [song3, song3SameName];
         
         var expectedResult = new ImportSetlistPreviewDto
         {
@@ -35,17 +62,19 @@ public class LinkinpediaImportServiceTest
                 new ImportSetlistEntryPreviewDto
                 {
                     Title = "Song 1",
-                    ExtraNotes = "some notes"
+                    ExtraNotes = "some notes",
+                    FoundSongId = song1.Id,
                 },
                 new ImportSetlistEntryPreviewDto
                 {
                     Title = "Song 2",
-                    ExtraNotes = null
+                    ExtraNotes = null,
                 },
                 new ImportSetlistEntryPreviewDto
                 {
                     Title = "yet another song",
-                    ExtraNotes = null
+                    ExtraNotes = null,
+                    FoundSongIds = mockSongsSong3.Select(s => s.Id).ToArray()
                 },
             ]
         };
@@ -87,17 +116,41 @@ public class LinkinpediaImportServiceTest
         _wikitextParser
             .GetEntries("mock setlist")
             .Returns(mockWikiSetlistEntries);
+
+        _songRepository
+            .GetSongsByTitle(song1.Title)
+            .Returns(mockSongsSong1.ToAsyncEnumerable());
+        
+        _songRepository
+            .GetSongsByTitle("Song 2")
+            .Returns(AsyncEnumerable.Empty<SongDo>());
+        
+        _songRepository
+            .GetSongsByTitle(song3.Title)
+            .Returns(mockSongsSong3.ToAsyncEnumerable());
         
         // run the test
         var result = await _sut.GetImportPlanForSetlistFromPageAsync(pageId);
         Assert.NotNull(result);
         
+        AssertEqual(expectedResult, result);
+        
         // validate method calls
         await _wikiMediaRepository
             .Received(1)
             .GetWikiPageAsync(pageId);
+        
+        _songRepository
+            .Received(1)
+            .GetSongsByTitle(song1.Title);
 
-        AssertEqual(expectedResult, result);
+        _songRepository
+            .Received(1)
+            .GetSongsByTitle("Song 2");
+
+        _songRepository
+            .Received(1)
+            .GetSongsByTitle(song3.Title);
     }
 
 
@@ -121,6 +174,7 @@ public class LinkinpediaImportServiceTest
         Assert.Equal(expectedEntry.Title, actualEntry.Title);
         Assert.Equal(expectedEntry.ExtraNotes, actualEntry.ExtraNotes);
         Assert.Equal(expectedEntry.FoundSongId, actualEntry.FoundSongId);
+        Assert.Equal(expectedEntry.FoundSongIds, actualEntry.FoundSongIds);
         Assert.Equal(expectedEntry.FoundSongVariantId, actualEntry.FoundSongVariantId);
         Assert.Equal(expectedEntry.FoundMashupId, actualEntry.FoundMashupId);
     }
