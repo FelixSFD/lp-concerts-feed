@@ -11,9 +11,64 @@ public partial class WikitextParser
     [GeneratedRegex(@"{{Setlist[\s\S-[}]]*}}", RegexOptions.IgnoreCase, "en-US")]
     private static partial Regex ExtractSetlistFromSourceRegex { get; }
     
-    public async Task<WikiSetlistEntry[]> GetEntriesAsync(string setlistSource)
+    /// <summary>
+    /// Regex to read a line form the setlist source and find the index of it. This can be used to group multiple lines.
+    ///
+    /// Example input: | ActNote12 = w/ "Castle Of Glass" Vocals
+    /// </summary>
+    [GeneratedRegex(@"\|\s+[A-Za-z]+(?<index>\d+)\s=.*", RegexOptions.Multiline, "en-US")]
+    private static partial Regex ExtractIndexFromSetlistLine { get; }
+    
+    /// <summary>
+    /// Regex to read the key (without index!) and assigned value from a line of the setlist source
+    ///
+    /// Example input: | ActNote12 = w/ "Castle Of Glass" Vocals
+    /// Output: ActNote -> w/ "Castle Of Glass" Vocals
+    /// </summary>
+    [GeneratedRegex(@"\|\s+(?<key>[A-Za-z]+)(?:\d+)\s*=\s*(?<value>.*)$", RegexOptions.Multiline, "en-US")]
+    private static partial Regex ExtractKeyAndValueFromSetlistLine { get; }
+    
+    public WikiSetlistEntry[] GetEntries(string setlistSource)
     {
-        return [];
+        var relevantLines = setlistSource
+            .Trim()
+            .Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries)
+            .Select(x => x.Trim())
+            .Where(l => l.StartsWith("| "))
+            .ToArray();
+
+        var groupedLines = relevantLines
+            .GroupBy(l =>
+            {
+                var match = ExtractIndexFromSetlistLine.Match(l);
+                uint.TryParse(match.Groups["index"].Value, out var index);
+                return index;
+            });
+
+        var wikiSetlistEntries = groupedLines
+            .SelectMany(group =>
+            {
+                // these are all lines grouped by the number in the key names
+                var linesInGroup = group.ToArray();
+                
+                //HOWEVER: Acts and songs might have the same number! So if acts were found, we need to split this
+                var actLines = linesInGroup.Where(l => l.StartsWith("| Act")).ToArray();
+                var remainingLines = linesInGroup.Where(l => !l.StartsWith("| Act")).ToArray();
+
+                List<WikiSetlistEntry?> entries = [];
+                if (actLines.Length > 0)
+                {
+                    var act = LinesToWikiSetlistEntry(actLines);
+                    entries.Add(act);
+                }
+                
+                var entry = LinesToWikiSetlistEntry(remainingLines);
+                entries.Add(entry);
+                return entries;
+            })
+            .Where(e => e is not null)
+            .Cast<WikiSetlistEntry>();
+        return wikiSetlistEntries.ToArray();
     }
 
     /// <summary>
@@ -21,9 +76,49 @@ public partial class WikitextParser
     /// </summary>
     /// <param name="pageSource">Source of the whole wiki page</param>
     /// <returns>the setlist part or null if no setlist was found</returns>
-    public async Task<string?> ExtractSetlistSource(string pageSource)
+    public string? ExtractSetlistSource(string pageSource)
     {
         var match = ExtractSetlistFromSourceRegex.Match(pageSource);
         return match is not { Success: true } ? null : match.Value;
+    }
+
+    private static WikiSetlistEntry? LinesToWikiSetlistEntry(string[] lines)
+    {
+        // if any of the lines in this group start with Act, we know it's an act
+        if (lines.Any(l => l.StartsWith("| Act")))
+        {
+            var dictionary = lines.Select(ExtractSetlistLineKeyValue).ToDictionary(kv => kv.key, kv => kv.value);
+            return new ActWikiSetlistEntry
+            {
+                ActNumber = uint.Parse(dictionary["ActNo"]),
+                Name = dictionary.GetValueOrDefault("ActName"),
+                Note = dictionary.GetValueOrDefault("ActNote"),
+            };
+        }
+
+        if (lines.Any(l => l.StartsWith("| Song")))
+        {
+            // if any line started with Song, we know it's a song
+            var dictionary = lines.Select(ExtractSetlistLineKeyValue).ToDictionary(kv => kv.key, kv => kv.value);
+            return new SongWikiSetlistEntry
+            {
+                Name = dictionary.GetValueOrDefault("Song"),
+                Note = dictionary.GetValueOrDefault("Note")
+            };
+        }
+
+        // anything else is not implemented and will be discarded
+        return null;
+    }
+
+    /// <summary>
+    /// Read a line from a setlist and extracts the key and value
+    /// </summary>
+    /// <param name="line"></param>
+    /// <returns></returns>
+    private static (string key, string value) ExtractSetlistLineKeyValue(string line)
+    {
+        var match = ExtractKeyAndValueFromSetlistLine.Match(line);
+        return (match.Groups["key"].Value, match.Groups["value"].Value);
     }
 }

@@ -6,9 +6,9 @@ namespace Service.Setlists.Tests.Importer;
 public class WikitextParserTest
 {
     [Fact]
-    public async Task GetEntriesAsync()
+    public async Task GetEntries()
     {
-        var setlistSource = await File.ReadAllTextAsync("TestData/Wiki/setlist_source_Live_20240905.txt");
+        var setlistSource = await File.ReadAllTextAsync("TestData/Wiki/setlist_source_Live_20240905_short.txt");
 
         WikiSetlistEntry[] expectedEntries = [
             new ActWikiSetlistEntry
@@ -17,22 +17,47 @@ public class WikitextParserTest
                 ActNumber = 1,
                 Note = "w/ \"[[Castle Of Glass]]\" Vocals"
             },
+            new SongWikiSetlistEntry
+            {
+                Name = "The Emptiness Machine",
+                Note = "Live Debut"
+            },
             new ActWikiSetlistEntry
             {
                 Name = "Creation Intro A",
                 ActNumber = 2,
                 Note = "w/ \"Castle Of Glass\" Vocals"
             },
+            new SongWikiSetlistEntry
+            {
+                Name = "The Catalyst",
+                Note = "Shortened (No Third Chorus/Breakdown); First Time w/ Emily, Colin and Alex"
+            },
+            new SongWikiSetlistEntry
+            {
+                Name = "Waiting For The End",
+                Note = "2024 Intro; First Time w/ Emily, Colin and Alex"
+            },
+            new SongWikiSetlistEntry
+            {
+                Name = "Numb",
+                Note = "'Numb/Encore' Intro; First Time w/ Emily, Colin and Alex"
+            },
             new ActWikiSetlistEntry
             {
-                Name = "Resolution Intro AA",
+                Name = "Resolution Intro A",
                 ActNumber = 5,
                 Note = "w/ \"Castle Of Glass\" Vocals"
-            }
+            },
+            new SongWikiSetlistEntry
+            {
+                Name = "Bleed It Out",
+                Note = "Ext. Bridge w/ \"[[A Place For My Head]]\" Verse 1; Ext. Outro; First Time w/ Emily, Colin and Alex"
+            },
         ];
         
         var parser = new WikitextParser();
-        var entries = await parser.GetEntriesAsync(setlistSource);
+        var entries = parser.GetEntries(setlistSource);
         AssertSameContent(expectedEntries, entries);
     }
 
@@ -73,7 +98,7 @@ public class WikitextParserTest
         var expectedSetlistSource = await File.ReadAllTextAsync("TestData/Wiki/setlist_source_Live_20240905.txt");
         var parser = new WikitextParser();
 
-        var setlistSource = await parser.ExtractSetlistSource(pageSource);
+        var setlistSource = parser.ExtractSetlistSource(pageSource);
         Assert.NotNull(setlistSource);
         Assert.Equal(expectedSetlistSource, setlistSource);
     }
