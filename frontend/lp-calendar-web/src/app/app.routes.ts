@@ -89,71 +89,84 @@ export const routes: Routes = [
   },
   {
     path: '',
-    component: HomeComponent,
+    loadComponent: () =>
+      import("./home/home.component").then(m => m.HomeComponent),
     title: baseTitle + 'Overview',
   },
   {
     path: 'privacy',
-    component: PrivacyPolicyComponent,
+    loadComponent: () =>
+      import("./privacy-policy/privacy-policy.component").then(m => m.PrivacyPolicyComponent),
     title: baseTitle + 'Privacy Policy'
   },
   {
     path: 'imprint',
-    component: ImprintComponent,
+    loadComponent: () =>
+      import("./imprint/imprint.component").then(m => m.ImprintComponent),
     title: baseTitle + 'Imprint'
   },
   {
     path: 'profile',
-    component: UserProfileComponent,
+    loadComponent: () =>
+      import("./user-profile/user-profile.component").then(m => m.UserProfileComponent),
     title: baseTitle + 'User Profile',
   },
   {
     path: 'concerts',
-    component: ConcertsListComponent,
+    loadComponent: () =>
+      import("./concerts-list/concerts-list.component").then(m => m.ConcertsListComponent),
     title: baseTitle + 'List',
   },
   {
     path: 'map',
-    component: TourMapPageComponent,
+    loadComponent: () =>
+      import("./tour-map-page/tour-map-page.component").then(m => m.TourMapPageComponent),
     title: baseTitle + 'Map',
   },
   {
     path: 'about',
-    component: AboutPageComponent,
+    loadComponent: () =>
+      import("./about-page/about-page.component").then(m => m.AboutPageComponent),
     title: baseTitle + 'About',
   },
   {
     path: 'concerts/add',
-    component: AddConcertPageComponent,
+    loadComponent: () =>
+      import("./admin/add-concert-page/add-concert-page.component").then(m => m.AddConcertPageComponent),
     title: baseTitle + 'Add concert',
     canActivate: [addConcertsGuard]
   },
   {
     path: 'concerts/:id',
-    component: ConcertDetailsComponent,
+    loadComponent: () =>
+      import("./concert-details/concert-details.component").then(m => m.ConcertDetailsComponent),
     title: baseTitle + 'Details',
   },
   {
     path: 'concerts/:id/edit',
-    component: EditConcertPageComponent,
+    loadComponent: () =>
+      import("./admin/edit-concert-page/edit-concert-page.component").then(m => m.EditConcertPageComponent),
     title: baseTitle + 'Edit concert',
     canActivate: [updateConcertsGuard]
   },
   {
     path: 'users',
-    loadComponent: () => import("./admin/users/users-list/users-list.component").then(m => m.UsersListComponent),
+    loadComponent: () =>
+      import("./admin/users/users-list/users-list.component").then(m => m.UsersListComponent),
     title: baseTitle + 'Manage users',
     canActivate: [authGuard, manageUsersGuard],
   },
   {
     path: 'users/:id',
-    loadComponent: () => import("./admin/users/edit-user/edit-user.component").then(m => m.EditUserComponent),
+    loadComponent: () =>
+      import("./admin/users/edit-user/edit-user.component").then(m => m.EditUserComponent),
     title: baseTitle + 'Edit user',
     canActivate: [authGuard, manageUsersGuard],
   },
   {
     path: 'admin',
-    component: SetlistAdminWrapperComponent,
+    loadComponent: () =>
+      import("./admin/setlist-admin-wrapper/setlist-admin-wrapper.component").then(m => m.SetlistAdminWrapperComponent),
     canActivateChild: [authGuard, manageSetlistsGuard],
     children: [
       {
@@ -163,85 +176,99 @@ export const routes: Routes = [
       },
       {
         path: 'mashups',
-        component: ManageMashupsPageComponent,
+        loadComponent: () =>
+          import("./admin/setlists/manage-mashups-page/manage-mashups-page.component").then(m => m.ManageMashupsPageComponent),
         title: baseTitle + 'Manage mashups',
         canActivate: [authGuard, manageSetlistsGuard],
       },
       {
         path: 'mashups/add',
-        component: AddMashupPageComponent,
+        loadComponent: () =>
+          import("./admin/setlists/add-mashup-page/add-mashup-page.component").then(m => m.AddMashupPageComponent),
         title: baseTitle + 'Add mashup',
         canActivate: [authGuard, manageSetlistsGuard],
       },
       {
         path: 'mashups/:mashupId',
-        component: EditMashupPageComponent,
+        loadComponent: () =>
+          import("./admin/setlists/edit-mashup-page/edit-mashup-page.component").then(m => m.EditMashupPageComponent),
         title: baseTitle + 'Edit mashup',
         canActivate: [authGuard, manageSetlistsGuard],
       },
       {
         path: 'setlists',
-        component: ManageSetlistsPageComponent,
+        loadComponent: () =>
+          import("./admin/setlists/manage-setlists-page/manage-setlists-page.component").then(m => m.ManageSetlistsPageComponent),
         title: baseTitle + 'Manage setlists',
         canActivate: [authGuard, manageSetlistsGuard],
       },
       {
         path: 'setlists/:setlistId',
-        component: EditSetlistPageComponent,
+        loadComponent: () =>
+          import("./admin/setlists/edit-setlist-page/edit-setlist-page.component").then(m => m.EditSetlistPageComponent),
         title: baseTitle + 'Edit setlist',
         canActivate: [authGuard, manageSetlistsGuard],
       },
       {
         path: 'setlists/add',
-        component: AddSetlistPageComponent,
+        loadComponent: () =>
+          import("./admin/setlists/add-setlist-page/add-setlist-page.component").then(m => m.AddSetlistPageComponent),
         title: baseTitle + 'Create a new setlist',
         canActivate: [authGuard, manageSetlistsGuard],
       },
       {
         path: 'setlists/add/:concertId',
-        component: AddSetlistPageComponent,
+        loadComponent: () =>
+          import("./admin/setlists/add-setlist-page/add-setlist-page.component").then(m => m.AddSetlistPageComponent),
         title: baseTitle + 'Create a new setlist',
         canActivate: [authGuard, manageSetlistsGuard],
       },
       {
         path: 'songs',
-        component: ManageSongsPageComponent,
+        loadComponent: () =>
+          import("./admin/setlists/manage-songs-page/manage-songs-page.component").then(m => m.ManageSongsPageComponent),
         title: baseTitle + 'Manage songs',
         canActivate: [authGuard, manageSetlistsGuard],
       },
       {
         path: 'songs/add',
-        component: AddSongPageComponent,
+        loadComponent: () =>
+          import("./admin/setlists/add-song-page/add-song-page.component").then(m => m.AddSongPageComponent),
         title: baseTitle + 'Add song',
         canActivate: [authGuard, manageSetlistsGuard],
       },
       {
         path: 'songs/:songId',
-        component: EditSongPageComponent,
+        loadComponent: () =>
+          import("./admin/setlists/edit-song-page/edit-song-page.component").then(m => m.EditSongPageComponent),
         title: baseTitle + 'Edit song',
         canActivate: [authGuard, manageSetlistsGuard],
       },
       {
         path: 'albums',
-        component: ManageAlbumsPageComponent,
+        loadComponent: () =>
+          import("./admin/setlists/manage-albums-page/manage-albums-page.component").then(m => m.ManageAlbumsPageComponent),
         title: baseTitle + 'Manage albums',
         canActivate: [authGuard, manageSetlistsGuard],
       },
       {
         path: 'albums/add',
-        component: AddAlbumPageComponent,
+        loadComponent: () =>
+          import("./admin/setlists/add-album-page/add-album-page.component").then(m => m.AddAlbumPageComponent),
         title: baseTitle + 'Add album',
         canActivate: [authGuard, manageSetlistsGuard],
       },
       {
         path: 'albums/:albumId',
-        component: EditAlbumPageComponent,
+        loadComponent: () =>
+          import("./admin/setlists/edit-album-page/edit-album-page.component").then(m => m.EditAlbumPageComponent),
         title: baseTitle + 'Edit album',
         canActivate: [authGuard, manageSetlistsGuard],
       },
       {
         path: 'concerts/import',
-        component: LinkinpediaConcertImporterPageComponent,
+        loadComponent: () =>
+          import("./admin/linkinpedia-concert-importer-page/linkinpedia-concert-importer-page.component").then(m => m.LinkinpediaConcertImporterPageComponent),
         title: baseTitle + 'Import concert',
         canActivate: [authGuard, addConcertsGuard, manageSetlistsGuard],
       },
@@ -249,7 +276,8 @@ export const routes: Routes = [
   },
   {
     path: 'app',
-    component: AppInfoPageComponent,
+    loadComponent: () =>
+      import("./app-info-page/app-info-page.component").then(m => m.AppInfoPageComponent),
     title: baseTitle + 'iOS App',
   }
 ];
