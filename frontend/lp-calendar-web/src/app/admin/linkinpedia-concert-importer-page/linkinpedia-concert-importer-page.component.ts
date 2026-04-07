@@ -4,7 +4,7 @@ import {NgClass} from '@angular/common';
 import {HttpClient} from '@angular/common/http';
 import {ToastrService} from 'ngx-toastr';
 import {SetlistsService} from '../../services/setlists.service';
-import {ErrorResponseDto} from '../../modules/lpshows-api';
+import {ErrorResponseDto, ImportSetlistPreviewDto} from '../../modules/lpshows-api';
 
 @Component({
   selector: 'app-linkinpedia-concert-importer-page',
@@ -30,6 +30,8 @@ export class LinkinpediaConcertImporterPageComponent {
     linkinpediaUrl: new FormControl('https://linkinpedia.com/wiki/Live:20240905', [Validators.required, Validators.pattern(/^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/)]),
   });
 
+  generatedSetlist$: ImportSetlistPreviewDto | null = null;
+
 
   onLoadSourceClicked() {
     this.startImport();
@@ -39,16 +41,21 @@ export class LinkinpediaConcertImporterPageComponent {
   private startImport() {
     let url = this.sourceDataForm.value.linkinpediaUrl?.valueOf();
     if (url) {
+      this.isReadingSource$ = true;
       this.setlistsService.getImportInfosFromLinkinpedia(url)
         .subscribe({
           next: data => {
-            this.tmpLinkinpediaSource$ = JSON.stringify(data);
+            this.generatedSetlist$ = data;
+
+            this.toastr.success('Successfully read setlist from Linkinpedia');
+            this.isReadingSource$ = false;
           },
           error: err => {
             let errorResponse: ErrorResponseDto = err.error;
             console.warn("Failed to fetch import data:", err);
 
             this.toastr.error(errorResponse.message, "Could not get import data!");
+            this.isReadingSource$ = false;
           }
         });
     }

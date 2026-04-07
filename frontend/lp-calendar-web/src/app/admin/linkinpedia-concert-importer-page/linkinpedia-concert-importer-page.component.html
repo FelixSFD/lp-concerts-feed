@@ -34,4 +34,46 @@
   </div>
 </form>
 
-{{ tmpLinkinpediaSource$ ?? "No source loaded" }}
+@if (generatedSetlist$ != null) {
+  <div class="card mt-3">
+    <div class="card-header">
+      Setlist to import
+    </div>
+    <div class="card-body edit-form-card">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Song Number</th>
+              <th>Type</th>
+              <th>Title</th>
+              <th>Extra Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (generatedEntry of generatedSetlist$.entries; track generatedEntry) {
+              <tr>
+                <td>{{ $index+1 }}</td>
+                <td>todo</td>
+                @if (generatedEntry.foundSongId) {
+                  <td>existing Song</td>
+                } @else if ((generatedEntry.foundSongIds?.length ?? 0) >= 2) {
+                  <td>select Song</td>
+                } @else if (generatedEntry.foundSongVariantId) {
+                  <td>existing Variant</td>
+                } @else if (generatedEntry.foundMashupId) {
+                  <td>existing Mashup</td>
+                } @else {
+                  <td>NEW song or mashup</td>
+                }
+                <td>{{ generatedEntry.title }}</td>
+                <td>{{ generatedEntry.extraNotes }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+}
