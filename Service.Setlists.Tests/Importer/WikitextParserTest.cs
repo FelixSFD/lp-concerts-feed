@@ -20,7 +20,8 @@ public class WikitextParserTest
             new SongWikiSetlistEntry
             {
                 Name = "The Emptiness Machine",
-                Note = "Live Debut"
+                Note = "Live Debut",
+                SongNumber = 1
             },
             new ActWikiSetlistEntry
             {
@@ -31,17 +32,20 @@ public class WikitextParserTest
             new SongWikiSetlistEntry
             {
                 Name = "The Catalyst",
-                Note = "Shortened (No Third Chorus/Breakdown); First Time w/ Emily, Colin and Alex"
+                Note = "Shortened (No Third Chorus/Breakdown); First Time w/ Emily, Colin and Alex",
+                SongNumber = 5,
             },
             new SongWikiSetlistEntry
             {
                 Name = "Waiting For The End",
-                Note = "2024 Intro; First Time w/ Emily, Colin and Alex"
+                Note = "2024 Intro; First Time w/ Emily, Colin and Alex",
+                SongNumber = 6
             },
             new SongWikiSetlistEntry
             {
                 Name = "Numb",
-                Note = "'Numb/Encore' Intro; First Time w/ Emily, Colin and Alex"
+                Note = "'Numb/Encore' Intro; First Time w/ Emily, Colin and Alex",
+                SongNumber = 7
             },
             new ActWikiSetlistEntry
             {
@@ -52,7 +56,8 @@ public class WikitextParserTest
             new SongWikiSetlistEntry
             {
                 Name = "Bleed It Out",
-                Note = "Ext. Bridge w/ \"[[A Place For My Head]]\" Verse 1; Ext. Outro; First Time w/ Emily, Colin and Alex"
+                Note = "Ext. Bridge w/ \"[[A Place For My Head]]\" Verse 1; Ext. Outro; First Time w/ Emily, Colin and Alex",
+                SongNumber = 14
             },
         ];
         

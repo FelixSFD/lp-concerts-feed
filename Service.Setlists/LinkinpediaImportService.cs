@@ -71,6 +71,8 @@ public class LinkinpediaImportService(IWikiMediaRepository wikiMediaRepository, 
                 logger.LogInformation("Song '{title}' has {count} matches.", wikiSetlistEntry.Name, existingSongs.Length);
                 preview.FoundSongIds = existingSongs.Select(s => s.Id).ToArray();
             }
+
+            preview.SongNumber = ((SongWikiSetlistEntry)wikiSetlistEntry).SongNumber;
         }
         
         return preview;

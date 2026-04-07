@@ -25,7 +25,7 @@ public partial class WikitextParser : IWikitextParser
     /// Example input: | ActNote12 = w/ "Castle Of Glass" Vocals
     /// Output: ActNote -> w/ "Castle Of Glass" Vocals
     /// </summary>
-    [GeneratedRegex(@"\|\s+(?<key>[A-Za-z]+)(?:\d+)\s*=\s*(?<value>.*)$", RegexOptions.Multiline, "en-US")]
+    [GeneratedRegex(@"\|\s+(?<key>[A-Za-z]+)(?<index>\d+)\s*=\s*(?<value>.*)$", RegexOptions.Multiline, "en-US")]
     private static partial Regex ExtractKeyAndValueFromSetlistLine { get; }
     
     public WikiSetlistEntry[] GetEntries(string setlistSource)
@@ -100,8 +100,10 @@ public partial class WikitextParser : IWikitextParser
         {
             // if any line started with Song, we know it's a song
             var dictionary = lines.Select(ExtractSetlistLineKeyValue).ToDictionary(kv => kv.key, kv => kv.value);
+            var index = ExtractSetlistLineKeyValue(lines.First()).index; // since lines.Any() was true, we have at least one line
             return new SongWikiSetlistEntry
             {
+                SongNumber = index ?? 0,
                 Name = dictionary.GetValueOrDefault("Song"),
                 Note = dictionary.GetValueOrDefault("Note")
             };
@@ -116,9 +118,10 @@ public partial class WikitextParser : IWikitextParser
     /// </summary>
     /// <param name="line"></param>
     /// <returns></returns>
-    private static (string key, string value) ExtractSetlistLineKeyValue(string line)
+    private static (string key, string value, uint? index) ExtractSetlistLineKeyValue(string line)
     {
         var match = ExtractKeyAndValueFromSetlistLine.Match(line);
-        return (match.Groups["key"].Value, match.Groups["value"].Value);
+        _ = uint.TryParse(match.Groups["index"].Value, out var index);
+        return (match.Groups["key"].Value, match.Groups["value"].Value, index);
     }
 }

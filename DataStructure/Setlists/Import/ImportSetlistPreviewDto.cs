@@ -21,6 +21,12 @@ public class ImportSetlistEntryPreviewDto
     public string? ExtraNotes { get; set; }
 
     /// <summary>
+    /// Number of the song
+    /// </summary>
+    [JsonPropertyName("songNumber")]
+    public uint SongNumber { get; set; }
+
+    /// <summary>
     /// If a song was uniquely identified by title, its ID will be added here
     /// </summary>
     [JsonPropertyName("foundSongId")]

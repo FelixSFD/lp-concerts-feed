@@ -1130,6 +1130,9 @@ components:
           type: string
           description: Additional notes for this entry
           nullable: true
+        songNumber:
+          type: number
+          description: Number of this entry within the setlist
         foundSongId:
           type: number
           description: If an existing song was found, the ID will be in this property. If not, you either have to select an existing song or create it.

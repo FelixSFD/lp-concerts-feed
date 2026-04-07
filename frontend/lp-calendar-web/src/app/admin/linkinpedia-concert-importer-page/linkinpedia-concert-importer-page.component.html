@@ -45,7 +45,6 @@
           <thead>
             <tr>
               <th>#</th>
-              <th>Song Number</th>
               <th>Type</th>
               <th>Title</th>
               <th>Extra Notes</th>
@@ -54,8 +53,7 @@
           <tbody>
             @for (generatedEntry of generatedSetlist$.entries; track generatedEntry) {
               <tr>
-                <td>{{ $index+1 }}</td>
-                <td>todo</td>
+                <td>{{ generatedEntry.songNumber }}</td>
                 @if (generatedEntry.foundSongId) {
                   <td>existing Song</td>
                 } @else if ((generatedEntry.foundSongIds?.length ?? 0) >= 2) {
