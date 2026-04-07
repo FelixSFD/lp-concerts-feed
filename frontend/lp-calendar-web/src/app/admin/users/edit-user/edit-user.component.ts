@@ -14,7 +14,8 @@ import {ErrorResponseDto, UserDto, UserNotificationSettingsDto} from '../../../m
     RouterLink
   ],
   templateUrl: './edit-user.component.html',
-  styleUrl: './edit-user.component.css'
+  styleUrl: './edit-user.component.css',
+  standalone: true,
 })
 export class EditUserComponent implements OnInit {
   private readonly oidcSecurityService = inject(OidcSecurityService);

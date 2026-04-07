@@ -141,13 +141,13 @@ export const routes: Routes = [
   },
   {
     path: 'users',
-    component: UsersListComponent,
+    loadComponent: () => import("./admin/users/users-list/users-list.component").then(m => m.UsersListComponent),
     title: baseTitle + 'Manage users',
     canActivate: [authGuard, manageUsersGuard],
   },
   {
     path: 'users/:id',
-    component: EditUserComponent,
+    loadComponent: () => import("./admin/users/edit-user/edit-user.component").then(m => m.EditUserComponent),
     title: baseTitle + 'Edit user',
     canActivate: [authGuard, manageUsersGuard],
   },
