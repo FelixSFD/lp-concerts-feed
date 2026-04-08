@@ -5,6 +5,7 @@ import {ConcertsService} from '../services/concerts.service';
 import {RouterLink} from '@angular/router';
 import {ConcertTitleGenerator} from '../data/concert-title-generator';
 import {ConcertDto} from '../modules/lpshows-api';
+import {DateTime} from 'luxon';
 
 @Component({
   selector: 'app-concert-card',
@@ -39,4 +40,5 @@ export class ConcertCardComponent implements OnInit{
   }
 
   protected readonly ConcertTitleGenerator = ConcertTitleGenerator;
+  protected readonly DateTime = DateTime;
 }
