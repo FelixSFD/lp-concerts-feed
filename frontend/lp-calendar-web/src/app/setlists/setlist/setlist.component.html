@@ -46,6 +46,8 @@
                 <td>
                   @if (structuredEntry.appleMusicId != null && songArtworks$.get(structuredEntry.appleMusicId) != null) {
                     <app-apple-music-artwork [artwork]="songArtworks$.get(structuredEntry.appleMusicId)!" [width]="25" ngbTooltip="{{ structuredEntry.albumTitle }}" />
+                  } @else {
+                    <div style="width: 25px; height: 25px"></div>
                   }
                 </td>
                 @if (structuredEntry.linkinpediaUrl) {
