@@ -28,7 +28,6 @@ export class AppComponent implements OnInit, OnDestroy {
   title = 'lp-calendar-web';
 
   readonly authStateService = inject(AuthService);
-  private readonly appleMusicService = inject(AppleMusicService);
   private readonly oidcSecurityService = inject(OidcSecurityService);
   private cookieService = inject(NgcCookieConsentService);
   private readonly tracker = inject(MatomoTracker);
@@ -85,9 +84,6 @@ export class AppComponent implements OnInit, OnDestroy {
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
       this.updateTheme();
     });
-
-    // init apple music
-    this.appleMusicService.init().then();
   }
 
 

@@ -9,12 +9,24 @@ import Songs = MusicKit.Songs;
 })
 export class AppleMusicService {
   private music: MusicKit.MusicKitInstance | null = null;
+  private initPromise: Promise<void> | null = null;
 
   constructor(private apiClient: AppleMusicApiClient) { }
 
-  async init() {
-    let devToken = await this.getDeveloperToken();
-    console.debug("Found developer token", devToken);
+  async init(): Promise<void> {
+    if (this.initPromise) {
+      return this.initPromise; // already initializing
+    }
+
+    this.initPromise = this.initialize();
+    return this.initPromise;
+  }
+
+  private async initialize(): Promise<void> {
+    console.debug("initialize MusicKit");
+
+    const devToken = await this.getDeveloperToken();
+
     await MusicKit.configure({
       developerToken: devToken,
       app: {
@@ -24,6 +36,7 @@ export class AppleMusicService {
     });
 
     this.music = MusicKit.getInstance();
+    console.debug("Initialized MusicKit successfully");
   }
 
 
@@ -37,6 +50,7 @@ export class AppleMusicService {
 
   public async getSongsForIsrc(isrc: string) : Promise<AppleMusicSong[]> {
     console.debug("GetSongsForIsrc", isrc);
+    await this.init();
     const storefront = this.music!.api.storefrontId ?? "us";
 
     const response = await this.music!.api.music(
@@ -56,6 +70,8 @@ export class AppleMusicService {
 
 
   public async getSongsById(ids: string[]) : Promise<Songs[]> {
+    console.debug("getSongsById", ids);
+    await this.init();
     const storefront = this.music!.api.storefrontId ?? "us";
 
     const response = await this.music!.api.music(
@@ -65,7 +81,7 @@ export class AppleMusicService {
       }
     ) as any;
 
-    console.debug("GetSongsForIsrc result", response);
+    console.debug("getSongsById result", response);
 
     return response.data.data as Songs[];
   }

@@ -48,12 +48,28 @@ export class SetlistComponent implements OnInit {
 
   isExpanded$ = false;
 
+  private isLoadingThumbnails = false;
+
   constructor(private setlistService: SetlistsService, private toastr: ToastrService) {
+    // init apple music
+    this.appleMusicService.init().then(async () => {
+      await this.loadThumbnails();
+    });
   }
 
   private async didLoadSetlist() {
     console.debug("Found setlist", this.setlist);
     this.setlistTitle$ = this.setlist?.concertId ?? "Setlist";
+    await this.loadThumbnails();
+  }
+
+
+  private async loadThumbnails() {
+    if (this.isLoadingThumbnails) {
+      return;
+    }
+
+    this.isLoadingThumbnails = true;
 
     let appleMusicIds = this.setlist?.entries.filter(entry => entry.appleMusicId != null).map(entry => entry.appleMusicId!);
     let foundSongs = appleMusicIds ? await this.appleMusicService.getSongsById(appleMusicIds ?? []) : [];
@@ -74,6 +90,8 @@ export class SetlistComponent implements OnInit {
         // entry doesn't have an Apple Music ID
       }
     }
+
+    this.isLoadingThumbnails = false;
   }
 
   ngOnInit() {
