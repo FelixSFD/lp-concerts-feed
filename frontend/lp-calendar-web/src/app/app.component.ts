@@ -20,7 +20,7 @@ import {AppleMusicService} from './services/music/apple-music.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NgbModule, RouterLink, RouterLinkActive, DatePipe, AsyncPipe],
+  imports: [RouterOutlet, NgbModule, RouterLink, RouterLinkActive, DatePipe, AsyncPipe, NgOptimizedImage],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

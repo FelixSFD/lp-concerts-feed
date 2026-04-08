@@ -1,9 +1,12 @@
 import {Component, Input, OnInit} from '@angular/core';
 import Artwork = MusicKit.Artwork;
+import {NgOptimizedImage} from '@angular/common';
 
 @Component({
   selector: 'app-apple-music-artwork',
-  imports: [],
+  imports: [
+    NgOptimizedImage
+  ],
   templateUrl: './apple-music-artwork.component.html',
   styleUrl: './apple-music-artwork.component.css',
 })
