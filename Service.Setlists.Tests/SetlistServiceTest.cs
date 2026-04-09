@@ -1,6 +1,7 @@
 using Amazon.Lambda.Core;
 using Amazon.Lambda.TestUtilities;
 using Database.Concerts;
+using Database.Concerts.Models;
 using Database.Setlists.DataObjects;
 using Database.Setlists.Repositories;
 using LPCalendar.DataStructure;
@@ -42,7 +43,7 @@ public class SetlistServiceTest
     public async Task CreateSetlistAsync(string concertId, string? linkinpediaUrl)
     {
         // setup mock
-        var concert = new Concert
+        var concert = new ConcertModel
         {
             Id = concertId,
             PostedStartTime = new DateTimeOffset(2024, 9, 24, 20, 0, 0, TimeSpan.FromHours(2)),
@@ -471,7 +472,7 @@ public class SetlistServiceTest
             LinkinpediaUrl =  "https://linkinpedia.com/"
         };
         
-        var concert = new Concert
+        var concert = new ConcertModel
         {
             Id = setlist.ConcertId,
             PostedStartTime = new DateTimeOffset(2024, 9, 24, 20, 0, 0, TimeSpan.FromHours(2)),

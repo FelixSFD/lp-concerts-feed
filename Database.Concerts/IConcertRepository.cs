@@ -1,4 +1,4 @@
-using LPCalendar.DataStructure;
+using Database.Concerts.Models;
 
 namespace Database.Concerts;
 
@@ -14,7 +14,7 @@ public interface IConcertRepository
     /// </summary>
     /// <param name="id">ID of the concert</param>
     /// <returns>Concert or null if it was not found</returns>
-    public Task<Concert?> GetByIdAsync(string id);
+    public Task<ConcertModel?> GetByIdAsync(string id);
     
     
     /// <summary>
@@ -22,14 +22,14 @@ public interface IConcertRepository
     /// </summary>
     /// <param name="ids"></param>
     /// <returns></returns>
-    public IAsyncEnumerable<Concert> GetByIds(IEnumerable<string> ids);
+    public IAsyncEnumerable<ConcertModel> GetByIds(IEnumerable<string> ids);
     
     
     /// <summary>
     /// Returns the next concert
     /// </summary>
     /// <returns>Concert or null if there is no upcoming concert</returns>
-    public Task<Concert?> GetNextAsync();
+    public Task<ConcertModel?> GetNextAsync();
 
     
     /// <summary>
@@ -38,7 +38,7 @@ public interface IConcertRepository
     /// <param name="filterTour">Filter for tour name</param>
     /// <param name="dateRange">Filter for concert date</param>
     /// <returns>List of concerts</returns>
-    public IAsyncEnumerable<Concert> GetConcertsAsync(string? filterTour = null, DateRange? dateRange = null);
+    public IAsyncEnumerable<ConcertModel> GetConcertsAsync(string? filterTour = null, DateRange? dateRange = null);
     
     
     /// <summary>
@@ -46,7 +46,7 @@ public interface IConcertRepository
     /// </summary>
     /// <param name="afterDate">Only return concerts after a given date</param>
     /// <returns></returns>
-    public IAsyncEnumerable<Concert> GetConcertsAsync(DateTimeOffset afterDate);
+    public IAsyncEnumerable<ConcertModel> GetConcertsAsync(DateTimeOffset afterDate);
     
     
     /// <summary>
@@ -54,7 +54,7 @@ public interface IConcertRepository
     /// </summary>
     /// <param name="changedAfterDate">Only return concerts changed after a given date</param>
     /// <returns></returns>
-    public IAsyncEnumerable<Concert> GetConcertsChangedAfterAsync(DateTimeOffset changedAfterDate);
+    public IAsyncEnumerable<ConcertModel> GetConcertsChangedAfterAsync(DateTimeOffset changedAfterDate);
     
     
     /// <summary>
@@ -62,7 +62,7 @@ public interface IConcertRepository
     /// </summary>
     /// <param name="deletedAfterDate">Only return concerts deleted after a given date</param>
     /// <returns></returns>
-    public IAsyncEnumerable<Concert> GetConcertsDeletedAfterAsync(DateTimeOffset deletedAfterDate);
+    public IAsyncEnumerable<ConcertModel> GetConcertsDeletedAfterAsync(DateTimeOffset deletedAfterDate);
     
     
     /// <summary>
@@ -77,7 +77,7 @@ public interface IConcertRepository
     /// </summary>
     /// <param name="concert"></param>
     /// <returns></returns>
-    public Task SaveAsync(Concert concert);
+    public Task SaveAsync(ConcertModel concert);
     
     
     /// <summary>
@@ -85,5 +85,5 @@ public interface IConcertRepository
     /// </summary>
     /// <param name="concert">Concert to delete</param>
     /// <returns></returns>
-    public Task DeleteAsync(Concert concert);
+    public Task DeleteAsync(ConcertModel concert);
 }

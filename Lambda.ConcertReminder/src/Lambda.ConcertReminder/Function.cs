@@ -7,6 +7,8 @@ using Amazon.Lambda.CloudWatchEvents.ScheduledEvents;
 using Amazon.Lambda.Core;
 using Amazon.SQS;
 using Amazon.SQS.Model;
+using Database.Concerts;
+using Database.Concerts.Models;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Converters;
 using LPCalendar.DataStructure.DbConfig;
@@ -93,7 +95,7 @@ public class Function
     }
     
     
-    private async Task<Concert?> ReturnNextConcert(ILambdaContext context)
+    private async Task<ConcertModel?> ReturnNextConcert(ILambdaContext context)
     {
         var now = DateTimeOffset.UtcNow.AddHours(-4);
         var dateNowStr = now.ToString("O");
@@ -103,7 +105,7 @@ public class Function
         var config = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.Concerts);
         config.IndexName = "PostedStartTimeGlobalIndex";
         
-        var query = _dynamoDbContext.QueryAsync<Concert>(
+        var query = _dynamoDbContext.QueryAsync<ConcertModel>(
             "PUBLISHED", // PartitionKey value
             QueryOperator.GreaterThanOrEqual,
             [new AttributeValue { S = dateNowStr }],
@@ -114,11 +116,11 @@ public class Function
     }
     
     
-    private async Task SendReminder(Concert concert, ILambdaContext context)
+    private async Task SendReminder(ConcertModel concert, ILambdaContext context)
     {
         var pushEvent = new ConcertRelatedPushNotificationEvent
         {
-            Concert = concert
+            Concert = ConcertDtoMapper.ToDto(concert)
         };
         
         context.Logger.LogDebug("Will send reminder of type '{type}' for concert with id '{id}'", PushNotificationType.ConcertReminder, pushEvent.Concert.Id);
@@ -151,7 +153,7 @@ public class Function
     /// <summary>
     /// Save that a reminder was sent
     /// </summary>
-    private async Task StoreConcertNotificationHistory(Concert concert, ILambdaContext context)
+    private async Task StoreConcertNotificationHistory(ConcertModel concert, ILambdaContext context)
     {
         context.Logger.LogDebug("Store concert notification history");
 

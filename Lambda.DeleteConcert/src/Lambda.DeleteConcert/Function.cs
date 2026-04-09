@@ -7,6 +7,7 @@ using Amazon.Lambda.Core;
 using Amazon.SQS;
 using Amazon.SQS.Model;
 using Database.Concerts;
+using Database.Concerts.Models;
 using Lambda.Auth;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Converters;
@@ -97,20 +98,20 @@ public class Function
     }
     
     
-    private async Task LogChanges(Concert? oldValue, string? userId, ILambdaLogger logger)
+    private async Task LogChanges(ConcertModel? oldValue, string? userId, ILambdaLogger logger)
     {
         logger.LogDebug($"Log action 'Delete' made by {userId}...");
         var auditLogEvent = new AuditLogEvent
         {
             UserId = userId ?? "unknown",
             Action = "Concert_Delete",
-            AffectedEntity = $"{Concert.ConcertTableName}#{oldValue?.Id}",
+            AffectedEntity = $"{ConcertModel.ConcertTableName}#{oldValue?.Id}",
             Timestamp = DateTime.UtcNow
         };
 
         if (oldValue != null)
         {
-            auditLogEvent.OldValue = JsonSerializer.Serialize(oldValue, DataStructureJsonContext.Default.Concert);
+            auditLogEvent.OldValue = JsonSerializer.Serialize(ConcertDtoMapper.ToDto(oldValue), DataStructureJsonContext.Default.ConcertDto);
         }
         
         var auditMessage = new SendMessageRequest

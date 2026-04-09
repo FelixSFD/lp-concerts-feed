@@ -310,7 +310,7 @@ public class Function
     }
 
 
-    private async Task<bool> UserCanReceiveNotificationFor(Concert concert, PushNotificationType pushNotificationType, string userId, ILambdaLogger logger)
+    private async Task<bool> UserCanReceiveNotificationFor(ConcertDto concert, PushNotificationType pushNotificationType, string userId, ILambdaLogger logger)
     {
         logger.LogDebug("Checking if user '{userId}' can receive notification '{pushNotificationType}' for concert '{concertId}'...", userId, pushNotificationType, concert.Id);
         

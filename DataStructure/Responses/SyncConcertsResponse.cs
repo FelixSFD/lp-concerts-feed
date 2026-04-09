@@ -18,13 +18,13 @@ public class SyncConcertsResponse
     /// These concerts have been added
     /// </summary>
     [JsonPropertyName("added")]
-    public required Concert[] Added { get; set; }
+    public required ConcertDto[] Added { get; set; }
     
     /// <summary>
     /// These concerts have been updated
     /// </summary>
     [JsonPropertyName("updated")]
-    public required Concert[] Updated { get; set; }
+    public required ConcertDto[] Updated { get; set; }
     
     /// <summary>
     /// Concerts with this ID were present in the request but not found in the database.

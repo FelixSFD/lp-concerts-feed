@@ -1,5 +1,6 @@
 using Common.Utils;
 using Database.Concerts;
+using Database.Concerts.Models;
 using Lambda.ListConcerts.Syncing;
 using LPCalendar.DataStructure;
 using Xunit;
@@ -19,7 +20,7 @@ public class ConcertSyncEngineTest
         // Generate test data
         var latestChange = DateTimeOffset.Now.AddHours(-5);
         var expectedLatestChange = latestChange.RoundingUpToSecond();
-        var server0 = new Concert
+        var server0 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -30,7 +31,7 @@ public class ConcertSyncEngineTest
             LastChange = null, // technically possible but there is a lambda to clean those up as DynamoDB doesn't like null values here either
         };
         await _concertRepository.SaveAsync(server0);
-        var server1 = new Concert
+        var server1 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -42,7 +43,7 @@ public class ConcertSyncEngineTest
         };
         await _concertRepository.SaveAsync(server1);
         
-        var server2 = new Concert
+        var server2 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -54,7 +55,7 @@ public class ConcertSyncEngineTest
         };
         await _concertRepository.SaveAsync(server2);
         
-        var server3 = new Concert
+        var server3 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -66,7 +67,7 @@ public class ConcertSyncEngineTest
         };
         await _concertRepository.SaveAsync(server3);
         
-        var server4 = new Concert
+        var server4 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -78,7 +79,7 @@ public class ConcertSyncEngineTest
         };
         await _concertRepository.SaveAsync(server4);
         
-        var server5 = new Concert
+        var server5 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "DELETED",
@@ -118,7 +119,7 @@ public class ConcertSyncEngineTest
         // Generate test data
         var latestChange = DateTimeOffset.Now.AddHours(-5);
         var expectedLatestChange = latestChange.RoundingUpToSecond();
-        var server0 = new Concert
+        var server0 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -129,7 +130,7 @@ public class ConcertSyncEngineTest
             LastChange = null,
         };
         await _concertRepository.SaveAsync(server0);
-        var server1 = new Concert
+        var server1 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "DELETED",
@@ -142,7 +143,7 @@ public class ConcertSyncEngineTest
         };
         await _concertRepository.SaveAsync(server1);
         
-        var server2 = new Concert
+        var server2 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -154,7 +155,7 @@ public class ConcertSyncEngineTest
         };
         await _concertRepository.SaveAsync(server2);
         
-        var server3 = new Concert
+        var server3 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -166,7 +167,7 @@ public class ConcertSyncEngineTest
         };
         await _concertRepository.SaveAsync(server3);
         
-        var server4 = new Concert
+        var server4 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -198,7 +199,7 @@ public class ConcertSyncEngineTest
         
         // Generate test data
         var latestChange = DateTimeOffset.Now.AddHours(-5);
-        var server0 = new Concert
+        var server0 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -209,7 +210,7 @@ public class ConcertSyncEngineTest
             LastChange = null,
         };
         await _concertRepository.SaveAsync(server0);
-        var server1 = new Concert
+        var server1 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "DELETED",
@@ -222,7 +223,7 @@ public class ConcertSyncEngineTest
         };
         await _concertRepository.SaveAsync(server1);
         
-        var server2 = new Concert
+        var server2 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -234,7 +235,7 @@ public class ConcertSyncEngineTest
         };
         await _concertRepository.SaveAsync(server2);
         
-        var server3 = new Concert
+        var server3 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -246,7 +247,7 @@ public class ConcertSyncEngineTest
         };
         await _concertRepository.SaveAsync(server3);
         
-        var server4 = new Concert
+        var server4 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -277,7 +278,7 @@ public class ConcertSyncEngineTest
         
         // Generate test data
         var latestChange = DateTimeOffset.Now.AddHours(-5);
-        var server0 = new Concert
+        var server0 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -288,7 +289,7 @@ public class ConcertSyncEngineTest
             LastChange = null,
         };
         await _concertRepository.SaveAsync(server0);
-        var server1 = new Concert
+        var server1 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -300,7 +301,7 @@ public class ConcertSyncEngineTest
         };
         await _concertRepository.SaveAsync(server1);
         
-        var server2 = new Concert
+        var server2 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -312,7 +313,7 @@ public class ConcertSyncEngineTest
         };
         await _concertRepository.SaveAsync(server2);
         
-        var server3 = new Concert
+        var server3 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -324,7 +325,7 @@ public class ConcertSyncEngineTest
         };
         await _concertRepository.SaveAsync(server3);
         
-        var server4 = new Concert
+        var server4 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -362,7 +363,7 @@ public class ConcertSyncEngineTest
         var latestChange = DateTimeOffset.Now.AddHours(-5);
         string[] existingOnClient = [];
         
-        var server0 = new Concert
+        var server0 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -374,7 +375,7 @@ public class ConcertSyncEngineTest
         };
         await _concertRepository.SaveAsync(server0);
         
-        var server1 = new Concert
+        var server1 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -386,7 +387,7 @@ public class ConcertSyncEngineTest
         };
         await _concertRepository.SaveAsync(server1);
         
-        var server2 = new Concert
+        var server2 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -398,7 +399,7 @@ public class ConcertSyncEngineTest
         };
         await _concertRepository.SaveAsync(server2);
         
-        var server3 = new Concert
+        var server3 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -410,7 +411,7 @@ public class ConcertSyncEngineTest
         };
         await _concertRepository.SaveAsync(server3);
         
-        var server4 = new Concert
+        var server4 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",

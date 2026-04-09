@@ -20,7 +20,7 @@ public class ConcertWithBookmarkStatusResponse: Concert
     /// <param name="concert"></param>
     /// <param name="bookmark"></param>
     /// <returns></returns>
-    public static ConcertWithBookmarkStatusResponse FromConcert(Concert concert, ConcertBookmark bookmark)
+    public static ConcertWithBookmarkStatusResponse FromConcert(ConcertDto concert, ConcertBookmark bookmark)
     {
         return new ConcertWithBookmarkStatusResponse
         {

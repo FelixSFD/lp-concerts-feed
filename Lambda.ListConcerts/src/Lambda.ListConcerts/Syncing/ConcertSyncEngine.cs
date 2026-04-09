@@ -1,13 +1,14 @@
 using Common.Utils;
 using Database.Concerts;
+using Database.Concerts.Models;
 using LPCalendar.DataStructure;
 
 namespace Lambda.ListConcerts.Syncing;
 
-public class ConcertSyncEngine(IConcertRepository repository) : ISyncEngine<Concert, string>
+public class ConcertSyncEngine(IConcertRepository repository) : ISyncEngine<ConcertModel, string>
 {
-    private Concert[] _addedOrChangedConcerts = [];
-    private Concert[] _deletedConcerts = [];
+    private ConcertModel[] _addedOrChangedConcerts = [];
+    private ConcertModel[] _deletedConcerts = [];
 
     private async Task LoadChangedConcertsSince(DateTimeOffset lastChange)
     {
@@ -21,13 +22,13 @@ public class ConcertSyncEngine(IConcertRepository repository) : ISyncEngine<Conc
     }
 
 
-    public async Task<SyncResult<Concert, string>> ChangesSince(DateTimeOffset lastSync)
+    public async Task<SyncResult<ConcertModel, string>> ChangesSince(DateTimeOffset lastSync)
     {
         var taskLoadChanged = LoadChangedConcertsSince(lastSync);
         var taskLoadDeleted = LoadDeletedConcertsSince(lastSync);
         await Task.WhenAll(taskLoadChanged, taskLoadDeleted);
         
-        var result = new SyncResult<Concert, string>
+        var result = new SyncResult<ConcertModel, string>
         {
             LatestChange = DateTimeOffset.MinValue
         };
@@ -68,11 +69,11 @@ public class ConcertSyncEngine(IConcertRepository repository) : ISyncEngine<Conc
     }
 
 
-    public async Task<SyncResult<Concert, string>> SyncWith(string[] knownIds, DateTimeOffset lastSync)
+    public async Task<SyncResult<ConcertModel, string>> SyncWith(string[] knownIds, DateTimeOffset lastSync)
     {
         await LoadChangedConcertsSince(lastSync);
 
-        var result = new SyncResult<Concert, string>
+        var result = new SyncResult<ConcertModel, string>
         {
             LatestChange = DateTimeOffset.MinValue
         };

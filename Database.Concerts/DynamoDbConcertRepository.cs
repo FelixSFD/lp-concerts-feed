@@ -4,7 +4,7 @@ using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.Core;
 using Common.Utils;
-using LPCalendar.DataStructure;
+using Database.Concerts.Models;
 using LPCalendar.DataStructure.Converters;
 using LPCalendar.DataStructure.DbConfig;
 
@@ -49,14 +49,14 @@ public class DynamoDbConcertRepository : IConcertRepository
 
     
     /// <inheritdoc/>
-    public async Task<Concert?> GetByIdAsync(string id)
+    public async Task<ConcertModel?> GetByIdAsync(string id)
     {
-        return await _dynamoDbContext.LoadAsync<Concert>(id, _dbConfigProvider.GetLoadConfigFor(DynamoDbConfigProvider.Table.Concerts));
+        return await _dynamoDbContext.LoadAsync<ConcertModel>(id, _dbConfigProvider.GetLoadConfigFor(DynamoDbConfigProvider.Table.Concerts));
     }
 
     
     /// <inheritdoc/>
-    public IAsyncEnumerable<Concert> GetByIds(IEnumerable<string> ids)
+    public IAsyncEnumerable<ConcertModel> GetByIds(IEnumerable<string> ids)
     {
         return ids
             .Chunk(100)
@@ -65,16 +65,16 @@ public class DynamoDbConcertRepository : IConcertRepository
     }
 
 
-    private async IAsyncEnumerable<Concert> GetBatchByIds(IEnumerable<string> ids)
+    private async IAsyncEnumerable<ConcertModel> GetBatchByIds(IEnumerable<string> ids)
     {
-        var batchGet = _dynamoDbContext.CreateBatchGet<Concert>(_dbConfigProvider.GetBatchGetConfigFor(DynamoDbConfigProvider.Table.Concerts));
+        var batchGet = _dynamoDbContext.CreateBatchGet<ConcertModel>(_dbConfigProvider.GetBatchGetConfigFor(DynamoDbConfigProvider.Table.Concerts));
         foreach (var id in ids)
         {
             batchGet.AddKey(id);
         }
 
         await batchGet.ExecuteAsync();
-        foreach (var concert in batchGet.Results.OfType<Concert>())
+        foreach (var concert in batchGet.Results.OfType<ConcertModel>())
         {
             yield return concert;
         }
@@ -82,7 +82,7 @@ public class DynamoDbConcertRepository : IConcertRepository
 
 
     /// <inheritdoc/>
-    public async Task<Concert?> GetNextAsync()
+    public async Task<ConcertModel?> GetNextAsync()
     {
         var now = DateTimeOffset.UtcNow.AddHours(-4);
         var dateNowStr = now.ToString("O");
@@ -92,7 +92,7 @@ public class DynamoDbConcertRepository : IConcertRepository
         var config = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.Concerts);
         config.IndexName = "PostedStartTimeGlobalIndex";
         
-        var query = _dynamoDbContext.QueryAsync<Concert>(
+        var query = _dynamoDbContext.QueryAsync<ConcertModel>(
             "PUBLISHED", // PartitionKey value
             QueryOperator.GreaterThanOrEqual,
             [new AttributeValue { S = dateNowStr }],
@@ -104,7 +104,7 @@ public class DynamoDbConcertRepository : IConcertRepository
 
     
     /// <inheritdoc/>
-    public async IAsyncEnumerable<Concert> GetConcertsAsync(string? filterTour = null, DateRange? dateRange = null)
+    public async IAsyncEnumerable<ConcertModel> GetConcertsAsync(string? filterTour = null, DateRange? dateRange = null)
     {
         _logger.LogDebug("Query filtered concerts: DateRange ({from} to {to}); Tour: {tour}", dateRange?.from.ToString() ?? "null", dateRange?.to.ToString() ?? "null", filterTour);
         var searchStartDate = dateRange?.from ?? DateTimeOffset.Now;
@@ -146,7 +146,7 @@ public class DynamoDbConcertRepository : IConcertRepository
         }
         
         _logger.LogDebug("Start returning the results...");
-        var query = _dynamoDbContext.ScanAsync<Concert>(conditions, config);
+        var query = _dynamoDbContext.ScanAsync<ConcertModel>(conditions, config);
             
         var nextSetAsync = await query.GetRemainingAsync();
         
@@ -160,7 +160,7 @@ public class DynamoDbConcertRepository : IConcertRepository
 
     
     /// <inheritdoc/>
-    public async IAsyncEnumerable<Concert> GetConcertsAsync(DateTimeOffset afterDate)
+    public async IAsyncEnumerable<ConcertModel> GetConcertsAsync(DateTimeOffset afterDate)
     {
         var searchStartDateStr = afterDate.ToString("O");
             
@@ -170,7 +170,7 @@ public class DynamoDbConcertRepository : IConcertRepository
         config.BackwardQuery = false;
         config.IndexName = "PostedStartTimeGlobalIndex";
         
-        var query = _dynamoDbContext.QueryAsync<Concert>(
+        var query = _dynamoDbContext.QueryAsync<ConcertModel>(
             "PUBLISHED", // PartitionKey value
             QueryOperator.GreaterThanOrEqual,
             [new AttributeValue { S = searchStartDateStr }],
@@ -185,7 +185,7 @@ public class DynamoDbConcertRepository : IConcertRepository
 
     
     /// <inheritdoc/>
-    public async IAsyncEnumerable<Concert> GetConcertsChangedAfterAsync(DateTimeOffset changedAfterDate)
+    public async IAsyncEnumerable<ConcertModel> GetConcertsChangedAfterAsync(DateTimeOffset changedAfterDate)
     {
         var searchStartDateStr = changedAfterDate.ToString("O");
             
@@ -193,10 +193,10 @@ public class DynamoDbConcertRepository : IConcertRepository
 
         var config = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.Concerts);
         config.BackwardQuery = false;
-        config.IndexName = Concert.LastChangeTimeGlobalIndex;
+        config.IndexName = ConcertModel.LastChangeTimeGlobalIndex;
         
-        var query = _dynamoDbContext.QueryAsync<Concert>(
-            Concert.StatusPublished, // PartitionKey value
+        var query = _dynamoDbContext.QueryAsync<ConcertModel>(
+            ConcertModel.StatusPublished, // PartitionKey value
             QueryOperator.GreaterThan,
             [new AttributeValue { S = searchStartDateStr }],
             config);
@@ -210,7 +210,7 @@ public class DynamoDbConcertRepository : IConcertRepository
     
     
     /// <inheritdoc/>
-    public async IAsyncEnumerable<Concert> GetConcertsDeletedAfterAsync(DateTimeOffset deletedAfterDate)
+    public async IAsyncEnumerable<ConcertModel> GetConcertsDeletedAfterAsync(DateTimeOffset deletedAfterDate)
     {
         var searchStartDateStr = deletedAfterDate.ToString("O");
             
@@ -218,10 +218,10 @@ public class DynamoDbConcertRepository : IConcertRepository
 
         var config = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.Concerts);
         config.BackwardQuery = false;
-        config.IndexName = Concert.DeletedConcertsGlobalIndex;
+        config.IndexName = ConcertModel.DeletedConcertsGlobalIndex;
         
-        var query = _dynamoDbContext.QueryAsync<Concert>(
-            Concert.StatusDeleted, // PartitionKey value
+        var query = _dynamoDbContext.QueryAsync<ConcertModel>(
+            ConcertModel.StatusDeleted, // PartitionKey value
             QueryOperator.GreaterThan,
             [new AttributeValue { S = searchStartDateStr }],
             config);
@@ -238,14 +238,14 @@ public class DynamoDbConcertRepository : IConcertRepository
     public async Task<DateTimeOffset?> GetLastChangedAsync()
     {
         var lastChangedConcertTask =
-            GetLastChangedOrDeletedConcertAsync(Concert.StatusPublished, Concert.LastChangeTimeGlobalIndex);
-        var lastDeletedConcertTask = GetLastChangedOrDeletedConcertAsync(Concert.StatusDeleted, Concert.DeletedConcertsGlobalIndex);
+            GetLastChangedOrDeletedConcertAsync(ConcertModel.StatusPublished, ConcertModel.LastChangeTimeGlobalIndex);
+        var lastDeletedConcertTask = GetLastChangedOrDeletedConcertAsync(ConcertModel.StatusDeleted, ConcertModel.DeletedConcertsGlobalIndex);
         
         await Task.WhenAll(lastChangedConcertTask, lastDeletedConcertTask);
         _logger.LogDebug("Finished both queries.");
         
-        var lastChanged = GetDateFromAttributes(nameof(Concert.LastChange), lastChangedConcertTask.Result) ?? DateTimeOffset.MinValue;
-        var lastDeleted = GetDateFromAttributes(nameof(Concert.DeletedAt), lastDeletedConcertTask.Result) ?? DateTimeOffset.MinValue;
+        var lastChanged = GetDateFromAttributes(nameof(ConcertModel.LastChange), lastChangedConcertTask.Result) ?? DateTimeOffset.MinValue;
+        var lastDeleted = GetDateFromAttributes(nameof(ConcertModel.DeletedAt), lastDeletedConcertTask.Result) ?? DateTimeOffset.MinValue;
 
         return DateTimeOffsetExtensions.Max(lastChanged, lastDeleted);
     }
@@ -303,21 +303,21 @@ public class DynamoDbConcertRepository : IConcertRepository
     }
 
 
-    private Concert? AttributeMapToConcert(DbDocument? attributes)
+    private ConcertModel? AttributeMapToConcert(DbDocument? attributes)
     {
         _logger.LogTrace("Start mapping concert attributes...");
         if (attributes == null)
             return null;
         
         var doc = Document.FromAttributeMap(attributes);
-        var concert = _dynamoDbContext.FromDocument<Concert>(doc);
+        var concert = _dynamoDbContext.FromDocument<ConcertModel>(doc);
         _logger.LogTrace("Finished mapping concert: {id}", concert.Id);
         return concert;
     }
 
 
     /// <inheritdoc/>
-    public async Task SaveAsync(Concert concert)
+    public async Task SaveAsync(ConcertModel concert)
     {
         await FixNonOverridableFields(concert);
         await _dynamoDbContext.SaveAsync(concert, _dbConfigProvider.GetSaveConfigFor(DynamoDbConfigProvider.Table.Concerts));
@@ -329,9 +329,9 @@ public class DynamoDbConcertRepository : IConcertRepository
     /// Deletes a concert by setting the status to DELETED
     /// </summary>
     /// <param name="concert">Concert to delete</param>
-    public async Task DeleteAsync(Concert concert)
+    public async Task DeleteAsync(ConcertModel concert)
     {
-        concert.Status = Concert.StatusDeleted;
+        concert.Status = ConcertModel.StatusDeleted;
         concert.DeletedAt = DateTimeOffset.UtcNow;
         await _dynamoDbContext.SaveAsync(concert, _dbConfigProvider.GetSaveConfigFor(DynamoDbConfigProvider.Table.Concerts));
         _logger.LogInformation("Concert '{id}' has been DELETED.", concert.Id);
@@ -342,7 +342,7 @@ public class DynamoDbConcertRepository : IConcertRepository
     /// Overwrite fields that can't be set by the clients
     /// </summary>
     /// <param name="concert"></param>
-    private async Task FixNonOverridableFields(Concert concert)
+    private async Task FixNonOverridableFields(ConcertModel concert)
     {
         var existing = await GetByIdAsync(concert.Id);
         if (existing != null)
