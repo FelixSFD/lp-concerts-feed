@@ -1,4 +1,5 @@
-<nav class="navbar sticky-top navbar-expand-sm navbar-light bg-secondary-subtle">
+<div class="sticky-top">
+<nav class="navbar navbar-expand-sm navbar-light bg-secondary-subtle">
   <div class="container-fluid">
     <a class="navbar-brand" href="/">
       <div class="container-fluid">
@@ -66,6 +67,10 @@
     </div>
   </div>
 </nav>
+<div [class]="(routerProgress == 1 ? 'progress hidden' : 'progress')" style="height: 2px">
+  <div class="progress-bar" [ngStyle]="{ 'width': (routerProgress * 100) + '%' }" role="progressbar" aria-valuenow="{{ routerProgress * 100 }}" aria-valuemin="0" aria-valuemax="100"></div>
+</div>
+</div>
 
 <div class="container" style="padding-top: 30px">
   <!-- Content here -->
