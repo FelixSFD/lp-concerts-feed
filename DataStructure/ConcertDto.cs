@@ -1,7 +1,5 @@
-﻿using System.Text;
-using System.Text.Json.Serialization;
-using Amazon.DynamoDBv2.DataModel;
-using LPCalendar.DataStructure.Converters;
+﻿using System.Text.Json.Serialization;
+using LPCalendar.DataStructure.Setlists;
 
 namespace LPCalendar.DataStructure;
 
@@ -177,4 +175,23 @@ public class ConcertDto
     /// </summary>
     [JsonPropertyName("deletedAt")]
     public DateTimeOffset? DeletedAt { get; set; }
+}
+
+/// <summary>
+/// Extends the <see cref="ConcertDto"/> with setlist information.
+/// </summary>
+public class ConcertWithSetlistsDto : ConcertDto
+{
+    /// <summary>
+    /// Cached setlists for this concert.
+    /// This is used as a cache so we don't have to hit the SQL DB all the time
+    /// </summary>
+    [JsonPropertyName("cachedSetlists")]
+    public required List<SetlistDto> CachedSetlists { get; set; }
+
+    /// <summary>
+    /// Time when the <see cref="CachedSetlists"/> was last updated
+    /// </summary>
+    [JsonPropertyName("cachedSetlistsAt")]
+    public DateTimeOffset? CachedSetlistsAt { get; set; }
 }

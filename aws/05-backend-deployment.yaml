@@ -922,8 +922,12 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
+                  - dynamodb:PutItem # yes, we need write access, too to update the setlists cache for the concerts
                   - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
                   - dynamodb:DescribeTable
+                  - dynamodb:Scan
                   - dynamodb:Query
                 Resource:
                   - !Sub "${ConcertsDynamoDBTable.Arn}"

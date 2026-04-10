@@ -170,6 +170,23 @@ components:
           type: boolean
           description: A show is considered as "past", when the posted start time was more than 4 hour ago
           readOnly: true
+          
+    ConcertWithSetlists:
+      type: object
+      description: Information about a concert including the setlist (from cache)
+      allOf:
+        - $ref: "#/components/schemas/Concert"
+      properties:
+        cachedSetlistsAt:
+          type: string
+          description: Time when the setlist cache was last updated for this concert
+          format: date-time
+          example: '2024-09-05T22:01:00Z'
+        cachedSetlists:
+          type: array
+          description: Cached setlists for this concert
+          items: 
+            $ref: "#/components/schemas/Setlist"
     
     ConcertFileUploadRequest:
       type: object
@@ -1472,7 +1489,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Concert"
+                $ref: "#/components/schemas/ConcertWithSetlists"
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:

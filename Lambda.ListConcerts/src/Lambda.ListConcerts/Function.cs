@@ -259,7 +259,7 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
     }
 
 
-    private async Task<APIGatewayProxyResponse> ReturnSingleConcert(string id)
+    private async Task<APIGatewayProxyResponse> ReturnSingleConcert(string id, bool withSetlists = true)
     {
         var concert = await GetConcertById(id);
         if (concert == null)
@@ -277,7 +277,16 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
             };
         }
         
-        var concertJson = JsonSerializer.Serialize(ConcertDtoMapper.ToDto(concert), DataStructureJsonContext.Default.ConcertDto);
+        string concertJson;
+        if (withSetlists)
+        {
+            concertJson = JsonSerializer.Serialize(ConcertDtoMapper.ToDtoWithSetlists(concert), DataStructureJsonContext.Default.ConcertWithSetlistsDto);
+        }
+        else
+        {
+            concertJson = JsonSerializer.Serialize(ConcertDtoMapper.ToDto(concert), DataStructureJsonContext.Default.ConcertDto);
+        }
+        
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,

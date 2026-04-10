@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Amazon.Lambda.Core;
 using Common.Utils;
 using Database.Concerts;
@@ -106,6 +107,8 @@ public class SetlistService(
         logger.LogDebug("Saving...");
         await setlistEntryRepository.SaveChangesAsync();
         logger.LogDebug("Successfully saved.");
+        
+        await UpdateSetlistCacheForConcert(entry.Setlist.ConcertId, DateTimeOffset.Now);
 
         var setlistEntryDto = DtoMapper.ToDto(entry);
         return setlistEntryDto;
@@ -354,6 +357,8 @@ public class SetlistService(
         
         setlistRepository.Update(setlist);
         await setlistRepository.SaveChangesAsync();
+        
+        await UpdateSetlistCacheForConcert(setlist.ConcertId, DateTimeOffset.Now);
     }
     
     /// <summary>
@@ -438,6 +443,8 @@ public class SetlistService(
         setlistEntryRepository.Update(setlistEntry);
         await setlistEntryRepository.SaveChangesAsync();
         logger.LogDebug("Updated setlist entry: {entryId}", entryId);
+        
+        await UpdateSetlistCacheForConcert(setlistEntry.Setlist.ConcertId, DateTimeOffset.Now);
     }
     
     /// <summary>
@@ -548,8 +555,11 @@ public class SetlistService(
     /// <param name="setlist">setlist to delete</param>
     private async Task RemoveSetlist(SetlistDo setlist)
     {
+        var concertId = setlist.ConcertId;
         setlistRepository.Delete(setlist);
         await setlistRepository.SaveChangesAsync();
+        
+        await UpdateSetlistCacheForConcert(concertId, DateTimeOffset.Now);
     }
 
     /// <summary>
@@ -569,8 +579,11 @@ public class SetlistService(
     /// <param name="setlistEntry">Entry to delete</param>
     private async Task RemoveSetlistEntry(SetlistEntryDo setlistEntry)
     {
+        var concertId = setlistEntry.Setlist.ConcertId;
         setlistEntryRepository.Delete(setlistEntry);
         await setlistEntryRepository.SaveChangesAsync();
+        
+        await UpdateSetlistCacheForConcert(concertId, DateTimeOffset.Now);
     }
 
     /// <summary>
@@ -610,10 +623,52 @@ public class SetlistService(
         
         logger.LogDebug("Reordered {count} entries!", entries.Count);
         await setlistEntryRepository.SaveChangesAsync();
+        
+        await UpdateSetlistCacheForConcert(setlist.ConcertId, DateTimeOffset.Now);
 
         return entries
             .OrderBy(entry => entry.SortNumber)
             .ThenBy(entry => entry.SongNumber)
             .ToList();
+    }
+
+
+    /// <summary>
+    /// Writes the setlist into the Concerts database to cache it
+    /// </summary>
+    /// <param name="concertId">ID of the concert. Use <see cref="SetlistDto.ConcertId"/> of the setlist that has been changed.</param>
+    /// <param name="cacheDate"></param>
+    public async Task UpdateSetlistCacheForConcert(string concertId, DateTimeOffset cacheDate)
+    {
+        try
+        {
+            logger.LogDebug("Cache setlists for concert: {concertId}", concertId);
+
+            var concert = await concertRepository.GetByIdAsync(concertId);
+            if (concert == null)
+            {
+                logger.LogWarning("Setlist could not be cached because the concert '{concertId}' was not found.",
+                    concertId);
+                return;
+            }
+
+            logger.LogDebug("Load setlists for this concert...");
+            var setlists = await setlistRepository
+                .GetByConcertIdAsync(concertId)
+                .Select(DtoMapper.ToDto)
+                .ToListAsync();
+
+            var setlistJson = JsonSerializer.Serialize(setlists, SetlistDtoJsonContext.Default.ListSetlistDto);
+            concert.CachedSetlistsJson = setlistJson;
+            concert.CachedSetlistsAt = cacheDate;
+
+            await concertRepository.SaveAsync(concert);
+            await setlistRepository.SaveChangesAsync();
+            logger.LogDebug("Setlist cached");
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Could not update setlist cache for concert '{concertId}'!", concertId);
+        }
     }
 }

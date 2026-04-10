@@ -192,6 +192,20 @@ public class ConcertModel
     
     
     /// <summary>
+    /// JSON of the setlists for this concert.
+    /// This is used as a cache so we don't have to hit the SQL DB all the time
+    /// </summary>
+    /// <remarks>Caution! This field might not be included in every projection, as the data can be quite large.</remarks>
+    public string? CachedSetlistsJson { get; set; }
+
+    /// <summary>
+    /// Time when the <see cref="CachedSetlistsJson"/> was last updated
+    /// </summary>
+    [DynamoDBProperty("CachedSetlistsAt", typeof(DateTimeOffsetToStringPropertyConverter))]
+    public DateTimeOffset? CachedSetlistsAt { get; set; }
+    
+    
+    /// <summary>
     /// Long version of the location string (includes Venue, City, State, Country if available)
     /// </summary>
     [DynamoDBIgnore]
