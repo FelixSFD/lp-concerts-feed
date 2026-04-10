@@ -272,6 +272,13 @@ export const routes: Routes = [
         title: baseTitle + 'Import concert',
         canActivate: [authGuard, addConcertsGuard, manageSetlistsGuard],
       },
+      {
+        path: 'concerts/import/:concertId',
+        loadComponent: () =>
+          import("./admin/linkinpedia-concert-importer-page/linkinpedia-concert-importer-page.component").then(m => m.LinkinpediaConcertImporterPageComponent),
+        title: baseTitle + 'Import concert',
+        canActivate: [authGuard, addConcertsGuard, manageSetlistsGuard],
+      },
     ]
   },
   {

@@ -61,6 +61,23 @@
           </div>
         }
       </div>
+
+      <!-- Concert selection -->
+      <div class="form-group">
+        <label for="concert">Concert</label>
+        <div class="input-group mb-3">
+          <input id="concert" type="text" formControlName="concertId" class="form-control"
+                 [ngClass]="{ 'is-invalid': sourceDataForm.controls.concertId.invalid }">
+          <button class="btn btn-outline-info" (click)="openConcertDetailsClicked()"><i class="bi bi-box-arrow-up-right"></i><span class="d-none d-sm-none d-md-inline ms-2">Open details</span></button>
+        </div>
+        @if (sourceDataForm.controls.concertId.invalid) {
+          <div class="text-danger">
+            @if (sourceDataForm.controls.concertId.errors) {
+              <small>Concert is invalid.</small>
+            }
+          </div>
+        }
+      </div>
     </div>
     <div class="card-footer">
       <div class="row">

@@ -13,7 +13,16 @@
     &nbsp;
     <button class="btn btn-outline-info" [routerLink]="['./edit']" [hidden]="!hasWriteAccess$"><i class="bi bi-pencil"></i> Edit</button>
     &nbsp;
-    <button class="btn btn-outline-info ms" [routerLink]="['/admin', 'setlists', 'add', concertId]" [hidden]="!hasWriteAccess$"><i class="bi bi-list"></i> Add setlist</button>
+    <div class="btn-group">
+      <button type="button" class="btn btn-outline-info" [routerLink]="['/admin', 'setlists', 'add', concertId]" [hidden]="!hasWriteAccess$"><i class="bi bi-list"></i> Add setlist</button>
+      <button type="button" class="btn btn-outline-info dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+        <span class="visually-hidden">Toggle Dropdown</span>
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="#" [routerLink]="['/admin', 'setlists', 'add', concertId]">Add new setlist</a></li>
+        <li><a class="dropdown-item" href="#" [routerLink]="['/admin', 'concerts', 'import', concertId]">Import setlist</a></li>
+      </ul>
+    </div>
   </div>
 
   <!-- Bookmark buttons -->

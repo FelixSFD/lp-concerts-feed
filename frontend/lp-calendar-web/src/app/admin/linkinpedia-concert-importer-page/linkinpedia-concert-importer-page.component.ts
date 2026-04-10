@@ -1,4 +1,4 @@
-import {Component, inject, TemplateRef, viewChild} from '@angular/core';
+import {Component, inject, OnInit, TemplateRef, viewChild} from '@angular/core';
 import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgClass} from '@angular/common';
 import {HttpClient} from '@angular/common/http';
@@ -16,6 +16,9 @@ import {SongFormComponent} from '../setlists/song-form/song-form.component';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {SongsService} from '../../services/songs.service';
 import {MashupFormComponent} from '../setlists/mashup-form/mashup-form.component';
+import {ActivatedRoute} from '@angular/router';
+import {DateTime} from 'luxon';
+import {ConcertsService} from '../../services/concerts.service';
 
 @Component({
   selector: 'app-linkinpedia-concert-importer-page',
@@ -28,20 +31,20 @@ import {MashupFormComponent} from '../setlists/mashup-form/mashup-form.component
   templateUrl: './linkinpedia-concert-importer-page.component.html',
   styleUrl: './linkinpedia-concert-importer-page.component.css',
 })
-export class LinkinpediaConcertImporterPageComponent {
+export class LinkinpediaConcertImporterPageComponent implements OnInit {
   private modalService = inject(NgbModal);
   private readonly formBuilder = inject(FormBuilder);
-  private readonly httpClient = inject(HttpClient);
+  private route = inject(ActivatedRoute);
   private readonly toastr = inject(ToastrService);
   private readonly setlistsService = inject(SetlistsService);
   private readonly songsService = inject(SongsService);
+  private readonly concertsService = inject(ConcertsService);
 
   // true if the page is currently reading the source information
   isReadingSource$ = false;
 
-  tmpLinkinpediaSource$: string | null = null;
-
   sourceDataForm = this.formBuilder.group({
+    concertId: new FormControl('', [Validators.required]),
     linkinpediaUrl: new FormControl('https://linkinpedia.com/wiki/Live:20240905', [Validators.required, Validators.pattern(/^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/)]),
   });
 
@@ -50,14 +53,37 @@ export class LinkinpediaConcertImporterPageComponent {
   // properties for the add song modal
   isAddingSong$: boolean = false;
   addSongModal: NgbModalRef | undefined;
-  private newSongPrefillData: ImportSetlistEntryPreviewDto | undefined;
   private newSongFormComponent = viewChild(SongFormComponent);
 
   // properties for the add mashup modal
   isAddingMashup$: boolean = false;
   addMashupModal: NgbModalRef | undefined;
-  private newMashupPrefillData: ImportSetlistEntryPreviewDto | undefined;
   private newMashupFormComponent = viewChild(MashupFormComponent);
+
+
+  ngOnInit() {
+    this.sourceDataForm.controls.concertId.valueChanges.subscribe(id => {
+      console.debug("Changed concertId", id);
+      if (id != null) {
+        this.concertsService.getConcert(id).subscribe(concert => {
+          let startDate = DateTime.fromISO(concert.postedStartTime!, {zone: concert.timeZoneId});
+          let year = startDate.year.toString();
+          let month = startDate.month < 10 ? '0' + startDate.month : startDate.month;
+          let day = startDate.day < 10 ? '0' + startDate.day : startDate.day;
+          this.sourceDataForm.controls.linkinpediaUrl.setValue(`https://linkinpedia.com/wiki/Live:${year}${month}${day}`);
+        });
+      }
+    });
+
+    this.route.params.subscribe(params => {
+      let concertId = params['concertId'];
+      if (concertId != null && concertId.length > 0) {
+        this.sourceDataForm.controls.concertId.setValue(params['concertId'], { emitEvent: true });
+        this.sourceDataForm.controls.concertId.disable();
+      }
+    });
+  }
+
 
   onLoadSourceClicked() {
     this.startImport();
@@ -195,30 +221,12 @@ export class LinkinpediaConcertImporterPageComponent {
   }
 
 
-  private loadFromLinkinpedia() {
-    let url = this.sourceDataForm.value.linkinpediaUrl?.valueOf() ?? null;
-    if (url) {
-      let apiUrl = this.getApiUrlForPage(url);
-      console.debug("Linkinpedia API URL: ", apiUrl);
-
-      this.httpClient.get(apiUrl).subscribe({
-        next: data => {
-          console.debug("API result: ", data);
-        },
-        error: error => {
-          console.error("API call to Linkinpedia failed: ", error);
-          this.toastr.error(error);
-        }
-      })
-    } else {
-      this.toastr.error('URL is not set.');
+  openConcertDetailsClicked() {
+    let concertId = this.sourceDataForm.getRawValue().concertId?.valueOf();
+    if (concertId?.length == 0) {
+      return;
     }
-  }
 
-
-  private getApiUrlForPage(linkinpediaUrl: string): string {
-    const regex = /linkinpedia\.com\/(?<originalPath>wiki\/)(?<page>[^\/]+)$/gm;
-    const subst = `linkinpedia.com/w/rest.php/v1/page/$2`;
-    return linkinpediaUrl.replace(regex, subst);
+    window.open("/concerts/" + concertId, "_blank");
   }
 }
