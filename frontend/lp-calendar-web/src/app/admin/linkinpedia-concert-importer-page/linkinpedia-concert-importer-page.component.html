@@ -1,3 +1,24 @@
+<!-- add song modal -->
+<ng-template #addSongContent let-addSongModal>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h1 class="modal-title fs-5" id="addSongModalLabel">Add a new song</h1>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <app-song-form [standalone]="false" [is-saving]="isAddingSong$" />
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" [disabled]="isAddingSong$" (click)="dismissAddSongModal()">Cancel</button>
+      <button type="button" class="btn btn-primary" id="addSongConfirmBtn" (click)="onAddSongConfirm()" [disabled]="isAddingSong$">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!isAddingSong$"></span>
+        <span class="sr-only">{{ isAddingSong$ ? "Adding..." : "Add" }}</span>
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+
 <h1>Import concert from Linkinpedia</h1>
 
 <form #sourceForm="ngForm" [formGroup]="sourceDataForm" class="form">
@@ -52,22 +73,49 @@
           </thead>
           <tbody>
             @for (generatedEntry of generatedSetlist$.entries; track generatedEntry) {
-              <tr>
-                <td>{{ generatedEntry.songNumber }}</td>
-                @if (generatedEntry.foundSongId) {
+              @if (generatedEntry.foundSongId) {
+                <tr class="table-success">
+                  <td>{{ generatedEntry.songNumber }}</td>
                   <td>existing Song</td>
-                } @else if ((generatedEntry.foundSongIds?.length ?? 0) >= 2) {
+                  <td>{{ generatedEntry.title }}</td>
+                  <td>{{ generatedEntry.extraNotes }}</td>
+                </tr>
+              } @else if ((generatedEntry.foundSongIds?.length ?? 0) >= 2) {
+                <tr class="table-warning">
+                  <td>{{ generatedEntry.songNumber }}</td>
                   <td>select Song</td>
-                } @else if (generatedEntry.foundSongVariantId) {
+                  <td>{{ generatedEntry.title }}</td>
+                  <td>{{ generatedEntry.extraNotes }}</td>
+                </tr>
+              } @else if (generatedEntry.foundSongVariantId) {
+                <tr class="table-success">
+                  <td>{{ generatedEntry.songNumber }}</td>
                   <td>existing Variant</td>
-                } @else if (generatedEntry.foundMashupId) {
+                  <td>{{ generatedEntry.title }}</td>
+                  <td>{{ generatedEntry.extraNotes }}</td>
+                </tr>
+              } @else if (generatedEntry.foundMashupId) {
+                <tr class="table-success">
+                  <td>{{ generatedEntry.songNumber }}</td>
                   <td>existing Mashup</td>
-                } @else {
+                  <td>{{ generatedEntry.title }}</td>
+                  <td>{{ generatedEntry.extraNotes }}</td>
+                </tr>
+              } @else {
+                <tr class="table-danger">
+                  <td>{{ generatedEntry.songNumber }}</td>
                   <td>NEW song or mashup</td>
-                }
-                <td>{{ generatedEntry.title }}</td>
-                <td>{{ generatedEntry.extraNotes }}</td>
-              </tr>
+                  <td>{{ generatedEntry.title }}</td>
+                  <td>{{ generatedEntry.extraNotes }}</td>
+                </tr>
+                <tr class="table-danger">
+                  <td></td>
+                  <td colspan="3">
+                    <button class="btn btn-sm btn-outline-primary me-2" (click)="openCreateSongBtnClicked(generatedEntry, addSongContent)">Create Song</button>
+                    <button class="btn btn-sm btn-outline-primary me-2">Create Mashup</button>
+                  </td>
+                </tr>
+              }
             }
           </tbody>
         </table>

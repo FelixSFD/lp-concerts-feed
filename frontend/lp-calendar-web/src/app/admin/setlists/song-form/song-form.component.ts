@@ -3,7 +3,7 @@ import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {ToastrService} from 'ngx-toastr';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {AlbumDto, ErrorResponseDto, SongDto} from '../../../modules/lpshows-api';
-import {NgClass} from '@angular/common';
+import {NgClass, NgTemplateOutlet} from '@angular/common';
 import {AlbumsService} from '../../../services/music/albums.service';
 import {AppleMusicService} from '../../../services/music/apple-music.service';
 import {AppleMusicSong} from '../../../data/music/apple/apple-music-song';
@@ -14,7 +14,8 @@ import {AppleMusicSong} from '../../../data/music/apple/apple-music-song';
     FormsModule,
     ReactiveFormsModule,
     NgClass,
-    NgbTooltip
+    NgbTooltip,
+    NgTemplateOutlet
   ],
   templateUrl: './song-form.component.html',
   styleUrl: './song-form.component.css',
@@ -28,6 +29,12 @@ export class SongFormComponent implements OnInit {
 
   @Input("is-saving")
   isSaving$: boolean = false;
+
+  /*
+   * true, if the for is "standalone", meaning it manages its own layout and has a save-button
+   */
+  @Input("standalone")
+  standalone$: boolean = true;
 
   @Output("saveClicked")
   saveClicked = new EventEmitter<SongFormContent>();
@@ -83,7 +90,7 @@ export class SongFormComponent implements OnInit {
   }
 
 
-  private readFromForm(): SongFormContent | null {
+  public readFromForm(): SongFormContent | null {
     let title = this.songForm.value.title?.valueOf();
     let albumId = this.songForm.value.selectedAlbumId?.valueOf();
     let isrc = this.songForm.value.isrc?.valueOf();
