@@ -5,18 +5,21 @@ import {HttpClient} from '@angular/common/http';
 import {ToastrService} from 'ngx-toastr';
 import {SetlistsService} from '../../services/setlists.service';
 import {
+  AddSongMashupToSetlistRequestDto,
+  AddSongToSetlistRequestDto, AddSongVariantToSetlistRequestDto,
+  CreateSetlistRequestDto,
   CreateSongMashupRequestDto,
   CreateSongRequestDto,
   ErrorResponseDto,
   ImportSetlistEntryPreviewDto,
-  ImportSetlistPreviewDto,
+  ImportSetlistPreviewDto, SetlistEntryParametersDto,
   SongDto, SongMashupDto
 } from '../../modules/lpshows-api';
 import {SongFormComponent} from '../setlists/song-form/song-form.component';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {SongsService} from '../../services/songs.service';
 import {MashupFormComponent} from '../setlists/mashup-form/mashup-form.component';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {DateTime} from 'luxon';
 import {ConcertsService} from '../../services/concerts.service';
 
@@ -35,6 +38,7 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
   private modalService = inject(NgbModal);
   private readonly formBuilder = inject(FormBuilder);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private readonly toastr = inject(ToastrService);
   private readonly setlistsService = inject(SetlistsService);
   private readonly songsService = inject(SongsService);
@@ -43,8 +47,14 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
   // true if the page is currently reading the source information
   isReadingSource$ = false;
 
+  // true if the page is currently saving the new setlist
+  isCreatingSetlist$ = false;
+
+  allEntriesValid$ = false;
+
   sourceDataForm = this.formBuilder.group({
     concertId: new FormControl('', [Validators.required]),
+    concertTitle: new FormControl('', [Validators.min(5)]),
     linkinpediaUrl: new FormControl('https://linkinpedia.com/wiki/Live:20240905', [Validators.required, Validators.pattern(/^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/)]),
   });
 
@@ -70,6 +80,7 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
           let year = startDate.year.toString();
           let month = startDate.month < 10 ? '0' + startDate.month : startDate.month;
           let day = startDate.day < 10 ? '0' + startDate.day : startDate.day;
+          this.sourceDataForm.controls.concertTitle.setValue(`${concert.locationShort} - ${year}-${month}-${day}`);
           this.sourceDataForm.controls.linkinpediaUrl.setValue(`https://linkinpedia.com/wiki/Live:${year}${month}${day}`);
         });
       }
@@ -98,6 +109,7 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
         .subscribe({
           next: data => {
             this.generatedSetlist$ = data;
+            this.validateEntries();
 
             this.toastr.success('Successfully read setlist from Linkinpedia');
             this.isReadingSource$ = false;
@@ -111,6 +123,12 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
           }
         });
     }
+  }
+
+
+  private validateEntries() {
+    let entries = this.generatedSetlist$?.entries ?? [];
+    this.allEntriesValid$ = entries.length > 0 && entries.every(entry => entry.foundSongId != null || entry.foundSongVariantId != null || entry.foundMashupId != null);
   }
 
 
@@ -228,5 +246,85 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
     }
 
     window.open("/concerts/" + concertId, "_blank");
+  }
+
+
+  onCreateSetlistClicked() {
+    let concertId = this.sourceDataForm.getRawValue().concertId?.valueOf();
+    if (!concertId) {
+      this.toastr.error("Concert ID not set!");
+      return;
+    }
+
+    let concertTitle = this.sourceDataForm.value.concertTitle?.valueOf();
+    if (!concertTitle) {
+      this.toastr.error("Concert Title not set!");
+      return;
+    }
+
+    let linkinpediaUrl = this.sourceDataForm.value.linkinpediaUrl?.valueOf();
+    if (!linkinpediaUrl) {
+      this.toastr.error("Linkinpedia URL not set!");
+      return;
+    }
+
+    let createRequest: CreateSetlistRequestDto = {
+      concertId: concertId,
+      concertTitle: concertTitle,
+      linkinpediaUrl: linkinpediaUrl,
+      addSongs: this.generatedSetlist$?.entries?.filter(e => e.foundSongId).map(e => {
+        let dto: AddSongToSetlistRequestDto = {
+          songParameters: {
+            songId: e.foundSongId
+          },
+          entryParameters: this.getCreateEntryParameters(e)
+        };
+        return dto;
+      }) ?? [],
+      addSongVariants: this.generatedSetlist$?.entries?.filter(e => e.foundSongVariantId).map(e => {
+        let dto: AddSongVariantToSetlistRequestDto = {
+          songVariantParameters: {
+            songId: e.foundSongId ?? undefined,
+            songVariantId: e.foundSongVariantId ?? undefined,
+          },
+          entryParameters: this.getCreateEntryParameters(e)
+        };
+        return dto;
+      }) ?? [],
+      addSongMashups: this.generatedSetlist$?.entries?.filter(e => e.foundMashupId).map(e => {
+        let dto: AddSongMashupToSetlistRequestDto = {
+          songMashupParameters: {
+            songMashupId: e.foundMashupId ?? undefined
+          },
+          entryParameters: this.getCreateEntryParameters(e)
+        };
+        return dto;
+      }) ?? [],
+    };
+
+    console.debug('Creating new set list...', createRequest);
+    this.setlistsService.createSetlist(createRequest).subscribe({
+      next: data => {
+        this.router.navigate(["/admin", "setlists", data.id]).catch((reason) => {
+          this.toastr.error(reason, "Failed to navigate to created setlist!");
+        });
+      },
+      error: err => {
+        let errorResponse: ErrorResponseDto = err.error;
+        console.warn("Failed create setlist:", err);
+
+        this.toastr.error(errorResponse.message, "Could not create setlist!");
+        this.isAddingMashup$ = false;
+      }
+    });
+  }
+
+
+  private getCreateEntryParameters(previewEntry: ImportSetlistEntryPreviewDto) : SetlistEntryParametersDto {
+    return {
+      songNumber: previewEntry.songNumber,
+      sortNumber: (previewEntry.songNumber ?? 1) * 10,
+      extraNotes: previewEntry.extraNotes,
+    };
   }
 }

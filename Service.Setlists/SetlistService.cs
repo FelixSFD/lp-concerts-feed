@@ -43,6 +43,40 @@ public class SetlistService(
         
         setlistRepository.Add(setlistDo);
         await setlistRepository.SaveChangesAsync();
+        
+        if (request.SongEntries != null)
+        {
+            logger.LogDebug("Song entries: {count}", request.SongEntries.Count);
+            await foreach (var addEntryParams in request.SongEntries.ToAsyncEnumerable())
+            {
+                await AddSongToSetlistAsync(addEntryParams, setlistDo.Id, false);
+            }
+        }
+        
+        if (request.SongVariantEntries != null)
+        {
+            logger.LogDebug("Song variant entries: {count}", request.SongVariantEntries.Count);
+            await foreach (var addEntryParams in request.SongVariantEntries.ToAsyncEnumerable())
+            {
+                await AddSongVariantToSetlistAsync(addEntryParams, setlistDo.Id, false);
+            }
+        }
+        
+        if (request.MashupEntries != null)
+        {
+            logger.LogDebug("Song mashup entries: {count}", request.MashupEntries.Count);
+            await foreach (var addEntryParams in request.MashupEntries.ToAsyncEnumerable())
+            {
+                await AddSongMashupToSetlistAsync(addEntryParams, setlistDo.Id, false);
+            }
+        }
+
+        if (request.SongEntries?.Count > 0 || request.SongVariantEntries?.Count > 0 || request.MashupEntries?.Count > 0)
+        {
+            logger.LogDebug("Saving entries...");
+            await setlistEntryRepository.SaveChangesAsync();
+            logger.LogDebug("Saved entries!");
+        }
 
         var response = new CreateSetlistResponseDto
         {
@@ -65,9 +99,10 @@ public class SetlistService(
     /// <param name="playedSong">Song that was played. One of these parameters should be set</param>
     /// <param name="playedSongVariant">Song variant that was played. One of these parameters should be set</param>
     /// <param name="playedSongMashup">Song mashup that was played. One of these parameters should be set</param>
+    /// <param name="saveContext">true, if the DbContext should be saved automatically</param>
     /// <returns>the newly created setlist entry</returns>
     /// <exception cref="SetlistNotFoundException">if the setlist does not exist. Call <see cref="CreateSetlistAsync"/> to create a setlist first.</exception>
-    private async Task<SetlistEntryDto> AddToSetlist(AddToSetlistRequestDto request, uint setlistId, SongDo? playedSong = null, SongVariantDo? playedSongVariant = null, SongMashupDo? playedSongMashup = null)
+    private async Task<SetlistEntryDto> AddToSetlist(AddToSetlistRequestDto request, uint setlistId, SongDo? playedSong = null, SongVariantDo? playedSongVariant = null, SongMashupDo? playedSongMashup = null, bool saveContext = true)
     {
         logger.LogDebug("Read or create setlist act: {actNumber}");
         SetlistActDo? actDo;
@@ -103,12 +138,15 @@ public class SetlistService(
         };
         
         setlistEntryRepository.Add(entry);
+
+        if (saveContext)
+        {
+            logger.LogDebug("Saving...");
+            await setlistEntryRepository.SaveChangesAsync();
+            logger.LogDebug("Successfully saved.");
         
-        logger.LogDebug("Saving...");
-        await setlistEntryRepository.SaveChangesAsync();
-        logger.LogDebug("Successfully saved.");
-        
-        await UpdateSetlistCacheForSetlist(setlistId, DateTimeOffset.Now);
+            await UpdateSetlistCacheForSetlist(setlistId, DateTimeOffset.Now);
+        }
 
         var setlistEntryDto = DtoMapper.ToDto(entry);
         return setlistEntryDto;
@@ -120,9 +158,10 @@ public class SetlistService(
     /// </summary>
     /// <param name="request">Request to add a new song to the setlist</param>
     /// <param name="setlistId">ID of the setlist where the song wil be added to</param>
+    /// <param name="saveContext">true, if the DbContext should be saved automatically</param>
     /// <returns>the newly created setlist entry</returns>
     /// <exception cref="SetlistNotFoundException">if the setlist does not exist. Call <see cref="CreateSetlistAsync"/> to create a setlist first.</exception>
-    public async Task<SetlistEntryDto> AddSongToSetlistAsync(AddSongToSetlistRequestDto request, uint setlistId)
+    public async Task<SetlistEntryDto> AddSongToSetlistAsync(AddSongToSetlistRequestDto request, uint setlistId, bool saveContext = true)
     {
         logger.LogDebug("Load setlist: {setlistId}", setlistId);
         var setlist = await setlistRepository.GetByPrimaryKeyAsync(setlistId);
@@ -152,7 +191,7 @@ public class SetlistService(
             songRepository.Add(song);
         }
 
-        return await AddToSetlist(request, setlistId, song);
+        return await AddToSetlist(request, setlistId, song, saveContext: saveContext);
     }
     
     
@@ -161,9 +200,10 @@ public class SetlistService(
     /// </summary>
     /// <param name="request">Request to add a new song variant to the setlist</param>
     /// <param name="setlistId">ID of the setlist where the song variant wil be added to</param>
+    /// <param name="saveContext">true, if the DbContext should be saved automatically</param>
     /// <returns>the newly created setlist entry</returns>
     /// <exception cref="SetlistNotFoundException">if the setlist does not exist. Call <see cref="CreateSetlistAsync"/> to create a setlist first.</exception>
-    public async Task<SetlistEntryDto> AddSongVariantToSetlistAsync(AddSongVariantToSetlistRequestDto request, uint setlistId)
+    public async Task<SetlistEntryDto> AddSongVariantToSetlistAsync(AddSongVariantToSetlistRequestDto request, uint setlistId, bool saveContext = true)
     {
         logger.LogDebug("Load setlist: {setlistId}", setlistId);
         var setlist = await setlistRepository.GetByPrimaryKeyAsync(setlistId);
@@ -195,7 +235,7 @@ public class SetlistService(
             songVariantRepository.Add(songVariant);
         }
 
-        return await AddToSetlist(request, setlistId, null, songVariant);
+        return await AddToSetlist(request, setlistId, null, songVariant, saveContext: saveContext);
     }
     
     
@@ -204,10 +244,11 @@ public class SetlistService(
     /// </summary>
     /// <param name="request">Request to add a song mashup to the setlist</param>
     /// <param name="setlistId">ID of the setlist where the song mashup wil be added to</param>
+    /// <param name="saveContext">true, if the DbContext should be saved automatically</param>
     /// <returns>the newly created setlist entry</returns>
     /// <exception cref="SetlistNotFoundException">if the setlist does not exist. Call <see cref="CreateSetlistAsync"/> to create a setlist first.</exception>
     /// <exception cref="SongMashupNotFoundException">if the provided mashup does not exist. Call <see cref="SongService.CreateMashupOfSongsAsync"/> to create a <see cref="SongMashupDo"/> first.</exception>
-    public async Task<SetlistEntryDto> AddSongMashupToSetlistAsync(AddSongMashupToSetlistRequestDto request, uint setlistId)
+    public async Task<SetlistEntryDto> AddSongMashupToSetlistAsync(AddSongMashupToSetlistRequestDto request, uint setlistId, bool saveContext = true)
     {
         logger.LogDebug("Load setlist: {setlistId}", setlistId);
         var setlist = await setlistRepository.GetByPrimaryKeyAsync(setlistId);
@@ -227,7 +268,7 @@ public class SetlistService(
         }
 
         logger.LogDebug("Found the mashup. Will add it to the setlist now...");
-        return await AddToSetlist(request, setlistId, null, null, songMashup);
+        return await AddToSetlist(request, setlistId, null, null, songMashup, saveContext);
     }
 
 

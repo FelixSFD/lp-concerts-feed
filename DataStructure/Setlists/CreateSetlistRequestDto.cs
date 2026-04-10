@@ -35,4 +35,22 @@ public class CreateSetlistRequestDto
     [MaxLength(63)]
     [JsonPropertyName("linkinpediaUrl")]
     public string? LinkinpediaUrl { get; set; }
+    
+    /// <summary>
+    /// If set, the songs are appended automatically to this setlist
+    /// </summary>
+    [JsonPropertyName("addSongs")]
+    public List<AddSongToSetlistRequestDto>? SongEntries { get; set; }
+    
+    /// <summary>
+    /// If set, the song variants are appended automatically to this setlist
+    /// </summary>
+    [JsonPropertyName("addSongVariants")]
+    public List<AddSongVariantToSetlistRequestDto>? SongVariantEntries { get; set; }
+    
+    /// <summary>
+    /// If set, the mashups are appended automatically to this setlist
+    /// </summary>
+    [JsonPropertyName("addSongMashups")]
+    public List<AddSongMashupToSetlistRequestDto>? MashupEntries { get; set; }
 }

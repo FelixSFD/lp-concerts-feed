@@ -722,6 +722,24 @@ components:
           type: string
           description: URL to the wiki page on Linkinpedia
           nullable: true
+        addSongs:
+          type: array
+          description: If set, the songs are appended automatically to this setlist
+          nullable: true
+          items:
+            $ref: "#/components/schemas/AddSongToSetlistRequest"
+        addSongVariants:
+          type: array
+          description: If set, the song variants are appended automatically to this setlist
+          nullable: true
+          items:
+            $ref: "#/components/schemas/AddSongVariantToSetlistRequest"
+        addSongMashups:
+          type: array
+          description: If set, the song mashups are appended automatically to this setlist
+          nullable: true
+          items:
+            $ref: "#/components/schemas/AddSongMashupToSetlistRequest"
     
     CreateSetlistResponse:
       type: object

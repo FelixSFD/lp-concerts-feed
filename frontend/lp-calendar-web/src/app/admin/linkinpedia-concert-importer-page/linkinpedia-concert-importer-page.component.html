@@ -78,11 +78,25 @@
           </div>
         }
       </div>
+
+      <!-- Concert Title -->
+      <div class="form-group mb-3">
+        <label for="concert">Concert Title:</label>
+        <input id="concert" type="text" formControlName="concertTitle" class="form-control"
+               [ngClass]="{ 'is-invalid': sourceDataForm.controls.concertTitle.invalid }">
+        @if (sourceDataForm.controls.concertTitle.invalid) {
+          <div class="text-danger">
+            @if (sourceDataForm.controls.concertTitle.errors) {
+              <small>Title is invalid.</small>
+            }
+          </div>
+        }
+      </div>
     </div>
     <div class="card-footer">
       <div class="row">
         <div class="col text-end">
-          <button class="btn btn-success" (click)="onLoadSourceClicked()" [disabled]="isReadingSource$ || !sourceDataForm.valid">
+          <button class="btn btn-primary" (click)="onLoadSourceClicked()" [disabled]="isReadingSource$ || !sourceDataForm.valid">
             <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" [hidden]="!isReadingSource$"></span>
             <span class="sr-only">{{ isReadingSource$ ? "Loading..." : "Load" }}</span>
           </button>
@@ -156,6 +170,17 @@
             }
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <div class="row">
+        <div class="col text-end">
+          <button class="btn btn-success" (click)="onCreateSetlistClicked()" [disabled]="isCreatingSetlist$ || !sourceDataForm.valid || !allEntriesValid$">
+            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" [hidden]="!isCreatingSetlist$"></span>
+            <span class="sr-only">{{ isCreatingSetlist$ ? "Importing..." : "Import" }}</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
