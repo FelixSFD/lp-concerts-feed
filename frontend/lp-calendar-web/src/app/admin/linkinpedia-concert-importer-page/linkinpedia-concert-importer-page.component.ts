@@ -5,22 +5,25 @@ import {HttpClient} from '@angular/common/http';
 import {ToastrService} from 'ngx-toastr';
 import {SetlistsService} from '../../services/setlists.service';
 import {
+  CreateSongMashupRequestDto,
   CreateSongRequestDto,
   ErrorResponseDto,
   ImportSetlistEntryPreviewDto,
   ImportSetlistPreviewDto,
-  SongDto
+  SongDto, SongMashupDto
 } from '../../modules/lpshows-api';
 import {SongFormComponent} from '../setlists/song-form/song-form.component';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {SongsService} from '../../services/songs.service';
+import {MashupFormComponent} from '../setlists/mashup-form/mashup-form.component';
 
 @Component({
   selector: 'app-linkinpedia-concert-importer-page',
   imports: [
     ReactiveFormsModule,
     NgClass,
-    SongFormComponent
+    SongFormComponent,
+    MashupFormComponent
   ],
   templateUrl: './linkinpedia-concert-importer-page.component.html',
   styleUrl: './linkinpedia-concert-importer-page.component.css',
@@ -49,6 +52,12 @@ export class LinkinpediaConcertImporterPageComponent {
   addSongModal: NgbModalRef | undefined;
   private newSongPrefillData: ImportSetlistEntryPreviewDto | undefined;
   private newSongFormComponent = viewChild(SongFormComponent);
+
+  // properties for the add mashup modal
+  isAddingMashup$: boolean = false;
+  addMashupModal: NgbModalRef | undefined;
+  private newMashupPrefillData: ImportSetlistEntryPreviewDto | undefined;
+  private newMashupFormComponent = viewChild(MashupFormComponent);
 
   onLoadSourceClicked() {
     this.startImport();
@@ -124,7 +133,7 @@ export class LinkinpediaConcertImporterPageComponent {
         let errorResponse: ErrorResponseDto = err.error;
         console.warn("Failed to fetch import data:", err);
 
-        this.toastr.error(errorResponse.message, "Could not get import data!");
+        this.toastr.error(errorResponse.message, "Could not create new song!");
         this.isAddingSong$ = false;
       }
     })
@@ -133,6 +142,56 @@ export class LinkinpediaConcertImporterPageComponent {
 
   dismissAddSongModal() {
     this.addSongModal?.dismiss();
+  }
+
+
+  openCreateMashupBtnClicked(entryPreview: ImportSetlistEntryPreviewDto, content: TemplateRef<any>) {
+    let mashupPrefill: SongMashupDto = {
+      title: entryPreview.title,
+    };
+
+    this.addMashupModal = this.openModal(content);
+    this.newMashupFormComponent()?.fillFormWith(mashupPrefill);
+  }
+
+
+  onAddMashupConfirm() {
+    this.isAddingMashup$ = true;
+
+    // find the song information
+    let newMashupValues = this.newMashupFormComponent()?.readFromForm();
+    if (!newMashupValues) {
+      this.toastr.error('Failed to read data from form');
+      return;
+    }
+
+    let createRequest: CreateSongMashupRequestDto = {
+      title: newMashupValues.title,
+      linkinpediaUrl: newMashupValues.linkinpediaUrl,
+      songIds: newMashupValues.songs.map(s => s.id!),
+    }
+
+    console.debug('Creating new song mashup...', createRequest);
+
+    this.songsService.createMashup(createRequest).subscribe({
+      next: data => {
+        this.onLoadSourceClicked();
+        this.isAddingMashup$ = false;
+        this.dismissAddMashupModal();
+      },
+      error: err => {
+        let errorResponse: ErrorResponseDto = err.error;
+        console.warn("Failed to fetch import data:", err);
+
+        this.toastr.error(errorResponse.message, "Could not create new song mashup!");
+        this.isAddingMashup$ = false;
+      }
+    })
+  }
+
+
+  dismissAddMashupModal() {
+    this.addMashupModal?.dismiss();
   }
 
 

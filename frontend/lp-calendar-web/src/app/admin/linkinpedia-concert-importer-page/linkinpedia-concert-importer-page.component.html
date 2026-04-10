@@ -18,6 +18,26 @@
   </div>
 </ng-template>
 
+<!-- add song mashup modal -->
+<ng-template #addMashupContent let-addMashupModal>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h1 class="modal-title fs-5" id="addMashupModalLabel">Add a new song mashup</h1>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <app-mashup-form [standalone]="false" [is-saving]="isAddingMashup$" />
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" [disabled]="isAddingMashup$" (click)="dismissAddMashupModal()">Cancel</button>
+      <button type="button" class="btn btn-primary" id="addSongConfirmBtn" (click)="onAddMashupConfirm()" [disabled]="isAddingMashup$">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!isAddingMashup$"></span>
+        <span class="sr-only">{{ isAddingMashup$ ? "Adding..." : "Add" }}</span>
+      </button>
+    </div>
+  </div>
+</ng-template>
+
 
 <h1>Import concert from Linkinpedia</h1>
 
@@ -112,7 +132,7 @@
                   <td></td>
                   <td colspan="3">
                     <button class="btn btn-sm btn-outline-primary me-2" (click)="openCreateSongBtnClicked(generatedEntry, addSongContent)">Create Song</button>
-                    <button class="btn btn-sm btn-outline-primary me-2">Create Mashup</button>
+                    <button class="btn btn-sm btn-outline-primary me-2" (click)="openCreateMashupBtnClicked(generatedEntry, addMashupContent)">Create Mashup</button>
                   </td>
                 </tr>
               }

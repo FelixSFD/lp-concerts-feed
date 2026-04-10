@@ -108,7 +108,7 @@ public class SetlistService(
         await setlistEntryRepository.SaveChangesAsync();
         logger.LogDebug("Successfully saved.");
         
-        await UpdateSetlistCacheForConcert(entry.Setlist.ConcertId, DateTimeOffset.Now);
+        await UpdateSetlistCacheForSetlist(setlistId, DateTimeOffset.Now);
 
         var setlistEntryDto = DtoMapper.ToDto(entry);
         return setlistEntryDto;
@@ -444,7 +444,7 @@ public class SetlistService(
         await setlistEntryRepository.SaveChangesAsync();
         logger.LogDebug("Updated setlist entry: {entryId}", entryId);
         
-        await UpdateSetlistCacheForConcert(setlistEntry.Setlist.ConcertId, DateTimeOffset.Now);
+        await UpdateSetlistCacheForSetlist(setlistId, DateTimeOffset.Now);
     }
     
     /// <summary>
@@ -632,6 +632,23 @@ public class SetlistService(
             .ToList();
     }
 
+    /// <summary>
+    /// Writes the setlist into the Concerts database to cache it. All concerts with this setlist will be updated.
+    /// </summary>
+    /// <param name="setlistId">ID of the setlist</param>
+    /// <param name="cacheDate"></param>
+    public async Task UpdateSetlistCacheForSetlist(uint setlistId, DateTimeOffset cacheDate)
+    {
+        var setlist = await setlistRepository.GetByPrimaryKeyAsync(setlistId);
+        if (setlist != null)
+        {
+            await UpdateSetlistCacheForConcert(setlist.ConcertId, DateTimeOffset.Now);
+        }
+        else
+        {
+            logger.LogWarning("Could not find set list {setlistId}, while updating its cache!", setlistId);
+        }
+    }
 
     /// <summary>
     /// Writes the setlist into the Concerts database to cache it

@@ -72,5 +72,13 @@ public class SetlistsDbContext(DbContextOptions<SetlistsDbContext> options) : Db
         modelBuilder.Entity<SongMashupDo>()
             .Navigation(e => e.Songs)
             .AutoInclude();
+        
+        modelBuilder.Entity<SongInMashupDo>()
+            .Navigation(e => e.Song)
+            .AutoInclude();
+        
+        modelBuilder.Entity<SongInMashupDo>()
+            .Navigation(e => e.Mashup)
+            .AutoInclude();
     }
 }

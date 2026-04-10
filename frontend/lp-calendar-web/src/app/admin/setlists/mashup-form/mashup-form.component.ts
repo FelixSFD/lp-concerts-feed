@@ -1,7 +1,7 @@
 import {Component, EventEmitter, inject, Input, OnInit, Output, TemplateRef} from '@angular/core';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ErrorResponseDto, SongDto, SongMashupDto} from '../../../modules/lpshows-api';
-import {NgClass} from '@angular/common';
+import {NgClass, NgTemplateOutlet} from '@angular/common';
 import {AddSetlistEntryFormComponent} from '../add-setlist-entry-form/add-setlist-entry-form.component';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {SelectSongComponent} from '../select-song/select-song.component';
@@ -15,7 +15,8 @@ import {RouterLink} from '@angular/router';
     FormsModule,
     ReactiveFormsModule,
     NgClass,
-    SelectSongComponent
+    SelectSongComponent,
+    NgTemplateOutlet
   ],
   templateUrl: './mashup-form.component.html',
   styleUrl: './mashup-form.component.css',
@@ -28,6 +29,12 @@ export class MashupFormComponent implements OnInit {
 
   @Input("is-saving")
   isSaving$: boolean = false;
+
+  /*
+   * true, if the for is "standalone", meaning it manages its own layout and has a save-button
+   */
+  @Input("standalone")
+  standalone$: boolean = true;
 
   @Output("saveClicked")
   saveClicked = new EventEmitter<MashupFormContent>();
@@ -107,7 +114,7 @@ export class MashupFormComponent implements OnInit {
   }
 
 
-  private readFromForm(): MashupFormContent | null {
+  public readFromForm(): MashupFormContent | null {
     let title = this.mashupForm.value.title?.valueOf();
     let linkinpediaUrl = this.mashupForm.value.linkinpediaUrl?.valueOf();
 

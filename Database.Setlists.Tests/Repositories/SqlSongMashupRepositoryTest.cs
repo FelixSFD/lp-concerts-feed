@@ -67,6 +67,12 @@ public class SqlSongMashupRepositoryTest : DbIntegrationTestsBase
         Assert.Equal(retrievedMashup.LinkinpediaUrl, mashup.LinkinpediaUrl);
         
         Assert.Equal(2, retrievedMashup.Songs.Count);
+        
+        var includedSongs = retrievedMashup.Songs.Select(s => s.Song).ToList();
+        var includedSong1 = includedSongs[0];
+        var includedSong2 = includedSongs[1];
+        Assert.Equal("Test Song", includedSong1.Title);
+        Assert.Equal("Test Song 2", includedSong2.Title);
 
         repo.Delete(mashup);
         

@@ -126,7 +126,7 @@ public class SetlistServiceTest
         
         // verify mock calls
         await _setlistRepository
-            .Received(1)
+            .Received(2)
             .GetByPrimaryKeyAsync(setlist1.Id);
         
         _setlistEntryRepository
@@ -195,7 +195,7 @@ public class SetlistServiceTest
         
         // verify mock calls
         await _setlistRepository
-            .Received(1)
+            .Received(2)
             .GetByPrimaryKeyAsync(setlist1.Id);
         
         await _songRepository
@@ -268,7 +268,7 @@ public class SetlistServiceTest
         
         // verify mock calls
         await _setlistRepository
-            .Received(1)
+            .Received(2)
             .GetByPrimaryKeyAsync(setlist1.Id);
         
         await _songRepository
@@ -433,7 +433,7 @@ public class SetlistServiceTest
         
         // verify mock calls
         await _setlistRepository
-            .Received(1)
+            .Received(2)
             .GetByPrimaryKeyAsync(setlist1.Id);
         
         await _songMashupRepository
