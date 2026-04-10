@@ -61,6 +61,7 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   hasWriteAccess$ = false;
 
   setlists$: Setlist[] = [];
+  setlistsCacheUpdatedAt$: DateTime | null = null;
 
   constructor(private route: ActivatedRoute, private concertsService: ConcertsService, private setlistService: SetlistsService, private metaService: Meta) {
     this.oidcSecurityService.checkAuth().subscribe(({ isAuthenticated }) => {
@@ -243,11 +244,14 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
           this.addOrMoveMarker(result.venueLongitude, result.venueLatitude);
         }
 
+        this.setlists$ = result.cachedSetlists?.map(s => Setlist.fromDto(s)) ?? [];
+        this.setlistsCacheUpdatedAt$ = result.cachedSetlistsAt != null ? this.getDateTime(result.cachedSetlistsAt) : null;
+
         return this.concert$ = result;
       });
 
     // load setlist
-    this.setlistService
+    /*this.setlistService
       .getSetlistsForConcert(this.concertId)
       .subscribe({
         next: result => {
@@ -258,7 +262,7 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
           let errorResponse: ErrorResponseDto = err.error;
           this.toastr.error(errorResponse.message, "Could not load setlist");
         }
-      })
+      })*/
   }
 
 

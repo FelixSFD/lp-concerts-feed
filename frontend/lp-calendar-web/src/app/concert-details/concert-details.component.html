@@ -72,6 +72,12 @@
                 </div>
                 <div class="card-body">
                   <app-setlist [setlist]="setlist" />
+
+                  @if (setlistsCacheUpdatedAt$ != null) {
+                    <div class="mt-2">
+                      <small>Last updated: {{ setlistsCacheUpdatedAt$?.toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS) }}</small>
+                    </div>
+                  }
                 </div>
               </div>
             </div>

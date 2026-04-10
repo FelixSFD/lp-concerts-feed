@@ -7,7 +7,8 @@ import {
   AdjacentConcertsResponseDto, ConcertBookmarkUpdateRequestDto,
   ConcertDto,
   ConcertFileUploadRequestDto, ConcertFileUploadResponseDto,
-  ConcertsService as ConcertsApiClient, ConcertWithBookmarkStatusDto, GetConcertBookmarkCountsResponseDto
+  ConcertsService as ConcertsApiClient, ConcertWithBookmarkStatusDto,
+  ConcertWithSetlistsDto, GetConcertBookmarkCountsResponseDto
 } from '../modules/lpshows-api';
 import {AuthService} from '../auth/auth.service';
 
@@ -43,7 +44,7 @@ export class ConcertsService {
   }
 
 
-  getConcert(concertId: string, cached: boolean = true) : Observable<ConcertDto> {
+  getConcert(concertId: string, cached: boolean = true) : Observable<ConcertWithSetlistsDto> {
     if (!cached) {
       // disable caching
       return this.concertsApiClient.getConcertById(concertId, Guid.create().toString(), "body", false);
