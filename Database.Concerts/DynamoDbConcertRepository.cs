@@ -348,6 +348,18 @@ public class DynamoDbConcertRepository : IConcertRepository
         if (existing != null)
         {
             concert.ScheduleImageFile = existing.ScheduleImageFile;
+
+            _logger.LogDebug("Previous CachedSetlistsAt: {previous}; New: {new}", existing.CachedSetlistsAt, concert.CachedSetlistsAt);
+            if (concert.CachedSetlistsAt == null || concert.CachedSetlistsAt < existing.CachedSetlistsAt)
+            {
+                _logger.LogDebug("Discard the cached setlist fields from the request as the stored data is more recent.");
+                concert.CachedSetlistsJson = existing.CachedSetlistsJson;
+                concert.CachedSetlistsAt = existing.CachedSetlistsAt;
+            }
+            else
+            {
+                _logger.LogDebug("Not overriding setlist fields because the new data is more recent.");
+            }
         }
         
         concert.LastChange = DateTimeOffset.UtcNow;
