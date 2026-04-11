@@ -63,11 +63,13 @@ public class LinkinpediaImportServiceTest
                 {
                     Name = "Inception Intro A",
                     ActNumber = 1,
+                    ExtraNotes = "COG vocals",
                 },
                 new ImportSetlistActPreviewDto
                 {
                     Name = "Resolution Intro A",
                     ActNumber = 2,
+                    ExtraNotes = "COG vocals 2",
                 },
             ],
             Entries = [
@@ -110,6 +112,7 @@ public class LinkinpediaImportServiceTest
             {
                 Name = "Inception Intro A",
                 ActNumber = 1,
+                Note = "COG vocals",
             },
             new SongWikiSetlistEntry
             {
@@ -129,6 +132,7 @@ public class LinkinpediaImportServiceTest
             {
                 Name = "Resolution Intro A",
                 ActNumber = 2,
+                Note = "COG vocals 2",
             },
             new SongWikiSetlistEntry
             {
@@ -215,6 +219,7 @@ public class LinkinpediaImportServiceTest
     {
         Assert.Equal(expectedAct.Name, actualAct.Name);
         Assert.Equal(expectedAct.ActNumber, actualAct.ActNumber);
+        Assert.Equal(expectedAct.ExtraNotes, actualAct.ExtraNotes);
     }
     
     private void AssertEqual(ImportSetlistEntryPreviewDto expectedEntry,

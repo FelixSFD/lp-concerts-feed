@@ -52,6 +52,7 @@ public class LinkinpediaImportService(IWikiMediaRepository wikiMediaRepository, 
         {
             Name = wikiSetlistEntry.Name ?? "Unknown",
             ActNumber = wikiSetlistEntry.ActNumber,
+            ExtraNotes = wikiSetlistEntry.Note,
         };
         
         return preview;

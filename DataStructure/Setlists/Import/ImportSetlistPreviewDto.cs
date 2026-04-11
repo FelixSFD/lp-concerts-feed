@@ -25,6 +25,9 @@ public class ImportSetlistActPreviewDto
     /// </summary>
     [JsonPropertyName("actNumber")]
     public required uint ActNumber { get; set; }
+    
+    [JsonPropertyName("extraNotes")]
+    public string? ExtraNotes { get; set; }
 }
 
 
