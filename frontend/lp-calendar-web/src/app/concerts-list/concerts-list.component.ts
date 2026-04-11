@@ -16,6 +16,7 @@ import {ToastrService} from 'ngx-toastr';
 import {ConcertFilterComponent} from '../concert-filter/concert-filter.component';
 import {ConcertFilter} from '../data/concert-filter';
 import {ConcertDto, ErrorResponseDto} from '../modules/lpshows-api';
+import {AuthService} from '../auth/auth.service';
 
 @Component({
   selector: 'app-concerts-list',
@@ -55,11 +56,12 @@ export class ConcertsListComponent implements OnInit {
   private concertIdToDelete: string | undefined;
 
   // Service to check auth information
-  private readonly oidcSecurityService = inject(OidcSecurityService);
+  private readonly authService = inject(AuthService);
 
-  hasWriteAccess$ = false;
-
-  useNewTable$: boolean = true;
+  canAddConcerts$ = false;
+  canUpdateConcerts$ = false;
+  canDeleteConcerts$ = false;
+  canManageSetlists$ = false;
 
   // default filter that is used when loading the list
   defaultFilter: ConcertFilter = {
@@ -75,8 +77,17 @@ export class ConcertsListComponent implements OnInit {
   constructor(private concertsService: ConcertsService, private toastr: ToastrService) {
     this.reloadConcertList(true);
 
-    this.oidcSecurityService.checkAuth().subscribe(({ isAuthenticated }) => {
-      this.hasWriteAccess$ = isAuthenticated;
+    this.authService.canAddConcerts.subscribe(hasPermission => {
+      this.canAddConcerts$ = hasPermission;
+    });
+    this.authService.canUpdateConcerts.subscribe(hasPermission => {
+      this.canUpdateConcerts$ = hasPermission;
+    });
+    this.authService.canDeleteConcerts.subscribe(hasPermission => {
+      this.canDeleteConcerts$ = hasPermission;
+    });
+    this.authService.canManageSetlists.subscribe(hasPermission => {
+      this.canManageSetlists$ = hasPermission;
     });
   }
 
@@ -107,12 +118,6 @@ export class ConcertsListComponent implements OnInit {
   onShowHistoricSwitchChanged() {
     this.reloadConcertList(true);
     console.log("Show historic: " + this.showHistoricConcerts$)
-  }
-
-
-  onUseNewTableSwitchChanged() {
-    //this.reloadConcertList(true);
-    console.log("use new table: " + this.useNewTable$)
   }
 
 

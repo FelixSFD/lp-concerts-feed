@@ -87,6 +87,27 @@ export class AuthService {
   }
 
   /**
+   * true if the user can add concerts
+   */
+  get canAddConcerts() {
+    return this.isMemberOfOrAdmin("AddConcerts");
+  }
+
+  /**
+   * true if the user can update existing concerts
+   */
+  get canUpdateConcerts() {
+    return this.isMemberOfOrAdmin("UpdateConcerts");
+  }
+
+  /**
+   * true if the user can delete concerts
+   */
+  get canDeleteConcerts() {
+    return this.isMemberOfOrAdmin("DeleteConcerts");
+  }
+
+  /**
    * true if the user can manage setlists and songs
    */
   get canManageSetlists() {
