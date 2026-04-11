@@ -143,7 +143,7 @@ public partial class WikitextParser : IWikitextParser
             };
         }
         
-        if (lines.Any(l => l.StartsWith("| TapeIntro")))
+        /*if (lines.Any(l => l.StartsWith("| TapeIntro")))
         {
             // if any line started with Song, we know it's the intro song played from recording
             var dictionary = lines.Select(ExtractSetlistLineKeyValue).ToDictionary(kv => kv.key, kv => kv.value);
@@ -154,7 +154,7 @@ public partial class WikitextParser : IWikitextParser
                 Name = dictionary.GetValueOrDefault("TapeIntro"),
                 Note = dictionary.GetValueOrDefault("TapeNote")
             };
-        }
+        }*/
 
         // anything else is not implemented and will be discarded
         return null;
