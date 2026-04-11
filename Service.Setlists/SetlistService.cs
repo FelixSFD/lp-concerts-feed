@@ -153,6 +153,29 @@ public class SetlistService(
         var setlistEntryDto = DtoMapper.ToDto(entry);
         return setlistEntryDto;
     }
+    
+    
+    /// <summary>
+    /// Adds a new custom entry to the setlist. This should only be used in the rare cases where we don't want to reuse the played title
+    /// </summary>
+    /// <param name="request">Request to add a new entry to the setlist</param>
+    /// <param name="setlistId">ID of the setlist where the entry wil be added to</param>
+    /// <param name="saveContext">true, if the DbContext should be saved automatically</param>
+    /// <returns>the newly created setlist entry</returns>
+    /// <exception cref="SetlistNotFoundException">if the setlist does not exist. Call <see cref="CreateSetlistAsync"/> to create a setlist first.</exception>
+    public async Task<SetlistEntryDto> AddCustomEntryToSetlistAsync(AddCustomEntryToSetlistRequestDto request, uint setlistId, bool saveContext = true)
+    {
+        logger.LogDebug("Load setlist: {setlistId}", setlistId);
+        var setlist = await setlistRepository.GetByPrimaryKeyAsync(setlistId);
+        if (setlist == null)
+        {
+            throw new SetlistNotFoundException(setlistId);
+        }
+        
+        logger.LogDebug("Adding custom entry to setlist: {setlistId}", setlist.Id);
+
+        return await AddToSetlist(request, setlistId, saveContext: saveContext);
+    }
 
 
     /// <summary>

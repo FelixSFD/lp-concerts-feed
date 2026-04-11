@@ -148,6 +148,21 @@ public class Function
             return ReturnBadRequest("Invalid setlist ID!");
         }
         
+        if (request is { HttpMethod: "POST", Resource: "/setlists/{setlistId}/custom" } && hasSetlistIdPathParameter)
+        {
+            if (request.Body == null)
+            {
+                return ReturnBadRequest("Missing request body!");
+            }
+            
+            context.Logger.LogInformation("Adding a song mashup to the setlist with ID '{setlistId}' ...", setlistId);
+            if (setlistId != null)
+                return await HandleAddCustomEntryToSetlist(request.Body, setlistId ?? 0, context);
+            
+            context.Logger.LogError("Invalid setlist ID!");
+            return ReturnBadRequest("Invalid setlist ID!");
+        }
+        
         if (request is { HttpMethod: "POST", Resource: "/setlists/{setlistId}" } && hasSetlistIdPathParameter)
         {
             return await HandleUpdateSetlistHeader(setlistId ?? 0, request.Body, context);
@@ -555,6 +570,63 @@ public class Function
             return new APIGatewayProxyResponse
             {
                 StatusCode = (int)HttpStatusCode.NoContent,
+                Headers = new Dictionary<string, string>
+                {
+                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Methods", "OPTIONS, POST" }
+                }
+            };
+        }
+        catch (SetlistNotFoundException e)
+        {
+            return HandleNotFoundException(e.Message, "OPTIONS, POST", context.Logger);
+        }
+    }
+    
+    private async Task<APIGatewayProxyResponse> HandleAddCustomEntryToSetlist(string requestJson, uint setlistId,
+        ILambdaContext context)
+    {
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.AddCustomEntryToSetlistRequestDto);
+        if (dto != null)
+            return await HandleAddCustomEntryToSetlist(dto, setlistId, context);
+        
+        var badRequestResponse = new ErrorResponse
+        {
+            Message = "Failed to deserialize the request body"
+        };
+            
+        context.Logger.LogError(badRequestResponse.Message);
+            
+        return new APIGatewayProxyResponse()
+        {
+            StatusCode = (int)HttpStatusCode.BadRequest,
+            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
+            Headers = new Dictionary<string, string>
+            {
+                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Methods", "OPTIONS, GET, POST" }
+            }
+        };
+    }
+    
+    /// <summary>
+    /// Adds a new custom entry to an existing setlist
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="setlistId">ID of the setlist</param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    private async Task<APIGatewayProxyResponse> HandleAddCustomEntryToSetlist(AddCustomEntryToSetlistRequestDto request, uint setlistId,
+        ILambdaContext context)
+    {
+        try
+        {
+            var entryDto = await _setlistService.AddCustomEntryToSetlistAsync(request, setlistId);
+            var responseDto = new AddCustomEntryToSetlistResponseDto(entryDto);
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.Created,
+                Body = JsonSerializer.Serialize(responseDto, SetlistDtoJsonContext.Default.AddCustomEntryToSetlistResponseDto),
                 Headers = new Dictionary<string, string>
                 {
                     { "Access-Control-Allow-Origin", "*" },

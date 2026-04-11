@@ -20,6 +20,10 @@ public class SqlSetlistEntryRepository(SetlistsDbContext dbContext)
             .Reference(e => e.PlayedSong)
             .LoadAsync();
         
+        await Context.Entry(dataObject)
+            .Reference(e => e.Setlist)
+            .LoadAsync();
+        
         return dataObject;
     }
 }

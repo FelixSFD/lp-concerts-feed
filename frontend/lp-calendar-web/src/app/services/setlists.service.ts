@@ -8,7 +8,7 @@ import {
   ConcertsService as ConcertsApiClient, UpdateSetlistHeaderRequestDto, AddSongToSetlistRequestDto,
   SetlistEntryParametersDto, AddSongVariantToSetlistRequestDto, SetlistEntryDto, ActParametersDto, RawSetlistEntryDto,
   UpdateSetlistEntryRequestDto, SongParametersDto, SongVariantParametersDto, SetlistActDto,
-  AddSongMashupToSetlistRequestDto, SongMashupParametersDto, ImportSetlistRequestDto, ImportSetlistPreviewDto,
+  AddSongMashupToSetlistRequestDto, AddCustomEntryToSetlistRequestDto, SongMashupParametersDto, ImportSetlistRequestDto, ImportSetlistPreviewDto,
 } from '../modules/lpshows-api';
 import {map, Observable, throwError} from 'rxjs';
 import {Guid} from 'guid-typescript';
@@ -174,11 +174,11 @@ export class SetlistsService {
 
       return this.setlistsApiClient.addSongMashupToSetlist(setlistId, addSongMashupRequest);
     } else if (entryType == AddSetlistEntryFormContent.entryTypeFreeText) {
-      let addSongRequest: AddSongToSetlistRequestDto = {
+      let addEntryRequest: AddCustomEntryToSetlistRequestDto = {
         entryParameters: entryParameters,
         actParameters: actParameters
       };
-      return this.setlistsApiClient.addSongToSetlist(setlistId, addSongRequest);
+      return this.setlistsApiClient.addCustomEntryToSetlist(setlistId, addEntryRequest);
     } else {
       return throwError(() => ({
         error: { message: `The entry type '${entryType}' is not implemented` }

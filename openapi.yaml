@@ -1092,6 +1092,32 @@ components:
           oneOf:
             - $ref: "#/components/schemas/SetlistEntry"
     
+    AddCustomEntryToSetlistRequest:
+      type: object
+      description: Request to add a custom entry to an existing setlist
+      properties:
+        actParameters:
+          type: object
+          description: If set, the added song will be added to this Act. Title isn't required if the Act already exists.
+          nullable: true
+          anyOf:
+            - $ref: "#/components/schemas/ActParameters"
+        entryParameters:
+          type: object
+          description: Common parameters for that entry, no matter if it was a song or mashup
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntryParameters"
+
+    AddCustomEntryToSetlistResponse:
+      type: object
+      description: Response after a entry was added to the setlist
+      properties:
+        addedSetlistEntry:
+          type: object
+          description: The new entry that was added to the setlist
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntry"
+    
     UpdateSetlistEntryRequest:
       type: object
       description: Request to update a single setlist entry
@@ -2497,6 +2523,50 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/AddSongMashupToSetlistResponse"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /setlists/{setlistId}/custom:
+    post:
+      operationId: AddCustomEntryToSetlist
+      summary: Adds a new custom entry to the setlist and creates
+      description: Only use this if we don't want to reuse the title played. (like the intro song)
+      tags:
+        - setlists
+      parameters:
+        - in: path
+          name: setlistId
+          description: ID of the setlist
+          required: true
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddCustomEntryToSetlistRequest"
+      responses:
+        "201":
+          description: The setlist entry that has just been created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AddCustomEntryToSetlistResponse"
       security:
         - ConcertsCognitoAuthorizer: [ "openid" ]
       x-amazon-apigateway-integration:
