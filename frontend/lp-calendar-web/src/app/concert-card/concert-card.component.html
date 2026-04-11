@@ -50,6 +50,11 @@
 
   @if (concert$?.id != null) {
     <div class="card-footer text-end">
+      @if (canUpdateConcerts$) {
+        <button type="button" class="btn btn-outline-secondary me-2" [routerLink]="['/concerts/' + concert$?.id] + '/edit'">
+          <i class="bi bi-pencil"></i><span class="d-none d-xs-none d-sm-none d-md-inline">&nbsp;Edit</span>
+        </button>
+      }
       <button class="btn btn-outline-info" [routerLink]="['/concerts', concert$?.id]"><i class="bi bi-info-circle"></i> Details</button>
     </div>
   } @else if (isLoading$) {

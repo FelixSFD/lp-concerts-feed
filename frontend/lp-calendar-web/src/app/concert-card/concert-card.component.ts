@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, inject, Input, OnInit} from '@angular/core';
 import {CountdownComponent} from '../countdown/countdown.component';
 import {ConcertsService} from '../services/concerts.service';
 
@@ -6,6 +6,7 @@ import {RouterLink} from '@angular/router';
 import {ConcertTitleGenerator} from '../data/concert-title-generator';
 import {ConcertDto} from '../modules/lpshows-api';
 import {DateTime} from 'luxon';
+import {AuthService} from '../auth/auth.service';
 
 @Component({
   selector: 'app-concert-card',
@@ -17,6 +18,8 @@ import {DateTime} from 'luxon';
   styleUrl: './concert-card.component.css'
 })
 export class ConcertCardComponent implements OnInit{
+  private authService = inject(AuthService);
+
   @Input("cardTitle")
   cardTitle: string = "Concert";
 
@@ -32,11 +35,16 @@ export class ConcertCardComponent implements OnInit{
   @Input("notFoundAlertText")
   notFoundAlertText: string = "Concert was not found";
 
+  canUpdateConcerts$ = false;
+
   constructor() {
   }
 
 
   ngOnInit(): void {
+    this.authService.canUpdateConcerts.subscribe(hasPermission => {
+      this.canUpdateConcerts$ = hasPermission;
+    });
   }
 
   protected readonly ConcertTitleGenerator = ConcertTitleGenerator;
