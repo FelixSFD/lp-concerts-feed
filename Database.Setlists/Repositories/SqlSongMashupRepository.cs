@@ -14,4 +14,13 @@ public class SqlSongMashupRepository(SetlistsDbContext dbContext)
         
         return dataObject;
     }
+    
+    /// <inheritdoc/>
+    public IAsyncEnumerable<SongMashupDo> GetMashupsByTitle(string title)
+    {
+        return DbSet
+            .AsQueryable()
+            .Where(s => s.Title == title)
+            .ToAsyncEnumerable();
+    }
 }

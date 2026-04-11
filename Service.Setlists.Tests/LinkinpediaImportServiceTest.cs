@@ -16,6 +16,7 @@ public class LinkinpediaImportServiceTest
     private readonly IWikiMediaRepository _wikiMediaRepository;
     private readonly IWikitextParser _wikitextParser;
     private readonly ISongRepository _songRepository;
+    private readonly ISongMashupRepository _songMashupRepository;
     private readonly LinkinpediaImportService _sut;
 
     public LinkinpediaImportServiceTest()
@@ -23,8 +24,9 @@ public class LinkinpediaImportServiceTest
         _wikiMediaRepository = Substitute.For<IWikiMediaRepository>();
         _wikitextParser = Substitute.For<IWikitextParser>();
         _songRepository = Substitute.For<ISongRepository>();
+        _songMashupRepository = Substitute.For<ISongMashupRepository>();
         
-        _sut = new LinkinpediaImportService(_wikiMediaRepository, _wikitextParser, _songRepository, new TestLambdaLogger());
+        _sut = new LinkinpediaImportService(_wikiMediaRepository, _wikitextParser, _songRepository, _songMashupRepository, new TestLambdaLogger());
     }
     
     [Fact]

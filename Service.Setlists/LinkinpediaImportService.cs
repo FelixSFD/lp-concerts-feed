@@ -11,7 +11,7 @@ namespace Service.Setlists;
 /// <summary>
 /// Service to import data from Linkinpedia
 /// </summary>
-public class LinkinpediaImportService(IWikiMediaRepository wikiMediaRepository, IWikitextParser wikitextParser, ISongRepository songRepository, ILambdaLogger logger)
+public class LinkinpediaImportService(IWikiMediaRepository wikiMediaRepository, IWikitextParser wikitextParser, ISongRepository songRepository, ISongMashupRepository songMashupRepository, ILambdaLogger logger)
 {
     public const string LinkinpediaRestApiBaseUrl = "https://linkinpedia.com/w/rest.php/v1";
     
@@ -87,6 +87,31 @@ public class LinkinpediaImportService(IWikiMediaRepository wikiMediaRepository, 
             {
                 logger.LogInformation("Song '{title}' has {count} matches.", wikiSetlistEntry.Name, existingSongs.Length);
                 preview.FoundSongIds = existingSongs.Select(s => s.Id).ToArray();
+            }
+
+            if (existingSongs.Length == 0)
+            {
+                logger.LogDebug("No songs found for title '{title}'. Try to search for mashups...", wikiSetlistEntry.Name);
+                var existingMashups = await songMashupRepository.GetMashupsByTitle(preview.Title).ToArrayAsync();
+                try
+                {
+                    var uniqueMashup = existingMashups.SingleOrDefault();
+                    if (uniqueMashup != null)
+                    {
+                        logger.LogDebug("Mashup '{title}' has an exact match with ID {mashupId}.", wikiSetlistEntry.Name, uniqueMashup.Id);
+                        preview.FoundMashupId = uniqueMashup.Id;
+                    }
+                    else
+                    {
+                        logger.LogWarning("Mashup '{title}' could not be found.", wikiSetlistEntry.Name);
+                    }
+                }
+                catch (InvalidOperationException exception)
+                {
+                    logger.LogWarning(exception.Message);
+                    logger.LogInformation("Mashup '{title}' has {count} matches.", wikiSetlistEntry.Name, existingSongs.Length);
+                    //preview.f = existingSongs.Select(s => s.Id).ToArray();
+                }
             }
 
             preview.SongNumber = ((SongWikiSetlistEntry)wikiSetlistEntry).SongNumber;
