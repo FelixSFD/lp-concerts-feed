@@ -92,6 +92,20 @@
           </div>
         }
       </div>
+
+      <!-- Set name -->
+      <div class="form-group mb-3">
+        <label for="setName">Name of the set:</label>
+        <input id="setName" type="text" formControlName="setName" class="form-control"
+               [ngClass]="{ 'is-invalid': sourceDataForm.controls.setName.invalid }">
+        @if (sourceDataForm.controls.setName.invalid) {
+          <div class="text-danger">
+            @if (sourceDataForm.controls.concertTitle.errors) {
+              <small>Name is invalid.</small>
+            }
+          </div>
+        }
+      </div>
     </div>
     <div class="card-footer">
       <div class="row">

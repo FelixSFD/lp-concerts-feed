@@ -56,7 +56,8 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
 
   sourceDataForm = this.formBuilder.group({
     concertId: new FormControl('', [Validators.required]),
-    concertTitle: new FormControl('', [Validators.min(5)]),
+    concertTitle: new FormControl('', [Validators.required, Validators.min(5)]),
+    setName: new FormControl('', []),
     linkinpediaUrl: new FormControl('https://linkinpedia.com/wiki/Live:20240905', [Validators.required, Validators.pattern(/^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/)]),
   });
 
@@ -270,9 +271,12 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
       return;
     }
 
+    let setName = this.sourceDataForm.value.setName?.valueOf() ?? null;
+
     let createRequest: CreateSetlistRequestDto = {
       concertId: concertId,
       concertTitle: concertTitle,
+      setName: setName,
       linkinpediaUrl: linkinpediaUrl,
       addSongs: this.generatedSetlist$?.entries?.filter(e => e.foundSongId).map(e => {
         let currentAct = this.generatedSetlist$?.acts?.filter(a => a.actNumber == e.actNumber).at(0) ?? null;
