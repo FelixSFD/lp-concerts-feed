@@ -311,18 +311,21 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
     };
 
     console.debug('Creating new set list...', createRequest);
+    this.isCreatingSetlist$ = true;
     this.setlistsService.createSetlist(createRequest).subscribe({
       next: data => {
         this.router.navigate(["/admin", "setlists", data.id]).catch((reason) => {
           this.toastr.error(reason, "Failed to navigate to created setlist!");
         });
+
+        this.isCreatingSetlist$ = false;
       },
       error: err => {
         let errorResponse: ErrorResponseDto = err.error;
         console.warn("Failed create setlist:", err);
 
         this.toastr.error(errorResponse.message, "Could not create setlist!");
-        this.isAddingMashup$ = false;
+        this.isCreatingSetlist$ = false;
       }
     });
   }
