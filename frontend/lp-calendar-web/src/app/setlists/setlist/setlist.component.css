@@ -1,11 +1,11 @@
-.table-container {
+.collapsible-table {
   max-height: 350px;
   overflow: hidden;
   transition: max-height 0.4s ease;
   position: relative;
 }
 
-.table-wrapper.expanded .table-container {
+.table-wrapper.expanded .collapsible-table {
   max-height: 5000px;
 }
 
