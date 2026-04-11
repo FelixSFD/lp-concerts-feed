@@ -113,4 +113,16 @@ public class WikitextParserTest
         Assert.NotNull(setlistSource);
         Assert.Equal(expectedSetlistSource, setlistSource);
     }
+    
+    [Fact]
+    public async Task ExtractSetlistSource_PageHasRehearsals()
+    {
+        var pageSource = await File.ReadAllTextAsync("TestData/Wiki/page_source_Live_20250618.txt");
+        var expectedSetlistSource = await File.ReadAllTextAsync("TestData/Wiki/setlist_source_Live_20250618.txt");
+        var parser = new WikitextParser();
+
+        var setlistSource = parser.ExtractSetlistSource(pageSource);
+        Assert.NotNull(setlistSource);
+        Assert.Equal(expectedSetlistSource, setlistSource);
+    }
 }

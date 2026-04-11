@@ -80,8 +80,10 @@ public partial class WikitextParser : IWikitextParser
     /// <returns>the setlist part or null if no setlist was found</returns>
     public string? ExtractSetlistSource(string pageSource)
     {
-        var match = ExtractSetlistFromSourceRegex.Match(pageSource);
-        return match is not { Success: true } ? null : match.Value;
+        var matches = ExtractSetlistFromSourceRegex.Matches(pageSource);
+        return matches
+            .FirstOrDefault(m => !m.Value.Contains("Type = Rehearsal", StringComparison.InvariantCultureIgnoreCase))
+            ?.Value;
     }
 
     private static WikiSetlistEntry? LinesToWikiSetlistEntry(string[] lines)
