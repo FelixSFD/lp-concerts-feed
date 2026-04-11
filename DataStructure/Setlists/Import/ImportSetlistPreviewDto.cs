@@ -6,9 +6,25 @@ public class ImportSetlistPreviewDto
 {
     [JsonPropertyName("concertId")]
     public string? ConcertId { get; set; }
+    
+    [JsonPropertyName("acts")]
+    public required List<ImportSetlistActPreviewDto> Acts { get; set; }
 
     [JsonPropertyName("entries")]
     public required List<ImportSetlistEntryPreviewDto> Entries { get; set; }
+}
+
+
+public class ImportSetlistActPreviewDto
+{
+    [JsonPropertyName("name")]
+    public required string Name { get; set; }
+    
+    /// <summary>
+    /// Act number
+    /// </summary>
+    [JsonPropertyName("actNumber")]
+    public required uint ActNumber { get; set; }
 }
 
 
@@ -25,6 +41,12 @@ public class ImportSetlistEntryPreviewDto
     /// </summary>
     [JsonPropertyName("songNumber")]
     public uint SongNumber { get; set; }
+    
+    /// <summary>
+    /// Act number
+    /// </summary>
+    [JsonPropertyName("actNumber")]
+    public uint? ActNumber { get; set; }
 
     /// <summary>
     /// If a song was uniquely identified by title, its ID will be added here

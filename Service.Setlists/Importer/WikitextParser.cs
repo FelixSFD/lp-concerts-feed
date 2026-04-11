@@ -41,7 +41,7 @@ public partial class WikitextParser : IWikitextParser
             .GroupBy(l =>
             {
                 var match = ExtractIndexFromSetlistLine.Match(l);
-                uint.TryParse(match.Groups["index"].Value, out var index);
+                _ = uint.TryParse(match.Groups["index"].Value, out var index);
                 return index;
             });
 
@@ -68,7 +68,9 @@ public partial class WikitextParser : IWikitextParser
             })
             .Where(e => e is not null)
             .Cast<WikiSetlistEntry>();
-        return wikiSetlistEntries.ToArray();
+        
+        var finishedEntries = SetActNumbers(wikiSetlistEntries.ToArray());
+        return finishedEntries;
     }
 
     /// <summary>
@@ -123,5 +125,29 @@ public partial class WikitextParser : IWikitextParser
         var match = ExtractKeyAndValueFromSetlistLine.Match(line);
         _ = uint.TryParse(match.Groups["index"].Value, out var index);
         return (match.Groups["key"].Value, match.Groups["value"].Value, index);
+    }
+    
+    /// <summary>
+    /// Makes sure that all <see cref="SongWikiSetlistEntry"/> in the <paramref name="entries"/> have the <see cref="SongWikiSetlistEntry.ActNumber"/> set.
+    /// </summary>
+    /// <param name="entries">setlist entries</param>
+    /// <returns>entries with act numbers</returns>
+    private WikiSetlistEntry[] SetActNumbers(WikiSetlistEntry[] entries)
+    {
+        uint? currentActNumber = null;
+        foreach (var entry in entries)
+        {
+            switch (entry)
+            {
+                case ActWikiSetlistEntry act:
+                    currentActNumber = act.ActNumber;
+                    break;
+                case SongWikiSetlistEntry song:
+                    song.ActNumber ??= currentActNumber;
+                    break;
+            }
+        }
+        
+        return entries;
     }
 }

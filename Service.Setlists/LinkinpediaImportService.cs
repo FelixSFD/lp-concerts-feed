@@ -29,16 +29,32 @@ public class LinkinpediaImportService(IWikiMediaRepository wikiMediaRepository, 
         logger.LogDebug("Found {count} entries in setlist.", parsedEntries.Length);
 
         var songEntries = parsedEntries.Where(e => e.GetType() == typeof(SongWikiSetlistEntry));
+        var actEntries = parsedEntries
+            .Where(e => e.GetType() == typeof(ActWikiSetlistEntry))
+            .Cast<ActWikiSetlistEntry>();
 
+        var mappedActs = actEntries.Select(GetPreviewAct);
         var mappedEntries = await Task.WhenAll(songEntries.Select(GetPreviewEntryAsync));
 
         var setlistPreview = new ImportSetlistPreviewDto
         {
             ConcertId = "1234",
+            Acts = mappedActs.ToList(),
             Entries = mappedEntries.ToList()
         };
         
         return setlistPreview;
+    }
+    
+    private static ImportSetlistActPreviewDto GetPreviewAct(ActWikiSetlistEntry wikiSetlistEntry)
+    {
+        ImportSetlistActPreviewDto preview = new()
+        {
+            Name = wikiSetlistEntry.Name ?? "Unknown",
+            ActNumber = wikiSetlistEntry.ActNumber,
+        };
+        
+        return preview;
     }
 
     private async Task<ImportSetlistEntryPreviewDto> GetPreviewEntryAsync(WikiSetlistEntry wikiSetlistEntry)
@@ -73,6 +89,7 @@ public class LinkinpediaImportService(IWikiMediaRepository wikiMediaRepository, 
             }
 
             preview.SongNumber = ((SongWikiSetlistEntry)wikiSetlistEntry).SongNumber;
+            preview.ActNumber = ((SongWikiSetlistEntry)wikiSetlistEntry).ActNumber;
         }
         
         return preview;

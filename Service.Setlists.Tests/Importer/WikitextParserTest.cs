@@ -21,7 +21,8 @@ public class WikitextParserTest
             {
                 Name = "The Emptiness Machine",
                 Note = "Live Debut",
-                SongNumber = 1
+                SongNumber = 1,
+                ActNumber = 1,
             },
             new ActWikiSetlistEntry
             {
@@ -34,18 +35,21 @@ public class WikitextParserTest
                 Name = "The Catalyst",
                 Note = "Shortened (No Third Chorus/Breakdown); First Time w/ Emily, Colin and Alex",
                 SongNumber = 5,
+                ActNumber = 2,
             },
             new SongWikiSetlistEntry
             {
                 Name = "Waiting For The End",
                 Note = "2024 Intro; First Time w/ Emily, Colin and Alex",
-                SongNumber = 6
+                SongNumber = 6,
+                ActNumber = 2,
             },
             new SongWikiSetlistEntry
             {
                 Name = "Numb",
                 Note = "'Numb/Encore' Intro; First Time w/ Emily, Colin and Alex",
-                SongNumber = 7
+                SongNumber = 7,
+                ActNumber = 2,
             },
             new ActWikiSetlistEntry
             {
@@ -57,7 +61,8 @@ public class WikitextParserTest
             {
                 Name = "Bleed It Out",
                 Note = "Ext. Bridge w/ \"[[A Place For My Head]]\" Verse 1; Ext. Outro; First Time w/ Emily, Colin and Alex",
-                SongNumber = 14
+                SongNumber = 14,
+                ActNumber = 5,
             },
         ];
         
@@ -89,6 +94,7 @@ public class WikitextParserTest
         else if (expectedType == typeof(SongWikiSetlistEntry))
         {
             Assert.Equal(((SongWikiSetlistEntry)expected).SongNumber, ((SongWikiSetlistEntry)actual).SongNumber);
+            Assert.Equal(((SongWikiSetlistEntry)expected).ActNumber, ((SongWikiSetlistEntry)actual).ActNumber);
         }
         else
         {

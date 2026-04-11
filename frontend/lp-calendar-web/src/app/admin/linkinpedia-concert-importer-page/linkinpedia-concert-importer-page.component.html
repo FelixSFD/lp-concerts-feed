@@ -106,17 +106,65 @@
   </div>
 </form>
 
+<ng-template #actNumberCol let-actNumber="actNumber">
+  @if (actNumber) {
+    <td>Act {{ actNumber }}</td>
+  } @else {
+    <td></td>
+  }
+</ng-template>
+
+<ng-template #entryRow
+             let-rowClass="rowClass"
+             let-entryNumber="entryNumber"
+             let-actNumber="actNumber"
+             let-type="type"
+             let-title="title"
+             let-notes="notes">
+  <tr class="{{ rowClass }}">
+    <td>{{ entryNumber }}</td>
+    <ng-container *ngTemplateOutlet="actNumberCol; context: {actNumber: actNumber }" />
+    <td>{{ type }}</td>
+    <td>{{ title }}</td>
+    <td>{{ notes }}</td>
+  </tr>
+</ng-template>
+
 @if (generatedSetlist$ != null) {
   <div class="card mt-3">
     <div class="card-header">
       Setlist to import
     </div>
     <div class="card-body edit-form-card">
+      <h5>Acts</h5>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Extra Notes</th>
+          </tr>
+          </thead>
+          <tbody>
+            @for (generatedAct of generatedSetlist$.acts; track generatedAct) {
+              <tr>
+                <td>Act {{ generatedAct.actNumber }}</td>
+                <td>{{ generatedAct.name }}</td>
+                <td>{{ generatedAct.extraNotes }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <h5>Setlist entries</h5>
       <div class="table-responsive">
         <table class="table">
           <thead>
             <tr>
               <th>#</th>
+              <th>Act</th>
               <th>Type</th>
               <th>Title</th>
               <th>Extra Notes</th>
@@ -125,42 +173,17 @@
           <tbody>
             @for (generatedEntry of generatedSetlist$.entries; track generatedEntry) {
               @if (generatedEntry.foundSongId) {
-                <tr class="table-success">
-                  <td>{{ generatedEntry.songNumber }}</td>
-                  <td>existing Song</td>
-                  <td>{{ generatedEntry.title }}</td>
-                  <td>{{ generatedEntry.extraNotes }}</td>
-                </tr>
+                <ng-container *ngTemplateOutlet="entryRow; context: { rowClass: 'table-success', entryNumber: generatedEntry.songNumber, actNumber: generatedEntry.actNumber, type: 'existing Song', title: generatedEntry.title, notes: generatedEntry.extraNotes }" />
               } @else if ((generatedEntry.foundSongIds?.length ?? 0) >= 2) {
-                <tr class="table-warning">
-                  <td>{{ generatedEntry.songNumber }}</td>
-                  <td>select Song</td>
-                  <td>{{ generatedEntry.title }}</td>
-                  <td>{{ generatedEntry.extraNotes }}</td>
-                </tr>
+                <ng-container *ngTemplateOutlet="entryRow; context: { rowClass: 'table-warning', entryNumber: generatedEntry.songNumber, actNumber: generatedEntry.actNumber, type: 'select Song', title: generatedEntry.title, notes: generatedEntry.extraNotes }" />
               } @else if (generatedEntry.foundSongVariantId) {
-                <tr class="table-success">
-                  <td>{{ generatedEntry.songNumber }}</td>
-                  <td>existing Variant</td>
-                  <td>{{ generatedEntry.title }}</td>
-                  <td>{{ generatedEntry.extraNotes }}</td>
-                </tr>
+                <ng-container *ngTemplateOutlet="entryRow; context: { rowClass: 'table-success', entryNumber: generatedEntry.songNumber, actNumber: generatedEntry.actNumber, type: 'existing Variant', title: generatedEntry.title, notes: generatedEntry.extraNotes }" />
               } @else if (generatedEntry.foundMashupId) {
-                <tr class="table-success">
-                  <td>{{ generatedEntry.songNumber }}</td>
-                  <td>existing Mashup</td>
-                  <td>{{ generatedEntry.title }}</td>
-                  <td>{{ generatedEntry.extraNotes }}</td>
-                </tr>
+                <ng-container *ngTemplateOutlet="entryRow; context: { rowClass: 'table-success', entryNumber: generatedEntry.songNumber, actNumber: generatedEntry.actNumber, type: 'existing Mashup', title: generatedEntry.title, notes: generatedEntry.extraNotes }" />
               } @else {
+                <ng-container *ngTemplateOutlet="entryRow; context: { rowClass: 'table-danger', entryNumber: generatedEntry.songNumber, actNumber: generatedEntry.actNumber, type: 'NEW song or mashup', title: generatedEntry.title, notes: generatedEntry.extraNotes }" />
                 <tr class="table-danger">
-                  <td>{{ generatedEntry.songNumber }}</td>
-                  <td>NEW song or mashup</td>
-                  <td>{{ generatedEntry.title }}</td>
-                  <td>{{ generatedEntry.extraNotes }}</td>
-                </tr>
-                <tr class="table-danger">
-                  <td></td>
+                  <td colspan="2"></td>
                   <td colspan="3">
                     <button class="btn btn-sm btn-outline-primary me-2" (click)="openCreateSongBtnClicked(generatedEntry, addSongContent)">Create Song</button>
                     <button class="btn btn-sm btn-outline-primary me-2" (click)="openCreateMashupBtnClicked(generatedEntry, addMashupContent)">Create Mashup</button>

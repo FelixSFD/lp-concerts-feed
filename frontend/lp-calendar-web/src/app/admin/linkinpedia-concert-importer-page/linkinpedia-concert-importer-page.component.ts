@@ -1,6 +1,6 @@
 import {Component, inject, OnInit, TemplateRef, viewChild} from '@angular/core';
 import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
-import {NgClass} from '@angular/common';
+import {NgClass, NgTemplateOutlet} from '@angular/common';
 import {HttpClient} from '@angular/common/http';
 import {ToastrService} from 'ngx-toastr';
 import {SetlistsService} from '../../services/setlists.service';
@@ -29,7 +29,8 @@ import {ConcertsService} from '../../services/concerts.service';
     ReactiveFormsModule,
     NgClass,
     SongFormComponent,
-    MashupFormComponent
+    MashupFormComponent,
+    NgTemplateOutlet
   ],
   templateUrl: './linkinpedia-concert-importer-page.component.html',
   styleUrl: './linkinpedia-concert-importer-page.component.css',

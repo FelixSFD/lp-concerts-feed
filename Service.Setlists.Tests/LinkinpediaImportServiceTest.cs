@@ -58,20 +58,38 @@ public class LinkinpediaImportServiceTest
         var expectedResult = new ImportSetlistPreviewDto
         {
             ConcertId = "1234",
+            Acts = [
+                new ImportSetlistActPreviewDto
+                {
+                    Name = "Inception Intro A",
+                    ActNumber = 1,
+                },
+                new ImportSetlistActPreviewDto
+                {
+                    Name = "Resolution Intro A",
+                    ActNumber = 2,
+                },
+            ],
             Entries = [
                 new ImportSetlistEntryPreviewDto
                 {
+                    SongNumber = 1,
+                    ActNumber = 1,
                     Title = "Song 1",
                     ExtraNotes = "some notes",
                     FoundSongId = song1.Id,
                 },
                 new ImportSetlistEntryPreviewDto
                 {
+                    SongNumber = 2,
+                    ActNumber = 1,
                     Title = "Song 2",
                     ExtraNotes = null,
                 },
                 new ImportSetlistEntryPreviewDto
                 {
+                    SongNumber = 3,
+                    ActNumber = 2,
                     Title = "yet another song",
                     ExtraNotes = null,
                     FoundSongIds = mockSongsSong3.Select(s => s.Id).ToArray()
@@ -88,18 +106,34 @@ public class LinkinpediaImportServiceTest
         };
 
         WikiSetlistEntry[] mockWikiSetlistEntries = [
+            new ActWikiSetlistEntry
+            {
+                Name = "Inception Intro A",
+                ActNumber = 1,
+            },
             new SongWikiSetlistEntry
             {
+                SongNumber = 1,
+                ActNumber = 1,
                 Name = "Song 1",
                 Note = "some notes"
             },
             new SongWikiSetlistEntry
             {
+                SongNumber = 2,
+                ActNumber = 1,
                 Name = "Song 2",
                 Note = null
             },
+            new ActWikiSetlistEntry
+            {
+                Name = "Resolution Intro A",
+                ActNumber = 2,
+            },
             new SongWikiSetlistEntry
             {
+                SongNumber = 3,
+                ActNumber = 2,
                 Name = "yet another song",
                 Note = null
             },
@@ -166,12 +200,29 @@ public class LinkinpediaImportServiceTest
             var actualEntry = actualResult.Entries[i];
             AssertEqual(expectedEntry, actualEntry);
         }
+        
+        Assert.Equal(expectedResult.Acts.Count, actualResult.Acts.Count);
+        for (var i = 0; i < expectedResult.Acts.Count; i++)
+        {
+            var expectedAct = expectedResult.Acts[i];
+            var actualAct = actualResult.Acts[i];
+            AssertEqual(expectedAct, actualAct);
+        }
+    }
+    
+    private void AssertEqual(ImportSetlistActPreviewDto expectedAct,
+        ImportSetlistActPreviewDto actualAct)
+    {
+        Assert.Equal(expectedAct.Name, actualAct.Name);
+        Assert.Equal(expectedAct.ActNumber, actualAct.ActNumber);
     }
     
     private void AssertEqual(ImportSetlistEntryPreviewDto expectedEntry,
         ImportSetlistEntryPreviewDto actualEntry)
     {
         Assert.Equal(expectedEntry.Title, actualEntry.Title);
+        Assert.Equal(expectedEntry.SongNumber, actualEntry.SongNumber);
+        Assert.Equal(expectedEntry.ActNumber, actualEntry.ActNumber);
         Assert.Equal(expectedEntry.ExtraNotes, actualEntry.ExtraNotes);
         Assert.Equal(expectedEntry.FoundSongId, actualEntry.FoundSongId);
         Assert.Equal(expectedEntry.FoundSongIds, actualEntry.FoundSongIds);

@@ -1168,6 +1168,10 @@ components:
         songNumber:
           type: number
           description: Number of this entry within the setlist
+        actNumber:
+          type: number
+          description: Number of this act within the setlist
+          nullable: true
         foundSongId:
           type: number
           description: If an existing song was found, the ID will be in this property. If not, you either have to select an existing song or create it.
@@ -1186,6 +1190,21 @@ components:
           description: If an existing mashup was found, the ID will be in this property. If not, you either have to select an existing mashup or create it.
           nullable: true
     
+    ImportSetlistActPreview:
+      type: object
+      description: Contains data of a setlist entry. Some entries might have IDs for existing songs/mashups, some only a title.
+      properties:
+        name:
+          type: string
+          description: Name of this act
+        extraNotes:
+          type: string
+          description: Additional notes for this entry
+          nullable: true
+        actNumber:
+          type: number
+          description: Number of this act within the setlist
+    
     ImportSetlistPreview:
       type: object
       description: Contains data of a setlist that could be created
@@ -1193,6 +1212,11 @@ components:
         concertId:
           type: string
           description: ID of the concert where this setlist will be added
+        acts:
+          type: array
+          description: The acts that could be added to the new setlist
+          items:
+            $ref: "#/components/schemas/ImportSetlistActPreview"
         entries:
           type: array
           description: The entries that could be added to the new setlist
