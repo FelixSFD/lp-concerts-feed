@@ -70,6 +70,71 @@ public class WikitextParserTest
         var entries = parser.GetEntries(setlistSource);
         AssertSameContent(expectedEntries, entries);
     }
+    
+    [Fact]
+    public async Task GetEntries_WithIntroAndOutro()
+    {
+        var setlistSource = await File.ReadAllTextAsync("TestData/Wiki/setlist_source_Live_20260315_short.txt");
+
+        WikiSetlistEntry[] expectedEntries = [
+            new SongWikiSetlistEntry
+            {
+                Name = "It's Goin' Down",
+                Note = "Pre-show w/ From Zero countdown; The X-Ecutioners (feat. Mike and Joe) song",
+                SongNumber = 0,
+                IsPlayedFromRecording = true,
+            },
+            new ActWikiSetlistEntry
+            {
+                Name = "Inception Intro A",
+                ActNumber = 1,
+                Note = "w/ \\\"[[Castle Of Glass]]\\\" Vocals"
+            },
+            new SongWikiSetlistEntry
+            {
+                Name = "Somewhere I Belong",
+                Note = "Short Intro w/ Scratch",
+                SongNumber = 1,
+                ActNumber = 1,
+            },
+            new SongWikiSetlistEntry
+            {
+                Name = "Lying From You",
+                SongNumber = 2,
+                ActNumber = 1,
+            },
+            new SongWikiSetlistEntry
+            {
+                Name = "I Will Always Love You",
+                Note = "Whitney Houston song; Emily sang during Joe's Happy Birthday moment",
+                SongNumber = 15,
+                ActNumber = 1,
+            },
+            new SongWikiSetlistEntry
+            {
+                Name = "Lost",
+                Note = "Stripped (Intro/1st Verse/Chorus) into Full Band; Shortened Bridge",
+                SongNumber = 17,
+                ActNumber = 1,
+            },
+            new ActWikiSetlistEntry
+            {
+                Name = "Kintsugi Transition",
+                ActNumber = 0,
+            },
+            new SongWikiSetlistEntry
+            {
+                Name = "Overflow",
+                Note = "Ext. Synth Intro w/ [[Link:\\\"Pushing Me Away\\\"|\\\"Pushing Me Away\\\"]]",
+                SongNumber = 20,
+                ActNumber = 0,
+            },
+        ];
+        
+        var parser = new WikitextParser();
+        var entries = parser.GetEntries(setlistSource);
+        AssertSameContent(expectedEntries, entries);
+    }
 
     private void AssertSameContent(WikiSetlistEntry[] expected, WikiSetlistEntry[] actual)
     {
@@ -91,10 +156,11 @@ public class WikitextParserTest
         {
             Assert.Equal(((ActWikiSetlistEntry)expected).ActNumber, ((ActWikiSetlistEntry)actual).ActNumber);
         }
-        else if (expectedType == typeof(SongWikiSetlistEntry))
+        else if (expected is SongWikiSetlistEntry expectedSongEntry)
         {
-            Assert.Equal(((SongWikiSetlistEntry)expected).SongNumber, ((SongWikiSetlistEntry)actual).SongNumber);
-            Assert.Equal(((SongWikiSetlistEntry)expected).ActNumber, ((SongWikiSetlistEntry)actual).ActNumber);
+            Assert.Equal(expectedSongEntry.SongNumber, ((SongWikiSetlistEntry)actual).SongNumber);
+            Assert.Equal(expectedSongEntry.ActNumber, ((SongWikiSetlistEntry)actual).ActNumber);
+            Assert.Equal(expectedSongEntry.IsPlayedFromRecording, ((SongWikiSetlistEntry)actual).IsPlayedFromRecording);
         }
         else
         {

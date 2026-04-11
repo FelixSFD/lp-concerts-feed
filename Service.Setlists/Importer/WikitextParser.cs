@@ -36,14 +36,43 @@ public partial class WikitextParser : IWikitextParser
             .Select(x => x.Trim())
             .Where(l => l.StartsWith("| "))
             .ToArray();
+        
+        // the lines for a tape intro (like the song during the FZ countdown) might have the same index as the first song
+        // this causes the issue that the first song is not part of the first act.
+        // That's why the intro lines need to be handled separately
+        var introLines = relevantLines
+            .Where(l => l.StartsWith("| Tape"))
+            .ToArray();
+        
+        var mainSetLines = relevantLines
+            .Where(l => !l.StartsWith("| Tape"))
+            .ToArray();
 
-        var groupedLines = relevantLines
+        var groupedLines = mainSetLines
             .GroupBy(l =>
             {
                 var match = ExtractIndexFromSetlistLine.Match(l);
                 _ = uint.TryParse(match.Groups["index"].Value, out var index);
                 return index;
             });
+        
+        var groupedIntroLines = introLines
+            .GroupBy(l =>
+            {
+                var match = ExtractIndexFromSetlistLine.Match(l);
+                _ = uint.TryParse(match.Groups["index"].Value, out var index);
+                return index;
+            });
+        
+        var introEntries = groupedIntroLines
+            .Select(group =>
+            {
+                // these are all lines grouped by the number in the key names
+                var linesInGroup = group.ToArray();
+                return LinesToWikiSetlistEntry(linesInGroup);
+            })
+            .Where(e => e is not null)
+            .Cast<WikiSetlistEntry>();
 
         var wikiSetlistEntries = groupedLines
             .SelectMany(group =>
@@ -69,7 +98,7 @@ public partial class WikitextParser : IWikitextParser
             .Where(e => e is not null)
             .Cast<WikiSetlistEntry>();
         
-        var finishedEntries = SetActNumbers(wikiSetlistEntries.ToArray());
+        var finishedEntries = SetActNumbers(introEntries.Concat(wikiSetlistEntries).ToArray());
         return finishedEntries;
     }
 
@@ -92,9 +121,10 @@ public partial class WikitextParser : IWikitextParser
         if (lines.Any(l => l.StartsWith("| Act")))
         {
             var dictionary = lines.Select(ExtractSetlistLineKeyValue).ToDictionary(kv => kv.key, kv => kv.value);
+            var actNoStr = dictionary.GetValueOrDefault("ActNo");
             return new ActWikiSetlistEntry
             {
-                ActNumber = uint.Parse(dictionary["ActNo"]),
+                ActNumber = !string.IsNullOrEmpty(actNoStr) ? uint.Parse(actNoStr) : 0,
                 Name = dictionary.GetValueOrDefault("ActName"),
                 Note = dictionary.GetValueOrDefault("ActNote"),
             };
@@ -110,6 +140,19 @@ public partial class WikitextParser : IWikitextParser
                 SongNumber = index ?? 0,
                 Name = dictionary.GetValueOrDefault("Song"),
                 Note = dictionary.GetValueOrDefault("Note")
+            };
+        }
+        
+        if (lines.Any(l => l.StartsWith("| TapeIntro")))
+        {
+            // if any line started with Song, we know it's the intro song played from recording
+            var dictionary = lines.Select(ExtractSetlistLineKeyValue).ToDictionary(kv => kv.key, kv => kv.value);
+            return new SongWikiSetlistEntry
+            {
+                SongNumber = 0, // intro should not have a number
+                IsPlayedFromRecording = true,
+                Name = dictionary.GetValueOrDefault("TapeIntro"),
+                Note = dictionary.GetValueOrDefault("TapeNote")
             };
         }
 
