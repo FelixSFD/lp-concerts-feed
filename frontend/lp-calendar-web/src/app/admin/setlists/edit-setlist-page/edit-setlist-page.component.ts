@@ -198,6 +198,7 @@ export class EditSetlistPageComponent implements OnInit {
           error: err => {
             let errorResponse: ErrorResponseDto = err.error;
             this.toastr.error(errorResponse.message, "Could not update setlist");
+            this.isAddingEntry$ = false;
           }
         });
     } else {

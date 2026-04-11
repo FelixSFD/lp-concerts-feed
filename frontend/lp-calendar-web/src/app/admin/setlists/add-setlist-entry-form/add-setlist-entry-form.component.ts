@@ -295,6 +295,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
 
 
 export class AddSetlistEntryFormContent {
+  static entryTypeFreeText = "freeText";
   static entryTypeSong = "song";
   static entryTypeSongVariant = "songVariant";
   static entryTypeSongMashup = "songMashup";

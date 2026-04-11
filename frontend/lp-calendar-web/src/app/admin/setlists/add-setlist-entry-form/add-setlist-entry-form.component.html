@@ -22,6 +22,8 @@
               formControlName="selectedActNumber"
               [ngClass]="{ 'is-invalid': setlistEntryForm.controls.selectedActNumber.invalid }">
         <option selected disabled>Select act</option>
+        <option selected value="0">Not part of any act</option>
+        <option disabled>---------------</option>
         <option value="-1">Add new act...</option>
         <option disabled>---------------</option>
         @for (act of availableActs$; track act.actNumber) {
@@ -79,6 +81,8 @@
         <label class="btn btn-outline-primary" for="song">Song</label>
         <input type="radio" class="btn-check" name="entryType" id="songMashup" formControlName="entryType" [value]="AddSetlistEntryFormContent.entryTypeSongMashup" autocomplete="off">
         <label class="btn btn-outline-info" for="songMashup">Mashup/Medley</label>
+        <input type="radio" class="btn-check" name="entryType" id="freeText" formControlName="entryType" [value]="AddSetlistEntryFormContent.entryTypeFreeText" autocomplete="off">
+        <label class="btn btn-outline-secondary" for="freeText">Custom</label>
       </div>
     </div>
     @if (setlistEntryForm.controls.selectedSongId.invalid) {
@@ -89,6 +93,12 @@
       </div>
     }
   </div>
+
+  @if (selectedEntryType$ == AddSetlistEntryFormContent.entryTypeFreeText) {
+    <div class="mb-4">
+      <small>Use this entry type for entries like the intro song where we don't need statistics.</small>
+    </div>
+  }
 
   @if (selectedEntryType$ == AddSetlistEntryFormContent.entryTypeSong) {
     <!-- Song selection -->
@@ -232,7 +242,7 @@
 
   <!-- Optionally override the title of the song or mashup -->
   <div class="form-group">
-    <label for="titleOverride">(Optional) Override the title for this entry:</label>
+    <label for="titleOverride">{{ selectedEntryType$ != AddSetlistEntryFormContent.entryTypeFreeText ? '(Optional)' : '' }} Override the title for this entry:</label>
     <div class="input-group mb-3">
       <input id="titleOverride" type="text" formControlName="titleOverride" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.titleOverride.invalid }" placeholder="if empty, the name of the song/mashup will be used by default">
     </div>

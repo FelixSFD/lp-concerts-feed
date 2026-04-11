@@ -10,7 +10,7 @@ import {
   UpdateSetlistEntryRequestDto, SongParametersDto, SongVariantParametersDto, SetlistActDto,
   AddSongMashupToSetlistRequestDto, SongMashupParametersDto, ImportSetlistRequestDto, ImportSetlistPreviewDto,
 } from '../modules/lpshows-api';
-import {map, Observable} from 'rxjs';
+import {map, Observable, throwError} from 'rxjs';
 import {Guid} from 'guid-typescript';
 import {AddSetlistEntryFormContent} from '../admin/setlists/add-setlist-entry-form/add-setlist-entry-form.component';
 
@@ -173,8 +173,16 @@ export class SetlistsService {
       console.debug("addSongMashupRequest: ", addSongMashupRequest);
 
       return this.setlistsApiClient.addSongMashupToSetlist(setlistId, addSongMashupRequest);
+    } else if (entryType == AddSetlistEntryFormContent.entryTypeFreeText) {
+      let addSongRequest: AddSongToSetlistRequestDto = {
+        entryParameters: entryParameters,
+        actParameters: actParameters
+      };
+      return this.setlistsApiClient.addSongToSetlist(setlistId, addSongRequest);
     } else {
-      throw new Error(`The entry type '${entryType}' is not implemented`);
+      return throwError(() => ({
+        error: { message: `The entry type '${entryType}' is not implemented` }
+      }));
     }
   }
 
