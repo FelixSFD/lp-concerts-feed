@@ -18,7 +18,7 @@
                 <td>Act {{ structuredEntry.actNumber }}</td>
                 <td></td>
                 <td></td>
-                <td>{{ structuredEntry.title }}</td>
+                <td class="text-nowrap">{{ structuredEntry.title }}</td>
                 <td></td>
               </tr>
 
@@ -32,9 +32,9 @@
                     }
                   </td>
                   @if ("linkinpediaUrl" in entry && entry.linkinpediaUrl) {
-                    <td class="ps-4"><a [href]="entry.linkinpediaUrl" target="_blank" class="link-info">{{ entry.title }}</a> <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" [live-premiere]="entry.isLivePremiere" /></td>
+                    <td class="ps-4 text-nowrap"><a [href]="entry.linkinpediaUrl" target="_blank" class="link-info">{{ entry.title }}</a> <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" [live-premiere]="entry.isLivePremiere" /></td>
                   } @else {
-                    <td class="ps-4">{{ entry.title }} <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" [live-premiere]="entry.isLivePremiere" /></td>
+                    <td class="ps-4 text-nowrap">{{ entry.title }} <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" [live-premiere]="entry.isLivePremiere" /></td>
                   }
                   <td class="ps-4" style="font-style: italic">{{ entry.extraNotes }}</td>
                 </tr>
@@ -51,9 +51,9 @@
                   }
                 </td>
                 @if (structuredEntry.linkinpediaUrl) {
-                  <td><a [href]="structuredEntry.linkinpediaUrl" target="_blank" class="link-info">{{ structuredEntry.title }}</a> <app-setlist-entry-icons [rotation-song]="structuredEntry.isRotationSong" [world-premiere]="structuredEntry.isWorldPremiere" /></td>
+                  <td class="text-nowrap"><a [href]="structuredEntry.linkinpediaUrl" target="_blank" class="link-info">{{ structuredEntry.title }}</a> <app-setlist-entry-icons [rotation-song]="structuredEntry.isRotationSong" [world-premiere]="structuredEntry.isWorldPremiere" /></td>
                 } @else {
-                  <td>{{ structuredEntry.title }} <app-setlist-entry-icons [rotation-song]="structuredEntry.isRotationSong" [world-premiere]="structuredEntry.isWorldPremiere" [live-premiere]="structuredEntry.isLivePremiere" /></td>
+                  <td class="text-nowrap">{{ structuredEntry.title }} <app-setlist-entry-icons [rotation-song]="structuredEntry.isRotationSong" [world-premiere]="structuredEntry.isWorldPremiere" [live-premiere]="structuredEntry.isLivePremiere" /></td>
                 }
                 <td style="font-style: italic">{{ structuredEntry.extraNotes }}</td>
               </tr>
