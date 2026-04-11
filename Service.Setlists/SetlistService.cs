@@ -76,6 +76,8 @@ public class SetlistService(
             logger.LogDebug("Saving entries...");
             await setlistEntryRepository.SaveChangesAsync();
             logger.LogDebug("Saved entries!");
+
+            await UpdateSetlistCacheForSetlist(setlistDo.Id, DateTimeOffset.Now);
         }
 
         var response = new CreateSetlistResponseDto

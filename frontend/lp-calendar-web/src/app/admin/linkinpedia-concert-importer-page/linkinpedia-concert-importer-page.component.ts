@@ -5,12 +5,13 @@ import {HttpClient} from '@angular/common/http';
 import {ToastrService} from 'ngx-toastr';
 import {SetlistsService} from '../../services/setlists.service';
 import {
+  ActParametersDto,
   AddSongMashupToSetlistRequestDto,
   AddSongToSetlistRequestDto, AddSongVariantToSetlistRequestDto,
   CreateSetlistRequestDto,
   CreateSongMashupRequestDto,
   CreateSongRequestDto,
-  ErrorResponseDto,
+  ErrorResponseDto, ImportSetlistActPreviewDto,
   ImportSetlistEntryPreviewDto,
   ImportSetlistPreviewDto, SetlistEntryParametersDto,
   SongDto, SongMashupDto
@@ -274,29 +275,35 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
       concertTitle: concertTitle,
       linkinpediaUrl: linkinpediaUrl,
       addSongs: this.generatedSetlist$?.entries?.filter(e => e.foundSongId).map(e => {
+        let currentAct = this.generatedSetlist$?.acts?.filter(a => a.actNumber == e.actNumber).at(0) ?? null;
         let dto: AddSongToSetlistRequestDto = {
           songParameters: {
             songId: e.foundSongId
           },
+          actParameters: this.getCreateActParameters(e, currentAct),
           entryParameters: this.getCreateEntryParameters(e)
         };
         return dto;
       }) ?? [],
       addSongVariants: this.generatedSetlist$?.entries?.filter(e => e.foundSongVariantId).map(e => {
+        let currentAct = this.generatedSetlist$?.acts?.filter(a => a.actNumber == e.actNumber).at(0) ?? null;
         let dto: AddSongVariantToSetlistRequestDto = {
           songVariantParameters: {
             songId: e.foundSongId ?? undefined,
             songVariantId: e.foundSongVariantId ?? undefined,
           },
+          actParameters: this.getCreateActParameters(e, currentAct),
           entryParameters: this.getCreateEntryParameters(e)
         };
         return dto;
       }) ?? [],
       addSongMashups: this.generatedSetlist$?.entries?.filter(e => e.foundMashupId).map(e => {
+        let currentAct = this.generatedSetlist$?.acts?.filter(a => a.actNumber == e.actNumber).at(0) ?? null;
         let dto: AddSongMashupToSetlistRequestDto = {
           songMashupParameters: {
             songMashupId: e.foundMashupId ?? undefined
           },
+          actParameters: this.getCreateActParameters(e, currentAct),
           entryParameters: this.getCreateEntryParameters(e)
         };
         return dto;
@@ -326,6 +333,18 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
       songNumber: previewEntry.songNumber,
       sortNumber: (previewEntry.songNumber ?? 1) * 10,
       extraNotes: previewEntry.extraNotes,
+    };
+  }
+
+
+  private getCreateActParameters(previewEntry: ImportSetlistEntryPreviewDto, previewAct: ImportSetlistActPreviewDto | null) : ActParametersDto | null {
+    if (!previewAct) {
+      return null;
+    }
+
+    return {
+      actNumber: previewEntry.actNumber ?? previewAct.actNumber,
+      title: previewAct.name,
     };
   }
 }
