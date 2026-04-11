@@ -11,9 +11,9 @@
       </button>
     </div>
 
-    <button class="btn btn-outline-info ms-2" [routerLink]="['./edit']" [hidden]="!hasWriteAccess$"><i class="bi bi-pencil"></i> Edit</button>
+    <button class="btn btn-outline-info ms-2" [routerLink]="['./edit']" [hidden]="!canUpdateConcerts$"><i class="bi bi-pencil"></i> Edit</button>
 
-    <div class="btn-group ms-2" [hidden]="!hasWriteAccess$">
+    <div class="btn-group ms-2" [hidden]="!canEditSetlists">
       <button type="button" class="btn btn-outline-info" [routerLink]="['/admin', 'setlists', 'add', concertId]"><i class="bi bi-list"></i> Add setlist</button>
       <button type="button" class="btn btn-outline-info dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
         <span class="visually-hidden">Toggle Dropdown</span>
@@ -77,7 +77,14 @@
             <div class="mt-4 w-100">
               <div class="card w-100" style="width: 18rem;">
                 <div class="card-header">
-                  <span class="badge bg-success" ngbTooltip="This is an early version of this feature and might not work perfectly">BETA</span> Setlist: {{ setlist.setName }}
+                  <div class="row justify-content-between">
+                    <div class="col"><span class="badge bg-success" ngbTooltip="This is an early version of this feature and might not work perfectly">BETA</span> Setlist: {{ setlist.setName }}</div>
+                    @if (true) {
+                      <div class="col text-end">
+                        <button class="btn btn-sm btn-outline-secondary" [routerLink]="['/admin', 'setlists', setlist.id]">Edit</button>
+                      </div>
+                    }
+                  </div>
                 </div>
                 <div class="card-body">
                   <app-setlist [setlist]="setlist" />

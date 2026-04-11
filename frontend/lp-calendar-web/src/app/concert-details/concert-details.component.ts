@@ -58,21 +58,26 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   // Service to check auth information
   private readonly oidcSecurityService = inject(OidcSecurityService);
 
-  hasWriteAccess$ = false;
+  canUpdateConcerts$ = false;
+  canEditSetlists = false;
 
   setlists$: Setlist[] = [];
   setlistsCacheUpdatedAt$: DateTime | null = null;
 
   constructor(private route: ActivatedRoute, private concertsService: ConcertsService, private setlistService: SetlistsService, private metaService: Meta) {
-    this.oidcSecurityService.checkAuth().subscribe(({ isAuthenticated }) => {
-      this.hasWriteAccess$ = isAuthenticated;
-    });
   }
 
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.loadDataForId(params['id']);
+    });
+
+    this.authService.canUpdateConcerts.subscribe(hasPermission => {
+      this.canUpdateConcerts$ = hasPermission;
+    });
+    this.authService.canManageSetlists.subscribe(hasPermission => {
+      this.canEditSetlists = hasPermission;
     });
   }
 
