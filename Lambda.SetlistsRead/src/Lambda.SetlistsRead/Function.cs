@@ -184,7 +184,7 @@ public class Function
         }
         catch (SetlistNotFoundException e)
         {
-            return HandleNotFoundException(e.Message, "OPTIONS, GET", context.Logger);
+            return HandleNotFoundException(e, [HttpMethod.Get], context.Logger);
         }
     }
     
@@ -198,7 +198,7 @@ public class Function
         }
         catch (SetlistNotFoundException e)
         {
-            return HandleNotFoundException(e.Message, "OPTIONS, GET", context.Logger);
+            return HandleNotFoundException(e, [HttpMethod.Get], context.Logger);
         }
     }
     
@@ -212,7 +212,7 @@ public class Function
         }
         catch (SetlistNotFoundException e)
         {
-            return HandleNotFoundException(e.Message, "OPTIONS, GET", context.Logger);
+            return HandleNotFoundException(e, [HttpMethod.Get], context.Logger);
         }
     }
     
@@ -226,7 +226,7 @@ public class Function
         }
         catch (SetlistNotFoundException e)
         {
-            return HandleNotFoundException(e.Message, "OPTIONS, GET", context.Logger);
+            return HandleNotFoundException(e, [HttpMethod.Get], context.Logger);
         }
     }
     
@@ -240,7 +240,7 @@ public class Function
         }
         catch (SongNotFoundException e)
         {
-            return HandleNotFoundException(e.Message, "OPTIONS, GET", context.Logger);
+            return HandleNotFoundException(e, [HttpMethod.Get], context.Logger);
         }
     }
     
@@ -255,7 +255,7 @@ public class Function
         }
         catch (SongNotFoundException e)
         {
-            return HandleNotFoundException(e.Message, "OPTIONS, GET", context.Logger);
+            return HandleNotFoundException(e, [HttpMethod.Get], context.Logger);
         }
     }
     
@@ -270,7 +270,7 @@ public class Function
         }
         catch (SongNotFoundException e)
         {
-            return HandleNotFoundException(e.Message, "OPTIONS, GET", context.Logger);
+            return HandleNotFoundException(e, [HttpMethod.Get], context.Logger);
         }
     }
     
@@ -289,7 +289,7 @@ public class Function
         }
         catch (AlbumNotFoundException e)
         {
-            return HandleNotFoundException(e.Message, "OPTIONS, GET", context.Logger);
+            return HandleNotFoundException(e, [HttpMethod.Get], context.Logger);
         }
     }
     
@@ -303,7 +303,7 @@ public class Function
         }
         catch (SongNotFoundException e)
         {
-            return HandleNotFoundException(e.Message, "OPTIONS, GET", context.Logger);
+            return HandleNotFoundException(e, [HttpMethod.Get], context.Logger);
         }
     }
 
@@ -315,6 +315,7 @@ public class Function
     /// <param name="corsMethods"></param>
     /// <param name="logger"></param>
     /// <returns></returns>
+    [Obsolete]
     private static APIGatewayProxyResponse HandleNotFoundException(string message, string corsMethods, ILambdaLogger logger)
     {
         var internalErrorResponse = new ErrorResponse
@@ -334,6 +335,19 @@ public class Function
                 { "Access-Control-Allow-Methods", corsMethods }
             }
         };
+    }
+    
+    /// <summary>
+    /// Return an API response with status 404
+    /// </summary>
+    /// <param name="exception"></param>
+    /// <param name="corsMethods"></param>
+    /// <param name="logger"></param>
+    /// <returns></returns>
+    private static APIGatewayProxyResponse HandleNotFoundException(SetlistServiceException exception, HttpMethod[] corsMethods, ILambdaLogger logger)
+    {
+        logger.LogError("Handle not found error: {message}", exception.Message);
+        return NotFound(exception.Message, CacheControlHeaderConfig.Default, corsMethods);
     }
     
     /// <summary>
@@ -359,12 +373,11 @@ public class Function
     private async Task<APIGatewayProxyResponse> HandleGetMashupById(uint mashupId, ILambdaContext context)
     {
         var mashup = await _songService.GetMashupByIdAsync(mashupId);
-        if (mashup == null)
-        {
-            return HandleNotFoundException($"The mashup with ID '{mashupId}' does not exist.", "OPTIONS, GET", context.Logger);
-        }
-
-        return Ok(mashup, SetlistDtoJsonContext.Default.SongMashupDto, HttpMethod.Get);
+        if (mashup != null) 
+            return Ok(mashup, SetlistDtoJsonContext.Default.SongMashupDto, HttpMethod.Get);
+        
+        context.Logger.LogError("Mashup with ID '{id}' not found!", mashupId);
+        return NotFound($"The mashup with ID '{mashupId}' does not exist.", CacheControlHeaderConfig.Default, HttpMethod.Get);
     }
     
     
@@ -377,7 +390,7 @@ public class Function
         }
         catch (SetlistNotFoundException e)
         {
-            return HandleNotFoundException(e.Message, "OPTIONS, GET", context.Logger);
+            return HandleNotFoundException(e, [HttpMethod.Get], context.Logger);
         }
     }
 }
