@@ -22,7 +22,7 @@ jobs:
       lambda_names: ${{ steps.lambda_names.outputs.lambda_names }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Define Lambda Projects
         id: lambda_names
         run: ./.github/workflows/generateGitHubJobMatrix.sh
@@ -35,14 +35,14 @@ jobs:
         lambda_names: ${{ fromJSON(needs.define-lambda-matrix.outputs.lambda_names) }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: aws-actions/setup-sam@v2
         with:
           use-installer: true
       
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 8.0.x
   
@@ -57,7 +57,7 @@ jobs:
         run: ./publishDotnetLambda.sh $lambda_name
 
       - name: Upload ZIP for AWS-job
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Lambda.${{ matrix.lambda_names }}
           retention-days: 1
@@ -71,7 +71,7 @@ jobs:
     runs-on: ubuntu-24.04-arm
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - uses: aws-actions/setup-sam@v2
       with:
@@ -122,7 +122,7 @@ jobs:
       name: ${{ inputs.environment || 'test' }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -244,7 +244,7 @@ jobs:
     #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload Frontend files
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: angular-app
         retention-days: 1
@@ -257,9 +257,9 @@ jobs:
       name: ${{ inputs.environment || 'test' }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
-    - uses: actions/download-artifact@v5
+    - uses: actions/download-artifact@v8
       name: Download frontend files from previous job
       with:
         pattern: angular-app
