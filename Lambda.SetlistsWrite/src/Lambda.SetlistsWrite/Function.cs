@@ -300,23 +300,20 @@ public class Function
         }
         
         context.Logger.LogError("There is no implementation for a HTTP '{method}' request with path '{path}'", request.HttpMethod, request.Path);
-
-        var noRouteFoundError = new ErrorResponse
-        {
-            Message = "Invalid request path!"
-        };
-        var response = new APIGatewayProxyResponse()
-        {
-            StatusCode = (int)HttpStatusCode.NotFound,
-            Body = JsonSerializer.Serialize(noRouteFoundError, DataStructureJsonContext.Default.ErrorResponse),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET, POST" }
-            }
-        };
-
-        return response;
+        return NotFound("Invalid request path!", CacheControlHeaderConfig.Long, HttpMethod.Get, HttpMethod.Post, HttpMethod.Put, HttpMethod.Delete);
+    }
+    
+    /// <summary>
+    /// Return an API response with status 404
+    /// </summary>
+    /// <param name="exception"></param>
+    /// <param name="corsMethods"></param>
+    /// <param name="logger"></param>
+    /// <returns></returns>
+    private static APIGatewayProxyResponse HandleNotFoundException(SetlistServiceException exception, HttpMethod[] corsMethods, ILambdaLogger logger)
+    {
+        logger.LogError("Handle not found error: {message}", exception.Message);
+        return NotFound(exception.Message, CacheControlHeaderConfig.Default, corsMethods);
     }
 
     private static APIGatewayProxyResponse ReturnBadRequest(string message, string corsMethods = "OPTIONS, GET, POST")
@@ -431,7 +428,7 @@ public class Function
         }
         catch (SetlistNotFoundException e)
         {
-            return HandleNotFoundException(e.Message, "OPTIONS, POST", context.Logger);
+            return HandleNotFoundException(e, [HttpMethod.Post], context.Logger);
         }
     }
     
@@ -485,7 +482,7 @@ public class Function
         }
         catch (SetlistNotFoundException e)
         {
-            return HandleNotFoundException(e.Message, "OPTIONS, POST", context.Logger);
+            return HandleNotFoundException(e, [HttpMethod.Post], context.Logger);
         }
     }
     
@@ -533,7 +530,7 @@ public class Function
         }
         catch (SetlistNotFoundException e)
         {
-            return HandleNotFoundException(e.Message, "OPTIONS, POST", context.Logger);
+            return HandleNotFoundException(e, [HttpMethod.Post], context.Logger);
         }
     }
     
@@ -581,7 +578,7 @@ public class Function
         }
         catch (SetlistNotFoundException e)
         {
-            return HandleNotFoundException(e.Message, "OPTIONS, POST", context.Logger);
+            return HandleNotFoundException(e, [HttpMethod.Post], context.Logger);
         }
     }
     
@@ -629,7 +626,7 @@ public class Function
         }
         catch (SetlistNotFoundException e)
         {
-            return HandleNotFoundException(e.Message, "OPTIONS, POST", context.Logger);
+            return HandleNotFoundException(e, [HttpMethod.Post], context.Logger);
         }
     }
     
@@ -678,7 +675,7 @@ public class Function
         }
         catch (SetlistNotFoundException e)
         {
-            return HandleNotFoundException(e.Message, "OPTIONS, POST", context.Logger);
+            return HandleNotFoundException(e, [HttpMethod.Post], context.Logger);
         }
     }
     
@@ -726,7 +723,7 @@ public class Function
         }
         catch (SetlistNotFoundException e)
         {
-            return HandleNotFoundException(e.Message, "OPTIONS, POST", context.Logger);
+            return HandleNotFoundException(e, [HttpMethod.Post], context.Logger);
         }
     }
     
@@ -754,35 +751,6 @@ public class Function
         context.Logger.LogInformation("Deleting setlist entry with ID: {setlistEntryId}", setlistEntryId);
         await _setlistService.RemoveSetlistEntry(setlistEntryId);
         return NoContent(HttpMethod.Delete);
-    }
-    
-    /// <summary>
-    /// Return an API response with status 404
-    /// </summary>
-    /// <param name="message"></param>
-    /// <param name="corsMethods"></param>
-    /// <param name="logger"></param>
-    /// <returns></returns>
-    [Obsolete]
-    private static APIGatewayProxyResponse HandleNotFoundException(string message, string corsMethods, ILambdaLogger logger)
-    {
-        var internalErrorResponse = new ErrorResponse
-        {
-            Message = message
-        };
-
-        logger.LogError("Handle not found error: {message}", internalErrorResponse.Message);
-
-        return new APIGatewayProxyResponse()
-        {
-            StatusCode = (int)HttpStatusCode.NotFound,
-            Body = JsonSerializer.Serialize(internalErrorResponse, DataStructureJsonContext.Default.ErrorResponse),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", CorsHeaderFactory.AllowOriginValue },
-                { "Access-Control-Allow-Methods", corsMethods }
-            }
-        };
     }
     
     
@@ -883,7 +851,7 @@ public class Function
         }
         catch (AlbumNotFoundException e)
         {
-            return HandleNotFoundException(e.Message, "OPTIONS, POST", context.Logger);
+            return HandleNotFoundException(e, [HttpMethod.Post], context.Logger);
         }
     }
     

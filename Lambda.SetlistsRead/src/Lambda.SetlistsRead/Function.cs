@@ -155,7 +155,7 @@ public class Function
         }
         
         context.Logger.LogError("There is no implementation for a HTTP '{method}' request with path '{path}'", request.HttpMethod, request.Path);
-        return NotFound("Invalid request path!", CacheControlHeaderConfig.Default, HttpMethod.Get, HttpMethod.Post);
+        return NotFound("Invalid request path!", CacheControlHeaderConfig.Long, HttpMethod.Get, HttpMethod.Post);
     }
     
     

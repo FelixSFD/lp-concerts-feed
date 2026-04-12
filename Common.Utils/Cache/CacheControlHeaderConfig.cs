@@ -9,6 +9,8 @@ public static class CacheControlHeaderConfig
     /// </summary>
     public static readonly CacheControlHeaderValue Default = CacheControlHeaderFactory.GetCacheHeaderValueFor(CacheExpiration.Default);
     
+    public static readonly CacheControlHeaderValue Long = CacheControlHeaderFactory.GetCacheHeaderValueFor(CacheExpiration.Long);
+    
     /// <summary>
     /// No caching
     /// </summary>
