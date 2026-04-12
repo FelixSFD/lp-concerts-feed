@@ -245,7 +245,10 @@ public static class ApiGatewayResponseHelper
         var response = new APIGatewayProxyResponse
         {
             StatusCode = (int)httpStatusCode,
-            Headers = new Dictionary<string, string>(),
+            Headers = new Dictionary<string, string>
+            {
+                { "Content-Type", "application/json" },
+            },
         };
         
         response.Headers.Add(CorsHeaderFactory.AllowOriginHeaderFieldFor(corsOrigin));
@@ -272,7 +275,10 @@ public static class ApiGatewayResponseHelper
         {
             StatusCode = (int)httpStatusCode,
             Body = JsonSerializer.Serialize(value, jsonTypeInfo),
-            Headers = new Dictionary<string, string>(),
+            Headers = new Dictionary<string, string>
+            {
+                { "Content-Type", "application/json" },
+            },
         };
         
         response.Headers.Add(CorsHeaderFactory.AllowOriginHeaderFieldFor(corsOrigin));
