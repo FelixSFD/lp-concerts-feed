@@ -3,6 +3,7 @@ using System.Net;
 using System.Text.Json;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Common.Utils.Cors;
 using Database.Concerts;
 using Database.Setlists;
 using Database.Setlists.Repositories;
@@ -183,7 +184,7 @@ public class Function
                 Body = JsonSerializer.Serialize(setlistDto, SetlistDtoJsonContext.Default.SetlistDto),
                 Headers = new Dictionary<string, string>
                 {
-                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Origin", CorsHeaderFactory.AllowOriginValue },
                     { "Access-Control-Allow-Methods", "OPTIONS, GET" }
                 }
             };
@@ -206,7 +207,7 @@ public class Function
                 Body = JsonSerializer.Serialize(setlistEntryDto, SetlistDtoJsonContext.Default.RawSetlistEntryDto),
                 Headers = new Dictionary<string, string>
                 {
-                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Origin", CorsHeaderFactory.AllowOriginValue },
                     { "Access-Control-Allow-Methods", "OPTIONS, GET" }
                 }
             };
@@ -229,7 +230,7 @@ public class Function
                 Body = JsonSerializer.Serialize(setlists, SetlistDtoJsonContext.Default.ListSetlistHeaderDto),
                 Headers = new Dictionary<string, string>
                 {
-                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Origin", CorsHeaderFactory.AllowOriginValue },
                     { "Access-Control-Allow-Methods", "OPTIONS, GET" }
                 }
             };
@@ -252,7 +253,7 @@ public class Function
                 Body = JsonSerializer.Serialize(setlistDtos, SetlistDtoJsonContext.Default.ListSetlistDto),
                 Headers = new Dictionary<string, string>
                 {
-                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Origin", CorsHeaderFactory.AllowOriginValue },
                     { "Access-Control-Allow-Methods", "OPTIONS, GET" }
                 }
             };
@@ -276,7 +277,7 @@ public class Function
                 Body = JsonSerializer.Serialize(song, SetlistDtoJsonContext.Default.SongDto),
                 Headers = new Dictionary<string, string>
                 {
-                    { "Access-Control-Allow-Origin", "*" },
+                    { "Access-Control-Allow-Origin", CorsHeaderFactory.AllowOriginValue },
                     { "Access-Control-Allow-Methods", "OPTIONS, GET" }
                 }
             };

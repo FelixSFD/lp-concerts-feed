@@ -11,6 +11,9 @@ Parameters:
     Type: String
   RootDomain:
     Type: String
+  CorsOrigin:
+    Description: Value of the CORS origin header (without slashes and protocol!)
+    Type: String
   CertificateArn:
     Type: String
   HostedZoneId:
@@ -110,7 +113,7 @@ Resources:
               - DELETE
           AccessControlAllowOrigins:
             Items:
-              - '*'
+              - !Ref CorsOrigin
           AccessControlExposeHeaders:
             Items:
               - '*'
@@ -128,7 +131,7 @@ Resources:
             AccessControlMaxAgeSec: 31536000
             IncludeSubdomains: true
             Override: true
-
+  
   # Cloudfront caching
   DefaultCachePolicy:
     Type: AWS::CloudFront::CachePolicy
@@ -146,6 +149,7 @@ Resources:
           HeadersConfig:
             HeaderBehavior: whitelist
             Headers:
+              - Origin
               - Authorization
               - X-LP-Request-Id
           QueryStringsConfig:
@@ -175,10 +179,6 @@ Resources:
   # CloudFront distribution
   ApiCloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
-    DependsOn:
-      - DefaultCachePolicy
-      - CORSOriginRequestPolicy
-      - CORSResponseHeadersPolicy
     Properties:
       Tags:
         - Key: "ProductName"
@@ -246,10 +246,6 @@ Resources:
   
   FrontendCloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
-    DependsOn:
-      - DefaultCachePolicy
-      - CORSOriginRequestPolicy
-      - CORSResponseHeadersPolicy
     Properties:
       Tags:
         - Key: "ProductName"
@@ -263,6 +259,11 @@ Resources:
           - Id: FrontendBucketOrigin
             DomainName: { 'Fn::ImportValue': !Sub '${BaseProductName}-frontend-s3-regional-domain' }
             S3OriginConfig: { }
+          - Id: StaticFilesOrigin
+            DomainName: !GetAtt StaticFilesBucket.RegionalDomainName
+            OriginPath: /frontend_distribution
+            S3OriginConfig: { }
+            OriginAccessControlId: !Ref StaticFilesOAC
         Aliases: # info about CNAMEs (alternate domain names), if any, for this distribution
           - !Sub '${RootDomain}'
         CacheBehaviors:
@@ -313,10 +314,6 @@ Resources:
   
   ConcertImagesCloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
-    DependsOn:
-      - ExtraLongCachePolicy
-      - CORSOriginRequestPolicy
-      - CORSResponseHeadersPolicy
     Properties:
       Tags:
         - Key: "ProductName"

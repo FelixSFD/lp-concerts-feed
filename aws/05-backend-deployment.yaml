@@ -11,6 +11,9 @@ Parameters:
     Type: String
   RootDomain:
     Type: String
+  CorsOrigin:
+    Description: Value of the CORS origin header
+    Type: String
   CallbackUrl:
     Type: String
   UserPoolId:
@@ -59,6 +62,7 @@ Globals:
       Variables:
         AUDIT_LOG_QUEUE_URL: !Ref AuditLogQueue
         ROOT_DOMAIN: !Ref RootDomain
+        API_CORS_ORIGIN: !Ref CorsOrigin
   Api:
     TracingEnabled: true
     Cors:

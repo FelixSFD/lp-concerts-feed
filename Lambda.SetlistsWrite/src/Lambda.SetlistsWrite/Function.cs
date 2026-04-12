@@ -3,6 +3,7 @@ using System.Net;
 using System.Text.Json;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Common.Utils.Cors;
 using Common.WikiMedia.Repositories;
 using Database.Concerts;
 using Database.Setlists;
@@ -629,8 +630,8 @@ public class Function
                 Body = JsonSerializer.Serialize(responseDto, SetlistDtoJsonContext.Default.AddCustomEntryToSetlistResponseDto),
                 Headers = new Dictionary<string, string>
                 {
-                    { "Access-Control-Allow-Origin", "*" },
-                    { "Access-Control-Allow-Methods", "OPTIONS, POST" }
+                    { "Access-Control-Allow-Origin", CorsHeaderFactory.AllowOriginValue },
+                    { "Access-Control-Allow-Methods", CorsHeaderFactory.GetAllowHeaderValue(HttpMethod.Post) }
                 }
             };
         }
@@ -880,7 +881,7 @@ public class Function
             Body = JsonSerializer.Serialize(internalErrorResponse, DataStructureJsonContext.Default.ErrorResponse),
             Headers = new Dictionary<string, string>
             {
-                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Origin", CorsHeaderFactory.AllowOriginValue },
                 { "Access-Control-Allow-Methods", corsMethods }
             }
         };
@@ -907,7 +908,7 @@ public class Function
             Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
             Headers = new Dictionary<string, string>
             {
-                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Origin", CorsHeaderFactory.AllowOriginValue },
                 { "Access-Control-Allow-Methods", "OPTIONS, POST" }
             }
         };
@@ -931,7 +932,7 @@ public class Function
             Body = JsonSerializer.Serialize(responseDto, SetlistDtoJsonContext.Default.AlbumDto),
             Headers = new Dictionary<string, string>
             {
-                { "Access-Control-Allow-Origin", "*" },
+                { "Access-Control-Allow-Origin", CorsHeaderFactory.AllowOriginValue },
                 { "Access-Control-Allow-Methods", "OPTIONS, POST" }
             }
         };
