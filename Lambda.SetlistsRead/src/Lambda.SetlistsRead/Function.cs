@@ -155,23 +155,7 @@ public class Function
         }
         
         context.Logger.LogError("There is no implementation for a HTTP '{method}' request with path '{path}'", request.HttpMethod, request.Path);
-
-        var noRouteFoundError = new ErrorResponse
-        {
-            Message = "Invalid request path!"
-        };
-        var response = new APIGatewayProxyResponse()
-        {
-            StatusCode = (int)HttpStatusCode.NotFound,
-            Body = JsonSerializer.Serialize(noRouteFoundError, DataStructureJsonContext.Default.ErrorResponse),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET, POST" }
-            }
-        };
-
-        return response;
+        return NotFound("Invalid request path!", CacheControlHeaderConfig.Default, HttpMethod.Get, HttpMethod.Post);
     }
     
     
