@@ -3,6 +3,7 @@ using System.Net;
 using System.Text.Json;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Common.Utils.Cache;
 using Common.Utils.Cors;
 using Database.Concerts;
 using Database.Setlists;
@@ -13,6 +14,7 @@ using LPCalendar.DataStructure.Setlists;
 using Microsoft.EntityFrameworkCore;
 using Service.Setlists;
 using Service.Setlists.Exceptions;
+using static Lambda.Common.ApiGateway.ApiGatewayResponseHelper;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -178,16 +180,7 @@ public class Function
         try
         {
             var setlistDto = await _setlistService.GetCompleteSetlist(setlistId);
-            return new APIGatewayProxyResponse()
-            {
-                StatusCode = (int)HttpStatusCode.OK,
-                Body = JsonSerializer.Serialize(setlistDto, SetlistDtoJsonContext.Default.SetlistDto),
-                Headers = new Dictionary<string, string>
-                {
-                    { "Access-Control-Allow-Origin", CorsHeaderFactory.AllowOriginValue },
-                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
-                }
-            };
+            return Ok(setlistDto, SetlistDtoJsonContext.Default.SetlistDto, HttpMethod.Get);
         }
         catch (SetlistNotFoundException e)
         {
@@ -201,16 +194,7 @@ public class Function
         try
         {
             var setlistEntryDto = await _setlistService.GetSetlistEntryAsync(setlistId, entryId);
-            return new APIGatewayProxyResponse
-            {
-                StatusCode = (int)HttpStatusCode.OK,
-                Body = JsonSerializer.Serialize(setlistEntryDto, SetlistDtoJsonContext.Default.RawSetlistEntryDto),
-                Headers = new Dictionary<string, string>
-                {
-                    { "Access-Control-Allow-Origin", CorsHeaderFactory.AllowOriginValue },
-                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
-                }
-            };
+            return Ok(setlistEntryDto, SetlistDtoJsonContext.Default.RawSetlistEntryDto, HttpMethod.Get);
         }
         catch (SetlistNotFoundException e)
         {
@@ -224,16 +208,7 @@ public class Function
         try
         {
             var setlists = await _setlistService.GetSetlistHeaders(context.GetCancellationToken()).ToListAsync();
-            return new APIGatewayProxyResponse()
-            {
-                StatusCode = (int)HttpStatusCode.OK,
-                Body = JsonSerializer.Serialize(setlists, SetlistDtoJsonContext.Default.ListSetlistHeaderDto),
-                Headers = new Dictionary<string, string>
-                {
-                    { "Access-Control-Allow-Origin", CorsHeaderFactory.AllowOriginValue },
-                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
-                }
-            };
+            return Ok(setlists, SetlistDtoJsonContext.Default.ListSetlistHeaderDto, HttpMethod.Get);
         }
         catch (SetlistNotFoundException e)
         {
@@ -247,16 +222,7 @@ public class Function
         try
         {
             var setlistDtos = await _setlistService.GetSetlistsForConcert(setlistId);
-            return new APIGatewayProxyResponse()
-            {
-                StatusCode = (int)HttpStatusCode.OK,
-                Body = JsonSerializer.Serialize(setlistDtos, SetlistDtoJsonContext.Default.ListSetlistDto),
-                Headers = new Dictionary<string, string>
-                {
-                    { "Access-Control-Allow-Origin", CorsHeaderFactory.AllowOriginValue },
-                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
-                }
-            };
+            return Ok((List<SetlistDto>)setlistDtos, SetlistDtoJsonContext.Default.ListSetlistDto, HttpMethod.Get);
         }
         catch (SetlistNotFoundException e)
         {
@@ -270,17 +236,7 @@ public class Function
         try
         {
             var song = await _songService.GetSongById(songId);
-
-            return new APIGatewayProxyResponse()
-            {
-                StatusCode = (int)HttpStatusCode.OK,
-                Body = JsonSerializer.Serialize(song, SetlistDtoJsonContext.Default.SongDto),
-                Headers = new Dictionary<string, string>
-                {
-                    { "Access-Control-Allow-Origin", CorsHeaderFactory.AllowOriginValue },
-                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
-                }
-            };
+            return Ok(song, SetlistDtoJsonContext.Default.SongDto, HttpMethod.Get);
         }
         catch (SongNotFoundException e)
         {
@@ -295,17 +251,7 @@ public class Function
         {
             var songs = await _songService.GetAllSongsAsync(context.GetCancellationToken()).ToListAsync();
             context.Logger.LogDebug("Found {songCount} songs", songs.Count);
-
-            return new APIGatewayProxyResponse
-            {
-                StatusCode = (int)HttpStatusCode.OK,
-                Body = JsonSerializer.Serialize(songs, SetlistDtoJsonContext.Default.ListSongDto),
-                Headers = new Dictionary<string, string>
-                {
-                    { "Access-Control-Allow-Origin", "*" },
-                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
-                }
-            };
+            return Ok(songs, SetlistDtoJsonContext.Default.ListSongDto, HttpMethod.Get);
         }
         catch (SongNotFoundException e)
         {
@@ -320,17 +266,7 @@ public class Function
         {
             var albums = await _albumService.GetAllAlbumsAsync(context.GetCancellationToken()).ToListAsync();
             context.Logger.LogDebug("Found {albumCount} albums", albums.Count);
-
-            return new APIGatewayProxyResponse
-            {
-                StatusCode = (int)HttpStatusCode.OK,
-                Body = JsonSerializer.Serialize(albums, SetlistDtoJsonContext.Default.ListAlbumDto),
-                Headers = new Dictionary<string, string>
-                {
-                    { "Access-Control-Allow-Origin", "*" },
-                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
-                }
-            };
+            return Ok(albums, SetlistDtoJsonContext.Default.ListAlbumDto, HttpMethod.Get);
         }
         catch (SongNotFoundException e)
         {
@@ -349,17 +285,7 @@ public class Function
         try
         {
             var album = await _albumService.GetAlbumById(albumId);
-
-            return new APIGatewayProxyResponse
-            {
-                StatusCode = (int)HttpStatusCode.OK,
-                Body = JsonSerializer.Serialize(album, SetlistDtoJsonContext.Default.AlbumDto),
-                Headers = new Dictionary<string, string>
-                {
-                    { "Access-Control-Allow-Origin", "*" },
-                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
-                }
-            };
+            return Ok(album, SetlistDtoJsonContext.Default.AlbumDto, HttpMethod.Get);
         }
         catch (AlbumNotFoundException e)
         {
@@ -373,17 +299,7 @@ public class Function
         try
         {
             var variants = await _songService.GetVariantsOfSong(songId);
-
-            return new APIGatewayProxyResponse()
-            {
-                StatusCode = (int)HttpStatusCode.OK,
-                Body = JsonSerializer.Serialize(variants, SetlistDtoJsonContext.Default.ListSongVariantDto),
-                Headers = new Dictionary<string, string>
-                {
-                    { "Access-Control-Allow-Origin", "*" },
-                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
-                }
-            };
+            return Ok(variants, SetlistDtoJsonContext.Default.ListSongVariantDto, HttpMethod.Get);
         }
         catch (SongNotFoundException e)
         {
@@ -430,17 +346,7 @@ public class Function
         var cancellationToken = context.GetCancellationToken();
         var mashups = await _songService.GetAllSongMashupsAsync(cancellationToken).ToListAsync(cancellationToken);
         context.Logger.LogDebug("Found {count} mashups", mashups.Count);
-
-        return new APIGatewayProxyResponse
-        {
-            StatusCode = (int)HttpStatusCode.OK,
-            Body = JsonSerializer.Serialize(mashups, SetlistDtoJsonContext.Default.ListSongMashupDto),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET" }
-            }
-        };
+        return Ok(mashups, SetlistDtoJsonContext.Default.ListSongMashupDto, HttpMethod.Get);
     }
     
     
@@ -458,16 +364,7 @@ public class Function
             return HandleNotFoundException($"The mashup with ID '{mashupId}' does not exist.", "OPTIONS, GET", context.Logger);
         }
 
-        return new APIGatewayProxyResponse
-        {
-            StatusCode = (int)HttpStatusCode.OK,
-            Body = JsonSerializer.Serialize(mashup, SetlistDtoJsonContext.Default.SongMashupDto),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET" }
-            }
-        };
+        return Ok(mashup, SetlistDtoJsonContext.Default.SongMashupDto, HttpMethod.Get);
     }
     
     
@@ -476,16 +373,7 @@ public class Function
         try
         {
             var setlistActs = await _setlistService.GetActsWithinSetlistAsync(setlistId).ToListAsync(context.GetCancellationToken());
-            return new APIGatewayProxyResponse
-            {
-                StatusCode = (int)HttpStatusCode.OK,
-                Body = JsonSerializer.Serialize(setlistActs, SetlistDtoJsonContext.Default.ListSetlistActDto),
-                Headers = new Dictionary<string, string>
-                {
-                    { "Access-Control-Allow-Origin", "*" },
-                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
-                }
-            };
+            return Ok(setlistActs, SetlistDtoJsonContext.Default.ListSetlistActDto, HttpMethod.Get);
         }
         catch (SetlistNotFoundException e)
         {

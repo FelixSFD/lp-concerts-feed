@@ -7,6 +7,7 @@ using Database.ConcertBookmarks;
 using Database.Concerts;
 using Database.Concerts.Models;
 using Lambda.Auth;
+using Lambda.Common.ApiGateway;
 using Lambda.ListConcerts.Syncing;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Requests;
@@ -244,18 +245,7 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
         }
 
         context.Logger.LogDebug("Returning Concert with ID: {id}", next.Id);
-        return new APIGatewayProxyResponse
-        {
-            StatusCode = 200,
-            Body = JsonSerializer.Serialize(ConcertDtoMapper.ToDto(next), DataStructureJsonContext.Default.ConcertDto),
-            Headers = new Dictionary<string, string>
-            {
-                { "Content-Type", "application/json" },
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET" },
-                { "Cache-Control", CacheControlHeaderFactory.CacheFor(CacheExpiration.Short) }
-            }
-        };
+        return ApiGatewayResponseHelper.Ok(ConcertDtoMapper.ToDto(next), DataStructureJsonContext.Default.ConcertDto, CacheControlHeaderConfig.Default, HttpMethod.Get);
     }
 
 

@@ -631,7 +631,7 @@ public class Function
                 Headers = new Dictionary<string, string>
                 {
                     { "Access-Control-Allow-Origin", CorsHeaderFactory.AllowOriginValue },
-                    { "Access-Control-Allow-Methods", CorsHeaderFactory.GetAllowHeaderValue(HttpMethod.Post) }
+                    { "Access-Control-Allow-Methods", CorsHeaderFactory.GetAllowMethodsHeaderValue(HttpMethod.Post) }
                 }
             };
         }
