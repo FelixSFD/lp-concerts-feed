@@ -1,0 +1,4 @@
+<h1>Add a new song</h1>
+<button class="btn btn-outline-secondary" [routerLink]="['../']"><i class="bi bi-arrow-left"></i> Song list</button>
+
+<app-song-form (saveClicked)="onSaveClicked($event)" [is-saving]="isAdding$" />

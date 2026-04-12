@@ -1,13 +1,20 @@
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
-import {RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import {
+  EventType,
+  Router,
+  RouterLink,
+  RouterLinkActive,
+  RouterOutlet
+} from '@angular/router';
+import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
-import { DatePipe, NgOptimizedImage } from '@angular/common';
+import {AsyncPipe, NgOptimizedImage, NgStyle} from '@angular/common';
 import {environment} from '../environments/environment';
 import {
   NgcCookieConsentService,
   NgcInitializationErrorEvent,
-  NgcInitializingEvent, NgcNoCookieLawEvent,
+  NgcInitializingEvent,
+  NgcNoCookieLawEvent,
   NgcStatusChangeEvent
 } from 'ngx-cookieconsent';
 import {Subscription} from 'rxjs';
@@ -19,18 +26,19 @@ import {ClockService} from './services/clock.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NgbModule, RouterLink, RouterLinkActive, DatePipe],
+  imports: [RouterOutlet, NgbModule, RouterLink, RouterLinkActive, AsyncPipe, NgOptimizedImage, NgStyle],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'lp-calendar-web';
 
-  private readonly authStateService = inject(AuthService);
+  readonly authStateService = inject(AuthService);
   private readonly oidcSecurityService = inject(OidcSecurityService);
   private cookieService = inject(NgcCookieConsentService);
   private readonly tracker = inject(MatomoTracker);
   private readonly clockService = inject(ClockService);
+  private readonly router = inject(Router);
 
   //keep refs to subscriptions to be able to unsubscribe later
   private popupOpenSubscription!: Subscription;
@@ -50,8 +58,32 @@ export class AppComponent implements OnInit, OnDestroy {
   // the current clock
   currentDateTime$: DateTime = DateTime.now();
 
+  // Loading progress of the router
+  routerProgress: number = 0;
+
+  // All relevant router events in the correct order. This can calculate the current progress
+  private progressValues: EventType[] = [
+    EventType.NavigationStart,
+    EventType.RoutesRecognized,
+    EventType.GuardsCheckStart,
+    EventType.GuardsCheckEnd,
+    EventType.ResolveStart,
+    EventType.RouteConfigLoadStart,
+    EventType.RouteConfigLoadEnd,
+    EventType.NavigationEnd,
+  ];
+
   ngOnInit(): void {
     this.initCookieConsent();
+
+    this.router.events.subscribe((ev) => {
+      //console.debug("Router event: ", ev);
+      let currentIndex = this.progressValues.indexOf(ev.type);
+      if (currentIndex > -1) {
+        console.debug("Current index: ",currentIndex);
+        this.routerProgress = currentIndex / (this.progressValues.length - 1);
+      }
+    });
 
     this.clockService.luxonClock$.subscribe(clock => {
       this.currentDateTime$ = clock;
@@ -176,4 +208,5 @@ export class AppComponent implements OnInit, OnDestroy {
 
   protected readonly environment = environment;
   protected readonly DateTime = DateTime;
+  protected readonly EventType = EventType;
 }

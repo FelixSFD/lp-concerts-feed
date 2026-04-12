@@ -9,6 +9,7 @@ namespace LPCalendar.DataStructure;
 /// Represents a concert of Linkin Park
 /// </summary>
 [DynamoDBTable(ConcertTableName)]
+[Obsolete("Use either model or DTO")]
 public class Concert
 {
     public const string ConcertTableName = "Concertsv2";

@@ -1,5 +1,6 @@
 using Amazon.Runtime.Internal;
 using Common.Utils;
+using Database.Concerts.Models;
 using LPCalendar.DataStructure;
 using DateRange = (System.DateTimeOffset? from, System.DateTimeOffset? to);
 
@@ -7,20 +8,20 @@ namespace Database.Concerts;
 
 public class InMemoryDbConcertRepository: IConcertRepository
 {
-    private Dictionary<string, Concert> _concerts = [];
+    private Dictionary<string, ConcertModel> _concerts = [];
 
-    private IEnumerable<Concert> GetAllSorted()
+    private IEnumerable<ConcertModel> GetAllSorted()
     {
         return _concerts.Values.OrderBy(c => c.PostedStartTime);
     }
     
-    public Task<Concert?> GetByIdAsync(string id)
+    public Task<ConcertModel?> GetByIdAsync(string id)
     {
         var result = GetAllSorted().FirstOrDefault(c => c.Id == id);
         return Task.FromResult(result);
     }
 
-    public IAsyncEnumerable<Concert> GetByIds(IEnumerable<string> ids)
+    public IAsyncEnumerable<ConcertModel> GetByIds(IEnumerable<string> ids)
     {
         return ids.ToAsyncEnumerable()
             .SelectAwait(async id => await GetByIdAsync(id))
@@ -28,7 +29,7 @@ public class InMemoryDbConcertRepository: IConcertRepository
             .Select(c => c!);
     }
 
-    public Task<Concert?> GetNextAsync()
+    public Task<ConcertModel?> GetNextAsync()
     {
         var result = GetAllSorted()
             .FirstOrDefault(c => c.PostedStartTime > DateTimeOffset.Now);
@@ -36,26 +37,26 @@ public class InMemoryDbConcertRepository: IConcertRepository
         return Task.FromResult(result);
     }
 
-    public IAsyncEnumerable<Concert> GetConcertsAsync(string? filterTour = null, DateRange? dateRange = null)
+    public IAsyncEnumerable<ConcertModel> GetConcertsAsync(string? filterTour = null, DateRange? dateRange = null)
     {
         throw new NotImplementedException();
     }
 
-    public IAsyncEnumerable<Concert> GetConcertsAsync(DateTimeOffset afterDate)
+    public IAsyncEnumerable<ConcertModel> GetConcertsAsync(DateTimeOffset afterDate)
     {
         return GetAllSorted()
             .ToAsyncEnumerable()
             .Where(c => c.PostedStartTime > afterDate);
     }
 
-    public IAsyncEnumerable<Concert> GetConcertsChangedAfterAsync(DateTimeOffset changedAfterDate)
+    public IAsyncEnumerable<ConcertModel> GetConcertsChangedAfterAsync(DateTimeOffset changedAfterDate)
     {
         return GetAllSorted()
             .Where(c => c.LastChange != null && c.LastChange > changedAfterDate)
             .ToAsyncEnumerable();
     }
 
-    public IAsyncEnumerable<Concert> GetConcertsDeletedAfterAsync(DateTimeOffset deletedAfterDate)
+    public IAsyncEnumerable<ConcertModel> GetConcertsDeletedAfterAsync(DateTimeOffset deletedAfterDate)
     {
         return GetAllSorted()
             .Where(c => c.DeletedAt != null && c.DeletedAt > deletedAfterDate)
@@ -80,7 +81,7 @@ public class InMemoryDbConcertRepository: IConcertRepository
         return Task.FromResult(result);
     }
 
-    public Task SaveAsync(Concert concert)
+    public Task SaveAsync(ConcertModel concert)
     {
         var id = concert.Id;
         _concerts[id] = concert;
@@ -88,7 +89,7 @@ public class InMemoryDbConcertRepository: IConcertRepository
         return Task.CompletedTask;
     }
 
-    public async Task DeleteAsync(Concert concert)
+    public async Task DeleteAsync(ConcertModel concert)
     {
         var existing = await GetByIdAsync(concert.Id);
         if (existing != null)

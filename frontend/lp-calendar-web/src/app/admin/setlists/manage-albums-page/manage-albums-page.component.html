@@ -1,0 +1,51 @@
+<!-- Delete album confirmation modal -->
+<ng-template #deleteAlbumContent let-deleteAlbumModal>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h1 class="modal-title fs-5" id="deleteEntryModalLabel">Delete album?</h1>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <p>Do you really want to delete this album?</p>
+      <table>
+        <tr>
+          <td class="fw-bold">Title:</td>
+          <td>&nbsp;</td>
+          <td>{{ albumToDelete?.title }}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" [disabled]="isDeletingAlbum$" (click)="dismissDeleteAlbumConfirmModal()">Cancel</button>
+      <button type="button" class="btn btn-danger" id="deleteAlbumConfirmBtn" (click)="onDeleteAlbumConfirm()" [disabled]="isDeletingAlbum$">
+        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" [hidden]="!isDeletingAlbum$"></span>
+        <span class="sr-only">{{ isDeletingAlbum$ ? "Deleting..." : "Delete" }}</span>
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+
+<h1>Manage albums</h1>
+
+<button class="btn btn-outline-primary" [routerLink]="['add']">Add album</button>
+
+<table class="table">
+  <thead>
+  <tr>
+    <th scope="col">Title</th>
+    <th scope="col"></th>
+  </tr>
+  </thead>
+  <tbody>
+    @for (album of albums$; track album) {
+      <tr>
+        <td>{{ album.title }}</td>
+        <td>
+          <button class="btn btn-outline-info" [routerLink]="[album.id?.toString()]">Edit</button>
+          <button class="btn btn-outline-danger ms-2" (click)="onDeleteAlbumClicked(deleteAlbumContent, album)">Delete</button>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>

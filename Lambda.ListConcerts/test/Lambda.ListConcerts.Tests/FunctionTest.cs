@@ -5,6 +5,7 @@ using Amazon.Lambda.TestUtilities;
 using Common.TestUtils;
 using Database.ConcertBookmarks;
 using Database.Concerts;
+using Database.Concerts.Models;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Requests;
 using Xunit;
@@ -44,7 +45,7 @@ public class FunctionTest
     public async Task Function_Concerts_Id_200()
     {
         // make test data
-        var concert1 = new Concert
+        var concert1 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -55,7 +56,7 @@ public class FunctionTest
         };
         await _concertRepo.SaveAsync(concert1);
         
-        var concert2 = new Concert
+        var concert2 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -66,7 +67,7 @@ public class FunctionTest
         };
         await _concertRepo.SaveAsync(concert2);
         
-        var concert3 = new Concert
+        var concert3 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -93,7 +94,7 @@ public class FunctionTest
         Assert.Equal("OPTIONS, GET", response.Headers["Access-Control-Allow-Methods"]);
 
         var bodyJson = response.Body;
-        var responseConcert = JsonSerializer.Deserialize(bodyJson, DataStructureJsonContext.Default.Concert);
+        var responseConcert = JsonSerializer.Deserialize(bodyJson, DataStructureJsonContext.Default.ConcertDto);
         Assert.NotNull(responseConcert);
         Assert.Equal(concert1.Id, responseConcert.Id);
         Assert.Equal(concert1.Status, responseConcert.Status);
@@ -109,7 +110,7 @@ public class FunctionTest
     {
         // make test data
         var testSearchId = Guid.NewGuid().ToString();
-        var concert1 = new Concert
+        var concert1 = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -146,7 +147,7 @@ public class FunctionTest
     public async Task Function_Concerts_Next_200()
     {
         // make test data
-        var concertPast = new Concert
+        var concertPast = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -157,7 +158,7 @@ public class FunctionTest
         };
         await _concertRepo.SaveAsync(concertPast);
         
-        var concertNext = new Concert
+        var concertNext = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -168,7 +169,7 @@ public class FunctionTest
         };
         await _concertRepo.SaveAsync(concertNext);
         
-        var concertFuture = new Concert
+        var concertFuture = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
@@ -194,7 +195,7 @@ public class FunctionTest
         Assert.Equal("OPTIONS, GET", response.Headers["Access-Control-Allow-Methods"]);
 
         var bodyJson = response.Body;
-        var responseConcert = JsonSerializer.Deserialize(bodyJson, DataStructureJsonContext.Default.Concert);
+        var responseConcert = JsonSerializer.Deserialize(bodyJson, DataStructureJsonContext.Default.ConcertDto);
         Assert.NotNull(responseConcert);
         Assert.Equal(concertNext.Id, responseConcert.Id);
         Assert.Equal(concertNext.Status, responseConcert.Status);
@@ -212,7 +213,7 @@ public class FunctionTest
     public async Task Function_Concerts_Next_404_only_past()
     {
         // make test data
-        var concertPast = new Concert
+        var concertPast = new ConcertModel
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",

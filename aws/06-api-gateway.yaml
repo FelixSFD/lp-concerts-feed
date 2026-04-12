@@ -11,6 +11,9 @@ Parameters:
     Type: String
   RootDomain:
     Type: String
+  CorsOrigin:
+    Description: Value of the CORS origin header
+    Type: String
   #OpenApiBucketArn:
   #  Description: ARN of a S3 bucket that stores the OpenAPI definition
   #  Type: String
@@ -21,7 +24,7 @@ Globals:
     TracingEnabled: false
     Cors:
       AllowMethods: "'POST, GET, PUT, DELETE'"
-      AllowOrigin: "'*'"
+      AllowOrigin: !Sub "'${CorsOrigin}'"
       AllowHeaders: "'*'"
       #MaxAge: "'600'"
 
@@ -35,7 +38,7 @@ Resources:
       StageName: v2
       Cors:
         AllowMethods: "'POST, GET, PUT, DELETE'"
-        AllowOrigin: "'*'"
+        AllowOrigin: !Sub "'${CorsOrigin}'"
         AllowHeaders: "'*'"
       DefinitionBody:
         Fn::Transform:
@@ -147,6 +150,94 @@ Resources:
         Fn::Sub: "${BaseProductName}-lambda-push-endpoint-management-function"
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/notifications*
+  SetlistsWriteLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue
+        Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/setlists*
+  SetlistsReadLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue
+        Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/setlists*
+  SetlistsForConcertReadLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue
+        Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/concerts/*/setlists
+  SetlistsImportForConcertLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue
+        Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/concerts/*/setlists/import
+  AlbumsWriteLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue
+        Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/albums*
+  AlbumsReadLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue
+        Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/albums*
+  SongsWriteLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue
+        Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/songs*
+  SongsReadLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue
+        Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/songs*
+  SongMashupsWriteLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue
+        Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/mashups*
+  SongMashupsReadLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue
+        Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/mashups*
+  AppleMusicLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue
+        Fn::Sub: "${BaseProductName}-lambda-apple-music-function"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/apple-music*
 
 
 Outputs:

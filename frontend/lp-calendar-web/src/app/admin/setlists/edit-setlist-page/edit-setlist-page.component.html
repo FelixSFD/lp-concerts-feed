@@ -1,0 +1,196 @@
+<!-- add setlist entry modal -->
+<ng-template #addEntryContent let-addEntryModal>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h1 class="modal-title fs-5" id="addEntryModalLabel">Add a new entry</h1>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <app-add-setlist-entry-form [setlist-id]="currentSetlistId" />
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" [disabled]="isAddingEntry$" (click)="dismissAddEntryModal()">Cancel</button>
+      <button type="button" class="btn btn-primary" id="addEntryConfirmBtn" (click)="onAddEntryConfirm()" [disabled]="isAddingEntry$">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!isAddingEntry$"></span>
+        <span class="sr-only">{{ isAddingEntry$ ? "Adding..." : "Add" }}</span>
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<!-- edit setlist entry modal -->
+<ng-template #editEntryContent let-editEntryModal>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h1 class="modal-title fs-5" id="editEntryModalLabel">Edit a setlist entry</h1>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <app-add-setlist-entry-form [setlist-id]="currentSetlistId" />
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" [disabled]="isEditingEntry$" (click)="dismissEditEntryConfirmModal()">Cancel</button>
+      <button type="button" class="btn btn-primary" id="editEntryConfirmBtn" (click)="onEditEntryConfirm()" [disabled]="isEditingEntry$">
+        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" [hidden]="!isEditingEntry$"></span>
+        <span class="sr-only">{{ isEditingEntry$ ? "Saving..." : "Save" }}</span>
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Delete setlist entry confirmation modal -->
+<ng-template #deleteEntryContent let-deleteEntryModal>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h1 class="modal-title fs-5" id="deleteEntryModalLabel">Delete entry?</h1>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <p>Do you really want to delete this entry?</p>
+      <table>
+        <tr>
+          <td class="fw-bold">Title:</td>
+          <td>&nbsp;</td>
+          <td>{{ entryToDelete?.title }}</td>
+        </tr>
+        <tr>
+          <td class="fw-bold">Song Number:</td>
+          <td>&nbsp;</td>
+          <td>{{ entryToDelete?.songNumber }}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" [disabled]="entryDeleting$" (click)="dismissDeleteEntryConfirmModal()">Cancel</button>
+      <button type="button" class="btn btn-danger" id="deleteConcertConfirmBtn" (click)="onDeleteEntryConfirm()" [disabled]="entryDeleting$">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!entryDeleting$"></span>
+        <span class="sr-only">{{ entryDeleting$ ? "Deleting..." : "Delete" }}</span>
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+
+<h1>Edit setlist</h1>
+<button class="btn btn-outline-secondary" [routerLink]="['../']"><i class="bi bi-arrow-left"></i> Setlists</button>
+
+<form #form="ngForm" [formGroup]="setlistForm" class="form">
+  <div class="card mt-3">
+    <div class="card-header">
+      General information
+    </div>
+    <div class="card-body edit-form-card">
+      <!-- Concert selection -->
+      <div class="form-group">
+        <label for="concert">Concert</label>
+        <div class="input-group mb-3">
+          <input id="concert" type="text" formControlName="concertId" class="form-control"
+                 [ngClass]="{ 'is-invalid': setlistForm.controls.concertId.invalid }">
+          <button class="btn btn-outline-info" (click)="openConcertDetailsClicked()"><i class="bi bi-box-arrow-up-right"></i><span class="d-none d-sm-none d-md-inline ms-2">Open details</span></button>
+        </div>
+        @if (setlistForm.controls.concertId.invalid) {
+          <div class="text-danger">
+            @if (setlistForm.controls.concertId.errors) {
+              <small>Concert is invalid.</small>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Set Name -->
+      <div class="form-group">
+        <label for="setName">Name of the set:</label>
+        <div class="input-group mb-3">
+          <input id="setName" type="text" formControlName="setName" class="form-control" [ngClass]="{ 'is-invalid': setlistForm.controls.setName.invalid }">
+        </div>
+        @if (setlistForm.controls.setName.invalid) {
+          <div class="text-danger">
+            @if (setlistForm.controls.setName.errors) {
+              <small>Name is invalid.</small>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Linkinpedia URL -->
+      <div class="form-group">
+        <label for="linkinpediaUrl">Linkinpedia URL:</label>
+        <div class="input-group mb-3">
+          <input id="linkinpediaUrl" type="text" formControlName="linkinpediaUrl" class="form-control" [ngClass]="{ 'is-invalid': setlistForm.controls.linkinpediaUrl.invalid }">
+          <button class="btn btn-outline-info" (click)="openLinkinpediaUrlClicked()"><i class="bi bi-box-arrow-up-right"></i><span class="d-none d-sm-none d-md-inline ms-2">Open link</span></button>
+        </div>
+        @if (setlistForm.controls.linkinpediaUrl.invalid) {
+          <div class="text-danger">
+            @if (setlistForm.controls.linkinpediaUrl.errors) {
+              <small>URL is invalid.</small>
+            }
+          </div>
+        }
+      </div>
+    </div>
+    <div class="card-footer">
+      <div class="row">
+        <div class="col text-end">
+          <button class="btn btn-success" (click)="onSaveClicked()" [disabled]="isSaving$ || !setlistForm.valid">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!isSaving$"></span>
+            <span class="sr-only">{{ isSaving$ ? "Saving..." : "Save" }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="card mt-5">
+    <div class="card-header">
+      Entries
+      <button class="btn btn-sm btn-primary" (click)="onAddEntryClicked(addEntryContent)" [disabled]="isSaving$">Add</button>
+
+      @if (isPendingReorder$) {
+        <button class="btn btn-sm btn-success" (click)="onSaveOrderClicked()" [disabled]="isSaving$">Save order</button>
+      }
+    </div>
+    <div class="card-body edit-form-card">
+      <table class="table">
+        <thead>
+        <tr>
+          <th></th>
+          <th>#</th>
+          <th></th>
+          <th>Act</th>
+          <th>Title</th>
+          <th>Extra Notes</th>
+          <th></th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (entry of setlistEntries$; track entry.id) {
+            <tr>
+              <td>
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-sm btn-outline-secondary" (click)="onEntryMoveUpClicked(entry.id)" [disabled]="isSaving$"><i class="bi bi-arrow-up"></i></button>
+                  <button class="btn btn-sm btn-outline-secondary" (click)="onEntryMoveDownClicked(entry.id)" [disabled]="isSaving$"><i class="bi bi-arrow-down"></i></button>
+                </div>
+              </td>
+              <td>{{ entry.songNumber }}</td>
+              <td><app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [record-tape]="entry.isPlayedFromRecording" [world-premiere]="entry.isWorldPremiere" [live-premiere]="entry.isLivePremiere" /></td>
+              @if (entry.actNumber) {
+                <td>Act {{ entry.actNumber }}</td>
+              } @else {
+                <td></td>
+              }
+              <td>{{ entry.title }}</td>
+              <td>{{ entry.extraNotes }}</td>
+              <td>
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-outline-primary" (click)="onEditEntryClicked(editEntryContent, entry)">Edit</button>
+                  <button class="btn btn-outline-danger" (click)="onDeleteEntryClicked(deleteEntryContent, entry)">Delete</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</form>

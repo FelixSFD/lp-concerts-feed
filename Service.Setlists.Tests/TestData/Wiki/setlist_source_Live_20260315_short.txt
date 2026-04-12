@@ -1,0 +1,21 @@
+{{Setlist
+| TapeIntro1 = It's Goin' Down
+| TapeNote1 = Pre-show w/ From Zero countdown; The X-Ecutioners (feat. Mike and Joe) song
+| ActNo0 = 1
+| ActName0 = Inception Intro A
+| ActNote0 = w/ \"[[Castle Of Glass]]\" Vocals
+| Song1 = Somewhere I Belong
+| Note1 = Short Intro w/ Scratch
+| Song2 = Lying From You
+| Rotation2 = yes
+| Song15 = I Will Always Love You
+| Note15 = Whitney Houston song; Emily sang during Joe's Happy Birthday moment
+| Suffix15 = Happy Birthday
+| Song17 = Lost
+| Note17 = Stripped (Intro/1st Verse/Chorus) into Full Band; Shortened Bridge
+| ActName19 = Kintsugi Transition
+| Song20 = Overflow
+| Note20 = Ext. Synth Intro w/ [[Link:\"Pushing Me Away\"|\"Pushing Me Away\"]]
+| Set Outro = Pass The Mic
+| Note Outro = Beastie Boys song
+}}

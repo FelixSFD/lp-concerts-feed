@@ -15,7 +15,8 @@ import {ErrorResponseDto, UserDto} from '../../../modules/lpshows-api';
     NgbTooltip
 ],
   templateUrl: './users-list.component.html',
-  styleUrl: './users-list.component.css'
+  styleUrl: './users-list.component.css',
+  standalone: true,
 })
 export class UsersListComponent {
   users$: UserDto[] = [];

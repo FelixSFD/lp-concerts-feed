@@ -1,0 +1,88 @@
+<div class="table-wrapper position-relative" [class.expanded]="isExpanded$" id="setlist-container-{{ setlist?.id }}">
+  <div class="collapsible-table">
+    <div class="table-responsive">
+      <table class="table table-sm">
+        <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col"></th>
+          <th scope="col" style="max-width: 30px"></th><!-- Artwork -->
+          <th scope="col">Song</th>
+          <th scope="col">Notes</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (structuredEntry of setlist?.structuredEntries; track structuredEntry) {
+            @if (isAct(structuredEntry)) {
+              <tr>
+                <td>Act {{ structuredEntry.actNumber }}</td>
+                <td></td>
+                <td></td>
+                <td class="text-nowrap">{{ structuredEntry.title }}</td>
+                <td></td>
+              </tr>
+
+              @for (entry of structuredEntry.entries; track entry) {
+                <tr [class]="entry.isWorldPremiere ? 'table-warning' : (entry.isLivePremiere ? 'table-success' : '')">
+                  <td class="ps-4">&nbsp;&nbsp;{{ entry.songNumber == 0 ? "" : entry.songNumber }}.</td>
+                  <td><app-setlist-entry-icons [record-tape]="entry.isPlayedFromRecording" /></td>
+                  <td>
+                    @if (entry.appleMusicId != null && songArtworks$.get(entry.appleMusicId) != null) {
+                      <app-apple-music-artwork [artwork]="songArtworks$.get(entry.appleMusicId)!" [width]="25" ngbTooltip="{{ entry.albumTitle }}" />
+                    }
+                  </td>
+                  @if ("linkinpediaUrl" in entry && entry.linkinpediaUrl) {
+                    <td class="ps-4 text-nowrap"><a [href]="entry.linkinpediaUrl" target="_blank" class="link-info">{{ entry.title }}</a> <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" [live-premiere]="entry.isLivePremiere" /></td>
+                  } @else {
+                    <td class="ps-4 text-nowrap">{{ entry.title }} <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" [live-premiere]="entry.isLivePremiere" /></td>
+                  }
+                  <td class="ps-4 text-nowrap" style="font-style: italic">{{ entry.extraNotes }}</td>
+                </tr>
+              }
+            } @else {
+              <tr [class]="structuredEntry.isWorldPremiere ? 'table-success' : ''">
+                <td>{{ structuredEntry.songNumber == 0 ? "" : `${structuredEntry.songNumber}.` }}</td>
+                <td><app-setlist-entry-icons [record-tape]="structuredEntry.isPlayedFromRecording" /></td>
+                <td>
+                  @if (structuredEntry.appleMusicId != null && songArtworks$.get(structuredEntry.appleMusicId) != null) {
+                    <app-apple-music-artwork [artwork]="songArtworks$.get(structuredEntry.appleMusicId)!" [width]="25" ngbTooltip="{{ structuredEntry.albumTitle }}" />
+                  } @else {
+                    <div style="width: 25px; height: 25px"></div>
+                  }
+                </td>
+                @if (structuredEntry.linkinpediaUrl) {
+                  <td class="text-nowrap"><a [href]="structuredEntry.linkinpediaUrl" target="_blank" class="link-info">{{ structuredEntry.title }}</a> <app-setlist-entry-icons [rotation-song]="structuredEntry.isRotationSong" [world-premiere]="structuredEntry.isWorldPremiere" /></td>
+                } @else {
+                  <td class="text-nowrap">{{ structuredEntry.title }} <app-setlist-entry-icons [rotation-song]="structuredEntry.isRotationSong" [world-premiere]="structuredEntry.isWorldPremiere" [live-premiere]="structuredEntry.isLivePremiere" /></td>
+                }
+                <td class="text-nowrap" style="font-style: italic">{{ structuredEntry.extraNotes }}</td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+  @if (setlist) {
+    <app-setlist-album-chart [setlist]="setlist" />
+  }
+  </div>
+
+  <small>Data provided by <a href="https://lplive.net/about.php/" target="_blank" class="link-info">LPlive</a>.</small>
+
+  <!-- Fade overlay (only visible when collapsed) -->
+  @if (!isExpanded$) {
+    <div class="fade-overlay"></div>
+  }
+</div>
+
+<div class="text-center mt-2">
+  <button class="btn btn-outline-primary btn-sm"
+          (click)="onToggleExpendedClicked()">
+    @if (!isExpanded$) {
+      <i class="bi bi-plus-circle"></i> Show full setlist
+    } @else {
+      <i class="bi bi-dash-circle"></i> Hide setlist
+    }
+  </button>
+</div>

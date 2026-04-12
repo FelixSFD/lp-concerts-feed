@@ -20,7 +20,25 @@
     }
 
     @if (isLoading$) {
-      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading concert...
+      <h5 class="card-title placeholder-glow">
+        <span class="placeholder col-6"></span>
+      </h5>
+      <p class="card-text placeholder-glow">
+        <span class="placeholder col-7"></span>
+      </p>
+
+      <div class="w-50">
+        <span class="placeholder placeholder-wave bg-secondary-subtle col-3"></span>
+        <span class="placeholder placeholder-wave bg-secondary-subtle col-8 ms-1"></span>
+        <span class="placeholder placeholder-wave bg-secondary-subtle col-3"></span>
+        <span class="placeholder placeholder-wave bg-secondary-subtle col-8 ms-1"></span>
+        <span class="placeholder placeholder-wave bg-secondary-subtle col-3"></span>
+        <span class="placeholder placeholder-wave bg-secondary-subtle col-8 ms-1"></span>
+        <span class="placeholder placeholder-wave bg-secondary-subtle col-3"></span>
+        <span class="placeholder placeholder-wave bg-secondary-subtle col-8 ms-1"></span>
+      </div>
+
+      <small class="placeholder placeholder-wave col-4 bg-secondary-subtle"></small>
     }
 
     @if (!isLoading$ && concert$ == null) {
@@ -32,7 +50,16 @@
 
   @if (concert$?.id != null) {
     <div class="card-footer text-end">
+      @if (canUpdateConcerts$) {
+        <button type="button" class="btn btn-outline-secondary me-2" [routerLink]="['/concerts/' + concert$?.id] + '/edit'">
+          <i class="bi bi-pencil"></i><span class="d-none d-xs-none d-sm-none d-md-inline">&nbsp;Edit</span>
+        </button>
+      }
       <button class="btn btn-outline-info" [routerLink]="['/concerts', concert$?.id]"><i class="bi bi-info-circle"></i> Details</button>
+    </div>
+  } @else if (isLoading$) {
+    <div class="card-footer text-end">
+      <a href="#" tabindex="-1" class="btn btn-info disabled placeholder placeholder-wave col-4"></a>
     </div>
   }
 </div>

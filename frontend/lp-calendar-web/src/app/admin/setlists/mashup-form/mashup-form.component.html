@@ -1,0 +1,121 @@
+<!-- add song modal -->
+<ng-template #addSongContent let-addSongModal>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h1 class="modal-title fs-5" id="addSongModalLabel">Add a new song</h1>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <!-- Song selection -->
+      <div class="form-group">
+        <label for="song">Played Song</label>
+        <div class="input-group mb-3">
+          <app-select-song [available-songs]="availableSongs$" (songSelected)="onSongSelected($event)" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary">Cancel</button>
+      <button type="button" class="btn btn-primary" id="addEntryConfirmBtn" (click)="onConfirmSongSelectionClicked()">
+        <span class="sr-only">Add</span>
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+
+<form #form="ngForm" [formGroup]="mashupForm" class="form">
+  <ng-template #formInputsGeneral>
+    <!-- Mashup title -->
+    <div class="form-group mb-3">
+      <label for="title">Title:</label>
+      <div class="input-group">
+        <input id="title" type="text" formControlName="title" class="form-control" [ngClass]="{ 'is-invalid': mashupForm.controls.title.invalid }" placeholder="Example: Where'd You Go/Waiting For The End">
+      </div>
+      @if (mashupForm.controls.title.invalid) {
+        <div class="text-danger">
+          @if (mashupForm.controls.title.errors) {
+            <small>Title is invalid.</small>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Linkinpedia URL -->
+    <div class="form-group mb-3">
+      <label for="linkinpediaUrl">Linkinpedia URL:</label>
+      <div class="input-group">
+        <input id="linkinpediaUrl" type="text" formControlName="linkinpediaUrl" class="form-control" [ngClass]="{ 'is-invalid': mashupForm.controls.linkinpediaUrl.invalid }" placeholder="(Optional) Link to the page in Linkinpedia">
+        <button class="btn btn-outline-info" (click)="openLinkinpediaUrlClicked()"><i class="bi bi-box-arrow-up-right"></i><span class="d-none d-sm-none d-md-inline ms-2">Open link</span></button>
+      </div>
+      @if (mashupForm.controls.linkinpediaUrl.invalid) {
+        <div class="text-danger">
+          @if (mashupForm.controls.linkinpediaUrl.errors) {
+            <small>URL is invalid.</small>
+          }
+        </div>
+      }
+    </div>
+  </ng-template>
+
+  @if (standalone$) {
+    <div class="card mt-3">
+      <div class="card-header">
+        General information
+      </div>
+      <div class="card-body edit-form-card">
+        <ng-container *ngTemplateOutlet="formInputsGeneral" />
+      </div>
+      <div class="card-footer">
+        <div class="row">
+          <div class="col text-end">
+            <button class="btn btn-success" (click)="onSaveClicked()" [disabled]="isSaving$ || !mashupForm.valid">
+              <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" [hidden]="!isSaving$"></span>
+              <span class="sr-only">{{ isSaving$ ? "Saving..." : "Save" }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <ng-container *ngTemplateOutlet="formInputsGeneral" />
+  }
+
+  <div class="card mt-3">
+    <div class="card-header">
+      <div class="row">
+        <div class="col text-start align-content-center">
+          Songs in this mashup
+        </div>
+        <div class="col text-end">
+          <button class="btn btn-sm btn-outline-primary" [disabled]="isSaving$" (click)="onAddSongClicked(addSongContent)">
+            <span class="sr-only">Add song</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body edit-form-card">
+      <table class="table table-striped">
+        <thead>
+        <tr>
+          <th scope="col">Title</th>
+          <th scope="col">ISRC</th>
+          <th scope="col"></th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (song of songsInMashup$; track song.id) {
+            <tr>
+              <td>{{ song.title }}</td>
+              <td>{{ song.isrc }}</td>
+              <td>
+                <a class="btn btn-sm btn-outline-info" href="/admin/songs/{{ song.id?.toString() }}" target="_blank"><i class="bi bi-box-arrow-up-right"></i> Edit song</a>
+                <button class="btn btn-sm btn-outline-danger ms-2" (click)="onRemoveSongFromMashupClicked(song.id ?? 0)">Remove</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</form>

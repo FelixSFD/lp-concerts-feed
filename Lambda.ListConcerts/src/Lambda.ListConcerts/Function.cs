@@ -5,7 +5,9 @@ using Common.DynamoDb;
 using Common.Utils.Cache;
 using Database.ConcertBookmarks;
 using Database.Concerts;
+using Database.Concerts.Models;
 using Lambda.Auth;
+using Lambda.Common.ApiGateway;
 using Lambda.ListConcerts.Syncing;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Requests;
@@ -198,9 +200,12 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
 
     private async Task<APIGatewayProxyResponse> ReturnFilteredConcertList(ILambdaContext context, string? filterTour = null, DateRange? dateRange = null)
     {
-        var concerts = await concertRepository.GetConcertsAsync(filterTour, dateRange).ToListAsync();
+        var concerts = await concertRepository
+            .GetConcertsAsync(filterTour, dateRange)
+            .Select(ConcertDtoMapper.ToDto)
+            .ToListAsync();
         
-        var concertsJson = JsonSerializer.Serialize(concerts, DataStructureJsonContext.Default.ListConcert);
+        var concertsJson = JsonSerializer.Serialize(concerts, DataStructureJsonContext.Default.ListConcertDto);
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
@@ -240,22 +245,11 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
         }
 
         context.Logger.LogDebug("Returning Concert with ID: {id}", next.Id);
-        return new APIGatewayProxyResponse
-        {
-            StatusCode = 200,
-            Body = JsonSerializer.Serialize(next, DataStructureJsonContext.Default.Concert),
-            Headers = new Dictionary<string, string>
-            {
-                { "Content-Type", "application/json" },
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET" },
-                { "Cache-Control", CacheControlHeaderFactory.CacheFor(CacheExpiration.Short) }
-            }
-        };
+        return ApiGatewayResponseHelper.Ok(ConcertDtoMapper.ToDto(next), DataStructureJsonContext.Default.ConcertDto, CacheControlHeaderConfig.Default, HttpMethod.Get);
     }
 
 
-    private async Task<APIGatewayProxyResponse> ReturnSingleConcert(string id)
+    private async Task<APIGatewayProxyResponse> ReturnSingleConcert(string id, bool withSetlists = true)
     {
         var concert = await GetConcertById(id);
         if (concert == null)
@@ -273,7 +267,16 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
             };
         }
         
-        var concertJson = JsonSerializer.Serialize(concert, DataStructureJsonContext.Default.Concert);
+        string concertJson;
+        if (withSetlists)
+        {
+            concertJson = JsonSerializer.Serialize(ConcertDtoMapper.ToDtoWithSetlists(concert), DataStructureJsonContext.Default.ConcertWithSetlistsDto);
+        }
+        else
+        {
+            concertJson = JsonSerializer.Serialize(ConcertDtoMapper.ToDto(concert), DataStructureJsonContext.Default.ConcertDto);
+        }
+        
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
@@ -293,9 +296,12 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
     {
         var searchStartDate = onlyFuture ? DateTimeOffset.Now : DateTimeOffset.MinValue;
 
-        var concerts = await concertRepository.GetConcertsAsync(searchStartDate).ToListAsync();
+        var concerts = await concertRepository
+            .GetConcertsAsync(searchStartDate)
+            .Select(ConcertDtoMapper.ToDto)
+            .ToListAsync();
         
-        var concertJson = JsonSerializer.Serialize(concerts, DataStructureJsonContext.Default.ListConcert);
+        var concertJson = JsonSerializer.Serialize(concerts, DataStructureJsonContext.Default.ListConcertDto);
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
@@ -341,7 +347,7 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
         ConcertBookmark bookmark)
     {
         var concert = await GetConcertById(bookmark.ConcertId);
-        return concert != null ? ConcertWithBookmarkStatusResponse.FromConcert(concert, bookmark) : null;
+        return concert != null ? ConcertWithBookmarkStatusResponse.FromConcert(ConcertDtoMapper.ToDto(concert), bookmark) : null;
     }
 
 
@@ -354,8 +360,8 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
         var syncResult = await syncEngine.SyncWith(syncRequest.LocalConcertIds, syncRequest.LastSync);
         var responseObj = new SyncConcertsResponse
         {
-            Added = syncResult.AddedObjects.ToArray(),
-            Updated = syncResult.ChangedObjects.ToArray(),
+            Added = syncResult.AddedObjects.Select(ConcertDtoMapper.ToDto).ToArray(),
+            Updated = syncResult.ChangedObjects.Select(ConcertDtoMapper.ToDto).ToArray(),
             DeletedConcertIds = syncResult.DeletedIds.ToArray(),
             SyncTime = syncTime
         };
@@ -386,7 +392,7 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
         var responseObj = new SyncConcertsResponse
         {
             Added = [], // unused will be removed at some point
-            Updated = syncResult.ChangedObjects.ToArray(),
+            Updated = syncResult.ChangedObjects.Select(ConcertDtoMapper.ToDto).ToArray(),
             DeletedConcertIds = syncResult.DeletedIds.ToArray(),
             SyncTime = syncResult.LatestChange
         };
@@ -414,7 +420,7 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
     /// </summary>
     /// <param name="id">ID</param>
     /// <returns>Concert</returns>
-    private async Task<Concert?> GetConcertById(string id)
+    private async Task<ConcertModel?> GetConcertById(string id)
     {
         return await concertRepository.GetByIdAsync(id);
     }

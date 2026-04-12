@@ -1,3 +1,4 @@
+using Database.Concerts.Models;
 using Ical.Net.CalendarComponents;
 using Ical.Net.DataTypes;
 using JetBrains.Annotations;
@@ -40,7 +41,7 @@ public class CalendarHelperTest
         {
             new object[]
             {
-                new Concert
+                new ConcertModel
                 {
                     Id = Guid.NewGuid().ToString(),
                     ShowType = "Linkin Park Show",
@@ -62,7 +63,7 @@ public class CalendarHelperTest
             },
             new object[]
             {
-                new Concert
+                new ConcertModel
                 {
                     Id = Guid.NewGuid().ToString(),
                     ShowType = "Festival",
@@ -84,7 +85,7 @@ public class CalendarHelperTest
             },
             new object[]
             {
-                new Concert
+                new ConcertModel
                 {
                     Id = Guid.NewGuid().ToString(),
                     ShowType = "Linkin Park Show",
@@ -107,7 +108,7 @@ public class CalendarHelperTest
             },
             new object[]
             {
-                new Concert
+                new ConcertModel
                 {
                     Id = Guid.NewGuid().ToString(),
                     ShowType = "Linkin Park Show",
@@ -130,7 +131,7 @@ public class CalendarHelperTest
             },
             new object[]
             {
-                new Concert
+                new ConcertModel
                 {
                     Id = Guid.NewGuid().ToString(),
                     ShowType = "Linkin Park Show",
@@ -177,7 +178,7 @@ public class CalendarHelperTest
 
     [Theory]
     [MemberData(nameof(GetFullEventForData))]
-    public void GetFullEventFor(Concert concert, string expectedTitle, string expectedDescription, string expectedLocation, CalDateTime expectedStart, Duration expectedDuration)
+    public void GetFullEventFor(ConcertModel concert, string expectedTitle, string expectedDescription, string expectedLocation, CalDateTime expectedStart, Duration expectedDuration)
     {
         var fullEvent = CalendarHelper.GetFullEventFor(concert);
         var expectedEnd = expectedStart.Add(expectedDuration);
@@ -202,7 +203,7 @@ public class CalendarHelperTest
             {
                 new[]
                 {
-                    new Concert
+                    new ConcertModel
                     {
                         Id = "1",
                         ShowType = "Linkin Park Show",
@@ -245,7 +246,7 @@ public class CalendarHelperTest
             {
                 new[]
                 {
-                    new Concert
+                    new ConcertModel
                     {
                         Id = "2",
                         ShowType = "Linkin Park Show",
@@ -280,7 +281,7 @@ public class CalendarHelperTest
             {
                 new[]
                 {
-                    new Concert
+                    new ConcertModel
                     {
                         Id = "2.1",
                         ShowType = "Festival",
@@ -313,7 +314,7 @@ public class CalendarHelperTest
             {
                 new[]
                 {
-                    new Concert
+                    new ConcertModel
                     {
                         Id = "2.2",
                         ShowType = "Festival",
@@ -347,7 +348,7 @@ public class CalendarHelperTest
             {
                 new[]
                 {
-                    new Concert
+                    new ConcertModel
                     {
                         Id = "3",
                         ShowType = "Linkin Park Show",
@@ -381,7 +382,7 @@ public class CalendarHelperTest
             {
                 new[]
                 {
-                    new Concert
+                    new ConcertModel
                     {
                         Id = "4",
                         Status = "PUBLISHED",
@@ -412,7 +413,7 @@ public class CalendarHelperTest
             {
                 new[]
                 {
-                    new Concert
+                    new ConcertModel
                     {
                         Id = "5",
                         ShowType = "Linkin Park Show",
@@ -446,7 +447,7 @@ public class CalendarHelperTest
 
     [Theory]
     [MemberData(nameof(ToCalendarEventsData))]
-    public void ToCalendarEvents(Concert[] concerts, ConcertSubEventCategory categoryFlags, CalendarEvent[] expectedEvents)
+    public void ToCalendarEvents(ConcertModel[] concerts, ConcertSubEventCategory categoryFlags, CalendarEvent[] expectedEvents)
     {
         var calendarEvents = concerts.ToCalendarEvents(categoryFlags).ToArray();
         
@@ -476,7 +477,7 @@ public class CalendarHelperTest
     [InlineData(0, 0.0001, 0, 0.0001)]
     public void GetGeoLocation(decimal testLat, decimal testLong, double expectedLat, double expectedLong)
     {
-        var testConcert = new Concert
+        var testConcert = new ConcertModel
         {
             Status = "TEST",
             TourName = "TEST Tour",
@@ -494,7 +495,7 @@ public class CalendarHelperTest
     [Fact]
     public void GetGeoLocation_Null()
     {
-        var testConcert = new Concert
+        var testConcert = new ConcertModel
         {
             Status = "TEST",
             TourName = "TEST Tour",

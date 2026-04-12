@@ -1,5 +1,6 @@
 using Amazon.Lambda.Core;
 using Database.Concerts;
+using Database.Concerts.Models;
 using LPCalendar.DataStructure;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
@@ -27,7 +28,7 @@ public class Function
         _logger.LogInformation("Consistency correction for concerts complete.");
     }
 
-    private async Task FixConcert(Concert concert)
+    private async Task FixConcert(ConcertModel concert)
     {
         var didChange = false;
         if (concert.LastChange == null)

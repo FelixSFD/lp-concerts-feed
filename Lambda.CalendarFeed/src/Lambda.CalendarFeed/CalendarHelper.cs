@@ -1,3 +1,4 @@
+using Database.Concerts.Models;
 using Ical.Net.CalendarComponents;
 using Ical.Net.DataTypes;
 using LPCalendar.DataStructure;
@@ -27,7 +28,7 @@ public static class CalendarHelper
     /// </summary>
     /// <param name="concert"></param>
     /// <returns>Geographic location or null, if the coordinates are not set in the <see cref="Concert"/></returns>
-    internal static GeographicLocation? GetGeoLocation(this Concert concert)
+    internal static GeographicLocation? GetGeoLocation(this ConcertModel concert)
     {
         if (concert.VenueLatitude != 0 || concert.VenueLongitude != 0)
         {
@@ -50,7 +51,7 @@ public static class CalendarHelper
     /// <param name="concerts">input concerts</param>
     /// <param name="categoryFlags">Options about which events to create</param>
     /// <returns>Events for the iCal feed</returns>
-    public static IEnumerable<CalendarEvent> ToCalendarEvents(this IEnumerable<Concert> concerts,
+    public static IEnumerable<CalendarEvent> ToCalendarEvents(this IEnumerable<ConcertModel> concerts,
         ConcertSubEventCategory categoryFlags = ConcertSubEventCategory.AsOneSingleEvent)
     {
         return concerts
@@ -67,7 +68,7 @@ public static class CalendarHelper
     /// <param name="concert">Concert to create the events for</param>
     /// <param name="categoryFlags">Flags to specify which sub-events to return for the concert</param>
     /// <returns>one or more events</returns>
-    internal static IEnumerable<CalendarEvent> ToCalendarEvents(this Concert concert, ConcertSubEventCategory categoryFlags = ConcertSubEventCategory.AsOneSingleEvent)
+    internal static IEnumerable<CalendarEvent> ToCalendarEvents(this ConcertModel concert, ConcertSubEventCategory categoryFlags = ConcertSubEventCategory.AsOneSingleEvent)
     {
         if (categoryFlags.HasFlag(ConcertSubEventCategory.AsOneSingleEvent))
         {
@@ -115,7 +116,7 @@ public static class CalendarHelper
     /// </summary>
     /// <param name="concert">Concert to generate the event for</param>
     /// <returns>Calendar Event</returns>
-    public static CalendarEvent? GetFullEventFor(Concert concert)
+    public static CalendarEvent? GetFullEventFor(ConcertModel concert)
     {
         return concert.TourName != null ? GetCalendarEventWithTourName(concert) : GetCalendarEventWithoutTourName(concert);
     }
@@ -126,7 +127,7 @@ public static class CalendarHelper
     /// </summary>
     /// <param name="concert"></param>
     /// <returns>event or null, if the <see cref="Concert.MainStageTime"/> is not set</returns>
-    private static CalendarEvent? GetEventForLinkinParkStageTime(Concert concert)
+    private static CalendarEvent? GetEventForLinkinParkStageTime(ConcertModel concert)
     {
         if (concert.MainStageTime == null) 
             return null;
@@ -163,8 +164,8 @@ public static class CalendarHelper
     /// </summary>
     /// <param name="concert"></param>
     /// <param name="nextEventStart"></param>
-    /// <returns>event or null, if the <see cref="Concert.DoorsTime"/> is not set</returns>
-    private static CalendarEvent? GetEventForDoorsTime(Concert concert, CalDateTime? nextEventStart)
+    /// <returns>event or null, if the <see cref="ConcertModel.DoorsTime"/> is not set</returns>
+    private static CalendarEvent? GetEventForDoorsTime(ConcertModel concert, CalDateTime? nextEventStart)
     {
         if (concert.DoorsTime == null) 
             return null;
@@ -194,7 +195,7 @@ public static class CalendarHelper
     }
     
     
-    private static CalendarEvent? GetCalendarEventWithTourName(Concert concert)
+    private static CalendarEvent? GetCalendarEventWithTourName(ConcertModel concert)
     {
         if (concert.PostedStartTime == null)
             return null;
@@ -241,7 +242,7 @@ public static class CalendarHelper
     }
     
     
-    private static CalendarEvent? GetCalendarEventWithoutTourName(Concert concert)
+    private static CalendarEvent? GetCalendarEventWithoutTourName(ConcertModel concert)
     {
         if (concert.PostedStartTime == null)
             return null;
@@ -293,7 +294,7 @@ public static class CalendarHelper
     /// </summary>
     /// <param name="concert"></param>
     /// <returns></returns>
-    private static string GetConcertTitle(Concert concert)
+    private static string GetConcertTitle(ConcertModel concert)
     {
         if (!string.IsNullOrEmpty(concert.CustomTitle))
         {
@@ -314,7 +315,7 @@ public static class CalendarHelper
     /// </summary>
     /// <param name="concert"></param>
     /// <returns></returns>
-    private static string GetStageTimeTitle(Concert concert)
+    private static string GetStageTimeTitle(ConcertModel concert)
     {
         if (!string.IsNullOrEmpty(concert.CustomTitle))
         {
@@ -335,7 +336,7 @@ public static class CalendarHelper
     /// </summary>
     /// <param name="concert"></param>
     /// <returns></returns>
-    private static Uri? GetUrlToConcert(Concert concert)
+    private static Uri? GetUrlToConcert(ConcertModel concert)
     {
         var rootDomainStr = Environment.GetEnvironmentVariable("ROOT_DOMAIN");
         return !string.IsNullOrEmpty(rootDomainStr) ? new Uri($"https://{rootDomainStr}/concert/{concert.Id}") : null;
@@ -347,7 +348,7 @@ public static class CalendarHelper
     /// </summary>
     /// <param name="concert"></param>
     /// <returns></returns>
-    private static string GetAppHintString(Concert concert)
+    private static string GetAppHintString(ConcertModel concert)
     {
         var rootDomainStr = Environment.GetEnvironmentVariable("ROOT_DOMAIN");
         if (string.IsNullOrEmpty(rootDomainStr))

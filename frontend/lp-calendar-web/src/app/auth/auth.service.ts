@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, map} from 'rxjs';
 import {OidcSecurityService, UserDataResult, LoginResponse} from 'angular-auth-oidc-client';
 import {User} from '../data/users/user';
 import {UserDto} from '../modules/lpshows-api';
@@ -67,6 +67,58 @@ export class AuthService {
 
   get isLoggedIn() {
     return this.isAuthenticatedSubject.value;
+  }
+
+  /**
+   * Returns an Observable that returns the list of groups of the current user
+   */
+  get currentUserGroups() {
+    return this.oidcSecurityService.getPayloadFromAccessToken().pipe(map(payload => {
+      //console.debug(payload);
+      if (payload.hasOwnProperty("cognito:groups")) {
+        return payload["cognito:groups"] as string[] ?? [];
+      }
+      return [];
+    }));
+  }
+
+  private isMemberOfOrAdmin(group: string) {
+    return this.currentUserGroups.pipe(map(groups => groups.some(g => g == group || g == "Admin")));
+  }
+
+  /**
+   * true if the user can add concerts
+   */
+  get canAddConcerts() {
+    return this.isMemberOfOrAdmin("AddConcerts");
+  }
+
+  /**
+   * true if the user can update existing concerts
+   */
+  get canUpdateConcerts() {
+    return this.isMemberOfOrAdmin("UpdateConcerts");
+  }
+
+  /**
+   * true if the user can delete concerts
+   */
+  get canDeleteConcerts() {
+    return this.isMemberOfOrAdmin("DeleteConcerts");
+  }
+
+  /**
+   * true if the user can manage setlists and songs
+   */
+  get canManageSetlists() {
+    return this.isMemberOfOrAdmin("ManageSetlists");
+  }
+
+  /**
+   * true if the user can manage users
+   */
+  get canManageUsers() {
+    return this.isMemberOfOrAdmin("ManageUsers");
   }
 }
 

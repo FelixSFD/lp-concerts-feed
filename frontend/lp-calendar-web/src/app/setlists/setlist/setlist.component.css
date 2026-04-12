@@ -1,0 +1,42 @@
+.collapsible-table {
+  max-height: 350px;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+  position: relative;
+}
+
+.table-wrapper.expanded .collapsible-table {
+  max-height: 5000px;
+}
+
+.fade-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  pointer-events: none;
+}
+
+@media (prefers-color-scheme: light) {
+  .fade-overlay {
+    background: linear-gradient(
+      to bottom,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0.8) 60%,
+      rgba(255,255,255,1) 100%
+    );
+  }
+}
+
+
+@media (prefers-color-scheme: dark) {
+  .fade-overlay {
+    background: linear-gradient(
+      to bottom,
+      rgba(255,255,255,0) 0%,
+      rgba(33,37,41,0.8) 60%,
+      rgba(33,37,41,1) 100%
+    );
+  }
+}

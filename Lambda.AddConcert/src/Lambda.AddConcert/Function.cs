@@ -7,6 +7,7 @@ using Amazon.Lambda.Core;
 using Amazon.SQS;
 using Amazon.SQS.Model;
 using Database.Concerts;
+using Database.Concerts.Models;
 using Lambda.Auth;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Events;
@@ -58,7 +59,7 @@ public class Function
         var concert = MakeConcertFromJsonBody(request.Body);
         
         // check if concerts exists to get old value
-        Concert? oldValue = null;
+        ConcertModel? oldValue = null;
         if (!string.IsNullOrEmpty(concert.Id))
         {
             oldValue = await _concertRepository.GetByIdAsync(concert.Id);
@@ -116,7 +117,7 @@ public class Function
     }
 
 
-    private bool RequestIsValid(Concert concert, [NotNullWhen(true)] out InvalidFieldsErrorResponse? errors)
+    private bool RequestIsValid(ConcertModel concert, [NotNullWhen(true)] out InvalidFieldsErrorResponse? errors)
     {
         var valid = true;
         var tmpResponse = new InvalidFieldsErrorResponse
@@ -135,34 +136,34 @@ public class Function
     }
 
 
-    private static Concert MakeConcertFromJsonBody(string json)
+    private static ConcertModel MakeConcertFromJsonBody(string json)
     {
         var guid = Guid.NewGuid().ToString();
-        var concert = JsonSerializer.Deserialize(json, DataStructureJsonContext.Default.Concert) ?? throw new InvalidDataContractException("JSON could not be parsed to Concert!");
+        var concert = JsonSerializer.Deserialize(json, DataStructureJsonContext.Default.ConcertDto) ?? throw new InvalidDataContractException("JSON could not be parsed to ConcertDto!");
         concert.Id = Guid.TryParse(concert.Id, out _) ? concert.Id : guid;
-        return concert;
+        return ConcertDtoMapper.ToModel(concert);
     }
 
 
-    private async Task LogChanges(Concert? oldValue, Concert? newValue, string? userId, string action, ILambdaLogger logger)
+    private async Task LogChanges(ConcertModel? oldValue, ConcertModel? newValue, string? userId, string action, ILambdaLogger logger)
     {
         logger.LogDebug($"Log action '{action}' made by {userId}...");
         var auditLogEvent = new AuditLogEvent
         {
             UserId = userId ?? "unknown",
             Action = $"Concert_{action}",
-            AffectedEntity = $"{Concert.ConcertTableName}#{newValue?.Id ?? oldValue?.Id}",
+            AffectedEntity = $"{ConcertModel.ConcertTableName}#{newValue?.Id ?? oldValue?.Id}",
             Timestamp = DateTime.UtcNow
         };
 
         if (oldValue != null)
         {
-            auditLogEvent.OldValue = JsonSerializer.Serialize(oldValue, DataStructureJsonContext.Default.Concert);
+            auditLogEvent.OldValue = JsonSerializer.Serialize(ConcertDtoMapper.ToDto(oldValue), DataStructureJsonContext.Default.ConcertDto);
         }
 
         if (newValue != null)
         {
-            auditLogEvent.NewValue = JsonSerializer.Serialize(newValue, DataStructureJsonContext.Default.Concert);
+            auditLogEvent.NewValue = JsonSerializer.Serialize(ConcertDtoMapper.ToDto(newValue), DataStructureJsonContext.Default.ConcertDto);
         }
         
         var auditMessage = new SendMessageRequest
@@ -180,7 +181,7 @@ public class Function
     }
 
 
-    private async Task SendNotificationsIfNeeded(Concert newValue, Concert? oldValue, ILambdaLogger logger)
+    private async Task SendNotificationsIfNeeded(ConcertModel newValue, ConcertModel? oldValue, ILambdaLogger logger)
     {
         logger.LogDebug("Check if notifications need to be sent");
         
@@ -189,13 +190,15 @@ public class Function
         {
             mainStageTimeConfirmed = newValue.MainStageTime != null && newValue.MainStageTime != oldValue.MainStageTime;
         }
+        
+        var newValueDto = ConcertDtoMapper.ToDto(newValue);
 
         if (mainStageTimeConfirmed)
         {
             logger.LogDebug($"Send notification for stage time confirmed: {newValue.MainStageTime}");
             var notification = new ConcertRelatedPushNotificationEvent
             {
-                Concert = newValue
+                Concert = newValueDto
             };
             
             await SendPushNotification(notification, PushNotificationType.MainStageTimeConfirmed, logger);
@@ -205,7 +208,7 @@ public class Function
         logger.LogDebug("Send a silent notification to trigger a sync on the clients");
         var syncNotification = new ConcertRelatedPushNotificationEvent
         {
-            Concert = newValue
+            Concert = newValueDto
         };
         await SendPushNotification(syncNotification, PushNotificationType.TriggerClientSync, logger);
     }

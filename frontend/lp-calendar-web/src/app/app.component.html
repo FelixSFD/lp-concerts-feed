@@ -1,8 +1,9 @@
-<nav class="navbar sticky-top navbar-expand-sm navbar-light bg-secondary-subtle">
+<div class="sticky-top">
+<nav class="navbar navbar-expand-sm navbar-light bg-secondary-subtle">
   <div class="container-fluid">
     <a class="navbar-brand" href="/">
       <div class="container-fluid">
-        <img src="favicon.svg" alt="Logo" width="30" height="30" class="d-inline-block align-top me-2" /> <span class="navbar-brand h1">L<span style="display: inline-block; transform: scaleX(-1); margin-left: -3px">P</span> Concert Calendar</span>
+        <img ngSrc="logo.webp" alt="Logo" width="30" height="30" class="d-inline-block align-top me-2" /> <span class="navbar-brand h1">L<span style="display: inline-block; transform: scaleX(-1); margin-left: -3px">P</span> Concert Calendar</span>
       </div>
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,8 +45,17 @@
               <i class="bi bi-gear-fill"></i>
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
-              <li><h6 class="dropdown-header">Administration</h6></li>
-              <li><a class="dropdown-item" [routerLink]="['/users']" [routerLinkActive]="['active']">Users</a></li>
+              @if (authStateService.canManageSetlists | async) {
+                <li><h6 class="dropdown-header">Songs & Setlists</h6></li>
+                <li><a class="dropdown-item" [routerLink]="['/admin/setlists']" [routerLinkActive]="['active']">Setlists</a></li>
+                <li><a class="dropdown-item" [routerLink]="['/admin/albums']" [routerLinkActive]="['active']">Albums</a></li>
+                <li><a class="dropdown-item" [routerLink]="['/admin/songs']" [routerLinkActive]="['active']">Songs</a></li>
+                <li><a class="dropdown-item" [routerLink]="['/admin/mashups']" [routerLinkActive]="['active']">Mashups</a></li>
+              }
+              @if (authStateService.canManageUsers | async) {
+                <li><h6 class="dropdown-header">Administration</h6></li>
+                <li><a class="dropdown-item" [routerLink]="['/users']" [routerLinkActive]="['active']">Users</a></li>
+              }
               <li><hr class="dropdown-divider"></li>
               <li><h6 class="dropdown-header">{{ currentUser$?.username ?? "You" }}</h6></li>
               <li><a class="dropdown-item" [routerLink]="['/profile']">Your profile</a></li>
@@ -57,6 +67,10 @@
     </div>
   </div>
 </nav>
+<div [class]="(routerProgress == 1 ? 'progress hidden' : 'progress')" style="height: 2px">
+  <div class="progress-bar" [ngStyle]="{ 'width': (routerProgress * 100) + '%' }" role="progressbar" aria-valuenow="{{ routerProgress * 100 }}" aria-valuemin="0" aria-valuemax="100"></div>
+</div>
+</div>
 
 <div class="container" style="padding-top: 30px">
   <!-- Content here -->

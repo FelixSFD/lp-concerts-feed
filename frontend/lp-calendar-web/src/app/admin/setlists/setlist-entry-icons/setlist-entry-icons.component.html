@@ -1,0 +1,15 @@
+@if (showRecordTape$) {
+  <i class="bi bi-cassette-fill ms-1" ngbTooltip="This track was played from a recording, not live." placement="top"></i>
+}
+
+@if (showRotationSymbol$) {
+  <i class="bi bi-arrow-counterclockwise ms-1" ngbTooltip="Rotation song" placement="top"></i>
+}
+
+@if (showGlobeSymbol$) {
+  <i class="bi bi-globe-americas ms-1" ngbTooltip="World premiere! This song was not even released yet when it was played." placement="top"></i>
+}
+
+@if (showLivePremiereSymbol$) {
+  <i class="bi bi-stars ms-1" ngbTooltip="Live premiere! This is the first time this song has been played live." placement="top"></i>
+}

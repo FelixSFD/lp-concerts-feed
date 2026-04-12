@@ -1,0 +1,120 @@
+<form #form="ngForm" [formGroup]="songForm" class="form">
+  <ng-template #formInputsGeneral>
+    <!-- Song title -->
+    <div class="form-group mb-3">
+      <label for="title">Title:</label>
+      <div class="input-group">
+        <input id="title" type="text" formControlName="title" class="form-control" [ngClass]="{ 'is-invalid': songForm.controls.title.invalid }" placeholder="Example: Robot Boy">
+      </div>
+      @if (songForm.controls.title.invalid) {
+        <div class="text-danger">
+          @if (songForm.controls.title.errors) {
+            <small>Title is invalid.</small>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Album selection -->
+    <div class="form-group">
+      <label for="selectedAlbumId">Album</label>
+      <div class="input-group mb-3">
+        <select class="form-select form-control"
+                formControlName="selectedAlbumId"
+                [ngClass]="{ 'is-invalid': songForm.controls.selectedAlbumId.invalid }">
+          <option selected disabled>Select album</option>
+          <option>Not part of any album</option>
+          <option disabled>---------------</option>
+          @for (album of availableAlbums$; track album.id) {
+            <option [value]="album.id">{{ album.title }}</option>
+          }
+        </select>
+      </div>
+      @if (songForm.controls.selectedAlbumId.invalid) {
+        <div class="text-danger">
+          @if (songForm.controls.selectedAlbumId.errors) {
+            <small>Selection is invalid.</small>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- ISRC -->
+    <div class="form-group mb-3">
+      <label for="isrc" ngbTooltip="International Standard Recording Code">ISRC:</label>
+      <div class="input-group">
+        <input id="isrc" type="text" formControlName="isrc" class="form-control" [ngClass]="{ 'is-invalid': songForm.controls.isrc.invalid }" placeholder="Example: USWB11101594">
+      </div>
+      @if (songForm.controls.isrc.invalid) {
+        <div class="text-danger">
+          @if (songForm.controls.isrc.errors) {
+            <small>ISRC has an invalid format.</small>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Apple Music ID selection -->
+    <div class="form-group">
+      <label for="selectedAppleMusicId" ngbTooltip="Unique ID to identify this song in Apple Music">Apple Music ID:</label>
+      <div class="input-group mb-3">
+        <select class="form-select form-control"
+                formControlName="selectedAppleMusicId"
+                [ngClass]="{ 'is-invalid': songForm.controls.selectedAppleMusicId.invalid }">
+          <option selected>Select Song on Apple Music</option>
+          <option value="null">Not available</option>
+          <option disabled>---------------</option>
+          @for (song of appleMusicSongsForIsrc$; track song.id) {
+            <option [value]="song.id">{{ song.title }} - {{ song.albumName }} ({{ song.id }})</option>
+          }
+        </select>
+      </div>
+      @if (songForm.controls.selectedAppleMusicId.invalid) {
+        <div class="text-danger">
+          @if (songForm.controls.selectedAppleMusicId.errors) {
+            <small>Selection is invalid.</small>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Linkinpedia URL -->
+    <div class="form-group mb-3">
+      <label for="linkinpediaUrl">Linkinpedia URL:</label>
+      <div class="input-group">
+        <input id="linkinpediaUrl" type="text" formControlName="linkinpediaUrl" class="form-control" [ngClass]="{ 'is-invalid': songForm.controls.linkinpediaUrl.invalid }" placeholder="(Optional) Link to the page in Linkinpedia">
+        <button class="btn btn-outline-info" (click)="openLinkinpediaUrlClicked()"><i class="bi bi-box-arrow-up-right"></i><span class="d-none d-sm-none d-md-inline ms-2">Open link</span></button>
+      </div>
+      @if (songForm.controls.linkinpediaUrl.invalid) {
+        <div class="text-danger">
+          @if (songForm.controls.linkinpediaUrl.errors) {
+            <small>URL is invalid.</small>
+          }
+        </div>
+      }
+    </div>
+  </ng-template>
+
+  @if (standalone$) {
+    <div class="card mt-3">
+      <div class="card-header">
+        General information
+      </div>
+      <div class="card-body edit-form-card">
+        <ng-container *ngTemplateOutlet="formInputsGeneral" />
+      </div>
+      <div class="card-footer">
+        <div class="row">
+          <div class="col text-end">
+            <button class="btn btn-success" (click)="onSaveClicked()" [disabled]="isSaving$ || !songForm.valid">
+              <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" [hidden]="!isSaving$"></span>
+              <span class="sr-only">{{ isSaving$ ? "Saving..." : "Save" }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <ng-container *ngTemplateOutlet="formInputsGeneral" />
+  }
+</form>

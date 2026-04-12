@@ -11,6 +11,9 @@ Parameters:
     Type: String
   RootDomain:
     Type: String
+  CorsOrigin:
+    Description: Value of the CORS origin header
+    Type: String
   CallbackUrl:
     Type: String
   UserPoolId:
@@ -29,6 +32,21 @@ Parameters:
   TimeZoneApiKey:
     Type: String
     Description: Key for the TimezoneDB API
+  SetlistsDbConnectionStringRead:
+    Type: String
+    Description: Connection string to read from the setlist database
+  SetlistsDbConnectionStringWrite:
+    Type: String
+    Description: Connection string to write into the setlist database
+  AppleMusicApiPrivateKey:
+    Type: String
+    Description: Private Key for the Apple Music API as text. This key is used to generate developer tokens
+  AppleMusicApiKeyId:
+    Type: String
+    Description: ID of the AppleMusicApiPrivateKey
+  AppleMusicApiTeamId:
+    Type: String
+    Description: ID of the developer team
 
 
 Globals:
@@ -44,6 +62,7 @@ Globals:
       Variables:
         AUDIT_LOG_QUEUE_URL: !Ref AuditLogQueue
         ROOT_DOMAIN: !Ref RootDomain
+        API_CORS_ORIGIN: !Ref CorsOrigin
   Api:
     TracingEnabled: true
     Cors:
@@ -887,6 +906,78 @@ Resources:
                   - !Sub "${ConcertNotificationHistoryTable.Arn}"
                   - !Sub "${ConcertNotificationHistoryTable.Arn}*"
 
+  SetlistsWriteLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: "Execution role for Lambda that writes to the DB"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: LambdaDynamoDBAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem # yes, we need write access, too to update the setlists cache for the concerts
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:DescribeTable
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                Resource:
+                  - !Sub "${ConcertsDynamoDBTable.Arn}"
+                  - !Sub "${ConcertsDynamoDBTable.Arn}*"
+  
+  SetlistsReadLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: "Execution role for Lambda that reads from the DB"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: LambdaDynamoDBAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:DescribeTable
+                  - dynamodb:Query
+                Resource:
+                  - !Sub "${ConcertsDynamoDBTable.Arn}"
+                  - !Sub "${ConcertsDynamoDBTable.Arn}*"
+  
+  AppleMusicLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: "Execution role for Lambda that generates Apple Music API tokens"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
   CognitoAuthorizerUserPoolV3:
     Type: AWS::Cognito::UserPool
     Properties:
@@ -1030,6 +1121,22 @@ Resources:
     Properties:
       Description: People in this group can DELETE concerts
       GroupName: DeleteConcerts
+      Precedence: 3
+      UserPoolId: !Ref CognitoAuthorizerUserPoolV3
+  
+  ManageSetlistsUserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      Description: People in this group can manage setlists
+      GroupName: ManageSetlists
+      Precedence: 3
+      UserPoolId: !Ref CognitoAuthorizerUserPoolV3
+  
+  DeleteSongsUserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      Description: People in this group can delete songs
+      GroupName: DeleteSongs
       Precedence: 3
       UserPoolId: !Ref CognitoAuthorizerUserPoolV3
 
@@ -1682,7 +1789,87 @@ Resources:
             RestApiId: !Ref ConcertsApi
             Path: /feed/ical
             Method: get
-
+    
+  SetlistsWriteFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: Lambda.SetlistsWrite::Lambda.SetlistsWrite.Function::FunctionHandler
+      Role: !GetAtt SetlistsWriteLambdaExecutionRole.Arn
+      Description: .NET function to write Setlist-data into the database
+      CodeUri: ../lambda_packages/Lambda.SetlistsWrite.zip
+      Runtime: dotnet10
+      Architectures:
+        - arm64
+      Tracing: Active
+      MemorySize: 1024
+      Environment:
+        Variables:
+          CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
+          SETLISTS_DB_CONNECTION_STRING: !Ref SetlistsDbConnectionStringWrite
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
+  
+  SetlistsReadFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: Lambda.SetlistsRead::Lambda.SetlistsRead.Function::FunctionHandler
+      Role: !GetAtt SetlistsReadLambdaExecutionRole.Arn
+      Description: .NET function to read Setlist-data from the database
+      CodeUri: ../lambda_packages/Lambda.SetlistsRead.zip
+      Runtime: dotnet10
+      Architectures:
+        - arm64
+      Tracing: Active
+      MemorySize: 1024
+      Environment:
+        Variables:
+          CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
+          SETLISTS_DB_CONNECTION_STRING: !Ref SetlistsDbConnectionStringRead
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
+  
+  SetlistsDbMigrationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: Lambda.SetlistsDbMigration::Lambda.SetlistsDbMigration.Function::FunctionHandler
+      Role: !GetAtt SetlistsWriteLambdaExecutionRole.Arn
+      Description: .NET function to run the Entity Framework DB Migrations for Setlist data
+      CodeUri: ../lambda_packages/Lambda.SetlistsDbMigration.zip
+      Runtime: dotnet10
+      Architectures:
+        - arm64
+      Tracing: Active
+      MemorySize: 1024
+      Environment:
+        Variables:
+          CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
+          SETLISTS_DB_CONNECTION_STRING: !Ref SetlistsDbConnectionStringWrite
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
+  
+  AppleMusicFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: Lambda.AppleMusic::Lambda.AppleMusic.Function::FunctionHandler
+      Role: !GetAtt AppleMusicLambdaExecutionRole.Arn
+      Description: .NET function to run the Entity Framework DB Migrations for Setlist data
+      CodeUri: ../lambda_packages/Lambda.AppleMusic.zip
+      Runtime: dotnet10
+      Architectures:
+        - arm64
+      Tracing: Active
+      MemorySize: 1024
+      Environment:
+        Variables:
+          APPLE_MUSIC_PRIVATE_KEY: !Ref AppleMusicApiPrivateKey
+          APPLE_MUSIC_KEY_ID: !Ref AppleMusicApiKeyId
+          APPLE_TEAM_ID: !Ref AppleMusicApiTeamId
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
 
 Outputs:
   ConcertsApiGatewayExport:
@@ -1759,6 +1946,18 @@ Outputs:
     Value: !GetAtt PushEndpointManagementLambda.Arn
     Export:
       Name: !Sub '${BaseProductName}-lambda-push-endpoint-management-function'
+  LambdaRefSetlistsWriteFunctionExport:
+    Value: !GetAtt SetlistsWriteFunction.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-lambda-setlists-write-function'
+  LambdaRefSetlistsReadFunctionExport:
+    Value: !GetAtt SetlistsReadFunction.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-lambda-setlists-read-function'
+  LambdaRefAppleMusicFunctionExport:
+    Value: !GetAtt AppleMusicFunction.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-lambda-apple-music-function'
   OpenApiBucketArn:
     Value: !GetAtt OpenApiBucket.Arn
     Export:

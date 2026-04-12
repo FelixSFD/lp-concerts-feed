@@ -1,0 +1,293 @@
+<form #form="ngForm" [formGroup]="setlistEntryForm" class="form">
+  <!-- Song Number -->
+  <div class="form-group">
+    <label for="songNumber">Number of the entry:</label>
+    <div class="input-group mb-3">
+      <input id="songNumber" type="number" formControlName="songNumber" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.songNumber.invalid }" placeholder="Number of the entry in the setlist">
+    </div>
+    @if (setlistEntryForm.controls.songNumber.invalid) {
+      <div class="text-danger">
+        @if (setlistEntryForm.controls.songNumber.errors) {
+          <small>Number is invalid.</small>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Act selection -->
+  <div class="form-group">
+    <label for="selectedActId">Act</label>
+    <div class="input-group mb-3">
+      <select class="form-select form-control" (change)="onActSelectionChanged()"
+              formControlName="selectedActNumber"
+              [ngClass]="{ 'is-invalid': setlistEntryForm.controls.selectedActNumber.invalid }">
+        <option selected disabled>Select act</option>
+        <option selected value="0">Not part of any act</option>
+        <option disabled>---------------</option>
+        <option value="-1">Add new act...</option>
+        <option disabled>---------------</option>
+        @for (act of availableActs$; track act.actNumber) {
+          <option [value]="act.actNumber">{{ act.title }}</option>
+        }
+      </select>
+    </div>
+    @if (setlistEntryForm.controls.selectedActNumber.invalid) {
+      <div class="text-danger">
+        @if (setlistEntryForm.controls.selectedActNumber.errors) {
+          <small>Selection is invalid.</small>
+        }
+      </div>
+    }
+  </div>
+
+  @if (showAddActFields) {
+    <!-- Act Number -->
+    <div class="form-group">
+      <label for="actNumber">Number of the act:</label>
+      <div class="input-group mb-3">
+        <input id="actNumber" type="number" formControlName="actNumber" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.actNumber.invalid }" placeholder="Number of the act in the setlist">
+      </div>
+      @if (setlistEntryForm.controls.actNumber.invalid) {
+        <div class="text-danger">
+          @if (setlistEntryForm.controls.actNumber.errors) {
+            <small>Number is invalid.</small>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Act Title -->
+    <div class="form-group">
+      <label for="actTitle">Title of the act:</label>
+      <div class="input-group mb-3">
+        <input id="actTitle" type="text" formControlName="actTitle" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.actTitle.invalid }" placeholder="Example: Inception Intro A">
+      </div>
+      @if (setlistEntryForm.controls.actTitle.invalid) {
+        <div class="text-danger">
+          @if (setlistEntryForm.controls.actTitle.errors) {
+            <small>Act title is invalid.</small>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Type of entry -->
+  <div class="form-group">
+    <label for="song">Select type of entry:</label>
+    <div class="input-group mb-3">
+      <div class="btn-group btn-group-sm" role="group">
+        <input type="radio" class="btn-check" name="entryType" id="song" formControlName="entryType" [value]="AddSetlistEntryFormContent.entryTypeSong" autocomplete="off">
+        <label class="btn btn-outline-primary" for="song">Song</label>
+        <input type="radio" class="btn-check" name="entryType" id="songMashup" formControlName="entryType" [value]="AddSetlistEntryFormContent.entryTypeSongMashup" autocomplete="off">
+        <label class="btn btn-outline-info" for="songMashup">Mashup/Medley</label>
+        <input type="radio" class="btn-check" name="entryType" id="freeText" formControlName="entryType" [value]="AddSetlistEntryFormContent.entryTypeFreeText" autocomplete="off">
+        <label class="btn btn-outline-secondary" for="freeText">Custom</label>
+      </div>
+    </div>
+    @if (setlistEntryForm.controls.selectedSongId.invalid) {
+      <div class="text-danger">
+        @if (setlistEntryForm.controls.selectedSongId.errors) {
+          <small>Selection is invalid.</small>
+        }
+      </div>
+    }
+  </div>
+
+  @if (selectedEntryType$ == AddSetlistEntryFormContent.entryTypeFreeText) {
+    <div class="mb-4">
+      <small>Use this entry type for entries like the intro song where we don't need statistics.</small>
+    </div>
+  }
+
+  @if (selectedEntryType$ == AddSetlistEntryFormContent.entryTypeSong) {
+    <!-- Song selection -->
+    <div class="form-group">
+      <label for="song">Played Song</label>
+      <div class="input-group mb-3">
+        <select class="form-select form-control" (change)="onSongSelectionChanged()"
+                formControlName="selectedSongId"
+                [ngClass]="{ 'is-invalid': setlistEntryForm.controls.selectedSongId.invalid }">
+          <option selected disabled>Select song</option>
+          <option value="-1">Add new song...</option>
+          <option disabled>---------------</option>
+          @for (song of availableSongs$; track song.id) {
+            <option [value]="song.id">{{ song.title }}</option>
+          }
+        </select>
+      </div>
+      @if (setlistEntryForm.controls.selectedSongId.invalid) {
+        <div class="text-danger">
+          @if (setlistEntryForm.controls.selectedSongId.errors) {
+            <small>Selection is invalid.</small>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- fields for the song . Only displayed if "Add new song" is selected -->
+    @if (showAddSongFields) {
+      <!-- Song Title -->
+      <div class="form-group">
+        <label for="songTitle">Title of the song:</label>
+        <div class="input-group mb-3">
+          <input id="songTitle" type="text" formControlName="songTitle" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.songTitle.invalid }" placeholder="Example: Lost">
+        </div>
+        @if (setlistEntryForm.controls.songTitle.invalid) {
+          <div class="text-danger">
+            @if (setlistEntryForm.controls.songTitle.errors) {
+              <small>Song title is invalid.</small>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Song ISRC -->
+      <div class="form-group">
+        <label for="songIsrc">ISRC:</label>
+        <small>This is a unique code to identify an official recording of a song.</small>
+        <div class="input-group mb-3">
+          <input id="songIsrc" type="text" formControlName="songIsrc" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.songIsrc.invalid }" placeholder="(optional) ISRC">
+        </div>
+        @if (setlistEntryForm.controls.songIsrc.invalid) {
+          <div class="text-danger">
+            @if (setlistEntryForm.controls.songIsrc.errors) {
+              <small>ISRC is invalid.</small>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Song variant -->
+    <div class="form-group">
+      <label for="songVariant">Played variation of the song</label>
+      <div class="input-group mb-3">
+        <select class="form-select form-control" (change)="onSongVariantSelectionChanged()"
+                formControlName="selectedSongVariantId"
+                [ngClass]="{ 'is-invalid': setlistEntryForm.controls.selectedSongVariantId.invalid }">
+          <option selected value="0">Normal version</option>
+          <option disabled>---------------</option>
+          <option value="-1">Add new variant</option>
+          <option disabled>---------------</option>
+          @for (variant of variantsOfSelectedSong$; track variant.id) {
+            <option [value]="variant.id">{{ variant.variantName }} ({{ variant.description }})</option>
+          }
+        </select>
+      </div>
+      @if (setlistEntryForm.controls.selectedSongVariantId.invalid) {
+        <div class="text-danger">
+          @if (setlistEntryForm.controls.selectedSongVariantId.errors) {
+            <small>Selection is invalid.</small>
+          }
+        </div>
+      }
+    </div>
+  } @else if (selectedEntryType$ == AddSetlistEntryFormContent.entryTypeSongMashup) {
+    <!-- Mashup -->
+    <div class="form-group">
+      <label for="selectedSongMashupId">Mashup/Medley</label>
+      <div class="input-group mb-3">
+        <select class="form-select form-control"
+                formControlName="selectedSongMashupId"
+                [ngClass]="{ 'is-invalid': setlistEntryForm.controls.selectedSongMashupId.invalid }">
+          <option selected value="0" disabled>Select mashup...</option>
+          @for (mashup of availableSongMashups$; track mashup.id) {
+            <option [value]="mashup.id">{{ mashup.title }}</option>
+          }
+        </select>
+      </div>
+      @if (setlistEntryForm.controls.selectedSongMashupId.invalid) {
+        <div class="text-danger">
+          @if (setlistEntryForm.controls.selectedSongMashupId.errors) {
+            <small>Selection is invalid.</small>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- fields for the song variant. Only displayed if "Add new variant" is selected -->
+  @if (showAddNewVariantFields) {
+    <!-- Variant Name -->
+    <div class="form-group">
+      <label for="songVariantName">Name of the variant:</label>
+      <div class="input-group mb-3">
+        <input id="songVariantName" type="text" formControlName="songVariantName" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.songVariantName.invalid }" placeholder="Example: Piano Version">
+      </div>
+      @if (setlistEntryForm.controls.songVariantName.invalid) {
+        <div class="text-danger">
+          @if (setlistEntryForm.controls.songVariantName.errors) {
+            <small>Name is invalid.</small>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Variant Description -->
+    <div class="form-group">
+      <label for="songVariantDescription">Description of the variant:</label>
+      <div class="input-group mb-3">
+        <input id="songVariantDescription" type="text" formControlName="songVariantDescription" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.songVariantDescription.invalid }" placeholder="(optional) What makes this variant different?">
+      </div>
+      @if (setlistEntryForm.controls.songVariantDescription.invalid) {
+        <div class="text-danger">
+          @if (setlistEntryForm.controls.songVariantDescription.errors) {
+            <small>Description is invalid.</small>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Optionally override the title of the song or mashup -->
+  <div class="form-group">
+    <label for="titleOverride">{{ selectedEntryType$ != AddSetlistEntryFormContent.entryTypeFreeText ? '(Optional)' : '' }} Override the title for this entry:</label>
+    <div class="input-group mb-3">
+      <input id="titleOverride" type="text" formControlName="titleOverride" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.titleOverride.invalid }" placeholder="if empty, the name of the song/mashup will be used by default">
+    </div>
+    @if (setlistEntryForm.controls.titleOverride.invalid) {
+      <div class="text-danger">
+        @if (setlistEntryForm.controls.titleOverride.errors) {
+          <small>Title is invalid.</small>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Optionally add extra notes -->
+  <div class="form-group">
+    <label for="extraNotes">(Optional) Additional notes:</label>
+    <div class="input-group mb-3">
+      <input id="extraNotes" type="text" formControlName="extraNotes" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.extraNotes.invalid }" placeholder="Example: Joe threw a cake into the crowd">
+    </div>
+    @if (setlistEntryForm.controls.extraNotes.invalid) {
+      <div class="text-danger">
+        @if (setlistEntryForm.controls.extraNotes.errors) {
+          <small>Input is invalid.</small>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Switches for boolean fields -->
+  <div class="form-check form-switch">
+    <input class="form-check-input" type="checkbox" id="wasPlayedFromRecording" [checked]="setlistEntryForm.controls.wasPlayedFromRecording.value" formControlName="wasPlayedFromRecording">
+    <label class="form-check-label" for="wasPlayedFromRecording"><i class="bi bi-cassette-fill"></i> Was played from recording</label>
+  </div>
+
+  <div class="form-check form-switch">
+    <input class="form-check-input" type="checkbox" id="wasRotationSong" [checked]="setlistEntryForm.controls.wasRotationSong.value" formControlName="wasRotationSong">
+    <label class="form-check-label" for="wasRotationSong"><i class="bi bi-arrow-counterclockwise"></i> This is a rotation slot</label>
+  </div>
+
+  <div class="form-check form-switch">
+    <input class="form-check-input" type="checkbox" id="wasWorldPremiere" [checked]="setlistEntryForm.controls.wasWorldPremiere.value" formControlName="wasWorldPremiere">
+    <label class="form-check-label" for="wasWorldPremiere"><i class="bi bi-globe-americas"></i> Was a world premiere</label>
+  </div>
+
+  <div class="form-check form-switch">
+    <input class="form-check-input" type="checkbox" id="wasLivePremiere" [checked]="setlistEntryForm.controls.wasLivePremiere.value" formControlName="wasLivePremiere">
+    <label class="form-check-label" for="wasLivePremiere"><i class="bi bi-stars"></i> Was a live premiere</label>
+  </div>
+</form>

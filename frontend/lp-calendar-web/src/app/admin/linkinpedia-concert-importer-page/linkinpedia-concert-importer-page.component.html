@@ -1,0 +1,224 @@
+<!-- add song modal -->
+<ng-template #addSongContent let-addSongModal>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h1 class="modal-title fs-5" id="addSongModalLabel">Add a new song</h1>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <app-song-form [standalone]="false" [is-saving]="isAddingSong$" />
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" [disabled]="isAddingSong$" (click)="dismissAddSongModal()">Cancel</button>
+      <button type="button" class="btn btn-primary" id="addSongConfirmBtn" (click)="onAddSongConfirm()" [disabled]="isAddingSong$">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!isAddingSong$"></span>
+        <span class="sr-only">{{ isAddingSong$ ? "Adding..." : "Add" }}</span>
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<!-- add song mashup modal -->
+<ng-template #addMashupContent let-addMashupModal>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h1 class="modal-title fs-5" id="addMashupModalLabel">Add a new song mashup</h1>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <app-mashup-form [standalone]="false" [is-saving]="isAddingMashup$" />
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" [disabled]="isAddingMashup$" (click)="dismissAddMashupModal()">Cancel</button>
+      <button type="button" class="btn btn-primary" id="addSongConfirmBtn" (click)="onAddMashupConfirm()" [disabled]="isAddingMashup$">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!isAddingMashup$"></span>
+        <span class="sr-only">{{ isAddingMashup$ ? "Adding..." : "Add" }}</span>
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+
+<h1>Import concert from Linkinpedia</h1>
+
+<form #sourceForm="ngForm" [formGroup]="sourceDataForm" class="form">
+  <div class="card mt-3">
+    <div class="card-header">
+      Source information
+    </div>
+    <div class="card-body edit-form-card">
+      <!-- Linkinpedia URL -->
+      <div class="form-group">
+        <label for="linkinpediaUrl">Linkinpedia URL:</label>
+        <div class="input-group mb-3">
+          <input id="linkinpediaUrl" type="text" formControlName="linkinpediaUrl" class="form-control" [ngClass]="{ 'is-invalid': sourceDataForm.controls.linkinpediaUrl.invalid }" placeholder="URL to the concert page in the wiki">
+        </div>
+        @if (sourceDataForm.controls.linkinpediaUrl.invalid) {
+          <div class="text-danger">
+            @if (sourceDataForm.controls.linkinpediaUrl.errors) {
+              <small>URL is invalid or missing.</small>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Concert selection -->
+      <div class="form-group">
+        <label for="concert">Concert</label>
+        <div class="input-group mb-3">
+          <input id="concert" type="text" formControlName="concertId" class="form-control"
+                 [ngClass]="{ 'is-invalid': sourceDataForm.controls.concertId.invalid }">
+          <button class="btn btn-outline-info" (click)="openConcertDetailsClicked()"><i class="bi bi-box-arrow-up-right"></i><span class="d-none d-sm-none d-md-inline ms-2">Open details</span></button>
+        </div>
+        @if (sourceDataForm.controls.concertId.invalid) {
+          <div class="text-danger">
+            @if (sourceDataForm.controls.concertId.errors) {
+              <small>Concert is invalid.</small>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Concert Title -->
+      <div class="form-group mb-3">
+        <label for="concert">Concert Title:</label>
+        <input id="concert" type="text" formControlName="concertTitle" class="form-control"
+               [ngClass]="{ 'is-invalid': sourceDataForm.controls.concertTitle.invalid }">
+        @if (sourceDataForm.controls.concertTitle.invalid) {
+          <div class="text-danger">
+            @if (sourceDataForm.controls.concertTitle.errors) {
+              <small>Title is invalid.</small>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Set name -->
+      <div class="form-group mb-3">
+        <label for="setName">Name of the set:</label>
+        <input id="setName" type="text" formControlName="setName" class="form-control"
+               [ngClass]="{ 'is-invalid': sourceDataForm.controls.setName.invalid }">
+        @if (sourceDataForm.controls.setName.invalid) {
+          <div class="text-danger">
+            @if (sourceDataForm.controls.concertTitle.errors) {
+              <small>Name is invalid.</small>
+            }
+          </div>
+        }
+      </div>
+    </div>
+    <div class="card-footer">
+      <div class="row">
+        <div class="col text-end">
+          <button class="btn btn-primary" (click)="onLoadSourceClicked()" [disabled]="isReadingSource$ || !sourceDataForm.valid">
+            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" [hidden]="!isReadingSource$"></span>
+            <span class="sr-only">{{ isReadingSource$ ? "Loading..." : "Load" }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+<ng-template #actNumberCol let-actNumber="actNumber">
+  @if (actNumber) {
+    <td>Act {{ actNumber }}</td>
+  } @else {
+    <td></td>
+  }
+</ng-template>
+
+<ng-template #entryRow
+             let-rowClass="rowClass"
+             let-entryNumber="entryNumber"
+             let-actNumber="actNumber"
+             let-type="type"
+             let-title="title"
+             let-notes="notes">
+  <tr class="{{ rowClass }}">
+    <td>{{ entryNumber }}</td>
+    <ng-container *ngTemplateOutlet="actNumberCol; context: {actNumber: actNumber }" />
+    <td>{{ type }}</td>
+    <td>{{ title }}</td>
+    <td>{{ notes }}</td>
+  </tr>
+</ng-template>
+
+@if (generatedSetlist$ != null) {
+  <div class="card mt-3">
+    <div class="card-header">
+      Setlist to import
+    </div>
+    <div class="card-body edit-form-card">
+      <h5>Acts</h5>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Extra Notes</th>
+          </tr>
+          </thead>
+          <tbody>
+            @for (generatedAct of generatedSetlist$.acts; track generatedAct) {
+              <tr>
+                <td>Act {{ generatedAct.actNumber }}</td>
+                <td>{{ generatedAct.name }}</td>
+                <td>{{ generatedAct.extraNotes }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <h5>Setlist entries</h5>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Act</th>
+              <th>Type</th>
+              <th>Title</th>
+              <th>Extra Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (generatedEntry of generatedSetlist$.entries; track generatedEntry) {
+              @if (generatedEntry.foundSongId) {
+                <ng-container *ngTemplateOutlet="entryRow; context: { rowClass: 'table-success', entryNumber: generatedEntry.songNumber, actNumber: generatedEntry.actNumber, type: 'existing Song', title: generatedEntry.title, notes: generatedEntry.extraNotes }" />
+              } @else if ((generatedEntry.foundSongIds?.length ?? 0) >= 2) {
+                <ng-container *ngTemplateOutlet="entryRow; context: { rowClass: 'table-warning', entryNumber: generatedEntry.songNumber, actNumber: generatedEntry.actNumber, type: 'select Song', title: generatedEntry.title, notes: generatedEntry.extraNotes }" />
+              } @else if (generatedEntry.foundSongVariantId) {
+                <ng-container *ngTemplateOutlet="entryRow; context: { rowClass: 'table-success', entryNumber: generatedEntry.songNumber, actNumber: generatedEntry.actNumber, type: 'existing Variant', title: generatedEntry.title, notes: generatedEntry.extraNotes }" />
+              } @else if (generatedEntry.foundMashupId) {
+                <ng-container *ngTemplateOutlet="entryRow; context: { rowClass: 'table-success', entryNumber: generatedEntry.songNumber, actNumber: generatedEntry.actNumber, type: 'existing Mashup', title: generatedEntry.title, notes: generatedEntry.extraNotes }" />
+              } @else {
+                <ng-container *ngTemplateOutlet="entryRow; context: { rowClass: 'table-danger', entryNumber: generatedEntry.songNumber, actNumber: generatedEntry.actNumber, type: 'NEW song or mashup', title: generatedEntry.title, notes: generatedEntry.extraNotes }" />
+                <tr class="table-danger">
+                  <td colspan="2"></td>
+                  <td colspan="3">
+                    <button class="btn btn-sm btn-outline-primary me-2" (click)="openCreateSongBtnClicked(generatedEntry, addSongContent)">Create Song</button>
+                    <button class="btn btn-sm btn-outline-primary me-2" (click)="openCreateMashupBtnClicked(generatedEntry, addMashupContent)">Create Mashup</button>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <div class="row">
+        <div class="col text-end">
+          <button class="btn btn-success" (click)="onCreateSetlistClicked()" [disabled]="isCreatingSetlist$ || !sourceDataForm.valid || !allEntriesValid$">
+            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" [hidden]="!isCreatingSetlist$"></span>
+            <span class="sr-only">{{ isCreatingSetlist$ ? "Importing..." : "Import" }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

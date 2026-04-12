@@ -1,0 +1,248 @@
+{{Tourdate
+| Last show = 2025.06.16
+| Next show = 2025.06.20
+| Artist = Linkin Park
+| ShowType = concert
+| Year = 2025
+| Month = June
+| Day = 18
+| Country = Germany
+| City = Berlin
+| Venue = Olympiastadion
+| Venue Type = Stadium
+| Tour = From Zero World Tour
+| Support = Architects
+| Support2 = grandson
+| Setlist = B6
+}}
+
+== Rehearsal ==
+
+{{Setlist
+| Type = Rehearsal
+| Songx1 = Over Each Other
+| Notex1 = Rehearsal
+| Songx2 = Over Each Other
+| Notex2 = Rehearsal; Mike on vocals for part of song
+| Songx3 = Over Each Other
+| Notex3 = Rehearsal
+| Songx4 = Let You Fade
+| Notex4 = Rehearsal
+| Songx5 = Let You Fade
+| Notex5 = Rehearsal
+| Songx6 = Crawling
+| Notex6 = Rehearsal
+| Songx7 = Somewhere I Belong
+| Notex7 = Rehearsal
+| Songx8 = Faint
+| Notex8 = Rehearsal
+| Songx9 = The Emptiness Machine
+| Notex9 = Rehearsal
+}}
+
+== Setlist ==
+
+{{Setlist
+| TapeIntro1 = The Metro
+| TapeNote1 = Pre-show w/ From Zero countdown; Berlin song
+| ActNo0 = 1
+| ActName0 = Inception Intro B
+| ActNote0 = w/ \"[[Iridescent]]\" Vocals
+| Song1 = Somewhere I Belong
+| Note1 = Short Intro w/ Scratch
+| Song2 = Cut The Bridge
+| Rotation2 = yes
+| Song3 = Crawling
+| Song4 = New Divide
+| Note4 = Moscow Intro (Short)
+| Song5 = The Emptiness Machine
+| ActNo5 = 2
+| ActName5 = Creation Intro B
+| ActNote5 = w/ [[Link:\"Iridescent\"|\"Iridescent\"]] Vocals
+| Song6 = The Catalyst
+| Note6 = Shortened (No Third Chorus/Breakdown)
+| Song7 = Burn It Down
+| Song8 = Up From The Bottom
+| Song9 = Where'd You Go
+| Note9 = Fort Minor song; Shortened (Intro/1st Verse/Final Chorus); Transition Ending
+| Song10 = Waiting For The End
+| Note10 = Ext. Intro w/ 2024 Synth
+| Song11 = Castle Of Glass
+| Song12 = Two Faced
+| Note12 = Joe Intro; Ext. Bridge
+| Song13 = Joe Solo
+| Note13 = w/ Colin
+| Suffix13 = Empty Spaces
+| Song14 = When They Come For Me/Remember The Name
+| Note14 = Mike Solo; Mashup; w/ Colin; Ext. Transition w/ \"[[Lift Off]]\" Demo Verse
+| Song15 = Given Up
+| Rotation15 = yes
+| Song16 = One Step Closer
+| Note16 = 2024 Intro; Ext. Outro w/ Chorus Riff; w/ grandson
+| ActNo16 = 3
+| ActName16 = Break/Collapse Transition
+| Song17 = Lost
+| Note17 = Stripped (Intro/1st Verse/Chorus) into Full Band; Shortened Bridge
+| Song18 = Good Things Go
+| Rotation18 = yes
+| Song19 = What I've Done
+| ActNo19 = 4
+| ActName19 = Kintsugi Transition
+| Song20 = Overflow
+| Note20 = Ext. Intro w/ 'One' Synth
+| Song21 = Numb
+| Note21 = 'Numb/Encore' Intro w/ Double Speed Drums
+| Song22 = In The End
+| Song23 = Faint
+| Note23 = Ext. Outro
+| Break23 = Encore
+| ActNo23 = 5
+| ActName23 = Resolution Intro B
+| ActNote23 = w/ [[Link:\"Iridescent\"|\"Iridescent\"]] Vocals
+| Song24 = Papercut
+| Note24 = 2024 Intro
+| Song25 = Let You Fade
+| Note25 = Synth Intro
+| Rotation25 = yes
+| Song26 = Heavy Is The Crown
+| Song27 = Bleed It Out
+| Note27 = Ext. Intro; Ext. Bridge w/ \"[[A Place For My Head]]\" Verse 1; Ext. Outro
+}}
+
+== Show Notes ==
+
+* Linkin Park's ''[[From Zero]]'' countdown timer of 10 minutes took place before the band went on stage. The pre-show song over the PA system was 'The Metro' by Berlin.
+* \"[[Cut The Bridge]]\" and \"[[Good Things Go]]\" were rotated back into the set for the first time in six shows, the last full performance of both being in [[Live:20250508|2025.05.08 Greenville, South Carolina]]. Mike rapped Verse 1 of the song over the \"[[Bleed It Out]]\" bridge at the show prior in [[Live:20250616|2025.06.16 Hannover, Germany]].
+* Mike and Emily spoke in German to the crowd before \"[[The Emptiness Machine]]\". Mike said, \"''I want to say thank you for your support! You really are the best and I had the best Currywurst ever, thanks for that.''\"
+* Mike talked about arranging \"[[Where'd You Go]]\" with Emily for inclusion on tour before performing the song.
+* Over ten moshpits erupted in the crowd during \"[[Two Faced]]\".
+* Mike rapped the demo verse of [[Link:\"Lift Off\"|\"Lift Off\"]] during the extended portion of his solo medley. This was the first repeat of a verse for this part of the show, the last appearance of it being at [[Live:20250506|2025.05.06 Raleigh, North Carolina]].
+* \"[[Given Up]]\" was rotated into the set, being performed for the first time in ten shows, the last performance being at [[Live:20250428|2025.04.28 Tulsa, Oklahoma]].
+* Mike played the guitar riff for 'One' by Metallica on his synth over the intro to \"[[Overflow]]\" for a second show in a row.
+* Mike had a fan pick a number between 1 and 3 to decide what style Colin would play the \"[[Numb]]\" intro in. Colin ended up playing the \"[[Numb/Encore]]\" intro at double speed.
+* Mike rapped verse one of [[Link:\"A Place For My Head\"|\"A Place For My Head\"]] over the extended bridge of [[Link:\"Bleed It Out\"|\"Bleed It Out\"]].
+
+== Other Notes ==
+
+* This show was announced on November 14, 2024 with the ''[[From Zero World Tour]]'', exactly 27 years to the day of the band's first Xero show in 1997.
+* For the second show in a row, the band performed a soundcheck on stage in the early afternoon. \"[[Over Each Other]]\" was soundchecked three times, with Mike on vocals on the second performance. \"[[Let You Fade]]\" was soundchecked twice.
+* This was one of the biggest headlining shows Linkin Park has ever performed, with somewhere between 65,000 and 75,000 in attendance.
+
+== {{Gallery}} ==
+
+<gallery mode=packed style=text-align:left>
+2025-touradmat.jpg|Tour Admat 1
+2025-touradmat2.jpg|Tour Admat
+2025-touradmat3.jpg|Tour Admat
+2025-germany1.jpg|German Admat
+2025-germany2.jpg|German Admat
+2025-germany3.jpg|German Admat
+2025-germany4.jpg|German Admat
+2025-germany5.jpg|German Admat
+2025-europe-week1.jpg|Linkin Park Promo
+20250618-teaser.jpg|Teaser
+20250618-poster.jpg|Poster
+20250618-vipposter.jpg|VIP Poster
+20250618-merch.jpg|Merch
+20250618-magnet.jpg|Magnet
+20250618-lpbus.jpg|LP Bus
+20250618-schedules.jpg|Schedules
+20250618-ticket.jpg|Ticket
+20250618-ticket.jpg|Ticket
+20250618-setlist.jpg|Setlist
+20250618-setlist2.jpg|Setlist
+20250618-setlist3.jpg|Setlist
+20250618-miketweet.jpg|Mike on Twitter
+</gallery>
+
+=== Show Photos ===
+
+{{Photo}}
+
+<gallery mode=packed style=text-align:left>
+linkinpark-20250618-01.jpg
+linkinpark-20250618-02.jpg
+linkinpark-20250618-03.jpg
+linkinpark-20250618-04.jpg
+linkinpark-20250618-05.jpg
+linkinpark-20250618-06.jpg
+linkinpark-20250618-07.jpg
+linkinpark-20250618-08.jpg
+linkinpark-20250618-09.jpg
+linkinpark-20250618-10.jpg
+linkinpark-20250618-11.jpg
+linkinpark-20250618-12.jpg
+linkinpark-20250618-13.jpg
+linkinpark-20250618-14.jpg
+linkinpark-20250618-15.jpg
+linkinpark-20250618-16.jpg
+linkinpark-20250618-17.jpg
+linkinpark-20250618-18.jpg
+linkinpark-20250618-19.jpg
+linkinpark-20250618-20.jpg
+linkinpark-20250618-21.jpg
+linkinpark-20250618-22.jpg
+linkinpark-20250618-23.jpg
+linkinpark-20250618-24.jpg
+linkinpark-20250618-25.jpg
+linkinpark-20250618-26.jpg
+linkinpark-20250618-27.jpg
+linkinpark-20250618-28.jpg
+linkinpark-20250618-29.jpg
+linkinpark-20250618-30.jpg
+linkinpark-20250618-31.jpg
+linkinpark-20250618-32.jpg
+linkinpark-20250618-33.jpg
+linkinpark-20250618-34.jpg
+linkinpark-20250618-35.jpg
+linkinpark-20250618-36.jpg
+linkinpark-20250618-37.jpg
+linkinpark-20250618-38.jpg
+linkinpark-20250618-39.jpg
+linkinpark-20250618-40.jpg
+linkinpark-20250618-41.jpg
+linkinpark-20250618-42.jpg
+linkinpark-20250618-43.jpg
+linkinpark-20250618-44.jpg
+linkinpark-20250618-45.jpg
+linkinpark-20250618-46.jpg
+linkinpark-20250618-47.jpg
+linkinpark-20250618-48.jpg
+linkinpark-20250618-49.jpg
+linkinpark-20250618-50.jpg
+linkinpark-20250618-51.jpg
+linkinpark-20250618-52.jpg
+linkinpark-20250618-53.jpg
+linkinpark-20250618-54.jpg
+linkinpark-20250618-55.jpg
+linkinpark-20250618-56.jpg
+linkinpark-20250618-57.jpg
+linkinpark-20250618-58.jpg
+linkinpark-20250618-59.jpg
+linkinpark-20250618-60.jpg
+linkinpark-20250618-61.jpg
+linkinpark-20250618-62.jpg
+linkinpark-20250618-63.jpg
+linkinpark-20250618-64.jpg
+linkinpark-20250618-65.jpg
+linkinpark-20250618-66.jpg
+linkinpark-20250618-67.jpg
+linkinpark-20250618-68.jpg
+linkinpark-20250618-69.jpg
+linkinpark-20250618-70.jpg
+linkinpark-20250618-71.jpg
+linkinpark-20250618-72.jpg
+linkinpark-20250618-73.jpg
+linkinpark-20250618-74.jpg
+linkinpark-20250618-75.jpg
+linkinpark-20250618-76.jpg
+linkinpark-20250618-77.jpg
+linkinpark-20250618-78.jpg
+linkinpark-20250618-79.jpg
+</gallery>
+
+== Poster ==
+
+'''Information''' (General Poster): Linkin Park has commissioned artist PJ Richardson to create artwork for a limited-edition poster for the 2025 From Zero World Tour stop in Berlin. Each hand-numbered print is limited to 200 copies and is printed on 18\" x 24\" heavy cold press cotton rag 300gsm paper with a deckle edge.
+
+'''Artist Bio''': PJ Richardson is an artist, director, and motion designer merging sleek minimalism with raw graffiti roots from '90s San Francisco. Influenced by Dieter Ramsâ€™ â€œless but betterâ€ ethos, his design, illustration, CGI, and VFX work strips away the noise to spotlight bold, powerful culturally current stories and visuals. Campaigns for Apple, Nike, Pepsi, Nicki Minaj, and Tyler, the Creator fuse design clarity with cultural grit, championing diversity and driving real impact.

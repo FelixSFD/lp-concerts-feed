@@ -1,3 +1,4 @@
+using Database.Concerts.Models;
 using Ical.Net;
 using Ical.Net.CalendarComponents;
 using Ical.Net.DataTypes;
@@ -11,7 +12,7 @@ namespace Lambda.CalendarFeed;
 public class CalendarGenerator : ICalendarGenerator
 {
     /// <inheritdoc/>
-    public Calendar GenerateCalendarWith(IEnumerable<Concert> concerts, ConcertSubEventCategory categoryFlags = ConcertSubEventCategory.AsOneSingleEvent)
+    public Calendar GenerateCalendarWith(IEnumerable<ConcertModel> concerts, ConcertSubEventCategory categoryFlags = ConcertSubEventCategory.AsOneSingleEvent)
     {
         var calendar = new Calendar();
         calendar.AddTimeZone(new VTimeZone("Europe/Berlin")); // TODO: Get correct timezone

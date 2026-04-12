@@ -6,5 +6,5 @@ namespace LPCalendar.DataStructure.Events.PushNotifications;
 /// </summary>
 public class ConcertRelatedPushNotificationEvent
 {
-    public required Concert Concert { get; set; }
+    public required ConcertDto Concert { get; set; }
 }

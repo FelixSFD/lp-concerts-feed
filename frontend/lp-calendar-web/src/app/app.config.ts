@@ -1,5 +1,5 @@
 import {ApplicationConfig, importProvidersFrom, provideZoneChangeDetection} from '@angular/core';
-import { provideRouter } from '@angular/router';
+import {provideRouter, withRouterConfig} from '@angular/router';
 
 import { routes } from './app.routes';
 import { authConfig } from './auth/auth.config';

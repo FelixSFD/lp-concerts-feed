@@ -170,6 +170,23 @@ components:
           type: boolean
           description: A show is considered as "past", when the posted start time was more than 4 hour ago
           readOnly: true
+          
+    ConcertWithSetlists:
+      type: object
+      description: Information about a concert including the setlist (from cache)
+      allOf:
+        - $ref: "#/components/schemas/Concert"
+      properties:
+        cachedSetlistsAt:
+          type: string
+          description: Time when the setlist cache was last updated for this concert
+          format: date-time
+          example: '2024-09-05T22:01:00Z'
+        cachedSetlists:
+          type: array
+          description: Cached setlists for this concert
+          items: 
+            $ref: "#/components/schemas/Setlist"
     
     ConcertFileUploadRequest:
       type: object
@@ -390,6 +407,847 @@ components:
           description: Name/ID of the timezone
           example: Europe/Berlin
           nullable: false
+    
+    # Setlists
+    Album:
+      type: object
+      description: Information about an album
+      properties:
+        id:
+          type: number
+          description: ID of the album
+        title:
+          type: string
+          description: Title of the album
+          nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+          
+    Song:
+      type: object
+      description: Information about a song
+      properties:
+        id:
+          type: number
+          description: ID of the song
+        title:
+          type: string
+          description: Title of the song
+          nullable: true
+        album:
+          type: object
+          description: Album that contains this song
+          nullable: true
+          anyOf:
+            - $ref: "#/components/schemas/Album"
+        isrc:
+          type: string
+          description: ISRC of the song
+          nullable: true
+        appleMusicId:
+          type: string
+          description: Unique ID for the Song on Apple Music
+          nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+    
+    SongVariant:
+      type: object
+      description: Information about a variation of a song
+      properties:
+        id:
+          type: number
+          description: ID of the song variant
+        songId:
+          type: number
+          description: ID of the main version of the song
+        isrcOverride:
+          type: string
+          description: ISRC of the variant if it is different from the normal version
+          nullable: true
+        appleMusicIdOverride:
+          type: string
+          description: unique ID for the Song on Apple Music. If not present, the ID of the original song will be used
+          nullable: true
+        variantName:
+          type: string
+          description: Name of this variant. This will be visible as the Song-Title in the setlist
+        description:
+          type: string
+          description: Optional description of the variant. What makes this variant different from the original?
+          nullable: true
+    
+    SongMashup:
+      type: object
+      description: Information about a song mashup. A mashup is used when the band plays a special mix of two or more songs. For example "Remember The Name" and "When They Come For Me" during the FROM ZERO WORLD TOUR 2024-2026.
+      properties:
+        id:
+          type: number
+          description: ID of the mashup
+        title:
+          type: string
+          description: Title of the mashup
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+        songs:
+          type: array
+          description: Songs that are included in this mashup
+          items:
+            $ref: "#/components/schemas/Song"
+    
+    SetlistAct:
+      type: object
+      description: Act within a setlist
+      properties:
+        setlistId:
+          type: number
+          description: ID of the setlist that contains this act
+        actNumber:
+          type: number
+          description: Number of the act within the setlist
+        title:
+          type: string
+          description: Title of this act
+          nullable: true
+    
+    SetlistEntry:
+      type: object
+      description: An entry in a setlist
+      properties:
+        id:
+          type: string
+          description: Unique ID of the entry
+        actNumber:
+          type: number
+          description: Number of the act in which this song was played
+          nullable: true
+        sortNumber:
+          type: number
+          description: Number to sort the entries
+        songNumber:
+          type: number
+          description: Number of the song in this setlist. Is displayed as an orientation
+        playedSong:
+          type: object
+          description: Song that was played. If not set, they didn't play a song, but a mashup or song variant instead
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/Song"
+        playedSongVariant:
+          type: object
+          description: Song variant that was played. If not set, they didn't play a song variant, but a mashup or normal song instead
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/SongVariant"
+        playedSongMashup:
+          type: object
+          description: Song mashup or medley that was played. If not set, they didn't play a mashup, but a song or song variant instead
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/SongMashup"
+        title:
+          type: string
+          description: Title of this setlist entry. This can for example be the title of a song or a mashup
+        extraNotes:
+          type: string
+          description: Field to store additional notes about this entry
+          nullable: true
+          maxLength: 127
+        isrc:
+          type: string
+          description: ISRC for this entry. This can be used to find the song on Apple Music or Spotify
+          nullable: true
+        appleMusicId:
+          type: string
+          description: Unique ID for the Song on Apple Music
+          nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia. This value is stored either in the song or the mashup
+          nullable: true
+        isRotationSong:
+          type: boolean
+          description: true if this slot is known to rotate between shows on the same tour.
+        isPlayedFromRecording:
+          type: boolean
+          description: true if the song was played from a recording only. Not played live. (this can happen for pre-show-songs for example)
+        isWorldPremiere:
+          type: boolean
+          description: true if this song has not only not been played before, but was not released before this show. For example "Heavy Is The Crown" in Hamburg 2024
+        isLivePremiere:
+          type: boolean
+          description: true if this song was already released, but played live for the first time. For example "Keys To The Kingdom" in Los Angeles 2024
+    
+    RawSetlistEntry:
+      type: object
+      description: An entry in a setlist
+      properties:
+        id:
+          type: string
+          description: Unique ID of the entry
+        actNumber:
+          type: number
+          description: Number of the act in which this song was played
+          nullable: true
+        sortNumber:
+          type: number
+          description: Number to sort the entries
+        songNumber:
+          type: number
+          description: Number of the song in this setlist. Is displayed as an orientation
+        playedSong:
+          type: object
+          description: Song that was played. If not set, they didn't play a song, but a mashup or song variant instead
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/Song"
+        playedSongVariant:
+          type: object
+          description: Song variant that was played. If not set, they didn't play a song variant, but a mashup or normal song instead
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/SongVariant"
+        playedSongMashup:
+          type: object
+          description: Song mashup or medley that was played. If not set, they didn't play a mashup, but a song or song variant instead
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/SongMashup"
+        titleOverride:
+          type: string
+          description: Optional field to override the title of a setlist entry
+          nullable: true
+        extraNotes:
+          type: string
+          description: Field to store additional notes about this entry
+          nullable: true
+          maxLength: 127
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia. This value is stored either in the song or the mashup
+          nullable: true
+        isRotationSong:
+          type: boolean
+          description: true if this slot is known to rotate between shows on the same tour.
+        isPlayedFromRecording:
+          type: boolean
+          description: true if the song was played from a recording only. Not played live. (this can happen for pre-show-songs for example)
+        isWorldPremiere:
+          type: boolean
+          description: true if this song has not only not been played before, but was not released before this show. For example "Heavy Is The Crown" in Hamburg 2024
+        isLivePremiere:
+          type: boolean
+          description: true if this song was already released, but played live for the first time. For example "Keys To The Kingdom" in Los Angeles 2024
+    
+    SetlistHeader:
+      type: object
+      description: Information about a setlist including all entries
+      properties:
+        id:
+          type: number
+          description: ID of the setlist
+        concertId:
+          type: string
+          description: ID of the concert where this set was played
+        concertTitle:
+          type: string
+          description: Title of the concert
+          example: Hamburg 22.09.2024
+        setName:
+          type: string
+          description: Name of the set
+          example: Set A
+          nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+    
+    Setlist:
+      type: object
+      description: Information about a setlist including all entries
+      properties:
+        id:
+          type: number
+          description: ID of the setlist
+          example: 1
+        concertId:
+          type: string
+          description: ID of the concert where this set was played
+          example: e710bebe-13b8-4cfb-aa84-ff6c208d5c21
+        concertTitle:
+          type: string
+          description: Title of the concert
+          example: Hamburg 22.09.2024
+        setName:
+          type: string
+          description: Name of the set
+          example: Set A
+          nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+        acts:
+          type: array
+          description: All acts in this setlist. The act numbers are referenced in the entries, so that not every entry must contain all the act information.
+          items:
+            $ref: "#/components/schemas/SetlistAct"
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/SetlistEntry"
+    
+    CreateSetlistRequest:
+      type: object
+      description: Request to create a new (empty) setlist
+      properties:
+        concertId:
+          type: string
+          description: ID of the concert where this setlist was played
+        concertTitle:
+          type: string
+          description: Title of the concert
+          example: Hamburg 22.09.2024
+        setName:
+          type: string
+          description: Name of the set
+          example: Set A
+          nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+        addSongs:
+          type: array
+          description: If set, the songs are appended automatically to this setlist
+          nullable: true
+          items:
+            $ref: "#/components/schemas/AddSongToSetlistRequest"
+        addSongVariants:
+          type: array
+          description: If set, the song variants are appended automatically to this setlist
+          nullable: true
+          items:
+            $ref: "#/components/schemas/AddSongVariantToSetlistRequest"
+        addSongMashups:
+          type: array
+          description: If set, the song mashups are appended automatically to this setlist
+          nullable: true
+          items:
+            $ref: "#/components/schemas/AddSongMashupToSetlistRequest"
+    
+    CreateSetlistResponse:
+      type: object
+      description: Response after a setlist was created
+      properties:
+        id:
+          type: string
+          description: ID of the newly created setlist
+        concertId:
+          type: string
+          description: ID of the concert where this setlist was played
+        concertTitle:
+          type: string
+          description: Title of the concert
+          example: Hamburg 22.09.2024
+        setName:
+          type: string
+          description: Name of the set
+          example: Set A
+          nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+          
+    UpdateSetlistHeaderRequest:
+      type: object
+      description: Request to update header-information of a setlist
+      properties:
+        concertId:
+          type: string
+          description: ID of the concert where this set was played
+        setName:
+          type: string
+          description: Name of the set
+          example: Set A
+          nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+    
+    CreateSongMashupRequest:
+      type: object
+      description: Request to create a new mashup of two or more songs
+      properties:
+        title:
+          type: string
+          description: Title of the mashup
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+        songIds:
+          type: array
+          description: IDs of the songs that are included in this mashup
+          items:
+            type: number
+    
+    UpdateSongMashupRequest:
+      type: object
+      description: Request to update a mashup of two or more songs
+      properties:
+        title:
+          type: string
+          description: Title of the mashup
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+        songIds:
+          type: array
+          description: IDs of the songs that are included in this mashup
+          items:
+            type: number
+    
+    CreateAlbumRequest:
+      type: object
+      description: Request to create a new album
+      properties:
+        title:
+          type: string
+          description: Title of the album
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+    
+    UpdateAlbumRequest:
+      type: object
+      description: Request to update an album
+      properties:
+        title:
+          type: string
+          description: Title of the album
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+    
+    CreateSongRequest:
+      type: object
+      description: Request to create a new song
+      properties:
+        title:
+          type: string
+          description: Title of the song
+        albumId:
+          type: number
+          description: ID of the album that contains this song
+          nullable: true
+        isrc:
+          type: string
+          description: ISRC of the song
+          nullable: true
+        appleMusicId:
+          type: string
+          description: Unique ID for the Song on Apple Music
+          nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+    
+    UpdateSongRequest:
+      type: object
+      description: Request to create a new song
+      properties:
+        title:
+          type: string
+          description: Title of the song
+        albumId:
+          type: number
+          description: ID of the album that contains this song
+          nullable: true
+        isrc:
+          type: string
+          description: ISRC of the song
+          nullable: true
+        appleMusicId:
+          type: string
+          description: Unique ID for the Song on Apple Music
+          nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+    
+    ActParameters:
+      type: object
+      description: Set of properties used whenever data of an act is passed to the server.
+      properties:
+        setlistId:
+          type: number
+          description: ID of the setlist. Does not need to be passed if this object is included in a request that already contains the ID of the setlist.
+          nullable: true
+        actNumber:
+          type: number
+          description: Number of the act within the setlist
+        title:
+          type: string
+          description: Title of this act
+          nullable: true
+    
+    SongParameters:
+      type: object
+      description: Set of parameters used when song data is passed to the server
+      properties:
+        songId:
+          type: number
+          description: ID of the song. If not set, a new song will be created based on the other parameters
+          nullable: true
+        songTitle:
+          type: string
+          description: Title of the song. If not present, the ID of the song must be set.
+          nullable: true
+        isrc:
+          type: string
+          description: ISRC of the song. If not present, the ID of the song must be set.
+          nullable: true
+        appleMusicId:
+          type: string
+          description: Unique ID for the Song on Apple Music
+          nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+    
+    SongVariantParameters:
+      type: object
+      description: Set of parameters used when song variant data is passed to the server
+      properties:
+        songVariantId:
+          type: number
+          description: If you want to add an existing song variant, this parameter must contain the ID of the variant
+          nullable: true
+        songId:
+          type: number
+          description: ID of the song. If this is null, the songVariantId must be set
+          nullable: true
+        variantName:
+          type: string
+          description: Name of this variant. This will be visible as the Song-Title in the setlist. If this is null, the songVariantId must be set
+          nullable: true
+        isrcOverride:
+          type: string
+          description: ISRC of the song. If not present, the ISRC of the original song will be used
+          nullable: true
+        appleMusicIdOverride:
+          type: string
+          description: unique ID for the Song on Apple Music. If not present, the ID of the original song will be used
+          nullable: true
+        description:
+          type: string
+          description: Optional description of the variant. What makes this variant different from the original?
+          nullable: true
+    
+    SongMashupParameters:
+      type: object
+      description: Set of parameters used when song mashup data is passed to the server
+      properties:
+        songMashupId:
+          type: number
+          description: ID of the mashup
+    
+    SetlistEntryParameters:
+      type: object
+      description: Common parameters for setlist entries
+      properties:
+        sortNumber:
+          type: number
+          description: Number to sort the entries
+        songNumber:
+          type: number
+          description: Number of the song in this setlist. Is displayed as an orientation
+        titleOverride:
+          type: string
+          description: Optional property to override the title of the song or mashup in this entry only.
+          nullable: true
+          maxLength: 31
+        extraNotes:
+          type: string
+          description: Field to store additional notes about this entry
+          nullable: true
+          maxLength: 127
+        isRotationSong:
+          type: boolean
+          description: true if this slot is known to rotate between shows on the same tour.
+        isPlayedFromRecording:
+          type: boolean
+          description: true if the song was played from a recording only. Not played live. (this can happen for pre-show-songs for example)
+        isWorldPremiere:
+          type: boolean
+          description: true if this song has not only not been played before, but was not released before this show. For example "Heavy Is The Crown" in Hamburg 2024
+        isLivePremiere:
+          type: boolean
+          description: true if this song was already released, but played live for the first time. For example "Keys To The Kingdom" in Los Angeles 2024
+    
+    AddSongVariantToSetlistRequest:
+      type: object
+      description: Request to add a song variant to an existing setlist
+      properties:
+        songVariantParameters:
+          type: object
+          description: Parameters of the song variant for this entry
+          oneOf:
+            - $ref: "#/components/schemas/SongVariantParameters"
+        actParameters:
+          type: object
+          description: If set, the added song will be added to this Act. Title isn't required if the Act already exists.
+          nullable: true
+          anyOf:
+            - $ref: "#/components/schemas/ActParameters"
+        entryParameters:
+          type: object
+          description: Common parameters for that entry, no matter if it was a song or mashup
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntryParameters"
+    
+    AddSongVariantToSetlistResponse:
+      type: object
+      description: Response after a song variant was added to the setlist
+      properties:
+        addedSetlistEntry:
+          type: object
+          description: The new entry that was added to the setlist
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntry"
+    
+    AddSongMashupToSetlistRequest:
+      type: object
+      description: Request to add a song mashup to an existing setlist
+      properties:
+        songMashupParameters:
+          type: object
+          description: Parameters of the song mashup for this entry
+          oneOf:
+            - $ref: "#/components/schemas/SongMashupParameters"
+        actParameters:
+          type: object
+          description: If set, the added song will be added to this Act. Title isn't required if the Act already exists.
+          nullable: true
+          anyOf:
+            - $ref: "#/components/schemas/ActParameters"
+        entryParameters:
+          type: object
+          description: Common parameters for that entry, no matter if it was a song or mashup
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntryParameters"
+
+    AddSongMashupToSetlistResponse:
+      type: object
+      description: Response after a song mashup was added to the setlist
+      properties:
+        addedSetlistEntry:
+          type: object
+          description: The new entry that was added to the setlist
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntry"
+    
+    AddSongToSetlistRequest:
+      type: object
+      description: Request to add a song to an existing setlist
+      properties:
+        songParameters:
+          type: object
+          description: Parameters of the song for this entry
+          oneOf:
+            - $ref: "#/components/schemas/SongParameters"
+        actParameters:
+          type: object
+          description: If set, the added song will be added to this Act. Title isn't required if the Act already exists.
+          nullable: true
+          anyOf:
+            - $ref: "#/components/schemas/ActParameters"
+        entryParameters:
+          type: object
+          description: Common parameters for that entry, no matter if it was a song or mashup
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntryParameters"
+    
+    AddSongToSetlistResponse:
+      type: object
+      description: Response after a song was added to the setlist
+      properties:
+        addedSetlistEntry:
+          type: object
+          description: The new entry that was added to the setlist
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntry"
+    
+    AddCustomEntryToSetlistRequest:
+      type: object
+      description: Request to add a custom entry to an existing setlist
+      properties:
+        actParameters:
+          type: object
+          description: If set, the added song will be added to this Act. Title isn't required if the Act already exists.
+          nullable: true
+          anyOf:
+            - $ref: "#/components/schemas/ActParameters"
+        entryParameters:
+          type: object
+          description: Common parameters for that entry, no matter if it was a song or mashup
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntryParameters"
+
+    AddCustomEntryToSetlistResponse:
+      type: object
+      description: Response after a entry was added to the setlist
+      properties:
+        addedSetlistEntry:
+          type: object
+          description: The new entry that was added to the setlist
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntry"
+    
+    UpdateSetlistEntryRequest:
+      type: object
+      description: Request to update a single setlist entry
+      properties:
+        songParameters:
+          type: object
+          description: Parameters of the song for this entry
+          oneOf:
+            - $ref: "#/components/schemas/SongParameters"
+        songVariantParameters:
+          type: object
+          description: Parameters of the song variant for this entry
+          oneOf:
+            - $ref: "#/components/schemas/SongVariantParameters"
+        songMashupParameters:
+          type: object
+          description: Parameters of the song mashup for this entry
+          oneOf:
+            - $ref: "#/components/schemas/SongMashupParameters"
+        actParameters:
+          type: object
+          description: If set, the added song will be added to this Act. Title isn't required if the Act already exists.
+          nullable: true
+          anyOf:
+            - $ref: "#/components/schemas/ActParameters"
+        entryParameters:
+          type: object
+          description: Common parameters for that entry, no matter if it was a song or mashup
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntryParameters"
+    
+    ReorderSetlistEntriesRequest:
+      type: object
+      description: Request to update the order of entries in a setlist. It's important that ALL entries are used here!
+      properties:
+        entryIds:
+          type: array
+          description: The IDs of all entries in that setlist in the preferred order
+          items:
+            type: string
+            
+    ReorderSetlistEntriesResponse:
+      type: object
+      description: Response after a setlist was reordered
+      properties:
+        reorderedEntries:
+          type: array
+          description: The newly ordered entries
+          items:
+            $ref: "#/components/schemas/SetlistEntry"
+    
+    ImportSetlistRequest:
+      type: object
+      description: Request to import a setlist
+      properties:
+        concertId:
+          type: string
+          description: ID of the concert where this setlist will be added
+        linkinpediaUrl:
+          type: string
+          description: Link to the concert page on Linkinpedia. This page must contain the setlist
+          
+    ImportSetlistEntryPreview:
+      type: object
+      description: Contains data of a setlist entry. Some entries might have IDs for existing songs/mashups, some only a title.
+      properties:
+        title:
+          type: string
+          description: Title of this entry
+        extraNotes:
+          type: string
+          description: Additional notes for this entry
+          nullable: true
+        songNumber:
+          type: number
+          description: Number of this entry within the setlist
+        actNumber:
+          type: number
+          description: Number of this act within the setlist
+          nullable: true
+        foundSongId:
+          type: number
+          description: If an existing song was found, the ID will be in this property. If not, you either have to select an existing song or create it.
+          nullable: true
+        foundSongIds:
+          type: array
+          description: If more than 1 matching song was found, the possible IDs are listed here
+          items:
+            type: number
+        foundSongVariantId:
+          type: number
+          description: If an existing song variant was found, the ID will be in this property. If not, you either have to select an existing song variant or create it.
+          nullable: true
+        foundMashupId:
+          type: number
+          description: If an existing mashup was found, the ID will be in this property. If not, you either have to select an existing mashup or create it.
+          nullable: true
+    
+    ImportSetlistActPreview:
+      type: object
+      description: Contains data of a setlist entry. Some entries might have IDs for existing songs/mashups, some only a title.
+      properties:
+        name:
+          type: string
+          description: Name of this act
+        extraNotes:
+          type: string
+          description: Additional notes for this entry
+          nullable: true
+        actNumber:
+          type: number
+          description: Number of this act within the setlist
+    
+    ImportSetlistPreview:
+      type: object
+      description: Contains data of a setlist that could be created
+      properties:
+        concertId:
+          type: string
+          description: ID of the concert where this setlist will be added
+        acts:
+          type: array
+          description: The acts that could be added to the new setlist
+          items:
+            $ref: "#/components/schemas/ImportSetlistActPreview"
+        entries:
+          type: array
+          description: The entries that could be added to the new setlist
+          items:
+            $ref: "#/components/schemas/ImportSetlistEntryPreview"
 
 paths:
   /addConcert:
@@ -699,7 +1557,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Concert"
+                $ref: "#/components/schemas/ConcertWithSetlists"
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub:
@@ -741,6 +1599,85 @@ paths:
             - LambdaArn:
                 Fn::ImportValue:
                   Fn::Sub: "${BaseProductName}-lambda-adjacent-concerts-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  
+  /concerts/{id}/setlists:
+    get:
+      operationId: GetSetlistsForConcert
+      summary: Returns all setlists for a given concert
+      tags:
+        - concerts
+      parameters:
+        - in: path
+          name: id
+          description: ID of the concert
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A JSON object with the setlist information
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Setlist"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  
+  /concerts/{id}/setlists/import:
+    post:
+      operationId: ImportSetlistFromLinkinpedia
+      summary: Imports a setlist for the concert by using the data on Linkinpedia
+      tags:
+        - concerts
+      parameters:
+        - in: path
+          name: id
+          description: ID of the concert
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImportSetlistRequest"
+      responses:
+        "200":
+          description: A JSON object with the setlist information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportSetlistPreview"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
         responses:
           default:
             statusCode: "200"
@@ -1222,6 +2159,1200 @@ paths:
             - LambdaArn:
                 Fn::ImportValue:
                   Fn::Sub: "${BaseProductName}-lambda-push-endpoint-management-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+
+  /setlists:
+    get:
+      operationId: GetSetlists
+      summary: Returns all setlist headers
+      description: This contains all header info for setlists
+      tags:
+        - setlists
+      parameters:
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The header data of each setlist
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SetlistHeader"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+    post:
+      operationId: CreateSetlist
+      summary: Creates a new setlist
+      description: Creates a new (empty) setlist
+      tags:
+        - setlists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSetlistRequest"
+      responses:
+        "201":
+          description: The setlist that has just been created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateSetlistResponse"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /setlists/{setlistId}/entries/{setlistEntryId}:
+    get:
+      operationId: GetSetlistEntry
+      summary: Gets an entry of a setlist
+      tags:
+        - setlists
+      parameters:
+        - in: path
+          name: setlistId
+          description: ID of the setlist
+          required: true
+          schema:
+            type: number
+        - in: path
+          name: setlistEntryId
+          description: ID of the setlist entry
+          required: true
+          schema:
+            type: string
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The complete setlist entry information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RawSetlistEntry"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+    post:
+      operationId: UpdateSetlistEntry
+      summary: Updates an entry of a setlist
+      tags:
+        - setlists
+      parameters:
+        - in: path
+          name: setlistId
+          description: ID of the setlist
+          required: true
+          schema:
+            type: number
+        - in: path
+          name: setlistEntryId
+          description: ID of the setlist entry
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSetlistEntryRequest"
+      responses:
+        "204":
+          description: No content
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+    delete:
+      operationId: DeleteSetlistEntry
+      summary: Deletes an entry of a setlist
+      tags:
+        - setlists
+      parameters:
+        - in: path
+          name: setlistId
+          description: ID of the setlist
+          required: true
+          schema:
+            type: number
+        - in: path
+          name: setlistEntryId
+          description: ID of the setlist entry
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No content
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /setlists/{setlistId}/acts:
+    get:
+      operationId: GetActsWithinSetlist
+      summary: Returns all acts in a setlist
+      tags:
+        - setlists
+      parameters:
+        - in: path
+          name: setlistId
+          description: ID of the setlist
+          required: true
+          schema:
+            type: number
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The acts within the given setlist
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SetlistAct"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /setlists/{setlistId}/songs:
+    post:
+      operationId: AddSongToSetlist
+      summary: Adds a new song to the setlist and creates 
+      description: In case the song doesn't exist yet, its entry in the database will be created, too
+      tags:
+        - setlists
+      parameters:
+        - in: path
+          name: setlistId
+          description: ID of the setlist
+          required: true
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddSongToSetlistRequest"
+      responses:
+        "201":
+          description: The setlist entry that has just been created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AddSongToSetlistResponse"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /setlists/{setlistId}/variants:
+    post:
+      operationId: AddSongVariantToSetlist
+      summary: Adds a new song variant to the setlist and creates
+      description: In case the song variant doesn't exist yet, its entry in the database will be created, too
+      tags:
+        - setlists
+      parameters:
+        - in: path
+          name: setlistId
+          description: ID of the setlist
+          required: true
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddSongVariantToSetlistRequest"
+      responses:
+        "201":
+          description: The setlist entry that has just been created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AddSongVariantToSetlistResponse"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /setlists/{setlistId}/mashups:
+    post:
+      operationId: AddSongMashupToSetlist
+      summary: Adds a new song mashup to the setlist
+      tags:
+        - setlists
+      parameters:
+        - in: path
+          name: setlistId
+          description: ID of the setlist
+          required: true
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddSongMashupToSetlistRequest"
+      responses:
+        "201":
+          description: The setlist entry that has just been created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AddSongMashupToSetlistResponse"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /setlists/{setlistId}/custom:
+    post:
+      operationId: AddCustomEntryToSetlist
+      summary: Adds a new custom entry to the setlist and creates
+      description: Only use this if we don't want to reuse the title played. (like the intro song)
+      tags:
+        - setlists
+      parameters:
+        - in: path
+          name: setlistId
+          description: ID of the setlist
+          required: true
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddCustomEntryToSetlistRequest"
+      responses:
+        "201":
+          description: The setlist entry that has just been created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AddCustomEntryToSetlistResponse"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /setlists/{setlistId}/reorder:
+    post:
+      operationId: ReorderSetlistEntries
+      summary: Reorders the entries in a setlist
+      description: This always sets the new order for ALL entries in that setlist!
+      tags:
+        - setlists
+      parameters:
+        - in: path
+          name: setlistId
+          description: ID of the setlist
+          required: true
+          schema:
+            type: number
+      requestBody:
+        description: The updated values
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReorderSetlistEntriesRequest"
+      responses:
+        "200":
+          description: The reordered entries
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReorderSetlistEntriesResponse"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /setlists/{setlistId}:
+    get:
+      operationId: GetCompleteSetlist
+      summary: Returns the complete setlist
+      description: This contains all entries
+      tags:
+        - setlists
+      parameters:
+        - in: path
+          name: setlistId
+          description: ID of the setlist
+          required: true
+          schema:
+            type: number
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The complete setlist information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Setlist"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+    post:
+      operationId: UpdateSetlistHeader
+      summary: Updates the header information of a setlist
+      description: The setlist entries are managed by a different API
+      tags:
+        - setlists
+      parameters:
+        - in: path
+          name: setlistId
+          description: ID of the setlist
+          required: true
+          schema:
+            type: number
+      requestBody:
+        description: The updated values
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSetlistHeaderRequest"
+      responses:
+        "200":
+          description: The complete setlist information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Setlist"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+    delete:
+      operationId: DeleteSetlist
+      summary: Deletes a setlist with all its entries
+      tags:
+        - setlists
+      parameters:
+        - in: path
+          name: setlistId
+          description: ID of the setlist
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: No content
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /albums:
+    get:
+      operationId: GetAllAlbums
+      summary: Returns all albums sorted alphabetically
+      tags:
+        - albums
+      parameters:
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The album information
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Album"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+    post:
+      operationId: CreateAlbum
+      summary: Creates a new album
+      description: Creates a new album
+      tags:
+        - albums
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAlbumRequest"
+      responses:
+        "201":
+          description: The album that has just been created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Album"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /albums/{albumId}:
+    get:
+      operationId: GetAlbum
+      summary: Returns information about a album
+      tags:
+        - albums
+      parameters:
+        - in: path
+          name: albumId
+          description: ID of the album
+          required: true
+          schema:
+            type: number
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The album information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Album"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+    post:
+      operationId: UpdateAlbum
+      summary: Updates the album in the database
+      tags:
+        - albums
+      parameters:
+        - in: path
+          name: albumId
+          description: ID of the album
+          required: true
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAlbumRequest"
+      responses:
+        "200":
+          description: The updated album
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Album"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+    delete:
+      operationId: DeleteAlbum
+      summary: Deletes a album
+      tags:
+        - albums
+      parameters:
+        - in: path
+          name: albumId
+          description: ID of the album
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: No content
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /songs:
+    get:
+      operationId: GetAllSongs
+      summary: Returns all songs sorted alphabetically
+      tags:
+        - songs
+      parameters:
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The song information
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Song"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+    post:
+      operationId: CreateSong
+      summary: Creates a new song
+      description: Creates a new song
+      tags:
+        - songs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSongRequest"
+      responses:
+        "201":
+          description: The song that has just been created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Song"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /songs/{songId}:
+    get:
+      operationId: GetSong
+      summary: Returns information about a song
+      tags:
+        - songs
+      parameters:
+        - in: path
+          name: songId
+          description: ID of the song
+          required: true
+          schema:
+            type: number
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The song information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Song"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+    post:
+      operationId: UpdateSong
+      summary: Updates the song in the database
+      tags:
+        - songs
+      parameters:
+        - in: path
+          name: songId
+          description: ID of the song
+          required: true
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSongRequest"
+      responses:
+        "200":
+          description: The updated song
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Song"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+    delete:
+      operationId: DeleteSong
+      summary: Deletes a song 
+      tags:
+        - songs
+      parameters:
+        - in: path
+          name: songId
+          description: ID of the song
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: No content
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /songs/{songId}/variants:
+    get:
+      operationId: GetVariantsOfSong
+      summary: Returns all variants of a song
+      tags:
+        - songs
+      parameters:
+        - in: path
+          name: songId
+          description: ID of the song
+          required: true
+          schema:
+            type: number
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The list of all variants of the song
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SongVariant"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /mashups:
+    get:
+      operationId: GetSongMashups
+      summary: Returns all mashups
+      tags:
+        - songs
+      parameters:
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The list of all mashups
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SongMashup"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+    post:
+      operationId: CreateSongMashup
+      summary: Creates a new mashup
+      description: Creates a new mashup of two or more songs
+      tags:
+        - songs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSongMashupRequest"
+      responses:
+        "201":
+          description: The mashup that has just been created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SongMashup"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /mashups/{mashupId}:
+    get:
+      operationId: GetSongMashupById
+      summary: Returns the mashup with the given ID
+      tags:
+        - songs
+      parameters:
+        - in: path
+          name: mashupId
+          description: ID of the mashup
+          required: true
+          schema:
+            type: number
+        # optional header "request ID". By setting a random value, the cache is disabled
+        - in: header
+          name: X-LP-Request-Id
+          description: Unique request id to bypass server caching
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The song mashup
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SongMashup"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+    post:
+      operationId: UpdateSongMashup
+      summary: Updates the mashup in the database
+      tags:
+        - songs
+      parameters:
+        - in: path
+          name: mashupId
+          description: ID of the mashup
+          required: true
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSongMashupRequest"
+      responses:
+        "200":
+          description: The updated song mashup
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SongMashup"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+    delete:
+      operationId: DeleteSongMashup
+      summary: Deletes an song mashup
+      tags:
+        - songs
+      parameters:
+        - in: path
+          name: mashupId
+          description: ID of the mashup
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: No content
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /apple-music/token:
+    get:
+      operationId: GetAppleMusicDeveloperToken
+      summary: Returns a developer token to access the Apple Music API
+      tags:
+        - appleMusic
+      responses:
+        "201":
+          description: The token as plain text
+          content:
+            text/plain:
+              schema:
+                type: string
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-apple-music-function"
         responses:
           default:
             statusCode: "200"

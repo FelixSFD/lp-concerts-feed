@@ -17,12 +17,15 @@ import {
   ConcertBookmarkUpdateRequestDto,
   ConcertDto,
   ErrorResponseDto,
-  GetConcertBookmarkCountsResponseDto
+  GetConcertBookmarkCountsResponseDto, SetlistDto
 } from '../modules/lpshows-api';
 import {AuthService} from '../auth/auth.service';
 import {ToastrService} from 'ngx-toastr';
 import {HttpErrorResponse} from '@angular/common/http';
 import {load, MapKit, Map as AppleMap} from '@apple/mapkit-loader';
+import {SetlistsService} from '../services/setlists.service';
+import {SetlistComponent} from '../setlists/setlist/setlist.component';
+import {Setlist} from '../data/setlists/setlist';
 
 @Component({
   selector: 'app-concert-details',
@@ -31,8 +34,9 @@ import {load, MapKit, Map as AppleMap} from '@apple/mapkit-loader';
     RouterLink,
     ConcertBadgesComponent,
     TimeSpanPipe,
-    NgbTooltip
-],
+    NgbTooltip,
+    SetlistComponent
+  ],
   templateUrl: './concert-details.component.html',
   styleUrl: './concert-details.component.css'
 })
@@ -54,18 +58,26 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
   // Service to check auth information
   private readonly oidcSecurityService = inject(OidcSecurityService);
 
-  hasWriteAccess$ = false;
+  canUpdateConcerts$ = false;
+  canEditSetlists = false;
 
-  constructor(private route: ActivatedRoute, private concertsService: ConcertsService, private metaService: Meta) {
-    this.oidcSecurityService.checkAuth().subscribe(({ isAuthenticated }) => {
-      this.hasWriteAccess$ = isAuthenticated;
-    });
+  setlists$: Setlist[] = [];
+  setlistsCacheUpdatedAt$: DateTime | null = null;
+
+  constructor(private route: ActivatedRoute, private concertsService: ConcertsService, private setlistService: SetlistsService, private metaService: Meta) {
   }
 
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.loadDataForId(params['id']);
+    });
+
+    this.authService.canUpdateConcerts.subscribe(hasPermission => {
+      this.canUpdateConcerts$ = hasPermission;
+    });
+    this.authService.canManageSetlists.subscribe(hasPermission => {
+      this.canEditSetlists = hasPermission;
     });
   }
 
@@ -203,6 +215,7 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
 
     // delete current concert data to show a loading spinner
     this.concert$ = null;
+    this.setlists$ = [];
 
     this.concertsService.getAdjacentConcerts(this.concertId)
       .subscribe(adjacentConcerts => {
@@ -236,8 +249,25 @@ export class ConcertDetailsComponent implements OnInit, AfterViewInit {
           this.addOrMoveMarker(result.venueLongitude, result.venueLatitude);
         }
 
+        this.setlists$ = result.cachedSetlists?.map(s => Setlist.fromDto(s)) ?? [];
+        this.setlistsCacheUpdatedAt$ = result.cachedSetlistsAt != null ? this.getDateTime(result.cachedSetlistsAt) : null;
+
         return this.concert$ = result;
       });
+
+    // load setlist
+    /*this.setlistService
+      .getSetlistsForConcert(this.concertId)
+      .subscribe({
+        next: result => {
+          this.setlists$ = result.map(s => Setlist.fromDto(s));
+        },
+        error: err => {
+          // TODO: 404 probably needs silent handling
+          let errorResponse: ErrorResponseDto = err.error;
+          this.toastr.error(errorResponse.message, "Could not load setlist");
+        }
+      })*/
   }
 
 

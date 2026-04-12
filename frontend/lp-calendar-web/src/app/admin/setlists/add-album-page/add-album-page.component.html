@@ -1,0 +1,4 @@
+<h1>Add a new album</h1>
+<button class="btn btn-outline-secondary" [routerLink]="['../']"><i class="bi bi-arrow-left"></i> Album list</button>
+
+<app-album-form (saveClicked)="onSaveClicked($event)" [is-saving]="isAdding$" />

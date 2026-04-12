@@ -1,5 +1,5 @@
+using Database.Concerts.Models;
 using Ical.Net;
-using LPCalendar.DataStructure;
 
 namespace Lambda.CalendarFeed;
 
@@ -9,10 +9,10 @@ namespace Lambda.CalendarFeed;
 public interface ICalendarGenerator
 {
     /// <summary>
-    /// Generates a <see cref="Calendar"/> from a list of <see cref="Concert"/>
+    /// Generates a <see cref="Calendar"/> from a list of <see cref="ConcertModel"/>
     /// </summary>
     /// <param name="concerts"></param>
     /// <param name="categoryFlags">options, which events to create for each concert</param>
     /// <returns></returns>
-    Calendar GenerateCalendarWith(IEnumerable<Concert> concerts, ConcertSubEventCategory categoryFlags = ConcertSubEventCategory.AsOneSingleEvent);
+    Calendar GenerateCalendarWith(IEnumerable<ConcertModel> concerts, ConcertSubEventCategory categoryFlags = ConcertSubEventCategory.AsOneSingleEvent);
 }
