@@ -144,6 +144,50 @@ public static class ApiGatewayResponseHelper
 
     #endregion
     
+    #region HTTP 400 - Bad Request
+
+    /// <summary>
+    /// Returns the error message as JSON in the <see cref="APIGatewayProxyResponse"/>
+    /// </summary>
+    /// <param name="errorMessage">Error message to return to the client</param>
+    /// <param name="corsMethods">allowed CORS methods (OPTIONS will be included by default)</param>
+    /// <returns>response for the API gateway</returns>
+    public static APIGatewayProxyResponse BadRequest(string errorMessage, params HttpMethod[] corsMethods)
+    {
+        return BadRequest(errorMessage, null, CorsHeaderFactory.GetAllowMethodsHeaderValue(corsMethods), CorsHeaderFactory.AllowOriginValue);
+    }
+    
+    /// <summary>
+    /// Returns the error message as JSON in the <see cref="APIGatewayProxyResponse"/>
+    /// </summary>
+    /// <param name="errorMessage">Error message to return to the client</param>
+    /// <param name="cacheControl">Value for the cache-control header. If null, <see cref="CacheControlHeaderConfig.Default"/> will be used</param>
+    /// <param name="corsMethods">allowed CORS methods (OPTIONS will be included by default)</param>
+    /// <returns>response for the API gateway</returns>
+    public static APIGatewayProxyResponse BadRequest(string errorMessage, CacheControlHeaderValue? cacheControl, params HttpMethod[] corsMethods)
+    {
+        return BadRequest(errorMessage, cacheControl, CorsHeaderFactory.GetAllowMethodsHeaderValue(corsMethods), CorsHeaderFactory.AllowOriginValue);
+    }
+    
+    /// <summary>
+    /// Returns the error message as JSON in the <see cref="APIGatewayProxyResponse"/>
+    /// </summary>
+    /// <param name="errorMessage">Error message to return to the client</param>
+    /// <param name="cacheControl">Value of the Cache-Control header. You can generate it using the <see cref="CacheControlHeaderFactory"/>. Default: <see cref="CacheExpiration.Default"/> and public</param>
+    /// <param name="corsMethods">allowed CORS methods (OPTIONS will be included by default)</param>
+    /// <param name="corsOrigin">allowed CORS Origin</param>
+    /// <returns>response for the API gateway</returns>
+    public static APIGatewayProxyResponse BadRequest(string errorMessage, CacheControlHeaderValue? cacheControl, string corsMethods, string corsOrigin)
+    {
+        var errorResponseDto = new ErrorResponse
+        {
+            Message = errorMessage,
+        };
+        return BuildResponseWithBody(HttpStatusCode.NotFound, errorResponseDto, DataStructureJsonContext.Default.ErrorResponse, cacheControl ?? CacheControlHeaderConfig.None, corsMethods, corsOrigin);
+    }
+
+    #endregion
+    
     #region HTTP 404 - Not Found
 
     /// <summary>

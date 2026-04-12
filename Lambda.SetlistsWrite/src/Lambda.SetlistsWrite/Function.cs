@@ -100,7 +100,7 @@ public class Function
         {
             if (request.Body == null)
             {
-                return ReturnBadRequest("Missing request body!");
+                return HandleMissingBody(HttpMethod.Post, context.Logger);
             }
             
             context.Logger.LogInformation("Creating a setlist...");
@@ -111,60 +111,56 @@ public class Function
         {
             if (request.Body == null)
             {
-                return ReturnBadRequest("Missing request body!");
+                return HandleMissingBody(HttpMethod.Post, context.Logger);
             }
             
             context.Logger.LogInformation("Adding a song to the setlist with ID '{setlistId}' ...", setlistId);
             if (setlistId != null)
                 return await HandleAddSongToSetlist(request.Body, setlistId ?? 0, context);
             
-            context.Logger.LogError("Invalid setlist ID!");
-            return ReturnBadRequest("Invalid setlist ID!");
+            return ReturnBadRequest("Invalid setlist ID!", HttpMethod.Post, context.Logger);
         }
         
         if (request is { HttpMethod: "POST", Resource: "/setlists/{setlistId}/variants" } && hasSetlistIdPathParameter)
         {
             if (request.Body == null)
             {
-                return ReturnBadRequest("Missing request body!");
+                return HandleMissingBody(HttpMethod.Post, context.Logger);
             }
             
             context.Logger.LogInformation("Adding a song variant to the setlist with ID '{setlistId}' ...", setlistId);
             if (setlistId != null)
                 return await HandleAddSongVariantToSetlist(request.Body, setlistId ?? 0, context);
             
-            context.Logger.LogError("Invalid setlist ID!");
-            return ReturnBadRequest("Invalid setlist ID!");
+            return ReturnBadRequest("Invalid setlist ID!", HttpMethod.Post, context.Logger);
         }
         
         if (request is { HttpMethod: "POST", Resource: "/setlists/{setlistId}/mashups" } && hasSetlistIdPathParameter)
         {
             if (request.Body == null)
             {
-                return ReturnBadRequest("Missing request body!");
+                return HandleMissingBody(HttpMethod.Post, context.Logger);
             }
             
             context.Logger.LogInformation("Adding a song mashup to the setlist with ID '{setlistId}' ...", setlistId);
             if (setlistId != null)
                 return await HandleAddSongMashupToSetlist(request.Body, setlistId ?? 0, context);
             
-            context.Logger.LogError("Invalid setlist ID!");
-            return ReturnBadRequest("Invalid setlist ID!");
+            return ReturnBadRequest("Invalid setlist ID!", HttpMethod.Post, context.Logger);
         }
         
         if (request is { HttpMethod: "POST", Resource: "/setlists/{setlistId}/custom" } && hasSetlistIdPathParameter)
         {
             if (request.Body == null)
             {
-                return ReturnBadRequest("Missing request body!");
+                return HandleMissingBody(HttpMethod.Post, context.Logger);
             }
             
             context.Logger.LogInformation("Adding a song mashup to the setlist with ID '{setlistId}' ...", setlistId);
             if (setlistId != null)
                 return await HandleAddCustomEntryToSetlist(request.Body, setlistId ?? 0, context);
             
-            context.Logger.LogError("Invalid setlist ID!");
-            return ReturnBadRequest("Invalid setlist ID!");
+            return ReturnBadRequest("Invalid setlist ID!", HttpMethod.Post, context.Logger);
         }
         
         if (request is { HttpMethod: "POST", Resource: "/setlists/{setlistId}" } && hasSetlistIdPathParameter)
@@ -191,7 +187,7 @@ public class Function
         {
             if (request.Body == null)
             {
-                return ReturnBadRequest("Missing request body!");
+                return HandleMissingBody(HttpMethod.Post, context.Logger);
             }
             
             context.Logger.LogInformation("Creating a song...");
@@ -207,7 +203,7 @@ public class Function
         {
             if (request.Body == null)
             {
-                return ReturnBadRequest("Missing request body!");
+                return HandleMissingBody(HttpMethod.Post, context.Logger);
             }
             
             context.Logger.LogInformation("Creating a mashup...");
@@ -249,8 +245,7 @@ public class Function
             if (!string.IsNullOrEmpty(setlistEntryId))
                 return await HandleUpdateSetlistEntry(request.Body, setlistId ?? 0, setlistEntryId, context);
             
-            context.Logger.LogError("Invalid setlist entry ID!");
-            return ReturnBadRequest("Invalid setlist entry ID!");
+            return ReturnBadRequest("Invalid setlist entry ID!", HttpMethod.Post, context.Logger);
         }
         
         if (request is { HttpMethod: "DELETE", Resource: "/setlists/{setlistId}/entries/{setlistEntryId}" } 
@@ -261,15 +256,14 @@ public class Function
             if (!string.IsNullOrEmpty(setlistEntryId))
                 return await HandleDeleteEntryFromSetlist(setlistEntryId, context);
             
-            context.Logger.LogError("Invalid setlist entry ID!");
-            return ReturnBadRequest("Invalid setlist entry ID!");
+            return ReturnBadRequest("Invalid setlist entry ID!", HttpMethod.Delete, context.Logger);
         }
         
         if (request is { HttpMethod: "POST", Resource: "/albums" })
         {
             if (request.Body == null)
             {
-                return ReturnBadRequest("Missing request body!");
+                return HandleMissingBody(HttpMethod.Post, context.Logger);
             }
             
             context.Logger.LogInformation("Creating an album...");
@@ -315,24 +309,37 @@ public class Function
         logger.LogError("Handle not found error: {message}", exception.Message);
         return NotFound(exception.Message, CacheControlHeaderConfig.Default, corsMethods);
     }
+    
+    /// <summary>
+    /// Return an API response with status 400 and a message that the request body is missing.
+    /// </summary>
+    /// <param name="corsMethod"></param>
+    /// <param name="logger"></param>
+    /// <returns></returns>
+    private static APIGatewayProxyResponse HandleMissingBody(HttpMethod corsMethod, ILambdaLogger logger) 
+        => ReturnBadRequest("Missing request body!", [corsMethod], logger);
+    
+    /// <summary>
+    /// Return an API response with status 400
+    /// </summary>
+    /// <param name="message">error message</param>
+    /// <param name="corsMethod"></param>
+    /// <param name="logger"></param>
+    /// <returns></returns>
+    private static APIGatewayProxyResponse ReturnBadRequest(string message, HttpMethod corsMethod, ILambdaLogger logger) 
+        => ReturnBadRequest(message, [corsMethod], logger);
 
-    private static APIGatewayProxyResponse ReturnBadRequest(string message, string corsMethods = "OPTIONS, GET, POST")
+    /// <summary>
+    /// Return an API response with status 400
+    /// </summary>
+    /// <param name="message">error message</param>
+    /// <param name="corsMethods"></param>
+    /// <param name="logger"></param>
+    /// <returns></returns>
+    private static APIGatewayProxyResponse ReturnBadRequest(string message, HttpMethod[] corsMethods, ILambdaLogger logger)
     {
-        var noRouteFoundError = new ErrorResponse
-        {
-            Message = message
-        };
-        
-        return new APIGatewayProxyResponse()
-        {
-            StatusCode = (int)HttpStatusCode.BadRequest,
-            Body = JsonSerializer.Serialize(noRouteFoundError, DataStructureJsonContext.Default.ErrorResponse),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", corsMethods }
-            }
-        };
+        logger.LogError("Handle bad request: {message}", message);
+        return BadRequest(message, corsMethods);
     }
 
     private async Task<APIGatewayProxyResponse> HandleCreateSetlist(string requestJson,
@@ -342,23 +349,7 @@ public class Function
         if (dto != null)
             return await HandleCreateSetlist(dto, context);
         
-        var badRequestResponse = new ErrorResponse
-        {
-            Message = "Failed to deserialize the request body"
-        };
-            
-        context.Logger.LogError(badRequestResponse.Message);
-            
-        return new APIGatewayProxyResponse()
-        {
-            StatusCode = (int)HttpStatusCode.BadRequest,
-            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET, POST" }
-            }
-        };
+        return ReturnBadRequest("Failed to deserialize the request body", HttpMethod.Post, context.Logger);
     }
 
     /// <summary>
@@ -391,23 +382,7 @@ public class Function
         if (dto != null)
             return await HandleUpdateSetlistHeader(setlistId, dto, context);
         
-        var badRequestResponse = new ErrorResponse
-        {
-            Message = "Failed to deserialize the request body"
-        };
-            
-        context.Logger.LogError(badRequestResponse.Message);
-            
-        return new APIGatewayProxyResponse
-        {
-            StatusCode = (int)HttpStatusCode.BadRequest,
-            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, POST" }
-            }
-        };
+        return ReturnBadRequest("Failed to deserialize the request body", HttpMethod.Post, context.Logger);
     }
     
     /// <summary>
@@ -439,23 +414,7 @@ public class Function
         if (dto != null)
             return await HandleReorderEntries(setlistId, dto, context);
         
-        var badRequestResponse = new ErrorResponse
-        {
-            Message = "Failed to deserialize the request body"
-        };
-            
-        context.Logger.LogError(badRequestResponse.Message);
-            
-        return new APIGatewayProxyResponse
-        {
-            StatusCode = (int)HttpStatusCode.BadRequest,
-            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, POST" }
-            }
-        };
+        return ReturnBadRequest("Failed to deserialize the request body", HttpMethod.Post, context.Logger);
     }
     
     /// <summary>
@@ -493,23 +452,7 @@ public class Function
         if (dto != null)
             return await HandleUpdateSetlistEntry(dto, setlistId, entryId, context);
         
-        var badRequestResponse = new ErrorResponse
-        {
-            Message = "Failed to deserialize the request body"
-        };
-            
-        context.Logger.LogError(badRequestResponse.Message);
-            
-        return new APIGatewayProxyResponse()
-        {
-            StatusCode = (int)HttpStatusCode.BadRequest,
-            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET, POST" }
-            }
-        };
+        return ReturnBadRequest("Failed to deserialize the request body", HttpMethod.Post, context.Logger);
     }
     
     /// <summary>
@@ -541,23 +484,7 @@ public class Function
         if (dto != null)
             return await HandleAddCustomEntryToSetlist(dto, setlistId, context);
         
-        var badRequestResponse = new ErrorResponse
-        {
-            Message = "Failed to deserialize the request body"
-        };
-            
-        context.Logger.LogError(badRequestResponse.Message);
-            
-        return new APIGatewayProxyResponse()
-        {
-            StatusCode = (int)HttpStatusCode.BadRequest,
-            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET, POST" }
-            }
-        };
+        return ReturnBadRequest("Failed to deserialize the request body", HttpMethod.Post, context.Logger);
     }
     
     /// <summary>
@@ -589,23 +516,7 @@ public class Function
         if (dto != null)
             return await HandleAddSongToSetlist(dto, setlistId, context);
         
-        var badRequestResponse = new ErrorResponse
-        {
-            Message = "Failed to deserialize the request body"
-        };
-            
-        context.Logger.LogError(badRequestResponse.Message);
-            
-        return new APIGatewayProxyResponse()
-        {
-            StatusCode = (int)HttpStatusCode.BadRequest,
-            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, GET, POST" }
-            }
-        };
+        return ReturnBadRequest("Failed to deserialize the request body", HttpMethod.Post, context.Logger);
     }
     
     /// <summary>
@@ -638,23 +549,7 @@ public class Function
         if (dto != null)
             return await HandleAddSongVariantToSetlist(dto, setlistId, context);
         
-        var badRequestResponse = new ErrorResponse
-        {
-            Message = "Failed to deserialize the request body"
-        };
-            
-        context.Logger.LogError(badRequestResponse.Message);
-            
-        return new APIGatewayProxyResponse()
-        {
-            StatusCode = (int)HttpStatusCode.BadRequest,
-            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, POST" }
-            }
-        };
+        return ReturnBadRequest("Failed to deserialize the request body", HttpMethod.Post, context.Logger);
     }
     
     /// <summary>
@@ -686,23 +581,7 @@ public class Function
         if (dto != null)
             return await HandleAddSongMashupToSetlist(dto, setlistId, context);
         
-        var badRequestResponse = new ErrorResponse
-        {
-            Message = "Failed to deserialize the request body"
-        };
-            
-        context.Logger.LogError(badRequestResponse.Message);
-            
-        return new APIGatewayProxyResponse()
-        {
-            StatusCode = (int)HttpStatusCode.BadRequest,
-            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, POST" }
-            }
-        };
+        return ReturnBadRequest("Failed to deserialize the request body", HttpMethod.Post, context.Logger);
     }
     
     /// <summary>
@@ -761,23 +640,7 @@ public class Function
         if (dto != null)
             return await HandleCreateAlbum(dto, context);
         
-        var badRequestResponse = new ErrorResponse
-        {
-            Message = "Failed to deserialize the request body"
-        };
-            
-        context.Logger.LogError(badRequestResponse.Message);
-            
-        return new APIGatewayProxyResponse
-        {
-            StatusCode = (int)HttpStatusCode.BadRequest,
-            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", CorsHeaderFactory.AllowOriginValue },
-                { "Access-Control-Allow-Methods", "OPTIONS, POST" }
-            }
-        };
+        return ReturnBadRequest("Failed to deserialize the request body", HttpMethod.Post, context.Logger);
     }
 
     /// <summary>
@@ -801,23 +664,7 @@ public class Function
         if (dto != null)
             return await HandleUpdateAlbum(albumId, dto, context);
         
-        var badRequestResponse = new ErrorResponse
-        {
-            Message = "Failed to deserialize the request body"
-        };
-            
-        context.Logger.LogError(badRequestResponse.Message);
-            
-        return new APIGatewayProxyResponse
-        {
-            StatusCode = (int)HttpStatusCode.BadRequest,
-            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, POST" }
-            }
-        };
+        return ReturnBadRequest("Failed to deserialize the request body", HttpMethod.Post, context.Logger);
     }
     
     /// <summary>
@@ -863,23 +710,7 @@ public class Function
         if (dto != null)
             return await HandleCreateMashup(dto, context);
         
-        var badRequestResponse = new ErrorResponse
-        {
-            Message = "Failed to deserialize the request body"
-        };
-            
-        context.Logger.LogError(badRequestResponse.Message);
-            
-        return new APIGatewayProxyResponse
-        {
-            StatusCode = (int)HttpStatusCode.BadRequest,
-            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, POST" }
-            }
-        };
+        return ReturnBadRequest("Failed to deserialize the request body", HttpMethod.Post, context.Logger);
     }
 
     /// <summary>
@@ -899,7 +730,7 @@ public class Function
         }
         catch (InvalidMashupException e)
         {
-            return ReturnBadRequest(e.Message, "OPTIONS, POST");
+            return ReturnBadRequest(e.Message, HttpMethod.Post, context.Logger);
         }
     }
     
@@ -923,23 +754,7 @@ public class Function
         if (dto != null)
             return await HandleUpdateMashup(mashupId, dto, context);
         
-        var badRequestResponse = new ErrorResponse
-        {
-            Message = "Failed to deserialize the request body"
-        };
-            
-        context.Logger.LogError(badRequestResponse.Message);
-            
-        return new APIGatewayProxyResponse
-        {
-            StatusCode = (int)HttpStatusCode.BadRequest,
-            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, POST" }
-            }
-        };
+        return ReturnBadRequest("Failed to deserialize the request body", HttpMethod.Post, context.Logger);
     }
 
     /// <summary>
@@ -960,7 +775,7 @@ public class Function
         }
         catch (InvalidMashupException e)
         {
-            return ReturnBadRequest(e.Message, "OPTIONS, POST");
+            return ReturnBadRequest(e.Message, HttpMethod.Post, context.Logger);
         }
     }
     
@@ -984,23 +799,7 @@ public class Function
         if (dto != null)
             return await HandleCreateSong(dto, context);
         
-        var badRequestResponse = new ErrorResponse
-        {
-            Message = "Failed to deserialize the request body"
-        };
-            
-        context.Logger.LogError(badRequestResponse.Message);
-            
-        return new APIGatewayProxyResponse
-        {
-            StatusCode = (int)HttpStatusCode.BadRequest,
-            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, POST" }
-            }
-        };
+        return ReturnBadRequest("Failed to deserialize the request body", HttpMethod.Post, context.Logger);
     }
 
     /// <summary>
@@ -1020,7 +819,7 @@ public class Function
         }
         catch (InvalidMashupException e)
         {
-            return ReturnBadRequest(e.Message, "OPTIONS, POST");
+            return ReturnBadRequest(e.Message, HttpMethod.Post, context.Logger);
         }
     }
     
@@ -1031,23 +830,7 @@ public class Function
         if (dto != null)
             return await HandleUpdateSong(songId, dto, context);
         
-        var badRequestResponse = new ErrorResponse
-        {
-            Message = "Failed to deserialize the request body"
-        };
-            
-        context.Logger.LogError(badRequestResponse.Message);
-            
-        return new APIGatewayProxyResponse
-        {
-            StatusCode = (int)HttpStatusCode.BadRequest,
-            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, POST" }
-            }
-        };
+        return ReturnBadRequest("Failed to deserialize the request body", HttpMethod.Post, context.Logger);
     }
 
     /// <summary>
@@ -1068,7 +851,7 @@ public class Function
         }
         catch (InvalidMashupException e)
         {
-            return ReturnBadRequest(e.Message, "OPTIONS, POST");
+            return ReturnBadRequest(e.Message, HttpMethod.Post, context.Logger);
         }
     }
     
@@ -1079,23 +862,7 @@ public class Function
         if (dto != null)
             return await HandleImportSetlist(dto, context);
         
-        var badRequestResponse = new ErrorResponse
-        {
-            Message = "Failed to deserialize the request body"
-        };
-            
-        context.Logger.LogError(badRequestResponse.Message);
-            
-        return new APIGatewayProxyResponse()
-        {
-            StatusCode = (int)HttpStatusCode.BadRequest,
-            Body = JsonSerializer.Serialize(badRequestResponse, DataStructureJsonContext.Default.ErrorResponse),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, POST" }
-            }
-        };
+        return ReturnBadRequest("Failed to deserialize the request body", HttpMethod.Post, context.Logger);
     }
 
     /// <summary>
