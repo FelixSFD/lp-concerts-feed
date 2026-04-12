@@ -306,36 +306,6 @@ public class Function
             return HandleNotFoundException(e, [HttpMethod.Get], context.Logger);
         }
     }
-
-
-    /// <summary>
-    /// Return an API response with status 404
-    /// </summary>
-    /// <param name="message"></param>
-    /// <param name="corsMethods"></param>
-    /// <param name="logger"></param>
-    /// <returns></returns>
-    [Obsolete]
-    private static APIGatewayProxyResponse HandleNotFoundException(string message, string corsMethods, ILambdaLogger logger)
-    {
-        var internalErrorResponse = new ErrorResponse
-        {
-            Message = message
-        };
-
-        logger.LogError("Handle not found error: {message}", internalErrorResponse.Message);
-
-        return new APIGatewayProxyResponse()
-        {
-            StatusCode = (int)HttpStatusCode.NotFound,
-            Body = JsonSerializer.Serialize(internalErrorResponse, DataStructureJsonContext.Default.ErrorResponse),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", corsMethods }
-            }
-        };
-    }
     
     /// <summary>
     /// Return an API response with status 404
