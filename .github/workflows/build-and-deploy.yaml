@@ -36,15 +36,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
-
-      - uses: aws-actions/setup-sam@v2
-        with:
-          use-installer: true
       
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 10.0.x
   
       - name: Install Lambda tools
         run: dotnet tool install -g Amazon.Lambda.Tools
@@ -73,10 +69,6 @@ jobs:
     steps:
     - uses: actions/checkout@v6
 
-    - uses: aws-actions/setup-sam@v2
-      with:
-        use-installer: true
-
     - uses: actions/download-artifact@v5
       name: Download Lambdas from previous jobs
       with:
@@ -90,7 +82,7 @@ jobs:
     # AWS DEPLOY
     - name: Configure AWS credentials
       id: creds
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v6
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -125,7 +117,7 @@ jobs:
     - uses: actions/checkout@v6
     
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: '24.0.x'
 
@@ -135,87 +127,87 @@ jobs:
       #run: npm ci --force --no-fund # Use npm ci for faster installs and CI consistency
     
     - name: Replace ROOT_DOMAIN
-      uses: richardrigutins/replace-in-files@v2
+      uses: richardrigutins/replace-in-files@v3
       with:
         files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
         search-text: 'ROOT_DOMAIN'
         replacement-text: ${{ vars.ROOT_DOMAIN }}
     - name: Replace COGNITO_URL
-      uses: richardrigutins/replace-in-files@v2
+      uses: richardrigutins/replace-in-files@v3
       with:
         files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
         search-text: 'COGNITO_URL'
         replacement-text: ${{ vars.COGNITO_URL }}
     - name: Replace COGNITO_CLIENT_ID
-      uses: richardrigutins/replace-in-files@v2
+      uses: richardrigutins/replace-in-files@v3
       with:
         files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
         search-text: 'COGNITO_CLIENT_ID'
         replacement-text: ${{ vars.COGNITO_CLIENT_ID }}
     - name: Replace COGNITO_AUTH_SERVER
-      uses: richardrigutins/replace-in-files@v2
+      uses: richardrigutins/replace-in-files@v3
       with:
         files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
         search-text: 'COGNITO_AUTH_SERVER'
         replacement-text: ${{ vars.COGNITO_AUTH_SERVER }}
     - name: Replace APPLE_MAPS_TOKEN
-      uses: richardrigutins/replace-in-files@v2
+      uses: richardrigutins/replace-in-files@v3
       with:
         files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
         search-text: 'APPLE_MAPS_TOKEN'
         replacement-text: ${{ secrets.APPLE_MAPS_TOKEN }}
     - name: Replace IMAGE_BASE_URL
-      uses: richardrigutins/replace-in-files@v2
+      uses: richardrigutins/replace-in-files@v3
       with:
         files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
         search-text: 'IMAGE_BASE_URL'
         replacement-text: ${{ vars.IMAGE_BASE_URL }}
 
     - name: Replace TRACKING_URL
-      uses: richardrigutins/replace-in-files@v2
+      uses: richardrigutins/replace-in-files@v3
       with:
         files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
         search-text: 'TRACKING_URL'
         replacement-text: ${{ vars.TRACKING_URL }}
     - name: Replace TRACKING_SITE_ID
-      uses: richardrigutins/replace-in-files@v2
+      uses: richardrigutins/replace-in-files@v3
       with:
         files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
         search-text: 'TRACKING_SITE_ID'
         replacement-text: ${{ vars.TRACKING_SITE_ID }}
 
     - name: Replace IMPRINT_NAME
-      uses: richardrigutins/replace-in-files@v2
+      uses: richardrigutins/replace-in-files@v3
       with:
         files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
         search-text: 'IMPRINT_NAME'
         replacement-text: ${{ vars.IMPRINT_NAME }}
     - name: Replace IMPRINT_ADDRESS1
-      uses: richardrigutins/replace-in-files@v2
+      uses: richardrigutins/replace-in-files@v3
       with:
         files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
         search-text: 'IMPRINT_ADDRESS1'
         replacement-text: ${{ vars.IMPRINT_ADDRESS1 }}
     - name: Replace IMPRINT_ADDRESS2
-      uses: richardrigutins/replace-in-files@v2
+      uses: richardrigutins/replace-in-files@v3
       with:
         files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
         search-text: 'IMPRINT_ADDRESS2'
         replacement-text: ${{ vars.IMPRINT_ADDRESS2 }}
     - name: Replace IMPRINT_CITY
-      uses: richardrigutins/replace-in-files@v2
+      uses: richardrigutins/replace-in-files@v3
       with:
         files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
         search-text: 'IMPRINT_CITY'
         replacement-text: ${{ vars.IMPRINT_CITY }}
     - name: Replace IMPRINT_COUNTRY
-      uses: richardrigutins/replace-in-files@v2
+      uses: richardrigutins/replace-in-files@v3
       with:
         files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
         search-text: 'IMPRINT_COUNTRY'
         replacement-text: ${{ vars.IMPRINT_COUNTRY }}
     - name: Replace IMPRINT_EMAIL
-      uses: richardrigutins/replace-in-files@v2
+      uses: richardrigutins/replace-in-files@v3
       with:
         files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
         search-text: 'IMPRINT_EMAIL'
@@ -226,7 +218,7 @@ jobs:
       id: date
       run: echo "::set-output name=date::$(date +'%Y%m%d%H%M%S')"
     - name: Replace BUILD
-      uses: richardrigutins/replace-in-files@v2
+      uses: richardrigutins/replace-in-files@v3
       with:
         files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
         search-text: 'BUILD_NUMBER'
@@ -270,7 +262,7 @@ jobs:
       
     - name: Configure AWS credentials
       id: creds
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v6
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
