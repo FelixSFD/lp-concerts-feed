@@ -61,6 +61,52 @@ public static class ApiGatewayResponseHelper
 
     #endregion
     
+    #region HTTP 201 - Created
+
+    /// <summary>
+    /// Returns the created <paramref name="value"/> as JSON in the <see cref="APIGatewayProxyResponse"/>
+    /// </summary>
+    /// <param name="value">Value to return in the response</param>
+    /// <param name="jsonTypeInfo">Info for the JSON parser</param>
+    /// <param name="corsMethods">allowed CORS methods (OPTIONS will be included by default)</param>
+    /// <typeparam name="TValue">Type of the object that will be serialized</typeparam>
+    /// <returns>response for the API gateway</returns>
+    public static APIGatewayProxyResponse Created<TValue>(TValue value, JsonTypeInfo<TValue> jsonTypeInfo, params HttpMethod[] corsMethods)
+    {
+        return Created(value, jsonTypeInfo, null, CorsHeaderFactory.GetAllowMethodsHeaderValue(corsMethods), CorsHeaderFactory.AllowOriginValue);
+    }
+    
+    /// <summary>
+    /// Returns the created <paramref name="value"/> as JSON in the <see cref="APIGatewayProxyResponse"/>
+    /// </summary>
+    /// <param name="value">Value to return in the response</param>
+    /// <param name="jsonTypeInfo">Info for the JSON parser</param>
+    /// <param name="cacheControl">Value for the cache-control header. If null, <see cref="CacheControlHeaderConfig.Default"/> will be used</param>
+    /// <param name="corsMethods">allowed CORS methods (OPTIONS will be included by default)</param>
+    /// <typeparam name="TValue">Type of the object that will be serialized</typeparam>
+    /// <returns>response for the API gateway</returns>
+    public static APIGatewayProxyResponse Created<TValue>(TValue value, JsonTypeInfo<TValue> jsonTypeInfo, CacheControlHeaderValue? cacheControl, params HttpMethod[] corsMethods)
+    {
+        return Created(value, jsonTypeInfo, cacheControl, CorsHeaderFactory.GetAllowMethodsHeaderValue(corsMethods), CorsHeaderFactory.AllowOriginValue);
+    }
+    
+    /// <summary>
+    /// Returns the created <paramref name="value"/> as JSON in the <see cref="APIGatewayProxyResponse"/>
+    /// </summary>
+    /// <param name="value">Value to return in the response</param>
+    /// <param name="jsonTypeInfo">Info for the JSON parser</param>
+    /// <param name="cacheControl">Value of the Cache-Control header. You can generate it using the <see cref="CacheControlHeaderFactory"/>. Default: <see cref="CacheExpiration.Default"/> and public</param>
+    /// <param name="corsMethods">allowed CORS methods (OPTIONS will be included by default)</param>
+    /// <param name="corsOrigin">allowed CORS Origin</param>
+    /// <typeparam name="TValue">Type of the object that will be serialized</typeparam>
+    /// <returns>response for the API gateway</returns>
+    public static APIGatewayProxyResponse Created<TValue>(TValue value, JsonTypeInfo<TValue> jsonTypeInfo, CacheControlHeaderValue? cacheControl, string corsMethods, string corsOrigin)
+    {
+        return BuildResponseWithBody(HttpStatusCode.Created, value, jsonTypeInfo, cacheControl ?? CacheControlHeaderConfig.None, corsMethods, corsOrigin);
+    }
+
+    #endregion
+    
     #region HTTP 204 - No Content
     
     /// <summary>

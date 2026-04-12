@@ -384,17 +384,7 @@ public class Function
         
         var responseDto = await _setlistService.CreateSetlistAsync(request);
         context.Logger.LogDebug("Successfully created setlist with ID: {id}", responseDto.Id);
-        
-        return new APIGatewayProxyResponse()
-        {
-            StatusCode = (int)HttpStatusCode.Created,
-            Body = JsonSerializer.Serialize(responseDto, SetlistDtoJsonContext.Default.CreateSetlistResponseDto),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", "*" },
-                { "Access-Control-Allow-Methods", "OPTIONS, POST" }
-            }
-        };
+        return Created(responseDto, SetlistDtoJsonContext.Default.CreateSetlistResponseDto, HttpMethod.Post);
     }
     
     private async Task<APIGatewayProxyResponse> HandleUpdateSetlistHeader(uint setlistId, string requestJson,
@@ -587,16 +577,7 @@ public class Function
         {
             var entryDto = await _setlistService.AddCustomEntryToSetlistAsync(request, setlistId);
             var responseDto = new AddCustomEntryToSetlistResponseDto(entryDto);
-            return new APIGatewayProxyResponse
-            {
-                StatusCode = (int)HttpStatusCode.Created,
-                Body = JsonSerializer.Serialize(responseDto, SetlistDtoJsonContext.Default.AddCustomEntryToSetlistResponseDto),
-                Headers = new Dictionary<string, string>
-                {
-                    { "Access-Control-Allow-Origin", CorsHeaderFactory.AllowOriginValue },
-                    { "Access-Control-Allow-Methods", CorsHeaderFactory.GetAllowMethodsHeaderValue(HttpMethod.Post) }
-                }
-            };
+            return Created(responseDto, SetlistDtoJsonContext.Default.AddCustomEntryToSetlistResponseDto, HttpMethod.Post);
         }
         catch (SetlistNotFoundException e)
         {
@@ -644,16 +625,7 @@ public class Function
         {
             var entryDto = await _setlistService.AddSongToSetlistAsync(request, setlistId);
             var responseDto = new AddSongToSetlistResponseDto(entryDto);
-            return new APIGatewayProxyResponse()
-            {
-                StatusCode = (int)HttpStatusCode.Created,
-                Body = JsonSerializer.Serialize(responseDto, SetlistDtoJsonContext.Default.AddSongToSetlistResponseDto),
-                Headers = new Dictionary<string, string>
-                {
-                    { "Access-Control-Allow-Origin", "*" },
-                    { "Access-Control-Allow-Methods", "OPTIONS, POST" }
-                }
-            };
+            return Created(responseDto, SetlistDtoJsonContext.Default.AddSongToSetlistResponseDto, HttpMethod.Post);
         }
         catch (SetlistNotFoundException e)
         {
@@ -702,17 +674,7 @@ public class Function
         {
             var entryDto = await _setlistService.AddSongVariantToSetlistAsync(request, setlistId);
             var responseDto = new AddSongVariantToSetlistResponseDto(entryDto);
-        
-            return new APIGatewayProxyResponse()
-            {
-                StatusCode = (int)HttpStatusCode.Created,
-                Body = JsonSerializer.Serialize(responseDto, SetlistDtoJsonContext.Default.AddSongVariantToSetlistResponseDto),
-                Headers = new Dictionary<string, string>
-                {
-                    { "Access-Control-Allow-Origin", "*" },
-                    { "Access-Control-Allow-Methods", "OPTIONS, POST" }
-                }
-            };
+            return Created(responseDto, SetlistDtoJsonContext.Default.AddSongVariantToSetlistResponseDto, HttpMethod.Post);
         }
         catch (SetlistNotFoundException e)
         {
@@ -760,17 +722,7 @@ public class Function
         {
             var entryDto = await _setlistService.AddSongMashupToSetlistAsync(request, setlistId);
             var responseDto = new AddSongMashupToSetlistResponseDto(entryDto);
-        
-            return new APIGatewayProxyResponse()
-            {
-                StatusCode = (int)HttpStatusCode.Created,
-                Body = JsonSerializer.Serialize(responseDto, SetlistDtoJsonContext.Default.AddSongMashupToSetlistResponseDto),
-                Headers = new Dictionary<string, string>
-                {
-                    { "Access-Control-Allow-Origin", "*" },
-                    { "Access-Control-Allow-Methods", "OPTIONS, POST" }
-                }
-            };
+            return Created(responseDto, SetlistDtoJsonContext.Default.AddSongMashupToSetlistResponseDto, HttpMethod.Post);
         }
         catch (SetlistNotFoundException e)
         {
@@ -871,17 +823,7 @@ public class Function
     {
         var responseDto = await _albumService.CreateAlbumAsync(request);
         context.Logger.LogDebug("Successfully created album with ID: {id}", responseDto.Id);
-
-        return new APIGatewayProxyResponse
-        {
-            StatusCode = (int)HttpStatusCode.Created,
-            Body = JsonSerializer.Serialize(responseDto, SetlistDtoJsonContext.Default.AlbumDto),
-            Headers = new Dictionary<string, string>
-            {
-                { "Access-Control-Allow-Origin", CorsHeaderFactory.AllowOriginValue },
-                { "Access-Control-Allow-Methods", "OPTIONS, POST" }
-            }
-        };
+        return Created(responseDto, SetlistDtoJsonContext.Default.AlbumDto, HttpMethod.Post);
     }
     
     private async Task<APIGatewayProxyResponse> HandleUpdateAlbum(uint albumId, string requestJson,
@@ -985,17 +927,7 @@ public class Function
         {
             var responseDto = await _songService.CreateMashupOfSongsAsync(request);
             context.Logger.LogDebug("Successfully created mashup with ID: {id}", responseDto.Id);
-
-            return new APIGatewayProxyResponse
-            {
-                StatusCode = (int)HttpStatusCode.Created,
-                Body = JsonSerializer.Serialize(responseDto, SetlistDtoJsonContext.Default.SongMashupDto),
-                Headers = new Dictionary<string, string>
-                {
-                    { "Access-Control-Allow-Origin", "*" },
-                    { "Access-Control-Allow-Methods", "OPTIONS, POST" }
-                }
-            };
+            return Created(responseDto, SetlistDtoJsonContext.Default.SongMashupDto, HttpMethod.Post);
         }
         catch (InvalidMashupException e)
         {
@@ -1116,17 +1048,7 @@ public class Function
         {
             var responseDto = await _songService.CreateSongAsync(request);
             context.Logger.LogDebug("Successfully created song with ID: {id}", responseDto.Id);
-
-            return new APIGatewayProxyResponse
-            {
-                StatusCode = (int)HttpStatusCode.Created,
-                Body = JsonSerializer.Serialize(responseDto, SetlistDtoJsonContext.Default.SongDto),
-                Headers = new Dictionary<string, string>
-                {
-                    { "Access-Control-Allow-Origin", "*" },
-                    { "Access-Control-Allow-Methods", "OPTIONS, POST" }
-                }
-            };
+            return Created(responseDto, SetlistDtoJsonContext.Default.SongDto, HttpMethod.Post);
         }
         catch (InvalidMashupException e)
         {
