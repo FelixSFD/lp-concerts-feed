@@ -88,6 +88,12 @@
         <input class="form-check-input form-control" type="checkbox" id="receiveMainStageTimeUpdatesAttending" [checked]="notificationsForm.controls.receiveMainStageTimeUpdatesAttending.value" formControlName="receiveMainStageTimeUpdatesAttending">
         <label class="form-check-label" for="receiveMainStageTimeUpdatesAttending">Concerts you attend</label>
       </div>
+
+      <!-- Setlist alerts -->
+      <div class="form-check form-switch">
+        <input class="form-check-input form-control" type="checkbox" id="receiveSetlistSongPremiereAlerts" [checked]="notificationsForm.controls.receiveSetlistSongPremiereAlerts.value" formControlName="receiveSetlistSongPremiereAlerts">
+        <label class="form-check-label" for="receiveSetlistSongPremiereAlerts">Receive alerts when a new song was played</label>
+      </div>
     </div>
     <div class="card-footer">
       <div class="row">

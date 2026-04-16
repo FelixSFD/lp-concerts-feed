@@ -33,6 +33,7 @@ export class UserFormComponent implements OnInit, OnChanges {
     receiveMainStageTimeUpdatesAny: new FormControl(false, []),
     receiveMainStageTimeUpdatesBookmarked: new FormControl(false, []),
     receiveMainStageTimeUpdatesAttending: new FormControl(false, []),
+    receiveSetlistSongPremiereAlerts: new FormControl(false, []),
   });
 
 
@@ -112,6 +113,7 @@ export class UserFormComponent implements OnInit, OnChanges {
     this.notificationsForm.controls.receiveMainStageTimeUpdatesAny.setValue((settings?.mainStageTimeUpdatesStatus?.indexOf(MainStageTimeUpdatesStatusEnum.None) ?? -1) >= 0);
     this.notificationsForm.controls.receiveMainStageTimeUpdatesBookmarked.setValue((settings?.mainStageTimeUpdatesStatus?.indexOf(MainStageTimeUpdatesStatusEnum.Bookmarked) ?? -1) >= 0);
     this.notificationsForm.controls.receiveMainStageTimeUpdatesAttending.setValue((settings?.mainStageTimeUpdatesStatus?.indexOf(MainStageTimeUpdatesStatusEnum.Attending) ?? -1) >= 0);
+    this.notificationsForm.controls.receiveSetlistSongPremiereAlerts.setValue(settings?.receiveSetlistSongPremiereAlerts ?? false);
   }
 
 
@@ -144,6 +146,7 @@ export class UserFormComponent implements OnInit, OnChanges {
     newSettings.receiveMainStageTimeUpdates = this.notificationsForm.controls.receiveMainStageTimeUpdates.value ?? false;
     newSettings.concertRemindersStatus = [];
     newSettings.mainStageTimeUpdatesStatus = [];
+    newSettings.receiveSetlistSongPremiereAlerts = this.notificationsForm.controls.receiveSetlistSongPremiereAlerts.value ?? false;
 
     if (this.notificationsForm.controls.receiveConcertRemindersAny.value) {
       newSettings.concertRemindersStatus.push(ConcertRemindersStatusEnum.None, ConcertRemindersStatusEnum.Bookmarked, ConcertRemindersStatusEnum.Attending)
