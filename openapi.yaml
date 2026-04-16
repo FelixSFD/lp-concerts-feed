@@ -403,6 +403,10 @@ components:
               - Attending
             default: None
             nullable: false
+        receiveSetlistSongPremiereAlerts:
+          type: boolean
+          description: true if the user wants to receive an alert when a new song was played at a show.
+          nullable: false
 
     # Timezones
     TimeZoneResponse:

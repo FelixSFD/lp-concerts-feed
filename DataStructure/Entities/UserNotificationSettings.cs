@@ -95,4 +95,10 @@ public class UserNotificationSettings
         }
         set => MainStageTimeUpdatesStatusStrings = value;
     }
+    
+    /// <summary>
+    /// true if the user wants to receive an alert when a new song was played at a show.
+    /// </summary>
+    [JsonPropertyName("receiveSetlistSongPremiereAlerts")]
+    public bool ReceiveSetlistSongPremiereAlerts { get; set; } = true;
 }
