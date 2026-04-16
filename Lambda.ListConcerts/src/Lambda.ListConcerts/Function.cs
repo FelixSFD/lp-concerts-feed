@@ -82,7 +82,7 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
             {
                 // Find one concert
                 context.Logger.LogDebug("Requested id: {id}", searchId);
-                return await ReturnSingleConcert(searchId);
+                return await ReturnSingleConcert(searchId, context.Logger);
             }
             
             // check date range
@@ -189,7 +189,7 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
                 return await ReturnNextConcert(context);
             }
 
-            return await ReturnSingleConcert(idParameter);
+            return await ReturnSingleConcert(idParameter, context.Logger);
         }
         
         // List all concerts
@@ -249,7 +249,7 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
     }
 
 
-    private async Task<APIGatewayProxyResponse> ReturnSingleConcert(string id, bool withSetlists = true)
+    private async Task<APIGatewayProxyResponse> ReturnSingleConcert(string id, ILambdaLogger logger, bool withSetlists = true)
     {
         var concert = await GetConcertById(id);
         if (concert == null)
@@ -270,10 +270,12 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
         string concertJson;
         if (withSetlists)
         {
+            logger.LogDebug("Returning Concert with ID including setlists: {id}", id);
             concertJson = JsonSerializer.Serialize(ConcertDtoMapper.ToDtoWithSetlists(concert), DataStructureJsonContext.Default.ConcertWithSetlistsDto);
         }
         else
         {
+            logger.LogDebug("Returning Concert with ID without setlists: {id}", id);
             concertJson = JsonSerializer.Serialize(ConcertDtoMapper.ToDto(concert), DataStructureJsonContext.Default.ConcertDto);
         }
         
@@ -360,8 +362,8 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
         var syncResult = await syncEngine.SyncWith(syncRequest.LocalConcertIds, syncRequest.LastSync);
         var responseObj = new SyncConcertsResponse
         {
-            Added = syncResult.AddedObjects.Select(ConcertDtoMapper.ToDto).ToArray(),
-            Updated = syncResult.ChangedObjects.Select(ConcertDtoMapper.ToDto).ToArray(),
+            Added = syncResult.AddedObjects.Select(ConcertDtoMapper.ToDtoWithSetlists).ToArray(),
+            Updated = syncResult.ChangedObjects.Select(ConcertDtoMapper.ToDtoWithSetlists).ToArray(),
             DeletedConcertIds = syncResult.DeletedIds.ToArray(),
             SyncTime = syncTime
         };
@@ -392,7 +394,7 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
         var responseObj = new SyncConcertsResponse
         {
             Added = [], // unused will be removed at some point
-            Updated = syncResult.ChangedObjects.Select(ConcertDtoMapper.ToDto).ToArray(),
+            Updated = syncResult.ChangedObjects.Select(ConcertDtoMapper.ToDtoWithSetlists).ToArray(),
             DeletedConcertIds = syncResult.DeletedIds.ToArray(),
             SyncTime = syncResult.LatestChange
         };
