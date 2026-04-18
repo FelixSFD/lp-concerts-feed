@@ -10,8 +10,9 @@ namespace Service.Setlists;
 /// <summary>
 /// Class that sends notifications to the queue when something happened with a setlist. (like a new live premiere)
 /// </summary>
-public class SetlistPushEventSender(IAmazonSQS sqsClient, ILambdaLogger logger)
+public class SetlistPushEventSender(IAmazonSQS sqsClient, ILambdaLogger logger) : ISetlistPushEventSender
 {
+    /// <inheritdoc/>
     public async Task SendLivePremiere(string setlistEntryTitle, ConcertDto concert)
     {
         var pushEvent = new SetlistSongPremiereNotificationEvent

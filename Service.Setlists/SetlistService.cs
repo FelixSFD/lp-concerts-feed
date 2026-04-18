@@ -18,7 +18,7 @@ public class SetlistService(
     ISongVariantRepository songVariantRepository,
     ISongMashupRepository songMashupRepository,
     ISetlistActRepository actRepository,
-    SetlistPushEventSender setlistPushEventSender,
+    ISetlistPushEventSender setlistPushEventSender,
     ILambdaLogger logger)
 {
     /// <summary>
