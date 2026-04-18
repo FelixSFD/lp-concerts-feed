@@ -171,7 +171,8 @@ public class Function
         {
             UserId = userId,
             Title = $"NEW SONG played in {pushEvent.Concert.City}!",
-            Body = $"'{pushEvent.SetlistEntryTitle}' was just played for the first time live!",
+            Subtitle = pushEvent.SetlistEntryTitle,
+            Body = "This song was just played live for the first time!",
             CollapseId = $"{pushEvent.Concert.Id}#{nameof(PushNotificationType.SetlistSongPremiereAlert)}",
             Thread = pushEvent.Concert.Id,
             ConcertId = pushEvent.Concert.Id,
@@ -223,6 +224,7 @@ public class Function
                             Alert = new AppleNotificationPayload
                             {
                                 Title = pushNotificationEvent.Title ?? "",
+                                Subtitle = pushNotificationEvent.Subtitle,
                                 Body = pushNotificationEvent.Body
                             },
                             ThreadId = pushNotificationEvent.Thread,

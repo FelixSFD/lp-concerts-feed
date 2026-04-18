@@ -13,6 +13,7 @@ public class PushNotificationEvent
     public required string UserId { get; set; }
 
     public string? Title { get; set; }
+    public string? Subtitle { get; set; }
     public string? Body { get; set; }
 
     /// <summary>

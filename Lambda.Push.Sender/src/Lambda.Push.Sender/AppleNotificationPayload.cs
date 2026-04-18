@@ -7,6 +7,9 @@ public class AppleNotificationPayload
     [JsonPropertyName("title")]
     public required string Title { get; set; }
     
+    [JsonPropertyName("subtitle")]
+    public string? Subtitle { get; set; }
+    
     [JsonPropertyName("body")]
     public string? Body { get; set; }
 }
