@@ -1,19 +1,14 @@
 using System.Diagnostics;
-using System.Net;
-using System.Net.Http.Headers;
 using System.Text.Json;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.SQS;
 using Common.Utils.Cache;
-using Common.Utils.Cors;
 using Common.WikiMedia.Repositories;
 using Database.Concerts;
 using Database.Setlists;
 using Database.Setlists.Repositories;
 using Lambda.Auth;
-using LPCalendar.DataStructure;
-using LPCalendar.DataStructure.Responses;
 using LPCalendar.DataStructure.Setlists;
 using LPCalendar.DataStructure.Setlists.Import;
 using Microsoft.EntityFrameworkCore;
@@ -44,7 +39,7 @@ public class Function
     private AlbumService _albumService;
     private SongService _songService;
     private LinkinpediaImportService _linkinpediaImportService;
-    private SetlistPushEventSender _setlistPushEventSender;
+    private ISetlistPushEventSender _setlistPushEventSender;
 
     public Function()
     {
