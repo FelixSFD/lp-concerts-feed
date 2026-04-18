@@ -936,6 +936,16 @@ Resources:
                 Resource:
                   - !Sub "${ConcertsDynamoDBTable.Arn}"
                   - !Sub "${ConcertsDynamoDBTable.Arn}*"
+        - PolicyName: LambdaSQS
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - SQS:SendMessage
+                Resource:
+                  - !Sub "${SendPushNotificationQueue.Arn}"
+                  - !Sub "${SendPushNotificationQueue.Arn}*"
   
   SetlistsReadLambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -1806,6 +1816,7 @@ Resources:
         Variables:
           CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
           SETLISTS_DB_CONNECTION_STRING: !Ref SetlistsDbConnectionStringWrite
+          PUSH_QUEUE_URL: !Ref SendPushNotificationQueue
       LoggingConfig:
         LogFormat: JSON
         ApplicationLogLevel: DEBUG

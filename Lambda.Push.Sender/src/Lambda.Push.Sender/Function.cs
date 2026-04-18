@@ -94,9 +94,28 @@ public class Function
             return AsyncEnumerable.Empty<PushNotificationEvent>();
         }
 
-        // find users to send the message to
         logger.LogDebug("Get list of recipients...");
         var recipients = GetAllUsersRegisteredForNotifications(logger);
+        
+        // simpler handling for SetlistSongPremiereAlert. Devices will filter locally
+        if (notificationType == PushNotificationType.SetlistSongPremiereAlert)
+        {
+            var setlistSongNotificationEvent = JsonSerializer.Deserialize(msgBody,
+                DataStructureJsonContext.Default.SetlistSongPremiereNotificationEvent);
+            if (setlistSongNotificationEvent == null)
+            {
+                logger.LogWarning("No SetlistSongPremiereNotificationEvent found in payload!");
+                return AsyncEnumerable.Empty<PushNotificationEvent>();
+            }
+            
+            logger.LogDebug("Sending SetlistSongPremiereAlert notification.");
+            return recipients
+                .Distinct()
+                .Select(recipient => GetPushNotificationFor(setlistSongNotificationEvent, recipient));
+        }
+
+        // find users to send the message to
+        logger.LogDebug("Building concert related notifications...");
         return recipients
             .Distinct()
             .WhereAwait(async userId => await UserCanReceiveNotificationFor(pushEvent.Concert,
@@ -142,6 +161,22 @@ public class Function
                 IsSilentNotification = true
             },
             _ => null
+        };
+    }
+    
+    
+    private PushNotificationEvent GetPushNotificationFor(SetlistSongPremiereNotificationEvent pushEvent, string userId)
+    {
+        return new PushNotificationEvent
+        {
+            UserId = userId,
+            Title = $"NEW SONG played in {pushEvent.Concert.City}!",
+            Body = $"'{pushEvent.SetlistEntryTitle}' was just played for the first time live!",
+            CollapseId = $"{pushEvent.Concert.Id}#{nameof(PushNotificationType.SetlistSongPremiereAlert)}",
+            Thread = pushEvent.Concert.Id,
+            ConcertId = pushEvent.Concert.Id,
+            Category = "newSongPlayed",
+            IsMutable = true
         };
     }
     

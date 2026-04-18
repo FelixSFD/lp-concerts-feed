@@ -18,6 +18,7 @@ public class SetlistService(
     ISongVariantRepository songVariantRepository,
     ISongMashupRepository songMashupRepository,
     ISetlistActRepository actRepository,
+    SetlistPushEventSender setlistPushEventSender,
     ILambdaLogger logger)
 {
     /// <summary>
@@ -511,6 +512,29 @@ public class SetlistService(
         logger.LogDebug("Updated setlist entry: {entryId}", entryId);
         
         await UpdateSetlistCacheForSetlist(setlistId, DateTimeOffset.Now);
+
+        if (setlistEntry.IsLivePremiere || setlistEntry.IsWorldPremiere)
+        {
+            try
+            {
+                logger.LogInformation("This is a premiere! Sending notifications...");
+                var concertId = setlistEntry.Setlist.ConcertId;
+                var concert = await concertRepository.GetByIdAsync(concertId);
+                if (concert == null)
+                {
+                    logger.LogWarning("Concert with ID '{concertId}' was not found!", concertId);
+                }
+                else
+                {
+                    var setlistEntryDto = DtoMapper.ToDto(setlistEntry);
+                    await setlistPushEventSender.SendLivePremiere(setlistEntryDto.Title, ConcertDtoMapper.ToDto(concert));
+                    logger.LogDebug("LivePremiere notification sent!");
+                }
+            } catch (Exception ex)
+            {
+                logger.LogError(ex, "Error sending notifications");
+            }
+        }
     }
     
     /// <summary>
