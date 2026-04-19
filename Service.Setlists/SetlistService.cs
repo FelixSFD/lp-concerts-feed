@@ -150,6 +150,8 @@ public class SetlistService(
         
             await UpdateSetlistCacheForSetlist(setlistId, DateTimeOffset.Now);
         }
+        
+        await SendSongPremiereNotificationIfNecessary(entry, saveContext);
 
         var setlistEntryDto = DtoMapper.ToDto(entry);
         return setlistEntryDto;
@@ -512,43 +514,7 @@ public class SetlistService(
         logger.LogDebug("Updated setlist entry: {entryId}", entryId);
         
         await UpdateSetlistCacheForSetlist(setlistId, DateTimeOffset.Now);
-
-        if (setlistEntry.IsLivePremiere || setlistEntry.IsWorldPremiere)
-        {
-            if (setlistEntry.PremiereNotificationSent)
-            {
-                logger.LogDebug("Premiere notification was already sent for this entry.");
-            }
-            else
-            {
-                try
-                {
-                    logger.LogInformation("This is a premiere! Sending notifications...");
-                    var concertId = setlistEntry.Setlist.ConcertId;
-                    var concert = await concertRepository.GetByIdAsync(concertId);
-                    if (concert == null)
-                    {
-                        logger.LogWarning("Concert with ID '{concertId}' was not found!", concertId);
-                    }
-                    else
-                    {
-                        var setlistEntryDto = DtoMapper.ToDto(setlistEntry);
-                        await setlistPushEventSender.SendLivePremiere(setlistEntryDto.Title,
-                            ConcertDtoMapper.ToDto(concert));
-                        logger.LogDebug("LivePremiere notification sent!");
-
-                        setlistEntry.PremiereNotificationSent = true;
-                        setlistEntryRepository.Update(setlistEntry);
-                        await setlistEntryRepository.SaveChangesAsync();
-                        logger.LogDebug("Saved PremiereNotificationSent");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, "Error sending notifications");
-                }
-            }
-        }
+        await SendSongPremiereNotificationIfNecessary(setlistEntry);
     }
     
     /// <summary>
@@ -790,6 +756,54 @@ public class SetlistService(
         catch (Exception e)
         {
             logger.LogError(e, "Could not update setlist cache for concert '{concertId}'!", concertId);
+        }
+    }
+    
+    /// <summary>
+    /// In case the <paramref name="setlistEntry"/> is a premiere of a song and the notification wasn't sent before, this method sends a push-notification.
+    /// </summary>
+    /// <param name="setlistEntry">Entry that was changed</param>
+    /// <param name="saveContext">true if this method is supposed to save the DbContext</param>
+    private async Task SendSongPremiereNotificationIfNecessary(SetlistEntryDo setlistEntry, bool saveContext = true)
+    {
+        if (setlistEntry.IsLivePremiere || setlistEntry.IsWorldPremiere)
+        {
+            if (setlistEntry.PremiereNotificationSent)
+            {
+                logger.LogDebug("Premiere notification was already sent for this entry.");
+            }
+            else
+            {
+                try
+                {
+                    logger.LogInformation("This is a premiere! Sending notifications...");
+                    var concertId = setlistEntry.Setlist.ConcertId;
+                    var concert = await concertRepository.GetByIdAsync(concertId);
+                    if (concert == null)
+                    {
+                        logger.LogWarning("Concert with ID '{concertId}' was not found!", concertId);
+                    }
+                    else
+                    {
+                        var setlistEntryDto = DtoMapper.ToDto(setlistEntry);
+                        await setlistPushEventSender.SendLivePremiere(setlistEntryDto.Title,
+                            ConcertDtoMapper.ToDto(concert));
+                        logger.LogDebug("LivePremiere notification sent!");
+
+                        setlistEntry.PremiereNotificationSent = true;
+                        setlistEntryRepository.Update(setlistEntry);
+                        
+                        if (saveContext)
+                            await setlistEntryRepository.SaveChangesAsync();
+                        
+                        logger.LogDebug("Saved PremiereNotificationSent");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Error sending notifications");
+                }
+            }
         }
     }
 }
