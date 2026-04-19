@@ -95,7 +95,7 @@ public class Function
         }
 
         logger.LogDebug("Get list of recipients...");
-        var recipients = GetAllUsersRegisteredForNotifications(logger);
+        var recipients = GetAllEndpointsRegisteredForNotifications(logger);
         
         // simpler handling for SetlistSongPremiereAlert. Devices will filter locally
         if (notificationType == PushNotificationType.SetlistSongPremiereAlert)
@@ -111,6 +111,8 @@ public class Function
             logger.LogDebug("Sending SetlistSongPremiereAlert notification.");
             return recipients
                 .Distinct()
+                .Where(async (endpointArn, _) => await EndpointCanReceiveNotificationFor(null,
+                    notificationType, endpointArn, logger))
                 .Select(recipient => GetPushNotificationFor(setlistSongNotificationEvent, recipient));
         }
 
@@ -118,22 +120,22 @@ public class Function
         logger.LogDebug("Building concert related notifications...");
         return recipients
             .Distinct()
-            .WhereAwait(async userId => await UserCanReceiveNotificationFor(pushEvent.Concert,
-                PushNotificationType.MainStageTimeConfirmed, userId, logger))
+            .Where(async (endpointArn, _) => await EndpointCanReceiveNotificationFor(pushEvent.Concert,
+                notificationType, endpointArn, logger))
             .Select(recipient => GetPushNotificationForType(notificationType, recipient, pushEvent))
             .Where(pne => pne != null)
             .Select(pne => pne!);
     }
 
 
-    private PushNotificationEvent? GetPushNotificationForType(PushNotificationType notificationType, string userId,
+    private PushNotificationEvent? GetPushNotificationForType(PushNotificationType notificationType, string endpointArn,
         ConcertRelatedPushNotificationEvent pushEvent)
     {
         return notificationType switch
         {
             PushNotificationType.MainStageTimeConfirmed => new PushNotificationEvent
             {
-                UserId = userId,
+                EndpointArn = endpointArn,
                 Title = $"Linkin Park in {pushEvent.Concert.City}",
                 Body =
                     $"Stage time for Linkin Park confirmed: {pushEvent.Concert.MainStageTime:HH:mm} ({pushEvent.Concert.TimeZoneId})",
@@ -145,7 +147,7 @@ public class Function
             },
             PushNotificationType.ConcertReminder => new PushNotificationEvent
             {
-                UserId = userId,
+                EndpointArn = endpointArn,
                 Title = $"Linkin Park in {pushEvent.Concert.City}",
                 Body = "The concert is starting soon! 🔥",
                 CollapseId = $"{pushEvent.Concert.Id}#{nameof(PushNotificationType.ConcertReminder)}",
@@ -156,7 +158,7 @@ public class Function
             },
             PushNotificationType.TriggerClientSync => new PushNotificationEvent
             {
-                UserId = userId,
+                EndpointArn = endpointArn,
                 IsMutable = false,
                 IsSilentNotification = true
             },
@@ -165,11 +167,11 @@ public class Function
     }
     
     
-    private PushNotificationEvent GetPushNotificationFor(SetlistSongPremiereNotificationEvent pushEvent, string userId)
+    private PushNotificationEvent GetPushNotificationFor(SetlistSongPremiereNotificationEvent pushEvent, string endpointArn)
     {
         return new PushNotificationEvent
         {
-            UserId = userId,
+            EndpointArn = endpointArn,
             Title = $"NEW SONG played in {pushEvent.Concert.City}!",
             Subtitle = pushEvent.SetlistEntryTitle,
             Body = "This song was just played live for the first time!",
@@ -184,17 +186,11 @@ public class Function
 
     private async Task SendNotification(PushNotificationEvent pushNotificationEvent, ILambdaLogger logger)
     {
-        logger.LogDebug("Message recipient: {userId}", pushNotificationEvent.UserId);
-        var queryConfig = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.NotificationRegistrations);
-        var query = _dynamoDbContext.QueryAsync<NotificationUserEndpoint>(pushNotificationEvent.UserId, queryConfig);
-        var endpoints = await query.GetRemainingAsync() ?? [];
-        
-        var sendTasks = await endpoints
-            .ToAsyncEnumerable()
-            .WhereAwait(async endpoint => await IsEndpointEnabled(endpoint.EndpointArn, logger))
-            .Select(async endpoint =>
+        logger.LogDebug("Message recipient: {endpointArn}", pushNotificationEvent.EndpointArn);
+
+        if (await IsEndpointEnabled(pushNotificationEvent.EndpointArn, logger))
         {
-            logger.LogDebug("Publishing to endpoint: {endpoint}", endpoint.EndpointArn);
+            logger.LogDebug("Publishing to endpoint: {endpoint}", pushNotificationEvent.EndpointArn);
             try
             {
                 string pushMessagePayloadJson;
@@ -252,7 +248,7 @@ public class Function
                 
                 var publishRequest = new PublishRequest
                 {
-                    TargetArn = endpoint.EndpointArn,
+                    TargetArn = pushNotificationEvent.EndpointArn,
                     MessageStructure = "json",
                     Message = snsMessageJson,
                     MessageAttributes = new Dictionary<string, MessageAttributeValue>()
@@ -274,13 +270,49 @@ public class Function
             {
                 logger.LogError(e, "Failed to publish message!");
             }
-        })
-            .ToListAsync();
-        await Task.WhenAll(sendTasks);
-        logger.LogDebug("Sent notifications to: {userId}", pushNotificationEvent.UserId);
+            
+            logger.LogDebug("Sent notifications to: {userId}", pushNotificationEvent.EndpointArn);
+        }
+        else
+        {
+            logger.LogWarning("Endpoint: {endpointArn} is not enabled", pushNotificationEvent.EndpointArn);
+        }
+    }
+    
+    
+    private async IAsyncEnumerable<string> GetAllEndpointsRegisteredForNotifications(ILambdaLogger logger)
+    {
+        var request = new ListEndpointsByPlatformApplicationRequest
+        {
+            PlatformApplicationArn = _platformApplicationArn
+        };
+        
+        ListEndpointsByPlatformApplicationResponse response;
+        do
+        {
+            response = await _sns.ListEndpointsByPlatformApplicationAsync(request);
+            var endpointArnFetchingEnumerable = response.Endpoints
+                .Where(ep =>
+                {
+                    var enabled = ep.IsEnabled();
+                    _endpointStatusCache[ep.EndpointArn] = enabled;
+                    return enabled;
+                })
+                .Select(ep => ep.EndpointArn);
+            foreach (var endpointArn in endpointArnFetchingEnumerable)
+            {
+                if (endpointArn != null)
+                {
+                    yield return endpointArn!;
+                }
+            }
+            
+            request.NextToken = response.NextToken;
+        } while (response.Endpoints.Count > 0 && !string.IsNullOrEmpty(response.NextToken));
     }
 
 
+    [Obsolete("use endpoints instead")]
     private async IAsyncEnumerable<string> GetAllUsersRegisteredForNotifications(ILambdaLogger logger)
     {
         var request = new ListEndpointsByPlatformApplicationRequest
@@ -346,7 +378,59 @@ public class Function
         return foundUserId;
     }
 
+    private async Task<bool> EndpointCanReceiveNotificationFor(ConcertDto? concert,
+        PushNotificationType pushNotificationType, string endpointArn,
+        ILambdaLogger logger)
+    {
+        var getEndpointQueryConfig =
+            _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.NotificationRegistrations);
+        getEndpointQueryConfig.IndexName = NotificationUserEndpoint.EndpointArnIndex;
+        var dbResponse = _dynamoDbContext.QueryAsync<NotificationUserEndpoint>(endpointArn, getEndpointQueryConfig);
+        var notificationUserEndpoints = await dbResponse.GetRemainingAsync();
+        var notificationUserEndpoint = notificationUserEndpoints.FirstOrDefault();
+        if (notificationUserEndpoint == null)
+            return false;
 
+        logger.LogDebug("Found endpoint in the DB: {endpointArn}", notificationUserEndpoint.EndpointArn);
+        return await EndpointCanReceiveNotificationFor(concert, pushNotificationType, notificationUserEndpoint, logger);
+    }
+    
+    private async Task<bool> EndpointCanReceiveNotificationFor(ConcertDto? concert, PushNotificationType pushNotificationType, NotificationUserEndpoint notificationUserEndpoint, ILambdaLogger logger)
+    {
+        logger.LogDebug("Checking if endpoint '{endpointArn}' can receive notification '{pushNotificationType}' for concert '{concertId}'...", notificationUserEndpoint.EndpointArn, pushNotificationType, concert?.Id);
+        
+        // shortcut for certain silent notifications that all registered devices will receive in the background
+        if (pushNotificationType == PushNotificationType.TriggerClientSync)
+        {
+            logger.LogDebug("This type of notification is sent to every device.");
+            return true;
+        }
+
+        ConcertBookmark.BookmarkStatus? userBookmark = null;
+        if (concert != null)
+        {
+            userBookmark = await GetBookmarkStatusForUserAtConcert(concert.Id, notificationUserEndpoint.UserId, logger);
+        }
+
+        var canReceive = pushNotificationType switch
+        {
+            PushNotificationType.ConcertReminder => notificationUserEndpoint.ReceiveConcertReminders &&
+                                                    notificationUserEndpoint.ConcertRemindersStatus.Any(r =>
+                                                        r == userBookmark),
+            PushNotificationType.MainStageTimeConfirmed => notificationUserEndpoint.ReceiveMainStageTimeUpdates &&
+                                                           notificationUserEndpoint.MainStageTimeUpdatesStatus.Any(r =>
+                                                               r == userBookmark),
+            PushNotificationType.SetlistSongPremiereAlert => notificationUserEndpoint.ReceiveSetlistSongPremiereAlerts,
+            _ => false
+        };
+        
+        logger.LogDebug("Can endpoint receive notification? {canReceive}", canReceive);
+        
+        return canReceive;
+    }
+    
+
+    [Obsolete("Will now be saved in the endpoint instead!")]
     private async Task<bool> UserCanReceiveNotificationFor(ConcertDto concert, PushNotificationType pushNotificationType, string userId, ILambdaLogger logger)
     {
         logger.LogDebug("Checking if user '{userId}' can receive notification '{pushNotificationType}' for concert '{concertId}'...", userId, pushNotificationType, concert.Id);
