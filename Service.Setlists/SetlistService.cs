@@ -119,6 +119,12 @@ public class SetlistService(
             logger.LogDebug("Checking if act exists: {actNumber}", request.Act!.ActNumber);
             actDo = await GetOrAddFromParameters(request.Act!, setlistId);
         }
+
+        var sortNumber = request.EntryParameters.SortNumber;
+        if (sortNumber == 0)
+        {
+            sortNumber = await GetRecommendedSortNumberFor(setlistId, request.EntryParameters.SongNumber);
+        }
         
         logger.LogDebug("Creating setlist entry...");
         var entry = new SetlistEntryDo
@@ -126,6 +132,7 @@ public class SetlistService(
             Id = Guid.NewGuid().ToString(),
             SetlistId = setlistId,
             SongNumber = request.EntryParameters.SongNumber,
+            SortNumber = sortNumber,
             Act = actDo,
             ActNumber = actDo?.ActNumber,
             PlayedSong = playedSong,
@@ -133,7 +140,6 @@ public class SetlistService(
             PlayedMashup = playedSongMashup,
             ExtraNotes = StringUtils.NullIfEmpty(request.EntryParameters.ExtraNotes),
             TitleOverride = StringUtils.NullIfEmpty(request.EntryParameters.TitleOverride),
-            SortNumber = request.EntryParameters.SortNumber,
             IsWorldPremiere = request.EntryParameters.IsWorldPremiere,
             IsPlayedFromRecording = request.EntryParameters.IsPlayedFromRecording,
             IsRotationSong = request.EntryParameters.IsRotationSong,
@@ -805,5 +811,25 @@ public class SetlistService(
                 }
             }
         }
+    }
+
+
+    private async Task<uint> GetRecommendedSortNumberFor(uint setlistId, uint songNumber)
+    {
+        logger.LogDebug("Getting recommended sort number for song {songNumber} in setlist {setlistId}", songNumber, setlistId);
+        var setlist = await setlistRepository.GetByPrimaryKeyAsync(setlistId);
+        var sortedEntries = setlist?.Entries.OrderBy(e => e.SortNumber).ToArray() ?? [];
+        foreach (var entry in sortedEntries)
+        {
+            if (entry.SongNumber > songNumber)
+            {
+                logger.LogDebug("Use sort number lower than the one for song number {songNumber}", entry.SongNumber);
+                return entry.SongNumber - 1u;
+            }
+        }
+        
+        var largestSortNumber = sortedEntries.Max(e => e.SortNumber);
+        logger.LogDebug("Found no entries with a song number larger than {songNumber}. Will use largest sortNumber: {largestSortNumber}", songNumber, largestSortNumber);
+        return largestSortNumber + 1u;
     }
 }
