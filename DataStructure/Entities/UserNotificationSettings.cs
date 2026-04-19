@@ -6,6 +6,7 @@ namespace LPCalendar.DataStructure.Entities;
 /// <summary>
 /// Stores the notification settings for a user
 /// </summary>
+[Obsolete("Will now be saved in the endpoint instead!")]
 public class UserNotificationSettings
 {
     public const string ReceiveConcertRemindersIndex = "ReceiveConcertRemindersIndex";
