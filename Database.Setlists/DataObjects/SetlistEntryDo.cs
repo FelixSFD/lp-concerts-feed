@@ -128,4 +128,10 @@ public class SetlistEntryDo : BaseDo
     /// </summary>
     [Column("IsLivePremiere")]
     public bool IsLivePremiere { get; set; }
+
+    /// <summary>
+    /// true, if a notification about a premiere was already sent to the users
+    /// </summary>
+    [Column("PremiereNotificationSent")]
+    public bool PremiereNotificationSent { get; set; }
 }
