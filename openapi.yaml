@@ -2103,7 +2103,7 @@ paths:
   /users/{id}/notifications/settings:
     get:
       operationId: GetUserNotificationSettings
-      summary: Returns the notification settings for a user
+      summary: OBSOLETE!!! Returns the notification settings for a user
       tags:
         - users
         - notifications
@@ -2146,7 +2146,7 @@ paths:
         type: "aws_proxy"
     put:
       operationId: UpdateUserNotificationSettings
-      summary: Updates the notification settings for a user
+      summary: OBSOLETE!!! Updates the notification settings for a user
       tags:
         - users
       parameters:
