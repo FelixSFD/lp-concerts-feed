@@ -169,6 +169,11 @@ export class AddSetlistEntryFormComponent implements OnInit {
   }
 
 
+  public setSongNumber(songNumber: number) {
+    this.setlistEntryForm.controls.songNumber.setValue(songNumber);
+  }
+
+
   private loadVariantsOfSelectedSong(songId: number) {
     console.debug("Load Variants of selectedSong");
     this.variantsOfSelectedSong$ = [];

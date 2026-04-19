@@ -125,6 +125,14 @@ export class EditSetlistPageComponent implements OnInit {
     return request;
   }
 
+  private getLargestSongNumber(): number {
+    const entries = [...this.setlistEntries$];
+    return entries
+      .sort((a, b) => b.songNumber - a.songNumber)
+      .map(e => e.songNumber)
+      .at(0) ?? 0;
+  }
+
   onSaveClicked() {
     this.isSaving$ = true;
     let request = this.makeRequestDtoFromFormData();
@@ -174,6 +182,10 @@ export class EditSetlistPageComponent implements OnInit {
 
   onAddEntryClicked(content: TemplateRef<any>) {
     this.addEntryModal = this.openModal(content);
+
+    let largestSongNumber = this.getLargestSongNumber();
+    console.debug("Largest Song Number right now: ", largestSongNumber);
+    this.addEntryFormComponent()?.setSongNumber(largestSongNumber + 1);
   }
 
 
