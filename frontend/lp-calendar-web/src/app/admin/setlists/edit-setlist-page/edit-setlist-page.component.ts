@@ -222,7 +222,13 @@ export class EditSetlistPageComponent implements OnInit {
       this.setlistEntries$ = updated;
       this.isPendingReorder$ = true;
     } else {
-      console.warn("Already on top of the list");
+      console.info("Already on top of the list. Will move to bottom");
+      const entry = this.setlistEntries$[currentIndex];
+      let updated = this.setlistEntries$.slice(1, this.setlistEntries$.length - 1);
+      updated.push(entry);
+
+      this.setlistEntries$ = updated;
+      this.isPendingReorder$ = true;
     }
   }
 
@@ -241,7 +247,15 @@ export class EditSetlistPageComponent implements OnInit {
       this.setlistEntries$ = updated;
       this.isPendingReorder$ = true;
     } else {
-      console.warn("Already at the end of the list");
+      console.info("Already at the end of the list. Will move to top");
+      const entry = this.setlistEntries$[currentIndex];
+      const withoutLast = this.setlistEntries$.slice(0, this.setlistEntries$.length - 2);
+
+      const updated = [entry];
+      updated.push(...withoutLast);
+
+      this.setlistEntries$ = updated;
+      this.isPendingReorder$ = true;
     }
   }
 
