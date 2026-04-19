@@ -207,7 +207,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
           this.setlistEntryForm.controls.wasWorldPremiere.setValue(entry.isWorldPremiere ?? false);
           this.setlistEntryForm.controls.wasPlayedFromRecording.setValue(entry.isPlayedFromRecording ?? false);
           this.setlistEntryForm.controls.wasRotationSong.setValue(entry.isRotationSong ?? false);
-          this.setlistEntryForm.controls.wasLivePremiere.setValue(entry.isRotationSong ?? false);
+          this.setlistEntryForm.controls.wasLivePremiere.setValue(entry.isLivePremiere ?? false);
 
           if (entry.playedSongMashup != null) {
             this.setlistEntryForm.controls.entryType.setValue(AddSetlistEntryFormContent.entryTypeSongMashup);
