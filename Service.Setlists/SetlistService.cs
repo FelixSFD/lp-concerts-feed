@@ -791,6 +791,15 @@ public class SetlistService(
                     }
                     else
                     {
+                        // make sure to not send notifications for old concerts
+                        var cutoffDate = DateTimeOffset.UtcNow.AddDays(-1);
+                        if (concert.PostedStartTime < cutoffDate)
+                        {
+                            logger.LogInformation("The concert was more than 1 day ago. Will not send a notification.");
+                            return;
+                        }
+                        
+                        // send the notification
                         var setlistEntryDto = DtoMapper.ToDto(setlistEntry);
                         await setlistPushEventSender.SendLivePremiere(setlistEntryDto.Title,
                             ConcertDtoMapper.ToDto(concert));
