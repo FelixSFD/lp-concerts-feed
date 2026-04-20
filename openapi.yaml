@@ -364,6 +364,40 @@ components:
           type: string
           description: Token for the device of the user
           nullable: false
+        receiveConcertReminders:
+          type: boolean
+          description: true if the user wants to receive concert reminders
+          nullable: false
+        concertRemindersStatus:
+          type: array
+          description: minimum Status of the concerts for which the user wants to receive reminders
+          items:
+            type: string
+            enum:
+              - None
+              - Bookmarked
+              - Attending
+            default: None
+            nullable: false
+        receiveMainStageTimeUpdates:
+          type: boolean
+          description: true if the user wants to receive notifications when main stage time is updated
+          nullable: false
+        mainStageTimeUpdatesStatus:
+          type: array
+          description: minimum Status of the concerts for which the user wants to receive updates of the stage time
+          items:
+            type: string
+            enum:
+              - None
+              - Bookmarked
+              - Attending
+            default: None
+            nullable: false
+        receiveSetlistSongPremiereAlerts:
+          type: boolean
+          description: true if the user wants to receive an alert when a new song was played at a show.
+          nullable: false
     
     UserNotificationSettings:
       type: object
@@ -403,6 +437,10 @@ components:
               - Attending
             default: None
             nullable: false
+        receiveSetlistSongPremiereAlerts:
+          type: boolean
+          description: true if the user wants to receive an alert when a new song was played at a show.
+          nullable: false
 
     # Timezones
     TimeZoneResponse:
@@ -2065,7 +2103,7 @@ paths:
   /users/{id}/notifications/settings:
     get:
       operationId: GetUserNotificationSettings
-      summary: Returns the notification settings for a user
+      summary: OBSOLETE!!! Returns the notification settings for a user
       tags:
         - users
         - notifications
@@ -2108,7 +2146,7 @@ paths:
         type: "aws_proxy"
     put:
       operationId: UpdateUserNotificationSettings
-      summary: Updates the notification settings for a user
+      summary: OBSOLETE!!! Updates the notification settings for a user
       tags:
         - users
       parameters:

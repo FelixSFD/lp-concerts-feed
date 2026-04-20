@@ -1,18 +1,14 @@
 using System.Diagnostics;
-using System.Net;
-using System.Net.Http.Headers;
 using System.Text.Json;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Amazon.SQS;
 using Common.Utils.Cache;
-using Common.Utils.Cors;
 using Common.WikiMedia.Repositories;
 using Database.Concerts;
 using Database.Setlists;
 using Database.Setlists.Repositories;
 using Lambda.Auth;
-using LPCalendar.DataStructure;
-using LPCalendar.DataStructure.Responses;
 using LPCalendar.DataStructure.Setlists;
 using LPCalendar.DataStructure.Setlists.Import;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +24,7 @@ namespace Lambda.SetlistsWrite;
 
 public class Function
 {
+    private readonly IAmazonSQS _sqsClient = new AmazonSQSClient();
     private IConcertRepository _concertRepository;
     private ISetlistRepository _setlistRepository;
     private ISetlistActRepository _setlistActRepository;
@@ -42,6 +39,7 @@ public class Function
     private AlbumService _albumService;
     private SongService _songService;
     private LinkinpediaImportService _linkinpediaImportService;
+    private ISetlistPushEventSender _setlistPushEventSender;
 
     public Function()
     {
@@ -77,7 +75,8 @@ public class Function
         _songRepository = new SqlSongRepository(dbContext);
         _songVariantRepository = new SqlSongVariantRepository(dbContext);
         _songMashupRepository = new SqlSongMashupRepository(dbContext);
-        _setlistService = new SetlistService(_setlistRepository, _setlistEntryRepository, _concertRepository, _songRepository, _songVariantRepository, _songMashupRepository, _setlistActRepository, context.Logger);
+        _setlistPushEventSender = new SetlistPushEventSender(_sqsClient, context.Logger);
+        _setlistService = new SetlistService(_setlistRepository, _setlistEntryRepository, _concertRepository, _songRepository, _songVariantRepository, _songMashupRepository, _setlistActRepository, _setlistPushEventSender, context.Logger);
         _albumService = new AlbumService(_albumRepository, context.Logger);
         _songService = new SongService(_songRepository, _songVariantRepository, _songMashupRepository, context.Logger);
         _wikiMediaRepository = new WikiMediaRepository(new HttpClient(), LinkinpediaImportService.LinkinpediaRestApiBaseUrl); // TODO: env variable?

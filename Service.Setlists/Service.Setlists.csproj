@@ -13,4 +13,8 @@
       <ProjectReference Include="..\DataStructure\DataStructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="AWSSDK.SQS" Version="4.0.2.14" />
+    </ItemGroup>
+
 </Project>

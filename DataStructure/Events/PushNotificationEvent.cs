@@ -8,11 +8,12 @@ public class PushNotificationEvent
     public const string AnyUser = "broadcast";
     
     /// <summary>
-    /// User to send the notification to
+    /// Endpoint ARN to send the notification to
     /// </summary>
-    public required string UserId { get; set; }
+    public required string EndpointArn { get; set; }
 
     public string? Title { get; set; }
+    public string? Subtitle { get; set; }
     public string? Body { get; set; }
 
     /// <summary>

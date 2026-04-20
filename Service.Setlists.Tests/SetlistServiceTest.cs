@@ -21,6 +21,7 @@ public class SetlistServiceTest
     private readonly ISongVariantRepository _songVariantRepository;
     private readonly ISongMashupRepository _songMashupRepository;
     private readonly ISetlistActRepository _actRepository;
+    private readonly ISetlistPushEventSender _pushEventSender;
     private readonly ILambdaLogger _logger = new TestLambdaLogger();
     private readonly SetlistService _setlistService;
 
@@ -33,8 +34,9 @@ public class SetlistServiceTest
         _songVariantRepository = Substitute.For<ISongVariantRepository>();
         _songMashupRepository = Substitute.For<ISongMashupRepository>();
         _actRepository = Substitute.For<ISetlistActRepository>();
+        _pushEventSender = Substitute.For<ISetlistPushEventSender>();
         
-        _setlistService = new SetlistService(_setlistRepository, _setlistEntryRepository, _concertRepository, _songRepository, _songVariantRepository, _songMashupRepository, _actRepository, _logger);
+        _setlistService = new SetlistService(_setlistRepository, _setlistEntryRepository, _concertRepository, _songRepository, _songVariantRepository, _songMashupRepository, _actRepository, _pushEventSender, _logger);
     }
 
     [Theory]

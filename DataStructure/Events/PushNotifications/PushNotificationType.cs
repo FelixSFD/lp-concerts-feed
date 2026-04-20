@@ -5,6 +5,7 @@ public enum PushNotificationType
     Custom,
     ConcertReminder,
     MainStageTimeConfirmed,
+    SetlistSongPremiereAlert,
     /// <summary>
     /// Silent notification to inform the clients that they should run a new sync to get the latest data
     /// </summary>

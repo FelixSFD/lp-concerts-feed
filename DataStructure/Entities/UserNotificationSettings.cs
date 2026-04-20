@@ -6,6 +6,7 @@ namespace LPCalendar.DataStructure.Entities;
 /// <summary>
 /// Stores the notification settings for a user
 /// </summary>
+[Obsolete("Will now be saved in the endpoint instead!")]
 public class UserNotificationSettings
 {
     public const string ReceiveConcertRemindersIndex = "ReceiveConcertRemindersIndex";
@@ -95,4 +96,10 @@ public class UserNotificationSettings
         }
         set => MainStageTimeUpdatesStatusStrings = value;
     }
+    
+    /// <summary>
+    /// true if the user wants to receive an alert when a new song was played at a show.
+    /// </summary>
+    [JsonPropertyName("receiveSetlistSongPremiereAlerts")]
+    public bool ReceiveSetlistSongPremiereAlerts { get; set; } = true;
 }

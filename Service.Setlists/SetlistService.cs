@@ -18,6 +18,7 @@ public class SetlistService(
     ISongVariantRepository songVariantRepository,
     ISongMashupRepository songMashupRepository,
     ISetlistActRepository actRepository,
+    ISetlistPushEventSender setlistPushEventSender,
     ILambdaLogger logger)
 {
     /// <summary>
@@ -118,6 +119,12 @@ public class SetlistService(
             logger.LogDebug("Checking if act exists: {actNumber}", request.Act!.ActNumber);
             actDo = await GetOrAddFromParameters(request.Act!, setlistId);
         }
+
+        var sortNumber = request.EntryParameters.SortNumber;
+        if (sortNumber == 0)
+        {
+            sortNumber = await GetRecommendedSortNumberFor(setlistId, request.EntryParameters.SongNumber);
+        }
         
         logger.LogDebug("Creating setlist entry...");
         var entry = new SetlistEntryDo
@@ -125,6 +132,7 @@ public class SetlistService(
             Id = Guid.NewGuid().ToString(),
             SetlistId = setlistId,
             SongNumber = request.EntryParameters.SongNumber,
+            SortNumber = sortNumber,
             Act = actDo,
             ActNumber = actDo?.ActNumber,
             PlayedSong = playedSong,
@@ -132,7 +140,6 @@ public class SetlistService(
             PlayedMashup = playedSongMashup,
             ExtraNotes = StringUtils.NullIfEmpty(request.EntryParameters.ExtraNotes),
             TitleOverride = StringUtils.NullIfEmpty(request.EntryParameters.TitleOverride),
-            SortNumber = request.EntryParameters.SortNumber,
             IsWorldPremiere = request.EntryParameters.IsWorldPremiere,
             IsPlayedFromRecording = request.EntryParameters.IsPlayedFromRecording,
             IsRotationSong = request.EntryParameters.IsRotationSong,
@@ -149,6 +156,8 @@ public class SetlistService(
         
             await UpdateSetlistCacheForSetlist(setlistId, DateTimeOffset.Now);
         }
+        
+        await SendSongPremiereNotificationIfNecessary(entry, saveContext);
 
         var setlistEntryDto = DtoMapper.ToDto(entry);
         return setlistEntryDto;
@@ -511,6 +520,7 @@ public class SetlistService(
         logger.LogDebug("Updated setlist entry: {entryId}", entryId);
         
         await UpdateSetlistCacheForSetlist(setlistId, DateTimeOffset.Now);
+        await SendSongPremiereNotificationIfNecessary(setlistEntry);
     }
     
     /// <summary>
@@ -753,5 +763,82 @@ public class SetlistService(
         {
             logger.LogError(e, "Could not update setlist cache for concert '{concertId}'!", concertId);
         }
+    }
+    
+    /// <summary>
+    /// In case the <paramref name="setlistEntry"/> is a premiere of a song and the notification wasn't sent before, this method sends a push-notification.
+    /// </summary>
+    /// <param name="setlistEntry">Entry that was changed</param>
+    /// <param name="saveContext">true if this method is supposed to save the DbContext</param>
+    private async Task SendSongPremiereNotificationIfNecessary(SetlistEntryDo setlistEntry, bool saveContext = true)
+    {
+        if (setlistEntry.IsLivePremiere || setlistEntry.IsWorldPremiere)
+        {
+            if (setlistEntry.PremiereNotificationSent)
+            {
+                logger.LogDebug("Premiere notification was already sent for this entry.");
+            }
+            else
+            {
+                try
+                {
+                    logger.LogInformation("This is a premiere! Sending notifications...");
+                    var concertId = setlistEntry.Setlist.ConcertId;
+                    var concert = await concertRepository.GetByIdAsync(concertId);
+                    if (concert == null)
+                    {
+                        logger.LogWarning("Concert with ID '{concertId}' was not found!", concertId);
+                    }
+                    else
+                    {
+                        // make sure to not send notifications for old concerts
+                        var cutoffDate = DateTimeOffset.UtcNow.AddDays(-1);
+                        if (concert.PostedStartTime < cutoffDate)
+                        {
+                            logger.LogInformation("The concert was more than 1 day ago. Will not send a notification.");
+                            return;
+                        }
+                        
+                        // send the notification
+                        var setlistEntryDto = DtoMapper.ToDto(setlistEntry);
+                        await setlistPushEventSender.SendLivePremiere(setlistEntryDto.Title,
+                            ConcertDtoMapper.ToDto(concert));
+                        logger.LogDebug("LivePremiere notification sent!");
+
+                        setlistEntry.PremiereNotificationSent = true;
+                        setlistEntryRepository.Update(setlistEntry);
+                        
+                        if (saveContext)
+                            await setlistEntryRepository.SaveChangesAsync();
+                        
+                        logger.LogDebug("Saved PremiereNotificationSent");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Error sending notifications");
+                }
+            }
+        }
+    }
+
+
+    private async Task<uint> GetRecommendedSortNumberFor(uint setlistId, uint songNumber)
+    {
+        logger.LogDebug("Getting recommended sort number for song {songNumber} in setlist {setlistId}", songNumber, setlistId);
+        var setlist = await setlistRepository.GetByPrimaryKeyAsync(setlistId);
+        var sortedEntries = setlist?.Entries.OrderBy(e => e.SortNumber).ToArray() ?? [];
+        foreach (var entry in sortedEntries)
+        {
+            if (entry.SongNumber > songNumber)
+            {
+                logger.LogDebug("Use sort number lower than the one for song number {songNumber}", entry.SongNumber);
+                return entry.SongNumber - 1u;
+            }
+        }
+        
+        var largestSortNumber = sortedEntries.Max(e => e.SortNumber);
+        logger.LogDebug("Found no entries with a song number larger than {songNumber}. Will use largest sortNumber: {largestSortNumber}", songNumber, largestSortNumber);
+        return largestSortNumber + 1u;
     }
 }

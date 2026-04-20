@@ -110,8 +110,20 @@ public class Function
         {
             UserId = request.UserId ?? NotificationUserEndpoint.NoUser,
             EndpointArn = snsEndpointResponse.EndpointArn,
-            LastChange = DateTimeOffset.UtcNow
+            LastChange = DateTimeOffset.UtcNow,
+            ReceiveConcertReminders = request.ReceiveConcertReminders,
+            ConcertRemindersStatus = [ConcertBookmark.BookmarkStatus.None, ConcertBookmark.BookmarkStatus.Bookmarked, ConcertBookmark.BookmarkStatus.Attending],
+            ReceiveMainStageTimeUpdates = request.ReceiveMainStageTimeUpdates,
+            MainStageTimeUpdatesStatus = [ConcertBookmark.BookmarkStatus.None, ConcertBookmark.BookmarkStatus.Bookmarked, ConcertBookmark.BookmarkStatus.Attending],
+            ReceiveSetlistSongPremiereAlerts = request.ReceiveSetlistSongPremiereAlerts,
         };
+        
+        if (request.ConcertRemindersStatusStrings != null)
+            notificationUserEndpoint.ConcertRemindersStatusStrings = request.ConcertRemindersStatusStrings;
+        
+        if (request.MainStageTimeUpdatesStatusStrings != null)
+            notificationUserEndpoint.MainStageTimeUpdatesStatusStrings = request.MainStageTimeUpdatesStatusStrings;
+        
         await _dynamoDbContext.SaveAsync(notificationUserEndpoint, _dbConfigProvider.GetSaveConfigFor(DynamoDbConfigProvider.Table.NotificationRegistrations));
         
         logger.LogDebug("Saved notification user endpoint: {arn}", notificationUserEndpoint.EndpointArn);

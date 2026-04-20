@@ -125,6 +125,14 @@ export class EditSetlistPageComponent implements OnInit {
     return request;
   }
 
+  private getLargestSongNumber(): number {
+    const entries = [...this.setlistEntries$];
+    return entries
+      .sort((a, b) => b.songNumber - a.songNumber)
+      .map(e => e.songNumber)
+      .at(0) ?? 0;
+  }
+
   onSaveClicked() {
     this.isSaving$ = true;
     let request = this.makeRequestDtoFromFormData();
@@ -174,6 +182,10 @@ export class EditSetlistPageComponent implements OnInit {
 
   onAddEntryClicked(content: TemplateRef<any>) {
     this.addEntryModal = this.openModal(content);
+
+    let largestSongNumber = this.getLargestSongNumber();
+    console.debug("Largest Song Number right now: ", largestSongNumber);
+    this.addEntryFormComponent()?.setSongNumber(largestSongNumber + 1);
   }
 
 
@@ -222,7 +234,13 @@ export class EditSetlistPageComponent implements OnInit {
       this.setlistEntries$ = updated;
       this.isPendingReorder$ = true;
     } else {
-      console.warn("Already on top of the list");
+      console.info("Already on top of the list. Will move to bottom");
+      const entry = this.setlistEntries$[currentIndex];
+      let updated = this.setlistEntries$.slice(1, this.setlistEntries$.length - 1);
+      updated.push(entry);
+
+      this.setlistEntries$ = updated;
+      this.isPendingReorder$ = true;
     }
   }
 
@@ -241,7 +259,15 @@ export class EditSetlistPageComponent implements OnInit {
       this.setlistEntries$ = updated;
       this.isPendingReorder$ = true;
     } else {
-      console.warn("Already at the end of the list");
+      console.info("Already at the end of the list. Will move to top");
+      const entry = this.setlistEntries$[currentIndex];
+      const withoutLast = this.setlistEntries$.slice(0, this.setlistEntries$.length - 2);
+
+      const updated = [entry];
+      updated.push(...withoutLast);
+
+      this.setlistEntries$ = updated;
+      this.isPendingReorder$ = true;
     }
   }
 

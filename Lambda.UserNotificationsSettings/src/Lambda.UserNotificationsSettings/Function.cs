@@ -16,6 +16,7 @@ using LPCalendar.DataStructure.Responses;
 
 namespace Lambda.UserNotificationsSettings;
 
+[Obsolete("Will now be saved in the endpoint instead!")]
 public class Function
 {
     private readonly DynamoDBContext _dynamoDbContext;
