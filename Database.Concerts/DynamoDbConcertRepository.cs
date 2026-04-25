@@ -5,6 +5,7 @@ using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.Core;
 using Common.Utils;
 using Database.Concerts.Models;
+using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Converters;
 using LPCalendar.DataStructure.DbConfig;
 
@@ -99,7 +100,7 @@ public class DynamoDbConcertRepository : IConcertRepository
             config);
 
         var concerts = await query.GetRemainingAsync();
-        return concerts.FirstOrDefault();
+        return concerts.FirstOrDefault(c => c.ConcertStatus != nameof(ConcertDto.ConcertStatusValue.Cancelled));
     }
 
     
