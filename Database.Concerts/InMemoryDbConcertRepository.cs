@@ -42,6 +42,13 @@ public class InMemoryDbConcertRepository: IConcertRepository
         throw new NotImplementedException();
     }
 
+    /// <inheritdoc/>
+    public IAsyncEnumerable<ConcertModel> GetConcertsByStatusAsync(string concertStatus,
+        DateRange? dateRange = null)
+    {
+        throw new NotImplementedException();
+    }
+
     public IAsyncEnumerable<ConcertModel> GetConcertsAsync(DateTimeOffset afterDate)
     {
         return GetAllSorted()

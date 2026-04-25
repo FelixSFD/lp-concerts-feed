@@ -90,6 +90,8 @@ Resources:
           AttributeType: S
         - AttributeName: PostedStartTime
           AttributeType: S
+        - AttributeName: ConcertStatus
+          AttributeType: S
         - AttributeName: Status
           AttributeType: S
         - AttributeName: LastChange
@@ -123,6 +125,14 @@ Resources:
             - AttributeName: Status
               KeyType: HASH
             - AttributeName: LastChange
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: ConcertStatusGlobalIndex
+          KeySchema:
+            - AttributeName: ConcertStatus
+              KeyType: HASH
+            - AttributeName: PostedStartTime
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
@@ -851,6 +861,37 @@ Resources:
                 Resource:
                   - !Sub "${UserNotificationSettingsTable.Arn}"
                   - !Sub "${UserNotificationSettingsTable.Arn}*"
+  
+  ConcertStatusUpdaterLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: "Execution role for Lambda that sends updates the status of concerts automatically"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: UpdateConcerts
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:DescribeTable
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                Resource:
+                  - !Sub "${ConcertsDynamoDBTable.Arn}"
+                  - !Sub "${ConcertsDynamoDBTable.Arn}*"
   
   ConcertReminderLambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -1746,6 +1787,32 @@ Resources:
             Path: /timeZone/byCoordinates
             Method: get
 
+  ConcertStatusUpdaterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: bootstrap
+      Role: !GetAtt ConcertStatusUpdaterLambdaExecutionRole.Arn
+      Description: .NET function to automatically update the status of concerts
+      CodeUri: ../lambda_packages/Lambda.ConcertStatusUpdater.zip
+      Runtime: provided.al2023
+      Architectures:
+        - arm64
+      Tracing: Active
+      MemorySize: 128
+      Environment:
+        Variables:
+          CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
+      Events:
+        ScheduledEvent:
+          Type: Schedule
+          Properties:
+            Schedule: cron(3/10 * * * ? *)
+            Description: Runs every 10 minutes
+            Enabled: true
+  
   ConcertReminderFunction:
     Type: AWS::Serverless::Function
     Properties:

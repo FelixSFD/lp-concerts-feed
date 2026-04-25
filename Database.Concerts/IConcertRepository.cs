@@ -42,6 +42,15 @@ public interface IConcertRepository
     
     
     /// <summary>
+    /// Returns a list of concerts of a given status
+    /// </summary>
+    /// <param name="concertStatus">Status of the concert</param>
+    /// <param name="dateRange">Filter for concert date</param>
+    /// <returns>List of concerts</returns>
+    public IAsyncEnumerable<ConcertModel> GetConcertsByStatusAsync(string concertStatus, DateRange? dateRange = null);
+    
+    
+    /// <summary>
     /// Returns a list of concerts after a given date. If no other filters are used, this is faster/cheaper than the overload.
     /// </summary>
     /// <param name="afterDate">Only return concerts after a given date</param>

@@ -13,6 +13,7 @@ public class ConcertModel
 {
     public const string ConcertTableName = "Concertsv2";
     public const string LastChangeTimeGlobalIndex = "LastChangeTimeGlobalIndex";
+    public const string ConcertStatusGlobalIndex = "ConcertStatusGlobalIndex";
     public const string DeletedConcertsGlobalIndex = "DeletedConcertsGlobalIndex";
 
     public const string StatusPublished = "PUBLISHED";
@@ -58,6 +59,7 @@ public class ConcertModel
     /// <summary>
     /// Actual Status of the concert. Like "PLANNED", "CURRENT" or "CANCELLED"
     /// </summary>
+    [DynamoDBGlobalSecondaryIndexHashKey(nameof(ConcertStatusGlobalIndex))]
     [DynamoDBProperty("ConcertStatus")]
     [JsonPropertyName("concertStatus")]
     public required string ConcertStatus { get; set; }
@@ -66,7 +68,7 @@ public class ConcertModel
     /// <summary>
     /// Time when the concert starts according to Ticketmaster.
     /// </summary>
-    [DynamoDBGlobalSecondaryIndexRangeKey("PostedStartTimeGlobalIndex")]
+    [DynamoDBGlobalSecondaryIndexRangeKey("PostedStartTimeGlobalIndex", nameof(ConcertStatusGlobalIndex))]
     [DynamoDBProperty("PostedStartTime", typeof(DateTimeOffsetToStringPropertyConverter))]
     [JsonPropertyName("postedStartTime")]
     public DateTimeOffset? PostedStartTime { get; set; }
