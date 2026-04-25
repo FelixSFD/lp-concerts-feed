@@ -59,6 +59,15 @@ components:
           type: string
           description: Error-Message
     # Concerts
+    ConcertStatusValue:
+      type: string
+      description: Describes the status of a concert. Like if it was cancelled or it is live right now
+      enum:
+        - Planned
+        - Running
+        - Past
+        - Cancelled
+    
     AdjacentConcertsResponse:
       type: object
       description: Response to get the IDs of the previous and next concerts
@@ -91,6 +100,12 @@ components:
           type: string
           description: Name of the tour
           nullable: true
+        concertStatus:
+          type: string
+          description: actual status of the concert
+          nullable: false
+          enum:
+            $ref: "#/components/schemas/ConcertStatusValue"
         status:
           type: string
           description: Status of the show (always PUBLISHED for now)

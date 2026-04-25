@@ -47,12 +47,20 @@ public class ConcertModel
     public string? TourName { get; set; }
 
     /// <summary>
-    /// Status of the concert (mainly used as workaround for having a partition key that can return all concerts for now)
+    /// PUBLISHING-Status of the concert (mainly used as workaround for having a partition key that can return all concerts for now)
     /// </summary>
     //[DynamoDBProperty("Status")]
     [DynamoDBGlobalSecondaryIndexHashKey("PostedStartTimeGlobalIndex", nameof(LastChangeTimeGlobalIndex), nameof(DeletedConcertsGlobalIndex))]
     [JsonPropertyName("status")]
     public required string Status { get; set; }
+    
+    
+    /// <summary>
+    /// Actual Status of the concert. Like "PLANNED", "CURRENT" or "CANCELLED"
+    /// </summary>
+    [DynamoDBProperty("ConcertStatus")]
+    [JsonPropertyName("concertStatus")]
+    public required string ConcertStatus { get; set; }
     
 
     /// <summary>
