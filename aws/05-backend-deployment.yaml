@@ -1824,7 +1824,7 @@ Resources:
       Architectures:
         - arm64
       Tracing: Active
-      MemorySize: 384
+      MemorySize: 128
       Environment:
         Variables:
           CONCERTS_TABLE_NAME: !Ref ConcertsDynamoDBTable
