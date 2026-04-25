@@ -49,6 +49,7 @@ public class FunctionTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             TourName = "Sample Tour 2024",
             City = "Berlin",
             Country = "Germany",
@@ -60,6 +61,7 @@ public class FunctionTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             TourName = "Sample Tour",
             City = "Bielefeld",
             Country = "Germany",
@@ -71,6 +73,7 @@ public class FunctionTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             TourName = "Sample Tour",
             City = "Munich",
             Country = "Germany",
@@ -114,6 +117,7 @@ public class FunctionTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             TourName = "Sample Tour 2024",
             City = "Berlin",
             Country = "Germany",
@@ -151,6 +155,7 @@ public class FunctionTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             TourName = "Sample Tour 2024",
             City = "Berlin",
             Country = "Germany",
@@ -162,6 +167,7 @@ public class FunctionTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             TourName = "Sample Tour",
             City = "Bielefeld",
             Country = "Germany",
@@ -173,6 +179,7 @@ public class FunctionTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             TourName = "Sample Tour",
             City = "Munich",
             Country = "Germany",
@@ -217,6 +224,7 @@ public class FunctionTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             TourName = "Sample Tour 2024",
             City = "Berlin",
             Country = "Germany",
