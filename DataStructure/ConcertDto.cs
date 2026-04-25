@@ -50,8 +50,19 @@ public class ConcertDto
     /// Actual Status of the concert.
     /// </summary>
     /// <see cref="ConcertStatusValue"/>
-    [JsonPropertyName("concertStatus")]
+    [JsonIgnore]
     public ConcertStatusValue ConcertStatus { get; set; } = ConcertStatusValue.Planned;
+    
+    /// <summary>
+    /// Actual Status of the concert as string
+    /// </summary>
+    /// <see cref="ConcertStatusValue"/>
+    [JsonPropertyName("concertStatus")]
+    public string ConcertStatusString
+    {
+        get => ConcertStatus.ToString();
+        set => ConcertStatus = Enum.Parse<ConcertStatusValue>(value);
+    }
     
 
     /// <summary>

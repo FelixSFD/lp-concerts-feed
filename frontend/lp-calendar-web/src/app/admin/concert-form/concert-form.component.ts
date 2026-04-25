@@ -19,7 +19,7 @@ import {environment} from "../../../environments/environment";
 import {ToastrService} from 'ngx-toastr';
 import {LocationsService} from '../../services/locations.service';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {ConcertDto} from '../../modules/lpshows-api';
+import {ConcertDto, ConcertStatusValueDto} from '../../modules/lpshows-api';
 import {load, MapKit, Map as AppleMap, MapKitEvent, AnnotationDragEvent} from '@apple/mapkit-loader';
 
 // This class represents a form for adding and editing concerts
@@ -41,6 +41,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
   private toastrService = inject(ToastrService);
 
   concertForm = this.formBuilder.group({
+    concertStatus: new FormControl('', [Validators.required]),
     showType: new FormControl('', [Validators.required]),
     tourName: new FormControl('', []),
     customTitle: new FormControl('', []),
@@ -223,6 +224,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
 
     let setDurationStr = this.convertMinutesToString(concert.expectedSetDuration);
 
+    this.concertForm.controls.concertStatus.setValue(concert.concertStatus?.valueOf() ?? null);
     this.concertForm.controls.showType.setValue(concert.showType ?? null);
     this.concertForm.controls.tourName.setValue(concert.tourName ?? null);
     this.concertForm.controls.customTitle.setValue(concert.customTitle ?? null);
@@ -340,6 +342,8 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
   private readConcertFromForm() {
     const postedStartTime = this.concertForm.value.postedStartTime!;
     let newConcert: ConcertDto = {};
+    let concertStatusStr = this.concertForm.value.concertStatus?.valueOf() ?? ConcertStatusValueDto.Planned.valueOf();
+    newConcert.concertStatus = this.toConcertStatus(concertStatusStr) ?? ConcertStatusValueDto.Planned;
     newConcert.showType = this.concertForm.value.showType?.valueOf();
     newConcert.tourName = this.concertForm.value.tourName?.valueOf();
     newConcert.customTitle = this.concertForm.value.customTitle?.valueOf();
@@ -449,8 +453,16 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
 
+  private toConcertStatus(value: string): ConcertStatusValueDto | undefined {
+    return Object.values(ConcertStatusValueDto).includes(value as ConcertStatusValueDto)
+      ? (value as ConcertStatusValueDto)
+      : undefined;
+  }
+
+
   protected readonly timezones = timezones;
   protected readonly listOfShowTypes = listOfShowTypes;
   protected readonly listOfTours = listOfTours;
   protected readonly environment = environment;
+  protected readonly ConcertStatusValueDto = ConcertStatusValueDto;
 }

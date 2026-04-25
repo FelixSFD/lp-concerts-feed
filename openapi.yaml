@@ -101,11 +101,7 @@ components:
           description: Name of the tour
           nullable: true
         concertStatus:
-          type: string
-          description: actual status of the concert
-          nullable: false
-          enum:
-            $ref: "#/components/schemas/ConcertStatusValue"
+          $ref: "#/components/schemas/ConcertStatusValue"
         status:
           type: string
           description: Status of the show (always PUBLISHED for now)

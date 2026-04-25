@@ -18,6 +18,25 @@
     </div>
     <div class="card-body edit-form-card">
       @if (activeTabName$ == 'main') {
+        <!-- Concert Status -->
+        <div class="form-group">
+          <label for="concertStatus">Status</label>
+          <select id="concertStatus" formControlName="concertStatus" class="form-select" aria-label="Select status of this concert">
+            <option disabled>--- Select status of this concert ---</option>
+            <option [value]="ConcertStatusValueDto.Planned.valueOf()" selected>Planned</option>
+            <option [value]="ConcertStatusValueDto.Running.valueOf()">Live right now</option>
+            <option [value]="ConcertStatusValueDto.Past.valueOf()">Past</option>
+            <option [value]="ConcertStatusValueDto.Cancelled.valueOf()">Cancelled</option>
+          </select>
+          @if (concertForm.controls.showType.invalid) {
+            <div class="text-danger">
+              @if (concertForm.controls.showType.errors) {
+                <small>Status is required.</small>
+              }
+            </div>
+          }
+        </div>
+
         <!-- Show Type -->
         <div class="form-group">
           <label for="showType">Type of show</label>
