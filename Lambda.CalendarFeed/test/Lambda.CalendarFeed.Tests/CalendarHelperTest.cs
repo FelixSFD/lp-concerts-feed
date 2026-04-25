@@ -44,6 +44,7 @@ public class CalendarHelperTest
                 new ConcertModel
                 {
                     Id = Guid.NewGuid().ToString(),
+                    ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
                     ShowType = "Linkin Park Show",
                     Status = "PUBLISHED",
                     Venue = "Hogwarts Quidditch Stadium",
@@ -66,6 +67,7 @@ public class CalendarHelperTest
                 new ConcertModel
                 {
                     Id = Guid.NewGuid().ToString(),
+                    ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
                     ShowType = "Festival",
                     Status = "PUBLISHED",
                     Venue = "Barclays Arena",
@@ -88,6 +90,7 @@ public class CalendarHelperTest
                 new ConcertModel
                 {
                     Id = Guid.NewGuid().ToString(),
+                    ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
                     ShowType = "Linkin Park Show",
                     Status = "PUBLISHED",
                     TourName = "FZ WORLD TOUR 2024",
@@ -111,6 +114,7 @@ public class CalendarHelperTest
                 new ConcertModel
                 {
                     Id = Guid.NewGuid().ToString(),
+                    ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
                     ShowType = "Linkin Park Show",
                     Status = "PUBLISHED",
                     TourName = "FZ WORLD TOUR 2024",
@@ -134,6 +138,7 @@ public class CalendarHelperTest
                 new ConcertModel
                 {
                     Id = Guid.NewGuid().ToString(),
+                    ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
                     ShowType = "Linkin Park Show",
                     Status = "PUBLISHED",
                     CustomTitle = "Triwizard Tournament 1994",
@@ -206,6 +211,7 @@ public class CalendarHelperTest
                     new ConcertModel
                     {
                         Id = "1",
+                        ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
                         ShowType = "Linkin Park Show",
                         Status = "PUBLISHED",
                         TourName = "FZ WORLD TOUR 2024",
@@ -249,6 +255,7 @@ public class CalendarHelperTest
                     new ConcertModel
                     {
                         Id = "2",
+                        ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
                         ShowType = "Linkin Park Show",
                         Status = "PUBLISHED",
                         TourName = "FZ WORLD TOUR 2024",
@@ -284,6 +291,7 @@ public class CalendarHelperTest
                     new ConcertModel
                     {
                         Id = "2.1",
+                        ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
                         ShowType = "Festival",
                         Status = "PUBLISHED",
                         Venue = "Barclays Arena",
@@ -317,6 +325,7 @@ public class CalendarHelperTest
                     new ConcertModel
                     {
                         Id = "2.2",
+                        ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
                         ShowType = "Festival",
                         TourName = "Some Weird Tour",
                         Status = "PUBLISHED",
@@ -351,6 +360,7 @@ public class CalendarHelperTest
                     new ConcertModel
                     {
                         Id = "3",
+                        ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
                         ShowType = "Linkin Park Show",
                         Status = "PUBLISHED",
                         TourName = "FZ WORLD TOUR 2024",
@@ -385,6 +395,7 @@ public class CalendarHelperTest
                     new ConcertModel
                     {
                         Id = "4",
+                        ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
                         Status = "PUBLISHED",
                         Venue = "Allianz Arena",
                         City = "München",
@@ -416,6 +427,7 @@ public class CalendarHelperTest
                     new ConcertModel
                     {
                         Id = "5",
+                        ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
                         ShowType = "Linkin Park Show",
                         Status = "PUBLISHED",
                         TourName = "FZ WORLD TOUR 2024",
@@ -480,6 +492,7 @@ public class CalendarHelperTest
         var testConcert = new ConcertModel
         {
             Status = "TEST",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             TourName = "TEST Tour",
             VenueLatitude = testLat,
             VenueLongitude = testLong
@@ -498,6 +511,7 @@ public class CalendarHelperTest
         var testConcert = new ConcertModel
         {
             Status = "TEST",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             TourName = "TEST Tour",
             VenueLatitude = 0.0m,
             VenueLongitude = 0.0m
