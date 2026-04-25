@@ -18,6 +18,7 @@ public static class ConcertDtoMapper
         {
             Id = model.Id,
             City = model.City,
+            ConcertStatus = Enum.Parse<ConcertDto.ConcertStatusValue>(model.ConcertStatus),
             Country = model.Country,
             CustomTitle = model.CustomTitle,
             DeletedAt = model.DeletedAt,
@@ -52,6 +53,7 @@ public static class ConcertDtoMapper
         {
             Id = model.Id,
             City = model.City,
+            ConcertStatus = Enum.Parse<ConcertDto.ConcertStatusValue>(model.ConcertStatus),
             Country = model.Country,
             CustomTitle = model.CustomTitle,
             DeletedAt = model.DeletedAt,
@@ -89,6 +91,7 @@ public static class ConcertDtoMapper
         {
             Id = model.Id,
             City = model.City,
+            ConcertStatus = model.ConcertStatus.ToString(),
             Country = model.Country,
             CustomTitle = model.CustomTitle,
             DeletedAt = model.DeletedAt,

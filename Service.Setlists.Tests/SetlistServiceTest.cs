@@ -50,6 +50,7 @@ public class SetlistServiceTest
             Id = concertId,
             PostedStartTime = new DateTimeOffset(2024, 9, 24, 20, 0, 0, TimeSpan.FromHours(2)),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             ShowType = "Linkin Park",
         };
         _setlistRepository.Add(Arg.Is<SetlistDo>(setlist => setlist.ConcertId == concertId && setlist.LinkinpediaUrl == linkinpediaUrl && setlist.Id == 0));
@@ -479,6 +480,7 @@ public class SetlistServiceTest
             Id = setlist.ConcertId,
             PostedStartTime = new DateTimeOffset(2024, 9, 24, 20, 0, 0, TimeSpan.FromHours(2)),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             ShowType = "Linkin Park",
         };
         

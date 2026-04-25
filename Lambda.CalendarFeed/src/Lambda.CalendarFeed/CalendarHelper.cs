@@ -24,6 +24,22 @@ public static class CalendarHelper
 
 
     /// <summary>
+    /// Returns the iCal-Status value for this concert
+    /// </summary>
+    /// <param name="concert"></param>
+    /// <returns></returns>
+    public static string GetIcalStatus(this ConcertModel concert)
+    {
+        if (concert.ConcertStatus == nameof(ConcertDto.ConcertStatusValue.Cancelled))
+        {
+            return Ical.Net.EventStatus.Cancelled;
+        }
+
+        return concert.MainStageTime != null ? Ical.Net.EventStatus.Confirmed : Ical.Net.EventStatus.Tentative;
+    }
+
+
+    /// <summary>
     /// Returns the coordinates of the venue as <see cref="GeographicLocation"/>
     /// </summary>
     /// <param name="concert"></param>
@@ -145,6 +161,7 @@ public static class CalendarHelper
             GeographicLocation = concert.GetGeoLocation(),
             Start = date,
             End = date.AddMinutes(concert.ExpectedSetDuration ?? 120),
+            Status = concert.GetIcalStatus(),
             //Duration = Duration.FromMinutes(concert.ExpectedSetDuration ?? 120),
             LastModified = concert.LastChange?.ToCalDateTime(concert.TimeZoneId)
         };
@@ -182,6 +199,7 @@ public static class CalendarHelper
             GeographicLocation = concert.GetGeoLocation(),
             Start = date,
             End = nextEventStart,
+            Status = concert.GetIcalStatus(),
             LastModified = concert.LastChange?.ToCalDateTime(concert.TimeZoneId)
         };
         
@@ -229,6 +247,7 @@ public static class CalendarHelper
             GeographicLocation = concert.GetGeoLocation(),
             Start = startDate,
             End = endDate,
+            Status = concert.GetIcalStatus(),
             LastModified = concert.LastChange?.ToCalDateTime(concert.TimeZoneId)
         };
         
@@ -276,6 +295,7 @@ public static class CalendarHelper
             GeographicLocation = concert.GetGeoLocation(),
             Start = startDate,
             End = endDate,
+            Status = concert.GetIcalStatus(),
             LastModified = concert.LastChange?.ToCalDateTime(concert.TimeZoneId)
         };
         

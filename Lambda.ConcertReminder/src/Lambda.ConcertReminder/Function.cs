@@ -112,7 +112,7 @@ public class Function
             config);
 
         var concerts = await query.GetRemainingAsync();
-        return concerts.FirstOrDefault();
+        return concerts.FirstOrDefault(c => c.ConcertStatus != nameof(ConcertDto.ConcertStatusValue.Cancelled));
     }
     
     

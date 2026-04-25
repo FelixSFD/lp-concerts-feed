@@ -24,6 +24,7 @@ public class ConcertSyncEngineTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             PostedStartTime = new DateTimeOffset(2027, 2, 9, 20, 0, 0, TimeSpan.Zero),
             City = "Test City",
             Country = "USA",
@@ -35,6 +36,7 @@ public class ConcertSyncEngineTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             PostedStartTime = new DateTimeOffset(2027, 2, 10, 20, 0, 0, TimeSpan.Zero),
             City = "Test City",
             Country = "USA",
@@ -47,6 +49,7 @@ public class ConcertSyncEngineTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             PostedStartTime = new DateTimeOffset(2027, 2, 11, 20, 0, 0, TimeSpan.Zero),
             City = "Test 2",
             Country = "USA",
@@ -59,6 +62,7 @@ public class ConcertSyncEngineTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             PostedStartTime = new DateTimeOffset(2027, 2, 13, 20, 0, 0, TimeSpan.Zero),
             City = "Test 3",
             Country = "USA",
@@ -71,6 +75,7 @@ public class ConcertSyncEngineTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             PostedStartTime = new DateTimeOffset(2027, 2, 14, 20, 0, 0, TimeSpan.Zero),
             City = "Test 4",
             Country = "USA",
@@ -83,6 +88,7 @@ public class ConcertSyncEngineTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "DELETED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             PostedStartTime = new DateTimeOffset(2027, 2, 11, 20, 0, 0, TimeSpan.Zero),
             City = "Test 2",
             Country = "USA",
@@ -123,6 +129,7 @@ public class ConcertSyncEngineTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             PostedStartTime = new DateTimeOffset(2027, 2, 9, 20, 0, 0, TimeSpan.Zero),
             City = "Test City",
             Country = "USA",
@@ -134,6 +141,7 @@ public class ConcertSyncEngineTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "DELETED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             PostedStartTime = new DateTimeOffset(2027, 2, 10, 20, 0, 0, TimeSpan.Zero),
             City = "Test City",
             Country = "USA",
@@ -147,6 +155,7 @@ public class ConcertSyncEngineTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             PostedStartTime = new DateTimeOffset(2027, 2, 11, 20, 0, 0, TimeSpan.Zero),
             City = "Test 2",
             Country = "USA",
@@ -159,6 +168,7 @@ public class ConcertSyncEngineTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             PostedStartTime = new DateTimeOffset(2027, 2, 13, 20, 0, 0, TimeSpan.Zero),
             City = "Test 3",
             Country = "USA",
@@ -171,6 +181,7 @@ public class ConcertSyncEngineTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             PostedStartTime = new DateTimeOffset(2027, 2, 14, 20, 0, 0, TimeSpan.Zero),
             City = "Test 4",
             Country = "USA",
@@ -203,6 +214,7 @@ public class ConcertSyncEngineTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             PostedStartTime = new DateTimeOffset(2027, 2, 9, 20, 0, 0, TimeSpan.Zero),
             City = "Test City",
             Country = "USA",
@@ -214,6 +226,7 @@ public class ConcertSyncEngineTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "DELETED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             PostedStartTime = new DateTimeOffset(2027, 2, 10, 20, 0, 0, TimeSpan.Zero),
             City = "Test City",
             Country = "USA",
@@ -227,6 +240,7 @@ public class ConcertSyncEngineTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             PostedStartTime = new DateTimeOffset(2027, 2, 11, 20, 0, 0, TimeSpan.Zero),
             City = "Test 2",
             Country = "USA",
@@ -239,6 +253,7 @@ public class ConcertSyncEngineTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             PostedStartTime = new DateTimeOffset(2027, 2, 13, 20, 0, 0, TimeSpan.Zero),
             City = "Test 3",
             Country = "USA",
@@ -251,6 +266,7 @@ public class ConcertSyncEngineTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             PostedStartTime = new DateTimeOffset(2027, 2, 14, 20, 0, 0, TimeSpan.Zero),
             City = "Test 4",
             Country = "USA",
@@ -282,6 +298,7 @@ public class ConcertSyncEngineTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             PostedStartTime = new DateTimeOffset(2027, 2, 9, 20, 0, 0, TimeSpan.Zero),
             City = "Test City",
             Country = "USA",
@@ -293,6 +310,7 @@ public class ConcertSyncEngineTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             PostedStartTime = new DateTimeOffset(2027, 2, 10, 20, 0, 0, TimeSpan.Zero),
             City = "Test City",
             Country = "USA",
@@ -305,6 +323,7 @@ public class ConcertSyncEngineTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             PostedStartTime = new DateTimeOffset(2027, 2, 11, 20, 0, 0, TimeSpan.Zero),
             City = "Test 2",
             Country = "USA",
@@ -317,6 +336,7 @@ public class ConcertSyncEngineTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             PostedStartTime = new DateTimeOffset(2027, 2, 13, 20, 0, 0, TimeSpan.Zero),
             City = "Test 3",
             Country = "USA",
@@ -329,6 +349,7 @@ public class ConcertSyncEngineTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             PostedStartTime = new DateTimeOffset(2027, 2, 14, 20, 0, 0, TimeSpan.Zero),
             City = "Test 4",
             Country = "USA",
@@ -367,6 +388,7 @@ public class ConcertSyncEngineTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             PostedStartTime = new DateTimeOffset(2027, 2, 9, 20, 0, 0, TimeSpan.Zero),
             City = "Test City",
             Country = "USA",
@@ -379,6 +401,7 @@ public class ConcertSyncEngineTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             PostedStartTime = new DateTimeOffset(2027, 2, 10, 20, 0, 0, TimeSpan.Zero),
             City = "Test City 1",
             Country = "USA",
@@ -391,6 +414,7 @@ public class ConcertSyncEngineTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             PostedStartTime = new DateTimeOffset(2027, 2, 11, 20, 0, 0, TimeSpan.Zero),
             City = "Test 2",
             Country = "USA",
@@ -403,6 +427,7 @@ public class ConcertSyncEngineTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             PostedStartTime = new DateTimeOffset(2027, 2, 13, 20, 0, 0, TimeSpan.Zero),
             City = "Test 3",
             Country = "USA",
@@ -415,6 +440,7 @@ public class ConcertSyncEngineTest
         {
             Id = Guid.NewGuid().ToString(),
             Status = "PUBLISHED",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             PostedStartTime = new DateTimeOffset(2027, 2, 14, 20, 0, 0, TimeSpan.Zero),
             City = "Test 4",
             Country = "USA",

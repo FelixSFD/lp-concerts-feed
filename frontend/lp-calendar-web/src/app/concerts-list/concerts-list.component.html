@@ -53,12 +53,12 @@
           <div class="card m-2 m-xs-2 m-sm-2 m-md-3 m-lg-3 m-xl-4 m-xxl-4">
             <div class="card-body">
               <h5 class="card-title">
-                <a class="link-body-emphasis link-underline-opacity-0" [routerLink]="['/concerts/' + concert.id]">
+                <a class="link-body-emphasis link-underline-opacity-0 {{ concert.concertStatus == ConcertStatusValueDto.Cancelled ? 'text-decoration-line-through' : '' }}" [routerLink]="['/concerts/' + concert.id]">
                   {{ ConcertTitleGenerator.getTitleFor(concert) }}
                 </a>
               </h5>
               <h6 class="card-subtitle mb-2 text-muted">
-                <a class="link-secondary link-underline-opacity-0" [routerLink]="['/concerts/' + concert.id]">
+                <a class="link-secondary link-underline-opacity-0 {{ concert.concertStatus == ConcertStatusValueDto.Cancelled ? 'text-decoration-line-through' : '' }}" [routerLink]="['/concerts/' + concert.id]">
                   {{ concert.venue }}, {{ concert.city }}{{ (concert.state?.length ?? 0) > 0 ? ", " + concert.state : ""}}, {{ concert.country }}
                 </a>
               </h6>
@@ -80,7 +80,7 @@
                   </table>
                   <app-concert-badges [concert]="concert"></app-concert-badges>
                 </div>
-                @if (!concert.isPast) {
+                @if (!concert.isPast && concert.concertStatus != ConcertStatusValueDto.Cancelled) {
                   <div class="col d-none d-md-inline d-xl-inline d-xxl-inline" style="max-width: 250px;">
                     <app-countdown [countdownToDate]="concert.mainStageTime ?? concert.postedStartTime!"></app-countdown>
                   </div>

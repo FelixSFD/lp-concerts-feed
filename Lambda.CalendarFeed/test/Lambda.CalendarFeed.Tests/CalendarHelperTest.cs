@@ -1,4 +1,5 @@
 using Database.Concerts.Models;
+using Ical.Net;
 using Ical.Net.CalendarComponents;
 using Ical.Net.DataTypes;
 using JetBrains.Annotations;
@@ -44,6 +45,7 @@ public class CalendarHelperTest
                 new ConcertModel
                 {
                     Id = Guid.NewGuid().ToString(),
+                    ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
                     ShowType = "Linkin Park Show",
                     Status = "PUBLISHED",
                     Venue = "Hogwarts Quidditch Stadium",
@@ -66,6 +68,7 @@ public class CalendarHelperTest
                 new ConcertModel
                 {
                     Id = Guid.NewGuid().ToString(),
+                    ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
                     ShowType = "Festival",
                     Status = "PUBLISHED",
                     Venue = "Barclays Arena",
@@ -88,6 +91,7 @@ public class CalendarHelperTest
                 new ConcertModel
                 {
                     Id = Guid.NewGuid().ToString(),
+                    ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
                     ShowType = "Linkin Park Show",
                     Status = "PUBLISHED",
                     TourName = "FZ WORLD TOUR 2024",
@@ -111,6 +115,7 @@ public class CalendarHelperTest
                 new ConcertModel
                 {
                     Id = Guid.NewGuid().ToString(),
+                    ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
                     ShowType = "Linkin Park Show",
                     Status = "PUBLISHED",
                     TourName = "FZ WORLD TOUR 2024",
@@ -134,6 +139,7 @@ public class CalendarHelperTest
                 new ConcertModel
                 {
                     Id = Guid.NewGuid().ToString(),
+                    ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
                     ShowType = "Linkin Park Show",
                     Status = "PUBLISHED",
                     CustomTitle = "Triwizard Tournament 1994",
@@ -206,6 +212,7 @@ public class CalendarHelperTest
                     new ConcertModel
                     {
                         Id = "1",
+                        ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
                         ShowType = "Linkin Park Show",
                         Status = "PUBLISHED",
                         TourName = "FZ WORLD TOUR 2024",
@@ -228,6 +235,7 @@ public class CalendarHelperTest
                         Summary = "Doors open: Linkin Park in Hamburg",
                         Description = "Doors open at Barclays Arena for the Linkin Park concert",
                         Location = "Barclays Arena, Hamburg, Germany",
+                        Status = EventStatus.Confirmed,
                         Start = new CalDateTime(2024, 9, 22, 18, 30, 0, "Europe/Berlin"),
                         End = new CalDateTime(2024, 9, 22, 20, 40, 0, "Europe/Berlin")
                     },
@@ -236,6 +244,7 @@ public class CalendarHelperTest
                         Summary = "FZ WORLD TOUR 2024: Hamburg (Stage Time)",
                         Description = "Stage time for Linkin Park at Barclays Arena.\nType of show: Linkin Park Show",
                         Location = "Barclays Arena, Hamburg, Germany",
+                        Status = EventStatus.Confirmed,
                         Start = new CalDateTime(2024, 9, 22, 20, 40, 0, "Europe/Berlin"),
                         End = new CalDateTime(2024, 9, 22, 22, 40, 0, "Europe/Berlin")
                     }
@@ -249,6 +258,7 @@ public class CalendarHelperTest
                     new ConcertModel
                     {
                         Id = "2",
+                        ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
                         ShowType = "Linkin Park Show",
                         Status = "PUBLISHED",
                         TourName = "FZ WORLD TOUR 2024",
@@ -271,6 +281,7 @@ public class CalendarHelperTest
                         Summary = "FZ WORLD TOUR 2024: Hamburg (Stage Time)",
                         Description = "Stage time for Linkin Park at Barclays Arena.\nType of show: Linkin Park Show",
                         Location = "Barclays Arena, Hamburg, Germany",
+                        Status = EventStatus.Confirmed,
                         Start = new CalDateTime(2024, 9, 22, 20, 40, 0, "Europe/Berlin"),
                         End = new CalDateTime(2024, 9, 22, 21, 25, 0, "Europe/Berlin")
                     }
@@ -284,6 +295,7 @@ public class CalendarHelperTest
                     new ConcertModel
                     {
                         Id = "2.1",
+                        ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
                         ShowType = "Festival",
                         Status = "PUBLISHED",
                         Venue = "Barclays Arena",
@@ -304,6 +316,7 @@ public class CalendarHelperTest
                         Summary = "Linkin Park: Hamburg (Stage Time)",
                         Description = "Stage time for Linkin Park at Barclays Arena.\nType of show: Festival",
                         Location = "Barclays Arena, Hamburg, Germany",
+                        Status = EventStatus.Confirmed,
                         Start = new CalDateTime(2024, 9, 22, 20, 40, 0, "Europe/Berlin"),
                         End = new CalDateTime(2024, 9, 22, 22, 40, 0, "Europe/Berlin")
                     }
@@ -317,6 +330,7 @@ public class CalendarHelperTest
                     new ConcertModel
                     {
                         Id = "2.2",
+                        ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
                         ShowType = "Festival",
                         TourName = "Some Weird Tour",
                         Status = "PUBLISHED",
@@ -338,6 +352,7 @@ public class CalendarHelperTest
                         Summary = "Linkin Park: Hamburg (Stage Time)",
                         Description = "Stage time for Linkin Park at Barclays Arena.\nType of show: Festival",
                         Location = "Barclays Arena, Hamburg, Germany",
+                        Status = EventStatus.Confirmed,
                         Start = new CalDateTime(2024, 9, 22, 20, 40, 0, "Europe/Berlin"),
                         End = new CalDateTime(2024, 9, 22, 22, 40, 0, "Europe/Berlin")
                     }
@@ -351,6 +366,7 @@ public class CalendarHelperTest
                     new ConcertModel
                     {
                         Id = "3",
+                        ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
                         ShowType = "Linkin Park Show",
                         Status = "PUBLISHED",
                         TourName = "FZ WORLD TOUR 2024",
@@ -372,6 +388,7 @@ public class CalendarHelperTest
                         Summary = "Doors open: Linkin Park in Hamburg",
                         Description = "Doors open at Barclays Arena for the Linkin Park concert",
                         Location = "Barclays Arena, Hamburg, Germany",
+                        Status = EventStatus.Confirmed,
                         Start = new CalDateTime(2024, 9, 22, 18, 30, 0, "Europe/Berlin"),
                         End = null
                     }
@@ -385,6 +402,7 @@ public class CalendarHelperTest
                     new ConcertModel
                     {
                         Id = "4",
+                        ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
                         Status = "PUBLISHED",
                         Venue = "Allianz Arena",
                         City = "München",
@@ -403,6 +421,7 @@ public class CalendarHelperTest
                         Summary = "Linkin Park: Allianz Arena",
                         Description = "Linkin Park Concert at Allianz Arena\nThis show is not part of a tour.",
                         Location = "Allianz Arena, München, Germany",
+                        Status = EventStatus.Tentative,
                         Start = new CalDateTime(2025, 5, 31, 20, 45, 0, "Europe/Berlin"),
                         End = new CalDateTime(2025, 5, 31, 23, 45, 0, "Europe/Berlin")
                     }
@@ -416,6 +435,7 @@ public class CalendarHelperTest
                     new ConcertModel
                     {
                         Id = "5",
+                        ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
                         ShowType = "Linkin Park Show",
                         Status = "PUBLISHED",
                         TourName = "FZ WORLD TOUR 2024",
@@ -437,8 +457,45 @@ public class CalendarHelperTest
                         Summary = "FZ WORLD TOUR 2024: Hamburg",
                         Description = "Concert of the Linkin Park FZ WORLD TOUR 2024",
                         Location = "Barclays Arena, Hamburg, Germany",
+                        Status = EventStatus.Confirmed,
                         Start = new CalDateTime(2024, 9, 22, 20, 40, 0, "Europe/Berlin"),
                         End = new CalDateTime(2024, 9, 22, 22, 40, 0, "Europe/Berlin")
+                    }
+                }
+            },
+            // Cancelled concert as single event
+            new object[]
+            {
+                new[]
+                {
+                    new ConcertModel
+                    {
+                        Id = "5",
+                        ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Cancelled),
+                        ShowType = "Linkin Park Show",
+                        Status = "PUBLISHED",
+                        TourName = "FZ WORLD TOUR 2024",
+                        Venue = "Barclays Arena",
+                        City = "Hamburg",
+                        Country = "Germany",
+                        TimeZoneId = "Europe/Berlin",
+                        LpuEarlyEntryConfirmed = false,
+                        PostedStartTime = new DateTimeOffset(2024, 9, 23, 18, 0, 0, TimeSpan.FromHours(2)),
+                        DoorsTime = new DateTimeOffset(2024, 9, 23, 18, 30, 0, TimeSpan.FromHours(2)),
+                        MainStageTime= new DateTimeOffset(2024, 9, 23, 20, 40, 0, TimeSpan.FromHours(2))
+                    }
+                },
+                ConcertSubEventCategory.AsOneSingleEvent,
+                new[]
+                {
+                    new CalendarEvent
+                    {
+                        Summary = "FZ WORLD TOUR 2024: Hamburg",
+                        Description = "Concert of the Linkin Park FZ WORLD TOUR 2024",
+                        Location = "Barclays Arena, Hamburg, Germany",
+                        Status = EventStatus.Cancelled,
+                        Start = new CalDateTime(2024, 9, 23, 20, 40, 0, "Europe/Berlin"),
+                        End = new CalDateTime(2024, 9, 23, 22, 40, 0, "Europe/Berlin")
                     }
                 }
             }
@@ -464,6 +521,7 @@ public class CalendarHelperTest
             Assert.Equal(expectedEvent.Start, calendarEvent.Start);
             Assert.Equal(expectedEvent.End, calendarEvent.End);
             Assert.Equal(expectedEvent.Duration, calendarEvent.Duration);
+            Assert.Equal(expectedEvent.Status, calendarEvent.Status);
             
             i++;
         }
@@ -480,6 +538,7 @@ public class CalendarHelperTest
         var testConcert = new ConcertModel
         {
             Status = "TEST",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             TourName = "TEST Tour",
             VenueLatitude = testLat,
             VenueLongitude = testLong
@@ -498,6 +557,7 @@ public class CalendarHelperTest
         var testConcert = new ConcertModel
         {
             Status = "TEST",
+            ConcertStatus = nameof(ConcertDto.ConcertStatusValue.Planned),
             TourName = "TEST Tour",
             VenueLatitude = 0.0m,
             VenueLongitude = 0.0m
@@ -517,5 +577,28 @@ public class CalendarHelperTest
     {
         var fileName = CalendarHelper.GetFileNameFor(categoryFlags);
         Assert.Equal(expectedFilename, fileName);
+    }
+
+    [Theory]
+    [InlineData(ConcertDto.ConcertStatusValue.Planned, "2026-03-15T11:30:00.00Z", null, Ical.Net.EventStatus.Tentative)]
+    [InlineData(ConcertDto.ConcertStatusValue.Planned, "2026-03-15T11:30:00.00Z", "2026-03-15T12:20:00.00Z", Ical.Net.EventStatus.Confirmed)]
+    [InlineData(ConcertDto.ConcertStatusValue.Cancelled, "2026-03-15T11:30:00.00Z", null, Ical.Net.EventStatus.Cancelled)]
+    [InlineData(ConcertDto.ConcertStatusValue.Cancelled, "2026-03-15T11:30:00.00Z", "2026-03-15T12:20:00.00Z", Ical.Net.EventStatus.Cancelled)]
+    public void GetIcalStatus(ConcertDto.ConcertStatusValue concertStatusValue, string postedStartTime, string? mainStageTime, string expectedIcalStatus)
+    {
+        var concert = new ConcertModel
+        {
+            Status = ConcertModel.StatusPublished,
+            ConcertStatus = concertStatusValue.ToString(),
+            PostedStartTime = DateTime.Parse(postedStartTime),
+        };
+
+        if (mainStageTime != null)
+        {
+            concert.MainStageTime = DateTime.Parse(mainStageTime);
+        }
+
+        var actualIcalStatus = concert.GetIcalStatus();
+        Assert.Equal(expectedIcalStatus, actualIcalStatus);
     }
 }

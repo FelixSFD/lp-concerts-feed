@@ -5,6 +5,7 @@ using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.Core;
 using Common.Utils;
 using Database.Concerts.Models;
+using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Converters;
 using LPCalendar.DataStructure.DbConfig;
 
@@ -99,7 +100,7 @@ public class DynamoDbConcertRepository : IConcertRepository
             config);
 
         var concerts = await query.GetRemainingAsync();
-        return concerts.FirstOrDefault();
+        return concerts.FirstOrDefault(c => c.ConcertStatus != nameof(ConcertDto.ConcertStatusValue.Cancelled));
     }
 
     
@@ -155,6 +156,43 @@ public class DynamoDbConcertRepository : IConcertRepository
             yield return concert;
         }
 
+        _logger.LogDebug("Finished returning all results.");
+    }
+
+
+    /// <inheritdoc/>
+    public async IAsyncEnumerable<ConcertModel> GetConcertsByStatusAsync(string concertStatus, DateRange? dateRange = null)
+    {
+        _logger.LogDebug("Query concerts with status '{status}': DateRange ({from} to {to}); Tour: {tour}", concertStatus, dateRange?.from.ToString() ?? "null", dateRange?.to.ToString() ?? "null");
+        var searchStartDate = dateRange?.from ?? DateTimeOffset.Now;
+        if (dateRange?.from == null && dateRange?.to != null)
+        {
+            _logger.LogDebug("date_from is not set, but date_to is. Will search for historic shows as well", dateRange);
+            searchStartDate = DateTimeOffset.MinValue;
+        }
+        
+        // if no end is specified, use max value to search for all shows
+        var searchEndDate = dateRange?.to ?? DateTimeOffset.MaxValue;
+        
+        var searchStartDateStr = searchStartDate.ToString("O");
+        var searchEndDateStr = searchEndDate.ToString("O");
+        _logger.LogInformation("QUERY filtered concerts between {start} and {end}", searchStartDateStr, searchEndDateStr);
+        
+        var config = _dbConfigProvider.GetQueryConfigFor(DynamoDbConfigProvider.Table.Concerts);
+        config.IndexName = ConcertModel.ConcertStatusGlobalIndex;
+        
+        var query = _dynamoDbContext.QueryAsync<ConcertModel>(
+            concertStatus,
+            QueryOperator.Between,
+            [new AttributeValue { S = searchStartDateStr }, new AttributeValue { S = searchEndDateStr }],
+            config);
+        
+        _logger.LogDebug("Start returning the results...");
+        var concerts = await query.GetRemainingAsync() ?? [];
+        foreach (var concert in concerts)
+        {
+            yield return concert;
+        }
         _logger.LogDebug("Finished returning all results.");
     }
 

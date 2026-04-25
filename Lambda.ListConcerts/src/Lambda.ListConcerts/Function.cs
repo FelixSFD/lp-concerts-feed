@@ -12,6 +12,7 @@ using Lambda.ListConcerts.Syncing;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Requests;
 using LPCalendar.DataStructure.Responses;
+using static Lambda.Common.ApiGateway.ApiGatewayResponseHelper;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -227,25 +228,20 @@ public class Function(IConcertRepository concertRepository, IConcertBookmarkRepo
         if (next == null)
         {
             context.Logger.LogInformation("No upcoming concert found.");
-            var error = new ErrorResponse
-            {
-                Message = "No upcoming concerts found."
-            };
-            return new APIGatewayProxyResponse
-            {
-                StatusCode = 404,
-                Body = JsonSerializer.Serialize(error, DataStructureJsonContext.Default.ErrorResponse),
-                Headers = new Dictionary<string, string>
-                {
-                    { "Content-Type", "application/json" },
-                    { "Access-Control-Allow-Origin", "*" },
-                    { "Access-Control-Allow-Methods", "OPTIONS, GET" }
-                }
-            };
+            return NotFound("There is no upcoming concert scheduled at the moment.", CacheControlHeaderConfig.Medium, HttpMethod.Get);
         }
 
         context.Logger.LogDebug("Returning Concert with ID: {id}", next.Id);
-        return ApiGatewayResponseHelper.Ok(ConcertDtoMapper.ToDto(next), DataStructureJsonContext.Default.ConcertDto, CacheControlHeaderConfig.Default, HttpMethod.Get);
+        
+        var cacheHeaderConfig = CacheControlHeaderConfig.Long;
+        // ReSharper disable once InvertIf
+        if (next.PostedStartTime?.AddDays(-2) <= DateTimeOffset.Now)
+        {
+            context.Logger.LogDebug("Concert is in less than 2 days. Will use shorter cache lifetime");
+            cacheHeaderConfig = CacheControlHeaderConfig.Default;
+        }
+        
+        return Ok(ConcertDtoMapper.ToDto(next), DataStructureJsonContext.Default.ConcertDto, cacheHeaderConfig, HttpMethod.Get);
     }
 
 

@@ -8,6 +8,14 @@ namespace LPCalendar.DataStructure;
 /// </summary>
 public class ConcertDto
 {
+    public enum ConcertStatusValue
+    {
+        Planned,
+        Running,
+        Past,
+        Cancelled
+    }
+    
     /// <summary>
     /// UUID of the concert
     /// </summary>
@@ -37,6 +45,24 @@ public class ConcertDto
     /// </summary>
     [JsonPropertyName("status")]
     public required string Status { get; set; }
+    
+    /// <summary>
+    /// Actual Status of the concert.
+    /// </summary>
+    /// <see cref="ConcertStatusValue"/>
+    [JsonIgnore]
+    public ConcertStatusValue ConcertStatus { get; set; } = ConcertStatusValue.Planned;
+    
+    /// <summary>
+    /// Actual Status of the concert as string
+    /// </summary>
+    /// <see cref="ConcertStatusValue"/>
+    [JsonPropertyName("concertStatus")]
+    public string ConcertStatusString
+    {
+        get => ConcertStatus.ToString();
+        set => ConcertStatus = Enum.Parse<ConcertStatusValue>(value);
+    }
     
 
     /// <summary>

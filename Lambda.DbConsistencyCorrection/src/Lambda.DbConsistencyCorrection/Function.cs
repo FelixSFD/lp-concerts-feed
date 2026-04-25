@@ -23,8 +23,12 @@ public class Function
     public async Task FunctionHandler(ILambdaContext context)
     {
         _logger.LogInformation("Running consistency correction for concerts...");
-        await _concertRepository.GetConcertsAsync(DateTimeOffset.MinValue)
-            .ForEachAwaitAsync(FixConcert);
+        
+        await foreach (var concertModel in _concertRepository.GetConcertsAsync(DateTimeOffset.MinValue))
+        {
+            await FixConcert(concertModel);
+        }
+
         _logger.LogInformation("Consistency correction for concerts complete.");
     }
 
@@ -38,11 +42,19 @@ public class Function
             didChange = true;
         }
 
+        if (string.IsNullOrEmpty(concert.ConcertStatus))
+        {
+            _logger.LogInformation("Concert '{id}' is missing the field 'ConcertStatus'. Will set default value.", concert.Id);
+            concert.ConcertStatus = (concert.IsPast ? ConcertDto.ConcertStatusValue.Past : ConcertDto.ConcertStatusValue.Planned).ToString();
+            _logger.LogInformation("Set ConcertStatus: {status}", concert.ConcertStatus);
+            didChange = true;
+        }
+
         if (didChange)
         {
             _logger.LogInformation("Concert '{id}' has pending corrections. Will update it in DB.", concert.Id);
             await _concertRepository.SaveAsync(concert);
-            _logger.LogInformation("Saved Concert '{id}' has pending corrections. Will update it in DB.", concert.Id);
+            _logger.LogInformation("Saved Concert '{id}' in DB.", concert.Id);
         }
     }
 }

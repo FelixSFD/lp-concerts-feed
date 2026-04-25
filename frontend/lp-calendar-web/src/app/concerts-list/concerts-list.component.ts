@@ -15,7 +15,7 @@ import {CountdownComponent} from '../countdown/countdown.component';
 import {ToastrService} from 'ngx-toastr';
 import {ConcertFilterComponent} from '../concert-filter/concert-filter.component';
 import {ConcertFilter} from '../data/concert-filter';
-import {ConcertDto, ErrorResponseDto} from '../modules/lpshows-api';
+import {ConcertDto, ConcertStatusValueDto, ErrorResponseDto} from '../modules/lpshows-api';
 import {AuthService} from '../auth/auth.service';
 
 @Component({
@@ -189,4 +189,5 @@ export class ConcertsListComponent implements OnInit {
   protected readonly DateTime = DateTime;
   protected readonly listOfTours = listOfTours;
   protected readonly ConcertTitleGenerator = ConcertTitleGenerator;
+  protected readonly ConcertStatusValueDto = ConcertStatusValueDto;
 }

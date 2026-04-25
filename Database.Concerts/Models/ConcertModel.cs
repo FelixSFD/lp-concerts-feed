@@ -13,6 +13,7 @@ public class ConcertModel
 {
     public const string ConcertTableName = "Concertsv2";
     public const string LastChangeTimeGlobalIndex = "LastChangeTimeGlobalIndex";
+    public const string ConcertStatusGlobalIndex = "ConcertStatusGlobalIndex";
     public const string DeletedConcertsGlobalIndex = "DeletedConcertsGlobalIndex";
 
     public const string StatusPublished = "PUBLISHED";
@@ -47,18 +48,27 @@ public class ConcertModel
     public string? TourName { get; set; }
 
     /// <summary>
-    /// Status of the concert (mainly used as workaround for having a partition key that can return all concerts for now)
+    /// PUBLISHING-Status of the concert (mainly used as workaround for having a partition key that can return all concerts for now)
     /// </summary>
     //[DynamoDBProperty("Status")]
     [DynamoDBGlobalSecondaryIndexHashKey("PostedStartTimeGlobalIndex", nameof(LastChangeTimeGlobalIndex), nameof(DeletedConcertsGlobalIndex))]
     [JsonPropertyName("status")]
     public required string Status { get; set; }
     
+    
+    /// <summary>
+    /// Actual Status of the concert. Like "PLANNED", "CURRENT" or "CANCELLED"
+    /// </summary>
+    [DynamoDBGlobalSecondaryIndexHashKey(nameof(ConcertStatusGlobalIndex))]
+    [DynamoDBProperty("ConcertStatus")]
+    [JsonPropertyName("concertStatus")]
+    public required string ConcertStatus { get; set; }
+    
 
     /// <summary>
     /// Time when the concert starts according to Ticketmaster.
     /// </summary>
-    [DynamoDBGlobalSecondaryIndexRangeKey("PostedStartTimeGlobalIndex")]
+    [DynamoDBGlobalSecondaryIndexRangeKey("PostedStartTimeGlobalIndex", nameof(ConcertStatusGlobalIndex))]
     [DynamoDBProperty("PostedStartTime", typeof(DateTimeOffsetToStringPropertyConverter))]
     [JsonPropertyName("postedStartTime")]
     public DateTimeOffset? PostedStartTime { get; set; }
