@@ -2,6 +2,10 @@
   <span class="badge bg-danger" style="margin-right: 3px;" ngbTooltip="This concert was cancelled 😭" placement="bottom">
     <i class="bi bi-patch-exclamation"></i> CANCELLED
   </span>
+} @else if (concert$?.concertStatus != undefined && concert$?.concertStatus == ConcertStatusValueDto.Running) {
+  <span class="badge bg-success" style="margin-right: 3px;" ngbTooltip="This concert is currently running" placement="bottom">
+    <i class="bi bi-play-circle"></i> LIVE right now
+  </span>
 }
 
 @if (concert$?.showType != undefined && concert$?.showType != defaultShowType) {
