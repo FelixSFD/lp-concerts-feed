@@ -301,14 +301,31 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
       linkinpediaUrl: linkinpediaUrl,
       addSongs: this.generatedSetlist$?.entries?.filter(e => e.foundSongId).map(e => {
         let currentAct = this.generatedSetlist$?.acts?.filter(a => a.actNumber == e.actNumber).at(0) ?? null;
-        let dto: AddSongToSetlistRequestDto = {
-          songParameters: {
-            songId: e.foundSongId
-          },
-          actParameters: this.getCreateActParameters(e, currentAct),
-          entryParameters: this.getCreateEntryParameters(e)
-        };
-        return dto;
+
+        // it's either a new or an existing song
+        if (Number(e.foundSongId) >= 0) {
+          console.debug("Song ID: ", e.foundSongId);
+          let dto: AddSongToSetlistRequestDto = {
+            songParameters: {
+              songId: e.foundSongId
+            },
+            actParameters: this.getCreateActParameters(e, currentAct),
+            entryParameters: this.getCreateEntryParameters(e)
+          };
+          return dto;
+        } else {
+          // not an actual song. Just a plain-text entry
+          let dto: AddSongToSetlistRequestDto = {
+            songParameters: {},
+            actParameters: this.getCreateActParameters(e, currentAct),
+            entryParameters: this.getCreateEntryParameters(e)
+          };
+          dto.entryParameters!.titleOverride = e.title ?? "Unknown Song"
+
+          console.debug("Entry is a plain-text entry, not a real song", dto);
+
+          return dto;
+        }
       }) ?? [],
       addSongVariants: this.generatedSetlist$?.entries?.filter(e => e.foundSongVariantId).map(e => {
         let currentAct = this.generatedSetlist$?.acts?.filter(a => a.actNumber == e.actNumber).at(0) ?? null;
