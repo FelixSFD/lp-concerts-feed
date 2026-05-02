@@ -108,7 +108,7 @@ public class Function
                 { "Content-Type", "application/json" },
                 { "Access-Control-Allow-Origin", "*" },
                 { "Access-Control-Allow-Methods", "OPTIONS, GET" },
-                { "Cache-Control", CacheControlHeaderFactory.CacheFor(CacheExpiration.Long) }
+                { "Cache-Control", CacheControlHeaderFactory.CacheFor(CacheExpiration.Long, CacheFlags.Public) }
             }
         };
     }
