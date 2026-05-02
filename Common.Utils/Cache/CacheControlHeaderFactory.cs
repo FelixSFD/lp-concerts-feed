@@ -13,14 +13,22 @@ public static class CacheControlHeaderFactory
     {
         var control = new CacheControlHeaderValue
         {
-            MaxAge = flags.HasFlag(CacheFlags.UseMaxAgeForServerOnly) ? TimeSpan.Zero : timeSpan,
-            SharedMaxAge = flags.HasFlag(CacheFlags.UseMaxAgeForServerOnly) ? timeSpan : TimeSpan.Zero,
             Public = flags.HasFlag(CacheFlags.Public),
             Private = flags.HasFlag(CacheFlags.Private),
             NoStore = flags.HasFlag(CacheFlags.NoStore),
             MustRevalidate = flags.HasFlag(CacheFlags.MustRevalidate),
             NoCache = flags.HasFlag(CacheFlags.NoCache),
         };
+
+        if (flags.HasFlag(CacheFlags.UseMaxAgeForServerOnly))
+        {
+            control.MaxAge = TimeSpan.Zero;
+            control.SharedMaxAge = timeSpan;
+        }
+        else
+        {
+            control.MaxAge = timeSpan;
+        }
         
         return control;
     }
