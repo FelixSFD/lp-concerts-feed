@@ -80,7 +80,7 @@ public class Function
         _albumService = new AlbumService(_albumRepository, context.Logger);
         _songService = new SongService(_songRepository, _songVariantRepository, _songMashupRepository, context.Logger);
         _wikiMediaRepository = new WikiMediaRepository(new HttpClient(), LinkinpediaImportService.LinkinpediaRestApiBaseUrl); // TODO: env variable?
-        _linkinpediaImportService = new LinkinpediaImportService(_wikiMediaRepository, _wikitextParser, _songRepository, _songMashupRepository, context.Logger);
+        _linkinpediaImportService = new LinkinpediaImportService(_wikiMediaRepository, _wikitextParser, _songRepository, _songVariantRepository, _songMashupRepository, context.Logger);
 
         request.PathParameters ??= new Dictionary<string, string>();
         

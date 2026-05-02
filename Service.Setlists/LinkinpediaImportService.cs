@@ -11,7 +11,7 @@ namespace Service.Setlists;
 /// <summary>
 /// Service to import data from Linkinpedia
 /// </summary>
-public class LinkinpediaImportService(IWikiMediaRepository wikiMediaRepository, IWikitextParser wikitextParser, ISongRepository songRepository, ISongMashupRepository songMashupRepository, ILambdaLogger logger)
+public class LinkinpediaImportService(IWikiMediaRepository wikiMediaRepository, IWikitextParser wikitextParser, ISongRepository songRepository, ISongVariantRepository songVariantRepository, ISongMashupRepository songMashupRepository, ILambdaLogger logger)
 {
     public const string LinkinpediaRestApiBaseUrl = "https://linkinpedia.com/w/rest.php/v1";
     
@@ -77,6 +77,13 @@ public class LinkinpediaImportService(IWikiMediaRepository wikiMediaRepository, 
                 {
                     logger.LogDebug("Song '{title}' has an exact match with ID {songId}.", wikiSetlistEntry.Name, uniqueSong.Id);
                     preview.FoundSongId = uniqueSong.Id;
+                    
+                    logger.LogDebug("Searching for variants of this song...");
+                    var variants = await songVariantRepository.GetVariantsOfSongAsync(uniqueSong.Id);
+                    logger.LogDebug("Found {count} variants.", variants.Count);
+                    preview.PossibleSongVariants = variants
+                        .Select(DtoMapper.ToDto)
+                        .ToArray();
                 }
                 else
                 {

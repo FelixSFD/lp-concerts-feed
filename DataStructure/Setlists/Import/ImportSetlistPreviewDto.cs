@@ -58,6 +58,12 @@ public class ImportSetlistEntryPreviewDto
     public uint? FoundSongId { get; set; }
 
     /// <summary>
+    /// If <see cref="FoundSongId"/> was found and the song has variants, all possible variants are listed here
+    /// </summary>
+    [JsonPropertyName("possibleSongVariants")]
+    public SongVariantDto[] PossibleSongVariants { get; set; } = [];
+
+    /// <summary>
     /// If multiple songs were found, this is the list of IDs that could match the song
     /// </summary>
     [JsonPropertyName("foundSongIds")]

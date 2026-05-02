@@ -3,6 +3,7 @@ using Common.WikiMedia.DTOs;
 using Common.WikiMedia.Repositories;
 using Database.Setlists.DataObjects;
 using Database.Setlists.Repositories;
+using LPCalendar.DataStructure.Setlists;
 using LPCalendar.DataStructure.Setlists.Import;
 using NSubstitute;
 using Service.Setlists.Importer;
@@ -16,6 +17,7 @@ public class LinkinpediaImportServiceTest
     private readonly IWikiMediaRepository _wikiMediaRepository;
     private readonly IWikitextParser _wikitextParser;
     private readonly ISongRepository _songRepository;
+    private readonly ISongVariantRepository _songVariantRepository;
     private readonly ISongMashupRepository _songMashupRepository;
     private readonly LinkinpediaImportService _sut;
 
@@ -24,9 +26,10 @@ public class LinkinpediaImportServiceTest
         _wikiMediaRepository = Substitute.For<IWikiMediaRepository>();
         _wikitextParser = Substitute.For<IWikitextParser>();
         _songRepository = Substitute.For<ISongRepository>();
+        _songVariantRepository = Substitute.For<ISongVariantRepository>();
         _songMashupRepository = Substitute.For<ISongMashupRepository>();
         
-        _sut = new LinkinpediaImportService(_wikiMediaRepository, _wikitextParser, _songRepository, _songMashupRepository, new TestLambdaLogger());
+        _sut = new LinkinpediaImportService(_wikiMediaRepository, _wikitextParser, _songRepository, _songVariantRepository, _songMashupRepository, new TestLambdaLogger());
     }
     
     [Fact]
@@ -53,9 +56,32 @@ public class LinkinpediaImportServiceTest
             Title = "yet another song",
             Isrc = "33332"
         };
+        
+        var song4 = new SongDo
+        {
+            Id = 5,
+            Title = "Song 4",
+            Isrc = "44"
+        };
+
+        var song4Variant1 = new SongVariantDo
+        {
+            Id = 123,
+            VariantName = "Piano Version",
+            SongId = song4.Id
+        };
+        var song4Variant2 = new SongVariantDo
+        {
+            Id = 432,
+            VariantName = "Nu-Metal Version",
+            SongId = song4.Id
+        };
 
         List<SongDo> mockSongsSong1 = [song1];
         List<SongDo> mockSongsSong3 = [song3, song3SameName];
+        List<SongDo> mockSongsSong4 = [song4];
+        List<SongVariantDo> mockVariantsSong4 = [song4Variant1, song4Variant2];
+        List<SongVariantDo> emptyVariants = [];
         
         var expectedResult = new ImportSetlistPreviewDto
         {
@@ -97,6 +123,27 @@ public class LinkinpediaImportServiceTest
                     Title = "yet another song",
                     ExtraNotes = null,
                     FoundSongIds = mockSongsSong3.Select(s => s.Id).ToArray()
+                },
+                new ImportSetlistEntryPreviewDto
+                {
+                    SongNumber = 4,
+                    ActNumber = 2,
+                    Title = "Song 4",
+                    FoundSongId = song4.Id,
+                    PossibleSongVariants = [
+                        new SongVariantDto
+                        {
+                            Id = 123,
+                            VariantName = "Piano Version",
+                            SongId = song4.Id
+                        },
+                        new SongVariantDto
+                        {
+                            Id = 432,
+                            VariantName = "Nu-Metal Version",
+                            SongId = song4.Id
+                        }
+                    ]
                 },
             ]
         };
@@ -143,6 +190,13 @@ public class LinkinpediaImportServiceTest
                 Name = "yet another song",
                 Note = null
             },
+            new SongWikiSetlistEntry
+            {
+                SongNumber = 4,
+                ActNumber = 2,
+                Name = "Song 4",
+                Note = null
+            },
         ];
         
         _wikiMediaRepository
@@ -169,6 +223,16 @@ public class LinkinpediaImportServiceTest
             .GetSongsByTitle(song3.Title)
             .Returns(mockSongsSong3.ToAsyncEnumerable());
         
+        _songRepository
+            .GetSongsByTitle(song4.Title)
+            .Returns(mockSongsSong4.ToAsyncEnumerable());
+        
+        // first setup with the fallback, after that, override for those args where we want to return data
+        _songVariantRepository.GetVariantsOfSongAsync(Arg.Any<uint>())
+            .Returns(emptyVariants);
+        _songVariantRepository.GetVariantsOfSongAsync(song4.Id)
+            .Returns(mockVariantsSong4);
+        
         // run the test
         var result = await _sut.GetImportPlanForSetlistFromPageAsync(pageId);
         Assert.NotNull(result);
@@ -191,6 +255,10 @@ public class LinkinpediaImportServiceTest
         _songRepository
             .Received(1)
             .GetSongsByTitle(song3.Title);
+        
+        _songRepository
+            .Received(1)
+            .GetSongsByTitle(song4.Title);
     }
 
 
@@ -235,5 +303,31 @@ public class LinkinpediaImportServiceTest
         Assert.Equal(expectedEntry.FoundSongIds, actualEntry.FoundSongIds);
         Assert.Equal(expectedEntry.FoundSongVariantId, actualEntry.FoundSongVariantId);
         Assert.Equal(expectedEntry.FoundMashupId, actualEntry.FoundMashupId);
+
+        if (expectedEntry.FoundSongId != null && expectedEntry.FoundSongId > 0)
+        {
+            AssertEqual(expectedEntry.PossibleSongVariants, actualEntry.PossibleSongVariants);
+        }
+    }
+    
+    
+    private static void AssertEqual(SongVariantDto[] expectedVariants, SongVariantDto[] actualVariants)
+    {
+        Assert.Equal(expectedVariants.Length, actualVariants.Length);
+        for (var i = 0; i < expectedVariants.Length; i++)
+        {
+            AssertEqual(expectedVariants[i], actualVariants[i]);
+        }
+    }
+
+
+    private static void AssertEqual(SongVariantDto expectedVariant, SongVariantDto actualVariant)
+    {
+        Assert.Equal(expectedVariant.Id, actualVariant.Id);
+        Assert.Equal(expectedVariant.SongId, actualVariant.SongId);
+        Assert.Equal(expectedVariant.VariantName, actualVariant.VariantName);
+        Assert.Equal(expectedVariant.Description, actualVariant.Description);
+        Assert.Equal(expectedVariant.AppleMusicIdOverride, actualVariant.AppleMusicIdOverride);
+        Assert.Equal(expectedVariant.IsrcOverride, actualVariant.IsrcOverride);
     }
 }
