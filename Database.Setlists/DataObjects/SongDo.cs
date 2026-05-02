@@ -50,4 +50,9 @@ public class SongDo : BaseDo, ILinkinpediaLinkable
     [Column("LinkinpediaUrl")]
     [MaxLength(63)]
     public string? LinkinpediaUrl { get; set; }
+    
+    /// <summary>
+    /// Variants of this song
+    /// </summary>
+    public virtual ICollection<SongVariantDo> Variants { get; set; }
 }

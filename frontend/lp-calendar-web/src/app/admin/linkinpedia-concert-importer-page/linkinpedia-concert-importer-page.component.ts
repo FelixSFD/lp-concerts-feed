@@ -242,6 +242,11 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
   }
 
 
+  openSelectVariantBtnClicked(entryPreview: ImportSetlistEntryPreviewDto, content: TemplateRef<any>) {
+    console.log("use variant: ", entryPreview);
+  }
+
+
   openConcertDetailsClicked() {
     let concertId = this.sourceDataForm.getRawValue().concertId?.valueOf();
     if (concertId?.length == 0) {
