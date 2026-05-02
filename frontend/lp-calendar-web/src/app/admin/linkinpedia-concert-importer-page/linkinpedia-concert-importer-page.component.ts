@@ -299,7 +299,7 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
       concertTitle: concertTitle,
       setName: setName,
       linkinpediaUrl: linkinpediaUrl,
-      addSongs: this.generatedSetlist$?.entries?.filter(e => e.foundSongId).map(e => {
+      addSongs: this.generatedSetlist$?.entries?.filter(e => e.foundSongId && (e.foundSongVariantId ?? 0) <= 0).map(e => {
         let currentAct = this.generatedSetlist$?.acts?.filter(a => a.actNumber == e.actNumber).at(0) ?? null;
 
         // it's either a new or an existing song
