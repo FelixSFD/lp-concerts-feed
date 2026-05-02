@@ -299,7 +299,7 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
       concertTitle: concertTitle,
       setName: setName,
       linkinpediaUrl: linkinpediaUrl,
-      addSongs: this.generatedSetlist$?.entries?.filter(e => e.foundSongId).map(e => {
+      addSongs: this.generatedSetlist$?.entries?.filter(e => e.foundSongId && (e.foundSongVariantId ?? 0) <= 0).map(e => {
         let currentAct = this.generatedSetlist$?.acts?.filter(a => a.actNumber == e.actNumber).at(0) ?? null;
 
         // it's either a new or an existing song
@@ -356,9 +356,9 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
     this.isCreatingSetlist$ = true;
     this.setlistsService.createSetlist(createRequest).subscribe({
       next: data => {
-        this.router.navigate(["/admin", "setlists", data.id]).catch((reason) => {
+        /*this.router.navigate(["/admin", "setlists", data.id]).catch((reason) => {
           this.toastr.error(reason, "Failed to navigate to created setlist!");
-        });
+        });*/
 
         this.isCreatingSetlist$ = false;
       },
