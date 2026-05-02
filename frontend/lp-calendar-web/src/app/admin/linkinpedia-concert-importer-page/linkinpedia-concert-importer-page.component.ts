@@ -356,9 +356,9 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
     this.isCreatingSetlist$ = true;
     this.setlistsService.createSetlist(createRequest).subscribe({
       next: data => {
-        /*this.router.navigate(["/admin", "setlists", data.id]).catch((reason) => {
+        this.router.navigate(["/admin", "setlists", data.id]).catch((reason) => {
           this.toastr.error(reason, "Failed to navigate to created setlist!");
-        });*/
+        });
 
         this.isCreatingSetlist$ = false;
       },
