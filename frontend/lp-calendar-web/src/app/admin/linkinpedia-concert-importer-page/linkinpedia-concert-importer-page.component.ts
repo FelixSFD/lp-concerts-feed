@@ -63,7 +63,6 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
   });
 
   generatedSetlist$: ImportSetlistPreviewDto | null = null;
-  private originallyGeneratedSetlist: ImportSetlistPreviewDto | null = null;
 
   // properties for the add song modal
   isAddingSong$: boolean = false;
@@ -114,7 +113,6 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
         .subscribe({
           next: data => {
             this.generatedSetlist$ = data;
-            this.originallyGeneratedSetlist = JSON.parse(JSON.stringify(data));
             this.validateEntries();
 
             this.toastr.success('Successfully read setlist from Linkinpedia');
@@ -301,33 +299,14 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
       linkinpediaUrl: linkinpediaUrl,
       addSongs: this.generatedSetlist$?.entries?.filter(e => e.foundSongId).map(e => {
         let currentAct = this.generatedSetlist$?.acts?.filter(a => a.actNumber == e.actNumber).at(0) ?? null;
-
-        console.debug("Entry: ", e);
-
-        // it's either a new or an existing song
-        if (Number(e.foundSongId) >= 0) {
-          console.debug("Song ID: ", e.foundSongId);
-          let dto: AddSongToSetlistRequestDto = {
-            songParameters: {
-              songId: e.foundSongId
-            },
-            actParameters: this.getCreateActParameters(e, currentAct),
-            entryParameters: this.getCreateEntryParameters(e)
-          };
-          return dto;
-        } else {
-          // not an actual song. Just a plain-text entry
-          let dto: AddSongToSetlistRequestDto = {
-            songParameters: {},
-            actParameters: this.getCreateActParameters(e, currentAct),
-            entryParameters: this.getCreateEntryParameters(e)
-          };
-          dto.entryParameters!.titleOverride = e.title ?? "Unknown Song"
-
-          console.debug("Entry is a plain-text entry, not a real song", dto);
-
-          return dto;
-        }
+        let dto: AddSongToSetlistRequestDto = {
+          songParameters: {
+            songId: e.foundSongId
+          },
+          actParameters: this.getCreateActParameters(e, currentAct),
+          entryParameters: this.getCreateEntryParameters(e)
+        };
+        return dto;
       }) ?? [],
       addSongVariants: this.generatedSetlist$?.entries?.filter(e => e.foundSongVariantId).map(e => {
         let currentAct = this.generatedSetlist$?.acts?.filter(a => a.actNumber == e.actNumber).at(0) ?? null;
@@ -376,11 +355,9 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
 
 
   private getCreateEntryParameters(previewEntry: ImportSetlistEntryPreviewDto) : SetlistEntryParametersDto {
-    let songNumber = Math.max(0, previewEntry.songNumber ?? 0);
-
     return {
-      songNumber: songNumber,
-      sortNumber: (songNumber ?? 1) * 10,
+      songNumber: previewEntry.songNumber,
+      sortNumber: (previewEntry.songNumber ?? 1) * 10,
       extraNotes: previewEntry.extraNotes,
     };
   }
