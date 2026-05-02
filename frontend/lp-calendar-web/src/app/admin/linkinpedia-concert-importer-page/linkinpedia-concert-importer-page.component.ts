@@ -63,6 +63,7 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
   });
 
   generatedSetlist$: ImportSetlistPreviewDto | null = null;
+  private originallyGeneratedSetlist: ImportSetlistPreviewDto | null = null;
 
   // properties for the add song modal
   isAddingSong$: boolean = false;
@@ -113,6 +114,7 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
         .subscribe({
           next: data => {
             this.generatedSetlist$ = data;
+            this.originallyGeneratedSetlist = JSON.parse(JSON.stringify(data));
             this.validateEntries();
 
             this.toastr.success('Successfully read setlist from Linkinpedia');
