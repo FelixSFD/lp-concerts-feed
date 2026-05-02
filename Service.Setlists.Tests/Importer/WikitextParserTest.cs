@@ -77,13 +77,13 @@ public class WikitextParserTest
         var setlistSource = await File.ReadAllTextAsync("TestData/Wiki/setlist_source_Live_20260315_short.txt");
 
         WikiSetlistEntry[] expectedEntries = [
-            /*new SongWikiSetlistEntry
+            new SongWikiSetlistEntry
             {
                 Name = "It's Goin' Down",
                 Note = "Pre-show w/ From Zero countdown; The X-Ecutioners (feat. Mike and Joe) song",
                 SongNumber = 0,
                 IsPlayedFromRecording = true,
-            },*/
+            },
             new ActWikiSetlistEntry
             {
                 Name = "Inception Intro A",

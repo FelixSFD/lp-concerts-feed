@@ -207,13 +207,13 @@ public class SetlistService(
         logger.LogDebug("Adding song to setlist: {setlistId}", setlist.Id);
 
         var songParams = request.SongParameters;
-        SongDo? song;
+        SongDo? song = null;
         if (songParams.SongId is > 0)
         {
             logger.LogDebug("Checking if song exists: {songId}", songParams.SongId);
             song = await songRepository.GetByPrimaryKeyAsync(songParams.SongId ?? 0);
         }
-        else
+        else if (songParams.SongId is >= 0)
         {
             logger.LogDebug("Create a new song");
             song = new SongDo
@@ -474,7 +474,7 @@ public class SetlistService(
         
         // update song
         var songParams = request.SongParameters;
-        if (songParams != null)
+        if (songParams is { SongId: >= 0 })
         {
             logger.LogDebug("This entry contains a song.");
             setlistEntry.PlayedSong = await GetOrAddFromParameters(songParams);
@@ -837,7 +837,7 @@ public class SetlistService(
             }
         }
         
-        var largestSortNumber = sortedEntries.Max(e => e.SortNumber);
+        var largestSortNumber = sortedEntries.Length == 0 ? 0 : sortedEntries.Max(e => e.SortNumber);
         logger.LogDebug("Found no entries with a song number larger than {songNumber}. Will use largest sortNumber: {largestSortNumber}", songNumber, largestSortNumber);
         return largestSortNumber + 1u;
     }
