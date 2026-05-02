@@ -4,7 +4,7 @@ namespace Common.Utils.Cache;
 
 public static class CacheControlHeaderFactory
 {
-    private const CacheFlags DefaultCacheFlags = CacheFlags.Public | CacheFlags.NoStore;
+    private const CacheFlags DefaultCacheFlags = CacheFlags.Public | CacheFlags.MustRevalidate | CacheFlags.UseMaxAgeForServerOnly;
     
     public static CacheControlHeaderValue GetCacheHeaderValueFor(int seconds, CacheFlags flags = DefaultCacheFlags) 
         => GetCacheHeaderValueFor(TimeSpan.FromSeconds(seconds), flags);
@@ -13,10 +13,13 @@ public static class CacheControlHeaderFactory
     {
         var control = new CacheControlHeaderValue
         {
-            MaxAge = timeSpan,
-            Public =  flags.HasFlag(CacheFlags.Public),
+            MaxAge = flags.HasFlag(CacheFlags.UseMaxAgeForServerOnly) ? TimeSpan.Zero : timeSpan,
+            SharedMaxAge = flags.HasFlag(CacheFlags.UseMaxAgeForServerOnly) ? timeSpan : TimeSpan.Zero,
+            Public = flags.HasFlag(CacheFlags.Public),
             Private = flags.HasFlag(CacheFlags.Private),
             NoStore = flags.HasFlag(CacheFlags.NoStore),
+            MustRevalidate = flags.HasFlag(CacheFlags.MustRevalidate),
+            NoCache = flags.HasFlag(CacheFlags.NoCache),
         };
         
         return control;
