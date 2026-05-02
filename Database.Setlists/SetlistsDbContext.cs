@@ -45,6 +45,15 @@ public class SetlistsDbContext(DbContextOptions<SetlistsDbContext> options) : Db
         modelBuilder.Entity<SongDo>()
             .Navigation(s => s.Album)
             .AutoInclude();
+        modelBuilder.Entity<SongDo>()
+            .Navigation(s => s.Variants)
+            .AutoInclude();
+        
+        modelBuilder.Entity<SongVariantDo>()
+            .HasOne(e => e.Song)
+            .WithMany(s => s.Variants)
+            .HasForeignKey(e => new { e.SongId })
+            .HasPrincipalKey(s => new { s.Id });
         
         modelBuilder.Entity<SongVariantDo>()
             .Navigation(v => v.Song)

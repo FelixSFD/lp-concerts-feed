@@ -1257,6 +1257,11 @@ components:
           type: number
           description: If an existing song was found, the ID will be in this property. If not, you either have to select an existing song or create it.
           nullable: true
+        possibleSongVariants:
+          type: array
+          description: If a songId was found and the song has variants, all possible variants are listed here
+          items:
+            $ref: "#/components/schemas/SongVariant"
         foundSongIds:
           type: array
           description: If more than 1 matching song was found, the possible IDs are listed here

@@ -14,10 +14,10 @@ import {
   ErrorResponseDto, ImportSetlistActPreviewDto,
   ImportSetlistEntryPreviewDto,
   ImportSetlistPreviewDto, SetlistEntryParametersDto,
-  SongDto, SongMashupDto
+  SongDto, SongMashupDto, SongVariantDto
 } from '../../modules/lpshows-api';
 import {SongFormComponent} from '../setlists/song-form/song-form.component';
-import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbModalRef, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {SongsService} from '../../services/songs.service';
 import {MashupFormComponent} from '../setlists/mashup-form/mashup-form.component';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -31,7 +31,8 @@ import {ConcertsService} from '../../services/concerts.service';
     NgClass,
     SongFormComponent,
     MashupFormComponent,
-    NgTemplateOutlet
+    NgTemplateOutlet,
+    NgbTooltip
   ],
   templateUrl: './linkinpedia-concert-importer-page.component.html',
   styleUrl: './linkinpedia-concert-importer-page.component.css',
@@ -62,6 +63,7 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
   });
 
   generatedSetlist$: ImportSetlistPreviewDto | null = null;
+  private originallyGeneratedSetlist: ImportSetlistPreviewDto | null = null;
 
   // properties for the add song modal
   isAddingSong$: boolean = false;
@@ -112,6 +114,7 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
         .subscribe({
           next: data => {
             this.generatedSetlist$ = data;
+            this.originallyGeneratedSetlist = JSON.parse(JSON.stringify(data));
             this.validateEntries();
 
             this.toastr.success('Successfully read setlist from Linkinpedia');
@@ -242,6 +245,24 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
   }
 
 
+  setVariantBtnClicked(entryPreview: ImportSetlistEntryPreviewDto, variant: SongVariantDto) {
+    console.log("use variant: ", variant);
+    entryPreview.title += " (" + variant.variantName + ")";
+    entryPreview.foundSongVariantId = variant.id;
+  }
+
+  setNormalVersionBtnClicked(entryPreview: ImportSetlistEntryPreviewDto) {
+    entryPreview.title = this.originallyGeneratedSetlist?.entries?.find((e) => e.songNumber == entryPreview.songNumber)?.title ?? "failed to reload title"
+    entryPreview.foundSongVariantId = null;
+  }
+
+
+  changeToPlainTextEntryBtnClicked(entryPreview: ImportSetlistEntryPreviewDto) {
+    entryPreview.foundSongId = -1;
+    this.validateEntries();
+  }
+
+
   openConcertDetailsClicked() {
     let concertId = this.sourceDataForm.getRawValue().concertId?.valueOf();
     if (concertId?.length == 0) {
@@ -280,14 +301,31 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
       linkinpediaUrl: linkinpediaUrl,
       addSongs: this.generatedSetlist$?.entries?.filter(e => e.foundSongId).map(e => {
         let currentAct = this.generatedSetlist$?.acts?.filter(a => a.actNumber == e.actNumber).at(0) ?? null;
-        let dto: AddSongToSetlistRequestDto = {
-          songParameters: {
-            songId: e.foundSongId
-          },
-          actParameters: this.getCreateActParameters(e, currentAct),
-          entryParameters: this.getCreateEntryParameters(e)
-        };
-        return dto;
+
+        // it's either a new or an existing song
+        if (Number(e.foundSongId) >= 0) {
+          console.debug("Song ID: ", e.foundSongId);
+          let dto: AddSongToSetlistRequestDto = {
+            songParameters: {
+              songId: e.foundSongId
+            },
+            actParameters: this.getCreateActParameters(e, currentAct),
+            entryParameters: this.getCreateEntryParameters(e)
+          };
+          return dto;
+        } else {
+          // not an actual song. Just a plain-text entry
+          let dto: AddSongToSetlistRequestDto = {
+            songParameters: {},
+            actParameters: this.getCreateActParameters(e, currentAct),
+            entryParameters: this.getCreateEntryParameters(e)
+          };
+          dto.entryParameters!.titleOverride = e.title ?? "Unknown Song"
+
+          console.debug("Entry is a plain-text entry, not a real song", dto);
+
+          return dto;
+        }
       }) ?? [],
       addSongVariants: this.generatedSetlist$?.entries?.filter(e => e.foundSongVariantId).map(e => {
         let currentAct = this.generatedSetlist$?.acts?.filter(a => a.actNumber == e.actNumber).at(0) ?? null;

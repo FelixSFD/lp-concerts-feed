@@ -77,6 +77,14 @@ public class LinkinpediaImportService(IWikiMediaRepository wikiMediaRepository, 
                 {
                     logger.LogDebug("Song '{title}' has an exact match with ID {songId}.", wikiSetlistEntry.Name, uniqueSong.Id);
                     preview.FoundSongId = uniqueSong.Id;
+                    
+                    logger.LogDebug("Searching for variants of this song...");
+                    // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+                    var variants = uniqueSong.Variants ?? [];
+                    logger.LogDebug("Found {count} variants.", variants.Count);
+                    preview.PossibleSongVariants = variants
+                        .Select(DtoMapper.ToDto)
+                        .ToArray();
                 }
                 else
                 {

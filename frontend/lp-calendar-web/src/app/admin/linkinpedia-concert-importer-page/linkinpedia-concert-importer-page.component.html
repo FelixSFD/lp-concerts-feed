@@ -186,12 +186,31 @@
           </thead>
           <tbody>
             @for (generatedEntry of generatedSetlist$.entries; track generatedEntry) {
-              @if (generatedEntry.foundSongId) {
+              @if (generatedEntry.foundSongVariantId) {
+                <ng-container *ngTemplateOutlet="entryRow; context: { rowClass: 'table-success', entryNumber: generatedEntry.songNumber, actNumber: generatedEntry.actNumber, type: 'existing Variant', title: generatedEntry.title, notes: generatedEntry.extraNotes }" />
+                <tr class="table-secondary">
+                  <td colspan="2"></td>
+                  <td colspan="3">
+                    <button class="btn btn-sm btn-outline-primary" (click)="setNormalVersionBtnClicked(generatedEntry)">Use normal version</button>
+                  </td>
+                </tr>
+              } @else if (generatedEntry.foundSongId) {
                 <ng-container *ngTemplateOutlet="entryRow; context: { rowClass: 'table-success', entryNumber: generatedEntry.songNumber, actNumber: generatedEntry.actNumber, type: 'existing Song', title: generatedEntry.title, notes: generatedEntry.extraNotes }" />
+                @if (generatedEntry.possibleSongVariants?.length ?? 0 > 0) {
+                  <tr class="table-secondary">
+                    <td colspan="2"></td>
+                    <td colspan="3">
+                      <span ngbTooltip="Select a variant here, if they didn't play the normal version">Select a variant:</span>
+                      <div class="btn-group btn-group-sm ms-2">
+                        @for (variant of generatedEntry.possibleSongVariants; track variant.id) {
+                          <button class="btn btn-sm btn-outline-primary" (click)="setVariantBtnClicked(generatedEntry, variant)">{{ variant.variantName }}</button>
+                        }
+                      </div>
+                    </td>
+                  </tr>
+                }
               } @else if ((generatedEntry.foundSongIds?.length ?? 0) >= 2) {
                 <ng-container *ngTemplateOutlet="entryRow; context: { rowClass: 'table-warning', entryNumber: generatedEntry.songNumber, actNumber: generatedEntry.actNumber, type: 'select Song', title: generatedEntry.title, notes: generatedEntry.extraNotes }" />
-              } @else if (generatedEntry.foundSongVariantId) {
-                <ng-container *ngTemplateOutlet="entryRow; context: { rowClass: 'table-success', entryNumber: generatedEntry.songNumber, actNumber: generatedEntry.actNumber, type: 'existing Variant', title: generatedEntry.title, notes: generatedEntry.extraNotes }" />
               } @else if (generatedEntry.foundMashupId) {
                 <ng-container *ngTemplateOutlet="entryRow; context: { rowClass: 'table-success', entryNumber: generatedEntry.songNumber, actNumber: generatedEntry.actNumber, type: 'existing Mashup', title: generatedEntry.title, notes: generatedEntry.extraNotes }" />
               } @else {
@@ -201,6 +220,7 @@
                   <td colspan="3">
                     <button class="btn btn-sm btn-outline-primary me-2" (click)="openCreateSongBtnClicked(generatedEntry, addSongContent)">Create Song</button>
                     <button class="btn btn-sm btn-outline-primary me-2" (click)="openCreateMashupBtnClicked(generatedEntry, addMashupContent)">Create Mashup</button>
+                    <button class="btn btn-sm btn-outline-secondary me-2" (click)="changeToPlainTextEntryBtnClicked(generatedEntry)" ngbTooltip="Use this button to mark this as a plain-text entry. This will not have any songs assigned.">Text-only entry</button>
                   </td>
                 </tr>
               }
