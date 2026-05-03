@@ -1112,6 +1112,36 @@ Resources:
         - COGNITO
       UserPoolId: !Ref CognitoAuthorizerUserPoolV3
       GenerateSecret: false
+      
+  CognitoGrafanaUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    DependsOn: CognitoAuthorizerUserPoolV3ResourceServer
+    Properties:
+      AllowedOAuthFlows:
+        - implicit
+        - code
+      AllowedOAuthFlowsUserPoolClient: True
+      AllowedOAuthScopes:
+        - email
+        - openid
+        - profile
+        - !Sub ${AWS::StackName}_LpConcertsAuthServer/user_access
+      ExplicitAuthFlows:
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_USER_AUTH
+        - ALLOW_USER_SRP_AUTH
+      CallbackURLs:
+        - https://dashboard.lpshows.live
+        - https://dashboard.lpshows.live/
+        - https://dashboard.lpshows.live/login/generic_oauth
+      LogoutURLs:
+        - https://dashboard.lpshows.live
+        - https://dashboard.lpshows.live/
+      ClientName: !Sub ${UserPoolId}-grafana-client
+      SupportedIdentityProviders:
+        - COGNITO
+      UserPoolId: !Ref CognitoAuthorizerUserPoolV3
+      GenerateSecret: false
 
   CognitoAuthorizerUserPoolDomain:
     Type: AWS::Cognito::UserPoolDomain
@@ -1126,6 +1156,18 @@ Resources:
     Type: AWS::Cognito::ManagedLoginBranding
     Properties:
       ClientId: !Ref CognitoAuthorizerUserPoolClient
+      ReturnMergedResources: true
+      UseCognitoProvidedValues: false
+      UserPoolId: !Ref CognitoAuthorizerUserPoolV3
+      Settings:
+        categories:
+          global:
+            colorSchemeMode: DYNAMIC
+            
+  CognitoGrafanaManagedLoginBranding:
+    Type: AWS::Cognito::ManagedLoginBranding
+    Properties:
+      ClientId: !Ref CognitoGrafanaUserPoolClient
       ReturnMergedResources: true
       UseCognitoProvidedValues: false
       UserPoolId: !Ref CognitoAuthorizerUserPoolV3
@@ -1188,6 +1230,14 @@ Resources:
     Properties:
       Description: People in this group can delete songs
       GroupName: DeleteSongs
+      Precedence: 3
+      UserPoolId: !Ref CognitoAuthorizerUserPoolV3
+  
+  EditSetlistsDashboardUserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      Description: People in this group receive the Editor-role in the Grafana dashboard
+      GroupName: EditSetlistsDashboard
       Precedence: 3
       UserPoolId: !Ref CognitoAuthorizerUserPoolV3
 
