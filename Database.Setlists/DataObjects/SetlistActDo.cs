@@ -25,7 +25,7 @@ public class SetlistActDo : BaseDo
     /// <summary>
     /// Title of this act
     /// </summary>
-    [MaxLength(31)]
+    [MaxLength(DataConstants.TitleFieldLength)]
     [Column("Title")]
     public string? Title { get; set; }
     

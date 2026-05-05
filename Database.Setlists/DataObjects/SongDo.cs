@@ -29,26 +29,26 @@ public class SongDo : BaseDo, ILinkinpediaLinkable
     /// Name of the song
     /// </summary>
     [Column("Title")]
-    [MaxLength(31)]
+    [MaxLength(DataConstants.TitleFieldLength)]
     public required string Title { get; set; }
 
     /// <summary>
     /// ISRC code helps to find the song on Apple Music or Spotify
     /// </summary>
     [Column("Isrc")]
-    [MaxLength(15)]
+    [MaxLength(DataConstants.IsrcLength)]
     public string? Isrc { get; set; }
     
     /// <summary>
     /// Unique ID for the Song on Apple Music
     /// </summary>
     [Column("appleMusicId")]
-    [MaxLength(31)]
+    [MaxLength(DataConstants.AppleMusicIdLength)]
     public string? AppleMusicId { get; set; }
     
     /// <inheritdoc/>
     [Column("LinkinpediaUrl")]
-    [MaxLength(63)]
+    [MaxLength(DataConstants.LinkinpediaUrlLength)]
     public string? LinkinpediaUrl { get; set; }
     
     /// <summary>
