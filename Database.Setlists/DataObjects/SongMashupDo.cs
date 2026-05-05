@@ -21,12 +21,12 @@ public class SongMashupDo: BaseDo, ILinkinpediaLinkable
     /// Name of this mashup
     /// </summary>
     [Column("Title")]
-    [MaxLength(127)]
+    [MaxLength(DataConstants.TitleFieldLength)]
     public required string Title { get; set; }
     
     /// <inheritdoc/>
     [Column("LinkinpediaUrl")]
-    [MaxLength(63)]
+    [MaxLength(DataConstants.LinkinpediaUrlLength)]
     public string? LinkinpediaUrl { get; set; }
     
     /// <summary>

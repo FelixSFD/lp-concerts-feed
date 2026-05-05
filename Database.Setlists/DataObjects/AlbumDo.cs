@@ -17,11 +17,11 @@ public class AlbumDo : BaseDo, ILinkinpediaLinkable
     /// Name of the album
     /// </summary>
     [Column("Title")]
-    [MaxLength(31)]
+    [MaxLength(DataConstants.AlbumTitleFieldLength)]
     public required string Title { get; set; }
 
     /// <inheritdoc/>
     [Column("LinkinpediaUrl")]
-    [MaxLength(63)]
+    [MaxLength(DataConstants.LinkinpediaUrlLength)]
     public string? LinkinpediaUrl { get; set; }
 }

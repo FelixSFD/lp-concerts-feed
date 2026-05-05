@@ -50,14 +50,14 @@ public class SetlistEntryDo : BaseDo
     /// <summary>
     /// Optional property to override the title of the song or mashup in this entry only.
     /// </summary>
-    [MaxLength(31)]
+    [MaxLength(DataConstants.TitleFieldLength)]
     [Column("TitleOverride")]
     public string? TitleOverride { get; set; }
     
     /// <summary>
     /// Field to store additional notes about this entry
     /// </summary>
-    [MaxLength(127)]
+    [MaxLength(255)]
     [Column("ExtraNotes")]
     public string? ExtraNotes { get; set; }
     
