@@ -205,7 +205,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
           this.setlistEntryForm.controls.songNumber.setValue(entry.songNumber ?? null);
           this.setlistEntryForm.controls.titleOverride.setValue(entry.titleOverride ?? null);
           this.setlistEntryForm.controls.extraNotes.setValue(entry.extraNotes ?? null);
-          this.setlistEntryForm.controls.selectedActNumber.setValue(entry.actNumber ?? null);
+          this.setlistEntryForm.controls.selectedActNumber.setValue(entry.actNumber ?? 0);
           this.setlistEntryForm.controls.selectedSongId.setValue(entry.playedSong?.id ?? null);
           this.setlistEntryForm.controls.selectedSongVariantId.setValue(entry.playedSongVariant?.id ?? null);
           this.setlistEntryForm.controls.selectedSongMashupId.setValue(entry.playedSongMashup?.id ?? null);
