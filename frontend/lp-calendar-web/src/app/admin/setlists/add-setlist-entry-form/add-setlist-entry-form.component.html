@@ -171,7 +171,7 @@
           <option value="-1">Add new variant</option>
           <option disabled>---------------</option>
           @for (variant of variantsOfSelectedSong$; track variant.id) {
-            <option [value]="variant.id">{{ variant.variantName }} ({{ variant.description }})</option>
+            <option [value]="variant.id">{{ variant.variantName }} {{ variant.description != null && variant.description.length > 0 ? `(${variant.description})` : "" }}</option>
           }
         </select>
       </div>
