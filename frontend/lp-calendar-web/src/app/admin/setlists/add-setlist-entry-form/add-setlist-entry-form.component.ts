@@ -35,8 +35,8 @@ export class AddSetlistEntryFormComponent implements OnInit {
     entryType: new FormControl(AddSetlistEntryFormContent.entryTypeSong, [Validators.required]),
     sortNumber: new FormControl(0, [Validators.min(1), Validators.max(10000), Validators.required]),
     songNumber: new FormControl(0, [Validators.max(99)]),
-    titleOverride: new FormControl('', [Validators.maxLength(31)]),
-    extraNotes: new FormControl('', [Validators.maxLength(127)]),
+    titleOverride: new FormControl('', [Validators.maxLength(63)]),
+    extraNotes: new FormControl('', [Validators.maxLength(255)]),
     selectedActNumber: new FormControl(0, []),
     actNumber: new FormControl('', []),
     actTitle: new FormControl('', [Validators.maxLength(31)]),
@@ -73,6 +73,10 @@ export class AddSetlistEntryFormComponent implements OnInit {
 
     this.setlistEntryForm.controls.entryType.valueChanges.subscribe(value => {
       this.selectedEntryType$ = value ?? AddSetlistEntryFormContent.entryTypeSong;
+    });
+
+    this.setlistEntryForm.controls.selectedSongId.valueChanges.subscribe(value => {
+      this.onSongSelectionChanged();
     });
 
     this.songService
@@ -176,6 +180,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
 
   private loadVariantsOfSelectedSong(songId: number) {
     console.debug("Load Variants of selectedSong");
+    this.setlistEntryForm.controls.selectedSongVariantId.disable();
     this.variantsOfSelectedSong$ = [];
 
     this.songService.getVariantsOfSong(songId)
@@ -187,6 +192,8 @@ export class AddSetlistEntryFormComponent implements OnInit {
           let songVariantId = this.storedEntry.playedSongVariant?.id;
           this.setlistEntryForm.controls.selectedSongVariantId.setValue(songVariantId ?? 0);
         }
+
+        this.setlistEntryForm.controls.selectedSongVariantId.enable();
       });
   }
 
@@ -199,14 +206,16 @@ export class AddSetlistEntryFormComponent implements OnInit {
         next: entry => {
           this.storedEntry = entry;
 
+          console.debug("Loaded entry: ", this.storedEntry);
+
           console.debug("Available songs: ", this.availableSongs$);
 
           this.setlistEntryForm.controls.sortNumber.setValue(entry.sortNumber ?? null);
           this.setlistEntryForm.controls.songNumber.setValue(entry.songNumber ?? null);
           this.setlistEntryForm.controls.titleOverride.setValue(entry.titleOverride ?? null);
           this.setlistEntryForm.controls.extraNotes.setValue(entry.extraNotes ?? null);
-          this.setlistEntryForm.controls.selectedActNumber.setValue(entry.actNumber ?? null);
-          this.setlistEntryForm.controls.selectedSongId.setValue(entry.playedSong?.id ?? null);
+          this.setlistEntryForm.controls.selectedActNumber.setValue(entry.actNumber ?? 0);
+          this.setlistEntryForm.controls.selectedSongId.setValue(entry.playedSong?.id ?? entry.playedSongVariant?.songId ?? null);
           this.setlistEntryForm.controls.selectedSongVariantId.setValue(entry.playedSongVariant?.id ?? null);
           this.setlistEntryForm.controls.selectedSongMashupId.setValue(entry.playedSongMashup?.id ?? null);
           this.setlistEntryForm.controls.wasWorldPremiere.setValue(entry.isWorldPremiere ?? false);
@@ -214,8 +223,15 @@ export class AddSetlistEntryFormComponent implements OnInit {
           this.setlistEntryForm.controls.wasRotationSong.setValue(entry.isRotationSong ?? false);
           this.setlistEntryForm.controls.wasLivePremiere.setValue(entry.isLivePremiere ?? false);
 
-          if (entry.playedSongMashup != null) {
+          if (entry.playedSong != null) {
+            this.setlistEntryForm.controls.entryType.setValue(AddSetlistEntryFormContent.entryTypeSong);
+          } else if (entry.playedSongVariant != null) {
+            this.setlistEntryForm.controls.entryType.setValue(AddSetlistEntryFormContent.entryTypeSong);
+          } else if (entry.playedSongMashup != null) {
             this.setlistEntryForm.controls.entryType.setValue(AddSetlistEntryFormContent.entryTypeSongMashup);
+          } else {
+            console.debug("This is a free-text entry");
+            this.setlistEntryForm.controls.entryType.setValue(AddSetlistEntryFormContent.entryTypeFreeText);
           }
 
           this.setlistEntryForm.enable();
@@ -224,8 +240,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
           let errorResponse: ErrorResponseDto = err.error;
           this.toastr.error(errorResponse.message, "Could not load entry");
         }
-      })
-    //this.setlistEntryForm.controls.entryType.setValue(data.entryType ?? null);
+      });
   }
 
 

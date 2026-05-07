@@ -105,7 +105,7 @@
     <div class="form-group">
       <label for="song">Played Song</label>
       <div class="input-group mb-3">
-        <select class="form-select form-control" (change)="onSongSelectionChanged()"
+        <select class="form-select form-control"
                 formControlName="selectedSongId"
                 [ngClass]="{ 'is-invalid': setlistEntryForm.controls.selectedSongId.invalid }">
           <option selected disabled>Select song</option>
@@ -171,7 +171,7 @@
           <option value="-1">Add new variant</option>
           <option disabled>---------------</option>
           @for (variant of variantsOfSelectedSong$; track variant.id) {
-            <option [value]="variant.id">{{ variant.variantName }} ({{ variant.description }})</option>
+            <option [value]="variant.id">{{ variant.variantName }} {{ variant.description != null && variant.description.length > 0 ? `(${variant.description})` : "" }}</option>
           }
         </select>
       </div>

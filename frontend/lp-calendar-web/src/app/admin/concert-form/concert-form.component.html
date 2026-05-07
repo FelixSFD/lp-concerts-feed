@@ -28,9 +28,9 @@
             <option [value]="ConcertStatusValueDto.Past.valueOf()">Past</option>
             <option [value]="ConcertStatusValueDto.Cancelled.valueOf()">Cancelled</option>
           </select>
-          @if (concertForm.controls.showType.invalid) {
+          @if (concertForm.controls.concertStatus.invalid) {
             <div class="text-danger">
-              @if (concertForm.controls.showType.errors) {
+              @if (concertForm.controls.concertStatus.errors) {
                 <small>Status is required.</small>
               }
             </div>
