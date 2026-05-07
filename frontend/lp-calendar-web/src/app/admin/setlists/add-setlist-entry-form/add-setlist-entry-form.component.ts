@@ -199,6 +199,8 @@ export class AddSetlistEntryFormComponent implements OnInit {
         next: entry => {
           this.storedEntry = entry;
 
+          console.debug("Loaded entry: ", this.storedEntry);
+
           console.debug("Available songs: ", this.availableSongs$);
 
           this.setlistEntryForm.controls.sortNumber.setValue(entry.sortNumber ?? null);
@@ -214,8 +216,17 @@ export class AddSetlistEntryFormComponent implements OnInit {
           this.setlistEntryForm.controls.wasRotationSong.setValue(entry.isRotationSong ?? false);
           this.setlistEntryForm.controls.wasLivePremiere.setValue(entry.isLivePremiere ?? false);
 
-          if (entry.playedSongMashup != null) {
+          console.debug("playedSong: ", this.storedEntry.playedSong);
+          console.debug("playedSongVariant: ", this.storedEntry.playedSongVariant);
+          console.debug("playedSongMashup: ", this.storedEntry.playedSongMashup);
+
+          if (entry.playedSong != null) {
+            this.setlistEntryForm.controls.entryType.setValue(AddSetlistEntryFormContent.entryTypeSong);
+          } else if (entry.playedSongMashup != null) {
             this.setlistEntryForm.controls.entryType.setValue(AddSetlistEntryFormContent.entryTypeSongMashup);
+          } else {
+            console.debug("This is a free-text entry");
+            this.setlistEntryForm.controls.entryType.setValue(AddSetlistEntryFormContent.entryTypeFreeText);
           }
 
           this.setlistEntryForm.enable();
