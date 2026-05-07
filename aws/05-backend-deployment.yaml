@@ -1240,6 +1240,14 @@ Resources:
       GroupName: EditSetlistsDashboard
       Precedence: 3
       UserPoolId: !Ref CognitoAuthorizerUserPoolV3
+  
+  ViewSetlistsDashboardUserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      Description: People in this group receive the Viewer-role in the Grafana dashboard
+      GroupName: ViewSetlistsDashboard
+      Precedence: 3
+      UserPoolId: !Ref CognitoAuthorizerUserPoolV3
 
   # REST API that is secured by cognito
   ConcertsApi:
