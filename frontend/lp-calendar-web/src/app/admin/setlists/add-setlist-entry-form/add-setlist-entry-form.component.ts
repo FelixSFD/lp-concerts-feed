@@ -180,6 +180,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
 
   private loadVariantsOfSelectedSong(songId: number) {
     console.debug("Load Variants of selectedSong");
+    this.setlistEntryForm.controls.selectedSongVariantId.disable();
     this.variantsOfSelectedSong$ = [];
 
     this.songService.getVariantsOfSong(songId)
@@ -191,6 +192,8 @@ export class AddSetlistEntryFormComponent implements OnInit {
           let songVariantId = this.storedEntry.playedSongVariant?.id;
           this.setlistEntryForm.controls.selectedSongVariantId.setValue(songVariantId ?? 0);
         }
+
+        this.setlistEntryForm.controls.selectedSongVariantId.enable();
       });
   }
 
