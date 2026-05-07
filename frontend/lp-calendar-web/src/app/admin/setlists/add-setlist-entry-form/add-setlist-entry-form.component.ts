@@ -75,6 +75,10 @@ export class AddSetlistEntryFormComponent implements OnInit {
       this.selectedEntryType$ = value ?? AddSetlistEntryFormContent.entryTypeSong;
     });
 
+    this.setlistEntryForm.controls.selectedSongId.valueChanges.subscribe(value => {
+      this.onSongSelectionChanged();
+    });
+
     this.songService
       .getAllSongs(true)
       .subscribe({
@@ -208,7 +212,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
           this.setlistEntryForm.controls.titleOverride.setValue(entry.titleOverride ?? null);
           this.setlistEntryForm.controls.extraNotes.setValue(entry.extraNotes ?? null);
           this.setlistEntryForm.controls.selectedActNumber.setValue(entry.actNumber ?? 0);
-          this.setlistEntryForm.controls.selectedSongId.setValue(entry.playedSong?.id ?? null);
+          this.setlistEntryForm.controls.selectedSongId.setValue(entry.playedSong?.id ?? entry.playedSongVariant?.songId ?? null);
           this.setlistEntryForm.controls.selectedSongVariantId.setValue(entry.playedSongVariant?.id ?? null);
           this.setlistEntryForm.controls.selectedSongMashupId.setValue(entry.playedSongMashup?.id ?? null);
           this.setlistEntryForm.controls.wasWorldPremiere.setValue(entry.isWorldPremiere ?? false);
@@ -216,11 +220,9 @@ export class AddSetlistEntryFormComponent implements OnInit {
           this.setlistEntryForm.controls.wasRotationSong.setValue(entry.isRotationSong ?? false);
           this.setlistEntryForm.controls.wasLivePremiere.setValue(entry.isLivePremiere ?? false);
 
-          console.debug("playedSong: ", this.storedEntry.playedSong);
-          console.debug("playedSongVariant: ", this.storedEntry.playedSongVariant);
-          console.debug("playedSongMashup: ", this.storedEntry.playedSongMashup);
-
           if (entry.playedSong != null) {
+            this.setlistEntryForm.controls.entryType.setValue(AddSetlistEntryFormContent.entryTypeSong);
+          } else if (entry.playedSongVariant != null) {
             this.setlistEntryForm.controls.entryType.setValue(AddSetlistEntryFormContent.entryTypeSong);
           } else if (entry.playedSongMashup != null) {
             this.setlistEntryForm.controls.entryType.setValue(AddSetlistEntryFormContent.entryTypeSongMashup);
@@ -235,8 +237,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
           let errorResponse: ErrorResponseDto = err.error;
           this.toastr.error(errorResponse.message, "Could not load entry");
         }
-      })
-    //this.setlistEntryForm.controls.entryType.setValue(data.entryType ?? null);
+      });
   }
 
 

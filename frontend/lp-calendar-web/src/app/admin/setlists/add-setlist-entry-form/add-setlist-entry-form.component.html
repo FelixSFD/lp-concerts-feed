@@ -105,7 +105,7 @@
     <div class="form-group">
       <label for="song">Played Song</label>
       <div class="input-group mb-3">
-        <select class="form-select form-control" (change)="onSongSelectionChanged()"
+        <select class="form-select form-control"
                 formControlName="selectedSongId"
                 [ngClass]="{ 'is-invalid': setlistEntryForm.controls.selectedSongId.invalid }">
           <option selected disabled>Select song</option>
