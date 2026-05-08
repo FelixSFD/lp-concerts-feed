@@ -1671,4 +1671,65 @@ public class SetlistServiceTest
         
         await _setlistEntryRepository.Received(1).SaveChangesAsync();
     }
+
+    [Fact]
+    public async Task AddSongExtraToSetlistEntry_ExtraVerse_WithSong()
+    {
+        var song1 = new SongDo
+        {
+            Id = 1234,
+            Title = "QWERTY",
+            Isrc = "5355646",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
+        };
+        
+        var song2 = new SongDo
+        {
+            Id = 1,
+            Title = "Lost",
+            Isrc = "1",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/Lost"
+        };
+        
+        var entry = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            SongNumber = 1,
+            SortNumber = 2,
+            PlayedSong = song2,
+            IsPlayedFromRecording = false,
+            IsWorldPremiere = false,
+            IsRotationSong = false,
+            SongExtras = new List<SetlistEntrySongExtraDo>()
+        };
+
+        var extraVerse = new SetlistEntrySongExtraDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            SongId = song1.Id,
+            Description = "extra verse",
+            Type = SetlistEntrySongExtraDo.ExtraType.ExtraVerse,
+            SetlistEntryId = entry.Id,
+        };
+        
+        _setlistEntryRepository
+            .GetByPrimaryKeyAsync(entry.Id)
+            .Returns(entry);
+
+        var request = new AddSongExtraToSetlistEntryRequestDto
+        {
+            SongId = song1.Id,
+            Description = "extra verse",
+            SetlistEntryId = entry.Id,
+            Type = SetlistEntrySongExtraDto.ExtraType.ExtraVerse
+        };
+        await _setlistService.AddSongExtraToSetlistEntry(request);
+        
+        await _setlistEntryRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(entry.Id);
+        
+        _setlistEntryRepository.Update(Arg.Is<SetlistEntryDo>(e => e.SongNumber == entry.SongNumber && e.SortNumber == entry.SortNumber && e.SongExtras.Any(extra => extra.Type == extraVerse.Type && extraVerse.Id == e.Id)));
+        await _setlistEntryRepository.Received(1).SaveChangesAsync();
+    }
 }

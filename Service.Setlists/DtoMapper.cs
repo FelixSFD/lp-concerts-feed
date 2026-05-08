@@ -269,4 +269,14 @@ public static class DtoMapper
             IsLivePremiere = setlistEntryDo.IsLivePremiere,
         };
     }
+
+    public static SetlistEntrySongExtraDo.ExtraType FromDto(SetlistEntrySongExtraDto.ExtraType dto)
+    {
+        return dto switch
+        {
+            SetlistEntrySongExtraDto.ExtraType.ExtendedBridge => SetlistEntrySongExtraDo.ExtraType.ExtendedBridge,
+            SetlistEntrySongExtraDto.ExtraType.ExtraVerse => SetlistEntrySongExtraDo.ExtraType.ExtraVerse,
+            _ => throw new NotImplementedException()
+        };
+    }
 }

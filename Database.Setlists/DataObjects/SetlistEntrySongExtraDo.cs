@@ -12,8 +12,8 @@ public class SetlistEntrySongExtraDo : BaseDo
 {
     public enum ExtraType
     {
-        ExtendedBridge,
-        ExtraVerse
+        ExtendedBridge = 1,
+        ExtraVerse = 2
     }
     
     /// <summary>

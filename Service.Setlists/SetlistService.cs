@@ -765,6 +765,29 @@ public class SetlistService(
         }
     }
     
+    public async Task AddSongExtraToSetlistEntry(AddSongExtraToSetlistEntryRequestDto request)
+    {
+        logger.LogDebug("Adding extra to setlist entry with ID: {setlistEntryId}", request.SetlistEntryId);
+        var extraDo = new SetlistEntrySongExtraDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            SetlistEntryId = request.SetlistEntryId,
+            Type = DtoMapper.FromDto(request.Type),
+            SongId = request.SongId,
+            Description = request.Description,
+        };
+        var entry = await setlistEntryRepository.GetByPrimaryKeyAsync(request.SetlistEntryId);
+        if (entry == null)
+        {
+            throw new SetlistEntryNotFoundException(0, request.SetlistEntryId);
+        }
+        
+        entry.SongExtras.Add(extraDo);
+        setlistEntryRepository.Update(entry);
+        await setlistEntryRepository.SaveChangesAsync();
+        logger.LogDebug("Added extra of type '{type}' to setlist entry with ID: {setlistEntryId}", request.Type.ToString(), request.SetlistEntryId);
+    }
+    
     /// <summary>
     /// In case the <paramref name="setlistEntry"/> is a premiere of a song and the notification wasn't sent before, this method sends a push-notification.
     /// </summary>
