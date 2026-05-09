@@ -571,6 +571,28 @@ components:
           description: Title of this act
           nullable: true
     
+    SetlistEntrySongExtra:
+      type: object
+      description: Something added to a song in a setlist entry. And example for this is playing the "Cut The Bridge" bridge in the extended bridge of "Bleed It Out".
+      properties:
+        id:
+          type: string
+          description: Unique ID of the extra
+        songId:
+          type: number
+          description: ID of the song that has been used in this extra
+          nullable: true
+        type:
+          type: string
+          description: Defines how the SongId was included
+          enum: 
+            - ExtendedBridge
+            - ExtraVerse
+        description:
+          type: string
+          description: Description of the extra
+          nullable: true
+    
     SetlistEntry:
       type: object
       description: An entry in a setlist
@@ -638,6 +660,11 @@ components:
         isLivePremiere:
           type: boolean
           description: true if this song was already released, but played live for the first time. For example "Keys To The Kingdom" in Los Angeles 2024
+        songExtras:
+          type: array
+          description: List of extras included in this song. This can for example be an extended bridge with parts of another song
+          items: 
+            $ref: "#/components/schemas/SetlistEntrySongExtra"
     
     RawSetlistEntry:
       type: object
