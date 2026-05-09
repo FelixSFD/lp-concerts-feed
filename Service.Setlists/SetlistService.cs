@@ -788,6 +788,30 @@ public class SetlistService(
         logger.LogDebug("Added extra of type '{type}' to setlist entry with ID: {setlistEntryId}", request.Type.ToString(), request.SetlistEntryId);
     }
     
+    public async Task RemoveSongExtraFromSetlistEntry(string setlistEntryId, string songExtraId)
+    {
+        logger.LogDebug("Removing extra '{songExtraId}' to setlist entry with ID: {setlistEntryId}", songExtraId, setlistEntryId);
+
+        var entry = await setlistEntryRepository.GetByPrimaryKeyAsync(setlistEntryId);
+        if (entry == null)
+        {
+            throw new SetlistEntryNotFoundException(0, setlistEntryId);
+        }
+
+        var extra = entry.SongExtras.FirstOrDefault(e => e.Id == songExtraId);
+        if (extra == null)
+        {
+            logger.LogWarning("Could not find extra of with ID '{songExtraId}' in setlist entry '{setlistEntryId}'", songExtraId, setlistEntryId);
+            return;
+        }
+        
+        entry.SongExtras.Remove(extra);
+        setlistEntryRepository.Update(entry);
+        
+        await setlistEntryRepository.SaveChangesAsync();
+        logger.LogDebug("Removed extra of type '{type}' from setlist entry with ID: {setlistEntryId}", extra.Type.ToString(), setlistEntryId);
+    }
+    
     /// <summary>
     /// In case the <paramref name="setlistEntry"/> is a premiere of a song and the notification wasn't sent before, this method sends a push-notification.
     /// </summary>
