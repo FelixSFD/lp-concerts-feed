@@ -765,6 +765,11 @@ public class SetlistService(
         }
     }
     
+    /// <summary>
+    /// Adds a new <see cref="SetlistEntrySongExtraDo"/> to the setlist entry
+    /// </summary>
+    /// <param name="request"></param>
+    /// <exception cref="SetlistEntryNotFoundException">if the setlist entry does not exist</exception>
     public async Task AddSongExtraToSetlistEntry(AddSongExtraToSetlistEntryRequestDto request)
     {
         logger.LogDebug("Adding extra to setlist entry with ID: {setlistEntryId}", request.SetlistEntryId);
@@ -788,6 +793,12 @@ public class SetlistService(
         logger.LogDebug("Added extra of type '{type}' to setlist entry with ID: {setlistEntryId}", request.Type.ToString(), request.SetlistEntryId);
     }
     
+    /// <summary>
+    /// Removes a <see cref="SetlistEntrySongExtraDo"/> from its setlist entry
+    /// </summary>
+    /// <param name="setlistEntryId">ID of the setlist entry</param>
+    /// <param name="songExtraId">ID of the extra</param>
+    /// <exception cref="SetlistEntryNotFoundException">if the setlist entry does not exist</exception>
     public async Task RemoveSongExtraFromSetlistEntry(string setlistEntryId, string songExtraId)
     {
         logger.LogDebug("Removing extra '{songExtraId}' to setlist entry with ID: {setlistEntryId}", songExtraId, setlistEntryId);

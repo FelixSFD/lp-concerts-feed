@@ -33,6 +33,10 @@ public class SetlistsDbContext(DbContextOptions<SetlistsDbContext> options) : Db
             .HasMany(e => e.SongExtras)
             .WithOne(extra => extra.SetlistEntry)
             .IsRequired(false);
+        
+        modelBuilder.Entity<SetlistEntryDo>()
+            .Navigation(e => e.SongExtras)
+            .AutoInclude();
 
         modelBuilder.Entity<SetlistEntryDo>()
             .Navigation(e => e.PlayedSong)
