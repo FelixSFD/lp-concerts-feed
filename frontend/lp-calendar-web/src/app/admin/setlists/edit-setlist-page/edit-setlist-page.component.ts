@@ -176,7 +176,7 @@ export class EditSetlistPageComponent implements OnInit {
 
 
   openModal(content: TemplateRef<any>) {
-    return this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
+    return this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title', size: 'lg', scrollable: true });
   }
 
 
