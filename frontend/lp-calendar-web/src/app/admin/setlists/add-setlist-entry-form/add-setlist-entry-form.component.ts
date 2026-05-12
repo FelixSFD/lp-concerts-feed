@@ -1,10 +1,10 @@
-import {Component, inject, Input, OnInit} from '@angular/core';
+import {Component, inject, Input, OnInit, TemplateRef, viewChild} from '@angular/core';
 import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from "@angular/forms";
 import {SongsService} from '../../../services/songs.service';
 import {
   ErrorResponseDto,
   RawSetlistEntryDto,
-  SetlistActDto,
+  SetlistActDto, SetlistEntrySongExtraDto,
   SongDto, SongMashupDto,
   SongVariantDto
 } from '../../../modules/lpshows-api';
@@ -12,17 +12,24 @@ import {ToastrService} from 'ngx-toastr';
 import {NgClass} from '@angular/common';
 import {SetlistsService} from '../../../services/setlists.service';
 import {nullIfEmpty} from '../../../helper/string-helper'
+import {
+  SetlistEntrySongExtraFormComponent
+} from '../setlist-entry-song-extra-form/setlist-entry-song-extra-form.component';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import {SetlistEntry} from '../../../data/setlists/setlist-entry';
 
 @Component({
   selector: 'app-add-setlist-entry-form',
   imports: [
     ReactiveFormsModule,
-    NgClass
+    NgClass,
+    SetlistEntrySongExtraFormComponent
   ],
   templateUrl: './add-setlist-entry-form.component.html',
   styleUrl: './add-setlist-entry-form.component.css',
 })
 export class AddSetlistEntryFormComponent implements OnInit {
+  private modalService = inject(NgbModal);
   private toastr = inject(ToastrService);
   private formBuilder = inject(FormBuilder);
   private songService = inject(SongsService);
@@ -61,11 +68,18 @@ export class AddSetlistEntryFormComponent implements OnInit {
 
   variantsOfSelectedSong$: SongVariantDto[] = [];
 
+  currentSongExtras$: SetlistEntrySongExtraDto[] = [];
+
   showAddActFields: boolean = false;
   showAddSongFields: boolean = false;
   showAddNewVariantFields: boolean = false;
 
-  // To wort around race conditions (entry loading before the select-fields), the entry can be stored here
+  // if open, the modal is referenced here
+  addExtraModal: NgbModalRef | undefined;
+
+  private addSongExtraFormComponent = viewChild(SetlistEntrySongExtraFormComponent);
+
+  // To work around race conditions (entry loading before the select-fields), the entry can be stored here
   private storedEntry: RawSetlistEntryDto | null = null;
 
   ngOnInit(): void {
@@ -139,6 +153,25 @@ export class AddSetlistEntryFormComponent implements OnInit {
           this.toastr.error(errorResponse.message, "Could not load acts");
         }
       })
+  }
+
+
+  openModal(content: TemplateRef<any>) {
+    return this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title', scrollable: true });
+  }
+
+
+  onAddSongExtraClicked(content: TemplateRef<any>) {
+    this.addExtraModal = this.openModal(content);
+  }
+
+  dismissAddExtraModal() {
+    this.addExtraModal?.dismiss();
+  }
+
+  onAddSongExtraConfirmed() {
+    let extra = this.addSongExtraFormComponent()?.readValuesFromForm();
+    console.debug("Read extra from form: ", extra);
   }
 
 

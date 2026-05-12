@@ -1,3 +1,21 @@
+<!-- add setlist entry modal -->
+<ng-template #addSongExtraContent let-addSongExtraModal>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h1 class="modal-title fs-5" id="addEntryModalLabel">Add a new extra to this entry</h1>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <app-setlist-entry-song-extra-form [setlist-id]="setlistId" [available-songs]="availableSongs$"></app-setlist-entry-song-extra-form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="dismissAddExtraModal()">Cancel</button>
+      <button type="button" class="btn btn-primary" id="addExtraConfirmBtn" (click)="onAddSongExtraConfirmed()">Add</button>
+    </div>
+  </div>
+</ng-template>
+
+
 <form #form="ngForm" [formGroup]="setlistEntryForm" class="form">
   <!-- Song Number -->
   <div class="form-group">
@@ -290,4 +308,24 @@
     <input class="form-check-input" type="checkbox" id="wasLivePremiere" [checked]="setlistEntryForm.controls.wasLivePremiere.value" formControlName="wasLivePremiere">
     <label class="form-check-label" for="wasLivePremiere"><i class="bi bi-stars"></i> Was a live premiere</label>
   </div>
+
+  <!-- song extras -->
+  <br />
+  <h4>Song extras <button class="btn btn-sm btn-primary" (click)="onAddSongExtraClicked(addSongExtraContent)">Add</button></h4>
+  <table class="table table-striped">
+    <thead>
+    <tr>
+      <th>Type</th>
+      <th>Song</th>
+    </tr>
+    </thead>
+    <tbody>
+      @for (extra of currentSongExtras$; track extra.id) {
+        <tr>
+          <td>{{ extra.type }}</td>
+          <td>{{ extra.songId }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
 </form>

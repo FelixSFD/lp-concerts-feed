@@ -726,6 +726,11 @@ components:
         isLivePremiere:
           type: boolean
           description: true if this song was already released, but played live for the first time. For example "Keys To The Kingdom" in Los Angeles 2024
+        songExtras:
+          type: array
+          description: List of extras included in this song. This can for example be an extended bridge with parts of another song
+          items:
+            $ref: "#/components/schemas/SetlistEntrySongExtra"
     
     SetlistHeader:
       type: object
