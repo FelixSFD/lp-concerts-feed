@@ -2,6 +2,7 @@ import {Component, inject, Input, OnInit, TemplateRef, viewChild} from '@angular
 import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from "@angular/forms";
 import {SongsService} from '../../../services/songs.service';
 import {
+  AddSongExtraToSetlistEntryRequestDto,
   ErrorResponseDto,
   RawSetlistEntryDto,
   SetlistActDto, SetlistEntrySongExtraDto,
@@ -16,8 +17,6 @@ import {
   SetlistEntrySongExtraFormComponent
 } from '../setlist-entry-song-extra-form/setlist-entry-song-extra-form.component';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
-import {SetlistEntry} from '../../../data/setlists/setlist-entry';
-import {Guid} from 'guid-typescript';
 
 @Component({
   selector: 'app-add-setlist-entry-form',
@@ -74,6 +73,8 @@ export class AddSetlistEntryFormComponent implements OnInit {
   showAddActFields: boolean = false;
   showAddSongFields: boolean = false;
   showAddNewVariantFields: boolean = false;
+
+  isAddingSongExtra$: boolean = false;
 
   // if open, the modal is referenced here
   addExtraModal: NgbModalRef | undefined;
@@ -171,19 +172,40 @@ export class AddSetlistEntryFormComponent implements OnInit {
   }
 
   onAddSongExtraConfirmed() {
+    if (this.setlistId == null || this.storedEntry?.id == null) {
+      this.toastr.error("Setlist Entry could not be identified!");
+      return;
+    }
+
+    this.isAddingSongExtra$ = true;
+
     let formContent = this.addSongExtraFormComponent()?.readValuesFromForm();
     console.debug("Read extra from form: ", formContent);
 
-    let extra: SetlistEntrySongExtraDto = {
-      id: Guid.create().toString(),
+    let addExtraRequest: AddSongExtraToSetlistEntryRequestDto = {
       type: formContent?.type,
-      songId: formContent?.songId,
+      songId: Number(formContent?.songId),
       description: formContent?.description,
     };
 
-    this.currentSongExtras$.push(extra);
+    this.setlistsService.addSongExtraToEntry(addExtraRequest, this.setlistId!, this.storedEntry!.id)
+      .subscribe({
+        next: data => {
+          if (this.storedEntry != null) {
+            this.storedEntry.songExtras = data.songExtras;
+          }
 
-    this.dismissAddExtraModal();
+          this.currentSongExtras$ = data.songExtras ?? [];
+
+          this.dismissAddExtraModal();
+          this.isAddingSongExtra$ = true;
+        },
+        error: err => {
+          let errorResponse: ErrorResponseDto = err.error;
+          this.toastr.error(errorResponse.message, "Could not add extra to this entry");
+          this.isAddingSongExtra$ = false;
+        }
+      });
   }
 
 

@@ -1720,10 +1720,9 @@ public class SetlistServiceTest
         {
             SongId = song1.Id,
             Description = "extra verse",
-            SetlistEntryId = entry.Id,
             Type = SetlistEntrySongExtraDto.ExtraType.ExtraVerse
         };
-        await _setlistService.AddSongExtraToSetlistEntry(request);
+        await _setlistService.AddSongExtraToSetlistEntry(request, entry.Id);
         
         await _setlistEntryRepository
             .Received(1)

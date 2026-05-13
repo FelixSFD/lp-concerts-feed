@@ -283,6 +283,15 @@ export class SetlistsService {
   }
 
 
-  public addSetlistEntrySongExtra(extra: SetlistEntrySongExtraDto) {
+  /**
+   * Adds a new extra to a setlist entry
+   * @param extra the extra to add
+   * @param setlistId ID of the setlist
+   * @param setlistEntryId ID of the setlist entry
+   */
+  public addSongExtraToEntry(extra: SetlistEntrySongExtraDto, setlistId: number, setlistEntryId: string): Observable<RawSetlistEntryDto> {
+    return this.setlistsApiClient.addSongExtraToSetlistEntry(setlistId, setlistEntryId, extra).pipe(
+      map(response => response.setlistEntry!)
+    );
   }
 }

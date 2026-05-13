@@ -770,27 +770,27 @@ public class SetlistService(
     /// </summary>
     /// <param name="request"></param>
     /// <exception cref="SetlistEntryNotFoundException">if the setlist entry does not exist</exception>
-    public async Task AddSongExtraToSetlistEntry(AddSongExtraToSetlistEntryRequestDto request)
+    public async Task AddSongExtraToSetlistEntry(AddSongExtraToSetlistEntryRequestDto request, string setlistEntryId)
     {
-        logger.LogDebug("Adding extra to setlist entry with ID: {setlistEntryId}", request.SetlistEntryId);
+        logger.LogDebug("Adding extra to setlist entry with ID: {setlistEntryId}", setlistEntryId);
         var extraDo = new SetlistEntrySongExtraDo
         {
             Id = Guid.NewGuid().ToString(),
-            SetlistEntryId = request.SetlistEntryId,
+            SetlistEntryId = setlistEntryId,
             Type = DtoMapper.FromDto(request.Type),
             SongId = request.SongId,
             Description = request.Description,
         };
-        var entry = await setlistEntryRepository.GetByPrimaryKeyAsync(request.SetlistEntryId);
+        var entry = await setlistEntryRepository.GetByPrimaryKeyAsync(setlistEntryId);
         if (entry == null)
         {
-            throw new SetlistEntryNotFoundException(0, request.SetlistEntryId);
+            throw new SetlistEntryNotFoundException(0, setlistEntryId);
         }
         
         entry.SongExtras.Add(extraDo);
         setlistEntryRepository.Update(entry);
         await setlistEntryRepository.SaveChangesAsync();
-        logger.LogDebug("Added extra of type '{type}' to setlist entry with ID: {setlistEntryId}", request.Type.ToString(), request.SetlistEntryId);
+        logger.LogDebug("Added extra of type '{type}' to setlist entry with ID: {setlistEntryId}", request.Type.ToString(), setlistEntryId);
     }
     
     /// <summary>
