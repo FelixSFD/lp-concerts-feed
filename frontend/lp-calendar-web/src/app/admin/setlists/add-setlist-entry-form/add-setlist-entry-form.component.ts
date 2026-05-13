@@ -301,6 +301,8 @@ export class AddSetlistEntryFormComponent implements OnInit {
             this.setlistEntryForm.controls.entryType.setValue(AddSetlistEntryFormContent.entryTypeFreeText);
           }
 
+          this.currentSongExtras$ = this.storedEntry.songExtras ?? [];
+
           this.setlistEntryForm.enable();
         },
         error: err => {
