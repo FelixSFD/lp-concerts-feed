@@ -17,6 +17,7 @@ import {
 } from '../setlist-entry-song-extra-form/setlist-entry-song-extra-form.component';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {SetlistEntry} from '../../../data/setlists/setlist-entry';
+import {Guid} from 'guid-typescript';
 
 @Component({
   selector: 'app-add-setlist-entry-form',
@@ -170,8 +171,19 @@ export class AddSetlistEntryFormComponent implements OnInit {
   }
 
   onAddSongExtraConfirmed() {
-    let extra = this.addSongExtraFormComponent()?.readValuesFromForm();
-    console.debug("Read extra from form: ", extra);
+    let formContent = this.addSongExtraFormComponent()?.readValuesFromForm();
+    console.debug("Read extra from form: ", formContent);
+
+    let extra: SetlistEntrySongExtraDto = {
+      id: Guid.create().toString(),
+      type: formContent?.type,
+      songId: formContent?.songId,
+      description: formContent?.description,
+    };
+
+    this.currentSongExtras$.push(extra);
+
+    this.dismissAddExtraModal();
   }
 
 

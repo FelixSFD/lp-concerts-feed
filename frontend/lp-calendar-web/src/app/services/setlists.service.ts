@@ -3,12 +3,27 @@ import {AuthService} from '../auth/auth.service';
 import {HttpClient} from '@angular/common/http';
 import {
   CreateSetlistRequestDto,
-  CreateSetlistResponseDto, SetlistDto,
+  CreateSetlistResponseDto,
+  SetlistDto,
   SetlistsService as SetlistsApiClient,
-  ConcertsService as ConcertsApiClient, UpdateSetlistHeaderRequestDto, AddSongToSetlistRequestDto,
-  SetlistEntryParametersDto, AddSongVariantToSetlistRequestDto, SetlistEntryDto, ActParametersDto, RawSetlistEntryDto,
-  UpdateSetlistEntryRequestDto, SongParametersDto, SongVariantParametersDto, SetlistActDto,
-  AddSongMashupToSetlistRequestDto, AddCustomEntryToSetlistRequestDto, SongMashupParametersDto, ImportSetlistRequestDto, ImportSetlistPreviewDto,
+  ConcertsService as ConcertsApiClient,
+  UpdateSetlistHeaderRequestDto,
+  AddSongToSetlistRequestDto,
+  SetlistEntryParametersDto,
+  AddSongVariantToSetlistRequestDto,
+  SetlistEntryDto,
+  ActParametersDto,
+  RawSetlistEntryDto,
+  UpdateSetlistEntryRequestDto,
+  SongParametersDto,
+  SongVariantParametersDto,
+  SetlistActDto,
+  AddSongMashupToSetlistRequestDto,
+  AddCustomEntryToSetlistRequestDto,
+  SongMashupParametersDto,
+  ImportSetlistRequestDto,
+  ImportSetlistPreviewDto,
+  SetlistEntrySongExtraDto,
 } from '../modules/lpshows-api';
 import {map, Observable, throwError} from 'rxjs';
 import {Guid} from 'guid-typescript';
@@ -265,5 +280,9 @@ export class SetlistsService {
     };
 
     return this.concertsApiClient.importSetlistFromLinkinpedia("123", request);
+  }
+
+
+  public addSetlistEntrySongExtra(extra: SetlistEntrySongExtraDto) {
   }
 }

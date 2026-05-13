@@ -1,0 +1,60 @@
+<form #form="ngForm" [formGroup]="extraForm" class="form">
+  <!-- Type of entry -->
+  <div class="form-group">
+    <label for="extraType">Select type of extra:</label>
+    <div class="input-group mb-3">
+      <div class="btn-group btn-group-sm" role="group">
+        <input type="radio" class="btn-check" name="extraType" id="extraVerse" formControlName="extraType" [value]="SetlistEntrySongExtraFormContent.extraTypeExtraVerse" autocomplete="off">
+        <label class="btn btn-outline-info" for="extraVerse">Extra Verse</label>
+        <input type="radio" class="btn-check" name="extraType" id="extendedBridge" formControlName="extraType" [value]="SetlistEntrySongExtraFormContent.extraTypeExtendedBridge" autocomplete="off">
+        <label class="btn btn-outline-primary" for="extendedBridge">Extended Bridge</label>
+      </div>
+    </div>
+    @if (extraForm.controls.extraType.invalid) {
+      <div class="text-danger">
+        @if (extraForm.controls.extraType.errors) {
+          <small>Selection is invalid.</small>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Song selection -->
+  <div class="form-group">
+    <label for="song">Played Song</label>
+    <div class="input-group mb-3">
+      <select class="form-select form-control"
+              formControlName="selectedSongId"
+              [ngClass]="{ 'is-invalid': extraForm.controls.selectedSongId.invalid }">
+        <option disabled>Select song</option>
+        <option value="-1">No song</option>
+        <option disabled>---------------</option>
+        @for (song of availableSongs$; track song.id) {
+          <option [value]="song.id">{{ song.title }}</option>
+        }
+      </select>
+    </div>
+    @if (extraForm.controls.selectedSongId.invalid) {
+      <div class="text-danger">
+        @if (extraForm.controls.selectedSongId.errors) {
+          <small>Selection is invalid.</small>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Optionally add extra notes -->
+  <div class="form-group">
+    <label for="extraNotes">(Optional) Description:</label>
+    <div class="input-group mb-3">
+      <input id="extraNotes" type="text" formControlName="description" class="form-control" [ngClass]="{ 'is-invalid': extraForm.controls.description.invalid }" placeholder="Description">
+    </div>
+    @if (extraForm.controls.description.invalid) {
+      <div class="text-danger">
+        @if (extraForm.controls.description.errors) {
+          <small>Input is invalid.</small>
+        }
+      </div>
+    }
+  </div>
+</form>
