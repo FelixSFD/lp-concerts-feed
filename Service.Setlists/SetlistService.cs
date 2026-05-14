@@ -718,7 +718,7 @@ public class SetlistService(
         var setlist = await setlistRepository.GetByPrimaryKeyAsync(setlistId);
         if (setlist != null)
         {
-            await UpdateSetlistCacheForConcert(setlist.ConcertId, DateTimeOffset.Now);
+            await UpdateSetlistCacheForConcert(setlist.ConcertId, cacheDate);
         }
         else
         {
@@ -792,6 +792,8 @@ public class SetlistService(
         setlistEntryRepository.Update(entry);
         await setlistEntryRepository.SaveChangesAsync();
         logger.LogDebug("Added extra of type '{type}' to setlist entry with ID: {setlistEntryId}", request.Type.ToString(), setlistEntryId);
+        
+        await UpdateSetlistCacheForSetlist(entry.SetlistId, DateTimeOffset.Now);
     }
     
     /// <summary>
@@ -822,6 +824,8 @@ public class SetlistService(
         
         await setlistEntryRepository.SaveChangesAsync();
         logger.LogDebug("Removed extra of type '{type}' from setlist entry with ID: {setlistEntryId}", extra.Type.ToString(), setlistEntryId);
+
+        await UpdateSetlistCacheForSetlist(entry.SetlistId, DateTimeOffset.Now);
     }
     
     /// <summary>
