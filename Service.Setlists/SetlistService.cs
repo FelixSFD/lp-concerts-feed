@@ -143,7 +143,8 @@ public class SetlistService(
             IsWorldPremiere = request.EntryParameters.IsWorldPremiere,
             IsPlayedFromRecording = request.EntryParameters.IsPlayedFromRecording,
             IsRotationSong = request.EntryParameters.IsRotationSong,
-            IsLivePremiere = request.EntryParameters.IsLivePremiere
+            IsLivePremiere = request.EntryParameters.IsLivePremiere,
+            SongExtras = [],
         };
         
         setlistEntryRepository.Add(entry);

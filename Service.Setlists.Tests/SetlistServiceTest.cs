@@ -1154,7 +1154,8 @@ public class SetlistServiceTest
             ExtraNotes = "FINALLY!!!",
             IsPlayedFromRecording = false,
             IsWorldPremiere = false,
-            IsRotationSong = false
+            IsRotationSong = false,
+            SongExtras = [],
         };
         
         var entry2 = new SetlistEntryDo
@@ -1165,7 +1166,8 @@ public class SetlistServiceTest
             PlayedSong = song2,
             IsPlayedFromRecording = false,
             IsWorldPremiere = false,
-            IsRotationSong = false
+            IsRotationSong = false,
+            SongExtras = [],
         };
         
         var setlist = new SetlistDo
@@ -1268,7 +1270,8 @@ public class SetlistServiceTest
             ExtraNotes = "played during countdown",
             IsPlayedFromRecording = true,
             IsWorldPremiere = false,
-            IsRotationSong = false
+            IsRotationSong = false,
+            SongExtras = [],
         };
 
         var entry1 = new SetlistEntryDo
@@ -1283,7 +1286,8 @@ public class SetlistServiceTest
             ExtraNotes = "FINALLY!!!",
             IsPlayedFromRecording = false,
             IsWorldPremiere = false,
-            IsRotationSong = false
+            IsRotationSong = false,
+            SongExtras = [],
         };
         
         var entry2 = new SetlistEntryDo
@@ -1296,7 +1300,8 @@ public class SetlistServiceTest
             PlayedSong = song2,
             IsPlayedFromRecording = false,
             IsWorldPremiere = false,
-            IsRotationSong = false
+            IsRotationSong = false,
+            SongExtras = [],
         };
         
         var entry3 = new SetlistEntryDo
@@ -1309,7 +1314,8 @@ public class SetlistServiceTest
             PlayedSong = song3,
             IsPlayedFromRecording = false,
             IsWorldPremiere = false,
-            IsRotationSong = false
+            IsRotationSong = false,
+            SongExtras = [],
         };
         
         var setlist = new SetlistDo
@@ -1557,7 +1563,8 @@ public class SetlistServiceTest
             TitleOverride = null,
             IsPlayedFromRecording = false,
             IsWorldPremiere = false,
-            IsRotationSong = false
+            IsRotationSong = false,
+            SongExtras = [],
         };
         
         // setup mocks
