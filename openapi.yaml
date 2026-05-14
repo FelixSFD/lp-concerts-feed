@@ -618,9 +618,9 @@ components:
       type: object
       description: Response after an extra was added successfully.
       properties:
-        setlistEntry:
+        entry:
           type: object
-          description: The entry that was updated
+          description: The setlist entry that was updated
           oneOf:
             - $ref: "#/components/schemas/RawSetlistEntry"
     
@@ -2571,6 +2571,50 @@ paths:
             - LambdaArn:
                 Fn::ImportValue:
                   Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /setlists/{setlistId}/entries/{setlistEntryId}/extras/{songExtraId}:
+    delete:
+      operationId: DeleteSongExtraFromSetlistEntry
+      summary: Deletes an extra from a setlist entry
+      tags:
+        - setlists
+      parameters:
+        - in: path
+          name: setlistId
+          description: ID of the setlist
+          required: true
+          schema:
+            type: number
+        - in: path
+          name: setlistEntryId
+          description: ID of the setlist entry
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: songExtraId
+          description: ID of the extra to remove
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No content
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
         responses:
           default:
             statusCode: "200"

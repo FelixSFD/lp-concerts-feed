@@ -75,9 +75,15 @@ export class AddSetlistEntryFormComponent implements OnInit {
   showAddNewVariantFields: boolean = false;
 
   isAddingSongExtra$: boolean = false;
+  isDeletingSongExtra$: boolean = false;
+
+  songExtraToDelete$: SetlistEntrySongExtraDto | null = null;
 
   // if open, the modal is referenced here
   addExtraModal: NgbModalRef | undefined;
+
+  // if open, the modal is referenced here
+  deleteExtraConfirmationModal: NgbModalRef | undefined;
 
   private addSongExtraFormComponent = viewChild(SetlistEntrySongExtraFormComponent);
 
@@ -191,14 +197,15 @@ export class AddSetlistEntryFormComponent implements OnInit {
     this.setlistsService.addSongExtraToEntry(addExtraRequest, this.setlistId!, this.storedEntry!.id)
       .subscribe({
         next: data => {
+          console.debug("Response after adding extra: ", data);
           if (this.storedEntry != null) {
-            this.storedEntry.songExtras = data.songExtras;
+            this.storedEntry.songExtras = data.songExtras ?? [];
           }
 
           this.currentSongExtras$ = data.songExtras ?? [];
 
           this.dismissAddExtraModal();
-          this.isAddingSongExtra$ = true;
+          this.isAddingSongExtra$ = false;
         },
         error: err => {
           let errorResponse: ErrorResponseDto = err.error;
@@ -206,6 +213,55 @@ export class AddSetlistEntryFormComponent implements OnInit {
           this.isAddingSongExtra$ = false;
         }
       });
+  }
+
+
+  onDeleteSongExtraClicked(content: TemplateRef<any>, extraId: string) {
+    this.songExtraToDelete$ = this.currentSongExtras$.find(e => e.id == extraId) ?? null;
+
+    if (this.songExtraToDelete$ == null) {
+      return;
+    }
+
+    this.deleteExtraConfirmationModal = this.openModal(content);
+  }
+
+
+  confirmDeleteSongExtraConfirmationModal() {
+    this.isDeletingSongExtra$ = true;
+    console.debug("Delete song extra", this.songExtraToDelete$);
+
+    let deleteId = this.songExtraToDelete$?.id ?? null;
+    if (deleteId == null) {
+      console.warn("ID of extra not found", this.songExtraToDelete$);
+      return;
+    }
+
+    this.setlistsService.removeSongExtraFromEntry(deleteId, this.setlistId ?? 0, this.storedEntry?.id ?? "")
+      .subscribe({
+        next: _ => {
+          if (this.storedEntry != null) {
+            this.storedEntry.songExtras = this.storedEntry.songExtras?.filter(e => e.id != deleteId);
+          }
+
+          this.currentSongExtras$ = this.currentSongExtras$?.filter(e => e.id != deleteId);
+
+          this.dismissDeleteSongExtraConfirmationModal();
+          this.isDeletingSongExtra$ = false;
+        },
+        error: err => {
+          let errorResponse: ErrorResponseDto = err.error;
+          this.toastr.error(errorResponse.message, "Could not delete extra from this entry");
+          this.isDeletingSongExtra$ = false;
+
+          this.deleteExtraConfirmationModal?.dismiss();
+        }
+      })
+  }
+
+
+  dismissDeleteSongExtraConfirmationModal() {
+    this.deleteExtraConfirmationModal?.dismiss();
   }
 
 

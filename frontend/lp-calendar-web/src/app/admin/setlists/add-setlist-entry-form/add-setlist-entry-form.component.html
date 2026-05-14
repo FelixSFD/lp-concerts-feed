@@ -9,8 +9,48 @@
       <app-setlist-entry-song-extra-form [setlist-id]="setlistId" [available-songs]="availableSongs$"></app-setlist-entry-song-extra-form>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" (click)="dismissAddExtraModal()">Cancel</button>
-      <button type="button" class="btn btn-primary" id="addExtraConfirmBtn" (click)="onAddSongExtraConfirmed()">Add</button>
+      <button type="button" class="btn btn-secondary" [disabled]="isAddingSongExtra$" (click)="dismissAddExtraModal()">Cancel</button>
+      <button type="button" class="btn btn-primary" id="addExtraConfirmBtn" (click)="onAddSongExtraConfirmed()" [disabled]="isAddingSongExtra$">
+        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" [hidden]="!isAddingSongExtra$"></span>
+        <span class="sr-only">{{ isAddingSongExtra$ ? "Adding..." : "Add" }}</span>
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Delete song extra confirmation modal -->
+<ng-template #deleteExtraContent let-deleteExtraModal>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h1 class="modal-title fs-5" id="deleteEntryModalLabel">Delete this extra from the setlist entry?</h1>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <p>Do you really want to delete this extra?</p>
+      <table>
+        <tr>
+          <td class="fw-bold">Type:</td>
+          <td>&nbsp;</td>
+          <td>{{ songExtraToDelete$?.type }}</td>
+        </tr>
+        <tr>
+          <td class="fw-bold">Song:</td>
+          <td>&nbsp;</td>
+          <td>{{ songExtraToDelete$?.song?.title ?? 'no song' }}</td>
+        </tr>
+        <tr>
+          <td class="fw-bold">Description:</td>
+          <td>&nbsp;</td>
+          <td>{{ songExtraToDelete$?.description }}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" [disabled]="isDeletingSongExtra$" (click)="dismissDeleteSongExtraConfirmationModal()">Cancel</button>
+      <button type="button" class="btn btn-danger" id="deleteConcertConfirmBtn" (click)="confirmDeleteSongExtraConfirmationModal()" [disabled]="isDeletingSongExtra$">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!isDeletingSongExtra$"></span>
+        <span class="sr-only">{{ isDeletingSongExtra$ ? "Deleting..." : "Delete" }}</span>
+      </button>
     </div>
   </div>
 </ng-template>
@@ -312,20 +352,26 @@
   <!-- song extras -->
   <br />
   <h4>Song extras <button class="btn btn-sm btn-primary" (click)="onAddSongExtraClicked(addSongExtraContent)">Add</button></h4>
-  <table class="table table-striped">
-    <thead>
-    <tr>
-      <th>Type</th>
-      <th>Song</th>
-    </tr>
-    </thead>
-    <tbody>
-      @for (extra of currentSongExtras$; track extra.id) {
-        <tr>
-          <td>{{ extra.type }}</td>
-          <td>{{ extra.song?.title }}</td>
-        </tr>
-      }
-    </tbody>
-  </table>
+  @if (currentSongExtras$.length == 0) {
+    <p>You can add some extras like an extended bridge for this entry.</p>
+  } @else {
+    <table class="table table-striped">
+      <thead>
+      <tr>
+        <th>Type</th>
+        <th>Song</th>
+        <th></th>
+      </tr>
+      </thead>
+      <tbody>
+        @for (extra of currentSongExtras$; track extra.id) {
+          <tr>
+            <td>{{ extra.type }}</td>
+            <td>{{ extra.song?.title }}</td>
+            <td class="align-content-end"><button class="btn btn-sm btn-outline-danger" (click)="onDeleteSongExtraClicked(deleteExtraContent, extra.id ?? '')"><i class="bi bi-trash"></i></button></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
 </form>

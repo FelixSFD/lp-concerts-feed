@@ -291,7 +291,17 @@ export class SetlistsService {
    */
   public addSongExtraToEntry(extra: SetlistEntrySongExtraDto, setlistId: number, setlistEntryId: string): Observable<RawSetlistEntryDto> {
     return this.setlistsApiClient.addSongExtraToSetlistEntry(setlistId, setlistEntryId, extra).pipe(
-      map(response => response.setlistEntry!)
+      map(response => response.entry!)
     );
+  }
+
+  /**
+   * Removes an extra from a setlist entry
+   * @param extraId the extra to remove
+   * @param setlistId ID of the setlist
+   * @param setlistEntryId ID of the setlist entry
+   */
+  public removeSongExtraFromEntry(extraId: string, setlistId: number, setlistEntryId: string): Observable<void> {
+    return this.setlistsApiClient.deleteSongExtraFromSetlistEntry(setlistId, setlistEntryId, extraId);
   }
 }

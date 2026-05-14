@@ -269,6 +269,24 @@ public class Function
             return ReturnBadRequest("Invalid setlist entry ID!", HttpMethod.Post, context.Logger);
         }
         
+        var hasSongExtraIdPathParameter = request.PathParameters.TryGetValue("songExtraId", out var songExtraId);
+        
+        if (request is { HttpMethod: "DELETE", Resource: "/setlists/{setlistId}/entries/{setlistEntryId}/extras/{songExtraId}" } 
+            && hasSetlistIdPathParameter
+            && hasSetlistEntryIdPathParameter
+            && hasSongExtraIdPathParameter)
+        {
+            context.Logger.LogInformation("Removing extra '{extraId}' from entry with ID '{setlistEntryId}' in setlist '{setlistId}' ...", setlistEntryId, setlistId);
+            
+            if (string.IsNullOrEmpty(setlistEntryId))
+                return ReturnBadRequest("Invalid setlist entry ID!", HttpMethod.Post, context.Logger);
+            
+            if (string.IsNullOrEmpty(songExtraId))
+                return ReturnBadRequest("Invalid song extra ID!", HttpMethod.Post, context.Logger);
+            
+            return await HandleDeleteSongExtra(setlistEntryId, songExtraId, context);
+        }
+        
         if (request is { HttpMethod: "POST", Resource: "/albums" })
         {
             if (request.Body == null)
@@ -920,5 +938,19 @@ public class Function
         };
         
         return Ok(responseDto, SetlistDtoJsonContext.Default.AddSongExtraToSetlistEntryResponseDto, HttpMethod.Post);
+    }
+    
+    /// <summary>
+    /// Removes an extra from a setlist entry
+    /// </summary>
+    /// <param name="setlistEntryId">unique ID of the entry</param>
+    /// <param name="songExtraId">unique ID of the extra</param>
+    /// <param name="context"></param>
+    /// <returns>HTTP response</returns>
+    private async Task<APIGatewayProxyResponse> HandleDeleteSongExtra(string setlistEntryId, string songExtraId, ILambdaContext context)
+    {
+        context.Logger.LogInformation("Deleting extra with ID: {songExtraId}", songExtraId);
+        await _setlistService.RemoveSongExtraFromSetlistEntry(setlistEntryId, songExtraId);
+        return NoContent(HttpMethod.Delete);
     }
 }
