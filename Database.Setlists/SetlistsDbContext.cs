@@ -32,7 +32,7 @@ public class SetlistsDbContext(DbContextOptions<SetlistsDbContext> options) : Db
         modelBuilder.Entity<SetlistEntryDo>()
             .HasMany(e => e.SongExtras)
             .WithOne(extra => extra.SetlistEntry)
-            .IsRequired(false);
+            .IsRequired();
         
         modelBuilder.Entity<SetlistEntryDo>()
             .Navigation(e => e.SongExtras)
