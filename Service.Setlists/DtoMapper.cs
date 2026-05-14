@@ -227,6 +227,7 @@ public static class DtoMapper
             IsRotationSong = setlistEntryDo.IsRotationSong,
             IsWorldPremiere = setlistEntryDo.IsWorldPremiere,
             IsLivePremiere = setlistEntryDo.IsLivePremiere,
+            SongExtras = setlistEntryDo.SongExtras.Select(ToDto).ToList(),
         };
     }
     
@@ -267,6 +268,43 @@ public static class DtoMapper
             IsRotationSong = setlistEntryDo.IsRotationSong,
             IsWorldPremiere = setlistEntryDo.IsWorldPremiere,
             IsLivePremiere = setlistEntryDo.IsLivePremiere,
+            SongExtras = setlistEntryDo.SongExtras.Select(ToDto).ToList()
+        };
+    }
+
+    public static SetlistEntrySongExtraDo.ExtraType FromDto(SetlistEntrySongExtraDto.ExtraType dto)
+    {
+        return dto switch
+        {
+            SetlistEntrySongExtraDto.ExtraType.ExtendedBridge => SetlistEntrySongExtraDo.ExtraType.ExtendedBridge,
+            SetlistEntrySongExtraDto.ExtraType.ExtraVerse => SetlistEntrySongExtraDo.ExtraType.ExtraVerse,
+            _ => throw new NotImplementedException()
+        };
+    }
+    
+    public static SetlistEntrySongExtraDto.ExtraType ToDto(SetlistEntrySongExtraDo.ExtraType dto)
+    {
+        return dto switch
+        {
+            SetlistEntrySongExtraDo.ExtraType.ExtendedBridge => SetlistEntrySongExtraDto.ExtraType.ExtendedBridge,
+            SetlistEntrySongExtraDo.ExtraType.ExtraVerse => SetlistEntrySongExtraDto.ExtraType.ExtraVerse,
+            _ => throw new NotImplementedException()
+        };
+    }
+    
+    /// <summary>
+    /// Converts a <see cref="SetlistEntrySongExtraDo"/> to its DTO
+    /// </summary>
+    /// <param name="songExtraDo"></param>
+    /// <returns></returns>
+    public static SetlistEntrySongExtraDto ToDto(SetlistEntrySongExtraDo songExtraDo)
+    {
+        return new SetlistEntrySongExtraDto
+        {
+            Id = songExtraDo.Id,
+            Type = ToDto(songExtraDo.Type),
+            Song = ToDtoNullable(songExtraDo.Song),
+            Description = songExtraDo.Description,
         };
     }
 }

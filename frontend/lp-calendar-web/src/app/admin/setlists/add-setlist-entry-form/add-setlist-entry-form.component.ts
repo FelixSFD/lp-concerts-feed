@@ -1,10 +1,11 @@
-import {Component, inject, Input, OnInit} from '@angular/core';
+import {Component, inject, Input, OnInit, TemplateRef, viewChild} from '@angular/core';
 import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from "@angular/forms";
 import {SongsService} from '../../../services/songs.service';
 import {
+  AddSongExtraToSetlistEntryRequestDto,
   ErrorResponseDto,
   RawSetlistEntryDto,
-  SetlistActDto,
+  SetlistActDto, SetlistEntrySongExtraDto,
   SongDto, SongMashupDto,
   SongVariantDto
 } from '../../../modules/lpshows-api';
@@ -12,17 +13,24 @@ import {ToastrService} from 'ngx-toastr';
 import {NgClass} from '@angular/common';
 import {SetlistsService} from '../../../services/setlists.service';
 import {nullIfEmpty} from '../../../helper/string-helper'
+import {
+  SetlistEntrySongExtraFormComponent
+} from '../setlist-entry-song-extra-form/setlist-entry-song-extra-form.component';
+import {NgbModal, NgbModalRef, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-add-setlist-entry-form',
   imports: [
     ReactiveFormsModule,
-    NgClass
+    NgClass,
+    SetlistEntrySongExtraFormComponent,
+    NgbTooltip
   ],
   templateUrl: './add-setlist-entry-form.component.html',
   styleUrl: './add-setlist-entry-form.component.css',
 })
 export class AddSetlistEntryFormComponent implements OnInit {
+  private modalService = inject(NgbModal);
   private toastr = inject(ToastrService);
   private formBuilder = inject(FormBuilder);
   private songService = inject(SongsService);
@@ -61,11 +69,26 @@ export class AddSetlistEntryFormComponent implements OnInit {
 
   variantsOfSelectedSong$: SongVariantDto[] = [];
 
+  currentSongExtras$: SetlistEntrySongExtraDto[] = [];
+
   showAddActFields: boolean = false;
   showAddSongFields: boolean = false;
   showAddNewVariantFields: boolean = false;
 
-  // To wort around race conditions (entry loading before the select-fields), the entry can be stored here
+  isAddingSongExtra$: boolean = false;
+  isDeletingSongExtra$: boolean = false;
+
+  songExtraToDelete$: SetlistEntrySongExtraDto | null = null;
+
+  // if open, the modal is referenced here
+  addExtraModal: NgbModalRef | undefined;
+
+  // if open, the modal is referenced here
+  deleteExtraConfirmationModal: NgbModalRef | undefined;
+
+  private addSongExtraFormComponent = viewChild(SetlistEntrySongExtraFormComponent);
+
+  // To work around race conditions (entry loading before the select-fields), the entry can be stored here
   private storedEntry: RawSetlistEntryDto | null = null;
 
   ngOnInit(): void {
@@ -139,6 +162,107 @@ export class AddSetlistEntryFormComponent implements OnInit {
           this.toastr.error(errorResponse.message, "Could not load acts");
         }
       })
+  }
+
+
+  openModal(content: TemplateRef<any>) {
+    return this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title', scrollable: true });
+  }
+
+
+  onAddSongExtraClicked(content: TemplateRef<any>) {
+    this.addExtraModal = this.openModal(content);
+  }
+
+  dismissAddExtraModal() {
+    this.addExtraModal?.dismiss();
+  }
+
+  onAddSongExtraConfirmed() {
+    if (this.setlistId == null || this.storedEntry?.id == null) {
+      this.toastr.error("Setlist Entry could not be identified!");
+      return;
+    }
+
+    this.isAddingSongExtra$ = true;
+
+    let formContent = this.addSongExtraFormComponent()?.readValuesFromForm();
+    console.debug("Read extra from form: ", formContent);
+
+    let addExtraRequest: AddSongExtraToSetlistEntryRequestDto = {
+      type: formContent?.type,
+      songId: Number(formContent?.songId ?? 0),
+      description: formContent?.description,
+    };
+
+    this.setlistsService.addSongExtraToEntry(addExtraRequest, this.setlistId!, this.storedEntry!.id)
+      .subscribe({
+        next: data => {
+          console.debug("Response after adding extra: ", data);
+          if (this.storedEntry != null) {
+            this.storedEntry.songExtras = data.songExtras ?? [];
+          }
+
+          this.currentSongExtras$ = data.songExtras ?? [];
+
+          this.dismissAddExtraModal();
+          this.isAddingSongExtra$ = false;
+        },
+        error: err => {
+          let errorResponse: ErrorResponseDto = err.error;
+          this.toastr.error(errorResponse.message, "Could not add extra to this entry");
+          this.isAddingSongExtra$ = false;
+        }
+      });
+  }
+
+
+  onDeleteSongExtraClicked(content: TemplateRef<any>, extraId: string) {
+    this.songExtraToDelete$ = this.currentSongExtras$.find(e => e.id == extraId) ?? null;
+
+    if (this.songExtraToDelete$ == null) {
+      return;
+    }
+
+    this.deleteExtraConfirmationModal = this.openModal(content);
+  }
+
+
+  confirmDeleteSongExtraConfirmationModal() {
+    this.isDeletingSongExtra$ = true;
+    console.debug("Delete song extra", this.songExtraToDelete$);
+
+    let deleteId = this.songExtraToDelete$?.id ?? null;
+    if (deleteId == null) {
+      console.warn("ID of extra not found", this.songExtraToDelete$);
+      return;
+    }
+
+    this.setlistsService.removeSongExtraFromEntry(deleteId, this.setlistId ?? 0, this.storedEntry?.id ?? "")
+      .subscribe({
+        next: _ => {
+          if (this.storedEntry != null) {
+            this.storedEntry.songExtras = this.storedEntry.songExtras?.filter(e => e.id != deleteId);
+          }
+
+          this.currentSongExtras$ = this.currentSongExtras$?.filter(e => e.id != deleteId);
+
+          this.dismissDeleteSongExtraConfirmationModal();
+          this.isDeletingSongExtra$ = false;
+        },
+        error: err => {
+          let errorResponse: ErrorResponseDto = err.error;
+          this.toastr.error(errorResponse.message, "Could not delete extra from this entry");
+          this.isDeletingSongExtra$ = false;
+
+          this.deleteExtraConfirmationModal?.dismiss();
+        }
+      })
+  }
+
+
+  dismissDeleteSongExtraConfirmationModal() {
+    this.deleteExtraConfirmationModal?.dismiss();
   }
 
 
@@ -233,6 +357,8 @@ export class AddSetlistEntryFormComponent implements OnInit {
             console.debug("This is a free-text entry");
             this.setlistEntryForm.controls.entryType.setValue(AddSetlistEntryFormContent.entryTypeFreeText);
           }
+
+          this.currentSongExtras$ = this.storedEntry.songExtras ?? [];
 
           this.setlistEntryForm.enable();
         },

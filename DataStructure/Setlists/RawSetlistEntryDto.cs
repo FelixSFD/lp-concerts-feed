@@ -95,4 +95,10 @@ public class RawSetlistEntryDto
     /// </summary>
     [JsonPropertyName("isLivePremiere")]
     public bool IsLivePremiere { get; set; }
+    
+    /// <summary>
+    /// List of extras included in this song. This can for example be an extended bridge with parts of another song
+    /// </summary>
+    [JsonPropertyName("songExtras")]
+    public List<SetlistEntrySongExtraDto> SongExtras { get; set; } = [];
 }

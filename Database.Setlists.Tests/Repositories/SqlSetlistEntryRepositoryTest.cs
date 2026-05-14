@@ -210,6 +210,59 @@ public class SqlSetlistEntryRepositoryTest : DbIntegrationTestsBase
         retrievedEntry = await repo.GetByPrimaryKeyAsync(entry1.Id);
         Assert.Null(retrievedEntry);
     }
+    
+    
+    [Fact]
+    public async Task WithSongExtras()
+    {
+        var repo = new SqlSetlistEntryRepository(DbContext);
+        var setlistRepo = new SqlSetlistRepository(DbContext);
+
+        var setlist = new SetlistDo
+        {
+            ConcertId = Guid.NewGuid().ToString(),
+            ConcertTitle = "Setlist 1",
+            ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today,
+            LinkinpediaUrl = "https://lplive.net"
+        };
+
+        var extra1 = new SetlistEntrySongExtraDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            SongId = null,
+            Type = SetlistEntrySongExtraDo.ExtraType.ExtraVerse,
+            Description = "Test",
+        };
+
+        var entry1 = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            Setlist = setlist,
+            ExtraNotes = "Notes for this entry",
+            TitleOverride = "Custom title",
+            SongNumber = 1,
+            IsWorldPremiere = false,
+            IsPlayedFromRecording = false,
+            IsRotationSong = true,
+            SongExtras = [extra1]
+        };
+        
+        repo.Add(entry1);
+
+        await repo.SaveChangesAsync();
+        
+        var retrievedEntry = await repo.GetByPrimaryKeyAsync(entry1.Id);
+        Assert.NotNull(retrievedEntry);
+        AssertEntriesEqual(entry1, retrievedEntry);
+        
+        // test reading via Setlist header
+        var setlistDo = await setlistRepo.GetByPrimaryKeyAsync(entry1.SetlistId);
+        Assert.NotNull(setlistDo);
+        retrievedEntry = setlistDo.Entries.FirstOrDefault();
+        Assert.NotNull(retrievedEntry);
+        AssertEntriesEqual(entry1, retrievedEntry);
+    }
 
 
     private static void AssertEntriesEqual(SetlistEntryDo expected, SetlistEntryDo actual)
@@ -229,8 +282,23 @@ public class SqlSetlistEntryRepositoryTest : DbIntegrationTestsBase
         
         AssertSongsEqual(expected.PlayedSong, actual.PlayedSong);
         AssertSongVariantsEqual(expected.PlayedSongVariant, actual.PlayedSongVariant);
-    }
 
+        var expectedExtras = expected.SongExtras.ToArray();
+        var actualExtras = actual.SongExtras.ToArray();
+        Assert.Equal(expectedExtras.Length, actualExtras.Length);
+        for (var i = 0; i < expected.SongExtras.Count; i++)
+        {
+            AssertExtrasEqual(expectedExtras[i], actualExtras[i]);
+        }
+    }
+    
+    private static void AssertExtrasEqual(SetlistEntrySongExtraDo? expected, SetlistEntrySongExtraDo? actual)
+    {
+        Assert.Equal(expected?.Type, actual?.Type);
+        Assert.Equal(expected?.SongId, actual?.SongId);
+        Assert.Equal(expected?.Description, actual?.Description);
+        Assert.Equal(expected?.SetlistEntryId, actual?.SetlistEntryId);
+    }
 
     private static void AssertActsEqual(SetlistActDo? expected, SetlistActDo? actual)
     {

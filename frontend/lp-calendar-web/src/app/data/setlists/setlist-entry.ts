@@ -1,4 +1,4 @@
-import {SetlistEntryDto} from '../../modules/lpshows-api';
+import {SetlistEntryDto, SetlistEntrySongExtraDto} from '../../modules/lpshows-api';
 
 export class SetlistEntry {
   id!: string;
@@ -13,6 +13,7 @@ export class SetlistEntry {
   isWorldPremiere: boolean = false;
   isRotationSong: boolean = false;
   isLivePremiere: boolean = false;
+  songExtras: SetlistEntrySongExtraDto[] = [];
 
 
   static fromDto(dto: SetlistEntryDto): SetlistEntry {
@@ -30,6 +31,7 @@ export class SetlistEntry {
       isWorldPremiere: dto.isWorldPremiere ?? false,
       isRotationSong: dto.isRotationSong ?? false,
       isLivePremiere: dto.isLivePremiere ?? false,
+      songExtras: dto.songExtras ?? [],
     };
 
     // TODO: Mashups

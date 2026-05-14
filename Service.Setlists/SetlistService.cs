@@ -143,7 +143,8 @@ public class SetlistService(
             IsWorldPremiere = request.EntryParameters.IsWorldPremiere,
             IsPlayedFromRecording = request.EntryParameters.IsPlayedFromRecording,
             IsRotationSong = request.EntryParameters.IsRotationSong,
-            IsLivePremiere = request.EntryParameters.IsLivePremiere
+            IsLivePremiere = request.EntryParameters.IsLivePremiere,
+            SongExtras = [],
         };
         
         setlistEntryRepository.Add(entry);
@@ -718,7 +719,7 @@ public class SetlistService(
         var setlist = await setlistRepository.GetByPrimaryKeyAsync(setlistId);
         if (setlist != null)
         {
-            await UpdateSetlistCacheForConcert(setlist.ConcertId, DateTimeOffset.Now);
+            await UpdateSetlistCacheForConcert(setlist.ConcertId, cacheDate);
         }
         else
         {
@@ -763,6 +764,74 @@ public class SetlistService(
         {
             logger.LogError(e, "Could not update setlist cache for concert '{concertId}'!", concertId);
         }
+    }
+    
+    /// <summary>
+    /// Adds a new <see cref="SetlistEntrySongExtraDo"/> to the setlist entry
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="setlistEntryId">ID of the setlist entry where this extra will be added to</param>
+    /// <exception cref="SetlistEntryNotFoundException">if the setlist entry does not exist</exception>
+    public async Task AddSongExtraToSetlistEntry(AddSongExtraToSetlistEntryRequestDto request, string setlistEntryId)
+    {
+        logger.LogDebug("Adding extra to setlist entry with ID: {setlistEntryId}", setlistEntryId);
+        var extraDo = new SetlistEntrySongExtraDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            SetlistEntryId = setlistEntryId,
+            Type = DtoMapper.FromDto(request.Type),
+            Description = request.Description,
+        };
+
+        if (request.SongId is > 0)
+        {
+            extraDo.SongId = request.SongId;
+        }
+        
+        var entry = await setlistEntryRepository.GetByPrimaryKeyAsync(setlistEntryId);
+        if (entry == null)
+        {
+            throw new SetlistEntryNotFoundException(0, setlistEntryId);
+        }
+        
+        entry.SongExtras.Add(extraDo);
+        setlistEntryRepository.Update(entry);
+        await setlistEntryRepository.SaveChangesAsync();
+        logger.LogDebug("Added extra of type '{type}' to setlist entry with ID: {setlistEntryId}", request.Type.ToString(), setlistEntryId);
+        
+        await UpdateSetlistCacheForSetlist(entry.SetlistId, DateTimeOffset.Now);
+    }
+    
+    /// <summary>
+    /// Removes a <see cref="SetlistEntrySongExtraDo"/> from its setlist entry
+    /// </summary>
+    /// <param name="setlistEntryId">ID of the setlist entry</param>
+    /// <param name="songExtraId">ID of the extra</param>
+    /// <exception cref="SetlistEntryNotFoundException">if the setlist entry does not exist</exception>
+    public async Task RemoveSongExtraFromSetlistEntry(string setlistEntryId, string songExtraId)
+    {
+        logger.LogDebug("Removing extra '{songExtraId}' to setlist entry with ID: {setlistEntryId}", songExtraId, setlistEntryId);
+
+        var entry = await setlistEntryRepository.GetByPrimaryKeyAsync(setlistEntryId);
+        if (entry == null)
+        {
+            throw new SetlistEntryNotFoundException(0, setlistEntryId);
+        }
+
+        var extra = entry.SongExtras.FirstOrDefault(e => e.Id == songExtraId);
+        if (extra == null)
+        {
+            logger.LogWarning("Could not find extra of with ID '{songExtraId}' in setlist entry '{setlistEntryId}'", songExtraId, setlistEntryId);
+            return;
+        }
+        
+        entry.SongExtras.Remove(extra);
+        setlistEntryRepository.Update(entry);
+        
+        await setlistEntryRepository.SaveChangesAsync();
+        logger.LogDebug("Removed extra of type '{type}' from setlist entry with ID: {setlistEntryId}", extra.Type.ToString(), setlistEntryId);
+
+        await UpdateSetlistCacheForSetlist(entry.SetlistId, DateTimeOffset.Now);
     }
     
     /// <summary>

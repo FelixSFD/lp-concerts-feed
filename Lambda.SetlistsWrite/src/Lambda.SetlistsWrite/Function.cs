@@ -258,6 +258,35 @@ public class Function
             return ReturnBadRequest("Invalid setlist entry ID!", HttpMethod.Delete, context.Logger);
         }
         
+        if (request is { HttpMethod: "POST", Resource: "/setlists/{setlistId}/entries/{setlistEntryId}/extras" } 
+            && hasSetlistIdPathParameter
+            && hasSetlistEntryIdPathParameter)
+        {
+            context.Logger.LogInformation("Add extra to entry with ID '{setlistEntryId}' in setlist '{setlistId}' ...", setlistEntryId, setlistId);
+            if (!string.IsNullOrEmpty(setlistEntryId))
+                return await HandleAddSetlistEntrySongExtra(request.Body, setlistId ?? 0, setlistEntryId, context);
+            
+            return ReturnBadRequest("Invalid setlist entry ID!", HttpMethod.Post, context.Logger);
+        }
+        
+        var hasSongExtraIdPathParameter = request.PathParameters.TryGetValue("songExtraId", out var songExtraId);
+        
+        if (request is { HttpMethod: "DELETE", Resource: "/setlists/{setlistId}/entries/{setlistEntryId}/extras/{songExtraId}" } 
+            && hasSetlistIdPathParameter
+            && hasSetlistEntryIdPathParameter
+            && hasSongExtraIdPathParameter)
+        {
+            context.Logger.LogInformation("Removing extra '{extraId}' from entry with ID '{setlistEntryId}' in setlist '{setlistId}' ...", setlistEntryId, setlistId);
+            
+            if (string.IsNullOrEmpty(setlistEntryId))
+                return ReturnBadRequest("Invalid setlist entry ID!", HttpMethod.Post, context.Logger);
+            
+            if (string.IsNullOrEmpty(songExtraId))
+                return ReturnBadRequest("Invalid song extra ID!", HttpMethod.Post, context.Logger);
+            
+            return await HandleDeleteSongExtra(setlistEntryId, songExtraId, context);
+        }
+        
         if (request is { HttpMethod: "POST", Resource: "/albums" })
         {
             if (request.Body == null)
@@ -877,5 +906,51 @@ public class Function
         var responseDto = await _linkinpediaImportService.GetImportPlanForSetlistFromPageAsync(request.LinkinpediaUrl.Split("/").Last());
         context.Logger.LogDebug("Successfully generated import instructions.");
         return Ok(responseDto, SetlistDtoJsonContext.Default.ImportSetlistPreviewDto, HttpMethod.Post);
+    }
+    
+    private async Task<APIGatewayProxyResponse> HandleAddSetlistEntrySongExtra(string requestJson, uint setlistId, string setlistEntryId,
+        ILambdaContext context)
+    {
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.AddSongExtraToSetlistEntryRequestDto);
+        if (dto == null)
+            return ReturnBadRequest("Failed to deserialize the request body", HttpMethod.Post, context.Logger);
+        
+        return await HandleAddSetlistEntrySongExtra(dto, setlistId, setlistEntryId, context);
+    }
+
+    /// <summary>
+    /// add an extra to a setlist entry
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    private async Task<APIGatewayProxyResponse> HandleAddSetlistEntrySongExtra(AddSongExtraToSetlistEntryRequestDto request, uint setlistId, string setlistEntryId,
+        ILambdaContext context)
+    {
+        context.Logger.LogDebug("Adding extra to setlist entry: {entryId}", setlistEntryId);
+        await _setlistService.AddSongExtraToSetlistEntry(request, setlistEntryId);
+        context.Logger.LogDebug("Successfully added extra.");
+        
+        var entry = await _setlistService.GetSetlistEntryAsync(setlistId, setlistEntryId);
+        var responseDto = new AddSongExtraToSetlistEntryResponseDto
+        {
+            Entry = entry
+        };
+        
+        return Ok(responseDto, SetlistDtoJsonContext.Default.AddSongExtraToSetlistEntryResponseDto, HttpMethod.Post);
+    }
+    
+    /// <summary>
+    /// Removes an extra from a setlist entry
+    /// </summary>
+    /// <param name="setlistEntryId">unique ID of the entry</param>
+    /// <param name="songExtraId">unique ID of the extra</param>
+    /// <param name="context"></param>
+    /// <returns>HTTP response</returns>
+    private async Task<APIGatewayProxyResponse> HandleDeleteSongExtra(string setlistEntryId, string songExtraId, ILambdaContext context)
+    {
+        context.Logger.LogInformation("Deleting extra with ID: {songExtraId}", songExtraId);
+        await _setlistService.RemoveSongExtraFromSetlistEntry(setlistEntryId, songExtraId);
+        return NoContent(HttpMethod.Delete);
     }
 }

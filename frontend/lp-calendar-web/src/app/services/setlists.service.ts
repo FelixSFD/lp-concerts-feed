@@ -3,12 +3,27 @@ import {AuthService} from '../auth/auth.service';
 import {HttpClient} from '@angular/common/http';
 import {
   CreateSetlistRequestDto,
-  CreateSetlistResponseDto, SetlistDto,
+  CreateSetlistResponseDto,
+  SetlistDto,
   SetlistsService as SetlistsApiClient,
-  ConcertsService as ConcertsApiClient, UpdateSetlistHeaderRequestDto, AddSongToSetlistRequestDto,
-  SetlistEntryParametersDto, AddSongVariantToSetlistRequestDto, SetlistEntryDto, ActParametersDto, RawSetlistEntryDto,
-  UpdateSetlistEntryRequestDto, SongParametersDto, SongVariantParametersDto, SetlistActDto,
-  AddSongMashupToSetlistRequestDto, AddCustomEntryToSetlistRequestDto, SongMashupParametersDto, ImportSetlistRequestDto, ImportSetlistPreviewDto,
+  ConcertsService as ConcertsApiClient,
+  UpdateSetlistHeaderRequestDto,
+  AddSongToSetlistRequestDto,
+  SetlistEntryParametersDto,
+  AddSongVariantToSetlistRequestDto,
+  SetlistEntryDto,
+  ActParametersDto,
+  RawSetlistEntryDto,
+  UpdateSetlistEntryRequestDto,
+  SongParametersDto,
+  SongVariantParametersDto,
+  SetlistActDto,
+  AddSongMashupToSetlistRequestDto,
+  AddCustomEntryToSetlistRequestDto,
+  SongMashupParametersDto,
+  ImportSetlistRequestDto,
+  ImportSetlistPreviewDto,
+  SetlistEntrySongExtraDto,
 } from '../modules/lpshows-api';
 import {map, Observable, throwError} from 'rxjs';
 import {Guid} from 'guid-typescript';
@@ -265,5 +280,28 @@ export class SetlistsService {
     };
 
     return this.concertsApiClient.importSetlistFromLinkinpedia("123", request);
+  }
+
+
+  /**
+   * Adds a new extra to a setlist entry
+   * @param extra the extra to add
+   * @param setlistId ID of the setlist
+   * @param setlistEntryId ID of the setlist entry
+   */
+  public addSongExtraToEntry(extra: SetlistEntrySongExtraDto, setlistId: number, setlistEntryId: string): Observable<RawSetlistEntryDto> {
+    return this.setlistsApiClient.addSongExtraToSetlistEntry(setlistId, setlistEntryId, extra).pipe(
+      map(response => response.entry!)
+    );
+  }
+
+  /**
+   * Removes an extra from a setlist entry
+   * @param extraId the extra to remove
+   * @param setlistId ID of the setlist
+   * @param setlistEntryId ID of the setlist entry
+   */
+  public removeSongExtraFromEntry(extraId: string, setlistId: number, setlistEntryId: string): Observable<void> {
+    return this.setlistsApiClient.deleteSongExtraFromSetlistEntry(setlistId, setlistEntryId, extraId);
   }
 }

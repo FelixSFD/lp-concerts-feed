@@ -32,11 +32,17 @@
                     }
                   </td>
                   @if ("linkinpediaUrl" in entry && entry.linkinpediaUrl) {
-                    <td class="ps-4 text-nowrap"><a [href]="entry.linkinpediaUrl" target="_blank" class="link-info">{{ entry.title }}</a> <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" [live-premiere]="entry.isLivePremiere" /></td>
+                    <td class="ps-4 text-nowrap">
+                      <a [href]="entry.linkinpediaUrl" target="_blank" class="link-info">{{ entry.title }}</a> <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" [live-premiere]="entry.isLivePremiere" />
+                      <app-setlist-entry-song-extra-list [extras]="entry.songExtras" />
+                    </td>
                   } @else {
-                    <td class="ps-4 text-nowrap">{{ entry.title }} <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" [live-premiere]="entry.isLivePremiere" /></td>
+                    <td class="ps-4 text-nowrap">
+                      {{ entry.title }} <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" [live-premiere]="entry.isLivePremiere" />
+                      <app-setlist-entry-song-extra-list [extras]="entry.songExtras" />
+                    </td>
                   }
-                  <td class="ps-4 text-nowrap" style="font-style: italic">{{ entry.extraNotes }}</td>
+                  <td class="ps-4 text-nowrap small" style="font-style: italic">{{ entry.extraNotes }}</td>
                 </tr>
               }
             } @else {
@@ -55,7 +61,7 @@
                 } @else {
                   <td class="text-nowrap">{{ structuredEntry.title }} <app-setlist-entry-icons [rotation-song]="structuredEntry.isRotationSong" [world-premiere]="structuredEntry.isWorldPremiere" [live-premiere]="structuredEntry.isLivePremiere" /></td>
                 }
-                <td class="text-nowrap" style="font-style: italic">{{ structuredEntry.extraNotes }}</td>
+                <td class="text-nowrap small" style="font-style: italic">{{ structuredEntry.extraNotes }}</td>
               </tr>
             }
           }

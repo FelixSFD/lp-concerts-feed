@@ -1,4 +1,5 @@
 using Database.Setlists.DataObjects;
+using Microsoft.EntityFrameworkCore;
 
 namespace Database.Setlists.Repositories;
 
@@ -10,6 +11,8 @@ public class SqlSetlistEntryRepository(SetlistsDbContext dbContext)
     {
         await Context.Entry(dataObject)
             .Collection(e => e.SongExtras)
+            .Query()
+            .Include(extra => extra.Song)
             .LoadAsync();
         
         await Context.Entry(dataObject)

@@ -14,6 +14,9 @@ import {AppleMusicService} from '../../services/music/apple-music.service';
 import Artwork = MusicKit.Artwork;
 import {AppleMusicArtworkComponent} from '../../components/music/apple-music-artwork/apple-music-artwork.component';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {
+  SetlistEntrySongExtraListComponent
+} from '../../admin/setlists/setlist-entry-song-extra-list/setlist-entry-song-extra-list.component';
 
 @Component({
   selector: 'app-setlist',
@@ -23,7 +26,8 @@ import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
     SetlistEntryIconsComponent,
     SetlistAlbumChartComponent,
     AppleMusicArtworkComponent,
-    NgbTooltip
+    NgbTooltip,
+    SetlistEntrySongExtraListComponent
   ],
   templateUrl: './setlist.component.html',
   styleUrl: './setlist.component.css',
