@@ -1741,6 +1741,58 @@ public class SetlistServiceTest
     
     
     [Fact]
+    public async Task AddSongExtraToSetlistEntry_ExtraVerse_WithoutSong()
+    {
+        var song = new SongDo
+        {
+            Id = 1,
+            Title = "Lost",
+            Isrc = "1",
+            LinkinpediaUrl = "https://linkinpedia.com/wiki/Lost"
+        };
+        
+        var entry = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            SongNumber = 1,
+            SortNumber = 2,
+            PlayedSong = song,
+            IsPlayedFromRecording = false,
+            IsWorldPremiere = false,
+            IsRotationSong = false,
+            SongExtras = new List<SetlistEntrySongExtraDo>()
+        };
+
+        var extraVerse = new SetlistEntrySongExtraDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            Description = "extra verse",
+            Type = SetlistEntrySongExtraDo.ExtraType.ExtraVerse,
+            SetlistEntryId = entry.Id,
+        };
+        
+        _setlistEntryRepository
+            .GetByPrimaryKeyAsync(entry.Id)
+            .Returns(entry);
+
+        var request = new AddSongExtraToSetlistEntryRequestDto
+        {
+            SongId = 0,
+            Description = "extra verse",
+            Type = SetlistEntrySongExtraDto.ExtraType.ExtraVerse
+        };
+        await _setlistService.AddSongExtraToSetlistEntry(request, entry.Id);
+        
+        await _setlistEntryRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(entry.Id);
+        
+        _setlistEntryRepository.Update(Arg.Is<SetlistEntryDo>(e => e.SongNumber == entry.SongNumber && e.SortNumber == entry.SortNumber && e.SongExtras.Any(extra => extra.Type == extraVerse.Type && extraVerse.Id == e.Id)));
+        await _setlistEntryRepository.Received(1).SaveChangesAsync();
+    }
+    
+    
+    [Fact]
     public async Task RemoveSongExtraFromSetlistEntry()
     {
         var song1 = new SongDo

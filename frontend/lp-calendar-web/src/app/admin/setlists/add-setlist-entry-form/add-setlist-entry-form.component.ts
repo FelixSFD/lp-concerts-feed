@@ -191,7 +191,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
 
     let addExtraRequest: AddSongExtraToSetlistEntryRequestDto = {
       type: formContent?.type,
-      songId: Number(formContent?.songId),
+      songId: Number(formContent?.songId ?? 0),
       description: formContent?.description,
     };
 

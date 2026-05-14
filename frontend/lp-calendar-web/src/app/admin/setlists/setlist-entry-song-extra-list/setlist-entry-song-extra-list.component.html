@@ -1,16 +1,22 @@
+<ng-template #optionalDescriptionText let-description="description">
+  @if (description != null && description.length > 0) {
+    ({{ description }})
+  }
+</ng-template>
+
 <ul class="small">
   @for (extra of songExtras$; track extra) {
     @if (extra.type == SetlistEntrySongExtraFormContent.extraTypeExtraVerse) {
       @if (extra.song) {
-        <li>Additional verse from {{ extra.song.title }}</li>
+        <li>Additional verse from {{ extra.song.title }} <ng-container *ngTemplateOutlet="optionalDescriptionText; context: { description: extra.description }" /></li>
       } @else {
-        <li>Additional verse</li>
+        <li>Additional verse <ng-container *ngTemplateOutlet="optionalDescriptionText; context: { description: extra.description }" /></li>
       }
     } @else if (extra.type == SetlistEntrySongExtraFormContent.extraTypeExtendedBridge) {
       @if (extra.song) {
-        <li>Extended bridge with {{ extra.song.title }}</li>
+        <li>Extended bridge with {{ extra.song.title }} <ng-container *ngTemplateOutlet="optionalDescriptionText; context: { description: extra.description }" /></li>
       } @else {
-        <li>Extended bridge</li>
+        <li>Extended bridge <ng-container *ngTemplateOutlet="optionalDescriptionText; context: { description: extra.description }" /></li>
       }
     } @else if (extra.description) {
       <li>{{ extra.description }}</li>

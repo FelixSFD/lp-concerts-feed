@@ -27,7 +27,7 @@
               formControlName="selectedSongId"
               [ngClass]="{ 'is-invalid': extraForm.controls.selectedSongId.invalid }">
         <option disabled>Select song</option>
-        <option value="-1">No song</option>
+        <option value="0">No song</option>
         <option disabled>---------------</option>
         @for (song of availableSongs$; track song.id) {
           <option [value]="song.id">{{ song.title }}</option>

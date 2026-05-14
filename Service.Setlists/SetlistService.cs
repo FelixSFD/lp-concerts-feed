@@ -780,9 +780,14 @@ public class SetlistService(
             Id = Guid.NewGuid().ToString(),
             SetlistEntryId = setlistEntryId,
             Type = DtoMapper.FromDto(request.Type),
-            SongId = request.SongId,
             Description = request.Description,
         };
+
+        if (request.SongId is > 0)
+        {
+            extraDo.SongId = request.SongId;
+        }
+        
         var entry = await setlistEntryRepository.GetByPrimaryKeyAsync(setlistEntryId);
         if (entry == null)
         {

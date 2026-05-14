@@ -28,7 +28,7 @@ export class SetlistEntrySongExtraFormComponent {
 
   extraForm = this.formBuilder.group({
     extraType: new FormControl(SetlistEntrySongExtraFormContent.extraTypeExtraVerse, [Validators.required]),
-    selectedSongId: new FormControl(-1, []),
+    selectedSongId: new FormControl(0, []),
     description: new FormControl('', [Validators.maxLength(127)]),
   });
 
