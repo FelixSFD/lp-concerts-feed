@@ -323,7 +323,7 @@
       @for (extra of currentSongExtras$; track extra.id) {
         <tr>
           <td>{{ extra.type }}</td>
-          <td>{{ extra.songId }}</td>
+          <td>{{ extra.song?.title }}</td>
         </tr>
       }
     </tbody>

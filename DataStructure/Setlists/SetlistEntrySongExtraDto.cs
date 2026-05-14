@@ -16,18 +16,18 @@ public class SetlistEntrySongExtraDto
     /// </summary>
     [JsonPropertyName("id")]
     public required string Id { get; set; }
-    
+
     /// <summary>
-    /// Optional ID of the <see cref="SongDo"/> that was added to a different song if it's a song that is referenced in our database.
+    /// Optional <see cref="SongDto"/> that was added to a different song if it's a song that is referenced in our database.
     /// </summary>
-    [JsonPropertyName("songId")]
-    public uint? SongId { get; set; }
+    [JsonPropertyName("song")]
+    public SongDto? Song { get; set; }
     
     /// <summary>
-    /// Defines how the <see cref="SongId"/> was included
+    /// Defines how the <see cref="Song"/> was included
     /// </summary>
     [JsonPropertyName("type")]
-    public ExtraType Type { get; set; }
+    public required string Type { get; set; }
     
     /// <summary>
     /// Description of the extra

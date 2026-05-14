@@ -578,10 +578,12 @@ components:
         id:
           type: string
           description: Unique ID of the extra
-        songId:
-          type: number
-          description: ID of the song that has been used in this extra
+        song:
+          type: object
+          description: The song that has been used in this extra
           nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/Song"
         type:
           type: string
           description: Defines how the SongId was included
