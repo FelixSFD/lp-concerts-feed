@@ -1,0 +1,19 @@
+<ul>
+  @for (extra of songExtras$; track extra) {
+    @if (extra.type == SetlistEntrySongExtraFormContent.extraTypeExtraVerse) {
+      @if (extra.song) {
+        <li>Additional verse from {{ extra.song.title }}</li>
+      } @else {
+        <li>Additional verse</li>
+      }
+    } @else if (extra.type == SetlistEntrySongExtraFormContent.extraTypeExtendedBridge) {
+      @if (extra.song) {
+        <li>Extended bridge with {{ extra.song.title }}</li>
+      } @else {
+        <li>Extended bridge</li>
+      }
+    } @else if (extra.description) {
+      <li>{{ extra.description }}</li>
+    }
+  }
+</ul>

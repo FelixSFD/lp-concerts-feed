@@ -47,8 +47,8 @@ export class SetlistEntrySongExtraFormComponent {
 
 
 export class SetlistEntrySongExtraFormContent {
-  static extraTypeExtendedBridge = "extendedBridge";
-  static extraTypeExtraVerse = "extraVerse";
+  static extraTypeExtendedBridge = "ExtendedBridge";
+  static extraTypeExtraVerse = "ExtraVerse";
 
   type: SetlistEntrySongExtraDto.TypeEnum | undefined;
   songId: number | undefined | null = null;
