@@ -769,6 +769,7 @@ public class SetlistService(
     /// Adds a new <see cref="SetlistEntrySongExtraDo"/> to the setlist entry
     /// </summary>
     /// <param name="request"></param>
+    /// <param name="setlistEntryId">ID of the setlist entry where this extra will be added to</param>
     /// <exception cref="SetlistEntryNotFoundException">if the setlist entry does not exist</exception>
     public async Task AddSongExtraToSetlistEntry(AddSongExtraToSetlistEntryRequestDto request, string setlistEntryId)
     {

@@ -14,6 +14,8 @@ public class AddSongExtraToSetlistEntryRequestDto
     /// <summary>
     /// Defines how the <see cref="SongId"/> was included
     /// </summary>
+    [JsonConverter(typeof(JsonStringEnumConverter<SetlistEntrySongExtraDto.ExtraType>))]
+    [JsonPropertyName("type")]
     public SetlistEntrySongExtraDto.ExtraType Type { get; set; }
     
     /// <summary>

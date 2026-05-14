@@ -26,8 +26,9 @@ public class SetlistEntrySongExtraDto
     /// <summary>
     /// Defines how the <see cref="Song"/> was included
     /// </summary>
+    [JsonConverter(typeof(JsonStringEnumConverter<ExtraType>))]
     [JsonPropertyName("type")]
-    public required string Type { get; set; }
+    public required ExtraType Type { get; set; }
     
     /// <summary>
     /// Description of the extra

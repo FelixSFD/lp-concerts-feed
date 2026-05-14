@@ -282,6 +282,16 @@ public static class DtoMapper
         };
     }
     
+    public static SetlistEntrySongExtraDto.ExtraType ToDto(SetlistEntrySongExtraDo.ExtraType dto)
+    {
+        return dto switch
+        {
+            SetlistEntrySongExtraDo.ExtraType.ExtendedBridge => SetlistEntrySongExtraDto.ExtraType.ExtendedBridge,
+            SetlistEntrySongExtraDo.ExtraType.ExtraVerse => SetlistEntrySongExtraDto.ExtraType.ExtraVerse,
+            _ => throw new NotImplementedException()
+        };
+    }
+    
     /// <summary>
     /// Converts a <see cref="SetlistEntrySongExtraDo"/> to its DTO
     /// </summary>
@@ -292,7 +302,7 @@ public static class DtoMapper
         return new SetlistEntrySongExtraDto
         {
             Id = songExtraDo.Id,
-            Type = songExtraDo.Type.ToString(),
+            Type = ToDto(songExtraDo.Type),
             Song = ToDtoNullable(songExtraDo.Song),
             Description = songExtraDo.Description,
         };
