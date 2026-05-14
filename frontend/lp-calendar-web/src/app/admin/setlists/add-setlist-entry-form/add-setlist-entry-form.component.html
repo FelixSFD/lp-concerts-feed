@@ -366,7 +366,13 @@
       <tbody>
         @for (extra of currentSongExtras$; track extra.id) {
           <tr>
-            <td>{{ extra.type }}</td>
+            <td>
+              {{ extra.type }}
+
+              @if (extra.description != null) {
+                <i class="bi bi-info-circle ms-2" style="cursor: help" [ngbTooltip]="extra.description"></i>
+              }
+            </td>
             <td>{{ extra.song?.title }}</td>
             <td class="align-content-end"><button class="btn btn-sm btn-outline-danger" (click)="onDeleteSongExtraClicked(deleteExtraContent, extra.id ?? '')"><i class="bi bi-trash"></i></button></td>
           </tr>

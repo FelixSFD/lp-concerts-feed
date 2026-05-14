@@ -16,14 +16,15 @@ import {nullIfEmpty} from '../../../helper/string-helper'
 import {
   SetlistEntrySongExtraFormComponent
 } from '../setlist-entry-song-extra-form/setlist-entry-song-extra-form.component';
-import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbModalRef, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-add-setlist-entry-form',
   imports: [
     ReactiveFormsModule,
     NgClass,
-    SetlistEntrySongExtraFormComponent
+    SetlistEntrySongExtraFormComponent,
+    NgbTooltip
   ],
   templateUrl: './add-setlist-entry-form.component.html',
   styleUrl: './add-setlist-entry-form.component.css',
