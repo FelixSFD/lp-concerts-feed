@@ -1,0 +1,32 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Application to manage the S3 Multi-Region access point for the frontend buckets
+
+
+Parameters:
+  BaseProductName:
+    Description: Name of the product. Is used as prefix in the exports
+    Type: String
+  MasterFrontendRegion:
+    Description: Region that contains the single source of truth for the frontend buckets
+    Type: String
+  GlobalFrontendBucketNames:
+    Description: "Comma-delimited list of all bucket-names that have a copy of the frontend bucket"
+    Type: CommaDelimitedList
+
+
+Resources:
+  MultiRegionAccessPoint:
+    Type: AWS::S3::MultiRegionAccessPoint
+    Properties:
+      Name: ${BaseProductName}-frontend-mrap
+      Regions: !Ref GlobalFrontendBucketNames
+
+
+Outputs:
+  FrontendMultiRegionAccessPoint:
+    Description: 'S3 MRAP Bucket for the frontend files'
+    Value: !Ref MultiRegionAccessPoint
+    Export:
+      Name: !Sub '${BaseProductName}-frontend-s3-mrap'

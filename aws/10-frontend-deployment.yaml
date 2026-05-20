@@ -17,7 +17,7 @@ Resources:
   FrontendS3Bucket:
     Type: 'AWS::S3::Bucket'
     Properties:
-      BucketName: !Sub ${BaseProductName}-web-frontend-bucket
+      BucketName: !Sub ${BaseProductName}-web-frontend-bucket-${AWS::Region}
       Tags:
         - Key: "ProductName"
           Value: "lpcalendar"
@@ -57,16 +57,31 @@ Resources:
 Outputs:
   FrontendS3BucketExport:
     Description: 'S3 Bucket for the frontend files'
-    Value: !Ref FrontendS3Bucket
+    Value: !Sub '${BaseProductName}-web-frontend-bucket'
     Export:
       Name: !Sub '${BaseProductName}-frontend-s3'
   FrontendS3BucketRegionalDomainExport:
     Description: 'S3 Bucket for the frontend files'
-    Value: !GetAtt FrontendS3Bucket.RegionalDomainName
+    Value: !Sub '${BaseProductName}-web-frontend-bucket.s3.eu-central-1.amazonaws.com'
     Export:
       Name: !Sub '${BaseProductName}-frontend-s3-regional-domain'
   FrontendS3BucketArnExport:
     Description: 'S3 Bucket for the frontend files'
-    Value: !GetAtt FrontendS3Bucket.Arn
+    Value: !Sub 'arn:aws:s3:::${BaseProductName}-web-frontend-bucket'
     Export:
       Name: !Sub '${BaseProductName}-frontend-s3-arn'
+  FrontendS3BucketExportRegional:
+    Description: 'S3 Bucket for the frontend files'
+    Value: !Ref FrontendS3Bucket
+    Export:
+      Name: !Sub '${BaseProductName}-frontend-s3-${AWS::Region}'
+  FrontendS3BucketRegionalDomainExportRegional:
+    Description: 'S3 Bucket for the frontend files'
+    Value: !GetAtt FrontendS3Bucket.RegionalDomainName
+    Export:
+      Name: !Sub '${BaseProductName}-frontend-s3-regional-domain-${AWS::Region}'
+  FrontendS3BucketArnExportRegional:
+    Description: 'S3 Bucket for the frontend files'
+    Value: !GetAtt FrontendS3Bucket.Arn
+    Export:
+      Name: !Sub '${BaseProductName}-frontend-s3-arn-${AWS::Region}'
