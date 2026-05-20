@@ -1,5 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
+Transform:
+  - AWS::LanguageExtensions
+  - AWS::Serverless-2016-10-31
 Description: >
   Application to manage the S3 Multi-Region access point for the frontend buckets
 
@@ -7,9 +9,6 @@ Description: >
 Parameters:
   BaseProductName:
     Description: Name of the product. Is used as prefix in the exports
-    Type: String
-  MasterFrontendRegion:
-    Description: Region that contains the single source of truth for the frontend buckets
     Type: String
   GlobalFrontendBucketNames:
     Description: "Comma-delimited list of all bucket-names that have a copy of the frontend bucket"
@@ -20,8 +19,10 @@ Resources:
   MultiRegionAccessPoint:
     Type: AWS::S3::MultiRegionAccessPoint
     Properties:
-      Name: ${BaseProductName}-frontend-mrap
-      Regions: !Ref GlobalFrontendBucketNames
+      Name: !Sub ${BaseProductName}-frontend-mrap
+      Regions:
+        - Bucket: !Select [0, !Ref GlobalFrontendBucketNames]
+        - Bucket: !Select [1, !Ref GlobalFrontendBucketNames]
 
 
 Outputs:
