@@ -19,7 +19,7 @@ Resources:
   MultiRegionAccessPoint:
     Type: AWS::S3::MultiRegionAccessPoint
     Properties:
-      Name: !Sub ${BaseProductName}-frontend-mrap
+      Name: !Sub ${BaseProductName}-web-frontend-mrap
       Regions:
         - Bucket: !Select [0, !Ref GlobalFrontendBucketNames]
         - Bucket: !Select [1, !Ref GlobalFrontendBucketNames]
