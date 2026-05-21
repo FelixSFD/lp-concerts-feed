@@ -10,7 +10,7 @@ echo "Output file: $output_file"
 echo "Publishing $project_name ..."
 if grep -q LambdaAotProperties "$project_file"; then
   echo "Project uses AOT"
-  dotnet lambda package -c Release -farch arm64 --native-aot -ucfb true -pl "$project_dir" -o "$output_file" < /dev/null
+  dotnet lambda package -c Release -farch arm64 --native-aot -ucfb true -pl "$project_dir" -o "$output_file" -p:PublishAot=true -p:SelfContained=true < /dev/null
   echo "Exit code: $?"
 else
   echo "Project uses .NET runtime"
