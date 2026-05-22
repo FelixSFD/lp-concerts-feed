@@ -285,5 +285,5 @@ jobs:
     - name: Deploy
       if: success()
       run: | 
-        aws s3 sync ./angular-app s3://${{ vars.BASE_NAME }}-web-frontend-${{ matrix.frontend_regions }} --exclude index.html --cache-control max-age=31536000
-        aws s3 cp ./angular-app/index.html s3://${{ vars.BASE_NAME }}-web-frontend-${{ matrix.frontend_regions }}/index.html --cache-control max-age=120
+        aws s3 sync ./angular-app s3://${{ vars.BASE_NAME }}-web-frontend-bucket-${{ matrix.frontend_regions }} --exclude index.html --cache-control max-age=31536000
+        aws s3 cp ./angular-app/index.html s3://${{ vars.BASE_NAME }}-web-frontend-bucket-${{ matrix.frontend_regions }}/index.html --cache-control max-age=120
