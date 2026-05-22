@@ -31,7 +31,11 @@ jobs:
         id: frontend_regions
         run: |
           REGIONS="${{ vars.FRONTEND_REGIONS }}"
+          # trim whitespaces
+          REGIONS=$(echo "$REGIONS" | xargs)
+          REGIONS=$(echo "$REGIONS" | sed 's/[[:space:]]*,[[:space:]]*/,/g')
           JSON="[\"${REGIONS//,/\",\"}\"]"
+          # output variable
           echo "regions=$JSON" >> "$GITHUB_OUTPUT"
 
   build-lambdas:
