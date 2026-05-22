@@ -249,10 +249,13 @@ jobs:
           ./frontend/lp-calendar-web/dist/lp-calendar-web/browser
     
   deploy-frontend:
-    needs: [deploy-backend, build-frontend]
+    needs: [define-matrix, deploy-backend, build-frontend]
     environment: 
       name: ${{ inputs.environment || 'test' }}
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        frontend_regions: ${{ fromJSON(needs.define-matrix.outputs.frontend_regions) }}
     steps:
     - uses: actions/checkout@v6
 
@@ -276,5 +279,5 @@ jobs:
     - name: Deploy
       if: success()
       run: | 
-        aws s3 sync ./angular-app s3://${{ vars.BASE_NAME }}-web-frontend-mrap --exclude index.html --cache-control max-age=31536000
-        aws s3 cp ./angular-app/index.html s3://${{ vars.BASE_NAME }}-web-frontend-mrap/index.html --cache-control max-age=120
+        aws s3 sync ./angular-app s3://${{ vars.BASE_NAME }}-web-frontend-${{ matrix.frontend_regions }} --exclude index.html --cache-control max-age=31536000
+        aws s3 cp ./angular-app/index.html s3://${{ vars.BASE_NAME }}-web-frontend-${{ matrix.frontend_regions }}/index.html --cache-control max-age=120
