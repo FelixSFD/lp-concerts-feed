@@ -37,3 +37,8 @@ Outputs:
     Value: !Ref MultiRegionAccessPoint
     Export:
       Name: !Sub '${BaseProductName}-frontend-s3-mrap'
+  FrontendMultiRegionAccessPointDomain:
+    Description: 'Domain to the S3 MRAP Bucket for the frontend files'
+    Value: !Sub '${MultiRegionAccessPoint.Alias}.accesspoint.s3-global.amazonaws.com'
+    Export:
+      Name: !Sub '${BaseProductName}-frontend-s3-mrap-domain'
