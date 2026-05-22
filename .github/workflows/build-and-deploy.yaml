@@ -17,6 +17,8 @@ on:
 jobs:
   define-matrix:
     runs-on: ubuntu-latest
+    environment: 
+      name: ${{ inputs.environment || 'test' }}
     outputs:
       lambda_names: ${{ steps.lambda_names.outputs.lambda_names }}
       frontend_regions: ${{ steps.frontend_regions.outputs.regions }}
