@@ -15,24 +15,29 @@ on:
         required: true
 
 jobs:
-  define-lambda-matrix:
+  define-matrix:
     runs-on: ubuntu-latest
-
     outputs:
       lambda_names: ${{ steps.lambda_names.outputs.lambda_names }}
-
+      frontend_regions: ${{ steps.frontend_regions.outputs.regions }}
     steps:
       - uses: actions/checkout@v6
       - name: Define Lambda Projects
         id: lambda_names
         run: ./.github/workflows/generateGitHubJobMatrix.sh
+      - name: Define Frontend Regions
+        id: frontend_regions
+        run: |
+          REGIONS="${{ vars.FRONTEND_REGIONS }}"
+          JSON=$(printf '%s' "$REGIONS" | jq -R 'split(",")')
+          echo "regions=$JSON" >> "$GITHUB_OUTPUT"
 
   build-lambdas:
     runs-on: ubuntu-24.04-arm
-    needs: define-lambda-matrix
+    needs: define-matrix
     strategy:
       matrix:
-        lambda_names: ${{ fromJSON(needs.define-lambda-matrix.outputs.lambda_names) }}
+        lambda_names: ${{ fromJSON(needs.define-matrix.outputs.lambda_names) }}
 
     steps:
       - uses: actions/checkout@v6
