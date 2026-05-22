@@ -28,8 +28,7 @@ jobs:
       - name: Define Frontend Regions
         id: frontend_regions
         run: |
-          REGIONS="${{ vars.FRONTEND_REGIONS }}"
-          JSON=$(printf '%s' "$REGIONS" | jq -R 'split(",")')
+          JSON=$(printf '%s' "${{ vars.FRONTEND_REGIONS }}" | jq -R 'split(",")')
           echo "regions=$JSON" >> "$GITHUB_OUTPUT"
 
   build-lambdas:
