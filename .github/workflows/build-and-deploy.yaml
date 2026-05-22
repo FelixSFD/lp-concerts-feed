@@ -30,7 +30,7 @@ jobs:
       - name: Define Frontend Regions
         id: frontend_regions
         run: |
-          REGIONS="{{ vars.FRONTEND_REGIONS }}"
+          REGIONS="${{ vars.FRONTEND_REGIONS }}"
           JSON="[\"${REGIONS//,/\",\"}\"]"
           echo "regions=$JSON" >> "$GITHUB_OUTPUT"
 
