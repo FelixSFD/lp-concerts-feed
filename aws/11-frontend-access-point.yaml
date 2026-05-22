@@ -10,8 +10,8 @@ Parameters:
   BaseProductName:
     Description: Name of the product. Is used as prefix in the exports
     Type: String
-  GlobalFrontendBucketNames:
-    Description: "Comma-delimited list of all bucket-names that have a copy of the frontend bucket"
+  FrontendBucketRegions:
+    Description: "Comma-delimited list of all regions that have a copy of the frontend bucket"
     Type: CommaDelimitedList
 
 
@@ -21,8 +21,14 @@ Resources:
     Properties:
       Name: !Sub ${BaseProductName}-web-frontend-mrap
       Regions:
-        - Bucket: !Select [0, !Ref GlobalFrontendBucketNames]
-        - Bucket: !Select [1, !Ref GlobalFrontendBucketNames]
+        - Bucket: !Join
+            - '-'
+            - - !Sub ${BaseProductName}-web-frontend-bucket
+              - !Select [0, !Ref FrontendBucketRegions]
+        - Bucket: !Join
+            - '-'
+            - - !Sub ${BaseProductName}-web-frontend-bucket
+              - !Select [1, !Ref FrontendBucketRegions]
 
 
 Outputs:
