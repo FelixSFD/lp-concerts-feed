@@ -24,11 +24,32 @@ Resources:
         - Bucket: !Join
             - '-'
             - - !Sub ${BaseProductName}-web-frontend-bucket
+              - !Select [ 0, !Ref FrontendBucketRegions ]
+        - Bucket: !Join
+            - '-'
+            - - !Sub ${BaseProductName}-web-frontend-bucket
+              - !Select [ 1, !Ref FrontendBucketRegions ]
+  MultiRegionAccessPoint4:
+    Type: AWS::S3::MultiRegionAccessPoint
+    Properties:
+      Name: !Sub ${BaseProductName}-web-frontend-mrap4
+      Regions:
+        - Bucket: !Join
+            - '-'
+            - - !Sub ${BaseProductName}-web-frontend-bucket
               - !Select [0, !Ref FrontendBucketRegions]
         - Bucket: !Join
             - '-'
             - - !Sub ${BaseProductName}-web-frontend-bucket
               - !Select [1, !Ref FrontendBucketRegions]
+        - Bucket: !Join
+            - '-'
+            - - !Sub ${BaseProductName}-web-frontend-bucket
+              - !Select [2, !Ref FrontendBucketRegions]
+        - Bucket: !Join
+            - '-'
+            - - !Sub ${BaseProductName}-web-frontend-bucket
+              - !Select [3, !Ref FrontendBucketRegions]
 
 
 Outputs:
