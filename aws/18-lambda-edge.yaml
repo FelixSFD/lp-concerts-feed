@@ -9,6 +9,9 @@ Parameters:
   BaseProductName:
     Description: Name of the product. Is used as prefix in the exports
     Type: String
+  FrontendMultiRegionAccessPointAlias:
+    Description: Alias of the MRAP for the frontend S3 buckets
+    Type: String
 
 
 
@@ -86,6 +89,97 @@ Resources:
           return callback(null, request);
         };
 
+  SignS3MrapLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - edgelambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: PublishVersion
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: s3:GetObject
+                Resource: !Sub 'arn:aws:s3::${AWS::AccountId}:accesspoint/${FrontendMultiRegionAccessPointAlias}/*'
+
+  SignS3MrapLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${BaseProductName}-sign-s3-mrap-requests
+      Handler: index.handler
+      Role: !GetAtt SignS3MrapLambdaRole.Arn
+      Runtime: nodejs22.x
+      AutoPublishAlias: live
+      InlineCode: |
+        'use strict';
+        
+        const {
+          CrtSignerV4,
+        } = require('@aws-sdk/signature-v4-crt');
+        
+        const { HttpRequest } = require('@aws-sdk/protocol-http');
+        const { defaultProvider } = require('@aws-sdk/credential-provider-node');
+        
+        const signer = new CrtSignerV4({
+          service: 's3',
+          region: '*',
+          credentials: defaultProvider(),
+        });
+        
+        function setHeader(headers, key, value) {
+          console.info("Try set header", key, value);
+          if (!value) return;
+          headers[key.toLowerCase()] = [{
+            key,
+            value: String(value),
+          }];
+        }
+        
+        exports.handler = async (event) => {
+          const request = event.Records[0].cf.request;
+        
+          console.info(JSON.stringify(request, null, 2));
+          const endpoint = request.origin.custom.domainName;
+        
+          const httpRequest = new HttpRequest({
+            protocol: 'https:',
+            hostname: endpoint,
+            method: request.method,
+            path: request.uri,
+            headers: {
+              host: endpoint,
+            },
+          });
+          httpRequest.headers['X-Amz-Region-Set'] = "*";
+          
+          console.info("httpRequest:", JSON.stringify(httpRequest, null, 2));
+        
+          const signed = await signer.sign(httpRequest);
+        
+          console.info("Signed request:", JSON.stringify(signed, null, 2));
+        
+          setHeader(request.headers, 'Authorization', signed.headers?.['Authorization']);
+          setHeader(request.headers, 'X-Amz-Date', signed.headers?.['X-Amz-Date']);
+          setHeader(request.headers, 'x-amz-content-sha256', signed.headers?.['x-amz-content-sha256']);
+          
+          request.headers.host = [{
+            key: 'Host',
+            value: endpoint,
+          }];
+        
+          console.info("result: ", JSON.stringify(request, null, 2));
+          return request;
+        };
 
 
 Outputs:
@@ -94,3 +188,8 @@ Outputs:
     Value: !Ref RedirectLambdaFunction.Version
     Export:
       Name: !Sub '${BaseProductName}-redirect-lambda-version'
+  SignS3MrapLambdaFunctionArnExport:
+    Description: 'Sign S3 MRAP Lambda@Edge function Version'
+    Value: !Ref SignS3MrapLambdaFunction.Version
+    Export:
+      Name: !Sub '${BaseProductName}-sign-s3-mrap-lambda-version'

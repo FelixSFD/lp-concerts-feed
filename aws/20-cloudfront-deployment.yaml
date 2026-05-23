@@ -22,6 +22,9 @@ Parameters:
   RedirectLambdaArn:
     Description: ARN of the Lambda@Edge function to handle redirects (must be passed like this because the function is in a different region)
     Type: String
+  SignS3MrapLambdaArn:
+    Description: ARN of the Lambda@Edge function to sign requests to S3 MRAPs (must be passed like this because the function is in a different region)
+    Type: String
 
 
 
@@ -37,6 +40,15 @@ Resources:
     Properties:
       OriginAccessControlConfig:
         Name: !Sub "${BaseProductName}-static-files-oac"
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+  
+  MrapOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub "${BaseProductName}-s3-mrap-oac"
         OriginAccessControlOriginType: s3
         SigningBehavior: always
         SigningProtocol: sigv4
@@ -309,6 +321,9 @@ Resources:
           CachePolicyId: !Ref DefaultCachePolicy
           OriginRequestPolicyId: !Ref CORSOriginRequestPolicy
           ResponseHeadersPolicyId: !Ref CORSResponseHeadersPolicy
+          LambdaFunctionAssociations:
+            - EventType: origin-request
+              LambdaFunctionARN: !Ref SignS3MrapLambdaArn
         Enabled: true
         HttpVersion: http2and3
         Comment: !Sub "${AWS::StackName} Frontend"
