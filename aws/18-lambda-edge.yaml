@@ -112,6 +112,94 @@ Resources:
                 Action: s3:GetObject
                 Resource: !Sub 'arn:aws:s3::${AWS::AccountId}:accesspoint/${FrontendMultiRegionAccessPointAlias}/*'
 
+  SignS3MrapLambdaFunctionNew:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${BaseProductName}-sign-s3-mrap-requests-new
+      Handler: index.handler
+      Role: !GetAtt SignS3MrapLambdaRole.Arn
+      Runtime: nodejs22.x
+      AutoPublishAlias: live
+      # based on this code: https://gist.github.com/jbg/781792a2ecf2068c24c5ec7cf971a8e4
+      InlineCode: |
+        'use strict';
+        
+        const {
+          CrtSignerV4,
+        } = require('@aws-sdk/signature-v4-crt');
+        
+        const allowedHeaders = [
+          "accept-encoding",
+          "content-length",
+          "if-modified-since",
+          "if-none-match",
+          "if-range",
+          "if-unmodified-since",
+          "transfer-encoding",
+          "via",
+        ];
+        
+        const signer = new CrtSignerV4({
+          credentials: {
+            accessKeyId: process.env["AWS_ACCESS_KEY_ID"],
+            secretAccessKey: process.env["AWS_SECRET_ACCESS_KEY"],
+            sessionToken: process.env["AWS_SESSION_TOKEN"],
+          },
+          region: "*",
+          service: "s3",
+          signingAlgorithm: 1,  // SigV4Asymmetric
+        });
+        
+        exports.handler = async (event) => {
+          const request = event.Records[0].cf.request;
+          const originHostname = request.origin.custom.domainName;
+        
+          // Allow failover: if the origin is not a MRAP, skip SigV4A signing.
+          if (!originHostname.endsWith(".mrap.accesspoint.s3-global.amazonaws.com")) {
+            return request;
+          }
+        
+          // X-Amz-Cf-Id will be added to the origin request after this function finishes.
+          // Therefore, we have to include it in the signature in order for the signature
+          // to verify successfully at the origin. However, we have to remove it from the
+          // headers we return below, as we're not allowed to set this header.
+          const cfRequestId = event.Records[0].cf.config.requestId;
+        
+          const headersToSign = {
+            "Host": originHostname,
+            "X-Amz-Cf-Id": cfRequestId,
+          };
+        
+          for (const key of allowedHeaders) {
+            if (key in request.headers) {
+              const header = request.headers[key][0];
+              headersToSign[header.key] = header.value;
+            }
+          }
+        
+          const signedRequest = await signer.sign({
+            method: request.method,
+            protocol: "https",
+            hostname: originHostname,
+            path: request.uri,
+            headers: headersToSign,
+          });
+        
+          const signedHeaders = {};
+          for (const [key, value] of Object.entries(signedRequest.headers)) {
+            if (key != "X-Amz-Cf-Id") {
+              signedHeaders[key.toLowerCase()] = [{key, value}];
+            }
+          }
+          request.headers = signedHeaders;
+        
+          // We ignore the query string. If you choose to pass it through, add it to
+          // the signer.sign() call above.
+          delete request.querystring;
+        
+          return request;
+        };
+  
   SignS3MrapLambdaFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -190,6 +278,6 @@ Outputs:
       Name: !Sub '${BaseProductName}-redirect-lambda-version'
   SignS3MrapLambdaFunctionArnExport:
     Description: 'Sign S3 MRAP Lambda@Edge function Version'
-    Value: !Ref SignS3MrapLambdaFunction.Version
+    Value: !Ref SignS3MrapLambdaFunctionNew.Version
     Export:
       Name: !Sub '${BaseProductName}-sign-s3-mrap-lambda-version'
