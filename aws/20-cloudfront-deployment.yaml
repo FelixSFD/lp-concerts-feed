@@ -269,7 +269,7 @@ Resources:
       DistributionConfig:
         Origins:
           - Id: FrontendMrapOrigin
-            DomainName: { 'Fn::ImportValue': !Sub '${BaseProductName}-frontend-s3-mrap-domain' }
+            DomainName: { 'Fn::ImportValue': !Sub '${BaseProductName}-frontend-s3-mrap4-domain' }
             CustomOriginConfig:
               HTTPSPort: 443
               OriginProtocolPolicy: https-only

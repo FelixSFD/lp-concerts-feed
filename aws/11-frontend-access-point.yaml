@@ -16,19 +16,6 @@ Parameters:
 
 
 Resources:
-  MultiRegionAccessPoint:
-    Type: AWS::S3::MultiRegionAccessPoint
-    Properties:
-      Name: !Sub ${BaseProductName}-web-frontend-mrap
-      Regions:
-        - Bucket: !Join
-            - '-'
-            - - !Sub ${BaseProductName}-web-frontend-bucket
-              - !Select [ 0, !Ref FrontendBucketRegions ]
-        - Bucket: !Join
-            - '-'
-            - - !Sub ${BaseProductName}-web-frontend-bucket
-              - !Select [ 1, !Ref FrontendBucketRegions ]
   MultiRegionAccessPoint4:
     Type: AWS::S3::MultiRegionAccessPoint
     Properties:
@@ -53,18 +40,18 @@ Resources:
 
 
 Outputs:
-  FrontendMultiRegionAccessPoint:
+  FrontendMultiRegionAccessPoint4:
     Description: 'S3 MRAP Bucket for the frontend files'
-    Value: !Ref MultiRegionAccessPoint
+    Value: !Ref MultiRegionAccessPoint4
     Export:
-      Name: !Sub '${BaseProductName}-frontend-s3-mrap'
-  FrontendMultiRegionAccessPointAlias:
+      Name: !Sub '${BaseProductName}-frontend-s3-mrap4'
+  FrontendMultiRegionAccessPointAlias4:
     Description: 'Alias of the S3 MRAP Bucket for the frontend files'
-    Value: !GetAtt MultiRegionAccessPoint.Alias
+    Value: !GetAtt MultiRegionAccessPoint4.Alias
     Export:
-      Name: !Sub '${BaseProductName}-frontend-s3-mrap-alias'
-  FrontendMultiRegionAccessPointDomain:
+      Name: !Sub '${BaseProductName}-frontend-s3-mrap4-alias'
+  FrontendMultiRegionAccessPointDomain4:
     Description: 'Domain to the S3 MRAP Bucket for the frontend files'
-    Value: !Sub '${MultiRegionAccessPoint.Alias}.accesspoint.s3-global.amazonaws.com'
+    Value: !Sub '${MultiRegionAccessPoint4.Alias}.accesspoint.s3-global.amazonaws.com'
     Export:
-      Name: !Sub '${BaseProductName}-frontend-s3-mrap-domain'
+      Name: !Sub '${BaseProductName}-frontend-s3-mrap4-domain'
