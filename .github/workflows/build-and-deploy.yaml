@@ -266,7 +266,7 @@ jobs:
           ./frontend/lp-calendar-web/dist/lp-calendar-web/browser
     
   create-frontend-replication-buckets:
-    needs: [define-matrix, deploy-backend]
+    needs: [define-matrix]
     environment: 
       name: ${{ inputs.environment || 'test' }}
     runs-on: ubuntu-latest
@@ -286,7 +286,7 @@ jobs:
       run: sam build -t 10-frontend-deployment.yaml
       working-directory: aws
     - name: Deploy 10 Frontend Stack (${{ matrix.frontend_replication_regions }})
-      run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name ${{ vars.BASE_NAME }}-frontend --resolve-s3 --s3-prefix ${{ vars.BASE_NAME }}-${{ github.ref_name }} --region ${{ matrix.frontend_replication_regions }} --capabilities CAPABILITY_IAM --parameter-overrides BaseProductName=${{ vars.BASE_NAME }} FrontendBucketRegions='${{ vars.FRONTEND_PRIMARY_REGION }}, ${{ vars.FRONTEND_REPLICATION_REGIONS }}'
+      run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name ${{ vars.BASE_NAME }}-frontend --resolve-s3 --s3-prefix ${{ vars.BASE_NAME }}-${{ github.ref_name }} --region ${{ matrix.frontend_replication_regions }} --capabilities CAPABILITY_IAM --parameter-overrides BaseProductName=${{ vars.BASE_NAME }} FrontendBucketRegions="${{ vars.FRONTEND_PRIMARY_REGION }}, ${{ vars.FRONTEND_REPLICATION_REGIONS }}"
       working-directory: aws
         
   deploy-frontend:
