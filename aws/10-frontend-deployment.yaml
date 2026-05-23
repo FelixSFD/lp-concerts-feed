@@ -9,8 +9,14 @@ Parameters:
   BaseProductName:
     Description: Name of the product. Is used as prefix in the exports
     Type: String
+  FrontendBucketRegions:
+    Type: CommaDelimitedList
+    Description: Regions where a copy of the frontend files will exist. index 0 must be the primary region. (single source of truth)
 
-
+Conditions:
+  IsPrimaryReplicationRegion: !Equals
+    - !Ref AWS::Region
+    - !Select [0, !Ref FrontendBucketRegions]
 
 Resources:
   # S3 bucket for Angular frontend
@@ -33,6 +39,58 @@ Resources:
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: index.html
+      VersioningConfiguration:
+        Status: Enabled
+      ReplicationConfiguration: !If
+        - IsPrimaryReplicationRegion
+        - Role: !GetAtt ReplicationRole.Arn
+          Rules:
+            - Id: !Join
+                - '-'
+                - - replicate-to
+                  - !Select [1, !Ref FrontendBucketRegions]
+              Status: Enabled
+              Priority: 1
+              Filter:
+                Prefix: ""
+              DeleteMarkerReplication:
+                Status: Enabled
+              Destination:
+                Bucket: !Join
+                  - '-'
+                  - - !Sub arn:aws:s3:::${BaseProductName}-web-frontend-bucket
+                    - !Select [1, !Ref FrontendBucketRegions]
+            - Id: !Join
+                - '-'
+                - - replicate-to
+                  - !Select [2, !Ref FrontendBucketRegions]
+              Status: Enabled
+              Priority: 2
+              Filter:
+                Prefix: ""
+              DeleteMarkerReplication:
+                Status: Enabled
+              Destination:
+                Bucket: !Join
+                  - '-'
+                  - - !Sub arn:aws:s3:::${BaseProductName}-web-frontend-bucket
+                    - !Select [2, !Ref FrontendBucketRegions]
+            - Id: !Join
+                - '-'
+                - - replicate-to
+                  - !Select [3, !Ref FrontendBucketRegions]
+              Status: Enabled
+              Priority: 3
+              Filter:
+                Prefix: ""
+              DeleteMarkerReplication:
+                Status: Enabled
+              Destination:
+                Bucket: !Join
+                  - '-'
+                  - - !Sub arn:aws:s3:::${BaseProductName}-web-frontend-bucket
+                    - !Select [3, !Ref FrontendBucketRegions]
+        - !Ref AWS::NoValue
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
   BucketPolicy:
@@ -53,6 +111,42 @@ Resources:
                 - /*
       Bucket: !Ref FrontendS3Bucket
 
+  ReplicationRole:
+    Type: AWS::IAM::Role
+    Condition: IsPrimaryReplicationRegion
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: s3.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: ReplicationPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetReplicationConfiguration
+                  - s3:ListBucket
+                Resource:
+                  - !Sub arn:aws:s3:::${BaseProductName}-web-frontend-bucket-${AWS::Region}
+              - Effect: Allow
+                Action:
+                  - s3:GetObjectVersionForReplication
+                  - s3:GetObjectVersionAcl
+                  - s3:GetObjectVersionTagging
+                Resource:
+                  - !Sub arn:aws:s3:::${BaseProductName}-web-frontend-bucket-${AWS::Region}/*
+              - Effect: Allow
+                Action:
+                  - s3:ReplicateObject
+                  - s3:ReplicateDelete
+                  - s3:ReplicateTags
+                Resource:
+                  - !Sub arn:aws:s3:::${BaseProductName}-web-frontend-bucket-*/*
 
 Outputs:
   FrontendS3BucketExport:
