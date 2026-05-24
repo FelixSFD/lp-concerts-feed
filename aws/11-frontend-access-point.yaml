@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform:
+  - AWS::LanguageExtensions
+  - AWS::Serverless-2016-10-31
+Description: >
+  Application to manage the S3 Multi-Region access point for the frontend buckets
+
+
+Parameters:
+  BaseProductName:
+    Description: Name of the product. Is used as prefix in the exports
+    Type: String
+  FrontendBucketRegions:
+    Description: "Comma-delimited list of all regions that have a copy of the frontend bucket"
+    Type: CommaDelimitedList
+
+
+Resources:
+  MultiRegionAccessPoint4:
+    Type: AWS::S3::MultiRegionAccessPoint
+    Properties:
+      Name: !Sub ${BaseProductName}-web-frontend-mrap4
+      Regions:
+        - Bucket: !Join
+            - '-'
+            - - !Sub ${BaseProductName}-web-frontend-bucket
+              - !Select [0, !Ref FrontendBucketRegions]
+        - Bucket: !Join
+            - '-'
+            - - !Sub ${BaseProductName}-web-frontend-bucket
+              - !Select [1, !Ref FrontendBucketRegions]
+        - Bucket: !Join
+            - '-'
+            - - !Sub ${BaseProductName}-web-frontend-bucket
+              - !Select [2, !Ref FrontendBucketRegions]
+        - Bucket: !Join
+            - '-'
+            - - !Sub ${BaseProductName}-web-frontend-bucket
+              - !Select [3, !Ref FrontendBucketRegions]
+
+
+Outputs:
+  FrontendMultiRegionAccessPoint4:
+    Description: 'S3 MRAP Bucket for the frontend files'
+    Value: !Ref MultiRegionAccessPoint4
+    Export:
+      Name: !Sub '${BaseProductName}-frontend-s3-mrap4'
+  FrontendMultiRegionAccessPointAlias4:
+    Description: 'Alias of the S3 MRAP Bucket for the frontend files'
+    Value: !GetAtt MultiRegionAccessPoint4.Alias
+    Export:
+      Name: !Sub '${BaseProductName}-frontend-s3-mrap4-alias'
+  FrontendMultiRegionAccessPointDomain4:
+    Description: 'Domain to the S3 MRAP Bucket for the frontend files'
+    Value: !Sub '${MultiRegionAccessPoint4.Alias}.accesspoint.s3-global.amazonaws.com'
+    Export:
+      Name: !Sub '${BaseProductName}-frontend-s3-mrap4-domain'
