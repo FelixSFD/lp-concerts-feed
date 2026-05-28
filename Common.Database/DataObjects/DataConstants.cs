@@ -51,4 +51,14 @@ public static class DataConstants
     /// Maximum length of city names
     /// </summary>
     public const int CityNameLength = 63;
+    
+    /// <summary>
+    /// Maximum length of venue names
+    /// </summary>
+    public const int VenueNameLength = 127;
+    
+    /// <summary>
+    /// Maximum length of time zone IDs
+    /// </summary>
+    public const int TimeZoneIdLength = 31;
 }
