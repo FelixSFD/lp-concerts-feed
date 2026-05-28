@@ -31,4 +31,19 @@ public static class DataConstants
     /// Maximum length of Linkinpedia URLs
     /// </summary>
     public const int LinkinpediaUrlLength = 127;
+    
+    /// <summary>
+    /// Maximum length of country names
+    /// </summary>
+    public const int CountryNameLength = 63;
+    
+    /// <summary>
+    /// Maximum length of country codes
+    /// </summary>
+    public const int CountryCodeLength = 3;
+    
+    /// <summary>
+    /// Maximum length of state codes (like "CA")
+    /// </summary>
+    public const int StateCodeLength = 3;
 }
