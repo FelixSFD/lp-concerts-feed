@@ -46,4 +46,9 @@ public static class DataConstants
     /// Maximum length of state codes (like "CA")
     /// </summary>
     public const int StateCodeLength = 3;
+    
+    /// <summary>
+    /// Maximum length of city names
+    /// </summary>
+    public const int CityNameLength = 63;
 }

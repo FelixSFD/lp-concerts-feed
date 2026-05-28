@@ -22,6 +22,20 @@ public class CityDo : BaseDo
     public uint Id { get; set; }
     
     /// <summary>
+    /// English name of this city
+    /// </summary>
+    [Column("Name")]
+    [MaxLength(DataConstants.CityNameLength)]
+    public required string Name { get; set; }
+    
+    /// <summary>
+    /// name of this city in its native language
+    /// </summary>
+    [Column("NativeName")]
+    [MaxLength(DataConstants.CityNameLength)]
+    public required string NativeName { get; set; }
+    
+    /// <summary>
     /// Country where this city is located in
     /// </summary>
     [ForeignKey(nameof(CountryCode))]
