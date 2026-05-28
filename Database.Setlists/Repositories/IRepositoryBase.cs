@@ -1,3 +1,4 @@
+using Common.Database.DataObjects;
 using Database.Setlists.DataObjects;
 
 namespace Database.Setlists.Repositories;

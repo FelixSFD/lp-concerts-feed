@@ -26,4 +26,8 @@
       <Folder Include="Migrations\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Common.Database\Common.Database.csproj" />
+    </ItemGroup>
+
 </Project>

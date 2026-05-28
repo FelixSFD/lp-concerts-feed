@@ -1,4 +1,4 @@
-namespace Database.Setlists.DataObjects;
+namespace Common.Database.DataObjects;
 
 public interface ILinkinpediaLinkable
 {
