@@ -10,7 +10,7 @@ namespace Database.Tours.DataObjects;
 /// </summary>
 [Table("TourLeg")]
 [PrimaryKey(nameof(TourId), nameof(Id))]
-public class TourLegDo
+public class TourLegDo : BaseDo
 {
     /// <summary>
     /// ID of the <see cref="TourDo"/>

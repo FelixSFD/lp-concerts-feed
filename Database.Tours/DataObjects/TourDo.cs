@@ -5,7 +5,7 @@ using Common.Database.DataObjects;
 namespace Database.Tours.DataObjects;
 
 [Table("Tour")]
-public class TourDo
+public class TourDo : BaseDo
 {
     /// <summary>
     /// Unique ID

@@ -8,10 +8,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Common.Database\Common.Database.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Repositories\" />
+      <ProjectReference Include="..\Common.Datbase.MySql\Common.Datbase.MySql.csproj" />
     </ItemGroup>
 
     <ItemGroup>
