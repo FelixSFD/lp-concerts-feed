@@ -66,4 +66,9 @@ public static class DataConstants
     /// Maximum length of a concert type name
     /// </summary>
     public const int ConcertTypeNameLength = 31;
+    
+    /// <summary>
+    /// Maximum length of concert schedule files
+    /// </summary>
+    public const int ConcertScheduleFileNameLength = 127;
 }
