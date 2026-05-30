@@ -1,14 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
-
-namespace Database.Setlists.Tests;
-
 using Testcontainers.MySql;
-using Xunit;
 
-public abstract class DbIntegrationTestsBase : IAsyncLifetime
+namespace Common.Database.Tests;
+
+public abstract class DbIntegrationTestsBase<TTestedDbContext> : IAsyncLifetime where TTestedDbContext : DbContext
 {
     private readonly MySqlContainer _dbContainer;
-    protected SetlistsDbContext DbContext;
+    protected TTestedDbContext DbContext;
 
     public DbIntegrationTestsBase()
     {
@@ -16,18 +14,23 @@ public abstract class DbIntegrationTestsBase : IAsyncLifetime
             .WithImage("mysql:8.0")
             .Build();
     }
+    
+    /// <summary>
+    /// Creates and initializes the <typeparamref name="TTestedDbContext"/>
+    /// </summary>
+    /// <param name="options">Options for the context</param>
+    /// <returns>the created context</returns>
+    protected abstract TTestedDbContext CreateDbContext(DbContextOptions<TTestedDbContext> options);
 
     public async Task InitializeAsync()
     {
         await _dbContainer.StartAsync();
         
-        var optBuilder = new DbContextOptionsBuilder<SetlistsDbContext>();
+        var optBuilder = new DbContextOptionsBuilder<TTestedDbContext>();
         optBuilder.UseMySQL(_dbContainer.GetConnectionString());
-        //optBuilder.UseMySQL("server=lpdb.felixsfd.de;Port=6612;uid=admin;pwd=;database=lpdb");
-        DbContext = new SetlistsDbContext(optBuilder.Options);
+        DbContext = CreateDbContext(optBuilder.Options);
 
         await DbContext.Database.EnsureCreatedAsync();
-        //await RunDbScriptsAsync();
     }
 
     public async Task DisposeAsync()

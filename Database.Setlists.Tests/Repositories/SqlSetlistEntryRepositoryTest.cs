@@ -4,7 +4,7 @@ using Database.Setlists.Repositories;
 namespace Database.Setlists.Tests.Repositories;
 
 
-public class SqlSetlistEntryRepositoryTest : DbIntegrationTestsBase
+public class SqlSetlistEntryRepositoryTest : SetlistsDbIntegrationTestsBase
 {
     [Fact]
     public async Task WithMultipleEntries()

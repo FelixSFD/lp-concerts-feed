@@ -4,7 +4,7 @@ using Database.Setlists.Repositories;
 namespace Database.Setlists.Tests.Repositories;
 
 
-public class SqlAlbumRepositoryTest : DbIntegrationTestsBase
+public class SqlAlbumRepositoryTest : SetlistsDbIntegrationTestsBase
 {
     [Fact]
     public async Task GetByIdAsync()

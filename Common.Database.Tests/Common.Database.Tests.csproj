@@ -9,20 +9,16 @@
 
     <ItemGroup>
         <PackageReference Include="coverlet.collector" Version="6.0.4"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.5" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1"/>
+        <PackageReference Include="MySql.EntityFrameworkCore" Version="10.0.1" />
+        <PackageReference Include="Testcontainers.MySql" Version="4.10.0" />
         <PackageReference Include="xunit" Version="2.9.3"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4"/>
-        <PackageReference Include="Testcontainers" Version="4.10.0" />
-        <PackageReference Include="Testcontainers.MySql" Version="4.10.0" />
     </ItemGroup>
 
     <ItemGroup>
         <Using Include="Xunit"/>
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\Common.Database.Tests\Common.Database.Tests.csproj" />
-      <ProjectReference Include="..\Database.Setlists\Database.Setlists.csproj" />
     </ItemGroup>
 
 </Project>
