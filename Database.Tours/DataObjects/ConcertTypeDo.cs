@@ -5,7 +5,7 @@ using Common.Database.DataObjects;
 namespace Database.Tours.DataObjects;
 
 [Table("ConcertType")]
-public class ConcertTypeDo
+public class ConcertTypeDo : BaseDo
 {
     [Key]
     [Column("Id")]
