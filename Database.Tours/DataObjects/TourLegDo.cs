@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Common.Database.DataObjects;
 
 namespace Database.Tours.DataObjects;
 
@@ -14,19 +15,22 @@ public class TourLegDo
     /// </summary>
     [Key]
     [Column("TourId")]
-    public uint TourId { get; set; }
+    [MaxLength(DataConstants.TourIdLength)]
+    public required string TourId { get; set; }
     
     /// <summary>
     /// Unique ID
     /// </summary>
     [Key]
     [Column("Id")]
-    public uint Id { get; set; }
+    [MaxLength(DataConstants.TourIdLength)]
+    public required string Id { get; set; }
 
     /// <summary>
     /// Name of this tour leg
     /// </summary>
     [Column("Name")]
+    [MaxLength(DataConstants.TitleFieldLength)]
     public required string Name { get; set; }
     
     /// <summary>

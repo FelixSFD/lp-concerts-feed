@@ -39,13 +39,15 @@ public class ConcertDo : BaseDo
     /// ID of the <see cref="TourDo"/>
     /// </summary>
     [Column("TourId")]
-    public uint TourId { get; set; }
+    [MaxLength(DataConstants.TourIdLength)]
+    public string? TourId { get; set; }
     
     /// <summary>
     /// ID of the <see cref="TourLegDo"/>
     /// </summary>
     [Column("TourLegId")]
-    public uint TourLegId { get; set; }
+    [MaxLength(DataConstants.TourIdLength)]
+    public string? TourLegId { get; set; }
 
     /// <summary>
     /// Field to override the automatically generated title for this concert. Will only be used if it's not null
@@ -115,4 +117,15 @@ public class ConcertDo : BaseDo
     /// </summary>
     [Column("Status")]
     public ConcertStatus Status { get; set; }
+
+    /// <summary>
+    /// Tour this concert is a part of
+    /// </summary>
+    [ForeignKey(nameof(TourId))]
+    public virtual TourDo? Tour { get; set; }
+    
+    /// <summary>
+    /// Leg of a tour this concert is a part of
+    /// </summary>
+    public virtual TourLegDo? TourLeg { get; set; }
 }

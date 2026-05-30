@@ -71,4 +71,9 @@ public static class DataConstants
     /// Maximum length of concert schedule files
     /// </summary>
     public const int ConcertScheduleFileNameLength = 127;
+    
+    /// <summary>
+    /// Maximum length of tour IDs
+    /// </summary>
+    public const int TourIdLength = 31;
 }
