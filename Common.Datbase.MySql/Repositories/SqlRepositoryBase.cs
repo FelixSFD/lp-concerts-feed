@@ -1,8 +1,8 @@
 using Common.Database.DataObjects;
-using Database.Setlists.DataObjects;
+using Common.Database.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace Database.Setlists.Repositories;
+namespace Common.Datbase.MySql.Repositories;
 
 public class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObject> where TDataObject : BaseDo
 {

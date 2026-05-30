@@ -1,7 +1,6 @@
 using Common.Database.DataObjects;
-using Database.Setlists.DataObjects;
 
-namespace Database.Setlists.Repositories;
+namespace Common.Database.Repositories;
 
 public interface IRepositoryBase<TDataObject> where TDataObject : BaseDo
 {

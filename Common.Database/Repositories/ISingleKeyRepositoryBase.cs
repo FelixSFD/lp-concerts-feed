@@ -1,6 +1,4 @@
-using Database.Setlists.DataObjects;
-
-namespace Database.Setlists.Repositories;
+namespace Common.Database.Repositories;
 
 public interface ISingleKeyRepositoryBase<TDataObject, TPrimaryKey>
 {
