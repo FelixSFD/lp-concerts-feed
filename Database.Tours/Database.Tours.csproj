@@ -10,4 +10,12 @@
       <ProjectReference Include="..\Common.Database\Common.Database.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Repositories\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.5" />
+    </ItemGroup>
+
 </Project>

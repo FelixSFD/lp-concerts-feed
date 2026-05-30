@@ -128,4 +128,16 @@ public class ConcertDo : BaseDo
     /// Leg of a tour this concert is a part of
     /// </summary>
     public virtual TourLegDo? TourLeg { get; set; }
+    
+    /// <summary>
+    /// Type of this concert
+    /// </summary>
+    [ForeignKey(nameof(ConcertTypeId))]
+    public virtual ConcertTypeDo Type { get; set; }
+    
+    /// <summary>
+    /// Venue where this concert was played
+    /// </summary>
+    [ForeignKey(nameof(VenueId))]
+    public virtual VenueDo Venue { get; set; }
 }

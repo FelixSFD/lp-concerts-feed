@@ -44,6 +44,5 @@ public class CityDo : BaseDo
     /// <summary>
     /// State where this state is located in (if applicable)
     /// </summary>
-    [ForeignKey(nameof(CountryCode))]
     public virtual StateDo? State { get; set; }
 }
