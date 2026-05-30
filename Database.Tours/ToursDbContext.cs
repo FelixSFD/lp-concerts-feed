@@ -28,13 +28,14 @@ public class ToursDbContext(DbContextOptions<ToursDbContext> options) : DbContex
             .HasOne(c => c.State)
             .WithMany()
             .HasForeignKey(c => new { c.CountryCode, c.StateCode })
-            .HasPrincipalKey(s => new { s.CountryCode, s.Code });
+            .HasPrincipalKey(s => new { s.CountryCode, s.Code })
+            .IsRequired(false);
 
         modelBuilder.Entity<VenueDo>()
             .HasOne(v => v.City)
             .WithMany()
-            .HasForeignKey(v => new { v.CountryCode, v.StateCode, v.CityId })
-            .HasPrincipalKey(c => new { c.CountryCode, c.StateCode, c.Id });
+            .HasForeignKey(v => new { v.CountryCode, v.CityId })
+            .HasPrincipalKey(c => new { c.CountryCode, c.Id });
         
         modelBuilder.Entity<VenueDo>()
             .HasOne(v => v.State)

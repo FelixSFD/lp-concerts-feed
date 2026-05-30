@@ -26,11 +26,6 @@ namespace Database.Tours.Migrations
                         .HasColumnType("varchar(3)")
                         .HasColumnName("CountryCode");
 
-                    b.Property<string>("StateCode")
-                        .HasMaxLength(3)
-                        .HasColumnType("varchar(3)")
-                        .HasColumnName("StateCode");
-
                     b.Property<uint>("Id")
                         .HasColumnType("int unsigned")
                         .HasColumnName("Id");
@@ -47,7 +42,14 @@ namespace Database.Tours.Migrations
                         .HasColumnType("varchar(63)")
                         .HasColumnName("NativeName");
 
-                    b.HasKey("CountryCode", "StateCode", "Id");
+                    b.Property<string>("StateCode")
+                        .HasMaxLength(3)
+                        .HasColumnType("varchar(3)")
+                        .HasColumnName("StateCode");
+
+                    b.HasKey("CountryCode", "Id");
+
+                    b.HasIndex("CountryCode", "StateCode");
 
                     b.ToTable("City");
                 });
@@ -284,6 +286,7 @@ namespace Database.Tours.Migrations
                         .HasColumnName("CityId");
 
                     b.Property<string>("CountryCode")
+                        .IsRequired()
                         .HasMaxLength(3)
                         .HasColumnType("varchar(3)")
                         .HasColumnName("CountryCode");
@@ -315,7 +318,9 @@ namespace Database.Tours.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CountryCode", "StateCode", "CityId");
+                    b.HasIndex("CountryCode", "CityId");
+
+                    b.HasIndex("CountryCode", "StateCode");
 
                     b.ToTable("Venue");
                 });
@@ -330,9 +335,7 @@ namespace Database.Tours.Migrations
 
                     b.HasOne("Database.Tours.DataObjects.StateDo", "State")
                         .WithMany()
-                        .HasForeignKey("CountryCode", "StateCode")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CountryCode", "StateCode");
 
                     b.Navigation("Country");
 
@@ -408,15 +411,19 @@ namespace Database.Tours.Migrations
                 {
                     b.HasOne("Database.Tours.DataObjects.CountryDo", "Country")
                         .WithMany()
-                        .HasForeignKey("CountryCode");
+                        .HasForeignKey("CountryCode")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Database.Tours.DataObjects.CityDo", "City")
+                        .WithMany()
+                        .HasForeignKey("CountryCode", "CityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Database.Tours.DataObjects.StateDo", "State")
                         .WithMany()
                         .HasForeignKey("CountryCode", "StateCode");
-
-                    b.HasOne("Database.Tours.DataObjects.CityDo", "City")
-                        .WithMany()
-                        .HasForeignKey("CountryCode", "StateCode", "CityId");
 
                     b.Navigation("City");
 

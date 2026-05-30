@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Database.Tours.DataObjects;
 
 [Table("City")]
-[PrimaryKey(nameof(CountryCode), nameof(StateCode), nameof(Id))]
+[PrimaryKey(nameof(CountryCode), nameof(Id))]
 public class CityDo : BaseDo
 {
     /// <summary>
@@ -17,17 +17,17 @@ public class CityDo : BaseDo
     public required string CountryCode { get; set; }
     
     /// <summary>
+    /// City-ID. This is part of the composite key
+    /// </summary>
+    [Column("Id")]
+    public uint Id { get; set; }
+    
+    /// <summary>
     /// State code. This is part of the composite key
     /// </summary>
     [Column("StateCode")]
     [MaxLength(DataConstants.StateCodeLength)]
     public string? StateCode { get; set; }
-    
-    /// <summary>
-    /// City-ID. This is part of the composite key
-    /// </summary>
-    [Column("Id")]
-    public uint Id { get; set; }
     
     /// <summary>
     /// English name of this city

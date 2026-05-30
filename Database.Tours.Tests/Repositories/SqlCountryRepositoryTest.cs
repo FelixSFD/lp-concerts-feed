@@ -130,7 +130,7 @@ public class SqlCountryRepositoryTest : ToursDbIntegrationTestsBase
         
         await cityRepo.SaveChangesAsync();
         
-        var retrievedCity = await cityRepo.GetByPrimaryKeyAsync(countryGer.IsoCode, stateBy.Code, cityMuc.Id);
+        var retrievedCity = await cityRepo.GetByPrimaryKeyAsync(countryGer.IsoCode, cityMuc.Id);
         Assert.NotNull(retrievedCity);
         AssertCitiesEqual(cityMuc, retrievedCity);
         
@@ -138,7 +138,7 @@ public class SqlCountryRepositoryTest : ToursDbIntegrationTestsBase
         countryRepo.Delete(countryGer);
         await countryRepo.SaveChangesAsync();
         
-        retrievedCity = await cityRepo.GetByPrimaryKeyAsync(countryGer.IsoCode, stateBy.Code, cityMuc.Id);
+        retrievedCity = await cityRepo.GetByPrimaryKeyAsync(countryGer.IsoCode, cityMuc.Id);
         Assert.Null(retrievedCity);
     }
     
@@ -168,7 +168,7 @@ public class SqlCountryRepositoryTest : ToursDbIntegrationTestsBase
         
         await cityRepo.SaveChangesAsync();
         
-        var retrievedCity = await cityRepo.GetByPrimaryKeyAsync(countryGer.IsoCode, null, cityMuc.Id);
+        var retrievedCity = await cityRepo.GetByPrimaryKeyAsync(countryGer.IsoCode, cityMuc.Id);
         Assert.NotNull(retrievedCity);
         AssertCitiesEqual(cityMuc, retrievedCity);
         
@@ -176,7 +176,7 @@ public class SqlCountryRepositoryTest : ToursDbIntegrationTestsBase
         countryRepo.Delete(countryGer);
         await countryRepo.SaveChangesAsync();
         
-        retrievedCity = await cityRepo.GetByPrimaryKeyAsync(countryGer.IsoCode, null, cityMuc.Id);
+        retrievedCity = await cityRepo.GetByPrimaryKeyAsync(countryGer.IsoCode, cityMuc.Id);
         Assert.Null(retrievedCity);
     }
 

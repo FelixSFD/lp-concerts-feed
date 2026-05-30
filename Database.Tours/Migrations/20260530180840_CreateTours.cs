@@ -103,14 +103,14 @@ namespace Database.Tours.Migrations
                 columns: table => new
                 {
                     CountryCode = table.Column<string>(type: "varchar(3)", maxLength: 3, nullable: false),
-                    StateCode = table.Column<string>(type: "varchar(3)", maxLength: 3, nullable: false),
                     Id = table.Column<uint>(type: "int unsigned", nullable: false),
+                    StateCode = table.Column<string>(type: "varchar(3)", maxLength: 3, nullable: true),
                     Name = table.Column<string>(type: "varchar(63)", maxLength: 63, nullable: false),
                     NativeName = table.Column<string>(type: "varchar(63)", maxLength: 63, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_City", x => new { x.CountryCode, x.StateCode, x.Id });
+                    table.PrimaryKey("PK_City", x => new { x.CountryCode, x.Id });
                     table.ForeignKey(
                         name: "FK_City_Country_CountryCode",
                         column: x => x.CountryCode,
@@ -121,8 +121,7 @@ namespace Database.Tours.Migrations
                         name: "FK_City_State_CountryCode_StateCode",
                         columns: x => new { x.CountryCode, x.StateCode },
                         principalTable: "State",
-                        principalColumns: new[] { "CountryCode", "Code" },
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumns: new[] { "CountryCode", "Code" });
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -132,7 +131,7 @@ namespace Database.Tours.Migrations
                 {
                     Id = table.Column<uint>(type: "int unsigned", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    CountryCode = table.Column<string>(type: "varchar(3)", maxLength: 3, nullable: true),
+                    CountryCode = table.Column<string>(type: "varchar(3)", maxLength: 3, nullable: false),
                     StateCode = table.Column<string>(type: "varchar(3)", maxLength: 3, nullable: true),
                     CityId = table.Column<uint>(type: "int unsigned", nullable: false),
                     CurrentName = table.Column<string>(type: "varchar(127)", maxLength: 127, nullable: false),
@@ -144,15 +143,17 @@ namespace Database.Tours.Migrations
                 {
                     table.PrimaryKey("PK_Venue", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Venue_City_CountryCode_StateCode_CityId",
-                        columns: x => new { x.CountryCode, x.StateCode, x.CityId },
+                        name: "FK_Venue_City_CountryCode_CityId",
+                        columns: x => new { x.CountryCode, x.CityId },
                         principalTable: "City",
-                        principalColumns: new[] { "CountryCode", "StateCode", "Id" });
+                        principalColumns: new[] { "CountryCode", "Id" },
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Venue_Country_CountryCode",
                         column: x => x.CountryCode,
                         principalTable: "Country",
-                        principalColumn: "IsoCode");
+                        principalColumn: "IsoCode",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Venue_State_CountryCode_StateCode",
                         columns: x => new { x.CountryCode, x.StateCode },
@@ -232,6 +233,11 @@ namespace Database.Tours.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateIndex(
+                name: "IX_City_CountryCode_StateCode",
+                table: "City",
+                columns: new[] { "CountryCode", "StateCode" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Concert_ConcertTypeId",
                 table: "Concert",
                 column: "ConcertTypeId");
@@ -252,9 +258,14 @@ namespace Database.Tours.Migrations
                 column: "VenueId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Venue_CountryCode_StateCode_CityId",
+                name: "IX_Venue_CountryCode_CityId",
                 table: "Venue",
-                columns: new[] { "CountryCode", "StateCode", "CityId" });
+                columns: new[] { "CountryCode", "CityId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Venue_CountryCode_StateCode",
+                table: "Venue",
+                columns: new[] { "CountryCode", "StateCode" });
         }
 
         /// <inheritdoc />
