@@ -1,23 +1,31 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Common.Database.DataObjects;
+using Microsoft.EntityFrameworkCore;
 
 namespace Database.Tours.DataObjects;
 
 [Table("City")]
+[PrimaryKey(nameof(CountryCode), nameof(StateCode), nameof(Id))]
 public class CityDo : BaseDo
 {
-    [Key]
+    /// <summary>
+    /// Country code. This is part of the composite key
+    /// </summary>
     [Column("CountryCode")]
     [MaxLength(DataConstants.CountryCodeLength)]
     public required string CountryCode { get; set; }
     
-    [Key]
+    /// <summary>
+    /// State code. This is part of the composite key
+    /// </summary>
     [Column("StateCode")]
     [MaxLength(DataConstants.StateCodeLength)]
     public string? StateCode { get; set; }
     
-    [Key]
+    /// <summary>
+    /// City-ID. This is part of the composite key
+    /// </summary>
     [Column("Id")]
     public uint Id { get; set; }
     

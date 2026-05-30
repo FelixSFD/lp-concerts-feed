@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Common.Database.DataObjects;
+using Microsoft.EntityFrameworkCore;
 
 namespace Database.Tours.DataObjects;
 
@@ -8,12 +9,12 @@ namespace Database.Tours.DataObjects;
 /// One leg of a <see cref="TourDo"/>. This can for example be the European Part of a World Tour
 /// </summary>
 [Table("TourLeg")]
+[PrimaryKey(nameof(TourId), nameof(Id))]
 public class TourLegDo
 {
     /// <summary>
     /// ID of the <see cref="TourDo"/>
     /// </summary>
-    [Key]
     [Column("TourId")]
     [MaxLength(DataConstants.TourIdLength)]
     public required string TourId { get; set; }
@@ -21,7 +22,6 @@ public class TourLegDo
     /// <summary>
     /// Unique ID
     /// </summary>
-    [Key]
     [Column("Id")]
     [MaxLength(DataConstants.TourIdLength)]
     public required string Id { get; set; }

@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Common.Database.DataObjects;
+using Microsoft.EntityFrameworkCore;
 
 namespace Database.Tours.DataObjects;
 
@@ -8,10 +9,20 @@ namespace Database.Tours.DataObjects;
 /// If a venue was renamed, this table stores the previous names
 /// </summary>
 [Table("PreviousVenueName")]
+[PrimaryKey(nameof(VenueId), nameof(Id))]
 public class PreviousVenueNameDo : BaseDo
 {
+    /// <summary>
+    /// ID of the venue
+    /// </summary>
     [Column("VenueId")]
     public uint VenueId { get; set; }
+    
+    /// <summary>
+    /// ID of this historic name
+    /// </summary>
+    [Column("Id")]
+    public uint Id { get; set; }
     
     /// <summary>
     /// Venue that used to have this name

@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Common.Database.DataObjects;
+using Microsoft.EntityFrameworkCore;
 
 namespace Database.Tours.DataObjects;
 
@@ -8,14 +9,13 @@ namespace Database.Tours.DataObjects;
 /// A state within a <see cref="CountryDo"/>
 /// </summary>
 [Table("State")]
+[PrimaryKey(nameof(CountryCode), nameof(Code))]
 public class StateDo : BaseDo
 {
-    [Key]
     [Column("CountryCode")]
     [MaxLength(DataConstants.CountryCodeLength)]
     public required string CountryCode { get; set; }
     
-    [Key]
     [Column("Code")]
     [MaxLength(DataConstants.StateCodeLength)]
     public required string Code { get; set; }
