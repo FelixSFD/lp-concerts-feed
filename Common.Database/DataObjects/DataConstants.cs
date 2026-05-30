@@ -61,4 +61,9 @@ public static class DataConstants
     /// Maximum length of time zone IDs
     /// </summary>
     public const int TimeZoneIdLength = 31;
+    
+    /// <summary>
+    /// Maximum length of a concert type name
+    /// </summary>
+    public const int ConcertTypeNameLength = 31;
 }
