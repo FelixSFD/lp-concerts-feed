@@ -1,4 +1,4 @@
-<div class="bg-gray-50 dark:bg-gray-800">
+<div>
   <div class="sticky-top">
     <app-main-menu [clock]="currentDateTime$" [isLoggedIn]="isAuthenticated$" />
     <!--
@@ -85,7 +85,7 @@
     <small>This is a fan-site and not affiliated with Linkin Park!</small>
     <br />
     <small>
-      <a class="link-secondary link-underline-opacity-0 link-underline-opacity-100-hover" [routerLink]="['/', 'privacy']">Privacy Policy</a>
+      <a class="no-underline hover:underline text-color" [routerLink]="['/', 'privacy']">Privacy Policy</a>
     </small>
     <small>&nbsp;|&nbsp;Build: {{ environment.build }}</small>
   </footer>
