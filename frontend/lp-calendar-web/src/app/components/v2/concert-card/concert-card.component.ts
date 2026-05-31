@@ -9,6 +9,7 @@ import {RouterLink} from '@angular/router';
 import {DatePipe} from '@angular/common';
 import {DateTime} from 'luxon';
 import {Tooltip} from 'primeng/tooltip';
+import {Message} from 'primeng/message';
 
 @Component({
   selector: 'app-concert-card',
@@ -20,7 +21,8 @@ import {Tooltip} from 'primeng/tooltip';
     RouterLink,
     CountdownComponent,
     DatePipe,
-    Tooltip
+    Tooltip,
+    Message
   ],
   templateUrl: './concert-card.component.html',
   styleUrl: './concert-card.component.css',
@@ -38,7 +40,7 @@ export class ConcertCardComponent implements OnInit {
   isLoading$: boolean = true;
 
   @Input("notFoundAlertClass")
-  notFoundAlertClass: string = "info"
+  notFoundAlertClass: "info" | "error" | "success" | "warn" | "secondary" | "contrast" | null | undefined = "info"
 
   @Input("notFoundAlertText")
   notFoundAlertText: string = "Concert was not found";

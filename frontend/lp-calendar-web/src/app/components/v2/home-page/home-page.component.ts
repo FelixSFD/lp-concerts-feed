@@ -32,6 +32,7 @@ import {ConcertCardComponent} from '../concert-card/concert-card.component';
     ToggleSwitch,
     FormsModule,
     CalendarFeedBuilderComponent,
+    ConcertCardComponent,
     ConcertCardComponent
   ],
   templateUrl: './home-page.component.html',

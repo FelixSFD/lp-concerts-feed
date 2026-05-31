@@ -22,6 +22,26 @@
     />
   </div>
 
+  @if (isLoggedIn$) {
+    <div class="col-12 xl:col-3 lg:col-4 md:col-6 sm:col-12">
+      <app-concert-card cardTitle="The next concert you follow"
+                        [concert]="nextBookmarkedConcert"
+                        [isLoading]="isLoadingBookmarkedConcert"
+                        notFoundAlertClass="info"
+                        notFoundAlertText="You have not bookmarked any upcoming concerts. You can bookmark a concert on its detail page."
+      />
+    </div>
+
+    <div class="col-12 xl:col-3 lg:col-4 md:col-6 sm:col-12">
+      <app-concert-card cardTitle="The next concert you attend"
+                        [concert]="nextAttendingConcert"
+                        [isLoading]="isLoadingAttendingConcert"
+                        notFoundAlertClass="info"
+                        notFoundAlertText="You have no upcoming concerts. If you plan to attend a concert, find it on this site and click the 'Ticket'-button."
+      />
+    </div>
+  }
+
   <!-- Subscribe to iCal Card -->
   <div class="col-12 xl:col-3 lg:col-4 md:col-6 sm:col-12">
     <p-card>

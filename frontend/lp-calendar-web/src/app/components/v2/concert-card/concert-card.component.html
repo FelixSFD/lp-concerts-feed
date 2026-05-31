@@ -32,6 +32,12 @@
     }
   }
 
+  @if (!isLoading$ && concert$ == null) {
+    <p-message [severity]="notFoundAlertClass">
+      {{ notFoundAlertText }}
+    </p-message>
+  }
+
   <ng-template #footer>
     <div class="flex flex-row-reverse flex-wrap">
       @if (concert$?.id != null) {
