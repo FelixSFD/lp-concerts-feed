@@ -460,9 +460,9 @@ export default {
         },
         "text": {
           "color": "{surface.700}",
-          "hoverColor": "{surface.800}",
-          "mutedColor": "{surface.500}",
-          "hoverMutedColor": "{surface.600}"
+          "hoverColor": "{primary.800}",
+          "mutedColor": "{primary.500}",
+          "hoverMutedColor": "{primary.600}"
         },
         "content": {
           "background": "{surface.0}",
@@ -585,9 +585,9 @@ export default {
         },
         "text": {
           "color": "{surface.0}",
-          "hoverColor": "{surface.0}",
-          "mutedColor": "{surface.400}",
-          "hoverMutedColor": "{surface.300}"
+          "hoverColor": "{primary.0}",
+          "mutedColor": "{primary.400}",
+          "hoverMutedColor": "{primary.300}"
         },
         "content": {
           "background": "{surface.900}",
@@ -651,8 +651,8 @@ export default {
           },
           "submenuIcon": {
             "color": "{surface.500}",
-            "focusColor": "{surface.400}",
-            "activeColor": "{surface.400}"
+            "focusColor": "{purple.400}",
+            "activeColor": "{purple.400}"
           }
         }
       }
@@ -804,8 +804,8 @@ export default {
             "hoverBackground": "{surface.200}",
             "activeBackground": "{surface.300}",
             "color": "{surface.600}",
-            "hoverColor": "{surface.700}",
-            "activeColor": "{surface.800}"
+            "hoverColor": "{purple.700}",
+            "activeColor": "{purple.800}"
           }
         },
         "dark": {
@@ -818,8 +818,8 @@ export default {
             "hoverBackground": "{surface.700}",
             "activeBackground": "{surface.600}",
             "color": "{surface.300}",
-            "hoverColor": "{surface.200}",
-            "activeColor": "{surface.100}"
+            "hoverColor": "{purple.200}",
+            "activeColor": "{purple.100}"
           }
         }
       }
@@ -1044,8 +1044,8 @@ export default {
               "hoverBorderColor": "{surface.200}",
               "activeBorderColor": "{surface.300}",
               "color": "{surface.600}",
-              "hoverColor": "{surface.700}",
-              "activeColor": "{surface.800}",
+              "hoverColor": "{purple.700}",
+              "activeColor": "{purple.800}",
               "focusRing": {
                 "color": "{surface.600}",
                 "shadow": "none"
