@@ -13,7 +13,7 @@
 
 <div class="grid pt-4">
   <!-- Next concert -->
-  <div class="col">
+  <div class="col-12 xl:col-3 lg:col-4 md:col-6 sm:col-12">
     <app-concert-card cardTitle="Next Concert"
                       [concert]="nextConcert"
                       [isLoading]="isLoadingNextConcert"
@@ -23,8 +23,8 @@
   </div>
 
   <!-- Subscribe to iCal Card -->
-  <div class="col">
-    <p-card [style]="{ width: '18rem', overflow: 'hidden' }">
+  <div class="col-12 xl:col-3 lg:col-4 md:col-6 sm:col-12">
+    <p-card>
       <ng-template #header>
         <div class="ps-3 pt-2 pb-1 border-round-top-sm bg-secondary-subtle">
           <span>Calendar feed</span>
@@ -48,8 +48,8 @@
   </div>
 
   <!-- Concerts list Card -->
-  <div class="col">
-    <p-card [style]="{ width: '18rem', overflow: 'hidden' }">
+  <div class="col-12 xl:col-3 lg:col-4 md:col-6 sm:col-12">
+    <p-card>
       <ng-template #header>
         <div class="ps-3 pt-2 pb-1 border-round-top-sm bg-secondary-subtle">
           <span>Concerts</span>
@@ -70,8 +70,8 @@
   </div>
 
   <!-- Tour Map Card -->
-  <div class="col">
-    <p-card [style]="{ width: '18rem', overflow: 'hidden' }">
+  <div class="col-12 xl:col-3 lg:col-4 md:col-6 sm:col-12">
+    <p-card>
       <ng-template #header>
         <div class="ps-3 pt-2 pb-1 border-round-top-sm bg-secondary-subtle">
           <span>Map</span>
