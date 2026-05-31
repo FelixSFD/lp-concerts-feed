@@ -12,6 +12,7 @@
 }
 
 <div class="grid pt-4">
+  <!-- Subscribe to iCal Card -->
   <div class="col">
     <p-card [style]="{ width: '20rem', overflow: 'hidden' }">
       <ng-template #header>
@@ -28,8 +29,53 @@
       <app-calendar-feed-builder (feed-url)="onFeedUrlUpdated($event)" />
 
       <ng-template #footer>
+        <p-divider />
         <div class="flex gap-4 mt-1 align-content-end">
           <p-splitbutton label="Add to calendar" icon="pi pi-calendar-plus" (onClick)="subscribeBtnClicked()" [model]="iCalButtonItems$" />
+        </div>
+      </ng-template>
+    </p-card>
+  </div>
+
+  <!-- Concerts list Card -->
+  <div class="col">
+    <p-card [style]="{ width: '20rem', overflow: 'hidden' }">
+      <ng-template #header>
+        <div class="ps-3 pt-2 pb-1 border-round-top-sm bg-secondary-subtle">
+          <span>Concerts</span>
+        </div>
+      </ng-template>
+      <ng-template #title>View concert list</ng-template>
+      <p>
+        You can check out the list of all concerts we currently track on this website. Please note that this is <b>maintained by fans</b> and is <b>not official information</b>!
+      </p>
+
+      <ng-template #footer>
+        <p-divider />
+        <div class="flex gap-4 mt-1 align-content-end">
+          <p-button [routerLink]="['/concerts']" icon="pi pi-list" label="Check concert list" />
+        </div>
+      </ng-template>
+    </p-card>
+  </div>
+
+  <!-- Tour Map Card -->
+  <div class="col">
+    <p-card [style]="{ width: '20rem', overflow: 'hidden' }">
+      <ng-template #header>
+        <div class="ps-3 pt-2 pb-1 border-round-top-sm bg-secondary-subtle">
+          <span>Map</span>
+        </div>
+      </ng-template>
+      <ng-template #title>View world tour map</ng-template>
+      <p>
+        On the map, you can find all concerts of the tour to find out, where your closest show is. And what parts of the world have the most shows nearby.
+      </p>
+
+      <ng-template #footer>
+        <p-divider />
+        <div class="flex gap-4 mt-1 align-content-end">
+          <p-button [routerLink]="['/map']" icon="pi pi-map" label="View map" />
         </div>
       </ng-template>
     </p-card>
