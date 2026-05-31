@@ -8,7 +8,7 @@
     @if (isLoading$) {
       <p-skeleton width="8rem" />
     } @else {
-      {{ concert$?.venue }}
+      <a class="no-underline text-color hover:text-color-secondary" [routerLink]="['/concerts', concert$?.id]">{{ concert$?.venue }}</a>
     }
   </ng-template>
   <ng-template #subtitle>
@@ -20,7 +20,7 @@
   </ng-template>
 
   @if (concert$?.postedStartTime != undefined || concert$?.mainStageTime != undefined) {
-    <div class="pb-2">{{ concert$?.mainStageTime ?? concert$?.postedStartTime | date:"EEEE', ' dd.MM.yyyy' at ' HH:mm" }}</div>
+    <div class="pb-2" pTooltip="In your local timezone" tooltipPosition="bottom">{{ concert$?.mainStageTime ?? concert$?.postedStartTime | date:"EEEE', ' dd.MM.yyyy' at ' HH:mm" }}</div>
 
     <app-countdown [countdownToDate]="concert$?.mainStageTime ?? concert$?.postedStartTime!" [concertId]="concert$?.id" />
 
@@ -35,11 +35,11 @@
   <ng-template #footer>
     <div class="flex flex-row-reverse flex-wrap">
       @if (concert$?.id != null) {
-        @if (canUpdateConcerts$) {
-          <p-button variant="outlined" label="Edit" icon="pi pi-edit" size="small" />
-        }
-
         <p-button variant="outlined" label="Details" icon="pi pi-info-circle" [routerLink]="['/concerts', concert$?.id]" size="small" />
+
+        @if (canUpdateConcerts$) {
+          <p-button variant="outlined" label="Edit" icon="pi pi-pencil" [routerLink]="['/concerts', concert$?.id, 'edit']" size="small" class="pe-2" severity="info" />
+        }
       } @else if (isLoading$) {
         <p-skeleton borderRadius="2" width="5rem" height="2.2rem" />
       }

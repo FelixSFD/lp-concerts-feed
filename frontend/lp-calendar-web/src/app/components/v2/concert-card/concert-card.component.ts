@@ -8,6 +8,7 @@ import {CountdownComponent} from '../countdown/countdown.component';
 import {RouterLink} from '@angular/router';
 import {DatePipe} from '@angular/common';
 import {DateTime} from 'luxon';
+import {Tooltip} from 'primeng/tooltip';
 
 @Component({
   selector: 'app-concert-card',
@@ -18,7 +19,8 @@ import {DateTime} from 'luxon';
     CountdownComponent,
     RouterLink,
     CountdownComponent,
-    DatePipe
+    DatePipe,
+    Tooltip
   ],
   templateUrl: './concert-card.component.html',
   styleUrl: './concert-card.component.css',
