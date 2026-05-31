@@ -1,5 +1,5 @@
 <div class="sticky-top">
-  <app-main-menu />
+  <app-main-menu [clock]="currentDateTime$" [isLoggedIn]="isAuthenticated$" />
   <!--
 <nav class="navbar navbar-expand-sm navbar-light bg-secondary-subtle">
   <div class="container-fluid">

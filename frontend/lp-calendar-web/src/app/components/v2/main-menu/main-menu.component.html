@@ -1,7 +1,20 @@
-<div class="card">
-  <p-menubar [model]="items">
+<div class="card mx-3">
+  <p-menubar [model]="mainMenuItems">
     <ng-template #start>
       <img ngSrc="logo.webp" alt="Logo" width="30" height="30" class="me-2" /> <span style="font-weight: bold">L<span style="display: inline-block; transform: scaleX(-1); margin-left: -3px">P</span> Concert Calendar</span>
+    </ng-template>
+
+    <ng-template #end>
+      <span class="mr-3">
+        Your time: {{ currentDateTime$.toLocaleString(DateTime.TIME_WITH_SECONDS) }}
+      </span>
+
+      @if (isLoggedIn$) {
+        <p-menu #menu [model]="loggedInMenuItems" [popup]="true" />
+        <p-button (click)="menu.toggle($event)" icon="pi pi-cog" variant="outlined" />
+      } @else {
+        <p-button variant="outlined" (click)="login()">Login</p-button>
+      }
     </ng-template>
   </p-menubar>
 </div>

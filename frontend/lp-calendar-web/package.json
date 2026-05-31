@@ -34,6 +34,7 @@
     "ngx-cookieconsent": "^8.0.0",
     "ngx-matomo-client": "^9.0.1",
     "ngx-toastr": "^20.0.5",
+    "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
     "primeng": "^21.1.8",
     "rxjs": "~7.8.2",
