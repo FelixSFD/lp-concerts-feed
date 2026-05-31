@@ -17,6 +17,7 @@ import {Divider} from 'primeng/divider';
 import {ToggleSwitch} from 'primeng/toggleswitch';
 import {FormsModule} from '@angular/forms';
 import {CalendarFeedBuilderComponent} from '../../../calendar-feed-builder/calendar-feed-builder.component';
+import {ConcertCardComponent} from '../concert-card/concert-card.component';
 
 @Component({
   selector: 'app-home-page',
@@ -30,7 +31,8 @@ import {CalendarFeedBuilderComponent} from '../../../calendar-feed-builder/calen
     Divider,
     ToggleSwitch,
     FormsModule,
-    CalendarFeedBuilderComponent
+    CalendarFeedBuilderComponent,
+    ConcertCardComponent
   ],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.css',
