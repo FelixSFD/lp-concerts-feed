@@ -4,13 +4,18 @@ import {Card} from 'primeng/card';
 import {AuthService} from '../../../auth/auth.service';
 import {ConcertDto} from '../../../modules/lpshows-api';
 import {Skeleton} from 'primeng/skeleton';
+import {CountdownComponent} from '../countdown/countdown.component';
+import {RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-concert-card',
   imports: [
     Button,
     Card,
-    Skeleton
+    Skeleton,
+    CountdownComponent,
+    RouterLink,
+    CountdownComponent
   ],
   templateUrl: './concert-card.component.html',
   styleUrl: './concert-card.component.css',

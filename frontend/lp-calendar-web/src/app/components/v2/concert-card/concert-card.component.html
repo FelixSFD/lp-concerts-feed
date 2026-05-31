@@ -19,16 +19,20 @@
     }
   </ng-template>
 
+  @if (concert$?.postedStartTime != undefined || concert$?.mainStageTime != undefined) {
+    <app-countdown [countdownToDate]="concert$?.mainStageTime ?? concert$?.postedStartTime!" [concertId]="concert$?.id" />
+  }
+
   <ng-template #footer>
     <div class="flex flex-row-reverse flex-wrap">
       @if (concert$?.id != null) {
         @if (canUpdateConcerts$) {
-          <p-button variant="outlined" label="Edit" icon="pi pi-edit" />
+          <p-button variant="outlined" label="Edit" icon="pi pi-edit" size="small" />
         }
 
-        <p-button variant="outlined" label="Details" icon="pi pi-info-circle" />
+        <p-button variant="outlined" label="Details" icon="pi pi-info-circle" [routerLink]="['/concerts', concert$?.id]" size="small" />
       } @else if (isLoading$) {
-        <p-skeleton borderRadius="2" width="5rem" height="2.6rem" />
+        <p-skeleton borderRadius="2" width="5rem" height="2.2rem" />
       }
     </div>
   </ng-template>

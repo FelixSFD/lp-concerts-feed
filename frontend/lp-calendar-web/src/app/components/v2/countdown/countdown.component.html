@@ -1,0 +1,19 @@
+<ng-template #countdownCellTemplate let-label="label" let-value="value">
+  <div class="col text-center" style="font-size: 1.3rem">
+    <b>{{ value }}</b>
+    <br />
+    <span style="font-size: 0.7rem">{{ label }}</span>
+  </div>
+</ng-template>
+
+
+@if (differenceMillis$ >= 0) {
+  <div class="grid pt-2">
+    <ng-container *ngTemplateOutlet="countdownCellTemplate; context: {label: 'days', value: days$ }" />
+    <ng-container *ngTemplateOutlet="countdownCellTemplate; context: {label: 'hours', value: hours$ }" />
+    <ng-container *ngTemplateOutlet="countdownCellTemplate; context: {label: 'minutes', value: minutes$ }" />
+    <ng-container *ngTemplateOutlet="countdownCellTemplate; context: {label: 'seconds', value: seconds$ }" />
+  </div>
+} @else {
+  <h2>It's showtime!</h2>
+}
