@@ -30,6 +30,8 @@ export class MainMenuComponent implements OnInit {
   loggedInMenuItems: MenuItem[] | undefined;
 
   private username: string | null = null;
+  private canManageUsers: boolean = false;
+  private canManageSetlists: boolean = false;
 
   // the current clock
   @Input("clock")
@@ -74,11 +76,65 @@ export class MainMenuComponent implements OnInit {
 
       this.loadLoggedInMenuItems();
     });
+
+    this.authStateService.canManageUsers.subscribe(hasPermission => {
+      this.canManageUsers = hasPermission;
+
+      this.loadLoggedInMenuItems();
+    });
+
+    this.authStateService.canManageSetlists.subscribe(hasPermission => {
+      this.canManageSetlists = hasPermission;
+
+      this.loadLoggedInMenuItems();
+    });
   }
 
 
   loadLoggedInMenuItems(): void {
     this.loggedInMenuItems = [
+      {
+        label: 'Songs & Setlists',
+        items: [
+          {
+            label: 'Setlists',
+            icon: 'pi pi-list',
+            routerLink: '/admin/setlists',
+            visible: this.canManageSetlists,
+          },
+          {
+            label: 'Albums',
+            icon: 'pi pi-images',
+            routerLink: '/admin/albums',
+            visible: this.canManageSetlists,
+          },
+          {
+            label: 'Songs',
+            icon: 'pi pi-headphones',
+            routerLink: '/admin/songs',
+            visible: this.canManageSetlists,
+          },
+          {
+            label: 'Mashups',
+            icon: 'pi pi-sliders-v',
+            routerLink: '/admin/mashups',
+            visible: this.canManageSetlists,
+          },
+        ],
+        visible: this.canManageSetlists,
+      },
+      {
+        label: 'Administration',
+        items: [
+          {
+            label: 'Users',
+            icon: 'pi pi-users',
+            routerLink: '/users',
+            visible: this.canManageUsers,
+          }
+        ],
+        visible: this.canManageUsers,
+      },
       {
         label: this.username ?? "No Username",
         items: [
