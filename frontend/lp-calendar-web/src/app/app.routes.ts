@@ -90,7 +90,7 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import("./home/home.component").then(m => m.HomeComponent),
+      import("./components/v2/home-page/home-page.component").then(m => m.HomePageComponent),
     title: baseTitle + 'Overview',
   },
   {
