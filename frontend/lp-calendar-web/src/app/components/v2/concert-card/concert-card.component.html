@@ -20,7 +20,16 @@
   </ng-template>
 
   @if (concert$?.postedStartTime != undefined || concert$?.mainStageTime != undefined) {
+    <div class="pb-2">{{ concert$?.mainStageTime ?? concert$?.postedStartTime | date:"EEEE', ' dd.MM.yyyy' at ' HH:mm" }}</div>
+
     <app-countdown [countdownToDate]="concert$?.mainStageTime ?? concert$?.postedStartTime!" [concertId]="concert$?.id" />
+
+    @if (concert$?.mainStageTime == undefined) {
+      <small style="font-size: 0.6rem">Based on start time on ticket</small>
+    }
+    @if (concert$?.mainStageTime != undefined) {
+      <small style="font-size: 0.6rem">Based on Linkin Park's stage time</small>
+    }
   }
 
   <ng-template #footer>

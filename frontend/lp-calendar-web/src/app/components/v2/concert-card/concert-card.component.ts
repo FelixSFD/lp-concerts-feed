@@ -6,6 +6,8 @@ import {ConcertDto} from '../../../modules/lpshows-api';
 import {Skeleton} from 'primeng/skeleton';
 import {CountdownComponent} from '../countdown/countdown.component';
 import {RouterLink} from '@angular/router';
+import {DatePipe} from '@angular/common';
+import {DateTime} from 'luxon';
 
 @Component({
   selector: 'app-concert-card',
@@ -15,7 +17,8 @@ import {RouterLink} from '@angular/router';
     Skeleton,
     CountdownComponent,
     RouterLink,
-    CountdownComponent
+    CountdownComponent,
+    DatePipe
   ],
   templateUrl: './concert-card.component.html',
   styleUrl: './concert-card.component.css',
@@ -49,4 +52,6 @@ export class ConcertCardComponent implements OnInit {
       this.canUpdateConcerts$ = hasPermission;
     });
   }
+
+  protected readonly DateTime = DateTime;
 }
