@@ -16,6 +16,7 @@ import {Card} from 'primeng/card';
 import {Skeleton} from 'primeng/skeleton';
 import {ConcertBadgesComponent} from '../../../concert-badges/concert-badges.component';
 import {CountdownComponent} from '../countdown/countdown.component';
+import {ButtonGroup} from 'primeng/buttongroup';
 
 @Component({
   selector: 'app-concert-list',
@@ -27,7 +28,8 @@ import {CountdownComponent} from '../countdown/countdown.component';
     Card,
     Skeleton,
     ConcertBadgesComponent,
-    CountdownComponent
+    CountdownComponent,
+    ButtonGroup
   ],
   templateUrl: './concert-list.component.html',
   styleUrl: './concert-list.component.css',

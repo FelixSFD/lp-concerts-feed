@@ -24,10 +24,12 @@
   @for (concert of concerts$; track concert) {
     <p-card class="my-2 justify-content-center w-7">
       <ng-template #title>
-        {{ ConcertTitleGenerator.getTitleFor(concert) }}
+        <a class="font-bold text-color {{ concert.concertStatus == ConcertStatusValueDto.Cancelled ? 'line-through' : 'no-underline' }}" [routerLink]="['/concerts/' + concert.id]">
+          {{ ConcertTitleGenerator.getTitleFor(concert) }}
+        </a>
       </ng-template>
       <ng-template #subtitle>
-        <a class="no-underline text-primary-500 {{ concert.concertStatus == ConcertStatusValueDto.Cancelled ? 'text-decoration-line-through' : '' }}" [routerLink]="['/concerts/' + concert.id]">
+        <a class="text-primary-500 {{ concert.concertStatus == ConcertStatusValueDto.Cancelled ? 'line-through' : 'no-underline' }}" [routerLink]="['/concerts/' + concert.id]">
           {{ concert.venue }}, {{ concert.city }}{{ (concert.state?.length ?? 0) > 0 ? ", " + concert.state : ""}}, {{ concert.country }}
         </a>
       </ng-template>
@@ -68,11 +70,14 @@
           </div>
           <div class="flex flex-row-reverse flex-wrap">
             @if (concert?.id != null) {
-              <p-button variant="outlined" label="Details" icon="pi pi-info-circle" [routerLink]="['/concerts', concert?.id]" size="small" />
+              <p-buttonGroup>
+                @if (canUpdateConcerts$) {
+                  <p-button variant="outlined" label="Edit" icon="pi pi-pencil" [routerLink]="['/concerts', concert?.id, 'edit']" size="small" severity="secondary" />
+                }
 
-              @if (canUpdateConcerts$) {
-                <p-button variant="outlined" label="Edit" icon="pi pi-pencil" [routerLink]="['/concerts', concert?.id, 'edit']" size="small" class="pe-2" severity="info" />
-              }
+                <!--<p-button variant="outlined" icon="pi pi-share-alt" label="Share" severity="info" size="small" />-->
+                <p-button variant="outlined" label="Details" icon="pi pi-info-circle" [routerLink]="['/concerts', concert?.id]" size="small" />
+              </p-buttonGroup>
             } @else if (isLoading$) {
               <p-skeleton borderRadius="2" width="5rem" height="2.2rem" />
             }
