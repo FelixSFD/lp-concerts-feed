@@ -1,0 +1,84 @@
+<h1>Concerts</h1>
+
+<!-- Button to add concert -->
+<div class="flex flex-col gap-2 my-3">
+  @if (canAddConcerts$) {
+    <div>
+      <p-button variant="outlined" label="Add concert" icon="pi pi-plus-circle" [routerLink]="['/concerts/add']" />
+    </div>
+  }
+
+  @if (canManageSetlists$) {
+    <div>
+      <p-button variant="outlined" severity="info" label="Import concert" icon="pi pi-file-import" [routerLink]="['/concerts/import']" />
+    </div>
+  }
+</div>
+
+<!-- Disclaimer about the data source -->
+<p-message severity="warn" [motionOptions]="{ appear: false, disabled: true }" class="mb-4">
+  Please be aware, that this list is <b>maintained by fans</b> and is not official information by Linkin Park or any organizer! <b>YOU</b> are responsible for making sure you are at the correct venue at the correct time and with a valid ticket.
+</p-message>
+
+<div class="flex justify-content-center flex-wrap">
+  @for (concert of concerts$; track concert) {
+    <p-card class="my-2 justify-content-center w-7">
+      <ng-template #title>
+        {{ ConcertTitleGenerator.getTitleFor(concert) }}
+      </ng-template>
+      <ng-template #subtitle>
+        <a class="no-underline text-primary-500 {{ concert.concertStatus == ConcertStatusValueDto.Cancelled ? 'text-decoration-line-through' : '' }}" [routerLink]="['/concerts/' + concert.id]">
+          {{ concert.venue }}, {{ concert.city }}{{ (concert.state?.length ?? 0) > 0 ? ", " + concert.state : ""}}, {{ concert.country }}
+        </a>
+      </ng-template>
+
+      <div class="grid grid-cols-3">
+        <div class="col">
+          <table>
+            <tr>
+              <td class="fw-bold">Your timezone:</td>
+              <td>&nbsp;</td>
+              <td>{{getDateTime(concert.mainStageTime ?? concert.postedStartTime!).toLocaleString(DateTime. DATETIME_SHORT)}}</td>
+            </tr>
+            @if (concert.timeZoneId != undefined) {
+              <tr>
+                <td class="fw-bold">Venue timezone:</td>
+                <td>&nbsp;</td>
+                <td>{{getDateTimeInTimezone(concert.mainStageTime ?? concert.postedStartTime!, concert.timeZoneId).toLocaleString(DateTime. DATETIME_SHORT)}}</td>
+              </tr>
+            }
+          </table>
+          <app-concert-badges [concert]="concert"></app-concert-badges>
+        </div>
+
+        <div class="col">
+          <app-countdown [concertId]="concert.id" [countdownToDate]="concert?.mainStageTime ?? concert?.postedStartTime!" />
+        </div>
+      </div>
+
+      <ng-template #footer>
+        <div class="flex justify-content-between">
+          <div class="align-self-center">
+            @if (concert.mainStageTime == undefined) {
+              <span class="countdown-description">Based on start time on ticket</span>
+            }
+            @if (concert.mainStageTime != undefined) {
+              <span class="countdown-description">Based on Linkin Park stage time</span>
+            }
+          </div>
+          <div class="flex flex-row-reverse flex-wrap">
+            @if (concert?.id != null) {
+              <p-button variant="outlined" label="Details" icon="pi pi-info-circle" [routerLink]="['/concerts', concert?.id]" size="small" />
+
+              @if (canUpdateConcerts$) {
+                <p-button variant="outlined" label="Edit" icon="pi pi-pencil" [routerLink]="['/concerts', concert?.id, 'edit']" size="small" class="pe-2" severity="info" />
+              }
+            } @else if (isLoading$) {
+              <p-skeleton borderRadius="2" width="5rem" height="2.2rem" />
+            }
+          </div>
+        </div>
+      </ng-template>
+    </p-card>
+  }
+</div>

@@ -114,7 +114,7 @@ export const routes: Routes = [
   {
     path: 'concerts',
     loadComponent: () =>
-      import("./concerts-list/concerts-list.component").then(m => m.ConcertsListComponent),
+      import("./components/v2/concert-list/concert-list.component").then(m => m.ConcertListComponent),
     title: baseTitle + 'List',
   },
   {
