@@ -20,6 +20,8 @@
   Please be aware, that this list is <b>maintained by fans</b> and is not official information by Linkin Park or any organizer! <b>YOU</b> are responsible for making sure you are at the correct venue at the correct time and with a valid ticket.
 </p-message>
 
+<p-confirmDialog />
+
 <div class="flex justify-content-center flex-wrap">
   @for (concert of concerts$; track concert) {
     <p-card class="my-2 justify-content-center w-7">
@@ -74,12 +76,15 @@
           <div class="flex flex-row-reverse flex-wrap">
             @if (concert?.id != null) {
               <p-buttonGroup>
+                @if (canDeleteConcerts$) {
+                  <p-button variant="outlined" icon="pi pi-trash" size="small" severity="danger" (click)="onDeleteConcertClicked($event, concert.id ?? null)" />
+                }
                 @if (canUpdateConcerts$) {
-                  <p-button variant="outlined" label="Edit" icon="pi pi-pencil" [routerLink]="['/concerts', concert?.id, 'edit']" size="small" severity="secondary" />
+                  <p-button variant="outlined" label="Edit" icon="pi pi-pencil" [routerLink]="['/concerts', concert.id, 'edit']" size="small" severity="secondary" />
                 }
 
                 <!--<p-button variant="outlined" icon="pi pi-share-alt" label="Share" severity="info" size="small" />-->
-                <p-button variant="outlined" label="Details" icon="pi pi-info-circle" [routerLink]="['/concerts', concert?.id]" size="small" />
+                <p-button variant="outlined" label="Details" icon="pi pi-info-circle" [routerLink]="['/concerts', concert.id]" size="small" />
               </p-buttonGroup>
             } @else if (isLoading$) {
               <p-skeleton borderRadius="2" width="5rem" height="2.2rem" />

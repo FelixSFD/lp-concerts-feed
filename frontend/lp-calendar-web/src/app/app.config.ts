@@ -20,6 +20,7 @@ import {authTokenInterceptor} from './auth/auth-token.interceptor';
 import {providePrimeNG} from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 import lpshowsPreset from '../lpshows-preset';
+import {ConfirmationService} from 'primeng/api';
 
 const cookieConfig:NgcCookieConsentConfig = {
   "cookie": {
@@ -77,6 +78,7 @@ export const appConfig: ApplicationConfig = {
         preset: lpshowsPreset
       }
     }),
+    ConfirmationService,
     { provide: BASE_PATH, useValue: environment.apiCachedBaseUrl } // base path for API
   ]
 };

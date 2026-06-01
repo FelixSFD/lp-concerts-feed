@@ -17,6 +17,8 @@ import {Skeleton} from 'primeng/skeleton';
 import {ConcertBadgesComponent} from '../concert-badges/concert-badges.component';
 import {CountdownComponent} from '../countdown/countdown.component';
 import {ButtonGroup} from 'primeng/buttongroup';
+import {ConfirmDialog} from 'primeng/confirmdialog';
+import {ConfirmationService} from 'primeng/api';
 
 @Component({
   selector: 'app-concert-list',
@@ -24,18 +26,19 @@ import {ButtonGroup} from 'primeng/buttongroup';
     Message,
     RouterLink,
     Button,
-    DataView,
     Card,
     Skeleton,
     ConcertBadgesComponent,
     CountdownComponent,
-    ButtonGroup
+    ButtonGroup,
+    ConfirmDialog
   ],
   templateUrl: './concert-list.component.html',
   styleUrl: './concert-list.component.css',
 })
 export class ConcertListComponent {
   private modalService = inject(NgbModal);
+  private confirmationService = inject(ConfirmationService);
 
   concerts$: ConcertDto[] = [];
 
@@ -123,25 +126,38 @@ export class ConcertListComponent {
   }
 
 
-  onDeleteConcertClicked(content: TemplateRef<any>, concertId: string | undefined) {
-    this.concertIdToDelete = concertId;
+  onDeleteConcertClicked(event: Event, concertId: string | null) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Do you want to delete this concert?',
+      header: 'Delete Concert',
+      icon: 'pi pi-info-circle',
+      rejectLabel: 'Cancel',
+      rejectButtonProps: {
+        label: 'Cancel',
+        severity: 'secondary',
+        outlined: true
+      },
+      acceptButtonProps: {
+        label: 'Delete',
+        severity: 'danger'
+      },
 
-    if (this.concertIdToDelete == null) {
-      return;
-    }
-
-    this.deleteConcertModal = this.openModal(content);
+      accept: () => {
+        this.onDeleteConcertConfirm(concertId);
+      }
+    });
   }
 
 
-  onDeleteConcertConfirm() {
+  private onDeleteConcertConfirm(concertId: string | null) {
     this.concertDeleting$ = true;
-    if (this.concertIdToDelete == null) {
+    if (concertId == null) {
       this.deleteConcertModal?.dismiss();
       return;
     }
 
-    let id = this.concertIdToDelete!;
+    let id = concertId!;
     console.debug("Will delete concert: " + id);
 
     this.concertsService.deleteConcert(id).subscribe({
