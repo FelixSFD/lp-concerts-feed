@@ -14,7 +14,7 @@ import {Button} from 'primeng/button';
 import {DataView} from 'primeng/dataview';
 import {Card} from 'primeng/card';
 import {Skeleton} from 'primeng/skeleton';
-import {ConcertBadgesComponent} from '../../../concert-badges/concert-badges.component';
+import {ConcertBadgesComponent} from '../concert-badges/concert-badges.component';
 import {CountdownComponent} from '../countdown/countdown.component';
 import {ButtonGroup} from 'primeng/buttongroup';
 

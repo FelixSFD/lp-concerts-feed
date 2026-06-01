@@ -4413,7 +4413,7 @@ export default {
     },
     "tag": {
       "root": {
-        "fontSize": "0.875rem",
+        "fontSize": "0.675rem",
         "fontWeight": "700",
         "padding": "0.25rem 0.5rem",
         "gap": "0.25rem",
@@ -4421,7 +4421,7 @@ export default {
         "roundedBorderRadius": "{border.radius.xl}"
       },
       "icon": {
-        "size": "0.75rem"
+        "size": "0.65rem"
       },
       "colorScheme": {
         "light": {
