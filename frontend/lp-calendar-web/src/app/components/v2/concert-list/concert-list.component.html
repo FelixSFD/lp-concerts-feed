@@ -24,7 +24,7 @@
 
 <div class="flex justify-content-center flex-wrap">
   @for (concert of concerts$; track concert) {
-    <p-card class="my-2 justify-content-center w-7">
+    <p-card class="my-2 justify-content-center xl:w-7 lg:w-7 md:w-8 sm:w-10 xs:w-10">
       <ng-template #title>
         <a class="font-bold text-color {{ concert.concertStatus == ConcertStatusValueDto.Cancelled ? 'line-through' : 'no-underline' }}" [routerLink]="['/concerts/' + concert.id]">
           {{ ConcertTitleGenerator.getTitleFor(concert) }}
@@ -36,8 +36,8 @@
         </a>
       </ng-template>
 
-      <div class="grid grid-cols-3">
-        <div class="col">
+      <div class="grid">
+        <div class="col-6 min-w-max align-self-center align-items-center justify-content-center">
           <table>
             <tr>
               <td class="fw-bold">Your timezone:</td>
@@ -52,14 +52,14 @@
               </tr>
             }
           </table>
-
-          <div class="mt-2">
-            <app-concert-badges [concert]="concert"></app-concert-badges>
-          </div>
         </div>
 
-        <div class="col">
+        <div class="col-6 min-w-max h-full align-self-center align-items-center justify-content-center">
           <app-countdown [concertId]="concert.id" [countdownToDate]="concert?.mainStageTime ?? concert?.postedStartTime!" />
+        </div>
+
+        <div class="col-12">
+          <app-concert-badges [concert]="concert"></app-concert-badges>
         </div>
       </div>
 
