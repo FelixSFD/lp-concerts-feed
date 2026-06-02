@@ -22,7 +22,9 @@
   @if (concert$?.postedStartTime != undefined || concert$?.mainStageTime != undefined) {
     <div class="pb-2" pTooltip="In your local timezone" tooltipPosition="bottom">{{ concert$?.mainStageTime ?? concert$?.postedStartTime | date:"EEEE', ' dd.MM.yyyy' at ' HH:mm" }}</div>
 
-    <app-countdown [countdownToDate]="concert$?.mainStageTime ?? concert$?.postedStartTime!" [concertId]="concert$?.id" />
+    <div class="grid justify-content-center">
+      <app-countdown [countdownToDate]="concert$?.mainStageTime ?? concert$?.postedStartTime!" [concertId]="concert$?.id" />
+    </div>
 
     @if (concert$?.mainStageTime == undefined) {
       <small style="font-size: 0.6rem">Based on start time on ticket</small>

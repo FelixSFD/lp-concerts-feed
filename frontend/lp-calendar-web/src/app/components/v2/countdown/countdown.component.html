@@ -8,7 +8,7 @@
 
 
 @if (differenceMillis$ >= 0) {
-  <div class="grid pt-2 mx-7 sm:mx-6 md:mx-4 lg:mx-2 xl:mx-1">
+  <div class="grid pt-2 max-w-fit">
     <ng-container *ngTemplateOutlet="countdownCellTemplate; context: {label: 'days', value: days$ }" />
     <ng-container *ngTemplateOutlet="countdownCellTemplate; context: {label: 'hours', value: hours$ }" />
     <ng-container *ngTemplateOutlet="countdownCellTemplate; context: {label: 'minutes', value: minutes$ }" />
