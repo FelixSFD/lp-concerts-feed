@@ -22,9 +22,9 @@
 
 <p-confirmDialog />
 
-<div class="flex justify-content-center flex-wrap">
+<div class="grid justify-content-center">
   @for (concert of concerts$; track concert) {
-    <p-card class="my-2 justify-content-center xl:w-7 lg:w-7 md:w-8 sm:w-10 xs:w-10">
+    <p-card class="col-12 my-2 w-full xl:w-9 justify-content-center">
       <ng-template #title>
         <a class="font-bold text-color {{ concert.concertStatus == ConcertStatusValueDto.Cancelled ? 'line-through' : 'no-underline' }}" [routerLink]="['/concerts/' + concert.id]">
           {{ ConcertTitleGenerator.getTitleFor(concert) }}
@@ -54,7 +54,7 @@
           </table>
         </div>
 
-        <div class="col-6 min-w-max h-full align-self-center align-items-center justify-content-center">
+        <div class="col-6 min-w-max h-full align-self-center align-items-center justify-content-center hidden md:inline">
           <app-countdown [concertId]="concert.id" [countdownToDate]="concert?.mainStageTime ?? concert?.postedStartTime!" />
         </div>
 
