@@ -45,7 +45,7 @@
               <td>{{getDateTime(concert.mainStageTime ?? concert.postedStartTime!).toLocaleString(DateTime. DATETIME_SHORT)}}</td>
             </tr>
             @if (concert.timeZoneId != undefined) {
-              <tr>
+              <tr [pTooltip]="concert.timeZoneId" tooltipPosition="bottom">
                 <td class="fw-bold">Venue timezone:</td>
                 <td>&nbsp;</td>
                 <td>{{getDateTimeInTimezone(concert.mainStageTime ?? concert.postedStartTime!, concert.timeZoneId).toLocaleString(DateTime. DATETIME_SHORT)}}</td>
@@ -54,7 +54,7 @@
           </table>
         </div>
 
-        <div class="col-6 min-w-max h-full align-self-center align-items-center justify-content-center hidden md:inline">
+        <div class="col-6 min-w-max h-full align-self-center align-items-center justify-content-center hidden sm:inline">
           <app-countdown [concertId]="concert.id" [countdownToDate]="concert?.mainStageTime ?? concert?.postedStartTime!" />
         </div>
 

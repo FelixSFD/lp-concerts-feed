@@ -19,6 +19,7 @@ import {CountdownComponent} from '../countdown/countdown.component';
 import {ButtonGroup} from 'primeng/buttongroup';
 import {ConfirmDialog} from 'primeng/confirmdialog';
 import {ConfirmationService} from 'primeng/api';
+import {Tooltip} from 'primeng/tooltip';
 
 @Component({
   selector: 'app-concert-list',
@@ -31,7 +32,8 @@ import {ConfirmationService} from 'primeng/api';
     ConcertBadgesComponent,
     CountdownComponent,
     ButtonGroup,
-    ConfirmDialog
+    ConfirmDialog,
+    Tooltip
   ],
   templateUrl: './concert-list.component.html',
   styleUrl: './concert-list.component.css',
