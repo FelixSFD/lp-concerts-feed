@@ -21,6 +21,7 @@ import {providePrimeNG} from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 import lpshowsPreset from '../lpshows-preset';
 import {ConfirmationService} from 'primeng/api';
+import {TourConfig} from './data/tour-config';
 
 const cookieConfig:NgcCookieConsentConfig = {
   "cookie": {
@@ -86,6 +87,21 @@ export const appConfig: ApplicationConfig = {
 
 export const listOfShowTypes: string[] = ["Linkin Park Show", "Festival", "Other performance"];
 export const defaultShowType: string = listOfShowTypes[0];
+export const tourConfigs: TourConfig[] = [
+  {
+    label: "FROM ZERO WORLD TOUR 2024",
+    value: "FROM ZERO WORLD TOUR 2024",
+  },
+  {
+    label: "FROM ZERO WORLD TOUR 2025",
+    value: "FROM ZERO WORLD TOUR 2025",
+  },
+  {
+    label: "FROM ZERO WORLD TOUR 2026",
+    value: "FROM ZERO WORLD TOUR 2026",
+  }
+]
+
 export const listOfTours: string[] = ["FROM ZERO WORLD TOUR 2024", "FROM ZERO WORLD TOUR 2025", "FROM ZERO WORLD TOUR 2026"];
 
 export const mapAttribution: string = `<a href="${window.location.protocol}//${window.location.host}/about">Concert data by LPShows.live</a>`;

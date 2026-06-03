@@ -2,7 +2,7 @@
   <form #form="ngForm" [formGroup]="filterForm" class="form row">
     <div class="flex-auto">
       <label for="tourName" class="font-bold block mb-2">Tour</label>
-      <p-select [options]="listOfTours" showClear="true" formControlName="tourName" placeholder="Select the tour" class="w-full" (onChange)="onFiltersChanged()" />
+      <p-select [options]="availableTours$" optionLabel="label" showClear="true" formControlName="tourName" placeholder="Select the tour" class="w-full" (onChange)="onFiltersChanged()" />
     </div>
 
     <div class="flex-auto">

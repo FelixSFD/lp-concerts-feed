@@ -4,12 +4,12 @@ import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule} from "@angul
 import {ConcertFilter} from '../../../data/concert-filter';
 import {DateTime} from 'luxon';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {listOfTours} from '../../../app.config';
+import {listOfTours, tourConfigs} from '../../../app.config';
 import {Button} from 'primeng/button';
 import {Drawer} from 'primeng/drawer';
 import {Select} from 'primeng/select';
 import {DatePicker} from 'primeng/datepicker';
-import {distinctUntilChanged} from 'rxjs';
+import {TourConfig} from '../../../data/tour-config';
 
 @Component({
   selector: 'app-concert-filter',
@@ -29,7 +29,7 @@ export class ConcertFilterComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
 
   filterForm = this.formBuilder.group({
-    tourName: new FormControl('', []),
+    tourName: new FormControl<TourConfig | null>(null, []),
     showPastConcerts: new FormControl(false, []),
     dateFrom: new FormControl<Date | undefined>(undefined),
     dateTo: new FormControl<Date | undefined>(undefined)
@@ -48,9 +48,13 @@ export class ConcertFilterComponent implements OnInit {
 
   visible$: boolean = false;
 
+  availableTours$: TourConfig[] = tourConfigs;
+
   constructor() {
     this.filterLabels$.set('tour', 'Tour name');
     this.filterLabels$.set('dateRange', 'Concert date');
+
+    this.availableTours$.push({ label: "Not part of a tour", value: ""})
   }
 
 
@@ -97,13 +101,13 @@ export class ConcertFilterComponent implements OnInit {
   private setDefaultFilters() {
     console.debug("setDefaultFilters: ", this.defaultFilter);
     this.filterForm.controls.showPastConcerts.setValue(!this.defaultFilter?.onlyFuture);
-    this.filterForm.controls.tourName.setValue(this.defaultFilter?.tour ?? null);
+    this.filterForm.controls.tourName.setValue(this.availableTours$.find(t => t.value == this.defaultFilter?.tour) ?? null);
   }
 
 
   private readFilterFromForm() {
     let concertFilter = new ConcertFilter();
-    concertFilter.tour = this.filterForm.value.tourName?.valueOf() ?? '';
+    concertFilter.tour = (this.filterForm.value.tourName?.valueOf() as TourConfig)?.value ?? null;
 
     let filterDateFrom = this.filterForm.value.dateFrom;
     if (filterDateFrom != null) {
