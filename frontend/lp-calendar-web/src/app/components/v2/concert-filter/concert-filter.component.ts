@@ -49,7 +49,7 @@ export class ConcertFilterComponent implements OnInit {
   activeFilterCount$ = 0;
 
   constructor() {
-    this.availableTours$ = tourConfigs;
+    this.availableTours$ = [...tourConfigs];
     this.availableTours$.push({ label: "Not part of a tour", value: ""});
   }
 
