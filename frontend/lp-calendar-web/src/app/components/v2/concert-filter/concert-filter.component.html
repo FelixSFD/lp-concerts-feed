@@ -8,17 +8,20 @@
 
       <div class="flex-auto mb-2">
         <label for="dateFrom" class="font-bold block mb-2">From</label>
-        <p-date-picker formControlName="dateFrom" [showIcon]="true" inputId="dateFrom" [showOnFocus]="true" />
+        <p-date-picker class="w-full" formControlName="dateFrom" [showIcon]="true" inputId="dateFrom" [showOnFocus]="true" showClear="true" [showButtonBar]="true" [maxDate]="filterForm.value.dateFrom" />
       </div>
 
       <div class="flex-auto mb-2">
         <label for="dateTo" class="font-bold block mb-2">To</label>
-        <p-date-picker formControlName="dateTo" [showIcon]="true" inputId="dateTo" [showOnFocus]="true" />
+        <p-date-picker class="w-full" formControlName="dateTo" [showIcon]="true" inputId="dateTo" [showOnFocus]="true" showClear="true" [showButtonBar]="true" [minDate]="filterForm.value.dateTo" />
       </div>
     </form>
   </p-card>
 
-  <p-button label="Apply filters" icon="pi pi-filter" (click)="onApplyClicked()" />
+  <div class="flex justify-content-between flex-wrap">
+    <p-button label="Apply filters" icon="pi pi-filter" (click)="onApplyClicked()" />
+    <p-button label="Clear" icon="pi pi-filter-slash" severity="secondary" variant="outlined" (click)="onClearButtonClicked()" />
+  </div>
 </p-drawer>
 
-<p-button (click)="visible$ = true" label="Filter" icon="pi pi-filter" size="small" badge="99+" />
+<p-button (click)="visible$ = true" label="Filter" icon="pi pi-filter" size="small" [badge]="activeFilterCount$ > 0 ? String(activeFilterCount$) : ''" />

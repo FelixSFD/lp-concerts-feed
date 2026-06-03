@@ -52,10 +52,9 @@ export class ConcertFilterComponent implements OnInit {
 
   availableTours$: TourConfig[] = tourConfigs;
 
-  constructor() {
-    this.filterLabels$.set('tour', 'Tour name');
-    this.filterLabels$.set('dateRange', 'Concert date');
+  activeFilterCount$ = 0;
 
+  constructor() {
     this.availableTours$.push({ label: "Not part of a tour", value: ""})
   }
 
@@ -93,11 +92,33 @@ export class ConcertFilterComponent implements OnInit {
     console.debug("Filters changed");
     let filter = this.readFilterFromForm();
     this.applyClicked.emit(filter);
+    this.calculateActiveFilterCount();
+  }
+
+  onClearButtonClicked() {
+    this.setDefaultFilters();
+    this.onFiltersChanged();
   }
 
 
-  showOrHideFilter(filterName: string, show: boolean) {
-    this.onApplyClicked();
+  private calculateActiveFilterCount() {
+    let count = 0;
+    if (this.filterForm.value.tourName?.value != this.defaultFilter?.tour) {
+      console.debug("Tour filter is active");
+      count++;
+    }
+
+    if (this.filterForm.value.dateFrom != this.defaultFilter?.dateFrom) {
+      console.debug("dateFrom filter is active");
+      count++;
+    }
+
+    if (this.filterForm.value.dateTo != this.defaultFilter?.dateTo) {
+      console.debug("dateTo filter is active");
+      count++;
+    }
+
+    this.activeFilterCount$ = count;
   }
 
 
@@ -105,6 +126,8 @@ export class ConcertFilterComponent implements OnInit {
     console.debug("setDefaultFilters: ", this.defaultFilter);
     this.filterForm.controls.showPastConcerts.setValue(!this.defaultFilter?.onlyFuture);
     this.filterForm.controls.tourName.setValue(this.availableTours$.find(t => t.value == this.defaultFilter?.tour) ?? null);
+    this.filterForm.controls.dateFrom.setValue(this.defaultFilter?.dateFrom?.toJSDate() ?? null);
+    this.filterForm.controls.dateTo.setValue(this.defaultFilter?.dateTo?.toJSDate() ?? null);
   }
 
 
