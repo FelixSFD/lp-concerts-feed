@@ -10,6 +10,7 @@ import {Drawer} from 'primeng/drawer';
 import {Select} from 'primeng/select';
 import {DatePicker} from 'primeng/datepicker';
 import {TourConfig} from '../../../data/tour-config';
+import {Card} from 'primeng/card';
 
 @Component({
   selector: 'app-concert-filter',
@@ -20,7 +21,8 @@ import {TourConfig} from '../../../data/tour-config';
     Drawer,
     Select,
     FormsModule,
-    DatePicker
+    DatePicker,
+    Card
   ],
   templateUrl: './concert-filter.component.html',
   styleUrl: './concert-filter.component.css'
@@ -77,6 +79,7 @@ export class ConcertFilterComponent implements OnInit {
 
   onApplyClicked() {
     this.onFiltersChanged();
+    this.visible$ = false;
   }
 
 

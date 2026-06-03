@@ -1,20 +1,24 @@
 <p-drawer [(visible)]="visible$" header="Filter concerts" styleClass="w-3">
-  <form #form="ngForm" [formGroup]="filterForm" class="form row">
-    <div class="flex-auto">
-      <label for="tourName" class="font-bold block mb-2">Tour</label>
-      <p-select [options]="availableTours$" optionLabel="label" showClear="true" formControlName="tourName" placeholder="Select the tour" class="w-full" (onChange)="onFiltersChanged()" />
-    </div>
+  <p-card class="mb-4">
+    <form #form="ngForm" [formGroup]="filterForm" class="form row">
+      <div class="flex-auto mb-2">
+        <label for="tourName" class="font-bold block mb-2">Tour</label>
+        <p-select [options]="availableTours$" optionLabel="label" showClear="true" formControlName="tourName" placeholder="Select the tour" class="w-full" (onChange)="onFiltersChanged()" />
+      </div>
 
-    <div class="flex-auto">
-      <label for="dateFrom" class="font-bold block mb-2">From</label>
-      <p-date-picker formControlName="dateFrom" [showIcon]="true" inputId="dateFrom" [showOnFocus]="true" />
-    </div>
+      <div class="flex-auto mb-2">
+        <label for="dateFrom" class="font-bold block mb-2">From</label>
+        <p-date-picker formControlName="dateFrom" [showIcon]="true" inputId="dateFrom" [showOnFocus]="true" />
+      </div>
 
-    <div class="flex-auto">
-      <label for="dateTo" class="font-bold block mb-2">To</label>
-      <p-date-picker formControlName="dateTo" [showIcon]="true" inputId="dateTo" [showOnFocus]="true" />
-    </div>
-  </form>
+      <div class="flex-auto mb-2">
+        <label for="dateTo" class="font-bold block mb-2">To</label>
+        <p-date-picker formControlName="dateTo" [showIcon]="true" inputId="dateTo" [showOnFocus]="true" />
+      </div>
+    </form>
+  </p-card>
+
+  <p-button label="Apply filters" icon="pi pi-filter" (click)="onApplyClicked()" />
 </p-drawer>
 
 <p-button (click)="visible$ = true" label="Filter" icon="pi pi-filter" size="small" badge="99+" />
