@@ -56,9 +56,11 @@
           </table>
         </div>
 
-        <div class="col-6 min-w-max h-full align-self-center align-items-center justify-content-center hidden sm:inline">
-          <app-countdown [concertId]="concert.id" [countdownToDate]="concert?.mainStageTime ?? concert?.postedStartTime!" />
-        </div>
+        @if (!concert.isPast) {
+          <div class="col-6 min-w-max h-full align-self-center align-items-center justify-content-center hidden sm:inline">
+            <app-countdown [concertId]="concert.id" [countdownToDate]="concert?.mainStageTime ?? concert?.postedStartTime!" />
+          </div>
+        }
 
         <div class="col-12">
           <app-concert-badges [concert]="concert"></app-concert-badges>
