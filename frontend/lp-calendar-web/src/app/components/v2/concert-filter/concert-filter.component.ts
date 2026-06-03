@@ -3,7 +3,6 @@ import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule} from "@angul
 
 import {ConcertFilter} from '../../../data/concert-filter';
 import {DateTime} from 'luxon';
-import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {listOfTours, tourConfigs} from '../../../app.config';
 import {Button} from 'primeng/button';
 import {Drawer} from 'primeng/drawer';
@@ -16,7 +15,6 @@ import {Card} from 'primeng/card';
   selector: 'app-concert-filter',
   imports: [
     ReactiveFormsModule,
-    NgbTooltip,
     Button,
     Drawer,
     Select,
@@ -44,10 +42,6 @@ export class ConcertFilterComponent implements OnInit {
   @Input('defaultFilter')
   defaultFilter: ConcertFilter | undefined;
 
-  // properties to control which fields were added
-  availableFilters: string[] = ["tour", "dateRange"];
-  filterLabels$: Map<string, string> = new Map<string, string>();
-
   visible$: boolean = false;
 
   availableTours$: TourConfig[] = tourConfigs;
@@ -55,7 +49,8 @@ export class ConcertFilterComponent implements OnInit {
   activeFilterCount$ = 0;
 
   constructor() {
-    this.availableTours$.push({ label: "Not part of a tour", value: ""})
+    this.availableTours$ = tourConfigs;
+    this.availableTours$.push({ label: "Not part of a tour", value: ""});
   }
 
 
@@ -79,12 +74,6 @@ export class ConcertFilterComponent implements OnInit {
   onApplyClicked() {
     this.onFiltersChanged();
     this.visible$ = false;
-  }
-
-
-  onClearClicked() {
-    this.setDefaultFilters();
-    this.applyClicked.emit(this.defaultFilter);
   }
 
 

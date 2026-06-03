@@ -22,7 +22,9 @@
 
 <p-confirmDialog />
 
-<app-concert-filter (applyClicked)="onFilterChanged($event)" />
+<div class="mb-3">
+  <app-concert-filter (applyClicked)="onFilterChanged($event)" />
+</div>
 
 <div class="grid justify-content-center">
   @for (concert of concerts$; track concert.id) {
