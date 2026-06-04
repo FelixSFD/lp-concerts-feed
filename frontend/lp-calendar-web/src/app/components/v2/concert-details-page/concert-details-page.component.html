@@ -147,7 +147,7 @@
     }
 
     @if (!concert$?.isPast) {
-      <div class="col-4">
+      <div class="col-12 sm:col-4">
         <p-card>
           <ng-template #header>
             <div class="ps-3 py-2 border-round-top surface-300">
@@ -167,6 +167,22 @@
         <ng-container
           *ngTemplateOutlet="timeCard; context: { cardTitle: 'Expected set duration',
            timeString: concert$?.expectedSetDuration ?? 0 | timeSpan }" />
+      </div>
+    }
+  </div>
+
+  <div class="flex justify-content-center mt-3">
+    @if (concert$?.scheduleImageFile != undefined) {
+      <div class="w-max">
+        <p-card>
+          <ng-template #header>
+            <div class="ps-3 py-2 border-round-top surface-300">
+              <span>Official Schedule</span>
+            </div>
+          </ng-template>
+
+          <img style="width: 100%; max-width: 800px; max-height: 500px;" src="{{ environment.imageBaseUrl + '/' + concert$?.scheduleImageFile! }}" alt="Official schedule announcement" />
+        </p-card>
       </div>
     }
   </div>

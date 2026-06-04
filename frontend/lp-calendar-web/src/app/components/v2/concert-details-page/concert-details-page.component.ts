@@ -408,4 +408,5 @@ export class ConcertDetailsPageComponent {
   protected readonly DateTime = DateTime;
   protected readonly String = String;
   protected readonly GetConcertBookmarkCountsResponseDto = GetConcertBookmarkCountsResponseDto;
+  protected readonly environment = environment;
 }
