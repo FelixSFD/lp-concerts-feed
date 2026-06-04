@@ -1,0 +1,91 @@
+<ng-template #timeCard let-cardTitle="cardTitle" let-timeString="timeString" let-timeZoneText="timeZoneText">
+  <p-card>
+    <ng-template #header>
+      <div class="ps-3 py-2 border-round-top surface-300">
+        <span>{{ cardTitle }}</span>
+      </div>
+    </ng-template>
+
+    <div class="text-center">
+      <h4>{{ timeString }}</h4>
+      <small style="font-size: 0.65rem">{{ timeZoneText }}</small>
+    </div>
+  </p-card>
+</ng-template>
+
+
+@if (concert$ == null) {
+  <div style="text-align: center">
+    <p-progress-spinner strokeWidth="8" fill="transparent" animationDuration=".5s" [style]="{ width: '50px', height: '50px' }" />
+    <h2><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading concert details...</h2>
+  </div>
+} @else {
+  <h6>{{ getDateTimeInTimezone(concert$?.postedStartTime!, concert$?.timeZoneId!).toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY) }}</h6>
+  <h1>
+    {{ ConcertTitleGenerator.getTitleFor(concert$!) }}
+  </h1>
+  <div style="margin-bottom: 10px">
+    <app-concert-badges [concert]="concert$"></app-concert-badges>
+  </div>
+
+  <p>
+    <b>{{ concert$?.venue }}</b>
+    <br />
+    <i>{{ concert$?.city }}{{ (concert$?.state?.length ?? 0) > 0 ? ", " + concert$?.state : ""}}, {{ concert$?.country }}</i>
+    <br />
+    {{ concert$?.showType }}
+  </p>
+
+  <div class="grid mt-3 justify-content-center">
+    @if (concert$?.mainStageTime != undefined) {
+      <div class="time-card col-12 sm:col-6 md:col-4 lg:col-2 xl:col-2">
+        <ng-container
+          *ngTemplateOutlet="timeCard; context: { cardTitle: 'Linkin Park stage time',
+            timeZoneText: `Venue\'s timezone (${concert$?.timeZoneId ?? '' })`,
+             timeString: getDateTimeInTimezone(concert$?.mainStageTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE) }" />
+      </div>
+
+      <div class="time-card col-12 sm:col-6 md:col-4 lg:col-2 xl:col-2">
+        <ng-container
+          *ngTemplateOutlet="timeCard; context: { cardTitle: 'Linkin Park stage time',
+            timeZoneText: `Your timezone`,
+             timeString: getDateTime(concert$?.mainStageTime!).toLocaleString(DateTime. DATETIME_SHORT) }" />
+      </div>
+    }
+
+    @if (concert$?.lpuEarlyEntryTime != undefined) {
+      <div class="time-card col-2">
+        <ng-container
+          *ngTemplateOutlet="timeCard; context: { cardTitle: 'LPU Early Entry',
+          timeZoneText: `Venue\'s timezone (${concert$?.timeZoneId ?? '' })`,
+           timeString: getDateTimeInTimezone(concert$?.lpuEarlyEntryTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE) }" />
+      </div>
+    }
+
+    @if (concert$?.doorsTime != undefined) {
+      <div class="time-card col-2">
+        <ng-container
+          *ngTemplateOutlet="timeCard; context: { cardTitle: 'Doors open at',
+          timeZoneText: `Venue\'s timezone (${concert$?.timeZoneId ?? '' })`,
+           timeString: getDateTimeInTimezone(concert$?.doorsTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE) }" />
+      </div>
+    }
+
+    @if (concert$?.mainStageTime == undefined) {
+      <div class="col-2">
+        <ng-container
+          *ngTemplateOutlet="timeCard; context: { cardTitle: 'Your start time',
+           timeString: getDateTime(concert$?.postedStartTime!).toLocaleString(DateTime. DATETIME_SHORT) }" />
+      </div>
+
+      <div class="col-2">
+        <ng-container
+          *ngTemplateOutlet="timeCard; context: { cardTitle: 'Venue start time',
+           timeString: getDateTimeInTimezone(concert$?.postedStartTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE) }" />
+      </div>
+    }
+  </div>
+}
+
+
+<p-scroll-top />
