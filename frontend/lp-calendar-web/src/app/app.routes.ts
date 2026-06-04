@@ -11,7 +11,7 @@ import {PrivacyPolicyComponent} from './privacy-policy/privacy-policy.component'
 import {ImprintComponent} from './imprint/imprint.component';
 import {UsersListComponent} from './admin/users/users-list/users-list.component';
 import {EditUserComponent} from './admin/users/edit-user/edit-user.component';
-import {AppInfoPageComponent} from './app-info-page/app-info-page.component';
+import {AppInfoPageComponent} from './components/v2/app-info-page/app-info-page.component';
 import {AddSetlistPageComponent} from './admin/setlists/add-setlist-page/add-setlist-page.component';
 import {ManageSetlistsPageComponent} from './admin/setlists/manage-setlists-page/manage-setlists-page.component';
 import {EditSetlistPageComponent} from './admin/setlists/edit-setlist-page/edit-setlist-page.component';
@@ -284,7 +284,7 @@ export const routes: Routes = [
   {
     path: 'app',
     loadComponent: () =>
-      import("./app-info-page/app-info-page.component").then(m => m.AppInfoPageComponent),
+      import("./components/v2/app-info-page/app-info-page.component").then(m => m.AppInfoPageComponent),
     title: baseTitle + 'iOS App',
   }
 ];
