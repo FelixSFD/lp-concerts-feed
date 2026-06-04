@@ -32,6 +32,7 @@ import {Button} from 'primeng/button';
 import {ButtonGroup} from 'primeng/buttongroup';
 import {MenuItem} from 'primeng/api';
 import {FormsModule} from '@angular/forms';
+import {Tooltip} from 'primeng/tooltip';
 
 @Component({
   selector: 'app-concert-details-page',
@@ -45,7 +46,8 @@ import {FormsModule} from '@angular/forms';
     Button,
     RouterLink,
     ButtonGroup,
-    FormsModule
+    FormsModule,
+    Tooltip
   ],
   templateUrl: './concert-details-page.component.html',
   styleUrl: './concert-details-page.component.css',
@@ -401,4 +403,6 @@ export class ConcertDetailsPageComponent {
 
   protected readonly ConcertTitleGenerator = ConcertTitleGenerator;
   protected readonly DateTime = DateTime;
+  protected readonly String = String;
+  protected readonly GetConcertBookmarkCountsResponseDto = GetConcertBookmarkCountsResponseDto;
 }
