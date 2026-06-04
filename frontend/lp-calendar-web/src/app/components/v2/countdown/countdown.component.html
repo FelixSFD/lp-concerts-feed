@@ -16,7 +16,17 @@
       <ng-container *ngTemplateOutlet="countdownCellTemplate; context: {label: 'seconds', value: seconds$ }" />
     </div>
 
-    <p-button class="mx-5" label="Share" icon="pi pi-share-alt" size="small" severity="info" outlined (onClick)="sharePopover.toggle($event)" />
+    <p-button class="mx-5"
+              label="Share"
+              icon="pi pi-share-alt"
+              size="small"
+              severity="info"
+              outlined
+              matomoClickCategory="share_countdown"
+              matomoClickAction="Opened Share options"
+              [matomoClickName]="concertId"
+              [matomoClickValue]="1"
+              (onClick)="sharePopover.toggle($event)"/>
     <p-popover #sharePopover>
       <div class="flex flex-col gap-4 w-[25rem] pb-3">
         <div>
@@ -24,7 +34,13 @@
           <p-inputgroup>
             <input pInputText value="{{ location.protocol + '//' + location.host + '/concerts/' + concertId }}" readonly class="w-[25rem]" />
             <p-inputgroup-addon>
-              <p-button icon="pi pi-copy" severity="secondary" (onClick)="onShareLinkClicked()" />
+              <p-button icon="pi pi-copy"
+                        severity="secondary"
+                        matomoClickCategory="share_countdown"
+                        matomoClickAction="Link"
+                        matomoClickName="Link to Details"
+                        [matomoClickValue]="1"
+                        (onClick)="onShareLinkClicked()"/>
             </p-inputgroup-addon>
           </p-inputgroup>
         </div>
@@ -36,7 +52,13 @@
           <p-inputgroup>
             <input pInputText [value]="`<t:${discordTimestampDigits$}:F>`" readonly class="w-[25rem]" />
             <p-inputgroup-addon>
-              <p-button icon="pi pi-copy" severity="secondary" (onClick)="onShareDiscordTsClicked('F')" />
+              <p-button icon="pi pi-copy"
+                        severity="secondary"
+                        matomoClickCategory="share_countdown"
+                        matomoClickAction="Discord Timestamp"
+                        matomoClickName="Full Datetime"
+                        [matomoClickValue]="1"
+                        (onClick)="onShareDiscordTsClicked('F')"/>
             </p-inputgroup-addon>
           </p-inputgroup>
         </div>
@@ -48,7 +70,13 @@
           <p-inputgroup>
             <input pInputText [value]="`<t:${discordTimestampDigits$}:R>`" readonly class="w-[25rem]" />
             <p-inputgroup-addon>
-              <p-button icon="pi pi-copy" severity="secondary" (onClick)="onShareDiscordTsClicked('R')" />
+              <p-button icon="pi pi-copy"
+                        severity="secondary"
+                        matomoClickCategory="share_countdown"
+                        matomoClickAction="Discord Timestamp"
+                        matomoClickName="Relative"
+                        [matomoClickValue]="1"
+                        (onClick)="onShareDiscordTsClicked('R')"/>
             </p-inputgroup-addon>
           </p-inputgroup>
         </div>
