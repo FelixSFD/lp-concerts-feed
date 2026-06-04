@@ -6,7 +6,7 @@ import {ConcertDetailsComponent} from './concert-details/concert-details.compone
 import {AboutPageComponent} from './about-page/about-page.component';
 import {EditConcertPageComponent} from './admin/edit-concert-page/edit-concert-page.component';
 import {AddConcertPageComponent} from './admin/add-concert-page/add-concert-page.component';
-import {TourMapPageComponent} from './tour-map-page/tour-map-page.component';
+import {TourMapPageComponent} from './components/v2/tour-map-page/tour-map-page.component';
 import {PrivacyPolicyComponent} from './privacy-policy/privacy-policy.component';
 import {ImprintComponent} from './imprint/imprint.component';
 import {UsersListComponent} from './admin/users/users-list/users-list.component';
@@ -120,7 +120,7 @@ export const routes: Routes = [
   {
     path: 'map',
     loadComponent: () =>
-      import("./tour-map-page/tour-map-page.component").then(m => m.TourMapPageComponent),
+      import("./components/v2/tour-map-page/tour-map-page.component").then(m => m.TourMapPageComponent),
     title: baseTitle + 'Map',
   },
   {

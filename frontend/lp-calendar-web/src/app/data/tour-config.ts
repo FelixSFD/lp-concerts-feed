@@ -1,4 +1,4 @@
 export class TourConfig {
-  value: string = "";
+  value: string | null = "";
   label: string | undefined;
 }

@@ -1,19 +1,27 @@
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {ConcertsService} from '../services/concerts.service';
-import {defaultShowType, listOfTours,} from '../app.config';
-import {ConcertFilter} from '../data/concert-filter';
+import {ConcertsService} from '../../../services/concerts.service';
+import {defaultShowType, listOfTours, tourConfigs,} from '../../../app.config';
+import {ConcertFilter} from '../../../data/concert-filter';
 import {ToastrService} from 'ngx-toastr';
 
-import {ReactiveFormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {DateTime} from 'luxon';
 import {load, Map as AppleMap, MapKit, MarkerAnnotation} from '@apple/mapkit-loader';
-import {environment} from '../../environments/environment';
+import {environment} from '../../../../environments/environment';
+import {Card} from 'primeng/card';
+import {Divider} from 'primeng/divider';
+import {TourConfig} from '../../../data/tour-config';
+import {Select} from 'primeng/select';
 
 @Component({
   selector: 'app-tour-map-page',
   imports: [
-    ReactiveFormsModule
-],
+    ReactiveFormsModule,
+    Card,
+    Divider,
+    FormsModule,
+    Select
+  ],
   templateUrl: './tour-map-page.component.html',
   styleUrl: './tour-map-page.component.css'
 })
@@ -33,21 +41,20 @@ export class TourMapPageComponent {
   // Filter that is used for loading the list
   currentFilter: ConcertFilter = this.defaultFilter;
 
+  availableTours$: TourConfig[] = tourConfigs;
+
   // true, if the pins on the map are being loaded from the server
   isLoadingPins$ = true;
 
 
   constructor(private concertsService: ConcertsService, private toastrService: ToastrService) {
+    this.availableTours$ = [...tourConfigs];
+    this.availableTours$.push({ label: "All shows", value: null});
+    this.availableTours$.push({ label: "Not part of a tour", value: ""});
   }
 
 
   onTourSelected(event: any) {
-    let tour = event.target.value;
-    if (tour == "ALL") {
-      this.currentFilter.tour = null;
-    } else {
-      this.currentFilter.tour = tour;
-    }
     this.reloadPins();
   }
 

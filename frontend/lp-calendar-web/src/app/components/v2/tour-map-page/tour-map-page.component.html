@@ -1,0 +1,15 @@
+<p-card>
+  <ng-template #title>
+    <h1>Map of all concerts</h1>
+  </ng-template>
+  <p>
+    On this page you can have a look at the map of all concerts since 2024, sorted by tour.
+  </p>
+
+  <p-select [options]="availableTours$" [(ngModel)]="this.currentFilter.tour" placeholder="Select a tour" (ngModelChange)="onTourSelected($event)" [loading]="isLoadingPins$" optionLabel="label" class="w-full" />
+
+  <p-divider />
+
+  <div #map class="map"></div>
+
+</p-card>
