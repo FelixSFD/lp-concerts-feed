@@ -62,7 +62,7 @@
 
   <!-- right aligned buttons -->
   <div>
-    <p-button [hidden]="!canUpdateConcerts$" [routerLink]="['./edit']" icon="pi pi-external-link" label="Open Linkinpedia"
+    <p-button [hidden]="!canUpdateConcerts$" (onClick)="openLinkinpediaClicked()" icon="pi pi-external-link" label="Open Linkinpedia"
               pTooltip="Find more details on Linkinpedia" severity="info" tooltipPosition="bottom"
               variant="outlined"
               class="hidden xl:inline-flex"
