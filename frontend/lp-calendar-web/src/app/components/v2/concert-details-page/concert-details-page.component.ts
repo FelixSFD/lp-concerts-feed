@@ -24,8 +24,6 @@ import {ConcertBadgesComponent} from '../concert-badges/concert-badges.component
 import {ScrollTop} from 'primeng/scrolltop';
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {Card} from 'primeng/card';
-import {CalendarFeedBuilderComponent} from '../../../calendar-feed-builder/calendar-feed-builder.component';
-import {Divider} from 'primeng/divider';
 import {SplitButton} from 'primeng/splitbutton';
 import {NgTemplateOutlet} from '@angular/common';
 import {Button} from 'primeng/button';
@@ -33,6 +31,8 @@ import {ButtonGroup} from 'primeng/buttongroup';
 import {MenuItem} from 'primeng/api';
 import {FormsModule} from '@angular/forms';
 import {Tooltip} from 'primeng/tooltip';
+import {TimeSpanPipe} from '../../../data/time-span-pipe';
+import {CountdownComponent} from '../countdown/countdown.component';
 
 @Component({
   selector: 'app-concert-details-page',
@@ -47,7 +47,10 @@ import {Tooltip} from 'primeng/tooltip';
     RouterLink,
     ButtonGroup,
     FormsModule,
-    Tooltip
+    Tooltip,
+    TimeSpanPipe,
+    CountdownComponent,
+    CountdownComponent
   ],
   templateUrl: './concert-details-page.component.html',
   styleUrl: './concert-details-page.component.css',

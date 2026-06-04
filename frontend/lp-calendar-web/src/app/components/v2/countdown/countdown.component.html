@@ -8,11 +8,52 @@
 
 
 @if (differenceMillis$ >= 0) {
-  <div class="grid pt-2 max-w-fit">
-    <ng-container *ngTemplateOutlet="countdownCellTemplate; context: {label: 'days', value: days$ }" />
-    <ng-container *ngTemplateOutlet="countdownCellTemplate; context: {label: 'hours', value: hours$ }" />
-    <ng-container *ngTemplateOutlet="countdownCellTemplate; context: {label: 'minutes', value: minutes$ }" />
-    <ng-container *ngTemplateOutlet="countdownCellTemplate; context: {label: 'seconds', value: seconds$ }" />
+  <div class="flex flex-wrap mx-2 align-items-center justify-content-center">
+    <div class="grid pt-2 max-w-fit">
+      <ng-container *ngTemplateOutlet="countdownCellTemplate; context: {label: 'days', value: days$ }" />
+      <ng-container *ngTemplateOutlet="countdownCellTemplate; context: {label: 'hours', value: hours$ }" />
+      <ng-container *ngTemplateOutlet="countdownCellTemplate; context: {label: 'minutes', value: minutes$ }" />
+      <ng-container *ngTemplateOutlet="countdownCellTemplate; context: {label: 'seconds', value: seconds$ }" />
+    </div>
+
+    <p-button class="mx-5" label="Share" icon="pi pi-share-alt" size="small" severity="info" outlined (onClick)="sharePopover.toggle($event)" />
+    <p-popover #sharePopover>
+      <div class="flex flex-col gap-4 w-[25rem] pb-3">
+        <div>
+          <span class="font-medium text-surface-900 dark:text-surface-0 block mb-2">Link</span>
+          <p-inputgroup>
+            <input pInputText value="{{ location.protocol + '//' + location.host + '/concerts/' + concertId }}" readonly class="w-[25rem]" />
+            <p-inputgroup-addon>
+              <p-button icon="pi pi-copy" severity="secondary" (onClick)="onShareLinkClicked()" />
+            </p-inputgroup-addon>
+          </p-inputgroup>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-4 w-[25rem] pb-3">
+        <div>
+          <span class="font-medium text-surface-900 dark:text-surface-0 block mb-2">Discord Timestamp</span>
+          <p-inputgroup>
+            <input pInputText [value]="`<t:${discordTimestampDigits$}:F>`" readonly class="w-[25rem]" />
+            <p-inputgroup-addon>
+              <p-button icon="pi pi-copy" severity="secondary" (onClick)="onShareDiscordTsClicked('F')" />
+            </p-inputgroup-addon>
+          </p-inputgroup>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-4 w-[25rem] pb-3">
+        <div>
+          <span class="font-medium text-surface-900 dark:text-surface-0 block mb-2">Discord Countdown</span>
+          <p-inputgroup>
+            <input pInputText [value]="`<t:${discordTimestampDigits$}:R>`" readonly class="w-[25rem]" />
+            <p-inputgroup-addon>
+              <p-button icon="pi pi-copy" severity="secondary" (onClick)="onShareDiscordTsClicked('R')" />
+            </p-inputgroup-addon>
+          </p-inputgroup>
+        </div>
+      </div>
+    </p-popover>
   </div>
 } @else {
   <h2>It's showtime!</h2>

@@ -4,12 +4,22 @@ import {ToastrService} from 'ngx-toastr';
 import {MatomoTrackClickDirective} from 'ngx-matomo-client';
 import {NgTemplateOutlet} from '@angular/common';
 import {ClockService} from '../../../services/clock.service';
+import {Button} from 'primeng/button';
+import {Popover} from 'primeng/popover';
+import {InputGroup} from 'primeng/inputgroup';
+import {InputGroupAddon} from 'primeng/inputgroupaddon';
+import {InputText} from 'primeng/inputtext';
 
 @Component({
   selector: 'app-countdown',
   imports: [
     MatomoTrackClickDirective,
-    NgTemplateOutlet
+    NgTemplateOutlet,
+    Button,
+    Popover,
+    InputGroup,
+    InputGroupAddon,
+    InputText
   ],
   templateUrl: './countdown.component.html',
   styleUrl: './countdown.component.css'
@@ -23,6 +33,9 @@ export class CountdownComponent implements OnInit, AfterViewInit {
   hours$: number = 0;
   minutes$: number = 0;
   seconds$: number = 0;
+
+  // only the digits of the discord timestamp. This is not the full code required to use
+  discordTimestampDigits$ = "";
 
   @Input()
   countdownToDate!: string;
@@ -45,11 +58,7 @@ export class CountdownComponent implements OnInit, AfterViewInit {
 
 
   onShareDiscordTsClicked(type: string) {
-    let target = new Date(this.countdownToDate);
-    let utc_timestamp = Date.UTC(target.getUTCFullYear(),target.getUTCMonth(), target.getUTCDate() ,
-      target.getUTCHours(), target.getUTCMinutes(), target.getUTCSeconds(), 0) / 1000; // divide by 1000 because discord wants seconds
-
-    let discordTimeStamp = `<t:${utc_timestamp}:${type}>`;
+    let discordTimeStamp = `<t:${this.discordTimestampDigits$}:${type}>`;
     console.debug("Generated timestamp: " + discordTimeStamp);
     navigator.clipboard.writeText(discordTimeStamp)
       .then(_ => {
@@ -67,9 +76,20 @@ export class CountdownComponent implements OnInit, AfterViewInit {
   }
 
 
+  private recalculateDiscordTimestamp() {
+    let target = new Date(this.countdownToDate);
+    let utc_timestamp = Date.UTC(target.getUTCFullYear(),target.getUTCMonth(), target.getUTCDate() ,
+      target.getUTCHours(), target.getUTCMinutes(), target.getUTCSeconds(), 0) / 1000; // divide by 1000 because discord wants seconds
+
+    this.discordTimestampDigits$ = `${utc_timestamp}`;
+  }
+
+
   private updateView(): void {
     let now = new Date();
     let target = new Date(this.countdownToDate);
+
+    this.recalculateDiscordTimestamp();
 
     let difference = target.getTime() - now.getTime();
     this.differenceMillis$ = difference;
@@ -85,4 +105,6 @@ export class CountdownComponent implements OnInit, AfterViewInit {
     let minutesFromMilliSeconds = difference % (60 * 1000);
     this.seconds$ = Math.floor((minutesFromMilliSeconds) / (1000));
   }
+
+  protected readonly location = location;
 }
