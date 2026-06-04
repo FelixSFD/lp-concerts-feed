@@ -12,7 +12,7 @@ import {load, MapKit} from '@apple/mapkit-loader';
 import {Map as AppleMap} from 'apple-mapkit/mapkit';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {Setlist} from '../../../data/setlists/setlist';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {ConcertsService} from '../../../services/concerts.service';
 import {SetlistsService} from '../../../services/setlists.service';
 import {Meta} from '@angular/platform-browser';
@@ -28,6 +28,10 @@ import {CalendarFeedBuilderComponent} from '../../../calendar-feed-builder/calen
 import {Divider} from 'primeng/divider';
 import {SplitButton} from 'primeng/splitbutton';
 import {NgTemplateOutlet} from '@angular/common';
+import {Button} from 'primeng/button';
+import {ButtonGroup} from 'primeng/buttongroup';
+import {MenuItem} from 'primeng/api';
+import {FormsModule} from '@angular/forms';
 
 @Component({
   selector: 'app-concert-details-page',
@@ -36,10 +40,12 @@ import {NgTemplateOutlet} from '@angular/common';
     ScrollTop,
     ProgressSpinner,
     Card,
-    CalendarFeedBuilderComponent,
-    Divider,
     SplitButton,
-    NgTemplateOutlet
+    NgTemplateOutlet,
+    Button,
+    RouterLink,
+    ButtonGroup,
+    FormsModule
   ],
   templateUrl: './concert-details-page.component.html',
   styleUrl: './concert-details-page.component.css',
@@ -47,6 +53,7 @@ import {NgTemplateOutlet} from '@angular/common';
 export class ConcertDetailsPageComponent {
   private readonly authService = inject(AuthService);
   private readonly toastr = inject(ToastrService);
+  private readonly router = inject(Router);
   tracker = inject(MatomoTracker);
 
   concert$: ConcertDto | null = null;
@@ -68,6 +75,8 @@ export class ConcertDetailsPageComponent {
   setlists$: Setlist[] = [];
   setlistsCacheUpdatedAt$: DateTime | null = null;
 
+  addSetlistButtonItems: MenuItem[] = [];
+
   constructor(private route: ActivatedRoute, private concertsService: ConcertsService, private setlistService: SetlistsService, private metaService: Meta) {
   }
 
@@ -75,6 +84,17 @@ export class ConcertDetailsPageComponent {
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.loadDataForId(params['id']);
+
+      this.addSetlistButtonItems = [
+        {
+          label: "Add new setlist",
+          routerLink: ['/admin', 'setlists', 'add', params['id']]
+        },
+        {
+          label: "Import setlist",
+          routerLink: ['/admin', 'concerts', 'import', params['id']]
+        }
+      ];
     });
 
     this.authService.canUpdateConcerts.subscribe(hasPermission => {
@@ -97,6 +117,12 @@ export class ConcertDetailsPageComponent {
 
   onAttendingClicked() {
     this.onBookmarkOrAttendingClicked(ConcertBookmarkUpdateRequestDto.StatusEnum.Attending);
+  }
+
+  onAddSetlistBtnClicked() {
+    this.router.navigate(['/admin', 'setlists', 'add', this.concertId]).then().catch((err) => {
+      this.toastr.error(err)
+    });
   }
 
 
