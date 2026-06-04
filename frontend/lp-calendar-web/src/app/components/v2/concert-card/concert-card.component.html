@@ -25,13 +25,6 @@
     <div class="grid justify-content-center">
       <app-countdown [countdownToDate]="concert$?.mainStageTime ?? concert$?.postedStartTime!" [concertId]="concert$?.id" />
     </div>
-
-    @if (concert$?.mainStageTime == undefined) {
-      <small style="font-size: 0.6rem">Based on start time on ticket</small>
-    }
-    @if (concert$?.mainStageTime != undefined) {
-      <small style="font-size: 0.6rem">Based on Linkin Park's stage time</small>
-    }
   }
 
   @if (!isLoading$ && concert$ == null) {
@@ -41,16 +34,26 @@
   }
 
   <ng-template #footer>
-    <div class="flex flex-row-reverse flex-wrap">
-      @if (concert$?.id != null) {
-        <p-button variant="outlined" label="Details" icon="pi pi-info-circle" [routerLink]="['/concerts', concert$?.id]" size="small" />
-
-        @if (canUpdateConcerts$) {
-          <p-button variant="outlined" label="Edit" icon="pi pi-pencil" [routerLink]="['/concerts', concert$?.id, 'edit']" size="small" class="pe-2" severity="info" />
+    <div class="flex flex-wrap justify-content-between">
+      <div>
+        @if (concert$?.mainStageTime == undefined) {
+          <small style="font-size: 0.6rem">Based on start time on ticket</small>
         }
-      } @else if (isLoading$) {
-        <p-skeleton borderRadius="2" width="5rem" height="2.2rem" />
-      }
+        @if (concert$?.mainStageTime != undefined) {
+          <small style="font-size: 0.6rem">Based on Linkin Park's stage time</small>
+        }
+      </div>
+      <div class="flex flex-row-reverse flex-wrap">
+        @if (concert$?.id != null) {
+          <p-button variant="outlined" label="Details" icon="pi pi-info-circle" [routerLink]="['/concerts', concert$?.id]" size="small" />
+
+          @if (canUpdateConcerts$) {
+            <p-button variant="outlined" label="Edit" icon="pi pi-pencil" [routerLink]="['/concerts', concert$?.id, 'edit']" size="small" class="pe-2" severity="info" />
+          }
+        } @else if (isLoading$) {
+          <p-skeleton borderRadius="2" width="5rem" height="2.2rem" />
+        }
+      </div>
     </div>
   </ng-template>
 </p-card>
