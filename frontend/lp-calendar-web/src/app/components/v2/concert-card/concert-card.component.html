@@ -35,14 +35,16 @@
 
   <ng-template #footer>
     <div class="flex flex-wrap justify-content-between">
-      <div>
-        @if (concert$?.mainStageTime == undefined) {
-          <small style="font-size: 0.6rem">Based on start time on ticket</small>
-        }
-        @if (concert$?.mainStageTime != undefined) {
-          <small style="font-size: 0.6rem">Based on Linkin Park's stage time</small>
-        }
-      </div>
+      @if (concert$ != null && !concert$.isPast) {
+        <div>
+          @if (concert$?.mainStageTime == undefined) {
+            <small style="font-size: 0.6rem">Based on start time on ticket</small>
+          }
+          @if (concert$?.mainStageTime != undefined) {
+            <small style="font-size: 0.6rem">Based on Linkin Park's stage time</small>
+          }
+        </div>
+      }
       <div class="flex flex-row-reverse flex-wrap">
         @if (concert$?.id != null) {
           <p-button variant="outlined" label="Details" icon="pi pi-info-circle" [routerLink]="['/concerts', concert$?.id]" size="small" />
