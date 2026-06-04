@@ -3,7 +3,7 @@ import {UserProfileComponent} from './user-profile/user-profile.component';
 import {HomeComponent} from './home/home.component';
 import {ConcertsListComponent} from './concerts-list/concerts-list.component';
 import {ConcertDetailsComponent} from './concert-details/concert-details.component';
-import {AboutPageComponent} from './about-page/about-page.component';
+import {AboutPageComponent} from './components/v2/about-page/about-page.component';
 import {EditConcertPageComponent} from './admin/edit-concert-page/edit-concert-page.component';
 import {AddConcertPageComponent} from './admin/add-concert-page/add-concert-page.component';
 import {TourMapPageComponent} from './components/v2/tour-map-page/tour-map-page.component';
@@ -126,7 +126,7 @@ export const routes: Routes = [
   {
     path: 'about',
     loadComponent: () =>
-      import("./about-page/about-page.component").then(m => m.AboutPageComponent),
+      import("./components/v2/about-page/about-page.component").then(m => m.AboutPageComponent),
     title: baseTitle + 'About',
   },
   {
