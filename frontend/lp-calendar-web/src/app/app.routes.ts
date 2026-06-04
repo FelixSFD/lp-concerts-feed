@@ -24,7 +24,7 @@ import {EditSongPageComponent} from './admin/setlists/edit-song-page/edit-song-p
 import {ManageAlbumsPageComponent} from './admin/setlists/manage-albums-page/manage-albums-page.component';
 import {AddAlbumPageComponent} from './admin/setlists/add-album-page/add-album-page.component';
 import {EditAlbumPageComponent} from './admin/setlists/edit-album-page/edit-album-page.component';
-import {SetlistAdminWrapperComponent} from './admin/setlist-admin-wrapper/setlist-admin-wrapper.component';
+import {SetlistAdminWrapperComponent} from './components/admin/setlist-admin-wrapper/setlist-admin-wrapper.component';
 import {inject} from '@angular/core';
 import {AuthService} from './auth/auth.service';
 import {map} from 'rxjs';
@@ -166,7 +166,7 @@ export const routes: Routes = [
   {
     path: 'admin',
     loadComponent: () =>
-      import("./admin/setlist-admin-wrapper/setlist-admin-wrapper.component").then(m => m.SetlistAdminWrapperComponent),
+      import("./components/admin/setlist-admin-wrapper/setlist-admin-wrapper.component").then(m => m.SetlistAdminWrapperComponent),
     canActivateChild: [authGuard, manageSetlistsGuard],
     children: [
       {
