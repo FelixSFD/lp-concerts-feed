@@ -21,6 +21,7 @@ import {ConfirmDialog} from 'primeng/confirmdialog';
 import {ConfirmationService} from 'primeng/api';
 import {Tooltip} from 'primeng/tooltip';
 import {ConcertFilterComponent} from '../concert-filter/concert-filter.component';
+import {ScrollTop} from 'primeng/scrolltop';
 
 @Component({
   selector: 'app-concert-list',
@@ -35,7 +36,8 @@ import {ConcertFilterComponent} from '../concert-filter/concert-filter.component
     ButtonGroup,
     ConfirmDialog,
     Tooltip,
-    ConcertFilterComponent
+    ConcertFilterComponent,
+    ScrollTop
   ],
   templateUrl: './concert-list.component.html',
   styleUrl: './concert-list.component.css',

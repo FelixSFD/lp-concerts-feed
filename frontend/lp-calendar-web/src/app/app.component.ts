@@ -24,10 +24,11 @@ import {AuthService} from './auth/auth.service';
 import {DateTime} from 'luxon';
 import {ClockService} from './services/clock.service';
 import {MainMenuComponent} from './components/v2/main-menu/main-menu.component';
+import {ScrollTop} from 'primeng/scrolltop';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NgbModule, RouterLink, RouterLinkActive, AsyncPipe, NgOptimizedImage, NgStyle, MainMenuComponent],
+  imports: [RouterOutlet, NgbModule, RouterLink, RouterLinkActive, AsyncPipe, NgOptimizedImage, NgStyle, MainMenuComponent, ScrollTop],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
