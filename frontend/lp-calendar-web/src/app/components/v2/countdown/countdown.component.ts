@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, inject, Input, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, inject, Input, OnInit} from '@angular/core';
 
 import {ToastrService} from 'ngx-toastr';
 import {MatomoTrackClickDirective} from 'ngx-matomo-client';
