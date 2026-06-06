@@ -13,7 +13,7 @@ import {UsersListComponent} from './admin/users/users-list/users-list.component'
 import {EditUserComponent} from './admin/users/edit-user/edit-user.component';
 import {AppInfoPageComponent} from './components/v2/app-info-page/app-info-page.component';
 import {AddSetlistPageComponent} from './admin/setlists/add-setlist-page/add-setlist-page.component';
-import {ManageSetlistsPageComponent} from './admin/setlists/manage-setlists-page/manage-setlists-page.component';
+import {ManageSetlistsPageComponent} from './components/v2/admin/setlists/manage-setlists-page/manage-setlists-page.component';
 import {EditSetlistPageComponent} from './admin/setlists/edit-setlist-page/edit-setlist-page.component';
 import {ManageMashupsPageComponent} from './admin/setlists/manage-mashups-page/manage-mashups-page.component';
 import {AddMashupPageComponent} from './admin/setlists/add-mashup-page/add-mashup-page.component';
@@ -198,7 +198,7 @@ export const routes: Routes = [
       {
         path: 'setlists',
         loadComponent: () =>
-          import("./admin/setlists/manage-setlists-page/manage-setlists-page.component").then(m => m.ManageSetlistsPageComponent),
+          import("./components/v2/admin/setlists/manage-setlists-page/manage-setlists-page.component").then(m => m.ManageSetlistsPageComponent),
         title: baseTitle + 'Manage setlists',
         canActivate: [authGuard, manageSetlistsGuard],
       },
