@@ -15,7 +15,7 @@ import {AppInfoPageComponent} from './components/v2/app-info-page/app-info-page.
 import {AddSetlistPageComponent} from './admin/setlists/add-setlist-page/add-setlist-page.component';
 import {ManageSetlistsPageComponent} from './components/v2/admin/setlists/manage-setlists-page/manage-setlists-page.component';
 import {EditSetlistPageComponent} from './admin/setlists/edit-setlist-page/edit-setlist-page.component';
-import {ManageMashupsPageComponent} from './admin/setlists/manage-mashups-page/manage-mashups-page.component';
+import {ManageMashupsPageComponent} from './components/v2/admin/setlists/manage-mashups-page/manage-mashups-page.component';
 import {AddMashupPageComponent} from './admin/setlists/add-mashup-page/add-mashup-page.component';
 import {EditMashupPageComponent} from './admin/setlists/edit-mashup-page/edit-mashup-page.component';
 import {ManageSongsPageComponent} from './components/v2/admin/setlists/manage-songs-page/manage-songs-page.component';
@@ -177,7 +177,7 @@ export const routes: Routes = [
       {
         path: 'mashups',
         loadComponent: () =>
-          import("./admin/setlists/manage-mashups-page/manage-mashups-page.component").then(m => m.ManageMashupsPageComponent),
+          import("./components/v2/admin/setlists/manage-mashups-page/manage-mashups-page.component").then(m => m.ManageMashupsPageComponent),
         title: baseTitle + 'Manage mashups',
         canActivate: [authGuard, manageSetlistsGuard],
       },
