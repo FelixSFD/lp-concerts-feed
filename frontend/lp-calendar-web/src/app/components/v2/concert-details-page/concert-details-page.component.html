@@ -17,8 +17,6 @@
 <div class="mb-4 flex justify-content-between">
   <!-- Left aligned buttons -->
   <div class="flex flex-wrap gap-2">
-    <p-button label="Concerts list" icon="pi pi-arrow-left" variant="outlined" severity="secondary" [routerLink]="['/concerts']" ariaLabel="Go back to list" />
-
     <p-button-group>
       <p-button icon="pi pi-arrow-left" variant="outlined" [disabled]="adjacentConcertData$?.previous == null" [routerLink]="['../', adjacentConcertData$?.previous]" ariaLabel="Navigate to previous concert" />
       <p-button icon="pi pi-arrow-right" variant="outlined" [disabled]="adjacentConcertData$?.next == null" [routerLink]="['../', adjacentConcertData$?.next]" ariaLabel="Navigate to next concert" />

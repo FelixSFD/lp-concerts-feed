@@ -78,7 +78,7 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
 
   ngOnInit() {
     this.sourceDataForm.controls.concertId.valueChanges.subscribe(id => {
-      console.debug("Changed concertId", id);
+      console.debug("Changed id", id);
       if (id != null) {
         this.concertsService.getConcert(id).subscribe(concert => {
           let startDate = DateTime.fromISO(concert.postedStartTime!, {zone: concert.timeZoneId});
@@ -92,9 +92,9 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
     });
 
     this.route.params.subscribe(params => {
-      let concertId = params['concertId'];
+      let concertId = params['id'];
       if (concertId != null && concertId.length > 0) {
-        this.sourceDataForm.controls.concertId.setValue(params['concertId'], { emitEvent: true });
+        this.sourceDataForm.controls.concertId.setValue(params['id'], { emitEvent: true });
         this.sourceDataForm.controls.concertId.disable();
       }
     });

@@ -97,7 +97,7 @@ export class ConcertDetailsPageComponent {
         },
         {
           label: "Import setlist",
-          routerLink: ['/admin', 'concerts', 'import', params['id']]
+          routerLink: ['./import']
         }
       ];
     });

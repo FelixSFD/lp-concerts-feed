@@ -137,13 +137,51 @@ export const routes: Routes = [
         },
       },
       {
-        path: ':id',
+        path: 'import',
         loadComponent: () =>
-          import("./components/v2/concert-details-page/concert-details-page.component").then(m => m.ConcertDetailsPageComponent),
-        title: baseTitle + 'Details',
+          import("./admin/linkinpedia-concert-importer-page/linkinpedia-concert-importer-page.component").then(m => m.LinkinpediaConcertImporterPageComponent),
+        title: baseTitle + 'Import concert',
+        canActivate: [authGuard, addConcertsGuard, manageSetlistsGuard],
+        data: {
+          breadcrumb: 'Create from Linkinpedia',
+        },
+      },
+      {
+        path: ':id',
         data: {
           breadcrumb: 'Concert Details',
         },
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import("./components/v2/concert-details-page/concert-details-page.component").then(m => m.ConcertDetailsPageComponent),
+            title: baseTitle + 'Details',
+            data: {
+              breadcrumb: 'Concert Details',
+            },
+          },
+          {
+            path: 'import',
+            loadComponent: () =>
+              import("./admin/linkinpedia-concert-importer-page/linkinpedia-concert-importer-page.component").then(m => m.LinkinpediaConcertImporterPageComponent),
+            title: baseTitle + 'Import concert',
+            canActivate: [authGuard, addConcertsGuard, manageSetlistsGuard],
+            data: {
+              breadcrumb: 'Import from Linkinpedia',
+            },
+          },
+          {
+            path: 'edit',
+            loadComponent: () =>
+              import("./admin/edit-concert-page/edit-concert-page.component").then(m => m.EditConcertPageComponent),
+            title: baseTitle + 'Edit concert',
+            canActivate: [updateConcertsGuard],
+            data: {
+              breadcrumb: 'Edit',
+            },
+          },
+        ],
       },
     ]
   },
@@ -164,13 +202,6 @@ export const routes: Routes = [
     data: {
       breadcrumb: 'About',
     },
-  },
-  {
-    path: 'concerts/:id/edit',
-    loadComponent: () =>
-      import("./admin/edit-concert-page/edit-concert-page.component").then(m => m.EditConcertPageComponent),
-    title: baseTitle + 'Edit concert',
-    canActivate: [updateConcertsGuard]
   },
   {
     path: 'users',
@@ -287,20 +318,6 @@ export const routes: Routes = [
           import("./admin/setlists/edit-album-page/edit-album-page.component").then(m => m.EditAlbumPageComponent),
         title: baseTitle + 'Edit album',
         canActivate: [authGuard, manageSetlistsGuard],
-      },
-      {
-        path: 'concerts/import',
-        loadComponent: () =>
-          import("./admin/linkinpedia-concert-importer-page/linkinpedia-concert-importer-page.component").then(m => m.LinkinpediaConcertImporterPageComponent),
-        title: baseTitle + 'Import concert',
-        canActivate: [authGuard, addConcertsGuard, manageSetlistsGuard],
-      },
-      {
-        path: 'concerts/import/:concertId',
-        loadComponent: () =>
-          import("./admin/linkinpedia-concert-importer-page/linkinpedia-concert-importer-page.component").then(m => m.LinkinpediaConcertImporterPageComponent),
-        title: baseTitle + 'Import concert',
-        canActivate: [authGuard, addConcertsGuard, manageSetlistsGuard],
       },
     ]
   },
