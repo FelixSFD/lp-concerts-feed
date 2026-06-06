@@ -1,36 +1,7 @@
 import {ActivatedRouteSnapshot, CanActivateFn, RouterStateSnapshot, Routes} from '@angular/router';
-import {UserProfileComponent} from './user-profile/user-profile.component';
-import {HomeComponent} from './home/home.component';
-import {ConcertsListComponent} from './concerts-list/concerts-list.component';
-import {ConcertDetailsComponent} from './concert-details/concert-details.component';
-import {AboutPageComponent} from './components/v2/about-page/about-page.component';
-import {EditConcertPageComponent} from './admin/edit-concert-page/edit-concert-page.component';
-import {AddConcertPageComponent} from './admin/add-concert-page/add-concert-page.component';
-import {TourMapPageComponent} from './components/v2/tour-map-page/tour-map-page.component';
-import {PrivacyPolicyComponent} from './privacy-policy/privacy-policy.component';
-import {ImprintComponent} from './imprint/imprint.component';
-import {UsersListComponent} from './admin/users/users-list/users-list.component';
-import {EditUserComponent} from './admin/users/edit-user/edit-user.component';
-import {AppInfoPageComponent} from './components/v2/app-info-page/app-info-page.component';
-import {AddSetlistPageComponent} from './admin/setlists/add-setlist-page/add-setlist-page.component';
-import {ManageSetlistsPageComponent} from './components/v2/admin/setlists/manage-setlists-page/manage-setlists-page.component';
-import {EditSetlistPageComponent} from './admin/setlists/edit-setlist-page/edit-setlist-page.component';
-import {ManageMashupsPageComponent} from './components/v2/admin/setlists/manage-mashups-page/manage-mashups-page.component';
-import {AddMashupPageComponent} from './admin/setlists/add-mashup-page/add-mashup-page.component';
-import {EditMashupPageComponent} from './admin/setlists/edit-mashup-page/edit-mashup-page.component';
-import {ManageSongsPageComponent} from './components/v2/admin/setlists/manage-songs-page/manage-songs-page.component';
-import {AddSongPageComponent} from './admin/setlists/add-song-page/add-song-page.component';
-import {EditSongPageComponent} from './admin/setlists/edit-song-page/edit-song-page.component';
-import {ManageAlbumsPageComponent} from './components/v2/admin/setlists/manage-albums-page/manage-albums-page.component';
-import {AddAlbumPageComponent} from './admin/setlists/add-album-page/add-album-page.component';
-import {EditAlbumPageComponent} from './admin/setlists/edit-album-page/edit-album-page.component';
-import {SetlistAdminWrapperComponent} from './components/admin/setlist-admin-wrapper/setlist-admin-wrapper.component';
 import {inject} from '@angular/core';
 import {AuthService} from './auth/auth.service';
 import {map} from 'rxjs';
-import {
-  LinkinpediaConcertImporterPageComponent
-} from './admin/linkinpedia-concert-importer-page/linkinpedia-concert-importer-page.component';
 import {concertResolver} from './resolvers/concert-resolver';
 
 let baseTitle = "LP Concerts - ";
