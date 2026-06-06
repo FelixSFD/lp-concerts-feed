@@ -18,7 +18,7 @@ import {EditSetlistPageComponent} from './admin/setlists/edit-setlist-page/edit-
 import {ManageMashupsPageComponent} from './admin/setlists/manage-mashups-page/manage-mashups-page.component';
 import {AddMashupPageComponent} from './admin/setlists/add-mashup-page/add-mashup-page.component';
 import {EditMashupPageComponent} from './admin/setlists/edit-mashup-page/edit-mashup-page.component';
-import {ManageSongsPageComponent} from './admin/setlists/manage-songs-page/manage-songs-page.component';
+import {ManageSongsPageComponent} from './components/v2/admin/setlists/manage-songs-page/manage-songs-page.component';
 import {AddSongPageComponent} from './admin/setlists/add-song-page/add-song-page.component';
 import {EditSongPageComponent} from './admin/setlists/edit-song-page/edit-song-page.component';
 import {ManageAlbumsPageComponent} from './components/v2/admin/setlists/manage-albums-page/manage-albums-page.component';
@@ -226,7 +226,7 @@ export const routes: Routes = [
       {
         path: 'songs',
         loadComponent: () =>
-          import("./admin/setlists/manage-songs-page/manage-songs-page.component").then(m => m.ManageSongsPageComponent),
+          import("./components/v2/admin/setlists/manage-songs-page/manage-songs-page.component").then(m => m.ManageSongsPageComponent),
         title: baseTitle + 'Manage songs',
         canActivate: [authGuard, manageSetlistsGuard],
       },
