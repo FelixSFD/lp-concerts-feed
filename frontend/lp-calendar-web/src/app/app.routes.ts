@@ -92,6 +92,9 @@ export const routes: Routes = [
     loadComponent: () =>
       import("./components/v2/home-page/home-page.component").then(m => m.HomePageComponent),
     title: baseTitle + 'Overview',
+    data: {
+      breadcrumb: 'Home',
+    },
   },
   {
     path: 'privacy',
@@ -113,34 +116,54 @@ export const routes: Routes = [
   },
   {
     path: 'concerts',
-    loadComponent: () =>
-      import("./components/v2/concert-list/concert-list.component").then(m => m.ConcertListComponent),
-    title: baseTitle + 'List',
+    data: {
+      breadcrumb: 'Concerts',
+    },
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import("./components/v2/concert-list/concert-list.component").then(m => m.ConcertListComponent),
+        title: baseTitle + 'List',
+      },
+      {
+        path: 'add',
+        loadComponent: () =>
+          import("./admin/add-concert-page/add-concert-page.component").then(m => m.AddConcertPageComponent),
+        title: baseTitle + 'Add concert',
+        canActivate: [addConcertsGuard],
+        data: {
+          breadcrumb: 'Add concert',
+        },
+      },
+      {
+        path: ':id',
+        loadComponent: () =>
+          import("./components/v2/concert-details-page/concert-details-page.component").then(m => m.ConcertDetailsPageComponent),
+        title: baseTitle + 'Details',
+        data: {
+          breadcrumb: 'Concert Details',
+        },
+      },
+    ]
   },
   {
     path: 'map',
     loadComponent: () =>
       import("./components/v2/tour-map-page/tour-map-page.component").then(m => m.TourMapPageComponent),
     title: baseTitle + 'Map',
+    data: {
+      breadcrumb: 'Map',
+    },
   },
   {
     path: 'about',
     loadComponent: () =>
       import("./components/v2/about-page/about-page.component").then(m => m.AboutPageComponent),
     title: baseTitle + 'About',
-  },
-  {
-    path: 'concerts/add',
-    loadComponent: () =>
-      import("./admin/add-concert-page/add-concert-page.component").then(m => m.AddConcertPageComponent),
-    title: baseTitle + 'Add concert',
-    canActivate: [addConcertsGuard]
-  },
-  {
-    path: 'concerts/:id',
-    loadComponent: () =>
-      import("./components/v2/concert-details-page/concert-details-page.component").then(m => m.ConcertDetailsPageComponent),
-    title: baseTitle + 'Details',
+    data: {
+      breadcrumb: 'About',
+    },
   },
   {
     path: 'concerts/:id/edit',
@@ -286,5 +309,8 @@ export const routes: Routes = [
     loadComponent: () =>
       import("./components/v2/app-info-page/app-info-page.component").then(m => m.AppInfoPageComponent),
     title: baseTitle + 'iOS App',
+    data: {
+      breadcrumb: 'App'
+    }
   }
 ];

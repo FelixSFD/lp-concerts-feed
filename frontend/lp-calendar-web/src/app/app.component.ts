@@ -25,10 +25,14 @@ import {DateTime} from 'luxon';
 import {ClockService} from './services/clock.service';
 import {MainMenuComponent} from './components/v2/main-menu/main-menu.component';
 import {ScrollTop} from 'primeng/scrolltop';
+import {Breadcrumb} from 'primeng/breadcrumb';
+import {MenuItem} from 'primeng/api';
+import {routes} from './app.routes';
+import {AutoBreadcrumbsComponent} from './components/v2/auto-breadcrumbs/auto-breadcrumbs.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NgbModule, RouterLink, RouterLinkActive, AsyncPipe, NgOptimizedImage, NgStyle, MainMenuComponent, ScrollTop],
+  imports: [RouterOutlet, NgbModule, RouterLink, RouterLinkActive, AsyncPipe, NgOptimizedImage, NgStyle, MainMenuComponent, ScrollTop, Breadcrumb, AutoBreadcrumbsComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -79,7 +83,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.initCookieConsent();
 
     this.router.events.subscribe((ev) => {
-      //console.debug("Router event: ", ev);
       let currentIndex = this.progressValues.indexOf(ev.type);
       if (currentIndex > -1) {
         console.debug("Current index: ",currentIndex);
