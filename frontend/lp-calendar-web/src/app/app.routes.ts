@@ -152,7 +152,7 @@ export const routes: Routes = [
   {
     path: 'users',
     loadComponent: () =>
-      import("./admin/users/users-list/users-list.component").then(m => m.UsersListComponent),
+      import("./components/v2/admin/users/manage-users-page/manage-users-page.component").then(m => m.ManageUsersPageComponent),
     title: baseTitle + 'Manage users',
     canActivate: [authGuard, manageUsersGuard],
   },
