@@ -26,7 +26,7 @@
 
     <p-button label="Edit" icon="pi pi-pencil" severity="info" variant="outlined" [routerLink]="['./edit']" [hidden]="!canUpdateConcerts$" />
 
-    <p-split-button (click)="onAddSetlistBtnClicked()"
+    <p-split-button (onClick)="onAddSetlistBtnClicked()"
                     [hidden]="!canEditSetlists"
                     [model]="addSetlistButtonItems"
                     icon="pi pi-list"
@@ -34,7 +34,7 @@
                     outlined severity="info"
                     class="hidden md:inline-flex"
     />
-    <p-split-button (click)="onAddSetlistBtnClicked()"
+    <p-split-button (onClick)="onAddSetlistBtnClicked()"
                     [hidden]="!canEditSetlists"
                     [model]="addSetlistButtonItems"
                     icon="pi pi-list"
@@ -45,14 +45,14 @@
     <p-button-group>
       <p-button [icon]="concertBookmarks$?.currentUserStatus == 'Bookmarked' ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'"
                 [label]="String(concertBookmarks$?.bookmarked ?? 0)"
-                (click)="onBookmarkClicked()"
+                (onClick)="onBookmarkClicked()"
                 [disabled]="concertBookmarks$ == null || concertBookmarksLoading$"
                 [pTooltip]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Bookmarked ? 'Remove bookmark' : 'Bookmark this show'"
                 tooltipPosition="bottom"
                 [outlined]="concertBookmarks$?.currentUserStatus == 'Bookmarked'"/>
       <p-button [icon]="concertBookmarks$?.currentUserStatus == 'Attending' ? 'pi pi-ticket' : 'pi pi-ticket'"
                 [label]="String(concertBookmarks$?.attending ?? 0)"
-                (click)="onAttendingClicked()"
+                (onClick)="onAttendingClicked()"
                 [disabled]="concertBookmarks$ == null || concertBookmarksLoading$"
                 [pTooltip]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Attending ? 'Remove me from the show' : 'I will attend this show'"
                 tooltipPosition="bottom"
