@@ -13,67 +13,73 @@
   </p-card>
 </ng-template>
 
-<!-- Buttons for navigation bookmarks etc -->
-<div class="mb-4 flex justify-content-between">
-  <!-- Left aligned buttons -->
-  <div class="flex flex-wrap gap-2">
-    <p-button-group>
-      <p-button icon="pi pi-arrow-left" variant="outlined" [disabled]="adjacentConcertData$?.previous == null" [routerLink]="['../', adjacentConcertData$?.previous]" ariaLabel="Navigate to previous concert" />
-      <p-button icon="pi pi-arrow-right" variant="outlined" [disabled]="adjacentConcertData$?.next == null" [routerLink]="['../', adjacentConcertData$?.next]" ariaLabel="Navigate to next concert" />
-    </p-button-group>
+@if (concert$ != null) {
+  <!-- Buttons for navigation bookmarks etc -->
+  <div class="mb-4 flex justify-content-between">
+    <!-- Left aligned buttons -->
+    <div class="flex flex-wrap gap-2">
+      <p-button-group>
+        <p-button icon="pi pi-arrow-left" variant="outlined" [disabled]="adjacentConcertData$?.previous == null" [routerLink]="['../', adjacentConcertData$?.previous]" ariaLabel="Navigate to previous concert" />
+        <p-button icon="pi pi-arrow-right" variant="outlined" [disabled]="adjacentConcertData$?.next == null" [routerLink]="['../', adjacentConcertData$?.next]" ariaLabel="Navigate to next concert" />
+      </p-button-group>
 
-    <p-button label="Edit" icon="pi pi-pencil" severity="info" variant="outlined" [routerLink]="['./edit']" [hidden]="!canUpdateConcerts$" />
+      <p-button label="Edit" icon="pi pi-pencil" severity="info" variant="outlined" [routerLink]="['./edit']" [hidden]="!canUpdateConcerts$" />
 
-    <p-split-button (onClick)="onAddSetlistBtnClicked()"
-                    [hidden]="!canEditSetlists"
-                    [model]="addSetlistButtonItems"
-                    icon="pi pi-list"
-                    label="Add setlist"
-                    outlined severity="info"
-                    class="hidden md:inline-flex"
-    />
-    <p-split-button (onClick)="onAddSetlistBtnClicked()"
-                    [hidden]="!canEditSetlists"
-                    [model]="addSetlistButtonItems"
-                    icon="pi pi-list"
-                    outlined severity="info"
-                    class="inline-flex md:hidden"
-    />
+      <p-split-button (onClick)="onAddSetlistBtnClicked()"
+                      [hidden]="!canEditSetlists"
+                      [model]="addSetlistButtonItems"
+                      icon="pi pi-list"
+                      label="Add setlist"
+                      outlined severity="info"
+                      class="hidden md:inline-flex"
+      />
+      <p-split-button (onClick)="onAddSetlistBtnClicked()"
+                      [hidden]="!canEditSetlists"
+                      [model]="addSetlistButtonItems"
+                      icon="pi pi-list"
+                      outlined severity="info"
+                      class="inline-flex md:hidden"
+      />
 
-    <p-button-group>
-      <p-button [icon]="concertBookmarks$?.currentUserStatus == 'Bookmarked' ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'"
-                [label]="String(concertBookmarks$?.bookmarked ?? 0)"
-                (onClick)="onBookmarkClicked()"
-                [disabled]="concertBookmarks$ == null || concertBookmarksLoading$"
-                [pTooltip]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Bookmarked ? 'Remove bookmark' : 'Bookmark this show'"
-                tooltipPosition="bottom"
-                [outlined]="concertBookmarks$?.currentUserStatus == 'Bookmarked'"/>
-      <p-button [icon]="concertBookmarks$?.currentUserStatus == 'Attending' ? 'pi pi-ticket' : 'pi pi-ticket'"
-                [label]="String(concertBookmarks$?.attending ?? 0)"
-                (onClick)="onAttendingClicked()"
-                [disabled]="concertBookmarks$ == null || concertBookmarksLoading$"
-                [pTooltip]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Attending ? 'Remove me from the show' : 'I will attend this show'"
-                tooltipPosition="bottom"
-                [outlined]="concertBookmarks$?.currentUserStatus == 'Attending'" severity="success"/>
-    </p-button-group>
+      <p-button-group>
+        <p-button [icon]="concertBookmarks$?.currentUserStatus == 'Bookmarked' ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'"
+                  [label]="String(concertBookmarks$?.bookmarked ?? 0)"
+                  (onClick)="onBookmarkClicked()"
+                  [disabled]="concertBookmarks$ == null || concertBookmarksLoading$"
+                  [pTooltip]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Bookmarked ? 'Remove bookmark' : 'Bookmark this show'"
+                  tooltipPosition="bottom"
+                  [outlined]="concertBookmarks$?.currentUserStatus == 'Bookmarked'"/>
+        <p-button [icon]="concertBookmarks$?.currentUserStatus == 'Attending' ? 'pi pi-ticket' : 'pi pi-ticket'"
+                  [label]="String(concertBookmarks$?.attending ?? 0)"
+                  (onClick)="onAttendingClicked()"
+                  [disabled]="concertBookmarks$ == null || concertBookmarksLoading$"
+                  [pTooltip]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Attending ? 'Remove me from the show' : 'I will attend this show'"
+                  tooltipPosition="bottom"
+                  [outlined]="concertBookmarks$?.currentUserStatus == 'Attending'" severity="success"/>
+      </p-button-group>
+    </div>
+
+    <!-- right aligned buttons -->
+    <div>
+      <p-button [hidden]="!canUpdateConcerts$" (onClick)="openLinkinpediaClicked()" icon="pi pi-external-link" label="Open Linkinpedia"
+                pTooltip="Find more details on Linkinpedia" severity="info" tooltipPosition="bottom"
+                variant="outlined"
+                class="hidden xl:inline-flex"
+      />
+      <p-button [hidden]="!canUpdateConcerts$" [routerLink]="['./edit']" icon="pi pi-external-link"
+                pTooltip="Find more details on Linkinpedia" severity="info" tooltipPosition="bottom"
+                variant="outlined"
+                class="inline-flex xl:hidden"
+      />
+    </div>
   </div>
+}
 
-  <!-- right aligned buttons -->
-  <div>
-    <p-button [hidden]="!canUpdateConcerts$" (onClick)="openLinkinpediaClicked()" icon="pi pi-external-link" label="Open Linkinpedia"
-              pTooltip="Find more details on Linkinpedia" severity="info" tooltipPosition="bottom"
-              variant="outlined"
-              class="hidden xl:inline-flex"
-    />
-    <p-button [hidden]="!canUpdateConcerts$" [routerLink]="['./edit']" icon="pi pi-external-link"
-              pTooltip="Find more details on Linkinpedia" severity="info" tooltipPosition="bottom"
-              variant="outlined"
-              class="inline-flex xl:hidden"
-    />
-  </div>
-</div>
-
-@if (concert$ == null) {
+@if (resolverError$ != null) {
+  <p-message severity="error">
+    <h3>{{ resolverError$.message }}</h3>
+  </p-message>
+} @else if (concert$ == null) {
   <div style="text-align: center">
     <p-progress-spinner strokeWidth="8" fill="transparent" animationDuration=".5s" [style]="{ width: '50px', height: '50px' }" />
     <h2>Loading concert details...</h2>

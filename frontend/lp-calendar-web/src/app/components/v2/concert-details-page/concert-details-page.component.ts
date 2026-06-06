@@ -6,7 +6,8 @@ import {
   AdjacentConcertsResponseDto,
   ConcertBookmarkUpdateRequestDto,
   ConcertDto,
-  ErrorResponseDto, GetConcertBookmarkCountsResponseDto
+  ErrorResponseDto,
+  GetConcertBookmarkCountsResponseDto
 } from '../../../modules/lpshows-api';
 import {load, MapKit} from '@apple/mapkit-loader';
 import {Map as AppleMap} from 'apple-mapkit/mapkit';
@@ -21,24 +22,24 @@ import {DateTime} from 'luxon';
 import {environment} from '../../../../environments/environment';
 import {ConcertTitleGenerator} from '../../../data/concert-title-generator';
 import {ConcertBadgesComponent} from '../concert-badges/concert-badges.component';
-import {ScrollTop} from 'primeng/scrolltop';
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {Card} from 'primeng/card';
 import {SplitButton} from 'primeng/splitbutton';
 import {NgTemplateOutlet} from '@angular/common';
 import {Button} from 'primeng/button';
 import {ButtonGroup} from 'primeng/buttongroup';
-import {MenuItem} from 'primeng/api';
+import {MenuItem, MessageService} from 'primeng/api';
 import {FormsModule} from '@angular/forms';
 import {Tooltip} from 'primeng/tooltip';
 import {TimeSpanPipe} from '../../../data/time-span-pipe';
 import {CountdownComponent} from '../countdown/countdown.component';
+import {CommandError} from '@angular/cli/src/commands/mcp/host';
+import {Message} from 'primeng/message';
 
 @Component({
   selector: 'app-concert-details-page',
   imports: [
     ConcertBadgesComponent,
-    ScrollTop,
     ProgressSpinner,
     Card,
     SplitButton,
@@ -50,7 +51,8 @@ import {CountdownComponent} from '../countdown/countdown.component';
     Tooltip,
     TimeSpanPipe,
     CountdownComponent,
-    CountdownComponent
+    CountdownComponent,
+    Message
   ],
   templateUrl: './concert-details-page.component.html',
   styleUrl: './concert-details-page.component.css',
@@ -59,8 +61,10 @@ export class ConcertDetailsPageComponent {
   private readonly authService = inject(AuthService);
   private readonly toastr = inject(ToastrService);
   private readonly router = inject(Router);
+  private readonly messageService = inject(MessageService);
   tracker = inject(MatomoTracker);
 
+  resolverError$: CommandError | null = null;
   concert$: ConcertDto | null = null;
   adjacentConcertData$: AdjacentConcertsResponseDto | null = null;
   concertBookmarks$: GetConcertBookmarkCountsResponseDto | null = null;
@@ -88,8 +92,6 @@ export class ConcertDetailsPageComponent {
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
-      this.loadDataForId(params['id']);
-
       this.addSetlistButtonItems = [
         {
           label: "Add new setlist",
@@ -100,6 +102,24 @@ export class ConcertDetailsPageComponent {
           routerLink: ['./import']
         }
       ];
+    });
+
+    this.route.data.subscribe(data => {
+      console.debug("Resolved data:", data);
+
+      if (data['concert'] instanceof CommandError) {
+        this.resolverError$ = data['concert'];
+
+        return;
+      }
+
+      this.concert$ = data['concert'];
+      this.loadAdjacentConcerts();
+      this.loadBookmarkStatus();
+
+      if (this.concert$ != null) {
+        this.updateMetaInfo(this.concert$);
+      }
     });
 
     this.authService.canUpdateConcerts.subscribe(hasPermission => {
@@ -223,17 +243,29 @@ export class ConcertDetailsPageComponent {
 
 
   private loadBookmarkStatus() {
-    if (this.concertId == undefined) {
-      return;
+    let id = this.concert$?.id;
+    if (id) {
+      this.concertsService.getBookmarksForConcert(id)
+        .subscribe(bookmarkStatus => {
+          if (bookmarkStatus != undefined) {
+            this.concertBookmarksLoading$ = false;
+            this.concertBookmarks$ = bookmarkStatus;
+          }
+        });
     }
+  }
 
-    this.concertsService.getBookmarksForConcert(this.concertId)
-      .subscribe(bookmarkStatus => {
-        if (bookmarkStatus != undefined) {
-          this.concertBookmarksLoading$ = false;
-          this.concertBookmarks$ = bookmarkStatus;
-        }
-      });
+
+  private loadAdjacentConcerts() {
+    let id = this.concert$?.id;
+    if (id) {
+      this.concertsService.getAdjacentConcerts(id)
+        .subscribe(adjacentConcerts => {
+          if (adjacentConcerts != undefined) {
+            this.adjacentConcertData$ = adjacentConcerts;
+          }
+        });
+    }
   }
 
 
@@ -252,12 +284,7 @@ export class ConcertDetailsPageComponent {
     this.concert$ = null;
     this.setlists$ = [];
 
-    this.concertsService.getAdjacentConcerts(this.concertId)
-      .subscribe(adjacentConcerts => {
-        if (adjacentConcerts != undefined) {
-          this.adjacentConcertData$ = adjacentConcerts;
-        }
-      });
+    this.loadAdjacentConcerts();
 
     this.loadBookmarkStatus();
 
@@ -289,20 +316,6 @@ export class ConcertDetailsPageComponent {
 
         return this.concert$ = result;
       });
-
-    // load setlist
-    /*this.setlistService
-      .getSetlistsForConcert(this.concertId)
-      .subscribe({
-        next: result => {
-          this.setlists$ = result.map(s => Setlist.fromDto(s));
-        },
-        error: err => {
-          // TODO: 404 probably needs silent handling
-          let errorResponse: ErrorResponseDto = err.error;
-          this.toastr.error(errorResponse.message, "Could not load setlist");
-        }
-      })*/
   }
 
 
@@ -346,6 +359,15 @@ export class ConcertDetailsPageComponent {
 
 
   private updateMetaInfo(concert: ConcertDto) {
+    let concertDateTitleExtension = "";
+    if (concert.postedStartTime != undefined) {
+      let concertDate = new Date(concert.postedStartTime);
+      concertDateTitleExtension = " - " + concertDate.toLocaleDateString();
+    }
+
+    let titleInfo = concert.city + ", " + concert.country + concertDateTitleExtension;
+    window.document.title = window.document.title.replace("Details", titleInfo);
+
     let pageTitle = "";
     let description = "";
 

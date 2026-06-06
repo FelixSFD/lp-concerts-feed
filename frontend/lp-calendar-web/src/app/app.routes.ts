@@ -31,6 +31,7 @@ import {map} from 'rxjs';
 import {
   LinkinpediaConcertImporterPageComponent
 } from './admin/linkinpedia-concert-importer-page/linkinpedia-concert-importer-page.component';
+import {concertResolver} from './resolvers/concert-resolver';
 
 let baseTitle = "LP Concerts - ";
 
@@ -150,6 +151,9 @@ export const routes: Routes = [
         path: ':id',
         data: {
           breadcrumb: 'Concert Details',
+        },
+        resolve: {
+          concert: concertResolver,
         },
         children: [
           {

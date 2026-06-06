@@ -74,6 +74,7 @@ export class AppComponent implements OnInit, OnDestroy {
     EventType.GuardsCheckStart,
     EventType.GuardsCheckEnd,
     EventType.ResolveStart,
+    EventType.ResolveEnd,
     EventType.RouteConfigLoadStart,
     EventType.RouteConfigLoadEnd,
     EventType.NavigationEnd,
