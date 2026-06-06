@@ -1,5 +1,7 @@
-<button class="btn btn-outline-secondary mb-2" [routerLink]="['../']"><i class="bi bi-arrow-left"></i> Users list</button>
-
 <h1>Edit user</h1>
 
-<app-user-form [user]="user$" [is-saving]="userIsSaving$" (saveClicked)="onFormSaved($event)" />
+@if (resolverError$ != null) {
+  <p-message severity="error">{{ resolverError$.message }}</p-message>
+} @else {
+  <app-user-form [user]="user$" [is-saving]="userIsSaving$" (saveClicked)="onFormSaved($event)" />
+}

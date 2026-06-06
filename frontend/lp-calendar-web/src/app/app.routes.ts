@@ -3,6 +3,7 @@ import {inject} from '@angular/core';
 import {AuthService} from './auth/auth.service';
 import {map} from 'rxjs';
 import {concertResolver} from './resolvers/concert-resolver';
+import {userResolver} from './resolvers/user-resolver';
 
 let baseTitle = "LP Concerts - ";
 
@@ -180,17 +181,34 @@ export const routes: Routes = [
   },
   {
     path: 'users',
-    loadComponent: () =>
-      import("./components/v2/admin/users/manage-users-page/manage-users-page.component").then(m => m.ManageUsersPageComponent),
-    title: baseTitle + 'Manage users',
+    data: {
+      breadcrumb: 'Users',
+    },
     canActivate: [authGuard, manageUsersGuard],
-  },
-  {
-    path: 'users/:id',
-    loadComponent: () =>
-      import("./admin/users/edit-user/edit-user.component").then(m => m.EditUserComponent),
-    title: baseTitle + 'Edit user',
-    canActivate: [authGuard, manageUsersGuard],
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import("./components/v2/admin/users/manage-users-page/manage-users-page.component").then(m => m.ManageUsersPageComponent),
+        title: baseTitle + 'Manage users',
+        data: {
+          breadcrumb: 'Users',
+        },
+      },
+      {
+        path: ':id',
+        loadComponent: () =>
+          import("./admin/users/edit-user/edit-user.component").then(m => m.EditUserComponent),
+        title: baseTitle + 'Edit user',
+        canActivate: [authGuard, manageUsersGuard],
+        data: {
+          breadcrumb: 'Edit',
+        },
+        resolve: {
+          user: userResolver,
+        },
+      },
+    ],
   },
   {
     path: 'admin',
