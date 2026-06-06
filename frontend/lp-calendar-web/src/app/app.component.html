@@ -1,9 +1,9 @@
 <div>
   <div class="sticky-top">
     <app-main-menu [clock]="currentDateTime$" [isLoggedIn]="isAuthenticated$" />
-  <div [class]="(routerProgress == 1 ? 'progress hidden' : 'progress')" style="height: 2px">
-    <div class="progress-bar" [ngStyle]="{ 'width': (routerProgress * 100) + '%' }" role="progressbar" aria-valuenow="{{ routerProgress * 100 }}" aria-valuemin="0" aria-valuemax="100"></div>
-  </div>
+    <div [class]="(routerProgress == 1 ? 'progress-hidden mx-3' : 'progress-visible mx-3')">
+      <p-progress-bar [value]="routerProgress * 100" class="mx-3" style="height: 2px" showValue="false" role="progressbar"  />
+    </div>
   </div>
 
   <div class="grid justify-content-center m-0">

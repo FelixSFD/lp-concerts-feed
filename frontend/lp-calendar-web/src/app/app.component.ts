@@ -3,12 +3,10 @@ import {
   EventType,
   Router,
   RouterLink,
-  RouterLinkActive,
   RouterOutlet
 } from '@angular/router';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
-import {AsyncPipe, NgOptimizedImage, NgStyle} from '@angular/common';
 import {environment} from '../environments/environment';
 import {
   NgcCookieConsentService,
@@ -25,14 +23,12 @@ import {DateTime} from 'luxon';
 import {ClockService} from './services/clock.service';
 import {MainMenuComponent} from './components/v2/main-menu/main-menu.component';
 import {ScrollTop} from 'primeng/scrolltop';
-import {Breadcrumb} from 'primeng/breadcrumb';
-import {MenuItem} from 'primeng/api';
-import {routes} from './app.routes';
 import {AutoBreadcrumbsComponent} from './components/v2/auto-breadcrumbs/auto-breadcrumbs.component';
+import {ProgressBar} from 'primeng/progressbar';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NgbModule, RouterLink, RouterLinkActive, AsyncPipe, NgOptimizedImage, NgStyle, MainMenuComponent, ScrollTop, Breadcrumb, AutoBreadcrumbsComponent],
+  imports: [RouterOutlet, NgbModule, RouterLink, MainMenuComponent, ScrollTop, AutoBreadcrumbsComponent, ProgressBar],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
