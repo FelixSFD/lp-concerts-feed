@@ -5,7 +5,7 @@ import {MatomoTracker} from 'ngx-matomo-client';
 import {
   AdjacentConcertsResponseDto,
   ConcertBookmarkUpdateRequestDto,
-  ConcertDto,
+  ConcertDto, ConcertWithSetlistsDto,
   ErrorResponseDto,
   GetConcertBookmarkCountsResponseDto
 } from '../../../modules/lpshows-api';
@@ -34,6 +34,9 @@ import {Tooltip} from 'primeng/tooltip';
 import {TimeSpanPipe} from '../../../data/time-span-pipe';
 import {CountdownComponent} from '../countdown/countdown.component';
 import {Message} from 'primeng/message';
+import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {SetlistComponent} from '../../../setlists/setlist/setlist.component';
+import {Tag} from 'primeng/tag';
 
 @Component({
   selector: 'app-concert-details-page',
@@ -51,7 +54,10 @@ import {Message} from 'primeng/message';
     TimeSpanPipe,
     CountdownComponent,
     CountdownComponent,
-    Message
+    Message,
+    NgbTooltip,
+    SetlistComponent,
+    Tag
   ],
   templateUrl: './concert-details-page.component.html',
   styleUrl: './concert-details-page.component.css',
@@ -113,13 +119,17 @@ export class ConcertDetailsPageComponent implements OnInit {
         return;
       }
 
-      this.concert$ = data['concert'];
+      let concert = data['concert'] as ConcertWithSetlistsDto;
       this.loadAdjacentConcerts();
       this.loadBookmarkStatus();
 
       if (this.concert$ != null) {
         this.updateMetaInfo(this.concert$);
       }
+
+      this.concert$ = concert;
+      this.setlists$ = concert?.cachedSetlists?.map(s => Setlist.fromDto(s)) ?? [];
+      this.setlistsCacheUpdatedAt$ = concert?.cachedSetlistsAt != null ? this.getDateTime(concert?.cachedSetlistsAt) : null;
     });
 
     this.authService.canUpdateConcerts.subscribe(hasPermission => {

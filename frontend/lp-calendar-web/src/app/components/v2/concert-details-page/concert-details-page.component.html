@@ -102,6 +102,30 @@
   </p>
 
   <div class="grid mt-3">
+    @if (setlists$?.length ?? 0 > 0) {
+      <div class="col-12">
+        @for (setlist of setlists$; track setlist) {
+          <div class="mt-4 w-100">
+            <p-card>
+              <ng-template #header>
+                <div class="ps-3 py-2 border-round-top surface-300">
+                  <p-tag value="BETA" severity="success" pTooltip="This is an early version of this feature and might not work perfectly" tooltipPosition="top" /> Setlist: {{ setlist.setName }}
+                </div>
+              </ng-template>
+
+              <app-setlist [setlist]="setlist" />
+
+              @if (setlistsCacheUpdatedAt$ != null) {
+                <div class="mt-2">
+                  <small>Last updated: {{ setlistsCacheUpdatedAt$?.toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS) }}</small>
+                </div>
+              }
+            </p-card>
+          </div>
+        }
+      </div>
+    }
+
     @if (concert$?.mainStageTime != undefined) {
       <div class="time-card col-12 sm:col-6 md:col-4 lg:col-2 xl:col-2">
         <ng-container
