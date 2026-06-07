@@ -24,7 +24,7 @@ import {ToastrService} from 'ngx-toastr';
 import {HttpErrorResponse} from '@angular/common/http';
 import {load, MapKit, Map as AppleMap} from '@apple/mapkit-loader';
 import {SetlistsService} from '../services/setlists.service';
-import {SetlistComponent} from '../setlists/setlist/setlist.component';
+import {SetlistComponent} from '../components/v2/setlists/setlist/setlist.component';
 import {Setlist} from '../data/setlists/setlist';
 
 @Component({

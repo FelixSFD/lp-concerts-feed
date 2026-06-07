@@ -1,22 +1,23 @@
 import {Component, inject, Input, OnInit} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {SetlistsService} from '../../services/setlists.service';
+import {SetlistsService} from '../../../../services/setlists.service';
 import {ToastrService} from 'ngx-toastr';
-import {ErrorResponseDto} from '../../modules/lpshows-api';
-import {Setlist} from '../../data/setlists/setlist';
-import {SetlistEntry} from '../../data/setlists/setlist-entry';
-import { SetlistActWithEntries } from "../../data/setlists/setlist-act";
-import {SetlistEntryIconsComponent} from '../../admin/setlists/setlist-entry-icons/setlist-entry-icons.component';
-import {SetlistAlbumChartComponent} from '../setlist-album-chart/setlist-album-chart.component';
+import {ErrorResponseDto} from '../../../../modules/lpshows-api';
+import {Setlist} from '../../../../data/setlists/setlist';
+import {SetlistEntry} from '../../../../data/setlists/setlist-entry';
+import { SetlistActWithEntries } from "../../../../data/setlists/setlist-act";
+import {SetlistEntryIconsComponent} from '../../../../admin/setlists/setlist-entry-icons/setlist-entry-icons.component';
+import {SetlistAlbumChartComponent} from '../../../../setlists/setlist-album-chart/setlist-album-chart.component';
 import {MatomoTracker} from 'ngx-matomo-client';
 import {ViewportScroller} from '@angular/common';
-import {AppleMusicService} from '../../services/music/apple-music.service';
+import {AppleMusicService} from '../../../../services/music/apple-music.service';
 import Artwork = MusicKit.Artwork;
-import {AppleMusicArtworkComponent} from '../../components/music/apple-music-artwork/apple-music-artwork.component';
+import {AppleMusicArtworkComponent} from '../../../music/apple-music-artwork/apple-music-artwork.component';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {
   SetlistEntrySongExtraListComponent
-} from '../../admin/setlists/setlist-entry-song-extra-list/setlist-entry-song-extra-list.component';
+} from '../../../../admin/setlists/setlist-entry-song-extra-list/setlist-entry-song-extra-list.component';
+import {TableModule} from 'primeng/table';
 
 @Component({
   selector: 'app-setlist',
@@ -27,7 +28,8 @@ import {
     SetlistAlbumChartComponent,
     AppleMusicArtworkComponent,
     NgbTooltip,
-    SetlistEntrySongExtraListComponent
+    SetlistEntrySongExtraListComponent,
+    TableModule
   ],
   templateUrl: './setlist.component.html',
   styleUrl: './setlist.component.css',
@@ -132,4 +134,6 @@ export class SetlistComponent implements OnInit {
   ): item is SetlistActWithEntries {
     return (item as SetlistActWithEntries).entries !== undefined;
   }
+
+  protected readonly JSON = JSON;
 }

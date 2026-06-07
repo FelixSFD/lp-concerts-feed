@@ -35,7 +35,7 @@ import {TimeSpanPipe} from '../../../data/time-span-pipe';
 import {CountdownComponent} from '../countdown/countdown.component';
 import {Message} from 'primeng/message';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {SetlistComponent} from '../../../setlists/setlist/setlist.component';
+import {SetlistComponent} from '../setlists/setlist/setlist.component';
 import {Tag} from 'primeng/tag';
 
 @Component({
