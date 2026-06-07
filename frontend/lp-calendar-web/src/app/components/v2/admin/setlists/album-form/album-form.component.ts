@@ -1,23 +1,33 @@
-import {Component, EventEmitter, inject, Input, Output, TemplateRef} from '@angular/core';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {ToastrService} from 'ngx-toastr';
+import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {AlbumDto} from '../../../modules/lpshows-api';
-import {NgClass} from '@angular/common';
+import {AlbumDto} from '../../../../../modules/lpshows-api';
+import {InputText} from 'primeng/inputtext';
+import {Card} from 'primeng/card';
+import {FloatLabel} from 'primeng/floatlabel';
+import {InputGroupAddon} from 'primeng/inputgroupaddon';
+import {InputGroup} from 'primeng/inputgroup';
+import {Button} from 'primeng/button';
+import {Divider} from 'primeng/divider';
+import {MessageService} from 'primeng/api';
 
 @Component({
   selector: 'app-album-form',
   imports: [
     FormsModule,
     ReactiveFormsModule,
-    NgClass
+    InputText,
+    Card,
+    FloatLabel,
+    InputGroupAddon,
+    InputGroup,
+    Button,
+    Divider
   ],
   templateUrl: './album-form.component.html',
   styleUrl: './album-form.component.css',
 })
 export class AlbumFormComponent {
-  private modalService = inject(NgbModal);
-  private toastr = inject(ToastrService);
+  private messageService = inject(MessageService);
   private formBuilder = inject(FormBuilder);
 
   @Input("is-saving")
@@ -30,11 +40,6 @@ export class AlbumFormComponent {
     title: new FormControl('', [Validators.required]),
     linkinpediaUrl: new FormControl('', [Validators.pattern(/^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/)]),
   });
-
-  openModal(content: TemplateRef<any>) {
-    return this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
-  }
-
 
   openLinkinpediaUrlClicked() {
     let url = this.albumForm.value.linkinpediaUrl?.valueOf();
@@ -59,7 +64,7 @@ export class AlbumFormComponent {
     let linkinpediaUrl = this.albumForm.value.linkinpediaUrl?.valueOf();
 
     if (title == undefined) {
-      this.toastr.error("Title is required");
+      this.messageService.add({severity: 'error', summary: 'Please enter a valid title.'});
       return null;
     }
 

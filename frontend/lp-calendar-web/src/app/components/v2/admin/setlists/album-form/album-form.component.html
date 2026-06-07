@@ -1,0 +1,31 @@
+<form #form="ngForm" [formGroup]="albumForm" class="form">
+  <p-card class="mt-3">
+    <div class="grid gap-2">
+      <div class="col-12">
+        <p-floatlabel variant="on">
+          <input pInputText id="title" formControlName="title" autocomplete="off" fluid [invalid]="albumForm.controls.title.invalid" />
+          <label for="title">Title</label>
+        </p-floatlabel>
+      </div>
+
+      <div class="col-12">
+        <p-inputgroup>
+          <p-floatlabel variant="on">
+            <input pInputText id="linkinpediaUrl" formControlName="linkinpediaUrl" [invalid]="albumForm.controls.linkinpediaUrl.invalid" />
+            <label for="linkinpediaUrl">Linkinpedia URL</label>
+          </p-floatlabel>
+          <p-inputgroup-addon>
+            <p-button icon="pi pi-external-link" label="Open" severity="info" variant="outlined" [disabled]="albumForm.controls.linkinpediaUrl.invalid" (onClick)="openLinkinpediaUrlClicked()" />
+          </p-inputgroup-addon>
+        </p-inputgroup>
+      </div>
+    </div>
+
+    <ng-template #footer>
+      <p-divider />
+      <div class="flex gap-4 mt-1 align-content-end justify-content-end">
+        <p-button [label]="isSaving$ ? 'Saving...' : 'Save'" [loading]="isSaving$" (onClick)="onSaveClicked()" [disabled]="isSaving$ || !albumForm.valid" />
+      </div>
+    </ng-template>
+  </p-card>
+</form>
