@@ -5,6 +5,7 @@ import {map} from 'rxjs';
 import {concertResolver} from './resolvers/concert-resolver';
 import {userResolver} from './resolvers/user-resolver';
 import {albumResolver} from './resolvers/album-resolver';
+import {songResolver} from './resolvers/song-resolver';
 
 let baseTitle = "LP Concerts - ";
 
@@ -281,16 +282,19 @@ export const routes: Routes = [
       {
         path: 'songs/add',
         loadComponent: () =>
-          import("./admin/setlists/add-song-page/add-song-page.component").then(m => m.AddSongPageComponent),
+          import("./components/v2/admin/setlists/add-song-page/add-song-page.component").then(m => m.AddSongPageComponent),
         title: baseTitle + 'Add song',
         canActivate: [authGuard, manageSetlistsGuard],
       },
       {
         path: 'songs/:songId',
         loadComponent: () =>
-          import("./admin/setlists/edit-song-page/edit-song-page.component").then(m => m.EditSongPageComponent),
+          import("./components/v2/admin/setlists/edit-song-page/edit-song-page.component").then(m => m.EditSongPageComponent),
         title: baseTitle + 'Edit song',
         canActivate: [authGuard, manageSetlistsGuard],
+        resolve: {
+          song: songResolver,
+        },
       },
       {
         path: 'albums',

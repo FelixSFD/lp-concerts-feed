@@ -1,0 +1,9 @@
+<p-card>
+  <ng-template #title>
+    <h1>Add a new song</h1>
+  </ng-template>
+
+  <p-button severity="secondary" variant="outlined" icon="pi pi-arrow-left" label="Song list" [routerLink]="['../']" />
+
+  <app-song-form (saveClicked)="onSaveClicked($event)" [is-saving]="isAdding$" />
+</p-card>

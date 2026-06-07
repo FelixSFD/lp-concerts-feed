@@ -1,12 +1,20 @@
-import {Component, EventEmitter, inject, Input, OnInit, Output, TemplateRef} from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnInit, Output, signal, TemplateRef} from '@angular/core';
 import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {ToastrService} from 'ngx-toastr';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {AlbumDto, ErrorResponseDto, SongDto} from '../../../modules/lpshows-api';
+import {AlbumDto, ErrorResponseDto, SongDto} from '../../../../../modules/lpshows-api';
 import {NgClass, NgTemplateOutlet} from '@angular/common';
-import {AlbumsService} from '../../../services/music/albums.service';
-import {AppleMusicService} from '../../../services/music/apple-music.service';
-import {AppleMusicSong} from '../../../data/music/apple/apple-music-song';
+import {AlbumsService} from '../../../../../services/music/albums.service';
+import {AppleMusicService} from '../../../../../services/music/apple-music.service';
+import {AppleMusicSong} from '../../../../../data/music/apple/apple-music-song';
+import {Button} from 'primeng/button';
+import {Card} from 'primeng/card';
+import {Divider} from 'primeng/divider';
+import {FloatLabel} from 'primeng/floatlabel';
+import {InputGroup} from 'primeng/inputgroup';
+import {InputGroupAddon} from 'primeng/inputgroupaddon';
+import {InputText} from 'primeng/inputtext';
+import {Select} from 'primeng/select';
 
 @Component({
   selector: 'app-song-form',
@@ -15,7 +23,15 @@ import {AppleMusicSong} from '../../../data/music/apple/apple-music-song';
     ReactiveFormsModule,
     NgClass,
     NgbTooltip,
-    NgTemplateOutlet
+    NgTemplateOutlet,
+    Button,
+    Card,
+    Divider,
+    FloatLabel,
+    InputGroup,
+    InputGroupAddon,
+    InputText,
+    Select
   ],
   templateUrl: './song-form.component.html',
   styleUrl: './song-form.component.css',
@@ -47,6 +63,8 @@ export class SongFormComponent implements OnInit {
     linkinpediaUrl: new FormControl('', [Validators.pattern(/^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/)]),
   });
 
+  selectedAppleMusicSong$ = signal<AppleMusicSong | null>(null);
+
   availableAlbums$: AlbumDto[] = [];
   appleMusicSongsForIsrc$: AppleMusicSong[] = [];
 
@@ -64,11 +82,7 @@ export class SongFormComponent implements OnInit {
 
     this.songForm.controls.isrc.valueChanges.subscribe(isrc => {
       this.onIsrcChanged(isrc);
-    })
-  }
-
-  openModal(content: TemplateRef<any>) {
-    return this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
+    });
   }
 
 
