@@ -18,6 +18,8 @@ import {
   SetlistEntrySongExtraListComponent
 } from '../../../../admin/setlists/setlist-entry-song-extra-list/setlist-entry-song-extra-list.component';
 import {TableModule} from 'primeng/table';
+import {Tooltip} from 'primeng/tooltip';
+import {Button} from 'primeng/button';
 
 @Component({
   selector: 'app-setlist',
@@ -29,7 +31,9 @@ import {TableModule} from 'primeng/table';
     AppleMusicArtworkComponent,
     NgbTooltip,
     SetlistEntrySongExtraListComponent,
-    TableModule
+    TableModule,
+    Tooltip,
+    Button
   ],
   templateUrl: './setlist.component.html',
   styleUrl: './setlist.component.css',

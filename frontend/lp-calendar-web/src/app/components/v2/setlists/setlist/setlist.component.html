@@ -24,26 +24,26 @@
       </ng-template>
 
       <ng-template #body let-entry let-rowIndex="rowIndex">
-        <tr [class]="entry.isWorldPremiere ? 'table-warning' : (entry.isLivePremiere ? 'table-success' : '')">
+        <tr [class]="entry.isWorldPremiere ? 'bg-warning-subtle' : (entry.isLivePremiere ? 'bg-success-subtle' : '')">
           <td class="ps-4">&nbsp;&nbsp;{{ entry.songNumber == 0 ? "" : `${entry.songNumber}.` }}</td>
           <td><app-setlist-entry-icons [record-tape]="entry.isPlayedFromRecording" /></td>
           <td>
             @if (entry.appleMusicId != null && songArtworks$.get(entry.appleMusicId) != null) {
-              <app-apple-music-artwork [artwork]="songArtworks$.get(entry.appleMusicId)!" [width]="25" ngbTooltip="{{ entry.albumTitle }}" />
+              <app-apple-music-artwork [artwork]="songArtworks$.get(entry.appleMusicId)!" [width]="25" [pTooltip]="entry.albumTitle" tooltipPosition="top" />
             }
           </td>
-          @if ("linkinpediaUrl" in entry && entry.linkinpediaUrl) {
-            <td class="ps-4 text-nowrap">
+          <td class="ps-4 white-space-nowrap vertical-align-middle">
+            @if ("linkinpediaUrl" in entry && entry.linkinpediaUrl) {
               <a [href]="entry.linkinpediaUrl" target="_blank" class="link-info">{{ entry.title }}</a> <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" [live-premiere]="entry.isLivePremiere" />
-              <app-setlist-entry-song-extra-list [extras]="entry.songExtras" />
-            </td>
-          } @else {
-            <td class="ps-4 text-nowrap">
+            } @else {
               {{ entry.title }} <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" [live-premiere]="entry.isLivePremiere" />
+            }
+
+            @if (entry.songExtras) {
               <app-setlist-entry-song-extra-list [extras]="entry.songExtras" />
-            </td>
-          }
-          <td class="ps-4 text-nowrap small" style="font-style: italic">{{ entry.extraNotes }}</td>
+            }
+          </td>
+          <td class="ps-4 white-space-nowrap small" style="font-style: italic">{{ entry.extraNotes }}</td>
         </tr>
       </ng-template>
     </p-table>
@@ -62,12 +62,5 @@
 </div>
 
 <div class="text-center mt-2">
-  <button class="btn btn-outline-primary btn-sm"
-          (click)="onToggleExpendedClicked()">
-    @if (!isExpanded$) {
-      <i class="bi bi-plus-circle"></i> Show full setlist
-    } @else {
-      <i class="bi bi-dash-circle"></i> Hide setlist
-    }
-  </button>
+  <p-button size="small" variant="outlined" [icon]="isExpanded$ ? 'pi pi-minus-circle' : 'pi pi-plus-circle'" [label]="isExpanded$ ? 'Hide setlist' : 'Show full setlist'" (onClick)="onToggleExpendedClicked()" />
 </div>
