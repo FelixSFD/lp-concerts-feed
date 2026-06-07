@@ -10,6 +10,8 @@ import {Select} from 'primeng/select';
 import {DatePicker} from 'primeng/datepicker';
 import {TourConfig} from '../../../data/tour-config';
 import {Card} from 'primeng/card';
+import {ActivatedRoute, NavigationEnd, NavigationExtras, Router} from '@angular/router';
+import {isValidDate} from 'rxjs/internal/util/isDate';
 
 @Component({
   selector: 'app-concert-filter',
@@ -27,6 +29,8 @@ import {Card} from 'primeng/card';
 })
 export class ConcertFilterComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
+  private router = inject(Router);
+  private activatedRoute = inject(ActivatedRoute);
 
   filterForm = this.formBuilder.group({
     tourName: new FormControl<TourConfig | null>(null, []),
@@ -56,6 +60,29 @@ export class ConcertFilterComponent implements OnInit {
 
   ngOnInit() {
     this.setDefaultFilters();
+    const queryParams = this.activatedRoute.snapshot.queryParams;
+    console.debug("Query params: ", queryParams);
+    if (queryParams["tour"] !== undefined) {
+      console.debug("Query includes tour name: ", queryParams["tour"]);
+      let foundTour = this.availableTours$.find(t => t.value == queryParams['tour'])
+      console.log(foundTour);
+      this.filterForm.controls.tourName.setValue(foundTour ?? null);
+    }
+
+    let dateFrom = DateTime.fromISO(queryParams["dateFrom"]).toJSDate();
+    if (isValidDate(dateFrom)) {
+      console.debug("Query includes dateFrom: ", dateFrom);
+      this.filterForm.controls.dateFrom.setValue(dateFrom ?? null);
+    }
+
+    let dateTo = DateTime.fromISO(queryParams["dateTo"]).toJSDate();
+    if (isValidDate(dateTo)) {
+      console.debug("Query includes dateTo: ", dateTo);
+      this.filterForm.controls.dateTo.setValue(dateTo ?? null);
+    }
+
+    // send first filter event
+    this.onFiltersChanged();
 
     this.filterForm.controls.dateFrom.valueChanges.subscribe({
       next: value => {
@@ -82,11 +109,27 @@ export class ConcertFilterComponent implements OnInit {
     let filter = this.readFilterFromForm();
     this.applyClicked.emit(filter);
     this.calculateActiveFilterCount();
+    this.setFiltersToUrl(filter);
   }
 
   onClearButtonClicked() {
     this.setDefaultFilters();
     this.onFiltersChanged();
+  }
+
+
+  private setFiltersToUrl(filter: ConcertFilter) {
+    const extras: NavigationExtras = {
+      relativeTo: this.activatedRoute,
+      queryParams: {
+        dateFrom: filter.dateFrom?.toISODate() ?? null,
+        dateTo: filter.dateTo?.toISODate() ?? null,
+        tour: filter.tour ?? null,
+      },
+      queryParamsHandling: 'merge'
+    };
+
+    this.router.navigate([], extras).then(() => { /* continue here */ });
   }
 
 
