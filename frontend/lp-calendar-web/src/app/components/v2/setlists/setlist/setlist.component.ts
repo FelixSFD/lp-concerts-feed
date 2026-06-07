@@ -17,6 +17,8 @@ import {TableModule} from 'primeng/table';
 import {Tooltip} from 'primeng/tooltip';
 import {Button} from 'primeng/button';
 import {MessageService} from 'primeng/api';
+import {SetlistAct} from '../../../../data/setlists/setlist-act';
+import {SetlistEntry} from '../../../../data/setlists/setlist-entry';
 
 @Component({
   selector: 'app-setlist',
@@ -129,4 +131,10 @@ export class SetlistComponent implements OnInit {
       this.tracker.trackEvent("setlist", "expand_view", this.setlistTitle$);
     }
   }
+
+  getActForEntry(setlist: Setlist | undefined | null, firstEntry: SetlistEntry): SetlistAct | null {
+    return setlist?.acts?.find(a => a.actNumber == firstEntry.actNumber) ?? null;
+  }
+
+  protected readonly Number = Number;
 }

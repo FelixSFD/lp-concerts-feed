@@ -27,6 +27,17 @@ export class Setlist {
       structuredEntries: []
     };
 
+    // set the act number to -1 to all non-act-related entries AFTER the main show
+    for (let i = setlist.entries.length - 1; i > 0; i--) {
+      let entry = setlist.entries[i];
+      if (entry.actNumber == null) {
+        entry.actNumber = Number.MAX_SAFE_INTEGER;
+      } else {
+        break;
+      }
+    }
+
+    // old logic to generate structuredEntries
     let currentAct: SetlistActWithEntries | null = null;
     for (let entry of dto.entries ?? []) {
       if (entry.actNumber ?? 0 > 0) {

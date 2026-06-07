@@ -11,13 +11,13 @@
         </tr>
       </ng-template>
       <ng-template #groupheader let-firstEntry>
-        @if (firstEntry?.actNumber ?? 0 > 0) {
+        @if (getActForEntry(setlist, firstEntry)?.actNumber ?? 0 > 0) {
           <tr pRowGroupHeader>
             <td colspan="3">
-              <b>Act {{ setlist?.acts?.find(a => a.actNumber == firstEntry.actNumber)?.actNumber ?? "" }}</b>
+              <b>Act {{ getActForEntry(setlist, firstEntry)?.actNumber ?? "" }}</b>
             </td>
             <td colspan="2">
-              <b>{{ setlist?.acts?.find(a => a.actNumber == firstEntry.actNumber)?.title ?? "" }}</b>
+              <b>{{ getActForEntry(setlist, firstEntry)?.title ?? "" }}</b>
             </td>
           </tr>
         }
