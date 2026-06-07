@@ -7,7 +7,7 @@ import {Setlist} from '../../../../data/setlists/setlist';
 import {SetlistEntry} from '../../../../data/setlists/setlist-entry';
 import { SetlistActWithEntries } from "../../../../data/setlists/setlist-act";
 import {SetlistEntryIconsComponent} from '../../../../admin/setlists/setlist-entry-icons/setlist-entry-icons.component';
-import {SetlistAlbumChartComponent} from '../../../../setlists/setlist-album-chart/setlist-album-chart.component';
+import {SetlistAlbumChartComponent} from '../setlist-album-chart/setlist-album-chart.component';
 import {MatomoTracker} from 'ngx-matomo-client';
 import {ViewportScroller} from '@angular/common';
 import {AppleMusicService} from '../../../../services/music/apple-music.service';

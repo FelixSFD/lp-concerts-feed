@@ -1,10 +1,12 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {Setlist} from '../../data/setlists/setlist';
-import {Chart} from 'chart.js/auto';
+import {Setlist} from '../../../../data/setlists/setlist';
+import {UIChart} from 'primeng/chart';
 
 @Component({
   selector: 'app-setlist-album-chart',
-  imports: [],
+  imports: [
+    UIChart
+  ],
   templateUrl: './setlist-album-chart.component.html',
   styleUrl: './setlist-album-chart.component.css',
 })
@@ -14,7 +16,8 @@ export class SetlistAlbumChartComponent implements OnInit {
 
   setlistTitle$: string = "Setlist";
 
-  public chart: any;
+  data: any;
+  options: any;
 
   constructor() {
   }
@@ -42,30 +45,34 @@ export class SetlistAlbumChartComponent implements OnInit {
 
     let labels: string[] = Array.from(albumStats.keys());
     let values: number[] = Array.from(albumStats.values());
-    console.debug(values);
 
-    this.chart = new Chart("albumsChart", {
-      type: 'doughnut',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Songs',
-          data: values,
-          backgroundColor: [
-            'red',
-            'pink',
-            'green',
-            'yellow',
-            'orange',
-            'blue',
-            'purple',
-          ],
-          hoverOffset: 4
-        }],
+    const documentStyle = getComputedStyle(document.documentElement);
+    const textColor = documentStyle.getPropertyValue('--text-color');
+    const baseColors = ["green", "red", "blue", "violet", "slate", "yellow", "emerald", "fuchsia", "stone", "indigo"];
+    const backgroundColorNum = 300;
+    const hoverColorNum = 500;
+
+    this.data = {
+      labels: labels,
+      datasets: [{
+        label: 'Songs',
+        data: values,
+        backgroundColor: baseColors.map(color => documentStyle.getPropertyValue(`--p-${color}-${backgroundColorNum}`)),
+        hoverBackgroundColor: baseColors.map(color => documentStyle.getPropertyValue(`--p-${color}-${hoverColorNum}`)),
+        hoverOffset: 8
+      }],
+    };
+
+    this.options = this.options = {
+      plugins: {
+        legend: {
+          labels: {
+            usePointStyle: true,
+            color: textColor
+          }
+        }
       },
-      options: {
-        aspectRatio:2.5
-      }
-    });
+      aspectRatio: 2.5
+    };
   }
 }
