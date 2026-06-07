@@ -302,7 +302,7 @@ export const routes: Routes = [
       {
         path: 'albums/add',
         loadComponent: () =>
-          import("./admin/setlists/add-album-page/add-album-page.component").then(m => m.AddAlbumPageComponent),
+          import("./components/v2/admin/setlists/add-album-page/add-album-page.component").then(m => m.AddAlbumPageComponent),
         title: baseTitle + 'Add album',
         canActivate: [authGuard, manageSetlistsGuard],
       },

@@ -5,12 +5,16 @@ import {AlbumsService} from '../../../../../services/music/albums.service';
 import {AlbumFormComponent, AlbumFormContent} from '../../../../../admin/setlists/album-form/album-form.component';
 import {CommandError} from '@angular/cli/src/commands/mcp/host';
 import {MessageService} from 'primeng/api';
+import {Button} from 'primeng/button';
+import {Card} from 'primeng/card';
 
 @Component({
   selector: 'app-edit-album-page',
   imports: [
     AlbumFormComponent,
-    RouterLink
+    RouterLink,
+    Button,
+    Card
   ],
   templateUrl: './edit-album-page.component.html',
   styleUrl: './edit-album-page.component.css',
