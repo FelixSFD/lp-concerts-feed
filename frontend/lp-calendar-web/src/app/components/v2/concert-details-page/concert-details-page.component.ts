@@ -1,4 +1,4 @@
-import {Component, ElementRef, inject, ViewChild} from '@angular/core';
+import {Component, ElementRef, inject, OnInit, ViewChild} from '@angular/core';
 import {AuthService} from '../../../auth/auth.service';
 import {ToastrService} from 'ngx-toastr';
 import {MatomoTracker} from 'ngx-matomo-client';
@@ -56,7 +56,7 @@ import {Message} from 'primeng/message';
   templateUrl: './concert-details-page.component.html',
   styleUrl: './concert-details-page.component.css',
 })
-export class ConcertDetailsPageComponent {
+export class ConcertDetailsPageComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly toastr = inject(ToastrService);
   private readonly router = inject(Router);
@@ -77,6 +77,7 @@ export class ConcertDetailsPageComponent {
   // Service to check auth information
   private readonly oidcSecurityService = inject(OidcSecurityService);
 
+  isAuthenticated$ = false;
   canUpdateConcerts$ = false;
   canEditSetlists = false;
 
@@ -127,12 +128,10 @@ export class ConcertDetailsPageComponent {
     this.authService.canManageSetlists.subscribe(hasPermission => {
       this.canEditSetlists = hasPermission;
     });
+    this.authService.isAuthenticated$.subscribe(authenticated => {
+      this.isAuthenticated$ = authenticated;
+    });
   }
-
-
-  ngAfterViewInit() {
-  }
-
 
   onBookmarkClicked() {
     this.onBookmarkOrAttendingClicked(ConcertBookmarkUpdateRequestDto.StatusEnum.Bookmarked);
