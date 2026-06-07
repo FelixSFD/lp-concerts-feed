@@ -1,11 +1,8 @@
 import {Component, inject, Input, OnInit} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {SetlistsService} from '../../../../services/setlists.service';
-import {ToastrService} from 'ngx-toastr';
 import {ErrorResponseDto} from '../../../../modules/lpshows-api';
 import {Setlist} from '../../../../data/setlists/setlist';
-import {SetlistEntry} from '../../../../data/setlists/setlist-entry';
-import { SetlistActWithEntries } from "../../../../data/setlists/setlist-act";
 import {SetlistEntryIconsComponent} from '../../../../admin/setlists/setlist-entry-icons/setlist-entry-icons.component';
 import {SetlistAlbumChartComponent} from '../setlist-album-chart/setlist-album-chart.component';
 import {MatomoTracker} from 'ngx-matomo-client';
@@ -13,13 +10,13 @@ import {ViewportScroller} from '@angular/common';
 import {AppleMusicService} from '../../../../services/music/apple-music.service';
 import Artwork = MusicKit.Artwork;
 import {AppleMusicArtworkComponent} from '../../../music/apple-music-artwork/apple-music-artwork.component';
-import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {
   SetlistEntrySongExtraListComponent
 } from '../../../../admin/setlists/setlist-entry-song-extra-list/setlist-entry-song-extra-list.component';
 import {TableModule} from 'primeng/table';
 import {Tooltip} from 'primeng/tooltip';
 import {Button} from 'primeng/button';
+import {MessageService} from 'primeng/api';
 
 @Component({
   selector: 'app-setlist',
@@ -29,7 +26,6 @@ import {Button} from 'primeng/button';
     SetlistEntryIconsComponent,
     SetlistAlbumChartComponent,
     AppleMusicArtworkComponent,
-    NgbTooltip,
     SetlistEntrySongExtraListComponent,
     TableModule,
     Tooltip,
@@ -42,6 +38,7 @@ export class SetlistComponent implements OnInit {
   private readonly tracker = inject(MatomoTracker);
   private readonly scroller = inject(ViewportScroller);
   private readonly appleMusicService = inject(AppleMusicService);
+  private readonly messageService = inject(MessageService);
 
   @Input({ required: false })
   setlistId: number | undefined;
@@ -60,7 +57,7 @@ export class SetlistComponent implements OnInit {
 
   private isLoadingThumbnails = false;
 
-  constructor(private setlistService: SetlistsService, private toastr: ToastrService) {
+  constructor(private setlistService: SetlistsService) {
     // init apple music
     this.appleMusicService.init().then(async () => {
       await this.loadThumbnails();
@@ -113,7 +110,7 @@ export class SetlistComponent implements OnInit {
         },
         error: err => {
           let errorResponse: ErrorResponseDto = err.error;
-          this.toastr.error(errorResponse.message, "Could not load setlist");
+          this.messageService.add({severity: "error", summary: "Could not load setlist", detail: errorResponse.message});
         }
       })
     } else {
@@ -132,12 +129,4 @@ export class SetlistComponent implements OnInit {
       this.tracker.trackEvent("setlist", "expand_view", this.setlistTitle$);
     }
   }
-
-  isAct(
-    item: SetlistEntry | SetlistActWithEntries
-  ): item is SetlistActWithEntries {
-    return (item as SetlistActWithEntries).entries !== undefined;
-  }
-
-  protected readonly JSON = JSON;
 }
