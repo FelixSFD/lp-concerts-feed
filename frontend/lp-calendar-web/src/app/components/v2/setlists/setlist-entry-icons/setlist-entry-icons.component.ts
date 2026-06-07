@@ -1,10 +1,10 @@
 import {Component, Input} from '@angular/core';
-import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {Tooltip} from 'primeng/tooltip';
 
 @Component({
   selector: 'app-setlist-entry-icons',
   imports: [
-    NgbTooltip
+    Tooltip
   ],
   templateUrl: './setlist-entry-icons.component.html',
   styleUrl: './setlist-entry-icons.component.css',

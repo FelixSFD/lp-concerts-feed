@@ -14,7 +14,7 @@ import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {
   AddSetlistEntryFormComponent
 } from '../add-setlist-entry-form/add-setlist-entry-form.component';
-import {SetlistEntryIconsComponent} from '../setlist-entry-icons/setlist-entry-icons.component';
+import {SetlistEntryIconsComponent} from '../../../components/v2/setlists/setlist-entry-icons/setlist-entry-icons.component';
 
 @Component({
   selector: 'app-edit-setlist-page',

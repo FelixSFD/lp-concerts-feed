@@ -3,7 +3,7 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {SetlistsService} from '../../../../services/setlists.service';
 import {ErrorResponseDto} from '../../../../modules/lpshows-api';
 import {Setlist} from '../../../../data/setlists/setlist';
-import {SetlistEntryIconsComponent} from '../../../../admin/setlists/setlist-entry-icons/setlist-entry-icons.component';
+import {SetlistEntryIconsComponent} from '../setlist-entry-icons/setlist-entry-icons.component';
 import {SetlistAlbumChartComponent} from '../setlist-album-chart/setlist-album-chart.component';
 import {MatomoTracker} from 'ngx-matomo-client';
 import {ViewportScroller} from '@angular/common';
