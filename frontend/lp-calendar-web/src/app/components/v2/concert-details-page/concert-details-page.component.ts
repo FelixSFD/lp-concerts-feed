@@ -120,6 +120,8 @@ export class ConcertDetailsPageComponent implements OnInit {
       }
 
       let concert = data['concert'] as ConcertWithSetlistsDto;
+      this.concert$ = concert;
+
       this.loadAdjacentConcerts();
       this.loadBookmarkStatus();
 
@@ -127,7 +129,6 @@ export class ConcertDetailsPageComponent implements OnInit {
         this.updateMetaInfo(this.concert$);
       }
 
-      this.concert$ = concert;
       this.setlists$ = concert?.cachedSetlists?.map(s => Setlist.fromDto(s)) ?? [];
       this.setlistsCacheUpdatedAt$ = concert?.cachedSetlistsAt != null ? this.getDateTime(concert?.cachedSetlistsAt) : null;
     });
