@@ -4,7 +4,6 @@ import {ToastrService} from 'ngx-toastr';
 import {UsersService} from '../../../services/users.service';
 import {UserFormComponent} from '../user-form/user-form.component';
 import {ErrorResponseDto, UserDto} from '../../../modules/lpshows-api';
-import {CommandError} from '@angular/cli/src/commands/mcp/host';
 import {Message} from 'primeng/message';
 
 
@@ -20,7 +19,7 @@ import {Message} from 'primeng/message';
 })
 export class EditUserComponent implements OnInit {
   user$ : UserDto | null = null;
-  resolverError$: CommandError | null = null;
+  resolverError$: ErrorResponseDto | null = null;
 
   // true while the user is saved on the server
   userIsSaving$: boolean = false;
@@ -34,7 +33,7 @@ export class EditUserComponent implements OnInit {
     this.route.data.subscribe(data => {
       console.debug("Resolved data:", data);
 
-      if (data['user'] instanceof CommandError) {
+      if (data['user'].type === 'ErrorResponseDto') {
         this.resolverError$ = data['user'];
 
         return;

@@ -3,9 +3,7 @@ import {ActivatedRoute, RouterLink} from '@angular/router';
 import {SongsService} from '../../../../../services/songs.service';
 import {ErrorResponseDto, UpdateSongRequestDto} from '../../../../../modules/lpshows-api';
 import {SongFormComponent, SongFormContent} from '../song-form/song-form.component';
-import {CommandError} from '@angular/cli/src/commands/mcp/host';
 import {MessageService} from 'primeng/api';
-import {AlbumFormComponent} from '../album-form/album-form.component';
 import {Button} from 'primeng/button';
 import {Card} from 'primeng/card';
 
@@ -14,7 +12,6 @@ import {Card} from 'primeng/card';
   imports: [
     RouterLink,
     SongFormComponent,
-    AlbumFormComponent,
     Button,
     Card
   ],
@@ -37,7 +34,7 @@ export class EditSongPageComponent implements OnInit {
     this.activeRoute.data.subscribe(data => {
       console.debug("Resolved song data:", data);
 
-      if (data['song'] instanceof CommandError) {
+      if (data['song'].type === 'ErrorResponseDto') {
         this.messageService.add({severity: "error", summary: "Failed to load song", detail: data['song'].message, sticky: true});
         return;
       }

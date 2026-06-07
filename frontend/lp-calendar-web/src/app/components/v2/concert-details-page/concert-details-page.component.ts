@@ -33,7 +33,6 @@ import {FormsModule} from '@angular/forms';
 import {Tooltip} from 'primeng/tooltip';
 import {TimeSpanPipe} from '../../../data/time-span-pipe';
 import {CountdownComponent} from '../countdown/countdown.component';
-import {CommandError} from '@angular/cli/src/commands/mcp/host';
 import {Message} from 'primeng/message';
 
 @Component({
@@ -64,7 +63,7 @@ export class ConcertDetailsPageComponent {
   private readonly messageService = inject(MessageService);
   tracker = inject(MatomoTracker);
 
-  resolverError$: CommandError | null = null;
+  resolverError$: ErrorResponseDto | null = null;
   concert$: ConcertDto | null = null;
   adjacentConcertData$: AdjacentConcertsResponseDto | null = null;
   concertBookmarks$: GetConcertBookmarkCountsResponseDto | null = null;
@@ -107,7 +106,7 @@ export class ConcertDetailsPageComponent {
     this.route.data.subscribe(data => {
       console.debug("Resolved data:", data);
 
-      if (data['concert'] instanceof CommandError) {
+      if (data['concert'].type === 'ErrorResponseDto') {
         this.resolverError$ = data['concert'];
 
         return;

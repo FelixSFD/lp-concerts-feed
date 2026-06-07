@@ -3,7 +3,6 @@ import {ActivatedRoute, RouterLink} from '@angular/router';
 import {ErrorResponseDto, UpdateAlbumRequestDto} from '../../../../../modules/lpshows-api';
 import {AlbumsService} from '../../../../../services/music/albums.service';
 import {AlbumFormComponent, AlbumFormContent} from '../album-form/album-form.component';
-import {CommandError} from '@angular/cli/src/commands/mcp/host';
 import {MessageService} from 'primeng/api';
 import {Button} from 'primeng/button';
 import {Card} from 'primeng/card';
@@ -35,7 +34,7 @@ export class EditAlbumPageComponent {
     this.activeRoute.data.subscribe(data => {
       console.debug("Resolved album data:", data);
 
-      if (data['album'] instanceof CommandError) {
+      if (data['album'].type === 'ErrorResponseDto') {
         this.messageService.add({severity: "error", summary: "Failed to load album", detail: data['album'].message, sticky: true});
         return;
       }
