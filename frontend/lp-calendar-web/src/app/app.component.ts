@@ -25,10 +25,11 @@ import {MainMenuComponent} from './components/v2/main-menu/main-menu.component';
 import {ScrollTop} from 'primeng/scrolltop';
 import {AutoBreadcrumbsComponent} from './components/v2/auto-breadcrumbs/auto-breadcrumbs.component';
 import {ProgressBar} from 'primeng/progressbar';
+import {Toast} from 'primeng/toast';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NgbModule, RouterLink, MainMenuComponent, ScrollTop, AutoBreadcrumbsComponent, ProgressBar],
+  imports: [RouterOutlet, NgbModule, RouterLink, MainMenuComponent, ScrollTop, AutoBreadcrumbsComponent, ProgressBar, Toast],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

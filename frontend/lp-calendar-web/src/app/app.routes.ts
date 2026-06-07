@@ -4,6 +4,7 @@ import {AuthService} from './auth/auth.service';
 import {map} from 'rxjs';
 import {concertResolver} from './resolvers/concert-resolver';
 import {userResolver} from './resolvers/user-resolver';
+import {albumResolver} from './resolvers/album-resolver';
 
 let baseTitle = "LP Concerts - ";
 
@@ -306,11 +307,14 @@ export const routes: Routes = [
         canActivate: [authGuard, manageSetlistsGuard],
       },
       {
-        path: 'albums/:albumId',
+        path: 'albums/:id',
         loadComponent: () =>
-          import("./admin/setlists/edit-album-page/edit-album-page.component").then(m => m.EditAlbumPageComponent),
+          import("./components/v2/admin/setlists/edit-album-page/edit-album-page.component").then(m => m.EditAlbumPageComponent),
         title: baseTitle + 'Edit album',
         canActivate: [authGuard, manageSetlistsGuard],
+        resolve: {
+          album: albumResolver,
+        },
       },
     ]
   },

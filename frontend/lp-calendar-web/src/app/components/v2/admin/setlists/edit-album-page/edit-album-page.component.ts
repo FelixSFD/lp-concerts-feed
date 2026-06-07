@@ -1,9 +1,10 @@
 import {Component, inject, viewChild} from '@angular/core';
 import {ActivatedRoute, RouterLink} from '@angular/router';
-import {ToastrService} from 'ngx-toastr';
-import {ErrorResponseDto, UpdateAlbumRequestDto} from '../../../modules/lpshows-api';
-import {AlbumsService} from '../../../services/music/albums.service';
-import {AlbumFormComponent, AlbumFormContent} from '../album-form/album-form.component';
+import {ErrorResponseDto, UpdateAlbumRequestDto} from '../../../../../modules/lpshows-api';
+import {AlbumsService} from '../../../../../services/music/albums.service';
+import {AlbumFormComponent, AlbumFormContent} from '../../../../../admin/setlists/album-form/album-form.component';
+import {CommandError} from '@angular/cli/src/commands/mcp/host';
+import {MessageService} from 'primeng/api';
 
 @Component({
   selector: 'app-edit-album-page',
@@ -16,7 +17,7 @@ import {AlbumFormComponent, AlbumFormContent} from '../album-form/album-form.com
 })
 export class EditAlbumPageComponent {
   private activeRoute = inject(ActivatedRoute);
-  private toastr = inject(ToastrService);
+  private messageService = inject(MessageService);
   private albumsService = inject(AlbumsService);
 
   private albumFormComponent = viewChild(AlbumFormComponent);
@@ -27,12 +28,16 @@ export class EditAlbumPageComponent {
 
 
   ngOnInit() {
-    this.activeRoute.params.subscribe(params => {
-      let albumId = params['albumId'];
-      if (albumId != null && albumId > 0) {
-        this.currentAlbumId = albumId;
-        this.loadAlbum(albumId);
+    this.activeRoute.data.subscribe(data => {
+      console.debug("Resolved album data:", data);
+
+      if (data['album'] instanceof CommandError) {
+        this.messageService.add({severity: "error", summary: "Failed to load album", detail: data['album'].message, sticky: true});
+        return;
       }
+
+      this.currentAlbumId = data['album'].id;
+      this.albumFormComponent()?.fillFormWith(data['album']);
     });
   }
 
@@ -48,28 +53,14 @@ export class EditAlbumPageComponent {
     this.albumsService.updateAlbum(this.currentAlbumId, request).subscribe({
       next: updatedAlbum => {
         console.debug('Updated album', updatedAlbum);
-        this.toastr.success("Successfully saved album");
+        this.messageService.add({severity: "success", summary: "Successfully saved this album"});
         this.isSaving$ = false;
       },
       error: err => {
         let errorResponse: ErrorResponseDto = err.error;
-        this.toastr.error(errorResponse.message, "Could not update album");
+        this.messageService.add({severity: "error", summary: "Failed to save album", detail: errorResponse.message});
         this.isSaving$ = false;
       }
     });
-  }
-
-
-  private loadAlbum(albumId: number) {
-    this.albumsService.getAlbum(albumId, false)
-      .subscribe({
-        next: data => {
-          this.albumFormComponent()?.fillFormWith(data);
-        },
-        error: err => {
-          let errorResponse: ErrorResponseDto = err.error;
-          this.toastr.error(errorResponse.message, "Could not load album");
-        }
-      });
   }
 }
