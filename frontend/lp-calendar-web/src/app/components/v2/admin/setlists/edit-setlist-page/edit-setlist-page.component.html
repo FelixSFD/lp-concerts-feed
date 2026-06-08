@@ -178,10 +178,10 @@
             <td>{{ entry.title }}</td>
             <td>{{ entry.extraNotes }}</td>
             <td>
-              <div class="btn-group btn-group-sm">
-                <button class="btn btn-outline-primary" (click)="onEditEntryClicked(editEntryContent, entry)">Edit</button>
-                <button class="btn btn-outline-danger" (click)="onDeleteEntryClicked(deleteEntryContent, entry)">Delete</button>
-              </div>
+              <p-button-group>
+                <p-button label="Edit" variant="outlined" size="small" (onClick)="onEditEntryClicked(editEntryContent, entry)" />
+                <p-button label="Delete" severity="danger" variant="outlined" size="small" (onClick)="onDeleteEntryClicked(deleteEntryContent, entry)" />
+              </p-button-group>
             </td>
           </tr>
         </ng-template>

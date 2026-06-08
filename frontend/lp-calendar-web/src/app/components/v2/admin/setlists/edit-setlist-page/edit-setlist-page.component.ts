@@ -20,6 +20,7 @@ import {Card} from 'primeng/card';
 import {SongFormComponent} from '../song-form/song-form.component';
 import {Divider} from 'primeng/divider';
 import {TableModule, TableRowReorderEvent} from 'primeng/table';
+import {ButtonGroup} from 'primeng/buttongroup';
 
 @Component({
   selector: 'app-edit-setlist-page',
@@ -34,7 +35,8 @@ import {TableModule, TableRowReorderEvent} from 'primeng/table';
     Card,
     SongFormComponent,
     Divider,
-    TableModule
+    TableModule,
+    ButtonGroup
   ],
   templateUrl: './edit-setlist-page.component.html',
   styleUrl: './edit-setlist-page.component.css',
