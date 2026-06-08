@@ -4,17 +4,21 @@ import {
   ErrorResponseDto,
   SetlistDto,
   UpdateSetlistHeaderRequestDto
-} from '../../../modules/lpshows-api';
+} from '../../../../../modules/lpshows-api';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
-import {SetlistsService} from '../../../services/setlists.service';
+import {SetlistsService} from '../../../../../services/setlists.service';
 import {ToastrService} from 'ngx-toastr';
 import {NgClass} from '@angular/common';
-import {SetlistEntry} from '../../../data/setlists/setlist-entry';
+import {SetlistEntry} from '../../../../../data/setlists/setlist-entry';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {
   AddSetlistEntryFormComponent
-} from '../add-setlist-entry-form/add-setlist-entry-form.component';
-import {SetlistEntryIconsComponent} from '../../../components/v2/setlists/setlist-entry-icons/setlist-entry-icons.component';
+} from '../../../../../admin/setlists/add-setlist-entry-form/add-setlist-entry-form.component';
+import {SetlistEntryIconsComponent} from '../../../setlists/setlist-entry-icons/setlist-entry-icons.component';
+import {Button} from 'primeng/button';
+import {Card} from 'primeng/card';
+import {SongFormComponent} from '../song-form/song-form.component';
+import {Divider} from 'primeng/divider';
 
 @Component({
   selector: 'app-edit-setlist-page',
@@ -24,7 +28,11 @@ import {SetlistEntryIconsComponent} from '../../../components/v2/setlists/setlis
     NgClass,
     AddSetlistEntryFormComponent,
     SetlistEntryIconsComponent,
-    RouterLink
+    RouterLink,
+    Button,
+    Card,
+    SongFormComponent,
+    Divider
   ],
   templateUrl: './edit-setlist-page.component.html',
   styleUrl: './edit-setlist-page.component.css',

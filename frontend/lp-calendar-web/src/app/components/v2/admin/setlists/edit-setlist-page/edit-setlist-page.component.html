@@ -70,16 +70,19 @@
   </div>
 </ng-template>
 
+<p-card>
+  <ng-template #title>
+    <h1>Edit setlist</h1>
+  </ng-template>
 
-<h1>Edit setlist</h1>
-<button class="btn btn-outline-secondary" [routerLink]="['../']"><i class="bi bi-arrow-left"></i> Setlists</button>
+  <p-button severity="secondary" variant="outlined" icon="pi pi-arrow-left" label="Setlists" [routerLink]="['../']" />
 
-<form #form="ngForm" [formGroup]="setlistForm" class="form">
-  <div class="card mt-3">
-    <div class="card-header">
-      General information
-    </div>
-    <div class="card-body edit-form-card">
+  <form #form="ngForm" [formGroup]="setlistForm" class="form">
+    <p-card class="mt-3">
+      <ng-template #title>
+        General information
+      </ng-template>
+
       <!-- Concert selection -->
       <div class="form-group">
         <label for="concert">Concert</label>
@@ -127,30 +130,25 @@
           </div>
         }
       </div>
-    </div>
-    <div class="card-footer">
-      <div class="row">
-        <div class="col text-end">
-          <button class="btn btn-success" (click)="onSaveClicked()" [disabled]="isSaving$ || !setlistForm.valid">
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!isSaving$"></span>
-            <span class="sr-only">{{ isSaving$ ? "Saving..." : "Save" }}</span>
-          </button>
+
+      <ng-template #footer>
+        <p-divider />
+        <div class="flex gap-4 mt-1 align-content-end justify-content-end">
+          <p-button [label]="isSaving$ ? 'Saving...' : 'Save'" [loading]="isSaving$" (onClick)="onSaveClicked()" [disabled]="isSaving$ || !setlistForm.valid" />
         </div>
-      </div>
-    </div>
-  </div>
+      </ng-template>
+    </p-card>
 
+    <p-card class="mt-3">
+      <ng-template #title>
+        Entries
+        <button class="btn btn-sm btn-primary" (click)="onAddEntryClicked(addEntryContent)" [disabled]="isSaving$">Add</button>
 
-  <div class="card mt-5">
-    <div class="card-header">
-      Entries
-      <button class="btn btn-sm btn-primary" (click)="onAddEntryClicked(addEntryContent)" [disabled]="isSaving$">Add</button>
+        @if (isPendingReorder$) {
+          <button class="btn btn-sm btn-success" (click)="onSaveOrderClicked()" [disabled]="isSaving$">Save order</button>
+        }
+      </ng-template>
 
-      @if (isPendingReorder$) {
-        <button class="btn btn-sm btn-success" (click)="onSaveOrderClicked()" [disabled]="isSaving$">Save order</button>
-      }
-    </div>
-    <div class="card-body edit-form-card">
       <table class="table">
         <thead>
         <tr>
@@ -191,6 +189,6 @@
           }
         </tbody>
       </table>
-    </div>
-  </div>
-</form>
+    </p-card>
+  </form>
+</p-card>

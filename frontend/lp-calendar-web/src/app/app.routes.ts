@@ -254,7 +254,7 @@ export const routes: Routes = [
       {
         path: 'setlists/:setlistId',
         loadComponent: () =>
-          import("./admin/setlists/edit-setlist-page/edit-setlist-page.component").then(m => m.EditSetlistPageComponent),
+          import("./components/v2/admin/setlists/edit-setlist-page/edit-setlist-page.component").then(m => m.EditSetlistPageComponent),
         title: baseTitle + 'Edit setlist',
         canActivate: [authGuard, manageSetlistsGuard],
       },
