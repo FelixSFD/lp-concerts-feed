@@ -19,6 +19,7 @@ import {Button} from 'primeng/button';
 import {Card} from 'primeng/card';
 import {SongFormComponent} from '../song-form/song-form.component';
 import {Divider} from 'primeng/divider';
+import {TableModule, TableRowReorderEvent} from 'primeng/table';
 
 @Component({
   selector: 'app-edit-setlist-page',
@@ -32,7 +33,8 @@ import {Divider} from 'primeng/divider';
     Button,
     Card,
     SongFormComponent,
-    Divider
+    Divider,
+    TableModule
   ],
   templateUrl: './edit-setlist-page.component.html',
   styleUrl: './edit-setlist-page.component.css',
@@ -228,55 +230,9 @@ export class EditSetlistPageComponent implements OnInit {
   }
 
 
-  onEntryMoveUpClicked(entryId: string) {
-    let currentIndex = this.setlistEntries$.findIndex(e => e.id === entryId);
-    let newIndex = currentIndex - 1;
-
-    console.debug("Current index: ", currentIndex);
-    console.debug("New index: ", newIndex);
-
-    if (newIndex >= 0) {
-      const updated = [...this.setlistEntries$];
-      [updated[newIndex], updated[currentIndex]] = [updated[currentIndex], updated[newIndex]];
-
-      this.setlistEntries$ = updated;
-      this.isPendingReorder$ = true;
-    } else {
-      console.info("Already on top of the list. Will move to bottom");
-      const entry = this.setlistEntries$[currentIndex];
-      let updated = this.setlistEntries$.slice(1, this.setlistEntries$.length - 1);
-      updated.push(entry);
-
-      this.setlistEntries$ = updated;
-      this.isPendingReorder$ = true;
-    }
-  }
-
-
-  onEntryMoveDownClicked(entryId: string) {
-    let currentIndex = this.setlistEntries$.findIndex(e => e.id === entryId);
-    let newIndex = currentIndex + 1;
-
-    console.debug("Current index: ", currentIndex);
-    console.debug("New index: ", newIndex);
-
-    if (newIndex < this.setlistEntries$.length) {
-      const updated = [...this.setlistEntries$];
-      [updated[newIndex], updated[currentIndex]] = [updated[currentIndex], updated[newIndex]];
-
-      this.setlistEntries$ = updated;
-      this.isPendingReorder$ = true;
-    } else {
-      console.info("Already at the end of the list. Will move to top");
-      const entry = this.setlistEntries$[currentIndex];
-      const withoutLast = this.setlistEntries$.slice(0, this.setlistEntries$.length - 2);
-
-      const updated = [entry];
-      updated.push(...withoutLast);
-
-      this.setlistEntries$ = updated;
-      this.isPendingReorder$ = true;
-    }
+  onRowReordered(event: TableRowReorderEvent) {
+    console.debug("RowReordered: ", event);
+    this.isPendingReorder$ = true;
   }
 
 
