@@ -10,17 +10,18 @@ import {SetlistsService} from '../../../../../services/setlists.service';
 import {ToastrService} from 'ngx-toastr';
 import {NgClass} from '@angular/common';
 import {SetlistEntry} from '../../../../../data/setlists/setlist-entry';
-import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {
   AddSetlistEntryFormComponent
 } from '../../../../../admin/setlists/add-setlist-entry-form/add-setlist-entry-form.component';
 import {SetlistEntryIconsComponent} from '../../../setlists/setlist-entry-icons/setlist-entry-icons.component';
 import {Button} from 'primeng/button';
 import {Card} from 'primeng/card';
-import {SongFormComponent} from '../song-form/song-form.component';
 import {Divider} from 'primeng/divider';
 import {TableModule, TableRowReorderEvent} from 'primeng/table';
 import {ButtonGroup} from 'primeng/buttongroup';
+import {ConfirmDialog} from 'primeng/confirmdialog';
+import {ConfirmationService} from 'primeng/api';
+import {Dialog} from 'primeng/dialog';
 
 @Component({
   selector: 'app-edit-setlist-page',
@@ -33,24 +34,24 @@ import {ButtonGroup} from 'primeng/buttongroup';
     RouterLink,
     Button,
     Card,
-    SongFormComponent,
     Divider,
     TableModule,
-    ButtonGroup
+    ButtonGroup,
+    ConfirmDialog,
+    Dialog
   ],
   templateUrl: './edit-setlist-page.component.html',
   styleUrl: './edit-setlist-page.component.css',
 })
 export class EditSetlistPageComponent implements OnInit {
-  private modalService = inject(NgbModal);
   private formBuilder = inject(FormBuilder);
   private router = inject(Router);
   private activeRoute = inject(ActivatedRoute);
   private setlistService = inject(SetlistsService);
   private toastr = inject(ToastrService);
+  private confirmationService = inject(ConfirmationService);
 
   private addEntryFormComponent = viewChild(AddSetlistEntryFormComponent);
-  private editEntryFormComponent = viewChild(AddSetlistEntryFormComponent);
 
   currentSetlistId: number = 0;
 
@@ -68,23 +69,14 @@ export class EditSetlistPageComponent implements OnInit {
 
   isPendingReorder$: boolean = false;
 
-  // Setlist entry that will be deleted. Is used to store the data for the confirmation modal
-  entryToDelete: SetlistEntry | undefined;
+  isShowingAddEntryDialog$: boolean = false;
+  isShowingEditEntryDialog$: boolean = false;
 
   // Setlist entry that will be edited. Is used to store the data for the form
-  entryToEdit: SetlistEntry | undefined;
+  entryToEdit: SetlistEntry | undefined | null;
 
   // property to show whether the setlist is currently being deleted
   entryDeleting$ = false;
-
-  // if open, the modal is referenced here
-  addEntryModal: NgbModalRef | undefined;
-
-  // if open, the modal is referenced here
-  editEntryModal: NgbModalRef | undefined;
-
-  // if open, the modal is referenced here
-  deleteEntryModal: NgbModalRef | undefined;
 
   setlistEntries$: SetlistEntry[] = [];
 
@@ -187,17 +179,12 @@ export class EditSetlistPageComponent implements OnInit {
   }
 
 
-  openModal(content: TemplateRef<any>) {
-    return this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title', size: 'lg', scrollable: true });
-  }
-
-
-  onAddEntryClicked(content: TemplateRef<any>) {
-    this.addEntryModal = this.openModal(content);
-
+  onAddEntryClicked() {
     let largestSongNumber = this.getLargestSongNumber();
     console.debug("Largest Song Number right now: ", largestSongNumber);
     this.addEntryFormComponent()?.setSongNumber(largestSongNumber + 1);
+
+    this.isShowingAddEntryDialog$ = true;
   }
 
 
@@ -216,12 +203,13 @@ export class EditSetlistPageComponent implements OnInit {
             this.toastr.success("Setlist was updated successfully");
             this.reloadCurrentSetlist();
 
+            this.dismissAddEntryModal();
             this.isAddingEntry$ = false;
-            this.addEntryModal?.dismiss()
           },
           error: err => {
             let errorResponse: ErrorResponseDto = err.error;
             this.toastr.error(errorResponse.message, "Could not update setlist");
+            this.dismissAddEntryModal();
             this.isAddingEntry$ = false;
           }
         });
@@ -259,44 +247,48 @@ export class EditSetlistPageComponent implements OnInit {
 
 
   dismissAddEntryModal() {
-    this.addEntryModal?.dismiss();
+    this.isShowingAddEntryDialog$ = false;
   }
 
 
-  onDeleteEntryClicked(content: TemplateRef<any>, entry: SetlistEntry) {
-    this.entryToDelete = entry;
+  onDeleteEntryClicked(event: Event, entry: SetlistEntry) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: `Do you want to delete the entry "${entry.title}"?`,
+      header: 'Delete setlist entry',
+      icon: 'pi pi-info-circle',
+      rejectLabel: 'Cancel',
+      rejectButtonProps: {
+        label: 'Cancel',
+        severity: 'secondary',
+        outlined: true
+      },
+      acceptButtonProps: {
+        label: 'Delete',
+        severity: 'danger'
+      },
 
-    if (this.entryToDelete == null) {
-      return;
-    }
-
-    this.deleteEntryModal = this.openModal(content);
+      accept: () => {
+        this.onDeleteEntryConfirm(entry);
+      }
+    });
   }
 
 
-  onDeleteEntryConfirm() {
-    this.entryDeleting$ = true;
-    if (this.entryToDelete == null) {
-      this.deleteEntryModal?.dismiss();
-      return;
-    }
-
-    let id = this.entryToDelete!.id;
+  onDeleteEntryConfirm(entry: SetlistEntry) {
+    let id = entry.id;
     console.debug("Will delete setlist entry: " + id);
 
     this.setlistService.deleteSetlistEntry(this.currentSetlistId, id).subscribe({
       next: result => {
         console.debug("DELETE setlist request entry finished");
         console.debug(result);
-
-        this.deleteEntryModal?.dismiss();
         this.entryDeleting$ = false;
         this.reloadCurrentSetlist();
       },
       error: err => {
         let errorResponse: ErrorResponseDto = err.error;
         console.warn("Failed to delete setlist entry:", err);
-        this.deleteEntryModal?.dismiss();
         this.entryDeleting$ = false;
 
         this.toastr.error(errorResponse.message, "Could not delete setlist!");
@@ -305,41 +297,38 @@ export class EditSetlistPageComponent implements OnInit {
   }
 
 
-  dismissDeleteEntryConfirmModal() {
-    this.deleteEntryModal?.dismiss();
-  }
-
-
-  onEditEntryClicked(content: TemplateRef<any>, entry: SetlistEntry) {
+  onEditEntryClicked(content: AddSetlistEntryFormComponent, entry: SetlistEntry) {
+    console.debug("Content: ", content);
     this.entryToEdit = entry;
 
     if (this.entryToEdit == null) {
       return;
     }
 
-    this.editEntryModal = this.openModal(content);
-    this.editEntryFormComponent()?.loadEntry(this.currentSetlistId, entry.id);
+    this.isShowingEditEntryDialog$ = true;
+    content?.loadEntry(this.currentSetlistId, entry.id);
   }
 
 
-  onEditEntryConfirm() {
-    this.isEditingEntry$ = true;
+  onEditEntryConfirm(content: AddSetlistEntryFormComponent) {
     if (this.entryToEdit == null) {
-      this.editEntryModal?.dismiss();
       return;
     }
 
-    let id = this.entryToEdit!.id;
+    this.isEditingEntry$ = true;
+
+    let id = this.entryToEdit.id;
     console.debug("Will edit setlist entry: " + id);
 
-    let formValues = this.editEntryFormComponent()?.readValuesFromForm();
+    let formValues = content.readValuesFromForm();
     console.debug("Values read from form: ", formValues);
 
     if (formValues != null) {
-      this.setlistService.updateSetlistEntry(formValues, this.currentSetlistId, this.entryToEdit.id)
+      this.setlistService.updateSetlistEntry(formValues, this.currentSetlistId, id)
         .subscribe({
           next: () => {
             this.toastr.success("Entry was updated successfully");
+            this.entryToEdit = null;
             this.isEditingEntry$ = false;
             this.reloadCurrentSetlist();
           },
@@ -355,7 +344,8 @@ export class EditSetlistPageComponent implements OnInit {
   }
 
 
-  dismissEditEntryConfirmModal() {
-    this.editEntryModal?.dismiss();
+  dismissEditEntryModal() {
+    this.isShowingEditEntryDialog$ = false;
+    this.entryToEdit = null;
   }
 }

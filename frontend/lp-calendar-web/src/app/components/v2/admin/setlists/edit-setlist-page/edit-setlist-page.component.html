@@ -1,74 +1,28 @@
 <!-- add setlist entry modal -->
-<ng-template #addEntryContent let-addEntryModal>
-  <div class="modal-content">
-    <div class="modal-header">
-      <h1 class="modal-title fs-5" id="addEntryModalLabel">Add a new entry</h1>
-      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-    </div>
-    <div class="modal-body">
-      <app-add-setlist-entry-form [setlist-id]="currentSetlistId" />
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" [disabled]="isAddingEntry$" (click)="dismissAddEntryModal()">Cancel</button>
-      <button type="button" class="btn btn-primary" id="addEntryConfirmBtn" (click)="onAddEntryConfirm()" [disabled]="isAddingEntry$">
-        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!isAddingEntry$"></span>
-        <span class="sr-only">{{ isAddingEntry$ ? "Adding..." : "Add" }}</span>
-      </button>
-    </div>
-  </div>
-</ng-template>
+<p-dialog header="Add a new entry" [(visible)]="isShowingAddEntryDialog$" [modal]="true" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [style]="{ width: '50vw' }" [draggable]="false">
+  <app-add-setlist-entry-form [setlist-id]="currentSetlistId" />
+
+  <p-divider />
+
+  <ng-template #footer>
+    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="dismissAddEntryModal()" />
+    <p-button [label]="isAddingEntry$ ? 'Adding...' : 'Add'" (onClick)="onAddEntryConfirm()" [loading]="isAddingEntry$" [disabled]="isAddingEntry$" />
+  </ng-template>
+</p-dialog>
 
 <!-- edit setlist entry modal -->
-<ng-template #editEntryContent let-editEntryModal>
-  <div class="modal-content modal-lg">
-    <div class="modal-header">
-      <h1 class="modal-title fs-5" id="editEntryModalLabel">Edit a setlist entry</h1>
-      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-    </div>
-    <div class="modal-body">
-      <app-add-setlist-entry-form [setlist-id]="currentSetlistId" />
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" [disabled]="isEditingEntry$" (click)="dismissEditEntryConfirmModal()">Cancel</button>
-      <button type="button" class="btn btn-primary" id="editEntryConfirmBtn" (click)="onEditEntryConfirm()" [disabled]="isEditingEntry$">
-        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" [hidden]="!isEditingEntry$"></span>
-        <span class="sr-only">{{ isEditingEntry$ ? "Saving..." : "Save" }}</span>
-      </button>
-    </div>
-  </div>
-</ng-template>
+<p-dialog header="Edit a setlist entry" [(visible)]="isShowingEditEntryDialog$" [modal]="true" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [style]="{ width: '50vw' }" [draggable]="false" [dismissableMask]="true">
+  <app-add-setlist-entry-form #editEntryForm [setlist-id]="currentSetlistId" />
 
-<!-- Delete setlist entry confirmation modal -->
-<ng-template #deleteEntryContent let-deleteEntryModal>
-  <div class="modal-content">
-    <div class="modal-header">
-      <h1 class="modal-title fs-5" id="deleteEntryModalLabel">Delete entry?</h1>
-      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-    </div>
-    <div class="modal-body">
-      <p>Do you really want to delete this entry?</p>
-      <table>
-        <tr>
-          <td class="fw-bold">Title:</td>
-          <td>&nbsp;</td>
-          <td>{{ entryToDelete?.title }}</td>
-        </tr>
-        <tr>
-          <td class="fw-bold">Song Number:</td>
-          <td>&nbsp;</td>
-          <td>{{ entryToDelete?.songNumber }}</td>
-        </tr>
-      </table>
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" [disabled]="entryDeleting$" (click)="dismissDeleteEntryConfirmModal()">Cancel</button>
-      <button type="button" class="btn btn-danger" id="deleteConcertConfirmBtn" (click)="onDeleteEntryConfirm()" [disabled]="entryDeleting$">
-        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!entryDeleting$"></span>
-        <span class="sr-only">{{ entryDeleting$ ? "Deleting..." : "Delete" }}</span>
-      </button>
-    </div>
-  </div>
-</ng-template>
+  <p-divider />
+
+  <ng-template #footer>
+    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="dismissEditEntryModal()" />
+    <p-button [label]="isEditingEntry$ ? 'Saving...' : 'Save'" (onClick)="onEditEntryConfirm(editEntryForm)" [loading]="isEditingEntry$" [disabled]="isEditingEntry$" />
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog />
 
 <p-card>
   <ng-template #title>
@@ -143,7 +97,7 @@
       <ng-template #title>
         <div class="flex gap-2">
           <span>Entries</span>
-          <p-button label="Add" size="small" (onClick)="onAddEntryClicked(addEntryContent)" [disabled]="isSaving$" />
+          <p-button label="Add" size="small" (onClick)="onAddEntryClicked()" [disabled]="isSaving$" />
 
           @if (isPendingReorder$) {
             <p-button label="Save order" severity="success" size="small" (onClick)="onSaveOrderClicked()" [disabled]="isSaving$" />
@@ -179,8 +133,8 @@
             <td>{{ entry.extraNotes }}</td>
             <td>
               <p-button-group>
-                <p-button label="Edit" variant="outlined" size="small" (onClick)="onEditEntryClicked(editEntryContent, entry)" />
-                <p-button label="Delete" severity="danger" variant="outlined" size="small" (onClick)="onDeleteEntryClicked(deleteEntryContent, entry)" />
+                <p-button label="Edit" variant="outlined" size="small" (onClick)="onEditEntryClicked(editEntryForm, entry)" />
+                <p-button label="Delete" severity="danger" variant="outlined" size="small" (onClick)="onDeleteEntryClicked($event, entry)" />
               </p-button-group>
             </td>
           </tr>
