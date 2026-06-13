@@ -116,28 +116,12 @@
         <label for="selectedAct">Act</label>
       </p-floatlabel>
     </div>
-  </div>
 
-  <!-- Type of entry -->
-  <div class="form-group">
-    <label for="song">Select type of entry:</label>
-    <div class="input-group mb-3">
-      <div class="btn-group btn-group-sm" role="group">
-        <input type="radio" class="btn-check" name="entryType" id="song" formControlName="entryType" [value]="AddSetlistEntryFormContent.entryTypeSong" autocomplete="off">
-        <label class="btn btn-outline-primary" for="song">Song</label>
-        <input type="radio" class="btn-check" name="entryType" id="songMashup" formControlName="entryType" [value]="AddSetlistEntryFormContent.entryTypeSongMashup" autocomplete="off">
-        <label class="btn btn-outline-info" for="songMashup">Mashup/Medley</label>
-        <input type="radio" class="btn-check" name="entryType" id="freeText" formControlName="entryType" [value]="AddSetlistEntryFormContent.entryTypeFreeText" autocomplete="off">
-        <label class="btn btn-outline-secondary" for="freeText">Custom</label>
-      </div>
+    <!-- Type of entry -->
+    <div class="col-12">
+      <label for="entryType">Select type of entry:</label><br />
+      <p-select-button [options]="SetlistEntryTypeSelectorItem.possibleTypes" id="entryType" formControlName="entryType" optionLabel="label" optionValue="value" aria-labelledby="basic" allowEmpty="false" />
     </div>
-    @if (setlistEntryForm.controls.selectedSongId.invalid) {
-      <div class="text-danger">
-        @if (setlistEntryForm.controls.selectedSongId.errors) {
-          <small>Selection is invalid.</small>
-        }
-      </div>
-    }
   </div>
 
   @if (selectedEntryType$ == AddSetlistEntryFormContent.entryTypeFreeText) {

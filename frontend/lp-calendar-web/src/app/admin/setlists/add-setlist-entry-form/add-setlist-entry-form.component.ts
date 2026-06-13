@@ -20,10 +20,11 @@ import {NgbModal, NgbModalRef, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {InputNumber} from 'primeng/inputnumber';
 import {FloatLabel} from 'primeng/floatlabel';
 import {Select} from 'primeng/select';
-import {Button} from 'primeng/button';
+import {Button, ButtonSeverity} from 'primeng/button';
 import {Dialog} from 'primeng/dialog';
 import {Divider} from 'primeng/divider';
 import {InputText} from 'primeng/inputtext';
+import {SelectButton} from 'primeng/selectbutton';
 
 @Component({
   selector: 'app-add-setlist-entry-form',
@@ -38,7 +39,8 @@ import {InputText} from 'primeng/inputtext';
     NgTemplateOutlet,
     Button,
     Dialog,
-    InputText
+    InputText,
+    SelectButton
   ],
   templateUrl: './add-setlist-entry-form.component.html',
   styleUrl: './add-setlist-entry-form.component.css',
@@ -474,6 +476,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
 
 
   public AddSetlistEntryFormContent = AddSetlistEntryFormContent;
+  protected readonly SetlistEntryTypeSelectorItem = SetlistEntryTypeSelectorItem;
 }
 
 
@@ -577,4 +580,37 @@ export class AddSetlistEntryFormContent {
    * true if this was the live premiere of a new song
    */
   wasLivePremiere: boolean = false;
+}
+
+/**
+ * A type of entry the user can select
+ */
+export class SetlistEntryTypeSelectorItem {
+  static possibleTypes: SetlistEntryTypeSelectorItem[] = [
+    {
+      value: AddSetlistEntryFormContent.entryTypeSong,
+      label: "Song",
+      severity: "primary",
+    },
+    {
+      value: AddSetlistEntryFormContent.entryTypeSongMashup,
+      label: "Mashup/Medley",
+      severity: "info",
+    },
+    {
+      value: AddSetlistEntryFormContent.entryTypeFreeText,
+      label: "Custom",
+      severity: "secondary",
+    },
+  ];
+
+  value: string;
+  label: string;
+  severity: ButtonSeverity;
+
+  constructor(label: string, value: string, severity: ButtonSeverity) {
+    this.value = value;
+    this.label = label;
+    this.severity = severity;
+  }
 }
