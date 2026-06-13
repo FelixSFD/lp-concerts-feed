@@ -4,7 +4,7 @@ import {ErrorResponseDto, SongDto, SongMashupDto} from '../../../modules/lpshows
 import {NgClass, NgTemplateOutlet} from '@angular/common';
 import {AddSetlistEntryFormComponent} from '../add-setlist-entry-form/add-setlist-entry-form.component';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
-import {SelectSongComponent} from '../select-song/select-song.component';
+import {SelectSongComponent} from '../../../components/v2/admin/setlists/select-song/select-song.component';
 import {SongsService} from '../../../services/songs.service';
 import {ToastrService} from 'ngx-toastr';
 import {RouterLink} from '@angular/router';
