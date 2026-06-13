@@ -1,3 +1,30 @@
+<!-- add act modal -->
+<p-dialog header="Add new act to this setlist" [(visible)]="showAddActDialog" [modal]="true" [draggable]="false" [dismissableMask]="true">
+  <form #form="ngForm" [formGroup]="addActForm" class="form">
+    <div class="grid mt-0">
+      <!-- Act Number -->
+      <div class="col-12">
+        <p-floatlabel variant="on">
+          <p-input-number [showButtons]="true" inputId="actNumber" formControlName="actNumber" placeholder="Number of the entry in the setlist" [min]="0" [max]="10" fluid />
+          <label for="actNumber">Act Number</label>
+        </p-floatlabel>
+      </div>
+    </div>
+    <!-- Act Title -->
+    <div class="col-12">
+      <p-floatlabel variant="on">
+        <input pInputText id="actTitle" formControlName="actTitle" autocomplete="off" fluid />
+        <label for="actTitle">Title</label>
+      </p-floatlabel>
+    </div>
+  </form>
+
+  <ng-template #footer>
+    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="showAddActDialog = false" />
+    <p-button label="Add" (onClick)="onActAdd()" [disabled]="addActForm.invalid" />
+  </ng-template>
+</p-dialog>
+
 <!-- add setlist entry modal -->
 <ng-template #addSongExtraContent let-addSongExtraModal>
   <div class="modal-content">
@@ -57,78 +84,39 @@
 
 
 <form #form="ngForm" [formGroup]="setlistEntryForm" class="form">
-  <!-- Song Number -->
-  <div class="form-group">
-    <label for="songNumber">Number of the entry:</label>
-    <div class="input-group mb-3">
-      <input id="songNumber" type="number" formControlName="songNumber" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.songNumber.invalid }" placeholder="Number of the entry in the setlist">
+  <div class="grid mt-0">
+    <!-- Song Number -->
+    <div class="col-12">
+      <p-floatlabel variant="on">
+        <p-input-number [showButtons]="true" inputId="vertical" formControlName="songNumber" placeholder="Number of the entry in the setlist" [min]="0" [max]="50" fluid />
+        <label for="on_label">Number of the entry</label>
+      </p-floatlabel>
     </div>
-    @if (setlistEntryForm.controls.songNumber.invalid) {
-      <div class="text-danger">
-        @if (setlistEntryForm.controls.songNumber.errors) {
-          <small>Number is invalid.</small>
-        }
-      </div>
-    }
+
+    <!-- Act selection -->
+    <div class="col-12">
+      <ng-template #actSelectionItem let-act="act">
+        Act {{ act.actNumber }}: {{ act.title }}
+      </ng-template>
+      <p-floatlabel variant="on">
+        <p-select inputId="selectedAct" [options]="availableActs$" formControlName="selectedAct" fluid showClear>
+          <ng-template #selectedItem let-selectedOption>
+            <ng-container *ngTemplateOutlet="actSelectionItem; context: { act: selectedOption }" />
+          </ng-template>
+          <ng-template let-act #item>
+            <ng-container *ngTemplateOutlet="actSelectionItem; context: { act: act }" />
+          </ng-template>
+
+          <ng-template #footer>
+            <div class="p-3">
+              <p-button label="Add New" fluid severity="primary" text size="small" icon="pi pi-plus" (onClick)="showAddActDialog = true" />
+            </div>
+          </ng-template>
+        </p-select>
+        <label for="selectedAct">Act</label>
+      </p-floatlabel>
+    </div>
   </div>
-
-  <!-- Act selection -->
-  <div class="form-group">
-    <label for="selectedActId">Act</label>
-    <div class="input-group mb-3">
-      <select class="form-select form-control" (change)="onActSelectionChanged()"
-              formControlName="selectedActNumber"
-              [ngClass]="{ 'is-invalid': setlistEntryForm.controls.selectedActNumber.invalid }">
-        <option selected disabled>Select act</option>
-        <option selected value="0">Not part of any act</option>
-        <option disabled>---------------</option>
-        <option value="-1">Add new act...</option>
-        <option disabled>---------------</option>
-        @for (act of availableActs$; track act.actNumber) {
-          <option [value]="act.actNumber">{{ act.title }}</option>
-        }
-      </select>
-    </div>
-    @if (setlistEntryForm.controls.selectedActNumber.invalid) {
-      <div class="text-danger">
-        @if (setlistEntryForm.controls.selectedActNumber.errors) {
-          <small>Selection is invalid.</small>
-        }
-      </div>
-    }
-  </div>
-
-  @if (showAddActFields) {
-    <!-- Act Number -->
-    <div class="form-group">
-      <label for="actNumber">Number of the act:</label>
-      <div class="input-group mb-3">
-        <input id="actNumber" type="number" formControlName="actNumber" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.actNumber.invalid }" placeholder="Number of the act in the setlist">
-      </div>
-      @if (setlistEntryForm.controls.actNumber.invalid) {
-        <div class="text-danger">
-          @if (setlistEntryForm.controls.actNumber.errors) {
-            <small>Number is invalid.</small>
-          }
-        </div>
-      }
-    </div>
-
-    <!-- Act Title -->
-    <div class="form-group">
-      <label for="actTitle">Title of the act:</label>
-      <div class="input-group mb-3">
-        <input id="actTitle" type="text" formControlName="actTitle" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.actTitle.invalid }" placeholder="Example: Inception Intro A">
-      </div>
-      @if (setlistEntryForm.controls.actTitle.invalid) {
-        <div class="text-danger">
-          @if (setlistEntryForm.controls.actTitle.errors) {
-            <small>Act title is invalid.</small>
-          }
-        </div>
-      }
-    </div>
-  }
 
   <!-- Type of entry -->
   <div class="form-group">

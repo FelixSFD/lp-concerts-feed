@@ -10,13 +10,20 @@ import {
   SongVariantDto
 } from '../../../modules/lpshows-api';
 import {ToastrService} from 'ngx-toastr';
-import {NgClass} from '@angular/common';
+import {NgClass, NgTemplateOutlet} from '@angular/common';
 import {SetlistsService} from '../../../services/setlists.service';
 import {nullIfEmpty} from '../../../helper/string-helper'
 import {
   SetlistEntrySongExtraFormComponent
 } from '../setlist-entry-song-extra-form/setlist-entry-song-extra-form.component';
 import {NgbModal, NgbModalRef, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {InputNumber} from 'primeng/inputnumber';
+import {FloatLabel} from 'primeng/floatlabel';
+import {Select} from 'primeng/select';
+import {Button} from 'primeng/button';
+import {Dialog} from 'primeng/dialog';
+import {Divider} from 'primeng/divider';
+import {InputText} from 'primeng/inputtext';
 
 @Component({
   selector: 'app-add-setlist-entry-form',
@@ -24,7 +31,15 @@ import {NgbModal, NgbModalRef, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
     ReactiveFormsModule,
     NgClass,
     SetlistEntrySongExtraFormComponent,
-    NgbTooltip
+    NgbTooltip,
+    InputNumber,
+    FloatLabel,
+    Select,
+    NgTemplateOutlet,
+    Button,
+    Dialog,
+    Divider,
+    InputText
   ],
   templateUrl: './add-setlist-entry-form.component.html',
   styleUrl: './add-setlist-entry-form.component.css',
@@ -48,6 +63,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
     selectedActNumber: new FormControl(0, []),
     actNumber: new FormControl('', []),
     actTitle: new FormControl('', [Validators.maxLength(31)]),
+    selectedAct: new FormControl<SetlistActDto | null>(null, []),
     selectedSongId: new FormControl(0, []),
     songTitle: new FormControl('', [Validators.maxLength(31)]),
     songIsrc: new FormControl('', []),
@@ -61,6 +77,11 @@ export class AddSetlistEntryFormComponent implements OnInit {
     wasLivePremiere: new FormControl(false, []),
   });
 
+  addActForm = this.formBuilder.group({
+    actNumber: new FormControl('', []),
+    actTitle: new FormControl('', [Validators.maxLength(31)]),
+  });
+
   selectedEntryType$: string = AddSetlistEntryFormContent.entryTypeSong;
 
   availableSongMashups$: SongMashupDto[] = [];
@@ -71,6 +92,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
 
   currentSongExtras$: SetlistEntrySongExtraDto[] = [];
 
+  showAddActDialog: boolean = false;
   showAddActFields: boolean = false;
   showAddSongFields: boolean = false;
   showAddNewVariantFields: boolean = false;
@@ -154,6 +176,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
       .getSetlistActs(this.setlistId!, false)
       .subscribe({
         next: data => {
+          data.sort((a, b) => (a.actNumber ?? 0) < (b.actNumber ?? 0) ? -1 : 1);
           this.availableActs$ = data;
           console.debug("Loaded acts: ", this.availableActs$);
         },
@@ -294,6 +317,20 @@ export class AddSetlistEntryFormComponent implements OnInit {
     console.debug("Variant selected: ", songVariantId);
 
     this.showAddNewVariantFields = songVariantId == -1;
+  }
+
+  onActAdd() {
+    let newAct: SetlistActDto = {
+      actNumber: Number(this.addActForm.value.actNumber),
+      title: this.addActForm.value.actTitle,
+    }
+
+    console.debug("Add new Act", newAct);
+    this.availableActs$.push(newAct);
+    this.availableActs$.sort((a, b) => (a.actNumber ?? 0) < (b.actNumber ?? 0) ? -1 : 1);
+    this.setlistEntryForm.controls.selectedAct.setValue(newAct);
+    this.showAddActDialog = false;
+    this.addActForm.reset();
   }
 
 
