@@ -38,7 +38,6 @@ import {InputText} from 'primeng/inputtext';
     NgTemplateOutlet,
     Button,
     Dialog,
-    Divider,
     InputText
   ],
   templateUrl: './add-setlist-entry-form.component.html',
@@ -61,7 +60,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
     titleOverride: new FormControl('', [Validators.maxLength(63)]),
     extraNotes: new FormControl('', [Validators.maxLength(255)]),
     selectedActNumber: new FormControl(0, []),
-    actNumber: new FormControl('', []),
+    actNumber: new FormControl<number>(1, []),
     actTitle: new FormControl('', [Validators.maxLength(31)]),
     selectedAct: new FormControl<SetlistActDto | null>(null, []),
     selectedSongId: new FormControl(0, []),
@@ -78,8 +77,8 @@ export class AddSetlistEntryFormComponent implements OnInit {
   });
 
   addActForm = this.formBuilder.group({
-    actNumber: new FormControl('', []),
-    actTitle: new FormControl('', [Validators.maxLength(31)]),
+    actNumber: new FormControl<number>(1, [Validators.required]),
+    actTitle: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(31)]),
   });
 
   selectedEntryType$: string = AddSetlistEntryFormContent.entryTypeSong;
@@ -334,6 +333,12 @@ export class AddSetlistEntryFormComponent implements OnInit {
   }
 
 
+  openAddActDialog() {
+    this.addActForm.controls.actNumber.setValue((this.availableActs$[this.availableActs$.length - 1]?.actNumber ?? 0) + 1);
+    this.showAddActDialog = true;
+  }
+
+
   public setSongNumber(songNumber: number) {
     this.setlistEntryForm.controls.songNumber.setValue(songNumber);
   }
@@ -432,8 +437,8 @@ export class AddSetlistEntryFormComponent implements OnInit {
       wasLivePremiere: wasLivePremiere,
       selectedActNumber: selectedActNumber,
       // these fields are not present in every case
-      actNumber: undefined,
-      actTitle: undefined,
+      actNumber: this.setlistEntryForm.value.selectedAct?.actNumber,
+      actTitle: this.setlistEntryForm.value.selectedAct?.title,
       selectedSongId: undefined,
       selectedSongVariantId: undefined,
       songIsrc: undefined,
@@ -441,11 +446,6 @@ export class AddSetlistEntryFormComponent implements OnInit {
       songVariantDescription: undefined,
       songVariantName: undefined,
       selectedSongMashupId: undefined,
-    }
-
-    if (content.selectedActNumber ?? 0 < 0) {
-      content.actNumber = Number(this.setlistEntryForm.value.actNumber?.valueOf());
-      content.actTitle = nullIfEmpty(this.setlistEntryForm.value.actTitle?.valueOf() ?? null);
     }
 
     if (entryType == AddSetlistEntryFormContent.entryTypeSong) {
