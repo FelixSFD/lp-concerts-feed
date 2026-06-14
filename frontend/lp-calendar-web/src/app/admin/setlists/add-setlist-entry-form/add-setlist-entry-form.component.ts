@@ -1,4 +1,4 @@
-import {Component, inject, Input, OnInit, TemplateRef, viewChild} from '@angular/core';
+import {Component, inject, Input, OnInit, viewChild} from '@angular/core';
 import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from "@angular/forms";
 import {SongsService} from '../../../services/songs.service';
 import {
@@ -10,30 +10,31 @@ import {
   SongVariantDto
 } from '../../../modules/lpshows-api';
 import {ToastrService} from 'ngx-toastr';
-import {NgClass, NgTemplateOutlet} from '@angular/common';
+import {NgTemplateOutlet} from '@angular/common';
 import {SetlistsService} from '../../../services/setlists.service';
 import {nullIfEmpty} from '../../../helper/string-helper'
 import {
   SetlistEntrySongExtraFormComponent
 } from '../setlist-entry-song-extra-form/setlist-entry-song-extra-form.component';
-import {NgbModal, NgbModalRef, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {InputNumber} from 'primeng/inputnumber';
 import {FloatLabel} from 'primeng/floatlabel';
 import {Select} from 'primeng/select';
 import {Button, ButtonSeverity} from 'primeng/button';
 import {Dialog} from 'primeng/dialog';
-import {Divider} from 'primeng/divider';
 import {InputText} from 'primeng/inputtext';
 import {SelectButton} from 'primeng/selectbutton';
 import {ToggleSwitch} from 'primeng/toggleswitch';
+import {TableModule} from 'primeng/table';
+import {ButtonGroup} from 'primeng/buttongroup';
+import {Tooltip} from 'primeng/tooltip';
+import {ConfirmationService} from 'primeng/api';
+import {ConfirmPopup} from 'primeng/confirmpopup';
 
 @Component({
   selector: 'app-add-setlist-entry-form',
   imports: [
     ReactiveFormsModule,
-    NgClass,
     SetlistEntrySongExtraFormComponent,
-    NgbTooltip,
     InputNumber,
     FloatLabel,
     Select,
@@ -42,13 +43,17 @@ import {ToggleSwitch} from 'primeng/toggleswitch';
     Dialog,
     InputText,
     SelectButton,
-    ToggleSwitch
+    ToggleSwitch,
+    TableModule,
+    ButtonGroup,
+    Tooltip,
+    ConfirmPopup
   ],
   templateUrl: './add-setlist-entry-form.component.html',
   styleUrl: './add-setlist-entry-form.component.css',
 })
 export class AddSetlistEntryFormComponent implements OnInit {
-  private modalService = inject(NgbModal);
+  private confirmationService = inject(ConfirmationService);
   private toastr = inject(ToastrService);
   private formBuilder = inject(FormBuilder);
   private songService = inject(SongsService);
@@ -57,6 +62,8 @@ export class AddSetlistEntryFormComponent implements OnInit {
   private static songVariantNormalVersion: SongVariantDto = {
     variantName: "Normal version"
   };
+
+  protected confirmDeleteSongExtraKey = "confirm-delete-song-extra";
 
   @Input("setlist-id")
   setlistId: number | undefined;
@@ -103,17 +110,10 @@ export class AddSetlistEntryFormComponent implements OnInit {
   showAddActDialog: boolean = false;
   showAddSongDialog: boolean = false;
   showAddSongFields: boolean = false;
+  showAddSongExtrasDialog: boolean = false;
 
   isAddingSongExtra$: boolean = false;
   isDeletingSongExtra$: boolean = false;
-
-  songExtraToDelete$: SetlistEntrySongExtraDto | null = null;
-
-  // if open, the modal is referenced here
-  addExtraModal: NgbModalRef | undefined;
-
-  // if open, the modal is referenced here
-  deleteExtraConfirmationModal: NgbModalRef | undefined;
 
   private addSongExtraFormComponent = viewChild(SetlistEntrySongExtraFormComponent);
 
@@ -187,17 +187,12 @@ export class AddSetlistEntryFormComponent implements OnInit {
   }
 
 
-  openModal(content: TemplateRef<any>) {
-    return this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title', scrollable: true });
-  }
-
-
-  onAddSongExtraClicked(content: TemplateRef<any>) {
-    this.addExtraModal = this.openModal(content);
+  onAddSongExtraClicked() {
+    this.showAddSongExtrasDialog = true;
   }
 
   dismissAddExtraModal() {
-    this.addExtraModal?.dismiss();
+    this.showAddSongExtrasDialog = false;
   }
 
   onAddSongExtraConfirmed() {
@@ -239,24 +234,36 @@ export class AddSetlistEntryFormComponent implements OnInit {
   }
 
 
-  onDeleteSongExtraClicked(content: TemplateRef<any>, extraId: string) {
-    this.songExtraToDelete$ = this.currentSongExtras$.find(e => e.id == extraId) ?? null;
-
-    if (this.songExtraToDelete$ == null) {
-      return;
-    }
-
-    this.deleteExtraConfirmationModal = this.openModal(content);
+  onDeleteSongExtraClicked(event: Event, extra: SetlistEntrySongExtraDto) {
+    this.confirmationService.confirm({
+      key: this.confirmDeleteSongExtraKey,
+      target: event.currentTarget as EventTarget,
+      message: "Do you really want to delete this extra?",
+      icon: 'pi pi-info-circle',
+      rejectButtonProps: {
+        label: 'Cancel',
+        severity: 'secondary',
+        outlined: true
+      },
+      acceptButtonProps: {
+        label: 'Delete',
+        severity: 'danger'
+      },
+      accept: () => {
+        this.confirmDeleteSongExtraConfirmationModal(extra);
+      },
+      reject: () => {
+      }
+    });
   }
 
 
-  confirmDeleteSongExtraConfirmationModal() {
-    this.isDeletingSongExtra$ = true;
-    console.debug("Delete song extra", this.songExtraToDelete$);
+  confirmDeleteSongExtraConfirmationModal(extra: SetlistEntrySongExtraDto) {
+    console.debug("Delete song extra", extra);
 
-    let deleteId = this.songExtraToDelete$?.id ?? null;
+    let deleteId = extra?.id ?? null;
     if (deleteId == null) {
-      console.warn("ID of extra not found", this.songExtraToDelete$);
+      console.warn("ID of extra not found", extra);
       return;
     }
 
@@ -269,7 +276,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
 
           this.currentSongExtras$ = this.currentSongExtras$?.filter(e => e.id != deleteId);
 
-          this.dismissDeleteSongExtraConfirmationModal();
+          this.showAddSongExtrasDialog = false;
           this.isDeletingSongExtra$ = false;
         },
         error: err => {
@@ -277,14 +284,9 @@ export class AddSetlistEntryFormComponent implements OnInit {
           this.toastr.error(errorResponse.message, "Could not delete extra from this entry");
           this.isDeletingSongExtra$ = false;
 
-          this.deleteExtraConfirmationModal?.dismiss();
+          this.showAddSongExtrasDialog = false;
         }
-      })
-  }
-
-
-  dismissDeleteSongExtraConfirmationModal() {
-    this.deleteExtraConfirmationModal?.dismiss();
+      });
   }
 
 
