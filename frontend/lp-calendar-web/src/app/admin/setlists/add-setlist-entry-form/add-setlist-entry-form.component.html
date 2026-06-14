@@ -148,93 +148,79 @@
       <label for="entryType">Select type of entry:</label><br />
       <p-select-button [options]="SetlistEntryTypeSelectorItem.possibleTypes" id="entryType" formControlName="entryType" optionLabel="label" optionValue="value" aria-labelledby="basic" allowEmpty="false" />
     </div>
-  </div>
 
-  @if (selectedEntryType$ == AddSetlistEntryFormContent.entryTypeFreeText) {
-    <div class="mb-4">
-      <small>Use this entry type for entries like the intro song where we don't need statistics.</small>
-    </div>
-  }
-
-  @if (selectedEntryType$ == AddSetlistEntryFormContent.entryTypeSong) {
-    <!-- Song selection -->
-    <div class="col-12">
-      <ng-template #songSelectionItem let-song="song">
-        <div class="flex flex-wrap">
-          @if (song.album?.title) {
-            <div class="text-xs w-full">
-              {{ song.album!.title}}
-            </div>
-          }
-          <div class="font-bold w-full">
-            {{ song.title }}
-          </div>
-        </div>
-      </ng-template>
-      <p-floatlabel variant="on">
-        <p-select inputId="selectedSong" [options]="availableSongs$" formControlName="selectedSong" fluid showClear>
-          <ng-template #selectedItem let-selectedOption>
-            <ng-container *ngTemplateOutlet="songSelectionItem; context: { song: selectedOption }" />
-          </ng-template>
-          <ng-template let-song #item>
-            <ng-container *ngTemplateOutlet="songSelectionItem; context: { song: song }" />
-          </ng-template>
-
-          <ng-template #footer>
-            <div class="p-3">
-              <p-button label="Add New" fluid severity="primary" text size="small" icon="pi pi-plus" (onClick)="openAddSongDialog()" />
-            </div>
-          </ng-template>
-        </p-select>
-        <label for="selectedSong">Played Song</label>
-      </p-floatlabel>
-    </div>
-
-    <div class="col-12">
-      <ng-template #songVariantSelectionItem let-variant="variant">
-        {{ variant.variantName }} {{ variant.description != null && variant.description.length > 0 ? `(${variant.description})` : "" }}
-      </ng-template>
-      <p-floatlabel variant="on">
-        <p-select inputId="selectedSong" [options]="variantsOfSelectedSong$" formControlName="selectedSongVariant" fluid showClear>
-          <ng-template #selectedItem let-selectedOption>
-            <ng-container *ngTemplateOutlet="songVariantSelectionItem; context: { variant: selectedOption }" />
-          </ng-template>
-          <ng-template let-variant #item>
-            <ng-container *ngTemplateOutlet="songVariantSelectionItem; context: { variant: variant }" />
-          </ng-template>
-
-          <ng-template #footer>
-            <div class="p-3">
-              <p-button label="Add New" fluid severity="primary" text size="small" icon="pi pi-plus" (onClick)="openAddSongDialog()" />
-            </div>
-          </ng-template>
-        </p-select>
-        <label for="selectedSong">Played variation of this song</label>
-      </p-floatlabel>
-    </div>
-  } @else if (selectedEntryType$ == AddSetlistEntryFormContent.entryTypeSongMashup) {
-    <!-- Mashup -->
-    <div class="form-group">
-      <label for="selectedSongMashupId">Mashup/Medley</label>
-      <div class="input-group mb-3">
-        <select class="form-select form-control"
-                formControlName="selectedSongMashupId"
-                [ngClass]="{ 'is-invalid': setlistEntryForm.controls.selectedSongMashupId.invalid }">
-          <option selected value="0" disabled>Select mashup...</option>
-          @for (mashup of availableSongMashups$; track mashup.id) {
-            <option [value]="mashup.id">{{ mashup.title }}</option>
-          }
-        </select>
+    @if (selectedEntryType$ == AddSetlistEntryFormContent.entryTypeFreeText) {
+      <div class="mb-4">
+        <small>Use this entry type for entries like the intro song where we don't need statistics.</small>
       </div>
-      @if (setlistEntryForm.controls.selectedSongMashupId.invalid) {
-        <div class="text-danger">
-          @if (setlistEntryForm.controls.selectedSongMashupId.errors) {
-            <small>Selection is invalid.</small>
-          }
-        </div>
-      }
-    </div>
-  }
+    }
+
+    @if (selectedEntryType$ == AddSetlistEntryFormContent.entryTypeSong) {
+      <!-- Song selection -->
+      <div class="col-12">
+        <ng-template #songSelectionItem let-song="song">
+          <div class="flex flex-wrap">
+            @if (song.album?.title) {
+              <div class="text-xs w-full">
+                {{ song.album!.title}}
+              </div>
+            }
+            <div class="font-bold w-full">
+              {{ song.title }}
+            </div>
+          </div>
+        </ng-template>
+        <p-floatlabel variant="on">
+          <p-select inputId="selectedSong" [options]="availableSongs$" formControlName="selectedSong" fluid showClear>
+            <ng-template #selectedItem let-selectedOption>
+              <ng-container *ngTemplateOutlet="songSelectionItem; context: { song: selectedOption }" />
+            </ng-template>
+            <ng-template let-song #item>
+              <ng-container *ngTemplateOutlet="songSelectionItem; context: { song: song }" />
+            </ng-template>
+
+            <ng-template #footer>
+              <div class="p-3">
+                <p-button label="Add New" fluid severity="primary" text size="small" icon="pi pi-plus" (onClick)="openAddSongDialog()" />
+              </div>
+            </ng-template>
+          </p-select>
+          <label for="selectedSong">Played Song</label>
+        </p-floatlabel>
+      </div>
+
+      <div class="col-12">
+        <ng-template #songVariantSelectionItem let-variant="variant">
+          {{ variant.variantName }} {{ variant.description != null && variant.description.length > 0 ? `(${variant.description})` : "" }}
+        </ng-template>
+        <p-floatlabel variant="on">
+          <p-select inputId="selectedSong" [options]="variantsOfSelectedSong$" formControlName="selectedSongVariant" fluid showClear>
+            <ng-template #selectedItem let-selectedOption>
+              <ng-container *ngTemplateOutlet="songVariantSelectionItem; context: { variant: selectedOption }" />
+            </ng-template>
+            <ng-template let-variant #item>
+              <ng-container *ngTemplateOutlet="songVariantSelectionItem; context: { variant: variant }" />
+            </ng-template>
+
+            <ng-template #footer>
+              <div class="p-3">
+                <p-button label="Add New" fluid severity="primary" text size="small" icon="pi pi-plus" (onClick)="openAddSongDialog()" />
+              </div>
+            </ng-template>
+          </p-select>
+          <label for="selectedSong">Played variation of this song</label>
+        </p-floatlabel>
+      </div>
+    } @else if (selectedEntryType$ == AddSetlistEntryFormContent.entryTypeSongMashup) {
+      <!-- Mashup -->
+      <div class="col-12">
+        <p-floatlabel variant="on">
+          <p-select inputId="selectedSongMashup" [options]="availableSongMashups$" optionLabel="title" formControlName="selectedSongMashup" fluid showClear />
+          <label for="selectedSongMashup">Mashup/Medley</label>
+        </p-floatlabel>
+      </div>
+    }
+  </div>
 
   <!-- Optionally override the title of the song or mashup -->
   <div class="form-group">

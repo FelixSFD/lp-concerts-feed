@@ -71,7 +71,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
     selectedAct: new FormControl<SetlistActDto | null>(null, []),
     selectedSong: new FormControl<SongDto | null>(null, []),
     selectedSongVariant: new FormControl<SongVariantDto>(AddSetlistEntryFormComponent.songVariantNormalVersion, []),
-    selectedSongMashupId: new FormControl(0, []),
+    selectedSongMashup: new FormControl<SongMashupDto | null>(null, []),
     wasPlayedFromRecording: new FormControl(false, []),
     wasRotationSong: new FormControl(false, []),
     wasWorldPremiere: new FormControl(false, []),
@@ -160,11 +160,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
 
           if (this.storedEntry) {
             console.debug("Has a stored entry: ", this.storedEntry);
-            let mashupId = this.storedEntry.playedSongMashup?.id ?? 0;
-
-            if (mashupId > 0) {
-              this.setlistEntryForm.controls.selectedSongMashupId.setValue(mashupId);
-            }
+            this.setlistEntryForm.controls.selectedSongMashup.setValue(this.storedEntry.playedSongMashup ?? null);
           }
         },
         error: err => {
@@ -389,7 +385,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
           this.setlistEntryForm.controls.selectedActNumber.setValue(entry.actNumber ?? 0);
           this.setlistEntryForm.controls.selectedSong.setValue(entry.playedSong ?? this.availableSongs$.find(s => s.id == (entry.playedSongVariant?.songId ?? 0)) ?? null);
           this.setlistEntryForm.controls.selectedSongVariant.setValue(entry.playedSongVariant ?? null);
-          this.setlistEntryForm.controls.selectedSongMashupId.setValue(entry.playedSongMashup?.id ?? null);
+          this.setlistEntryForm.controls.selectedSongMashup.setValue(entry.playedSongMashup ?? null);
           this.setlistEntryForm.controls.wasWorldPremiere.setValue(entry.isWorldPremiere ?? false);
           this.setlistEntryForm.controls.wasPlayedFromRecording.setValue(entry.isPlayedFromRecording ?? false);
           this.setlistEntryForm.controls.wasRotationSong.setValue(entry.isRotationSong ?? false);
@@ -473,7 +469,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
       }
     } else if (entryType == AddSetlistEntryFormContent.entryTypeSongMashup) {
       console.debug("This entry is a song mashup...");
-      content.selectedSongMashupId = this.setlistEntryForm.value.selectedSongMashupId?.valueOf();
+      content.selectedSongMashupId = this.setlistEntryForm.value.selectedSongMashup?.id;
     }
 
     return content;
