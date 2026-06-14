@@ -100,9 +100,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
 
   showAddActDialog: boolean = false;
   showAddSongDialog: boolean = false;
-  showAddActFields: boolean = false;
   showAddSongFields: boolean = false;
-  showAddNewVariantFields: boolean = false;
 
   isAddingSongExtra$: boolean = false;
   isDeletingSongExtra$: boolean = false;
@@ -141,10 +139,6 @@ export class AddSetlistEntryFormComponent implements OnInit {
           if (this.storedEntry) {
             console.debug("Has a stored entry: ", this.storedEntry);
             let songId = this.storedEntry.playedSong?.id ?? 0;
-            if (songId <= 0) {
-              songId = this.storedEntry.playedSongVariant?.songId ?? 0;
-            }
-
             if (songId > 0) {
               this.setlistEntryForm.controls.selectedSong.setValue(this.storedEntry.playedSong ?? null);
               this.loadVariantsOfSelectedSong(songId);
@@ -296,14 +290,6 @@ export class AddSetlistEntryFormComponent implements OnInit {
   }
 
 
-  onActSelectionChanged() {
-    let actNumber = Number(this.setlistEntryForm.value.selectedActNumber?.valueOf());
-    console.debug("Act selected: ", actNumber);
-
-    this.showAddActFields = actNumber == -1;
-  }
-
-
   onSongSelectionChanged(song: SongDto | null) {
     let songId = song?.id ?? 0;
     console.debug("Song selected: ", songId);
@@ -401,7 +387,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
           this.setlistEntryForm.controls.titleOverride.setValue(entry.titleOverride ?? null);
           this.setlistEntryForm.controls.extraNotes.setValue(entry.extraNotes ?? null);
           this.setlistEntryForm.controls.selectedActNumber.setValue(entry.actNumber ?? 0);
-          this.setlistEntryForm.controls.selectedSong.setValue(entry.playedSong ?? null);
+          this.setlistEntryForm.controls.selectedSong.setValue(entry.playedSong ?? this.availableSongs$.find(s => s.id == (entry.playedSongVariant?.songId ?? 0)) ?? null);
           this.setlistEntryForm.controls.selectedSongVariant.setValue(entry.playedSongVariant ?? null);
           this.setlistEntryForm.controls.selectedSongMashupId.setValue(entry.playedSongMashup?.id ?? null);
           this.setlistEntryForm.controls.wasWorldPremiere.setValue(entry.isWorldPremiere ?? false);
