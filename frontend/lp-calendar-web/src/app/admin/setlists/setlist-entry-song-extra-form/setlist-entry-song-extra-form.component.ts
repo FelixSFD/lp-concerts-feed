@@ -1,24 +1,26 @@
 import {Component, inject, Input} from '@angular/core';
 import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
-import {SongsService} from '../../../services/songs.service';
-import {SetlistsService} from '../../../services/setlists.service';
-import {NgClass} from '@angular/common';
 import {SetlistEntrySongExtraDto, SongDto} from '../../../modules/lpshows-api';
 import TypeEnum = SetlistEntrySongExtraDto.TypeEnum;
+import {SelectButton} from 'primeng/selectbutton';
+import {Select} from 'primeng/select';
+import {FloatLabel} from 'primeng/floatlabel';
+import {InputText} from 'primeng/inputtext';
 
 @Component({
   selector: 'app-setlist-entry-song-extra-form',
   imports: [
     ReactiveFormsModule,
-    NgClass
+    SelectButton,
+    Select,
+    FloatLabel,
+    InputText
   ],
   templateUrl: './setlist-entry-song-extra-form.component.html',
   styleUrl: './setlist-entry-song-extra-form.component.css',
 })
 export class SetlistEntrySongExtraFormComponent {
   private formBuilder = inject(FormBuilder);
-  private songService = inject(SongsService);
-  private setlistsService = inject(SetlistsService);
 
   @Input("setlist-id")
   setlistId: number | undefined;
@@ -28,7 +30,7 @@ export class SetlistEntrySongExtraFormComponent {
 
   extraForm = this.formBuilder.group({
     extraType: new FormControl(SetlistEntrySongExtraFormContent.extraTypeExtraVerse, [Validators.required]),
-    selectedSongId: new FormControl(0, []),
+    selectedSong: new FormControl<SongDto | null>(null, []),
     description: new FormControl('', [Validators.maxLength(127)]),
   });
 
@@ -36,7 +38,7 @@ export class SetlistEntrySongExtraFormComponent {
   public readValuesFromForm(): SetlistEntrySongExtraFormContent {
     return {
       type: this.extraForm.value.extraType?.valueOf() as TypeEnum,
-      songId: this.extraForm.value.selectedSongId?.valueOf(),
+      songId: this.extraForm.value.selectedSong?.id,
       description: this.extraForm.value.description?.valueOf() ?? null
     };
   }
@@ -49,6 +51,8 @@ export class SetlistEntrySongExtraFormComponent {
 export class SetlistEntrySongExtraFormContent {
   static extraTypeExtendedBridge = "ExtendedBridge";
   static extraTypeExtraVerse = "ExtraVerse";
+
+  static possibleTypes: string[] = [SetlistEntrySongExtraFormContent.extraTypeExtraVerse, SetlistEntrySongExtraFormContent.extraTypeExtendedBridge];
 
   type: SetlistEntrySongExtraDto.TypeEnum | undefined;
   songId: number | undefined | null = null;

@@ -51,8 +51,8 @@
   </ng-template>
 </p-dialog>
 
-<!-- add setlist entry modal -->
-<p-dialog header="Add a new extra to this entry" [(visible)]="showAddSongExtrasDialog" [modal]="true" [draggable]="false" [dismissableMask]="true">
+<!-- add setlist entry extra modal -->
+<p-dialog header="Add a new extra to this entry" [(visible)]="showAddSongExtrasDialog" [modal]="true" [draggable]="false" [dismissableMask]="true" [style]="{ height: '30rem', width: '30vw' }">
   <app-setlist-entry-song-extra-form [setlist-id]="setlistId" [available-songs]="availableSongs$"></app-setlist-entry-song-extra-form>
 
   <ng-template #footer>
