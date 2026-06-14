@@ -1,14 +1,13 @@
-import {Component, inject, OnInit, TemplateRef, viewChild} from '@angular/core';
+import {Component, inject, OnInit, viewChild} from '@angular/core';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {
   ErrorResponseDto,
   SetlistDto,
   UpdateSetlistHeaderRequestDto
 } from '../../../../../modules/lpshows-api';
-import {ActivatedRoute, Router, RouterLink} from '@angular/router';
+import {ActivatedRoute, RouterLink} from '@angular/router';
 import {SetlistsService} from '../../../../../services/setlists.service';
 import {ToastrService} from 'ngx-toastr';
-import {NgClass} from '@angular/common';
 import {SetlistEntry} from '../../../../../data/setlists/setlist-entry';
 import {
   AddSetlistEntryFormComponent
@@ -32,7 +31,6 @@ import {InputGroupAddon} from 'primeng/inputgroupaddon';
   imports: [
     FormsModule,
     ReactiveFormsModule,
-    NgClass,
     AddSetlistEntryFormComponent,
     SetlistEntryIconsComponent,
     RouterLink,
@@ -53,7 +51,6 @@ import {InputGroupAddon} from 'primeng/inputgroupaddon';
 })
 export class EditSetlistPageComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
-  private router = inject(Router);
   private activeRoute = inject(ActivatedRoute);
   private setlistService = inject(SetlistsService);
   private toastr = inject(ToastrService);
@@ -161,10 +158,6 @@ export class EditSetlistPageComponent implements OnInit {
           this.isSaving$ = false;
         }
       });
-  }
-
-  private navigateToSetlist(id: string | undefined) {
-    this.router.navigate(['/admin/setlists/' + id]).catch(err => this.toastr.error(err));
   }
 
   openConcertDetailsClicked() {
