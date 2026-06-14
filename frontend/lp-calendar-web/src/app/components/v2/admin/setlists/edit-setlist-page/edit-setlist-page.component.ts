@@ -22,6 +22,10 @@ import {ButtonGroup} from 'primeng/buttongroup';
 import {ConfirmDialog} from 'primeng/confirmdialog';
 import {ConfirmationService} from 'primeng/api';
 import {Dialog} from 'primeng/dialog';
+import {FloatLabel} from 'primeng/floatlabel';
+import {InputText} from 'primeng/inputtext';
+import {InputGroup} from 'primeng/inputgroup';
+import {InputGroupAddon} from 'primeng/inputgroupaddon';
 
 @Component({
   selector: 'app-edit-setlist-page',
@@ -38,7 +42,11 @@ import {Dialog} from 'primeng/dialog';
     TableModule,
     ButtonGroup,
     ConfirmDialog,
-    Dialog
+    Dialog,
+    FloatLabel,
+    InputText,
+    InputGroup,
+    InputGroupAddon
   ],
   templateUrl: './edit-setlist-page.component.html',
   styleUrl: './edit-setlist-page.component.css',

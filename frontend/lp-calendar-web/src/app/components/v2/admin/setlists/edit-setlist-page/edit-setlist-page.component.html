@@ -37,52 +37,42 @@
         General information
       </ng-template>
 
-      <!-- Concert selection -->
-      <div class="form-group">
-        <label for="concert">Concert</label>
-        <div class="input-group mb-3">
-          <input id="concert" type="text" formControlName="concertId" class="form-control"
-                 [ngClass]="{ 'is-invalid': setlistForm.controls.concertId.invalid }">
-          <button class="btn btn-outline-info" (click)="openConcertDetailsClicked()"><i class="bi bi-box-arrow-up-right"></i><span class="d-none d-sm-none d-md-inline ms-2">Open details</span></button>
-        </div>
-        @if (setlistForm.controls.concertId.invalid) {
-          <div class="text-danger">
-            @if (setlistForm.controls.concertId.errors) {
-              <small>Concert is invalid.</small>
-            }
-          </div>
-        }
-      </div>
+      <div class="grid gap-2">
+        <!-- Concert selection -->
+        <div class="col-12">
+          <p-floatlabel variant="on">
+            <p-input-group>
+              <input pInputText id="concertId" formControlName="concertId" autocomplete="off" fluid />
+              <p-inputgroup-addon>
+                <p-button icon="pi pi-external-link" label="Open Details" severity="info" variant="outlined" (onClick)="openConcertDetailsClicked()" />
+              </p-inputgroup-addon>
+            </p-input-group>
 
-      <!-- Set Name -->
-      <div class="form-group">
-        <label for="setName">Name of the set:</label>
-        <div class="input-group mb-3">
-          <input id="setName" type="text" formControlName="setName" class="form-control" [ngClass]="{ 'is-invalid': setlistForm.controls.setName.invalid }">
+            <label for="concertId">Concert</label>
+          </p-floatlabel>
         </div>
-        @if (setlistForm.controls.setName.invalid) {
-          <div class="text-danger">
-            @if (setlistForm.controls.setName.errors) {
-              <small>Name is invalid.</small>
-            }
-          </div>
-        }
-      </div>
 
-      <!-- Linkinpedia URL -->
-      <div class="form-group">
-        <label for="linkinpediaUrl">Linkinpedia URL:</label>
-        <div class="input-group mb-3">
-          <input id="linkinpediaUrl" type="text" formControlName="linkinpediaUrl" class="form-control" [ngClass]="{ 'is-invalid': setlistForm.controls.linkinpediaUrl.invalid }">
-          <button class="btn btn-outline-info" (click)="openLinkinpediaUrlClicked()"><i class="bi bi-box-arrow-up-right"></i><span class="d-none d-sm-none d-md-inline ms-2">Open link</span></button>
+        <!-- Set Name -->
+        <div class="col-12">
+          <p-floatlabel variant="on">
+            <input pInputText id="setName" formControlName="setName" autocomplete="off" fluid />
+            <label for="setName">Name of the set</label>
+          </p-floatlabel>
         </div>
-        @if (setlistForm.controls.linkinpediaUrl.invalid) {
-          <div class="text-danger">
-            @if (setlistForm.controls.linkinpediaUrl.errors) {
-              <small>URL is invalid.</small>
-            }
-          </div>
-        }
+
+        <!-- Linkinpedia URL -->
+        <div class="col-12">
+          <p-floatlabel variant="on">
+            <p-input-group>
+              <input pInputText id="linkinpediaUrl" formControlName="linkinpediaUrl" autocomplete="off" fluid />
+              <p-inputgroup-addon>
+                <p-button icon="pi pi-external-link" label="Open link" severity="info" variant="outlined" (onClick)="openLinkinpediaUrlClicked()" />
+              </p-inputgroup-addon>
+            </p-input-group>
+
+            <label for="concertId">Linkinpedia URL</label>
+          </p-floatlabel>
+        </div>
       </div>
 
       <ng-template #footer>
