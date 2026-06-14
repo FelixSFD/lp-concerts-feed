@@ -110,7 +110,7 @@
 
 
 <form #form="ngForm" [formGroup]="setlistEntryForm" class="form">
-  <div class="grid mt-0">
+  <div class="grid mt-0 gap-2">
     <!-- Song Number -->
     <div class="col-12">
       <p-floatlabel variant="on">
@@ -220,57 +220,40 @@
         </p-floatlabel>
       </div>
     }
-  </div>
 
-  <!-- Optionally override the title of the song or mashup -->
-  <div class="form-group">
-    <label for="titleOverride">{{ selectedEntryType$ != AddSetlistEntryFormContent.entryTypeFreeText ? '(Optional)' : '' }} Override the title for this entry:</label>
-    <div class="input-group mb-3">
-      <input id="titleOverride" type="text" formControlName="titleOverride" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.titleOverride.invalid }" placeholder="if empty, the name of the song/mashup will be used by default">
+    <!-- Optionally override the title of the song or mashup -->
+    <div class="col-12">
+      <p-floatlabel variant="on">
+        <input pInputText id="titleOverride" formControlName="titleOverride" placeholder="if empty, the name of the song/mashup will be used by default" autocomplete="off" fluid />
+        <label for="titleOverride">{{ selectedEntryType$ != AddSetlistEntryFormContent.entryTypeFreeText ? '(Optional)' : '' }} Override the title for this entry</label>
+      </p-floatlabel>
     </div>
-    @if (setlistEntryForm.controls.titleOverride.invalid) {
-      <div class="text-danger">
-        @if (setlistEntryForm.controls.titleOverride.errors) {
-          <small>Title is invalid.</small>
-        }
-      </div>
-    }
-  </div>
 
-  <!-- Optionally add extra notes -->
-  <div class="form-group">
-    <label for="extraNotes">(Optional) Additional notes:</label>
-    <div class="input-group mb-3">
-      <input id="extraNotes" type="text" formControlName="extraNotes" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.extraNotes.invalid }" placeholder="Example: Joe threw a cake into the crowd">
+    <!-- Optionally add extra notes -->
+    <div class="col-12">
+      <p-floatlabel variant="on">
+        <input pInputText id="extraNotes" formControlName="extraNotes" placeholder="Example: Joe threw a cake into the crowd" autocomplete="off" fluid />
+        <label for="extraNotes">(Optional) Additional notes</label>
+      </p-floatlabel>
     </div>
-    @if (setlistEntryForm.controls.extraNotes.invalid) {
-      <div class="text-danger">
-        @if (setlistEntryForm.controls.extraNotes.errors) {
-          <small>Input is invalid.</small>
-        }
-      </div>
-    }
-  </div>
 
-  <!-- Switches for boolean fields -->
-  <div class="form-check form-switch">
-    <input class="form-check-input" type="checkbox" id="wasPlayedFromRecording" [checked]="setlistEntryForm.controls.wasPlayedFromRecording.value" formControlName="wasPlayedFromRecording">
-    <label class="form-check-label" for="wasPlayedFromRecording"><i class="bi bi-cassette-fill"></i> Was played from recording</label>
-  </div>
-
-  <div class="form-check form-switch">
-    <input class="form-check-input" type="checkbox" id="wasRotationSong" [checked]="setlistEntryForm.controls.wasRotationSong.value" formControlName="wasRotationSong">
-    <label class="form-check-label" for="wasRotationSong"><i class="bi bi-arrow-counterclockwise"></i> This is a rotation slot</label>
-  </div>
-
-  <div class="form-check form-switch">
-    <input class="form-check-input" type="checkbox" id="wasWorldPremiere" [checked]="setlistEntryForm.controls.wasWorldPremiere.value" formControlName="wasWorldPremiere">
-    <label class="form-check-label" for="wasWorldPremiere"><i class="bi bi-globe-americas"></i> Was a world premiere</label>
-  </div>
-
-  <div class="form-check form-switch">
-    <input class="form-check-input" type="checkbox" id="wasLivePremiere" [checked]="setlistEntryForm.controls.wasLivePremiere.value" formControlName="wasLivePremiere">
-    <label class="form-check-label" for="wasLivePremiere"><i class="bi bi-stars"></i> Was a live premiere</label>
+    <!-- Switches for boolean fields -->
+    <div class="col-12 flex gap-2 vertical-align-middle mb-0">
+      <p-toggle-switch formControlName="wasPlayedFromRecording" id="wasPlayedFromRecording" size="small" class="h-full" />
+      <label for="wasPlayedFromRecording" class="h-full"><i class="pi pi-megaphone me-2"></i> Was played from recording</label>
+    </div>
+    <div class="col-12 flex gap-2 vertical-align-middle mt-0">
+      <p-toggle-switch formControlName="wasRotationSong" id="wasRotationSong" size="small" class="h-full" />
+      <label for="wasRotationSong" class="h-full"><i class="pi pi-refresh me-2"></i> This is a rotation slot</label>
+    </div>
+    <div class="col-12 flex gap-2 vertical-align-middle">
+      <p-toggle-switch formControlName="wasWorldPremiere" id="wasWorldPremiere" size="small" class="h-full" />
+      <label for="wasWorldPremiere" class="h-full"><i class="pi pi-globe me-2"></i> Was a world premiere</label>
+    </div>
+    <div class="col-12 flex gap-2 vertical-align-middle">
+      <p-toggle-switch formControlName="wasLivePremiere" id="wasLivePremiere" size="small" class="h-full" />
+      <label for="wasLivePremiere" class="h-full"><i class="pi pi-sparkles me-2"></i> Was a live premiere</label>
+    </div>
   </div>
 
   <!-- song extras -->

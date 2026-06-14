@@ -25,6 +25,7 @@ import {Dialog} from 'primeng/dialog';
 import {Divider} from 'primeng/divider';
 import {InputText} from 'primeng/inputtext';
 import {SelectButton} from 'primeng/selectbutton';
+import {ToggleSwitch} from 'primeng/toggleswitch';
 
 @Component({
   selector: 'app-add-setlist-entry-form',
@@ -40,7 +41,8 @@ import {SelectButton} from 'primeng/selectbutton';
     Button,
     Dialog,
     InputText,
-    SelectButton
+    SelectButton,
+    ToggleSwitch
   ],
   templateUrl: './add-setlist-entry-form.component.html',
   styleUrl: './add-setlist-entry-form.component.css',
