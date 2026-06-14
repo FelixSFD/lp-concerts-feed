@@ -25,6 +25,33 @@
   </ng-template>
 </p-dialog>
 
+<!-- add song modal -->
+<p-dialog header="Add new song" [(visible)]="showAddActDialog" [modal]="true" [draggable]="false" [dismissableMask]="true">
+  <form #form="ngForm" [formGroup]="addActForm" class="form">
+    <div class="grid mt-0">
+      <!-- Act Number -->
+      <div class="col-12">
+        <p-floatlabel variant="on">
+          <p-input-number [showButtons]="true" inputId="actNumber" formControlName="actNumber" placeholder="Number of the entry in the setlist" [min]="0" [max]="10" fluid />
+          <label for="actNumber">Act Number</label>
+        </p-floatlabel>
+      </div>
+    </div>
+    <!-- Act Title -->
+    <div class="col-12">
+      <p-floatlabel variant="on">
+        <input pInputText id="actTitle" formControlName="actTitle" autocomplete="off" fluid />
+        <label for="actTitle">Title</label>
+      </p-floatlabel>
+    </div>
+  </form>
+
+  <ng-template #footer>
+    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="showAddActDialog = false" />
+    <p-button label="Add" (onClick)="onActAdd()" [disabled]="addActForm.invalid" />
+  </ng-template>
+</p-dialog>
+
 <!-- add setlist entry modal -->
 <ng-template #addSongExtraContent let-addSongExtraModal>
   <div class="modal-content">
@@ -132,27 +159,36 @@
 
   @if (selectedEntryType$ == AddSetlistEntryFormContent.entryTypeSong) {
     <!-- Song selection -->
-    <div class="form-group">
-      <label for="song">Played Song</label>
-      <div class="input-group mb-3">
-        <select class="form-select form-control"
-                formControlName="selectedSongId"
-                [ngClass]="{ 'is-invalid': setlistEntryForm.controls.selectedSongId.invalid }">
-          <option selected disabled>Select song</option>
-          <option value="-1">Add new song...</option>
-          <option disabled>---------------</option>
-          @for (song of availableSongs$; track song.id) {
-            <option [value]="song.id">{{ song.title }}</option>
+    <div class="col-12">
+      <ng-template #songSelectionItem let-song="song">
+        <div class="flex flex-wrap">
+          @if (song.album?.title) {
+            <div class="text-xs w-full">
+              {{ song.album!.title}}
+            </div>
           }
-        </select>
-      </div>
-      @if (setlistEntryForm.controls.selectedSongId.invalid) {
-        <div class="text-danger">
-          @if (setlistEntryForm.controls.selectedSongId.errors) {
-            <small>Selection is invalid.</small>
-          }
+          <div class="font-bold w-full">
+            {{ song.title }}
+          </div>
         </div>
-      }
+      </ng-template>
+      <p-floatlabel variant="on">
+        <p-select inputId="selectedSong" [options]="availableSongs$" formControlName="selectedSong" fluid showClear>
+          <ng-template #selectedItem let-selectedOption>
+            <ng-container *ngTemplateOutlet="songSelectionItem; context: { song: selectedOption }" />
+          </ng-template>
+          <ng-template let-song #item>
+            <ng-container *ngTemplateOutlet="songSelectionItem; context: { song: song }" />
+          </ng-template>
+
+          <ng-template #footer>
+            <div class="p-3">
+              <p-button label="Add New" fluid severity="primary" text size="small" icon="pi pi-plus" (onClick)="openAddActDialog()" />
+            </div>
+          </ng-template>
+        </p-select>
+        <label for="selectedSong">Played Song</label>
+      </p-floatlabel>
     </div>
 
     <!-- fields for the song . Only displayed if "Add new song" is selected -->

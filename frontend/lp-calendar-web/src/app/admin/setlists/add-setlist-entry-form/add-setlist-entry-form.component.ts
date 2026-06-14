@@ -65,6 +65,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
     actNumber: new FormControl<number>(1, []),
     actTitle: new FormControl('', [Validators.maxLength(31)]),
     selectedAct: new FormControl<SetlistActDto | null>(null, []),
+    selectedSong: new FormControl<SongDto | null>(null, []),
     selectedSongId: new FormControl(0, []),
     songTitle: new FormControl('', [Validators.maxLength(31)]),
     songIsrc: new FormControl('', []),
@@ -453,9 +454,10 @@ export class AddSetlistEntryFormComponent implements OnInit {
     if (entryType == AddSetlistEntryFormContent.entryTypeSong) {
       console.debug("Adding fields about a song...");
 
-      content.selectedSongId = this.setlistEntryForm.value.selectedSongId?.valueOf();
-      content.songTitle = nullIfEmpty(this.setlistEntryForm.value.songTitle?.valueOf());
-      content.songIsrc = nullIfEmpty(this.setlistEntryForm.value.songIsrc?.valueOf());
+      let song = this.setlistEntryForm.value.selectedSong;
+      content.selectedSongId = song?.id;
+      content.songTitle = nullIfEmpty(song?.title ?? null);
+      content.songIsrc = nullIfEmpty(song?.isrc ?? null);
 
       let songVariantId = this.setlistEntryForm.value.selectedSongVariantId?.valueOf() ?? 0;
       if (songVariantId != 0) {
