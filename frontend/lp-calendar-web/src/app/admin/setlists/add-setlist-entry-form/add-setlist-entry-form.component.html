@@ -26,29 +26,28 @@
 </p-dialog>
 
 <!-- add song modal -->
-<p-dialog header="Add new song" [(visible)]="showAddActDialog" [modal]="true" [draggable]="false" [dismissableMask]="true">
-  <form #form="ngForm" [formGroup]="addActForm" class="form">
-    <div class="grid mt-0">
-      <!-- Act Number -->
-      <div class="col-12">
-        <p-floatlabel variant="on">
-          <p-input-number [showButtons]="true" inputId="actNumber" formControlName="actNumber" placeholder="Number of the entry in the setlist" [min]="0" [max]="10" fluid />
-          <label for="actNumber">Act Number</label>
-        </p-floatlabel>
-      </div>
-    </div>
-    <!-- Act Title -->
+<p-dialog header="Add new song" [(visible)]="showAddSongDialog" [modal]="true" [draggable]="false" [dismissableMask]="true">
+  <form #form="ngForm" [formGroup]="addSongForm" class="form grid">
+    <!-- Song Title -->
     <div class="col-12">
       <p-floatlabel variant="on">
-        <input pInputText id="actTitle" formControlName="actTitle" autocomplete="off" fluid />
-        <label for="actTitle">Title</label>
+        <input pInputText id="songTitle" formControlName="songTitle" autocomplete="off" fluid />
+        <label for="songTitle">Title</label>
+      </p-floatlabel>
+    </div>
+
+    <!-- Song ISRC -->
+    <div class="col-12">
+      <p-floatlabel variant="on">
+        <input pInputText id="songIsrc" formControlName="songIsrc" autocomplete="off" fluid />
+        <label for="songIsrc">ISRC</label>
       </p-floatlabel>
     </div>
   </form>
 
   <ng-template #footer>
-    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="showAddActDialog = false" />
-    <p-button label="Add" (onClick)="onActAdd()" [disabled]="addActForm.invalid" />
+    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="showAddSongDialog = false" />
+    <p-button label="Add" (onClick)="onSongAdd()" [disabled]="addSongForm.invalid" />
   </ng-template>
 </p-dialog>
 
@@ -183,7 +182,7 @@
 
           <ng-template #footer>
             <div class="p-3">
-              <p-button label="Add New" fluid severity="primary" text size="small" icon="pi pi-plus" (onClick)="openAddActDialog()" />
+              <p-button label="Add New" fluid severity="primary" text size="small" icon="pi pi-plus" (onClick)="openAddSongDialog()" />
             </div>
           </ng-template>
         </p-select>
@@ -191,63 +190,27 @@
       </p-floatlabel>
     </div>
 
-    <!-- fields for the song . Only displayed if "Add new song" is selected -->
-    @if (showAddSongFields) {
-      <!-- Song Title -->
-      <div class="form-group">
-        <label for="songTitle">Title of the song:</label>
-        <div class="input-group mb-3">
-          <input id="songTitle" type="text" formControlName="songTitle" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.songTitle.invalid }" placeholder="Example: Lost">
-        </div>
-        @if (setlistEntryForm.controls.songTitle.invalid) {
-          <div class="text-danger">
-            @if (setlistEntryForm.controls.songTitle.errors) {
-              <small>Song title is invalid.</small>
-            }
-          </div>
-        }
-      </div>
+    <div class="col-12">
+      <ng-template #songVariantSelectionItem let-variant="variant">
+        {{ variant.variantName }} {{ variant.description != null && variant.description.length > 0 ? `(${variant.description})` : "" }}
+      </ng-template>
+      <p-floatlabel variant="on">
+        <p-select inputId="selectedSong" [options]="variantsOfSelectedSong$" formControlName="selectedSongVariant" fluid showClear>
+          <ng-template #selectedItem let-selectedOption>
+            <ng-container *ngTemplateOutlet="songVariantSelectionItem; context: { variant: selectedOption }" />
+          </ng-template>
+          <ng-template let-variant #item>
+            <ng-container *ngTemplateOutlet="songVariantSelectionItem; context: { variant: variant }" />
+          </ng-template>
 
-      <!-- Song ISRC -->
-      <div class="form-group">
-        <label for="songIsrc">ISRC:</label>
-        <small>This is a unique code to identify an official recording of a song.</small>
-        <div class="input-group mb-3">
-          <input id="songIsrc" type="text" formControlName="songIsrc" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.songIsrc.invalid }" placeholder="(optional) ISRC">
-        </div>
-        @if (setlistEntryForm.controls.songIsrc.invalid) {
-          <div class="text-danger">
-            @if (setlistEntryForm.controls.songIsrc.errors) {
-              <small>ISRC is invalid.</small>
-            }
-          </div>
-        }
-      </div>
-    }
-
-    <!-- Song variant -->
-    <div class="form-group">
-      <label for="songVariant">Played variation of the song</label>
-      <div class="input-group mb-3">
-        <select class="form-select form-control" (change)="onSongVariantSelectionChanged()"
-                formControlName="selectedSongVariantId"
-                [ngClass]="{ 'is-invalid': setlistEntryForm.controls.selectedSongVariantId.invalid }">
-          <option selected value="0">Normal version</option>
-          <option disabled>---------------</option>
-          <option value="-1">Add new variant</option>
-          <option disabled>---------------</option>
-          @for (variant of variantsOfSelectedSong$; track variant.id) {
-            <option [value]="variant.id">{{ variant.variantName }} {{ variant.description != null && variant.description.length > 0 ? `(${variant.description})` : "" }}</option>
-          }
-        </select>
-      </div>
-      @if (setlistEntryForm.controls.selectedSongVariantId.invalid) {
-        <div class="text-danger">
-          @if (setlistEntryForm.controls.selectedSongVariantId.errors) {
-            <small>Selection is invalid.</small>
-          }
-        </div>
-      }
+          <ng-template #footer>
+            <div class="p-3">
+              <p-button label="Add New" fluid severity="primary" text size="small" icon="pi pi-plus" (onClick)="openAddSongDialog()" />
+            </div>
+          </ng-template>
+        </p-select>
+        <label for="selectedSong">Played variation of this song</label>
+      </p-floatlabel>
     </div>
   } @else if (selectedEntryType$ == AddSetlistEntryFormContent.entryTypeSongMashup) {
     <!-- Mashup -->
@@ -267,39 +230,6 @@
         <div class="text-danger">
           @if (setlistEntryForm.controls.selectedSongMashupId.errors) {
             <small>Selection is invalid.</small>
-          }
-        </div>
-      }
-    </div>
-  }
-
-  <!-- fields for the song variant. Only displayed if "Add new variant" is selected -->
-  @if (showAddNewVariantFields) {
-    <!-- Variant Name -->
-    <div class="form-group">
-      <label for="songVariantName">Name of the variant:</label>
-      <div class="input-group mb-3">
-        <input id="songVariantName" type="text" formControlName="songVariantName" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.songVariantName.invalid }" placeholder="Example: Piano Version">
-      </div>
-      @if (setlistEntryForm.controls.songVariantName.invalid) {
-        <div class="text-danger">
-          @if (setlistEntryForm.controls.songVariantName.errors) {
-            <small>Name is invalid.</small>
-          }
-        </div>
-      }
-    </div>
-
-    <!-- Variant Description -->
-    <div class="form-group">
-      <label for="songVariantDescription">Description of the variant:</label>
-      <div class="input-group mb-3">
-        <input id="songVariantDescription" type="text" formControlName="songVariantDescription" class="form-control" [ngClass]="{ 'is-invalid': setlistEntryForm.controls.songVariantDescription.invalid }" placeholder="(optional) What makes this variant different?">
-      </div>
-      @if (setlistEntryForm.controls.songVariantDescription.invalid) {
-        <div class="text-danger">
-          @if (setlistEntryForm.controls.songVariantDescription.errors) {
-            <small>Description is invalid.</small>
           }
         </div>
       }

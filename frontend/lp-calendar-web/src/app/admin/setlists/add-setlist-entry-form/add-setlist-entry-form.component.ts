@@ -52,6 +52,10 @@ export class AddSetlistEntryFormComponent implements OnInit {
   private songService = inject(SongsService);
   private setlistsService = inject(SetlistsService);
 
+  private static songVariantNormalVersion: SongVariantDto = {
+    variantName: "Normal version"
+  };
+
   @Input("setlist-id")
   setlistId: number | undefined;
 
@@ -66,12 +70,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
     actTitle: new FormControl('', [Validators.maxLength(31)]),
     selectedAct: new FormControl<SetlistActDto | null>(null, []),
     selectedSong: new FormControl<SongDto | null>(null, []),
-    selectedSongId: new FormControl(0, []),
-    songTitle: new FormControl('', [Validators.maxLength(31)]),
-    songIsrc: new FormControl('', []),
-    selectedSongVariantId: new FormControl(0, []),
-    songVariantName: new FormControl('', []),
-    songVariantDescription: new FormControl('', []),
+    selectedSongVariant: new FormControl<SongVariantDto>(AddSetlistEntryFormComponent.songVariantNormalVersion, []),
     selectedSongMashupId: new FormControl(0, []),
     wasPlayedFromRecording: new FormControl(false, []),
     wasRotationSong: new FormControl(false, []),
@@ -84,17 +83,23 @@ export class AddSetlistEntryFormComponent implements OnInit {
     actTitle: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(31)]),
   });
 
+  addSongForm = this.formBuilder.group({
+    songTitle: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(31)]),
+    songIsrc: new FormControl('', []),
+  });
+
   selectedEntryType$: string = AddSetlistEntryFormContent.entryTypeSong;
 
   availableSongMashups$: SongMashupDto[] = [];
   availableSongs$: SongDto[] = [];
   availableActs$: SetlistActDto[] = [];
 
-  variantsOfSelectedSong$: SongVariantDto[] = [];
+  variantsOfSelectedSong$: SongVariantDto[] = [AddSetlistEntryFormComponent.songVariantNormalVersion];
 
   currentSongExtras$: SetlistEntrySongExtraDto[] = [];
 
   showAddActDialog: boolean = false;
+  showAddSongDialog: boolean = false;
   showAddActFields: boolean = false;
   showAddSongFields: boolean = false;
   showAddNewVariantFields: boolean = false;
@@ -116,14 +121,14 @@ export class AddSetlistEntryFormComponent implements OnInit {
   private storedEntry: RawSetlistEntryDto | null = null;
 
   ngOnInit(): void {
-    this.setlistEntryForm.controls.selectedSongVariantId.disable();
+    this.setlistEntryForm.controls.selectedSongVariant.disable();
 
     this.setlistEntryForm.controls.entryType.valueChanges.subscribe(value => {
       this.selectedEntryType$ = value ?? AddSetlistEntryFormContent.entryTypeSong;
     });
 
-    this.setlistEntryForm.controls.selectedSongId.valueChanges.subscribe(value => {
-      this.onSongSelectionChanged();
+    this.setlistEntryForm.controls.selectedSong.valueChanges.subscribe(value => {
+      this.onSongSelectionChanged(value);
     });
 
     this.songService
@@ -141,7 +146,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
             }
 
             if (songId > 0) {
-              this.setlistEntryForm.controls.selectedSongId.setValue(songId);
+              this.setlistEntryForm.controls.selectedSong.setValue(this.storedEntry.playedSong ?? null);
               this.loadVariantsOfSelectedSong(songId);
             }
           }
@@ -299,26 +304,18 @@ export class AddSetlistEntryFormComponent implements OnInit {
   }
 
 
-  onSongSelectionChanged() {
-    let songId = Number(this.setlistEntryForm.value.selectedSongId?.valueOf());
+  onSongSelectionChanged(song: SongDto | null) {
+    let songId = song?.id ?? 0;
     console.debug("Song selected: ", songId);
 
     if (songId > 0) {
       this.loadVariantsOfSelectedSong(songId);
-      this.setlistEntryForm.controls.selectedSongVariantId.enable();
+      this.setlistEntryForm.controls.selectedSongVariant.enable();
     } else {
-      this.setlistEntryForm.controls.selectedSongVariantId.disable();
+      this.setlistEntryForm.controls.selectedSongVariant.disable();
     }
 
     this.showAddSongFields = songId == -1;
-  }
-
-
-  onSongVariantSelectionChanged() {
-    let songVariantId = Number(this.setlistEntryForm.value.selectedSongVariantId?.valueOf());
-    console.debug("Variant selected: ", songVariantId);
-
-    this.showAddNewVariantFields = songVariantId == -1;
   }
 
   onActAdd() {
@@ -342,6 +339,25 @@ export class AddSetlistEntryFormComponent implements OnInit {
   }
 
 
+  openAddSongDialog() {
+    this.showAddSongDialog = true;
+  }
+
+  onSongAdd() {
+    let newSong: SongDto = {
+      title: this.addSongForm.value.songTitle,
+      isrc: this.addSongForm.value.songIsrc,
+    }
+
+    console.debug("Add new song", newSong);
+    this.availableSongs$.push(newSong);
+    this.availableSongs$.sort((a, b) => (a.title ?? "") < (b.title ?? "") ? -1 : 1);
+    this.setlistEntryForm.controls.selectedSong.setValue(newSong);
+    this.showAddSongDialog = false;
+    this.addSongForm.reset();
+  }
+
+
   public setSongNumber(songNumber: number) {
     this.setlistEntryForm.controls.songNumber.setValue(songNumber);
   }
@@ -349,20 +365,21 @@ export class AddSetlistEntryFormComponent implements OnInit {
 
   private loadVariantsOfSelectedSong(songId: number) {
     console.debug("Load Variants of selectedSong");
-    this.setlistEntryForm.controls.selectedSongVariantId.disable();
-    this.variantsOfSelectedSong$ = [];
+    this.setlistEntryForm.controls.selectedSongVariant.disable();
+    this.variantsOfSelectedSong$ = [AddSetlistEntryFormComponent.songVariantNormalVersion];
 
     this.songService.getVariantsOfSong(songId)
       .subscribe(variants => {
         console.debug("Loaded Variants of selectedSong", variants);
-        this.variantsOfSelectedSong$ = variants;
+        this.variantsOfSelectedSong$ = [AddSetlistEntryFormComponent.songVariantNormalVersion, ...variants];
 
         if (this.storedEntry) {
-          let songVariantId = this.storedEntry.playedSongVariant?.id;
-          this.setlistEntryForm.controls.selectedSongVariantId.setValue(songVariantId ?? 0);
+          let songVariantId = this.storedEntry.playedSongVariant?.id ?? 0;
+          let foundVariant = this.variantsOfSelectedSong$.find(e => e.id == songVariantId);
+          this.setlistEntryForm.controls.selectedSongVariant.setValue(foundVariant ?? AddSetlistEntryFormComponent.songVariantNormalVersion);
         }
 
-        this.setlistEntryForm.controls.selectedSongVariantId.enable();
+        this.setlistEntryForm.controls.selectedSongVariant.enable();
       });
   }
 
@@ -384,8 +401,8 @@ export class AddSetlistEntryFormComponent implements OnInit {
           this.setlistEntryForm.controls.titleOverride.setValue(entry.titleOverride ?? null);
           this.setlistEntryForm.controls.extraNotes.setValue(entry.extraNotes ?? null);
           this.setlistEntryForm.controls.selectedActNumber.setValue(entry.actNumber ?? 0);
-          this.setlistEntryForm.controls.selectedSongId.setValue(entry.playedSong?.id ?? entry.playedSongVariant?.songId ?? null);
-          this.setlistEntryForm.controls.selectedSongVariantId.setValue(entry.playedSongVariant?.id ?? null);
+          this.setlistEntryForm.controls.selectedSong.setValue(entry.playedSong ?? null);
+          this.setlistEntryForm.controls.selectedSongVariant.setValue(entry.playedSongVariant ?? null);
           this.setlistEntryForm.controls.selectedSongMashupId.setValue(entry.playedSongMashup?.id ?? null);
           this.setlistEntryForm.controls.wasWorldPremiere.setValue(entry.isWorldPremiere ?? false);
           this.setlistEntryForm.controls.wasPlayedFromRecording.setValue(entry.isPlayedFromRecording ?? false);
@@ -459,14 +476,14 @@ export class AddSetlistEntryFormComponent implements OnInit {
       content.songTitle = nullIfEmpty(song?.title ?? null);
       content.songIsrc = nullIfEmpty(song?.isrc ?? null);
 
-      let songVariantId = this.setlistEntryForm.value.selectedSongVariantId?.valueOf() ?? 0;
+      let songVariantId = this.setlistEntryForm.value.selectedSongVariant?.id ?? 0;
       if (songVariantId != 0) {
         console.debug("The entry is a song variant!");
         content.entryType = AddSetlistEntryFormContent.entryTypeSongVariant;
 
         content.selectedSongVariantId = songVariantId;
-        content.songVariantName = nullIfEmpty(this.setlistEntryForm.value.songVariantName?.valueOf());
-        content.songVariantDescription = nullIfEmpty(this.setlistEntryForm.value.songVariantDescription?.valueOf());
+        content.songVariantName = nullIfEmpty(this.setlistEntryForm.value.selectedSongVariant?.variantName);
+        content.songVariantDescription = nullIfEmpty(this.setlistEntryForm.value.selectedSongVariant?.description);
       }
     } else if (entryType == AddSetlistEntryFormContent.entryTypeSongMashup) {
       console.debug("This entry is a song mashup...");
