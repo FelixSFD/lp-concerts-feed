@@ -7,7 +7,6 @@ import {
 } from '../../../../../modules/lpshows-api';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {SetlistsService} from '../../../../../services/setlists.service';
-import {ToastrService} from 'ngx-toastr';
 import {SetlistEntry} from '../../../../../data/setlists/setlist-entry';
 import {
   AddSetlistEntryFormComponent
@@ -19,7 +18,7 @@ import {Divider} from 'primeng/divider';
 import {TableModule, TableRowReorderEvent} from 'primeng/table';
 import {ButtonGroup} from 'primeng/buttongroup';
 import {ConfirmDialog} from 'primeng/confirmdialog';
-import {ConfirmationService} from 'primeng/api';
+import {ConfirmationService, MessageService} from 'primeng/api';
 import {Dialog} from 'primeng/dialog';
 import {FloatLabel} from 'primeng/floatlabel';
 import {InputText} from 'primeng/inputtext';
@@ -53,8 +52,8 @@ export class EditSetlistPageComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
   private activeRoute = inject(ActivatedRoute);
   private setlistService = inject(SetlistsService);
-  private toastr = inject(ToastrService);
   private confirmationService = inject(ConfirmationService);
+  private messageService = inject(MessageService);
 
   private addEntryFormComponent = viewChild(AddSetlistEntryFormComponent);
 
@@ -148,13 +147,20 @@ export class EditSetlistPageComponent implements OnInit {
     this.setlistService.updateSetlistHeader(this.currentSetlistId, request)
       .subscribe({
         next: (response) => {
-          this.toastr.success("Setlist was updated successfully");
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Successfully updated successfully',
+          });
 
           this.isSaving$ = false;
         },
         error: err => {
           let errorResponse: ErrorResponseDto = err.error;
-          this.toastr.error(errorResponse.message, "Could not update setlist");
+          this.messageService.add({
+            severity: 'danger',
+            summary: 'Could not update setlist',
+            text: errorResponse.message,
+          });
           this.isSaving$ = false;
         }
       });
@@ -201,7 +207,10 @@ export class EditSetlistPageComponent implements OnInit {
       this.setlistService.addSetlistEntry(formValues, this.currentSetlistId)
         .subscribe({
           next: () => {
-            this.toastr.success("Setlist was updated successfully");
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Entry was added successfully',
+            });
             this.reloadCurrentSetlist();
 
             this.dismissAddEntryModal();
@@ -209,13 +218,20 @@ export class EditSetlistPageComponent implements OnInit {
           },
           error: err => {
             let errorResponse: ErrorResponseDto = err.error;
-            this.toastr.error(errorResponse.message, "Could not update setlist");
+            this.messageService.add({
+              severity: 'danger',
+              summary: 'Could not add entry to setlist',
+              text: errorResponse.message,
+            });
             this.dismissAddEntryModal();
             this.isAddingEntry$ = false;
           }
         });
     } else {
-      this.toastr.error("Failed to read form data!");
+      this.messageService.add({
+        severity: 'danger',
+        summary: 'Failed to read form data!',
+      });
       this.isAddingEntry$ = false;
     }
   }
@@ -234,13 +250,20 @@ export class EditSetlistPageComponent implements OnInit {
     this.setlistService.applyNewEntryOrder(this.currentSetlistId, this.setlistEntries$.map(e => e.id))
       .subscribe({
         next: () => {
-          this.toastr.success("Setlist was reordered successfully");
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Successfully reordered setlist entries',
+          });
           this.isPendingReorder$ = false;
           this.isSaving$ = false;
         },
         error: err => {
           let errorResponse: ErrorResponseDto = err.error;
-          this.toastr.error(errorResponse.message, "Could not reorder setlist");
+          this.messageService.add({
+            severity: 'danger',
+            summary: 'Could not reorder setlist',
+            text: errorResponse.message,
+          });
           this.isSaving$ = false;
         }
       })
@@ -292,7 +315,11 @@ export class EditSetlistPageComponent implements OnInit {
         console.warn("Failed to delete setlist entry:", err);
         this.entryDeleting$ = false;
 
-        this.toastr.error(errorResponse.message, "Could not delete setlist!");
+        this.messageService.add({
+          severity: 'danger',
+          summary: 'Could not delete setlist entry',
+          text: errorResponse.message,
+        });
       }
     });
   }
@@ -328,18 +355,28 @@ export class EditSetlistPageComponent implements OnInit {
       this.setlistService.updateSetlistEntry(formValues, this.currentSetlistId, id)
         .subscribe({
           next: () => {
-            this.toastr.success("Entry was updated successfully");
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Entry was updated successfully',
+            });
             this.entryToEdit = null;
             this.isEditingEntry$ = false;
             this.reloadCurrentSetlist();
           },
           error: err => {
             let errorResponse: ErrorResponseDto = err.error;
-            this.toastr.error(errorResponse.message, "Could not update setlist entry");
+            this.messageService.add({
+              severity: 'danger',
+              summary: 'Could not update setlist entry',
+              text: errorResponse.message,
+            });
           }
         });
     } else {
-      this.toastr.error("Failed to read form data!");
+      this.messageService.add({
+        severity: 'danger',
+        summary: 'Failed to read form data',
+      });
       this.isEditingEntry$ = false;
     }
   }
