@@ -1,26 +1,29 @@
 import {Component, inject, OnInit, viewChild} from '@angular/core';
-import {ActivatedRoute, Router, RouterLink} from '@angular/router';
-import {ToastrService} from 'ngx-toastr';
-import {SongsService} from '../../../services/songs.service';
+import {ActivatedRoute, RouterLink} from '@angular/router';
+import {SongsService} from '../../../../../services/songs.service';
 import {
   ErrorResponseDto,
   UpdateSongMashupRequestDto
-} from '../../../modules/lpshows-api';
+} from '../../../../../modules/lpshows-api';
 import {MashupFormComponent, MashupFormContent} from '../mashup-form/mashup-form.component';
+import {Button} from 'primeng/button';
+import {Card} from 'primeng/card';
+import {MessageService} from 'primeng/api';
 
 @Component({
   selector: 'app-edit-mashup-page',
   imports: [
     MashupFormComponent,
-    RouterLink
+    RouterLink,
+    Button,
+    Card
   ],
   templateUrl: './edit-mashup-page.component.html',
   styleUrl: './edit-mashup-page.component.css',
 })
 export class EditMashupPageComponent implements OnInit {
-  private router = inject(Router);
   private activeRoute = inject(ActivatedRoute);
-  private toastr = inject(ToastrService);
+  private messageService = inject(MessageService);
   private songsService = inject(SongsService);
 
   private mashupFormComponent = viewChild(MashupFormComponent);
@@ -53,12 +56,19 @@ export class EditMashupPageComponent implements OnInit {
     this.songsService.updateMashup(this.currentMashupId, request).subscribe({
       next: createdMashup => {
         console.debug('Update mashup', createdMashup);
-        this.toastr.success("Successfully saved mashup");
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Successfully saved mashup',
+        });
         this.isSaving$ = false;
       },
       error: err => {
         let errorResponse: ErrorResponseDto = err.error;
-        this.toastr.error(errorResponse.message, "Could not update mashup");
+        this.messageService.add({
+          severity: 'danger',
+          summary: 'Could not update mashup',
+          text: errorResponse.message,
+        });
         this.isSaving$ = false;
       }
     });
@@ -73,7 +83,11 @@ export class EditMashupPageComponent implements OnInit {
         },
         error: err => {
           let errorResponse: ErrorResponseDto = err.error;
-          this.toastr.error(errorResponse.message, "Could not load mashup");
+          this.messageService.add({
+            severity: 'danger',
+            summary: 'Could not load mashup',
+            text: errorResponse.message,
+          });
         }
       });
   }

@@ -240,7 +240,7 @@ export const routes: Routes = [
       {
         path: 'mashups/:mashupId',
         loadComponent: () =>
-          import("./admin/setlists/edit-mashup-page/edit-mashup-page.component").then(m => m.EditMashupPageComponent),
+          import("./components/v2/admin/setlists/edit-mashup-page/edit-mashup-page.component").then(m => m.EditMashupPageComponent),
         title: baseTitle + 'Edit mashup',
         canActivate: [authGuard, manageSetlistsGuard],
       },

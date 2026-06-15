@@ -19,7 +19,7 @@ import {
 import {SongFormComponent} from '../../components/v2/admin/setlists/song-form/song-form.component';
 import {NgbModal, NgbModalRef, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {SongsService} from '../../services/songs.service';
-import {MashupFormComponent} from '../setlists/mashup-form/mashup-form.component';
+import {MashupFormComponent} from '../../components/v2/admin/setlists/mashup-form/mashup-form.component';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DateTime} from 'luxon';
 import {ConcertsService} from '../../services/concerts.service';

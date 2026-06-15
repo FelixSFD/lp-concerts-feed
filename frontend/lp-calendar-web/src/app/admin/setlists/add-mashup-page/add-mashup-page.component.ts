@@ -1,5 +1,5 @@
 import {Component, inject} from '@angular/core';
-import {MashupFormComponent, MashupFormContent} from '../mashup-form/mashup-form.component';
+import {MashupFormComponent, MashupFormContent} from '../../../components/v2/admin/setlists/mashup-form/mashup-form.component';
 import {SongsService} from '../../../services/songs.service';
 import {CreateSongMashupRequestDto, ErrorResponseDto} from '../../../modules/lpshows-api';
 import {ToastrService} from 'ngx-toastr';

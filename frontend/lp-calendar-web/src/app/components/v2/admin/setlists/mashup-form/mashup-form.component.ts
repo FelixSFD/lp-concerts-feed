@@ -1,29 +1,44 @@
-import {Component, EventEmitter, inject, Input, OnInit, Output, TemplateRef} from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
-import {ErrorResponseDto, SongDto, SongMashupDto} from '../../../modules/lpshows-api';
-import {NgClass, NgTemplateOutlet} from '@angular/common';
-import {AddSetlistEntryFormComponent} from '../add-setlist-entry-form/add-setlist-entry-form.component';
-import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
-import {SelectSongComponent} from '../../../components/v2/admin/setlists/select-song/select-song.component';
-import {SongsService} from '../../../services/songs.service';
-import {ToastrService} from 'ngx-toastr';
-import {RouterLink} from '@angular/router';
+import {ErrorResponseDto, SongDto, SongMashupDto} from '../../../../../modules/lpshows-api';
+import {NgTemplateOutlet} from '@angular/common';
+import {SelectSongComponent} from '../select-song/select-song.component';
+import {SongsService} from '../../../../../services/songs.service';
+import {Button} from 'primeng/button';
+import {Card} from 'primeng/card';
+import {Divider} from 'primeng/divider';
+import {FloatLabel} from 'primeng/floatlabel';
+import {InputGroup} from 'primeng/inputgroup';
+import {InputGroupAddon} from 'primeng/inputgroupaddon';
+import {InputText} from 'primeng/inputtext';
+import {TableModule} from 'primeng/table';
+import {ButtonGroup} from 'primeng/buttongroup';
+import {MessageService} from 'primeng/api';
+import {Dialog} from 'primeng/dialog';
 
 @Component({
   selector: 'app-mashup-form',
   imports: [
     FormsModule,
     ReactiveFormsModule,
-    NgClass,
     SelectSongComponent,
-    NgTemplateOutlet
+    NgTemplateOutlet,
+    Button,
+    Card,
+    Divider,
+    FloatLabel,
+    InputGroup,
+    InputGroupAddon,
+    InputText,
+    TableModule,
+    ButtonGroup,
+    Dialog
   ],
   templateUrl: './mashup-form.component.html',
   styleUrl: './mashup-form.component.css',
 })
 export class MashupFormComponent implements OnInit {
-  private modalService = inject(NgbModal);
-  private toastr = inject(ToastrService);
+  private messageService = inject(MessageService);
   private formBuilder = inject(FormBuilder);
   private songsService = inject(SongsService);
 
@@ -44,14 +59,13 @@ export class MashupFormComponent implements OnInit {
     linkinpediaUrl: new FormControl('', [Validators.pattern(/^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/)]),
   });
 
-  // if open, the modal is referenced here
-  addSongModal: NgbModalRef | undefined;
-
   songsInMashup$: SongDto[] = [];
 
   availableSongs$: SongDto[] = [];
 
   selectedNewSong$: SongDto | null | undefined;
+
+  isShowingAddSongModal$: boolean = false;
 
 
   ngOnInit() {
@@ -61,18 +75,18 @@ export class MashupFormComponent implements OnInit {
       },
       error: err => {
         let errorResponse: ErrorResponseDto = err.error;
-        this.toastr.error(errorResponse.message, "Could not update setlist entry");
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Could not load the available songs',
+          text: errorResponse.message,
+        });
       }
     })
   }
 
-  openModal(content: TemplateRef<any>) {
-    return this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
-  }
 
-
-  onAddSongClicked(content: TemplateRef<any>) {
-    this.addSongModal = this.openModal(content);
+  onAddSongClicked() {
+    this.isShowingAddSongModal$ = true;
   }
 
 
@@ -105,7 +119,7 @@ export class MashupFormComponent implements OnInit {
       this.songsInMashup$.push(this.selectedNewSong$);
     }
 
-    this.addSongModal?.dismiss();
+    this.isShowingAddSongModal$ = false;
   }
 
 
@@ -114,12 +128,20 @@ export class MashupFormComponent implements OnInit {
   }
 
 
+  onEditSongClicked(id: number) {
+    window.open(`/admin/songs/${id.toString()}`, '_blank');
+  }
+
+
   public readFromForm(): MashupFormContent | null {
     let title = this.mashupForm.value.title?.valueOf();
     let linkinpediaUrl = this.mashupForm.value.linkinpediaUrl?.valueOf();
 
     if (title == undefined) {
-      this.toastr.error("Title is required");
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Title is required"',
+      });
       return null;
     }
 

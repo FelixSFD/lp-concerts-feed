@@ -1,0 +1,112 @@
+<!-- add song modal -->
+<p-dialog header="Add a new song to the mashup" [(visible)]="isShowingAddSongModal$" [modal]="true" [breakpoints]="{ '1199px': '50vw', '575px': '90vw' }" [style]="{ width: '30vw', height: '30rem' }" [draggable]="false" [dismissableMask]="true">
+  <app-select-song [available-songs]="availableSongs$" (songSelected)="onSongSelected($event)" />
+
+  <p-divider />
+
+  <ng-template #footer>
+    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="isShowingAddSongModal$ = false" />
+    <p-button label="Add" (onClick)="onConfirmSongSelectionClicked()" />
+  </ng-template>
+</p-dialog>
+<ng-template #addSongContent let-addSongModal>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h1 class="modal-title fs-5" id="addSongModalLabel">Add a new song</h1>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <!-- Song selection -->
+      <div class="form-group">
+        <label for="song">Played Song</label>
+        <div class="input-group mb-3">
+          <app-select-song [available-songs]="availableSongs$" (songSelected)="onSongSelected($event)" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary">Cancel</button>
+      <button type="button" class="btn btn-primary" id="addEntryConfirmBtn" (click)="onConfirmSongSelectionClicked()">
+        <span class="sr-only">Add</span>
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+
+<form #form="ngForm" [formGroup]="mashupForm" class="form">
+  <ng-template #formInputsGeneral>
+    <div class="grid gap-2">
+      <!-- Mashup title -->
+      <div class="col-12">
+        <p-floatlabel variant="on">
+          <input pInputText id="title" formControlName="title" autocomplete="off" fluid />
+          <label for="title">Title</label>
+        </p-floatlabel>
+      </div>
+
+      <!-- Linkinpedia URL -->
+      <div class="col-12">
+        <p-floatlabel variant="on">
+          <label for="concertId">Linkinpedia URL</label>
+          <p-input-group>
+            <input pInputText id="linkinpediaUrl" formControlName="linkinpediaUrl" autocomplete="off" fluid />
+            <p-inputgroup-addon>
+              <p-button icon="pi pi-external-link" label="Open link" severity="info" variant="outlined" (onClick)="openLinkinpediaUrlClicked()" />
+            </p-inputgroup-addon>
+          </p-input-group>
+        </p-floatlabel>
+      </div>
+    </div>
+  </ng-template>
+
+  @if (standalone$) {
+    <p-card class="mt-3">
+      <ng-template #title>
+        General information
+      </ng-template>
+
+      <ng-container *ngTemplateOutlet="formInputsGeneral" />
+
+      <ng-template #footer>
+        <p-divider />
+        <div class="flex gap-4 mt-1 align-content-end justify-content-end">
+          <p-button [label]="isSaving$ ? 'Saving...' : 'Save'" [loading]="isSaving$" (onClick)="onSaveClicked()" [disabled]="isSaving$ || !mashupForm.valid" />
+        </div>
+      </ng-template>
+    </p-card>
+  } @else {
+    <ng-container *ngTemplateOutlet="formInputsGeneral" />
+  }
+
+  <p-card class="mt-3">
+    <ng-template #title>
+      <div class="flex gap-2">
+        <span>Songs in this mashup</span>
+        <p-button label="Add" size="small" (onClick)="onAddSongClicked()" [disabled]="isSaving$" />
+      </div>
+    </ng-template>
+
+    <p-table [value]="songsInMashup$" [tableStyle]="{ 'min-width': '50rem' }" stripedRows>
+      <ng-template #header>
+        <tr>
+          <th scope="col">Title</th>
+          <th scope="col">ISRC</th>
+          <th scope="col"></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-song>
+        <tr>
+          <td>{{ song.title }}</td>
+          <td>{{ song.isrc }}</td>
+          <td>
+            <p-button-group size="small">
+              <p-button size="small" variant="outlined" severity="info" label="Edit song" icon="pi pi-external-link" (onClick)="onEditSongClicked(song.id ?? 0)" />
+              <p-button size="small" variant="outlined" severity="danger" label="Remove" (onClick)="onRemoveSongFromMashupClicked(song.id ?? 0)" />
+            </p-button-group>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</form>
