@@ -1,6 +1,6 @@
 import {Component, inject, Input, OnInit, viewChild} from '@angular/core';
 import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from "@angular/forms";
-import {SongsService} from '../../../services/songs.service';
+import {SongsService} from '../../../../../services/songs.service';
 import {
   AddSongExtraToSetlistEntryRequestDto,
   ErrorResponseDto,
@@ -8,14 +8,14 @@ import {
   SetlistActDto, SetlistEntrySongExtraDto,
   SongDto, SongMashupDto,
   SongVariantDto
-} from '../../../modules/lpshows-api';
+} from '../../../../../modules/lpshows-api';
 import {ToastrService} from 'ngx-toastr';
 import {NgTemplateOutlet} from '@angular/common';
-import {SetlistsService} from '../../../services/setlists.service';
-import {nullIfEmpty} from '../../../helper/string-helper'
+import {SetlistsService} from '../../../../../services/setlists.service';
+import {nullIfEmpty} from '../../../../../helper/string-helper'
 import {
   SetlistEntrySongExtraFormComponent
-} from '../setlist-entry-song-extra-form/setlist-entry-song-extra-form.component';
+} from '../../../../../admin/setlists/setlist-entry-song-extra-form/setlist-entry-song-extra-form.component';
 import {InputNumber} from 'primeng/inputnumber';
 import {FloatLabel} from 'primeng/floatlabel';
 import {Select} from 'primeng/select';

@@ -10,7 +10,7 @@ import {SetlistsService} from '../../../../../services/setlists.service';
 import {SetlistEntry} from '../../../../../data/setlists/setlist-entry';
 import {
   AddSetlistEntryFormComponent
-} from '../../../../../admin/setlists/add-setlist-entry-form/add-setlist-entry-form.component';
+} from '../add-setlist-entry-form/add-setlist-entry-form.component';
 import {SetlistEntryIconsComponent} from '../../../setlists/setlist-entry-icons/setlist-entry-icons.component';
 import {Button} from 'primeng/button';
 import {Card} from 'primeng/card';
