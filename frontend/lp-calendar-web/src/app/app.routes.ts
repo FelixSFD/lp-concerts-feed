@@ -252,6 +252,13 @@ export const routes: Routes = [
         canActivate: [authGuard, manageSetlistsGuard],
       },
       {
+        path: 'setlists/add',
+        loadComponent: () =>
+          import("./components/v2/admin/setlists/add-setlist-page/add-setlist-page.component").then(m => m.AddSetlistPageComponent),
+        title: baseTitle + 'Create a new setlist',
+        canActivate: [authGuard, manageSetlistsGuard],
+      },
+      {
         path: 'setlists/:setlistId',
         loadComponent: () =>
           import("./components/v2/admin/setlists/edit-setlist-page/edit-setlist-page.component").then(m => m.EditSetlistPageComponent),
@@ -259,16 +266,9 @@ export const routes: Routes = [
         canActivate: [authGuard, manageSetlistsGuard],
       },
       {
-        path: 'setlists/add',
-        loadComponent: () =>
-          import("./admin/setlists/add-setlist-page/add-setlist-page.component").then(m => m.AddSetlistPageComponent),
-        title: baseTitle + 'Create a new setlist',
-        canActivate: [authGuard, manageSetlistsGuard],
-      },
-      {
         path: 'setlists/add/:concertId',
         loadComponent: () =>
-          import("./admin/setlists/add-setlist-page/add-setlist-page.component").then(m => m.AddSetlistPageComponent),
+          import("./components/v2/admin/setlists/add-setlist-page/add-setlist-page.component").then(m => m.AddSetlistPageComponent),
         title: baseTitle + 'Create a new setlist',
         canActivate: [authGuard, manageSetlistsGuard],
       },

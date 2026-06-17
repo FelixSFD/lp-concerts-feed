@@ -1,0 +1,68 @@
+<p-card>
+  <ng-template #title>
+    <h1>Add a new setlist</h1>
+  </ng-template>
+
+  <p-button severity="secondary" variant="outlined" icon="pi pi-arrow-left" label="Setlists" [routerLink]="['../']" />
+
+  <form #form="ngForm" [formGroup]="setlistForm" class="form">
+    <p-card class="mt-2">
+      <ng-template #title>
+        <h4>General information</h4>
+      </ng-template>
+
+      <div class="grid gap-2">
+        <!-- Concert selection -->
+        <div class="col-12">
+          <p-floatlabel variant="on">
+            <p-input-group>
+              <input pInputText id="concertId" formControlName="concertId" autocomplete="off" fluid />
+              <p-inputgroup-addon>
+                <p-button icon="pi pi-external-link" label="Open Details" severity="info" variant="outlined" (onClick)="openConcertDetailsClicked()" />
+              </p-inputgroup-addon>
+            </p-input-group>
+
+            <label for="concertId">Concert</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- Concert Title -->
+        <div class="col-12">
+          <p-floatlabel variant="on">
+            <input pInputText id="concertTitle" formControlName="concertTitle" autocomplete="off" fluid />
+            <label for="concertTitle">Concert title</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- Set Name -->
+        <div class="col-12">
+          <p-floatlabel variant="on">
+            <input pInputText id="setName" formControlName="setName" autocomplete="off" fluid />
+            <label for="setName">Name of the set</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- Linkinpedia URL -->
+        <div class="col-12">
+          <p-floatlabel variant="on">
+            <p-input-group>
+              <input pInputText id="linkinpediaUrl" formControlName="linkinpediaUrl" autocomplete="off" fluid />
+              <p-inputgroup-addon>
+                <p-button icon="pi pi-external-link" label="Open link" severity="info" variant="outlined" (onClick)="openLinkinpediaUrlClicked()" />
+              </p-inputgroup-addon>
+            </p-input-group>
+
+            <label for="concertId">Linkinpedia URL</label>
+          </p-floatlabel>
+        </div>
+      </div>
+    </p-card>
+  </form>
+
+  <ng-template #footer>
+    <p-divider />
+    <div class="flex gap-4 mt-1 align-content-end justify-content-end">
+      <p-button [label]="isSaving$ ? 'Adding...' : 'Add'" [loading]="isSaving$" (onClick)="onSaveClicked()" [disabled]="isSaving$ || !setlistForm.valid" />
+    </div>
+  </ng-template>
+</p-card>
