@@ -233,7 +233,7 @@ export const routes: Routes = [
       {
         path: 'mashups/add',
         loadComponent: () =>
-          import("./admin/setlists/add-mashup-page/add-mashup-page.component").then(m => m.AddMashupPageComponent),
+          import("./components/v2/admin/setlists/add-mashup-page/add-mashup-page.component").then(m => m.AddMashupPageComponent),
         title: baseTitle + 'Add mashup',
         canActivate: [authGuard, manageSetlistsGuard],
       },

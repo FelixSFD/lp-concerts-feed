@@ -1,15 +1,19 @@
 import {Component, inject} from '@angular/core';
-import {MashupFormComponent, MashupFormContent} from '../../../components/v2/admin/setlists/mashup-form/mashup-form.component';
-import {SongsService} from '../../../services/songs.service';
-import {CreateSongMashupRequestDto, ErrorResponseDto} from '../../../modules/lpshows-api';
+import {MashupFormComponent, MashupFormContent} from '../mashup-form/mashup-form.component';
+import {SongsService} from '../../../../../services/songs.service';
+import {CreateSongMashupRequestDto, ErrorResponseDto} from '../../../../../modules/lpshows-api';
 import {ToastrService} from 'ngx-toastr';
 import {Router, RouterLink} from '@angular/router';
+import {Button} from 'primeng/button';
+import {Card} from 'primeng/card';
 
 @Component({
   selector: 'app-add-mashup-page',
   imports: [
     MashupFormComponent,
-    RouterLink
+    RouterLink,
+    Button,
+    Card
   ],
   templateUrl: './add-mashup-page.component.html',
   styleUrl: './add-mashup-page.component.css',
