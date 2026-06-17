@@ -15,7 +15,7 @@ import {SetlistsService} from '../../../../../services/setlists.service';
 import {nullIfEmpty} from '../../../../../helper/string-helper'
 import {
   SetlistEntrySongExtraFormComponent
-} from '../../../../../admin/setlists/setlist-entry-song-extra-form/setlist-entry-song-extra-form.component';
+} from '../setlist-entry-song-extra-form/setlist-entry-song-extra-form.component';
 import {InputNumber} from 'primeng/inputnumber';
 import {FloatLabel} from 'primeng/floatlabel';
 import {Select} from 'primeng/select';

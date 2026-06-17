@@ -12,7 +12,7 @@ import Artwork = MusicKit.Artwork;
 import {AppleMusicArtworkComponent} from '../../../music/apple-music-artwork/apple-music-artwork.component';
 import {
   SetlistEntrySongExtraListComponent
-} from '../../../../admin/setlists/setlist-entry-song-extra-list/setlist-entry-song-extra-list.component';
+} from '../setlist-entry-song-extra-list/setlist-entry-song-extra-list.component';
 import {TableModule} from 'primeng/table';
 import {Tooltip} from 'primeng/tooltip';
 import {Button} from 'primeng/button';

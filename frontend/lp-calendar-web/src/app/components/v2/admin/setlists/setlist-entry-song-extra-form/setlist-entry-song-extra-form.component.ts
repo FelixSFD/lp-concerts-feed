@@ -1,6 +1,6 @@
 import {Component, inject, Input} from '@angular/core';
 import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
-import {SetlistEntrySongExtraDto, SongDto} from '../../../modules/lpshows-api';
+import {SetlistEntrySongExtraDto, SongDto} from '../../../../../modules/lpshows-api';
 import TypeEnum = SetlistEntrySongExtraDto.TypeEnum;
 import {SelectButton} from 'primeng/selectbutton';
 import {Select} from 'primeng/select';

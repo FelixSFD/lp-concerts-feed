@@ -1,8 +1,8 @@
 import { Component, Input } from '@angular/core';
-import {SetlistEntrySongExtraDto} from '../../../modules/lpshows-api';
+import {SetlistEntrySongExtraDto} from '../../../../modules/lpshows-api';
 import {
   SetlistEntrySongExtraFormContent
-} from '../setlist-entry-song-extra-form/setlist-entry-song-extra-form.component';
+} from '../../admin/setlists/setlist-entry-song-extra-form/setlist-entry-song-extra-form.component';
 import {NgTemplateOutlet} from '@angular/common';
 
 @Component({
