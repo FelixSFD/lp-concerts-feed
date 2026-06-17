@@ -23,6 +23,13 @@ import {MashupFormComponent} from '../../components/v2/admin/setlists/mashup-for
 import {ActivatedRoute, Router} from '@angular/router';
 import {DateTime} from 'luxon';
 import {ConcertsService} from '../../services/concerts.service';
+import {Card} from 'primeng/card';
+import {Button} from 'primeng/button';
+import {FloatLabel} from 'primeng/floatlabel';
+import {InputGroup} from 'primeng/inputgroup';
+import {InputGroupAddon} from 'primeng/inputgroupaddon';
+import {InputText} from 'primeng/inputtext';
+import {Divider} from 'primeng/divider';
 
 @Component({
   selector: 'app-linkinpedia-concert-importer-page',
@@ -32,7 +39,14 @@ import {ConcertsService} from '../../services/concerts.service';
     SongFormComponent,
     MashupFormComponent,
     NgTemplateOutlet,
-    NgbTooltip
+    NgbTooltip,
+    Card,
+    Button,
+    FloatLabel,
+    InputGroup,
+    InputGroupAddon,
+    InputText,
+    Divider
   ],
   templateUrl: './linkinpedia-concert-importer-page.component.html',
   styleUrl: './linkinpedia-concert-importer-page.component.css',
