@@ -3,7 +3,7 @@ import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from '@angula
 import {NgClass, NgTemplateOutlet} from '@angular/common';
 import {HttpClient} from '@angular/common/http';
 import {ToastrService} from 'ngx-toastr';
-import {SetlistsService} from '../../services/setlists.service';
+import {SetlistsService} from '../../../../../services/setlists.service';
 import {
   ActParametersDto,
   AddSongMashupToSetlistRequestDto,
@@ -15,14 +15,14 @@ import {
   ImportSetlistEntryPreviewDto,
   ImportSetlistPreviewDto, SetlistEntryParametersDto,
   SongDto, SongMashupDto, SongVariantDto
-} from '../../modules/lpshows-api';
-import {SongFormComponent} from '../../components/v2/admin/setlists/song-form/song-form.component';
+} from '../../../../../modules/lpshows-api';
+import {SongFormComponent} from '../song-form/song-form.component';
 import {NgbModal, NgbModalRef, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {SongsService} from '../../services/songs.service';
-import {MashupFormComponent} from '../../components/v2/admin/setlists/mashup-form/mashup-form.component';
+import {SongsService} from '../../../../../services/songs.service';
+import {MashupFormComponent} from '../mashup-form/mashup-form.component';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DateTime} from 'luxon';
-import {ConcertsService} from '../../services/concerts.service';
+import {ConcertsService} from '../../../../../services/concerts.service';
 import {Card} from 'primeng/card';
 import {Button} from 'primeng/button';
 import {FloatLabel} from 'primeng/floatlabel';
@@ -30,6 +30,8 @@ import {InputGroup} from 'primeng/inputgroup';
 import {InputGroupAddon} from 'primeng/inputgroupaddon';
 import {InputText} from 'primeng/inputtext';
 import {Divider} from 'primeng/divider';
+import {TableModule} from 'primeng/table';
+import {Tooltip} from 'primeng/tooltip';
 
 @Component({
   selector: 'app-linkinpedia-concert-importer-page',
@@ -46,7 +48,9 @@ import {Divider} from 'primeng/divider';
     InputGroup,
     InputGroupAddon,
     InputText,
-    Divider
+    Divider,
+    TableModule,
+    Tooltip
   ],
   templateUrl: './linkinpedia-concert-importer-page.component.html',
   styleUrl: './linkinpedia-concert-importer-page.component.css',

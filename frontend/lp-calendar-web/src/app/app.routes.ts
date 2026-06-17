@@ -114,7 +114,7 @@ export const routes: Routes = [
       {
         path: 'import',
         loadComponent: () =>
-          import("./admin/linkinpedia-concert-importer-page/linkinpedia-concert-importer-page.component").then(m => m.LinkinpediaConcertImporterPageComponent),
+          import("./components/v2/admin/setlists/linkinpedia-concert-importer-page/linkinpedia-concert-importer-page.component").then(m => m.LinkinpediaConcertImporterPageComponent),
         title: baseTitle + 'Import concert',
         canActivate: [authGuard, addConcertsGuard, manageSetlistsGuard],
         data: {
@@ -142,7 +142,7 @@ export const routes: Routes = [
           {
             path: 'import',
             loadComponent: () =>
-              import("./admin/linkinpedia-concert-importer-page/linkinpedia-concert-importer-page.component").then(m => m.LinkinpediaConcertImporterPageComponent),
+              import("./components/v2/admin/setlists/linkinpedia-concert-importer-page/linkinpedia-concert-importer-page.component").then(m => m.LinkinpediaConcertImporterPageComponent),
             title: baseTitle + 'Import concert',
             canActivate: [authGuard, addConcertsGuard, manageSetlistsGuard],
             data: {
