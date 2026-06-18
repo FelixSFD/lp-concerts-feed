@@ -1,13 +1,19 @@
 import { Component } from '@angular/core';
-import {ConcertFormComponent} from '../concert-form/concert-form.component';
-import {ConcertsService} from '../../services/concerts.service';
+import {ConcertFormComponent} from '../../../../admin/concert-form/concert-form.component';
+import {ConcertsService} from '../../../../services/concerts.service';
 import {ToastrService} from 'ngx-toastr';
-import {ConcertDto} from '../../modules/lpshows-api';
+import {ConcertDto} from '../../../../modules/lpshows-api';
+import {Button} from 'primeng/button';
+import {ButtonGroup} from 'primeng/buttongroup';
+import {Card} from 'primeng/card';
 
 @Component({
   selector: 'app-add-concert-page',
   imports: [
-    ConcertFormComponent
+    ConcertFormComponent,
+    Button,
+    ButtonGroup,
+    Card
   ],
   templateUrl: './add-concert-page.component.html',
   styleUrl: './add-concert-page.component.css'

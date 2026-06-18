@@ -104,7 +104,7 @@ export const routes: Routes = [
       {
         path: 'add',
         loadComponent: () =>
-          import("./admin/add-concert-page/add-concert-page.component").then(m => m.AddConcertPageComponent),
+          import("./components/v2/admin/add-concert-page/add-concert-page.component").then(m => m.AddConcertPageComponent),
         title: baseTitle + 'Add concert',
         canActivate: [addConcertsGuard],
         data: {
@@ -152,7 +152,7 @@ export const routes: Routes = [
           {
             path: 'edit',
             loadComponent: () =>
-              import("./admin/edit-concert-page/edit-concert-page.component").then(m => m.EditConcertPageComponent),
+              import("./components/v2/admin/edit-concert-page/edit-concert-page.component").then(m => m.EditConcertPageComponent),
             title: baseTitle + 'Edit concert',
             canActivate: [updateConcertsGuard],
             data: {

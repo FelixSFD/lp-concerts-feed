@@ -1,16 +1,22 @@
 import {Component} from '@angular/core';
-import {ConcertFormComponent} from '../concert-form/concert-form.component';
+import {ConcertFormComponent} from '../../../../admin/concert-form/concert-form.component';
 import {ActivatedRoute, RouterLink} from '@angular/router';
-import {ConcertsService} from '../../services/concerts.service';
+import {ConcertsService} from '../../../../services/concerts.service';
 import {ToastrService} from 'ngx-toastr';
 import {HttpErrorResponse} from "@angular/common/http";
-import {AdjacentConcertsResponseDto, ConcertDto, ErrorResponseDto} from '../../modules/lpshows-api';
+import {AdjacentConcertsResponseDto, ConcertDto, ErrorResponseDto} from '../../../../modules/lpshows-api';
+import {Card} from 'primeng/card';
+import {Button} from 'primeng/button';
+import {ButtonGroup} from 'primeng/buttongroup';
 
 @Component({
   selector: 'app-edit-concert-page',
   imports: [
     ConcertFormComponent,
-    RouterLink
+    RouterLink,
+    Card,
+    Button,
+    ButtonGroup
   ],
   templateUrl: './edit-concert-page.component.html',
   styleUrl: './edit-concert-page.component.css'

@@ -1,0 +1,16 @@
+<p-card>
+  <ng-template #title>
+    <h1>Edit concert</h1>
+  </ng-template>
+
+  <div class="flex gap-3">
+    <p-button [routerLink]="['../']" label="View" severity="info" variant="outlined" />
+
+    <p-button-group>
+      <p-button icon="pi pi-arrow-left" severity="secondary" variant="outlined" [disabled]="adjacentConcertData$?.previous == null" [routerLink]="['../../', adjacentConcertData$?.previous, 'edit']" />
+      <p-button icon="pi pi-arrow-right" severity="secondary" variant="outlined" [disabled]="adjacentConcertData$?.next == null" [routerLink]="['../../', adjacentConcertData$?.next, 'edit']" />
+    </p-button-group>
+  </div>
+
+  <app-concert-form [concert-id]="concertId" [is-saving]="isSaving$" (saveClicked)="onFormSaved($event)"></app-concert-form>
+</p-card>
