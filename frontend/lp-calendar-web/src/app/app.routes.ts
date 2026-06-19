@@ -74,13 +74,13 @@ export const routes: Routes = [
   {
     path: 'privacy',
     loadComponent: () =>
-      import("./privacy-policy/privacy-policy.component").then(m => m.PrivacyPolicyComponent),
+      import("./components/v2/privacy-policy-page/privacy-policy-page.component").then(m => m.PrivacyPolicyPageComponent),
     title: baseTitle + 'Privacy Policy'
   },
   {
-    path: 'imprint',
+    path: 'imprint-page',
     loadComponent: () =>
-      import("./imprint/imprint.component").then(m => m.ImprintComponent),
+      import("./components/v2/imprint-page/imprint-page.component").then(m => m.ImprintPageComponent),
     title: baseTitle + 'Imprint'
   },
   {
