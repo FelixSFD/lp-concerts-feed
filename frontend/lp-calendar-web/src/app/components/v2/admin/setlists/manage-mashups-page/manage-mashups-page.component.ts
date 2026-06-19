@@ -1,10 +1,7 @@
-import {Component, inject, OnInit, TemplateRef} from '@angular/core';
-import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import {Component, inject, OnInit} from '@angular/core';
 import {SongsService} from '../../../../../services/songs.service';
-import {ToastrService} from 'ngx-toastr';
 import {ErrorResponseDto, SongMashupDto} from '../../../../../modules/lpshows-api';
 import {RouterLink} from '@angular/router';
-import {Setlist} from '../../../../../data/setlists/setlist';
 import {Button} from 'primeng/button';
 import {ButtonGroup} from 'primeng/buttongroup';
 import {Card} from 'primeng/card';
@@ -14,7 +11,7 @@ import {InputIcon} from 'primeng/inputicon';
 import {InputText} from 'primeng/inputtext';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {TableModule} from 'primeng/table';
-import {ConfirmationService} from 'primeng/api';
+import {ConfirmationService, MessageService} from 'primeng/api';
 
 @Component({
   selector: 'app-manage-mashups-page',
@@ -35,7 +32,7 @@ import {ConfirmationService} from 'primeng/api';
   styleUrl: './manage-mashups-page.component.css',
 })
 export class ManageMashupsPageComponent implements OnInit {
-  private toastr = inject(ToastrService);
+  private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
   private songsService = inject(SongsService);
 
@@ -90,7 +87,11 @@ export class ManageMashupsPageComponent implements OnInit {
           },
           error: err => {
             let errorResponse: ErrorResponseDto = err.error;
-            this.toastr.error(errorResponse.message, "Could not delete mashup!");
+            this.messageService.add({
+              severity: "danger",
+              summary: "Could not delete mashup!",
+              text: errorResponse.message,
+            });
             this.isDeletingMashup$ = false;
           }
         });
@@ -105,7 +106,11 @@ export class ManageMashupsPageComponent implements OnInit {
       },
       error: err => {
         let errorResponse: ErrorResponseDto = err.error;
-        this.toastr.error(errorResponse.message, "Could not load mashups!");
+        this.messageService.add({
+          severity: "danger",
+          summary: "Could not load mashups!",
+          text: errorResponse.message,
+        });
       }
     })
   }

@@ -1,8 +1,6 @@
 import {Component, inject, OnInit, TemplateRef, viewChild} from '@angular/core';
 import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgClass, NgTemplateOutlet} from '@angular/common';
-import {HttpClient} from '@angular/common/http';
-import {ToastrService} from 'ngx-toastr';
 import {SetlistsService} from '../../../../../services/setlists.service';
 import {
   ActParametersDto,
@@ -32,12 +30,12 @@ import {InputText} from 'primeng/inputtext';
 import {Divider} from 'primeng/divider';
 import {TableModule} from 'primeng/table';
 import {Tooltip} from 'primeng/tooltip';
+import {MessageService} from 'primeng/api';
 
 @Component({
   selector: 'app-linkinpedia-concert-importer-page',
   imports: [
     ReactiveFormsModule,
-    NgClass,
     SongFormComponent,
     MashupFormComponent,
     NgTemplateOutlet,
@@ -60,7 +58,7 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private readonly toastr = inject(ToastrService);
+  private readonly messageService = inject(MessageService);
   private readonly setlistsService = inject(SetlistsService);
   private readonly songsService = inject(SongsService);
   private readonly concertsService = inject(ConcertsService);
@@ -135,14 +133,21 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
             this.originallyGeneratedSetlist = JSON.parse(JSON.stringify(data));
             this.validateEntries();
 
-            this.toastr.success('Successfully read setlist from Linkinpedia');
+            this.messageService.add({
+              severity: "success",
+              summary: "Successfully read setlist from Linkinpedia",
+            });
             this.isReadingSource$ = false;
           },
           error: err => {
             let errorResponse: ErrorResponseDto = err.error;
             console.warn("Failed to fetch import data:", err);
 
-            this.toastr.error(errorResponse.message, "Could not get import data!");
+            this.messageService.add({
+              severity: "danger",
+              summary: "Could not get import data!",
+              text: errorResponse.message,
+            });
             this.isReadingSource$ = false;
           }
         });
@@ -177,7 +182,10 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
     // find the song information
     let newSongValues = this.newSongFormComponent()?.readFromForm();
     if (!newSongValues) {
-      this.toastr.error('Failed to read data from form');
+      this.messageService.add({
+        severity: "danger",
+        summary: "Failed to read data from form",
+      });
       return;
     }
 
@@ -201,7 +209,11 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
         let errorResponse: ErrorResponseDto = err.error;
         console.warn("Failed to fetch import data:", err);
 
-        this.toastr.error(errorResponse.message, "Could not create new song!");
+        this.messageService.add({
+          severity: "danger",
+          summary: "Could not create new song!",
+          text: errorResponse.message,
+        });
         this.isAddingSong$ = false;
       }
     })
@@ -229,7 +241,10 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
     // find the song information
     let newMashupValues = this.newMashupFormComponent()?.readFromForm();
     if (!newMashupValues) {
-      this.toastr.error('Failed to read data from form');
+      this.messageService.add({
+        severity: "danger",
+        summary: "Failed to read data from form",
+      });
       return;
     }
 
@@ -251,7 +266,11 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
         let errorResponse: ErrorResponseDto = err.error;
         console.warn("Failed to fetch import data:", err);
 
-        this.toastr.error(errorResponse.message, "Could not create new song mashup!");
+        this.messageService.add({
+          severity: "danger",
+          summary: "Could not create new song mashup!",
+          text: errorResponse.message,
+        });
         this.isAddingMashup$ = false;
       }
     })
@@ -294,19 +313,28 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
   onCreateSetlistClicked() {
     let concertId = this.sourceDataForm.getRawValue().concertId?.valueOf();
     if (!concertId) {
-      this.toastr.error("Concert ID not set!");
+      this.messageService.add({
+        severity: "danger",
+        summary: "Concert ID not set!",
+      });
       return;
     }
 
     let concertTitle = this.sourceDataForm.value.concertTitle?.valueOf();
     if (!concertTitle) {
-      this.toastr.error("Concert Title not set!");
+      this.messageService.add({
+        severity: "danger",
+        summary: "Concert Title not set!",
+      });
       return;
     }
 
     let linkinpediaUrl = this.sourceDataForm.value.linkinpediaUrl?.valueOf();
     if (!linkinpediaUrl) {
-      this.toastr.error("Linkinpedia URL not set!");
+      this.messageService.add({
+        severity: "danger",
+        summary: "Linkinpedia URL not set!",
+      });
       return;
     }
 
@@ -375,7 +403,11 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
     this.setlistsService.createSetlist(createRequest).subscribe({
       next: data => {
         this.router.navigate(["/admin", "setlists", data.id]).catch((reason) => {
-          this.toastr.error(reason, "Failed to navigate to created setlist!");
+          this.messageService.add({
+            severity: "danger",
+            summary: "Failed to navigate to created setlist!",
+            text: reason,
+          });
         });
 
         this.isCreatingSetlist$ = false;
@@ -384,7 +416,11 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
         let errorResponse: ErrorResponseDto = err.error;
         console.warn("Failed create setlist:", err);
 
-        this.toastr.error(errorResponse.message, "Could not create setlist!");
+        this.messageService.add({
+          severity: "danger",
+          summary: "Could not create setlist!",
+          text: errorResponse.message,
+        });
         this.isCreatingSetlist$ = false;
       }
     });

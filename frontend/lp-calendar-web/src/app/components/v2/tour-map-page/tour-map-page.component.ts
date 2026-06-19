@@ -1,8 +1,7 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, inject, OnInit, ViewChild} from '@angular/core';
 import {ConcertsService} from '../../../services/concerts.service';
 import {defaultShowType, listOfTours, tourConfigs,} from '../../../app.config';
 import {ConcertFilter} from '../../../data/concert-filter';
-import {ToastrService} from 'ngx-toastr';
 
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {DateTime} from 'luxon';
@@ -12,6 +11,7 @@ import {Card} from 'primeng/card';
 import {Divider} from 'primeng/divider';
 import {TourConfig} from '../../../data/tour-config';
 import {Select} from 'primeng/select';
+import {MessageService} from 'primeng/api';
 
 @Component({
   selector: 'app-tour-map-page',
@@ -26,6 +26,8 @@ import {Select} from 'primeng/select';
   styleUrl: './tour-map-page.component.css'
 })
 export class TourMapPageComponent {
+  private messageService = inject(MessageService);
+
   // Apple Maps
   private mapKit: MapKit | undefined;
   private appleMap: AppleMap | undefined;
@@ -47,7 +49,7 @@ export class TourMapPageComponent {
   isLoadingPins$ = true;
 
 
-  constructor(private concertsService: ConcertsService, private toastrService: ToastrService) {
+  constructor(private concertsService: ConcertsService) {
     this.availableTours$ = [...tourConfigs];
     this.availableTours$.push({ label: "All shows", value: null});
     this.availableTours$.push({ label: "Not part of a tour", value: ""});
@@ -124,7 +126,11 @@ export class TourMapPageComponent {
         },
         error: err => {
           this.isLoadingPins$ = false;
-          this.toastrService.error(err.message, "Failed to load pins");
+          this.messageService.add({
+            severity: "danger",
+            summary: "Failed to load the concert locations",
+            text: err.message,
+          });
         }
       });
   }

@@ -4,16 +4,14 @@ import {AuthService} from '../../../auth/auth.service';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {ConcertDto} from '../../../modules/lpshows-api';
 import {ConcertsService} from '../../../services/concerts.service';
-import {ToastrService} from 'ngx-toastr';
 import { environment } from "../../../../environments/environment";
 import {Message} from 'primeng/message';
 import {Card} from 'primeng/card';
 import {Button} from 'primeng/button';
 import {SplitButton} from 'primeng/splitbutton';
-import {MenuItem} from 'primeng/api';
+import {MenuItem, MessageService} from 'primeng/api';
 import {RouterLink} from '@angular/router';
 import {Divider} from 'primeng/divider';
-import {ToggleSwitch} from 'primeng/toggleswitch';
 import {FormsModule} from '@angular/forms';
 import {CalendarFeedBuilderComponent} from '../calendar-feed-builder/calendar-feed-builder.component';
 import {ConcertCardComponent} from '../concert-card/concert-card.component';
@@ -41,6 +39,7 @@ export class HomePageComponent implements OnInit {
   private readonly tracker = inject(MatomoTracker);
   private readonly authService = inject(AuthService);
   private readonly oidcSecurityService = inject(OidcSecurityService);
+  private readonly messageService = inject(MessageService);
 
   nextConcert: ConcertDto | null = null;
   nextAttendingConcert: ConcertDto | null = null;
@@ -60,7 +59,7 @@ export class HomePageComponent implements OnInit {
   iCalButtonItems$: MenuItem[] = [];
 
 
-  constructor(private concertsService: ConcertsService, private toastrService: ToastrService) {
+  constructor(private concertsService: ConcertsService) {
   }
 
 
@@ -195,7 +194,10 @@ export class HomePageComponent implements OnInit {
     navigator.clipboard.writeText(calendarUrl)
       .then(_ => {
         console.debug("copied iCal URL: " + calendarUrl);
-        this.toastrService.success("Copied URL to clipboard!")
+        this.messageService.add({
+          severity: "success",
+          summary: "Copied URL to clipboard!",
+        });
       });
   }
 

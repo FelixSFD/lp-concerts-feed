@@ -1,7 +1,6 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {RouterLink} from '@angular/router';
 import {SetlistsService} from '../../../../../services/setlists.service';
-import {ToastrService} from 'ngx-toastr';
 import {Setlist} from '../../../../../data/setlists/setlist';
 import {ErrorResponseDto} from '../../../../../modules/lpshows-api';
 import {Card} from 'primeng/card';
@@ -11,7 +10,7 @@ import {InputText} from 'primeng/inputtext';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
 import {ButtonGroup} from 'primeng/buttongroup';
-import {ConfirmationService} from 'primeng/api';
+import {ConfirmationService, MessageService} from 'primeng/api';
 import {FormsModule} from '@angular/forms';
 import {ConfirmDialog} from 'primeng/confirmdialog';
 
@@ -34,6 +33,7 @@ import {ConfirmDialog} from 'primeng/confirmdialog';
 })
 export class ManageSetlistsPageComponent implements OnInit {
   private confirmationService = inject(ConfirmationService);
+  private messageService = inject(MessageService);
 
   setlists$: Setlist[] = [];
 
@@ -45,7 +45,7 @@ export class ManageSetlistsPageComponent implements OnInit {
 
   globalSearchText$: string = "";
 
-  constructor(private setlistService: SetlistsService, private toastr: ToastrService) {
+  constructor(private setlistService: SetlistsService) {
   }
 
 
@@ -114,7 +114,11 @@ export class ManageSetlistsPageComponent implements OnInit {
         console.warn("Failed to delete setlist:", err);
         this.setlistDeleting$ = false;
 
-        this.toastr.error(errorResponse.message, "Could not delete setlist!");
+        this.messageService.add({
+          severity: "danger",
+          summary: "Could not delete setlist!",
+          text: errorResponse.message,
+        });
       }
     });
   }

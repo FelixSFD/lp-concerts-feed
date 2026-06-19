@@ -1,6 +1,5 @@
 import {AfterViewInit, Component, inject, Input, OnInit} from '@angular/core';
 
-import {ToastrService} from 'ngx-toastr';
 import {MatomoTrackClickDirective} from 'ngx-matomo-client';
 import {NgTemplateOutlet} from '@angular/common';
 import {ClockService} from '../../../services/clock.service';
@@ -9,6 +8,7 @@ import {Popover} from 'primeng/popover';
 import {InputGroup} from 'primeng/inputgroup';
 import {InputGroupAddon} from 'primeng/inputgroupaddon';
 import {InputText} from 'primeng/inputtext';
+import {MessageService} from 'primeng/api';
 
 @Component({
   selector: 'app-countdown',
@@ -25,7 +25,7 @@ import {InputText} from 'primeng/inputtext';
   styleUrl: './countdown.component.css'
 })
 export class CountdownComponent implements OnInit, AfterViewInit {
-  private toastrService = inject(ToastrService);
+  private messageService = inject(MessageService);
   private clockService = inject(ClockService);
 
   differenceMillis$: number = 0;
@@ -62,7 +62,10 @@ export class CountdownComponent implements OnInit, AfterViewInit {
     console.debug("Generated timestamp: " + discordTimeStamp);
     navigator.clipboard.writeText(discordTimeStamp)
       .then(_ => {
-        this.toastrService.success("Copied to clipboard!");
+        this.messageService.add({
+          severity: "success",
+          summary: "Copied to clipboard!",
+        });
       });
   }
 
@@ -71,7 +74,10 @@ export class CountdownComponent implements OnInit, AfterViewInit {
     let link = window.location.protocol + "//" + window.location.host + "/concerts/" + this.concertId;
     navigator.clipboard.writeText(link)
       .then(_ => {
-        this.toastrService.success("Copied link to clipboard!");
+        this.messageService.add({
+          severity: "success",
+          summary: "Copied link to clipboard!",
+        });
       });
   }
 

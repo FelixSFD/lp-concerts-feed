@@ -9,7 +9,6 @@ import {
   provideAuth
 } from 'angular-auth-oidc-client';
 import {provideHttpClient, withInterceptors} from '@angular/common/http';
-import {provideToastr} from 'ngx-toastr';
 import {provideAnimations} from '@angular/platform-browser/animations';
 import {provideMatomo, withRouter} from 'ngx-matomo-client';
 import {environment} from '../environments/environment';
@@ -64,10 +63,6 @@ export const appConfig: ApplicationConfig = {
     { provide: AbstractSecurityStorage, useClass: DefaultLocalStorageService },
     provideHttpClient(withInterceptors([authTokenInterceptor])),
     provideAnimations(),
-    provideToastr({
-      positionClass: "toast-bottom-right",
-      newestOnTop: false
-    }),
     provideMatomo(
       {
         siteId: environment.trackingSiteId,

@@ -9,7 +9,6 @@ import {
   SongDto, SongMashupDto,
   SongVariantDto
 } from '../../../../../modules/lpshows-api';
-import {ToastrService} from 'ngx-toastr';
 import {NgTemplateOutlet} from '@angular/common';
 import {SetlistsService} from '../../../../../services/setlists.service';
 import {nullIfEmpty} from '../../../../../helper/string-helper'
@@ -27,7 +26,7 @@ import {ToggleSwitch} from 'primeng/toggleswitch';
 import {TableModule} from 'primeng/table';
 import {ButtonGroup} from 'primeng/buttongroup';
 import {Tooltip} from 'primeng/tooltip';
-import {ConfirmationService} from 'primeng/api';
+import {ConfirmationService, MessageService} from 'primeng/api';
 import {ConfirmPopup} from 'primeng/confirmpopup';
 
 @Component({
@@ -54,7 +53,7 @@ import {ConfirmPopup} from 'primeng/confirmpopup';
 })
 export class AddSetlistEntryFormComponent implements OnInit {
   private confirmationService = inject(ConfirmationService);
-  private toastr = inject(ToastrService);
+  private messageService = inject(MessageService);
   private formBuilder = inject(FormBuilder);
   private songService = inject(SongsService);
   private setlistsService = inject(SetlistsService);
@@ -149,7 +148,11 @@ export class AddSetlistEntryFormComponent implements OnInit {
         },
         error: err => {
           let errorResponse: ErrorResponseDto = err.error;
-          this.toastr.error(errorResponse.message, "Could not load songs");
+          this.messageService.add({
+            severity: "danger",
+            summary: "Could not load songs",
+            text: errorResponse.message,
+          });
         }
       });
 
@@ -167,7 +170,11 @@ export class AddSetlistEntryFormComponent implements OnInit {
         },
         error: err => {
           let errorResponse: ErrorResponseDto = err.error;
-          this.toastr.error(errorResponse.message, "Could not load mashups");
+          this.messageService.add({
+            severity: "danger",
+            summary: "Could not load mashups",
+            text: errorResponse.message,
+          });
         }
       });
 
@@ -181,7 +188,11 @@ export class AddSetlistEntryFormComponent implements OnInit {
         },
         error: err => {
           let errorResponse: ErrorResponseDto = err.error;
-          this.toastr.error(errorResponse.message, "Could not load acts");
+          this.messageService.add({
+            severity: "danger",
+            summary: "Could not load acts",
+            text: errorResponse.message,
+          });
         }
       })
   }
@@ -197,7 +208,10 @@ export class AddSetlistEntryFormComponent implements OnInit {
 
   onAddSongExtraConfirmed() {
     if (this.setlistId == null || this.storedEntry?.id == null) {
-      this.toastr.error("Setlist Entry could not be identified!");
+      this.messageService.add({
+        severity: "danger",
+        summary: "Setlist entry could not be identified!",
+      });
       return;
     }
 
@@ -227,7 +241,11 @@ export class AddSetlistEntryFormComponent implements OnInit {
         },
         error: err => {
           let errorResponse: ErrorResponseDto = err.error;
-          this.toastr.error(errorResponse.message, "Could not add extra to this entry");
+          this.messageService.add({
+            severity: "danger",
+            summary: "Could not add extra to this entry",
+            text: errorResponse.message,
+          });
           this.isAddingSongExtra$ = false;
         }
       });
@@ -281,7 +299,11 @@ export class AddSetlistEntryFormComponent implements OnInit {
         },
         error: err => {
           let errorResponse: ErrorResponseDto = err.error;
-          this.toastr.error(errorResponse.message, "Could not delete extra from this entry");
+          this.messageService.add({
+            severity: "danger",
+            summary: "Could not delete song extra from this entry",
+            text: errorResponse.message,
+          });
           this.isDeletingSongExtra$ = false;
 
           this.showAddSongExtrasDialog = false;
@@ -412,7 +434,11 @@ export class AddSetlistEntryFormComponent implements OnInit {
         },
         error: err => {
           let errorResponse: ErrorResponseDto = err.error;
-          this.toastr.error(errorResponse.message, "Could not load entry");
+          this.messageService.add({
+            severity: "danger",
+            summary: "Could not load entry",
+            text: errorResponse.message,
+          });
         }
       });
   }

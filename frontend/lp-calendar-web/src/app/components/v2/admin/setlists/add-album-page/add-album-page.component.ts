@@ -1,5 +1,4 @@
 import {Component, inject} from '@angular/core';
-import {ToastrService} from 'ngx-toastr';
 import {Router, RouterLink} from '@angular/router';
 import {CreateAlbumRequestDto, ErrorResponseDto} from '../../../../../modules/lpshows-api';
 import {AlbumsService} from '../../../../../services/music/albums.service';

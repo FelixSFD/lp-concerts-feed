@@ -1,6 +1,5 @@
 import {Component, ElementRef, inject, OnInit, ViewChild} from '@angular/core';
 import {AuthService} from '../../../auth/auth.service';
-import {ToastrService} from 'ngx-toastr';
 import {MatomoTracker} from 'ngx-matomo-client';
 import {
   AdjacentConcertsResponseDto,
@@ -34,7 +33,6 @@ import {Tooltip} from 'primeng/tooltip';
 import {TimeSpanPipe} from '../../../data/time-span-pipe';
 import {CountdownComponent} from '../countdown/countdown.component';
 import {Message} from 'primeng/message';
-import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {SetlistComponent} from '../setlists/setlist/setlist.component';
 import {Tag} from 'primeng/tag';
 
@@ -55,7 +53,6 @@ import {Tag} from 'primeng/tag';
     CountdownComponent,
     CountdownComponent,
     Message,
-    NgbTooltip,
     SetlistComponent,
     Tag
   ],
@@ -64,9 +61,9 @@ import {Tag} from 'primeng/tag';
 })
 export class ConcertDetailsPageComponent implements OnInit {
   private readonly authService = inject(AuthService);
-  private readonly toastr = inject(ToastrService);
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
+
   tracker = inject(MatomoTracker);
 
   resolverError$: ErrorResponseDto | null = null;
@@ -155,7 +152,11 @@ export class ConcertDetailsPageComponent implements OnInit {
 
   onAddSetlistBtnClicked() {
     this.router.navigate(['/admin', 'setlists', 'add', this.concertId]).then().catch((err) => {
-      this.toastr.error(err)
+      this.messageService.add({
+        severity: "danger",
+        summary: "Could not navigate to setlist",
+        text: err.message,
+      });
     });
   }
 
@@ -205,7 +206,10 @@ export class ConcertDetailsPageComponent implements OnInit {
 
     this.authService.isAuthenticated$.subscribe((isAuthenticated) => {
       if (this.concertId == undefined || this.concertBookmarks$ == null) {
-        this.toastr.error("Concert not loaded");
+        this.messageService.add({
+          severity: "danger",
+          summary: "Concert not loaded",
+        });
         this.concertBookmarksLoading$ = false;
         return;
       }
@@ -223,7 +227,11 @@ export class ConcertDetailsPageComponent implements OnInit {
             error: (err: HttpErrorResponse) => {
               console.log(err);
               let errorResponse: ErrorResponseDto = err.error;
-              this.toastr.error(errorResponse.message, "Failed to remove bookmark!");
+              this.messageService.add({
+                severity: "danger",
+                summary: "Failed to remove bookmark!",
+                text: errorResponse.message,
+              });
             }
           });
         } else {
@@ -238,13 +246,20 @@ export class ConcertDetailsPageComponent implements OnInit {
             error: (err: HttpErrorResponse) => {
               console.log(err);
               let errorResponse: ErrorResponseDto = err.error;
-              this.toastr.error(errorResponse.message, "Failed to save bookmark!");
+              this.messageService.add({
+                severity: "danger",
+                summary: "Failed to save bookmark!",
+                text: errorResponse.message,
+              });
               this.concertBookmarksLoading$ = false;
             }
           });
         }
       } else {
-        this.toastr.info('You are not logged in!');
+        this.messageService.add({
+          severity: "info",
+          summary: "You are not logged in!",
+        });
         this.concertBookmarksLoading$ = false;
       }
     });

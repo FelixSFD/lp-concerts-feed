@@ -1,27 +1,27 @@
-import { Component } from '@angular/core';
+import {Component, inject} from '@angular/core';
 import {ConcertFormComponent} from '../concert-form/concert-form.component';
 import {ConcertsService} from '../../../../services/concerts.service';
-import {ToastrService} from 'ngx-toastr';
 import {ConcertDto} from '../../../../modules/lpshows-api';
 import {Button} from 'primeng/button';
 import {ButtonGroup} from 'primeng/buttongroup';
 import {Card} from 'primeng/card';
+import {MessageService} from 'primeng/api';
 
 @Component({
   selector: 'app-add-concert-page',
   imports: [
     ConcertFormComponent,
-    Button,
-    ButtonGroup,
     Card
   ],
   templateUrl: './add-concert-page.component.html',
   styleUrl: './add-concert-page.component.css'
 })
 export class AddConcertPageComponent {
+  private messageService = inject(MessageService);
+
   isSaving$: boolean = false;
 
-  constructor(private concertsService: ConcertsService, private toastr: ToastrService) {
+  constructor(private concertsService: ConcertsService) {
   }
 
 
@@ -33,11 +33,18 @@ export class AddConcertPageComponent {
         console.log("Add concert request finished");
         console.log(result);
 
-        this.toastr.success("Saved concert!");
+        this.messageService.add({
+          severity: "success",
+          summary: "Saved concert",
+        });
         this.isSaving$ = false;
       },
       error: err => {
-        this.toastr.error(err.error?.message, "Failed to add concert!");
+        this.messageService.add({
+          severity: "danger",
+          summary: "Failed to add concert",
+          text: err.error?.message
+        });
         this.isSaving$ = false;
       }
     });

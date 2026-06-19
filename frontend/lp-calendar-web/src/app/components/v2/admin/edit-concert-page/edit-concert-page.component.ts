@@ -1,13 +1,13 @@
-import {Component} from '@angular/core';
+import {Component, inject} from '@angular/core';
 import {ConcertFormComponent} from '../concert-form/concert-form.component';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {ConcertsService} from '../../../../services/concerts.service';
-import {ToastrService} from 'ngx-toastr';
 import {HttpErrorResponse} from "@angular/common/http";
 import {AdjacentConcertsResponseDto, ConcertDto, ErrorResponseDto} from '../../../../modules/lpshows-api';
 import {Card} from 'primeng/card';
 import {Button} from 'primeng/button';
 import {ButtonGroup} from 'primeng/buttongroup';
+import {MessageService} from 'primeng/api';
 
 @Component({
   selector: 'app-edit-concert-page',
@@ -22,12 +22,14 @@ import {ButtonGroup} from 'primeng/buttongroup';
   styleUrl: './edit-concert-page.component.css'
 })
 export class EditConcertPageComponent {
+  private messageService = inject(MessageService);
+
   concertId: string | null;
   adjacentConcertData$: AdjacentConcertsResponseDto | null = null;
 
   isSaving$: boolean = false;
 
-  constructor(private route: ActivatedRoute, private concertsService: ConcertsService, private toastr: ToastrService) {
+  constructor(private route: ActivatedRoute, private concertsService: ConcertsService) {
     this.concertId = this.route.snapshot.paramMap.get('id');
     this.route.params.subscribe(params => {
       this.loadDataForId(params['id']);
@@ -61,7 +63,10 @@ export class EditConcertPageComponent {
             console.log("Update concert request finished");
             console.log(result);
 
-            this.toastr.success("Saved concert!");
+            this.messageService.add({
+              severity: "success",
+              summary: "Saved concert!",
+            });
             this.isSaving$ = false;
           },
           error: (err: HttpErrorResponse) => {
@@ -70,8 +75,11 @@ export class EditConcertPageComponent {
             console.log(err);
 
             let errorResponse: ErrorResponseDto = err.error;
-
-            this.toastr.error(errorResponse.message, "Failed to save concert!");
+            this.messageService.add({
+              severity: "danger",
+              summary: "Failed to save concert!",
+              text: errorResponse.message,
+            });
           }
         });
   }

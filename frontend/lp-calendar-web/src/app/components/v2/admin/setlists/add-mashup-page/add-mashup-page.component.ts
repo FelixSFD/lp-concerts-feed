@@ -2,10 +2,10 @@ import {Component, inject} from '@angular/core';
 import {MashupFormComponent, MashupFormContent} from '../mashup-form/mashup-form.component';
 import {SongsService} from '../../../../../services/songs.service';
 import {CreateSongMashupRequestDto, ErrorResponseDto} from '../../../../../modules/lpshows-api';
-import {ToastrService} from 'ngx-toastr';
 import {Router, RouterLink} from '@angular/router';
 import {Button} from 'primeng/button';
 import {Card} from 'primeng/card';
+import {MessageService} from 'primeng/api';
 
 @Component({
   selector: 'app-add-mashup-page',
@@ -19,7 +19,7 @@ import {Card} from 'primeng/card';
   styleUrl: './add-mashup-page.component.css',
 })
 export class AddMashupPageComponent {
-  private toastr = inject(ToastrService);
+  private messageService = inject(MessageService);
   private songsService = inject(SongsService);
   private router = inject(Router);
 
@@ -39,12 +39,20 @@ export class AddMashupPageComponent {
         console.debug('Created new mashup', createdMashup);
         this.isAdding$ = false;
         this.router.navigate(["/", "admin", "mashups", createdMashup.id]).catch(err => {
-          this.toastr.error(err.message);
+          this.messageService.add({
+            severity: "danger",
+            summary: "Failed to navigate to the create mashup",
+            text: err.message,
+          });
         });
       },
       error: err => {
         let errorResponse: ErrorResponseDto = err.error;
-        this.toastr.error(errorResponse.message, "Could not create mashup");
+        this.messageService.add({
+          severity: "danger",
+          summary: "Could not create mashup",
+          text: errorResponse.message,
+        });
         this.isAdding$ = false;
       }
     });

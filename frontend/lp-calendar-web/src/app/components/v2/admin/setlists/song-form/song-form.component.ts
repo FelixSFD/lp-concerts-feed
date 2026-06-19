@@ -1,6 +1,5 @@
 import {Component, EventEmitter, inject, Input, OnInit, Output, signal} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {ToastrService} from 'ngx-toastr';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {AlbumDto, ErrorResponseDto, SongDto} from '../../../../../modules/lpshows-api';
 import {AlbumsService} from '../../../../../services/music/albums.service';
@@ -14,6 +13,7 @@ import {InputGroup} from 'primeng/inputgroup';
 import {InputGroupAddon} from 'primeng/inputgroupaddon';
 import {InputText} from 'primeng/inputtext';
 import {Select} from 'primeng/select';
+import {MessageService} from 'primeng/api';
 
 @Component({
   selector: 'app-song-form',
@@ -34,7 +34,7 @@ import {Select} from 'primeng/select';
 })
 export class SongFormComponent implements OnInit {
   private modalService = inject(NgbModal);
-  private toastr = inject(ToastrService);
+  private messageService = inject(MessageService);
   private formBuilder = inject(FormBuilder);
   private albumsService = inject(AlbumsService);
   private appleMusicService = inject(AppleMusicService);
@@ -72,7 +72,11 @@ export class SongFormComponent implements OnInit {
         },
         error: err => {
           let errorResponse: ErrorResponseDto = err.error;
-          this.toastr.error(errorResponse.message, "Could load albums");
+          this.messageService.add({
+            severity: "danger",
+            summary: "Could not load albums",
+            text: errorResponse.message,
+          });
         }
       });
 
@@ -108,7 +112,10 @@ export class SongFormComponent implements OnInit {
     let linkinpediaUrl = this.songForm.value.linkinpediaUrl?.valueOf();
 
     if (title == undefined) {
-      this.toastr.error("Title is required");
+      this.messageService.add({
+        severity: "danger",
+        summary: "Title is required",
+      });
       return null;
     }
 

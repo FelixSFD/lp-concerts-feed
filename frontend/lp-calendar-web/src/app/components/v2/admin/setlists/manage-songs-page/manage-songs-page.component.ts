@@ -1,5 +1,4 @@
 import {Component, inject} from '@angular/core';
-import {ToastrService} from 'ngx-toastr';
 import {SongsService} from '../../../../../services/songs.service';
 import {ErrorResponseDto, SongDto} from '../../../../../modules/lpshows-api';
 import {RouterLink} from '@angular/router';
@@ -12,7 +11,7 @@ import {InputIcon} from 'primeng/inputicon';
 import {InputText} from 'primeng/inputtext';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {TableModule} from 'primeng/table';
-import {ConfirmationService} from 'primeng/api';
+import {ConfirmationService, MessageService} from 'primeng/api';
 
 @Component({
   selector: 'app-manage-songs-page',
@@ -33,7 +32,7 @@ import {ConfirmationService} from 'primeng/api';
   styleUrl: './manage-songs-page.component.css',
 })
 export class ManageSongsPageComponent {
-  private toastr = inject(ToastrService);
+  private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
   private songsService = inject(SongsService);
 
@@ -89,7 +88,11 @@ export class ManageSongsPageComponent {
           },
           error: err => {
             let errorResponse: ErrorResponseDto = err.error;
-            this.toastr.error(errorResponse.message, "Could not delete song!");
+            this.messageService.add({
+              severity: "danger",
+              summary: "Could not load delete song!",
+              text: errorResponse.message,
+            });
             this.isDeletingSong$ = false;
           }
         });
@@ -104,7 +107,11 @@ export class ManageSongsPageComponent {
       },
       error: err => {
         let errorResponse: ErrorResponseDto = err.error;
-        this.toastr.error(errorResponse.message, "Could not load songs!");
+        this.messageService.add({
+          severity: "danger",
+          summary: "Could not load songs!",
+          text: errorResponse.message,
+        });
       }
     })
   }

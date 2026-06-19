@@ -4,7 +4,6 @@ import {ConcertDto, ConcertStatusValueDto, ErrorResponseDto} from '../../../modu
 import {AuthService} from '../../../auth/auth.service';
 import {ConcertFilter} from '../../../data/concert-filter';
 import {ConcertsService} from '../../../services/concerts.service';
-import {ToastrService} from 'ngx-toastr';
 import { DateTime } from "luxon";
 import { ConcertTitleGenerator } from "../../../data/concert-title-generator";
 import { listOfTours } from "../../../app.config";
@@ -17,7 +16,7 @@ import {ConcertBadgesComponent} from '../concert-badges/concert-badges.component
 import {CountdownComponent} from '../countdown/countdown.component';
 import {ButtonGroup} from 'primeng/buttongroup';
 import {ConfirmDialog} from 'primeng/confirmdialog';
-import {ConfirmationService} from 'primeng/api';
+import {ConfirmationService, MessageService} from 'primeng/api';
 import {Tooltip} from 'primeng/tooltip';
 import {ConcertFilterComponent} from '../concert-filter/concert-filter.component';
 import {ScrollTop} from 'primeng/scrolltop';
@@ -36,7 +35,6 @@ import {ScrollTop} from 'primeng/scrolltop';
     ConfirmDialog,
     Tooltip,
     ConcertFilterComponent,
-    ScrollTop
   ],
   templateUrl: './concert-list.component.html',
   styleUrl: './concert-list.component.css',
@@ -44,6 +42,7 @@ import {ScrollTop} from 'primeng/scrolltop';
 export class ConcertListComponent {
   private modalService = inject(NgbModal);
   private confirmationService = inject(ConfirmationService);
+  private messageService = inject(MessageService);
 
   concerts$: ConcertDto[] = [];
 
@@ -52,9 +51,6 @@ export class ConcertListComponent {
 
   // property to indicate if all concerts or only future should be displayed
   showHistoricConcerts$ = false;
-
-  // property to show whether the form is currently being sent to the server
-  addConcertFormSaving$ = false;
 
   // property to show whether the concert is currently being deleted
   concertDeleting$ = false;
@@ -84,7 +80,7 @@ export class ConcertListComponent {
   // Filter that is used for loading the list
   currentFilter: ConcertFilter = this.defaultFilter;
 
-  constructor(private concertsService: ConcertsService, private toastr: ToastrService) {
+  constructor(private concertsService: ConcertsService) {
     this.reloadConcertList(true);
 
     this.authService.canAddConcerts.subscribe(hasPermission => {
@@ -114,7 +110,11 @@ export class ConcertListComponent {
         this.isLoading$ = false;
       },
       error: err => {
-        this.toastr.error(err.message, "Failed to load concerts");
+        this.messageService.add({
+          severity: "danger",
+          summary: "Failed to load concerts",
+          text: err.message,
+        });
       }
     })
   }
@@ -180,7 +180,11 @@ export class ConcertListComponent {
         this.deleteConcertModal?.dismiss();
         this.concertDeleting$ = false;
 
-        this.toastr.error(errorResponse.message, "Could not delete concert!");
+        this.messageService.add({
+          severity: "danger",
+          summary: "Could not delete concert!",
+          text: errorResponse.message,
+        });
       }
     });
   }

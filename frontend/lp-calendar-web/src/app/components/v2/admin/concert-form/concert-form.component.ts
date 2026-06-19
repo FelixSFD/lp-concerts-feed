@@ -15,7 +15,6 @@ import {ConcertsService} from '../../../../services/concerts.service';
 import {DateTime} from 'luxon';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {environment} from "../../../../../environments/environment";
-import {ToastrService} from 'ngx-toastr';
 import {LocationsService} from '../../../../services/locations.service';
 import {ConcertDto, ConcertStatusValueDto, ConcertWithSetlistsDto, ErrorResponseDto} from '../../../../modules/lpshows-api';
 import {load, MapKit, Map as AppleMap, MapKitEvent, AnnotationDragEvent} from '@apple/mapkit-loader';
@@ -69,7 +68,6 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
   private formBuilder = inject(FormBuilder);
   private concertsService = inject(ConcertsService);
   private locationsService = inject(LocationsService);
-  private toastrService = inject(ToastrService);
   private messageService = inject(MessageService);
   private http = inject(HttpClient);
   private route = inject(ActivatedRoute);
@@ -382,15 +380,14 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
               this.concertForm.controls.timezone.setValue(tz);
             } else {
               console.error("Invalid timezone returned: ", tz);
-              this.toastrService.error(`Timezone '${tz}' found, but it is invalid.`, "Could not load timezone");
+              this.messageService.add({
+                severity: "danger",
+                summary: "Could not load timezone",
+                text: `Timezone '${tz}' found, but it is invalid.`,
+              });
             }
           });
       });
-  }
-
-
-  openTab(tabName: string) {
-    this.activeTabName$ = tabName;
   }
 
 
@@ -485,7 +482,11 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
   uploadFileHandler(event: FileUploadHandlerEvent, fileUploadForm: FileUpload) {
     console.debug("Upload File event:", event);
     if (event.files.length == 0) {
-      this.toastrService.error("No file was selected.", "File upload failed!");
+      this.messageService.add({
+        severity: "danger",
+        summary: "File upload failed!",
+        text: "No file was selected.",
+      });
       return;
     }
 
@@ -542,24 +543,6 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
 
 
   /**
-   * @deprecated use new method
-   */
-  uploadFileClicked() {
-    if (this.selectedScheduleFile == undefined) {
-      this.toastrService.error("No file was selected.", "File upload failed!");
-      return;
-    }
-
-    this.scheduleIsUploading$ = true;
-    this.concertsService.uploadConcertSchedule(this.concertId!, this.selectedScheduleFile)
-      .subscribe(() => {
-        this.scheduleIsUploading$ = false;
-        this.toastrService.success("Schedule successfully uploaded!");
-      })
-  }
-
-
-  /**
    * Sets the field expectedSetDuration based on minutes
    * @param minutes
    */
@@ -578,7 +561,5 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
 
   protected readonly timezones = timezones;
   protected readonly listOfShowTypes = listOfShowTypes;
-  protected readonly listOfTours = listOfTours;
   protected readonly environment = environment;
-  protected readonly ConcertStatusValueDto = ConcertStatusValueDto;
 }

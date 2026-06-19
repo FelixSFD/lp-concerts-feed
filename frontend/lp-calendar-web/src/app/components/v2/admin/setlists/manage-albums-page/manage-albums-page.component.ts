@@ -1,5 +1,4 @@
 import {Component, inject} from '@angular/core';
-import {ToastrService} from 'ngx-toastr';
 import {AlbumDto, ErrorResponseDto} from '../../../../../modules/lpshows-api';
 import {AlbumsService} from '../../../../../services/music/albums.service';
 import {RouterLink} from '@angular/router';
@@ -12,7 +11,7 @@ import {InputIcon} from 'primeng/inputicon';
 import {InputText} from 'primeng/inputtext';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {TableModule} from 'primeng/table';
-import {ConfirmationService} from 'primeng/api';
+import {ConfirmationService, MessageService} from 'primeng/api';
 
 @Component({
   selector: 'app-manage-albums-page',
@@ -33,7 +32,7 @@ import {ConfirmationService} from 'primeng/api';
   styleUrl: './manage-albums-page.component.css',
 })
 export class ManageAlbumsPageComponent {
-  private toastr = inject(ToastrService);
+  private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
   private albumsService = inject(AlbumsService);
 
@@ -89,7 +88,11 @@ export class ManageAlbumsPageComponent {
           },
           error: err => {
             let errorResponse: ErrorResponseDto = err.error;
-            this.toastr.error(errorResponse.message, "Could not delete album!");
+            this.messageService.add({
+              severity: "danger",
+              summary: "Could not load delete album!",
+              text: errorResponse.message,
+            });
             this.isDeletingAlbum$ = false;
           }
         });
@@ -107,7 +110,11 @@ export class ManageAlbumsPageComponent {
       error: err => {
         this.isLoading$ = false;
         let errorResponse: ErrorResponseDto = err.error;
-        this.toastr.error(errorResponse.message, "Could not load albums!");
+        this.messageService.add({
+          severity: "danger",
+          summary: "Could not load albums!",
+          text: errorResponse.message,
+        });
       }
     })
   }
