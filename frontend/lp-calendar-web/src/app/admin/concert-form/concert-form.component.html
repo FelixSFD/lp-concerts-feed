@@ -1,4 +1,109 @@
 <form #form="ngForm" [formGroup]="concertForm" [hidden]="!hasWriteAccess$" class="form">
+  <p-card class="mt-2">
+    <p-tabs value="main">
+      <p-tablist>
+        <p-tab value="main">General information</p-tab>
+        <p-tab value="timing-details">Timing Details</p-tab>
+        <p-tab value="lpu">LPU</p-tab>
+        <p-tab value="map">Map</p-tab>
+      </p-tablist>
+
+      <p-tabpanels>
+        <p-tabpanel value="main">
+          <div class="grid gap-2 mt-2">
+            <!-- Concert Status -->
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <p-select [options]="concertStatusValues" optionLabel="label" optionValue="value" formControlName="concertStatus" id="concertStatus" fluid />
+                <label for="concertStatus">Status</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- Concert Type -->
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <p-select [options]="listOfShowTypes" formControlName="showType" id="showType" fluid />
+                <label for="showType">Type of show</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- Tour -->
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <p-select [options]="availableTours$" optionValue="value" optionLabel="label" formControlName="tourName" id="tourName" showClear fluid />
+                <label for="tourName">Tour</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- Custom Title -->
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <input pInputText id="customTitle" formControlName="customTitle" autocomplete="off" fluid />
+                <label for="customTitle">Custom title (only used for special cases)</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- Posted start time -->
+            <div class="col-12">
+              <div class="flex flex-wrap gap-3">
+                <div>
+                  <p-floatlabel variant="on">
+                    <p-date-picker formControlName="postedStartTime" inputId="postedStartTime" showIcon iconDisplay="input" [showTime]="true" />
+                    <label for="postedStartTime">Start time</label>
+                  </p-floatlabel>
+                  <small>(according to ticket vendor)</small>
+                </div>
+
+                <div>
+                  <p-inputgroup>
+                    <p-floatlabel variant="on">
+                      <p-select [options]="timezones" optionValue="tzCode" optionLabel="label" formControlName="timezone" id="timezone" fluid filter class="w-max" />
+                      <label for="timezone">Venue's timezone</label>
+                    </p-floatlabel>
+                    <p-inputgroup-addon class="w-full">
+                      <p-button label="Load timezone" icon="pi pi-sync" variant="outlined" (onClick)="onUpdateTimeZoneClicked()" [disabled]="timeZoneIsLoading$" [loading]="timeZoneIsLoading$" />
+                    </p-inputgroup-addon>
+                  </p-inputgroup>
+                </div>
+              </div>
+            </div>
+
+            <!-- Venue Name -->
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <input pInputText id="venue" formControlName="venue" autocomplete="off" fluid />
+                <label for="venue">Venue Name</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- City -->
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <input pInputText id="city" formControlName="city" autocomplete="off" fluid />
+                <label for="city">City</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- State -->
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <input pInputText id="state" formControlName="state" autocomplete="off" fluid />
+                <label for="state">State (optional)</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- Country -->
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <input pInputText id="country" formControlName="country" autocomplete="off" fluid />
+                <label for="country">Country</label>
+              </p-floatlabel>
+            </div>
+          </div>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+  </p-card>
   <div class="card mt-3">
     <div class="card-header">
       <ul class="nav nav-tabs card-header-tabs link-secondary">

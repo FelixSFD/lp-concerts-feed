@@ -9,7 +9,7 @@ import {
   ViewChild
 } from '@angular/core';
 import timezones from 'timezones-list';
-import {listOfTours, listOfShowTypes} from '../../app.config';
+import {listOfTours, listOfShowTypes, tourConfigs} from '../../app.config';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import { NgClass } from '@angular/common';
 import {ConcertsService} from '../../services/concerts.service';
@@ -21,6 +21,17 @@ import {LocationsService} from '../../services/locations.service';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {ConcertDto, ConcertStatusValueDto} from '../../modules/lpshows-api';
 import {load, MapKit, Map as AppleMap, MapKitEvent, AnnotationDragEvent} from '@apple/mapkit-loader';
+import {Card} from 'primeng/card';
+import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
+import {ConcertStatus} from '../../data/concert-status';
+import {Select} from 'primeng/select';
+import {FloatLabel} from 'primeng/floatlabel';
+import {TourConfig} from '../../data/tour-config';
+import {InputText} from 'primeng/inputtext';
+import {DatePicker} from 'primeng/datepicker';
+import {InputGroup} from 'primeng/inputgroup';
+import {InputGroupAddon} from 'primeng/inputgroupaddon';
+import {Button} from 'primeng/button';
 
 // This class represents a form for adding and editing concerts
 @Component({
@@ -29,8 +40,21 @@ import {load, MapKit, Map as AppleMap, MapKitEvent, AnnotationDragEvent} from '@
     FormsModule,
     ReactiveFormsModule,
     NgClass,
-    NgbTooltip
-],
+    NgbTooltip,
+    Card,
+    Tabs,
+    TabList,
+    Tab,
+    TabPanels,
+    TabPanel,
+    Select,
+    FloatLabel,
+    InputText,
+    DatePicker,
+    InputGroup,
+    InputGroupAddon,
+    Button
+  ],
   templateUrl: './concert-form.component.html',
   styleUrl: './concert-form.component.css'
 })
@@ -50,7 +74,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
     city: new FormControl('', [Validators.required]),
     state: new FormControl('', []),
     country: new FormControl('', [Validators.required]),
-    postedStartTime: new FormControl('', [Validators.required]),
+    postedStartTime: new FormControl<Date | null>(null, [Validators.required]),
     lpuEarlyEntryConfirmed: new FormControl(false, []),
     lpuEarlyEntryTime: new FormControl('', []),
     doorsTime: new FormControl('', []),
@@ -88,6 +112,9 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
   // Service to check auth information
   private readonly oidcSecurityService = inject(OidcSecurityService);
 
+  protected concertStatusValues: ConcertStatus[] = ConcertStatus.allValues;
+  protected availableTours$: TourConfig[] = [];
+
   hasWriteAccess$ = false;
   scheduleIsUploading$ = false;
   timeZoneIsLoading$ = false;
@@ -96,6 +123,9 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
     this.oidcSecurityService.checkAuth().subscribe(({ isAuthenticated }) => {
       this.hasWriteAccess$ = isAuthenticated;
     });
+
+    this.availableTours$ = [...tourConfigs];
+    this.availableTours$.push({ label: "Not part of a tour", value: null});
   }
 
 
@@ -232,7 +262,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
     this.concertForm.controls.city.setValue(concert.city ?? null);
     this.concertForm.controls.state.setValue(concert.state ?? null);
     this.concertForm.controls.country.setValue(concert.country ?? null);
-    this.concertForm.controls.postedStartTime.setValue(postedStartDateTimeIsoStr?.substring(0, postedStartDateTimeIsoStr?.length - 6) ?? null);
+    this.concertForm.controls.postedStartTime.setValue(lpStageDateTime?.toJSDate() ?? null);
     this.concertForm.controls.timezone.setValue(concert.timeZoneId ?? null);
     this.concertForm.controls.lpuEarlyEntryConfirmed.setValue(concert.lpuEarlyEntryConfirmed ?? false);
     this.concertForm.controls.lpuEarlyEntryTime.setValue(lpuEarlyEntryDateTimeIsoStr?.substring(0, 5) ?? null);
@@ -356,7 +386,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
     const selectedTimezone = this.concertForm.value.timezone?.valueOf(); // e.g., "America/Los_Angeles"
 
     // Convert to the selected timezone
-    const localDateTime = DateTime.fromISO(postedStartTime); // Interpret as local datetime
+    const localDateTime = DateTime.fromJSDate(postedStartTime); // Interpret as local datetime
     const zonedDateTime = localDateTime.setZone(selectedTimezone, {keepLocalTime: true});
 
     console.log('Original datetime-local value:', postedStartTime);
