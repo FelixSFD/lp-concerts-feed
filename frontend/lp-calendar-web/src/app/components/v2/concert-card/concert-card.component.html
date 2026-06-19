@@ -22,7 +22,7 @@
   @if (concert$?.postedStartTime != undefined || concert$?.mainStageTime != undefined) {
     <div class="pb-2" pTooltip="In your local timezone" tooltipPosition="bottom">{{ concert$?.mainStageTime ?? concert$?.postedStartTime | date:"EEEE', ' dd.MM.yyyy' at ' HH:mm" }}</div>
 
-    <div class="grid justify-content-center">
+    <div class="grid justify-content-center py-2">
       <app-countdown [countdownToDate]="concert$?.mainStageTime ?? concert$?.postedStartTime!" [concertId]="concert$?.id" />
     </div>
   }
