@@ -118,6 +118,43 @@
                 <img width="35%" src="{{ environment.imageBaseUrl + '/' + concert$?.scheduleImageFile! }}" alt="Uploaded image" />
               }
             </div>
+
+            <!-- Official Doors Time -->
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <p-date-picker formControlName="doorsTime" inputId="doorsTime" showIcon iconDisplay="input" [timeOnly]="true" />
+                <label for="doorsTime">Doors time</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- LP stage Time -->
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <p-date-picker formControlName="lpStageTime" inputId="lpStageTime" showIcon iconDisplay="input" [timeOnly]="true" />
+                <label for="lpStageTime">Confirmed Linkin Park stage time</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- Expected set duration -->
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <p-date-picker formControlName="expectedSetDuration" inputId="expectedSetDuration" showIcon [showButtonBar]="true" iconDisplay="input" [timeOnly]="true">
+                  <ng-template #buttonbar let-todayCallback="todayCallback" let-clearCallback="clearCallback">
+                    <div class="flex justify-between w-full">
+                      <div class="flex gap-2">
+                        <p-button size="small" label="2h" severity="primary" variant="outlined" (onClick)="setExpectedSetDuration(120)" />
+                        <p-button size="small" label="90 min" severity="secondary" variant="outlined" (onClick)="setExpectedSetDuration(90)" />
+                        <p-button size="small" label="1h" severity="secondary" variant="outlined" (onClick)="setExpectedSetDuration(60)" />
+                      </div>
+                      <div class="flex gap-2">
+                        <p-button size="small" icon="pi pi-times" severity="danger" variant="text" (click)="clearCallback($event)" />
+                      </div>
+                    </div>
+                  </ng-template>
+                </p-date-picker>
+                <label for="expectedSetDuration">Expected set duration</label>
+              </p-floatlabel>
+            </div>
           </div>
         </p-tabpanel>
       </p-tabpanels>
