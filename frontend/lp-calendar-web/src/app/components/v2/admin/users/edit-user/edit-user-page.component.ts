@@ -1,7 +1,7 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {UsersService} from '../../../../../services/users.service';
-import {UserFormComponent} from '../../../../../admin/users/user-form/user-form.component';
+import {UserFormComponent} from '../user-form/user-form.component';
 import {ErrorResponseDto, UserDto} from '../../../../../modules/lpshows-api';
 import {Message} from 'primeng/message';
 import {Card} from 'primeng/card';

@@ -1,0 +1,37 @@
+<form #form="ngForm" [formGroup]="userForm" class="form">
+  <p-card class="mt-2">
+    <ng-template #title>
+      General Information
+    </ng-template>
+
+    <div class="grid gap-2 mt-2">
+      <!-- Username -->
+      <div class="col-12">
+        <p-floatlabel variant="on">
+          <input pInputText id="username" formControlName="username" autocomplete="off" fluid />
+          <label for="username">Username</label>
+        </p-floatlabel>
+      </div>
+
+      <!-- E-Mail -->
+      <div class="col-12">
+        <p-floatlabel variant="on">
+          <input pInputText id="email" formControlName="email" type="email" fluid />
+          <label for="email">E-Mail</label>
+        </p-floatlabel>
+        @if (user$?.emailVerified) {
+          <small><i class="pi pi-verified text-success"></i> E-mail address verified</small>
+        } @else {
+          <small><i class="pi pi-exclamation-triangle text-danger"></i> E-mail address not verified</small>
+        }
+      </div>
+    </div>
+
+    <ng-template #footer>
+      <p-divider />
+      <div class="flex gap-4 mt-1 justify-content-end w-full">
+        <p-button [label]="isSaving$ ? 'Saving...' : 'Save'" [loading]="isSaving$" (onClick)="onSaveClicked()" [disabled]="isSaving$ || !userForm.valid" />
+      </div>
+    </ng-template>
+  </p-card>
+</form>
