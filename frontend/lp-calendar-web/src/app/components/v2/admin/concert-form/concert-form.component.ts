@@ -9,31 +9,29 @@ import {
   ViewChild
 } from '@angular/core';
 import timezones from 'timezones-list';
-import {listOfTours, listOfShowTypes, tourConfigs} from '../../app.config';
+import {listOfTours, listOfShowTypes, tourConfigs} from '../../../../app.config';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import { NgClass } from '@angular/common';
-import {ConcertsService} from '../../services/concerts.service';
+import {ConcertsService} from '../../../../services/concerts.service';
 import {DateTime} from 'luxon';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
-import {environment} from "../../../environments/environment";
+import {environment} from "../../../../../environments/environment";
 import {ToastrService} from 'ngx-toastr';
-import {LocationsService} from '../../services/locations.service';
-import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {ConcertDto, ConcertStatusValueDto, ConcertWithSetlistsDto, ErrorResponseDto} from '../../modules/lpshows-api';
+import {LocationsService} from '../../../../services/locations.service';
+import {ConcertDto, ConcertStatusValueDto, ConcertWithSetlistsDto, ErrorResponseDto} from '../../../../modules/lpshows-api';
 import {load, MapKit, Map as AppleMap, MapKitEvent, AnnotationDragEvent} from '@apple/mapkit-loader';
 import {Card} from 'primeng/card';
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
-import {ConcertStatus} from '../../data/concert-status';
+import {ConcertStatus} from '../../../../data/concert-status';
 import {Select} from 'primeng/select';
 import {FloatLabel} from 'primeng/floatlabel';
-import {TourConfig} from '../../data/tour-config';
+import {TourConfig} from '../../../../data/tour-config';
 import {InputText} from 'primeng/inputtext';
 import {DatePicker} from 'primeng/datepicker';
 import {InputGroup} from 'primeng/inputgroup';
 import {InputGroupAddon} from 'primeng/inputgroupaddon';
 import {Button} from 'primeng/button';
-import {FileBeforeUploadEvent, FileProgressEvent, FileUpload, FileUploadHandlerEvent} from 'primeng/fileupload';
-import {HttpClient, HttpEvent, HttpEventType, HttpRequest, HttpResponse} from '@angular/common/http';
+import {FileProgressEvent, FileUpload, FileUploadHandlerEvent} from 'primeng/fileupload';
+import {HttpClient, HttpEvent, HttpEventType, HttpRequest} from '@angular/common/http';
 import {ToggleSwitch} from 'primeng/toggleswitch';
 import {InputNumber} from 'primeng/inputnumber';
 import {Divider} from 'primeng/divider';
@@ -46,8 +44,6 @@ import {MessageService} from 'primeng/api';
   imports: [
     FormsModule,
     ReactiveFormsModule,
-    NgClass,
-    NgbTooltip,
     Card,
     Tabs,
     TabList,

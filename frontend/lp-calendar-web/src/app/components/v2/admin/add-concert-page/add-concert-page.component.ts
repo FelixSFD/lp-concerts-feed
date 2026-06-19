@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {ConcertFormComponent} from '../../../../admin/concert-form/concert-form.component';
+import {ConcertFormComponent} from '../concert-form/concert-form.component';
 import {ConcertsService} from '../../../../services/concerts.service';
 import {ToastrService} from 'ngx-toastr';
 import {ConcertDto} from '../../../../modules/lpshows-api';
