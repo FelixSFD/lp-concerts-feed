@@ -1,5 +1,5 @@
 <form #form="ngForm" [formGroup]="songForm" class="form">
-  <p-card class="mt-3">
+  <ng-template #formInputsGeneral>
     <div class="grid gap-2">
       <div class="col-12">
         <p-floatlabel variant="on">
@@ -48,12 +48,21 @@
         </p-inputgroup>
       </div>
     </div>
+  </ng-template>
 
-    <ng-template #footer>
-      <p-divider />
-      <div class="flex gap-4 mt-1 align-content-end justify-content-end">
-        <p-button [label]="isSaving$ ? 'Saving...' : 'Save'" [loading]="isSaving$" (onClick)="onSaveClicked()" [disabled]="isSaving$ || !songForm.valid" />
-      </div>
-    </ng-template>
-  </p-card>
+  @if (standalone$) {
+    <p-card class="mt-3">
+      <ng-container *ngTemplateOutlet="formInputsGeneral" />
+
+      <ng-template #footer>
+        <p-divider />
+        <div class="flex gap-4 mt-1 align-content-end justify-content-end">
+          <p-button [label]="isSaving$ ? 'Saving...' : 'Save'" [loading]="isSaving$" (onClick)="onSaveClicked()" [disabled]="isSaving$ || !songForm.valid" />
+        </div>
+      </ng-template>
+    </p-card>
+  } @else {
+    <ng-container *ngTemplateOutlet="formInputsGeneral" />
+  }
+
 </form>

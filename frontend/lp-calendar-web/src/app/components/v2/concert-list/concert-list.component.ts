@@ -1,12 +1,10 @@
-import {Component, inject, TemplateRef} from '@angular/core';
-import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import {Component, inject} from '@angular/core';
 import {ConcertDto, ConcertStatusValueDto, ErrorResponseDto} from '../../../modules/lpshows-api';
 import {AuthService} from '../../../auth/auth.service';
 import {ConcertFilter} from '../../../data/concert-filter';
 import {ConcertsService} from '../../../services/concerts.service';
 import { DateTime } from "luxon";
 import { ConcertTitleGenerator } from "../../../data/concert-title-generator";
-import { listOfTours } from "../../../app.config";
 import {Message} from 'primeng/message';
 import {RouterLink} from '@angular/router';
 import {Button} from 'primeng/button';
@@ -19,7 +17,6 @@ import {ConfirmDialog} from 'primeng/confirmdialog';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {Tooltip} from 'primeng/tooltip';
 import {ConcertFilterComponent} from '../concert-filter/concert-filter.component';
-import {ScrollTop} from 'primeng/scrolltop';
 
 @Component({
   selector: 'app-concert-list',
@@ -40,7 +37,6 @@ import {ScrollTop} from 'primeng/scrolltop';
   styleUrl: './concert-list.component.css',
 })
 export class ConcertListComponent {
-  private modalService = inject(NgbModal);
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
 
@@ -54,9 +50,6 @@ export class ConcertListComponent {
 
   // property to show whether the concert is currently being deleted
   concertDeleting$ = false;
-
-  // if open, the modal is referenced here
-  deleteConcertModal: NgbModalRef | undefined;
 
   // ID that will be deleted. Is used to store the ID for the confirmation modal
   private concertIdToDelete: string | undefined;
@@ -120,11 +113,6 @@ export class ConcertListComponent {
   }
 
 
-  openModal(content: TemplateRef<any>) {
-    return this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
-  }
-
-
   onShowHistoricSwitchChanged() {
     this.reloadConcertList(true);
     console.log("Show historic: " + this.showHistoricConcerts$)
@@ -158,7 +146,6 @@ export class ConcertListComponent {
   private onDeleteConcertConfirm(concertId: string | null) {
     this.concertDeleting$ = true;
     if (concertId == null) {
-      this.deleteConcertModal?.dismiss();
       return;
     }
 
@@ -170,14 +157,12 @@ export class ConcertListComponent {
         console.debug("DELETE concert request finished");
         console.debug(result);
 
-        this.deleteConcertModal?.dismiss();
         this.concertDeleting$ = false;
         this.reloadConcertList(false);
       },
       error: err => {
         let errorResponse: ErrorResponseDto = err.error;
         console.warn("Failed to delete concert:", err);
-        this.deleteConcertModal?.dismiss();
         this.concertDeleting$ = false;
 
         this.messageService.add({
@@ -187,11 +172,6 @@ export class ConcertListComponent {
         });
       }
     });
-  }
-
-
-  dismissConcertConfirmModal() {
-    this.deleteConcertModal?.dismiss();
   }
 
 
@@ -213,7 +193,6 @@ export class ConcertListComponent {
 
 
   protected readonly DateTime = DateTime;
-  protected readonly listOfTours = listOfTours;
   protected readonly ConcertTitleGenerator = ConcertTitleGenerator;
   protected readonly ConcertStatusValueDto = ConcertStatusValueDto;
 }

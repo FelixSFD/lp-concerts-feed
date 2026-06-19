@@ -30,3 +30,8 @@ body {
 .link-subtle:hover {
   color: var(--p-primary-500);
 }
+
+
+.text-color-success {
+  color: var(--p-green-600);
+}

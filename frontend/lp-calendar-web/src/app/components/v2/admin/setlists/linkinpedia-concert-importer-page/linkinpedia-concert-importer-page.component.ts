@@ -1,6 +1,6 @@
 import {Component, inject, OnInit, TemplateRef, viewChild} from '@angular/core';
 import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
-import {NgClass, NgTemplateOutlet} from '@angular/common';
+import {NgTemplateOutlet} from '@angular/common';
 import {SetlistsService} from '../../../../../services/setlists.service';
 import {
   ActParametersDto,
@@ -15,7 +15,6 @@ import {
   SongDto, SongMashupDto, SongVariantDto
 } from '../../../../../modules/lpshows-api';
 import {SongFormComponent} from '../song-form/song-form.component';
-import {NgbModal, NgbModalRef, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {SongsService} from '../../../../../services/songs.service';
 import {MashupFormComponent} from '../mashup-form/mashup-form.component';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -31,6 +30,7 @@ import {Divider} from 'primeng/divider';
 import {TableModule} from 'primeng/table';
 import {Tooltip} from 'primeng/tooltip';
 import {MessageService} from 'primeng/api';
+import {Dialog} from 'primeng/dialog';
 
 @Component({
   selector: 'app-linkinpedia-concert-importer-page',
@@ -39,7 +39,6 @@ import {MessageService} from 'primeng/api';
     SongFormComponent,
     MashupFormComponent,
     NgTemplateOutlet,
-    NgbTooltip,
     Card,
     Button,
     FloatLabel,
@@ -48,13 +47,13 @@ import {MessageService} from 'primeng/api';
     InputText,
     Divider,
     TableModule,
-    Tooltip
+    Tooltip,
+    Dialog
   ],
   templateUrl: './linkinpedia-concert-importer-page.component.html',
   styleUrl: './linkinpedia-concert-importer-page.component.css',
 })
 export class LinkinpediaConcertImporterPageComponent implements OnInit {
-  private modalService = inject(NgbModal);
   private readonly formBuilder = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -68,6 +67,9 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
 
   // true if the page is currently saving the new setlist
   isCreatingSetlist$ = false;
+
+  isShowingAddSongDialog$ = false;
+  isShowingAddMashupDialog$ = false;
 
   allEntriesValid$ = false;
 
@@ -83,12 +85,10 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
 
   // properties for the add song modal
   isAddingSong$: boolean = false;
-  addSongModal: NgbModalRef | undefined;
   private newSongFormComponent = viewChild(SongFormComponent);
 
   // properties for the add mashup modal
   isAddingMashup$: boolean = false;
-  addMashupModal: NgbModalRef | undefined;
   private newMashupFormComponent = viewChild(MashupFormComponent);
 
 
@@ -161,17 +161,12 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
   }
 
 
-  openModal(content: TemplateRef<any>) {
-    return this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
-  }
-
-
-  openCreateSongBtnClicked(entryPreview: ImportSetlistEntryPreviewDto, content: TemplateRef<any>) {
+  openCreateSongBtnClicked(entryPreview: ImportSetlistEntryPreviewDto) {
     let songPrefill: SongDto = {
       title: entryPreview.title,
     };
 
-    this.addSongModal = this.openModal(content);
+    this.isShowingAddSongDialog$ = true;
     this.newSongFormComponent()?.fillFormWith(songPrefill);
   }
 
@@ -221,16 +216,16 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
 
 
   dismissAddSongModal() {
-    this.addSongModal?.dismiss();
+    this.isShowingAddSongDialog$ = false;
   }
 
 
-  openCreateMashupBtnClicked(entryPreview: ImportSetlistEntryPreviewDto, content: TemplateRef<any>) {
+  openCreateMashupBtnClicked(entryPreview: ImportSetlistEntryPreviewDto) {
     let mashupPrefill: SongMashupDto = {
       title: entryPreview.title,
     };
 
-    this.addMashupModal = this.openModal(content);
+    this.isShowingAddMashupDialog$ = true;
     this.newMashupFormComponent()?.fillFormWith(mashupPrefill);
   }
 
@@ -278,7 +273,7 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
 
 
   dismissAddMashupModal() {
-    this.addMashupModal?.dismiss();
+    this.isAddingMashup$ = false;
   }
 
 

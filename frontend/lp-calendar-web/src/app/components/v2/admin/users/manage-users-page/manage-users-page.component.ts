@@ -12,7 +12,7 @@ import {InputText} from 'primeng/inputtext';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {TableModule} from 'primeng/table';
 import {RouterLink} from '@angular/router';
-import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {Tooltip} from 'primeng/tooltip';
 
 @Component({
   selector: 'app-manage-users-page',
@@ -28,7 +28,7 @@ import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
     TableModule,
     RouterLink,
     FormsModule,
-    NgbTooltip
+    Tooltip,
   ],
   templateUrl: './manage-users-page.component.html',
   styleUrl: './manage-users-page.component.css',

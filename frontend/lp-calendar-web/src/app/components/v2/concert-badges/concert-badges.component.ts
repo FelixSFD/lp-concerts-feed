@@ -1,6 +1,5 @@
 import {Component, Input} from '@angular/core';
 
-import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {ConcertDto, ConcertStatusValueDto} from '../../../modules/lpshows-api';
 import {defaultShowType} from '../../../app.config';
 import {Tag} from 'primeng/tag';
@@ -9,7 +8,6 @@ import {Tooltip} from 'primeng/tooltip';
 @Component({
   selector: 'app-concert-badges',
   imports: [
-    NgbTooltip,
     Tag,
     Tooltip
   ],

@@ -5,7 +5,6 @@ import {
   RouterLink,
   RouterOutlet
 } from '@angular/router';
-import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {environment} from '../environments/environment';
 import {
@@ -29,7 +28,7 @@ import {Toast} from 'primeng/toast';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NgbModule, RouterLink, MainMenuComponent, ScrollTop, AutoBreadcrumbsComponent, ProgressBar, Toast],
+  imports: [RouterOutlet, RouterLink, MainMenuComponent, ScrollTop, AutoBreadcrumbsComponent, ProgressBar, Toast],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

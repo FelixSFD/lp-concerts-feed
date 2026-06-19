@@ -1,5 +1,4 @@
 import {Component, EventEmitter, inject, Input, OnInit, Output, signal} from '@angular/core';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {AlbumDto, ErrorResponseDto, SongDto} from '../../../../../modules/lpshows-api';
 import {AlbumsService} from '../../../../../services/music/albums.service';
@@ -14,6 +13,7 @@ import {InputGroupAddon} from 'primeng/inputgroupaddon';
 import {InputText} from 'primeng/inputtext';
 import {Select} from 'primeng/select';
 import {MessageService} from 'primeng/api';
+import {NgTemplateOutlet} from '@angular/common';
 
 @Component({
   selector: 'app-song-form',
@@ -27,13 +27,13 @@ import {MessageService} from 'primeng/api';
     InputGroup,
     InputGroupAddon,
     InputText,
-    Select
+    Select,
+    NgTemplateOutlet
   ],
   templateUrl: './song-form.component.html',
   styleUrl: './song-form.component.css',
 })
 export class SongFormComponent implements OnInit {
-  private modalService = inject(NgbModal);
   private messageService = inject(MessageService);
   private formBuilder = inject(FormBuilder);
   private albumsService = inject(AlbumsService);

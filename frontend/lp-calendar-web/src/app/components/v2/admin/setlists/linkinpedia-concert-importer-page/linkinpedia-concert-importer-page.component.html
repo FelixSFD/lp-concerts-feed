@@ -1,42 +1,26 @@
 <!-- add song modal -->
-<ng-template #addSongContent let-addSongModal>
-  <div class="modal-content">
-    <div class="modal-header">
-      <h1 class="modal-title fs-5" id="addSongModalLabel">Add a new song</h1>
-      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-    </div>
-    <div class="modal-body">
-      <app-song-form [standalone]="false" [is-saving]="isAddingSong$" />
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" [disabled]="isAddingSong$" (click)="dismissAddSongModal()">Cancel</button>
-      <button type="button" class="btn btn-primary" id="addSongConfirmBtn" (click)="onAddSongConfirm()" [disabled]="isAddingSong$">
-        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!isAddingSong$"></span>
-        <span class="sr-only">{{ isAddingSong$ ? "Adding..." : "Add" }}</span>
-      </button>
-    </div>
-  </div>
-</ng-template>
+<p-dialog header="Add a new song" [(visible)]="isShowingAddSongDialog$" [modal]="true" [dismissableMask]="true" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [style]="{ width: '50vw' }" [draggable]="false">
+  <app-song-form [standalone]="false" [is-saving]="isAddingSong$" />
+
+  <p-divider />
+
+  <ng-template #footer>
+    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="dismissAddSongModal()" />
+    <p-button [label]="isAddingSong$ ? 'Adding...' : 'Add'" (onClick)="onAddSongConfirm()" [loading]="isAddingSong$" [disabled]="isAddingSong$" />
+  </ng-template>
+</p-dialog>
 
 <!-- add song mashup modal -->
-<ng-template #addMashupContent let-addMashupModal>
-  <div class="modal-content">
-    <div class="modal-header">
-      <h1 class="modal-title fs-5" id="addMashupModalLabel">Add a new song mashup</h1>
-      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-    </div>
-    <div class="modal-body">
-      <app-mashup-form [standalone]="false" [is-saving]="isAddingMashup$" />
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" [disabled]="isAddingMashup$" (click)="dismissAddMashupModal()">Cancel</button>
-      <button type="button" class="btn btn-primary" id="addSongConfirmBtn" (click)="onAddMashupConfirm()" [disabled]="isAddingMashup$">
-        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" [hidden]="!isAddingMashup$"></span>
-        <span class="sr-only">{{ isAddingMashup$ ? "Adding..." : "Add" }}</span>
-      </button>
-    </div>
-  </div>
-</ng-template>
+<p-dialog header="Add a new song mashup" [(visible)]="isShowingAddMashupDialog$" [modal]="true" [dismissableMask]="true" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [style]="{ width: '50vw' }" [draggable]="false">
+  <app-mashup-form [standalone]="false" [is-saving]="isAddingMashup$" />
+
+  <p-divider />
+
+  <ng-template #footer>
+    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="dismissAddMashupModal()" />
+    <p-button [label]="isAddingMashup$ ? 'Adding...' : 'Add'" (onClick)="onAddMashupConfirm()" [loading]="isAddingMashup$" [disabled]="isAddingMashup$" />
+  </ng-template>
+</p-dialog>
 
 <p-card>
   <ng-template #title>
@@ -175,7 +159,7 @@
               <tr class="bg-secondary-subtle">
                 <td colspan="2"></td>
                 <td colspan="3">
-                  <span ngbTooltip="Select a variant here, if they didn't play the normal version">Select a variant:</span>
+                  <span pTooltip="Select a variant here, if they didn't play the normal version">Select a variant:</span>
                   <div class="btn-group btn-group-sm mr-2">
                     @for (variant of generatedEntry.possibleSongVariants; track variant.id) {
                       <p-button [label]="variant.variantName" (onClick)="setVariantBtnClicked(generatedEntry, variant)" size="small" />
@@ -194,8 +178,8 @@
               <td colspan="2"></td>
               <td colspan="3">
                 <div class="flex gap-2">
-                  <p-button label="Create Song" (onClick)="openCreateSongBtnClicked(generatedEntry, addSongContent)" size="small" />
-                  <p-button label="Create Mashup" (onClick)="openCreateMashupBtnClicked(generatedEntry, addSongContent)" size="small" />
+                  <p-button label="Create Song" (onClick)="openCreateSongBtnClicked(generatedEntry)" size="small" />
+                  <p-button label="Create Mashup" (onClick)="openCreateMashupBtnClicked(generatedEntry)" size="small" />
                   <p-button label="Text-only entry" severity="info" (onClick)="changeToPlainTextEntryBtnClicked(generatedEntry)" size="small" pTooltip="Use this button to mark this as a plain-text entry. This will not have any songs assigned." />
                 </div>
               </td>
