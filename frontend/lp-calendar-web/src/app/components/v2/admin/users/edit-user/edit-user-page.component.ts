@@ -1,30 +1,34 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {ToastrService} from 'ngx-toastr';
-import {UsersService} from '../../../services/users.service';
-import {UserFormComponent} from '../user-form/user-form.component';
-import {ErrorResponseDto, UserDto} from '../../../modules/lpshows-api';
+import {UsersService} from '../../../../../services/users.service';
+import {UserFormComponent} from '../../../../../admin/users/user-form/user-form.component';
+import {ErrorResponseDto, UserDto} from '../../../../../modules/lpshows-api';
 import {Message} from 'primeng/message';
+import {Card} from 'primeng/card';
+import {MessageService} from 'primeng/api';
 
 
 @Component({
-  selector: 'app-edit-user',
+  selector: 'app-edit-user-page',
   imports: [
     UserFormComponent,
-    Message
+    Message,
+    Card
   ],
-  templateUrl: './edit-user.component.html',
-  styleUrl: './edit-user.component.css',
+  templateUrl: './edit-user-page.component.html',
+  styleUrl: './edit-user-page.component.css',
   standalone: true,
 })
-export class EditUserComponent implements OnInit {
+export class EditUserPageComponent implements OnInit {
+  private messageService = inject(MessageService);
+
   user$ : UserDto | null = null;
   resolverError$: ErrorResponseDto | null = null;
 
   // true while the user is saved on the server
   userIsSaving$: boolean = false;
 
-  constructor(private route: ActivatedRoute, private userService: UsersService, private toastr: ToastrService) {
+  constructor(private route: ActivatedRoute, private userService: UsersService) {
 
   }
 
@@ -50,12 +54,19 @@ export class EditUserComponent implements OnInit {
     user.id = this.user$?.id;
     this.userService.updateUser(user).subscribe({
       next: response => {
-        this.toastr.success("User updated successfully");
+        this.messageService.add({
+          severity: 'success',
+          summary: 'User updated successfully',
+        });
         this.userIsSaving$ = false;
       },
       error: err => {
         let errorResponse: ErrorResponseDto = err.error;
-        this.toastr.error(errorResponse.message, "Could not save user");
+        this.messageService.add({
+          severity: 'danger',
+          summary: 'Could not save user',
+          text: errorResponse.message,
+        });
         this.userIsSaving$ = false;
       }
     });

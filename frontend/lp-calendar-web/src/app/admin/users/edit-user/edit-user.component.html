@@ -1,7 +1,0 @@
-<h1>Edit user</h1>
-
-@if (resolverError$ != null) {
-  <p-message severity="error">{{ resolverError$.message }}</p-message>
-} @else {
-  <app-user-form [user]="user$" [is-saving]="userIsSaving$" (saveClicked)="onFormSaved($event)" />
-}

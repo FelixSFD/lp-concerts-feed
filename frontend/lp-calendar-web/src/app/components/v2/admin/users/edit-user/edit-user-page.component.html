@@ -1,0 +1,11 @@
+<p-card class="mt-3">
+  <ng-template #title>
+    Edit user
+  </ng-template>
+
+  @if (resolverError$ != null) {
+    <p-message severity="error">{{ resolverError$.message }}</p-message>
+  } @else {
+    <app-user-form [user]="user$" [is-saving]="userIsSaving$" (saveClicked)="onFormSaved($event)" />
+  }
+</p-card>

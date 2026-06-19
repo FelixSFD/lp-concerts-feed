@@ -200,7 +200,7 @@ export const routes: Routes = [
       {
         path: ':id',
         loadComponent: () =>
-          import("./admin/users/edit-user/edit-user.component").then(m => m.EditUserComponent),
+          import("./components/v2/admin/users/edit-user/edit-user-page.component").then(m => m.EditUserPageComponent),
         title: baseTitle + 'Edit user',
         canActivate: [authGuard, manageUsersGuard],
         data: {
