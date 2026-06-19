@@ -19,7 +19,7 @@ import {environment} from "../../../environments/environment";
 import {ToastrService} from 'ngx-toastr';
 import {LocationsService} from '../../services/locations.service';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {ConcertDto, ConcertStatusValueDto} from '../../modules/lpshows-api';
+import {ConcertDto, ConcertStatusValueDto, ConcertWithSetlistsDto, ErrorResponseDto} from '../../modules/lpshows-api';
 import {load, MapKit, Map as AppleMap, MapKitEvent, AnnotationDragEvent} from '@apple/mapkit-loader';
 import {Card} from 'primeng/card';
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
@@ -37,6 +37,8 @@ import {HttpClient, HttpEvent, HttpEventType, HttpRequest, HttpResponse} from '@
 import {ToggleSwitch} from 'primeng/toggleswitch';
 import {InputNumber} from 'primeng/inputnumber';
 import {Divider} from 'primeng/divider';
+import {ActivatedRoute} from '@angular/router';
+import {MessageService} from 'primeng/api';
 
 // This class represents a form for adding and editing concerts
 @Component({
@@ -72,7 +74,9 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
   private concertsService = inject(ConcertsService);
   private locationsService = inject(LocationsService);
   private toastrService = inject(ToastrService);
+  private messageService = inject(MessageService);
   private http = inject(HttpClient);
+  private route = inject(ActivatedRoute);
 
   concertForm = this.formBuilder.group({
     concertStatus: new FormControl('', [Validators.required]),
@@ -92,7 +96,6 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
     expectedSetDuration: new FormControl('', []),
     venueLat: new FormControl(0, []),
     venueLong: new FormControl(0, []),
-    scheduleImg: new FormControl('', [])
   });
 
   @Input({ alias: "concert-id" })
@@ -140,7 +143,23 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
 
 
   ngOnInit() {
-    this.loadConcertForId(this.concertId);
+    this.route.data.subscribe(data => {
+      console.debug("Resolved data:", data);
+
+      if (data['concert'].type === 'ErrorResponseDto') {
+        let err = data['concert'] as ErrorResponseDto;
+        this.messageService.add({
+          severity: 'danger',
+          summary: "Failed to load concert",
+          text: err.message,
+        });
+
+        return;
+      }
+
+      let concert = data['concert'] as ConcertWithSetlistsDto;
+      this.fillFormWithConcert(concert);
+    });
   }
 
 
@@ -245,7 +264,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
   private fillFormWithConcert(concert: ConcertDto) {
     let postedStartDateTimeUtc = concert.postedStartTime == undefined ? null : DateTime.fromISO(concert.postedStartTime);
     let postedStartDateTime = postedStartDateTimeUtc?.setZone(concert.timeZoneId!, {keepLocalTime: false})
-    let postedStartDateTimeIsoStr = postedStartDateTime?.toISO();
+    console.debug("Posted start time: " + postedStartDateTime);
 
     let lpuEarlyEntryDateTimeUtc = concert.lpuEarlyEntryTime == undefined ? null : DateTime.fromISO(concert.lpuEarlyEntryTime);
     let lpuEarlyEntryDateTime = lpuEarlyEntryDateTimeUtc?.setZone(concert.timeZoneId!, {keepLocalTime: false})
@@ -272,7 +291,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
     this.concertForm.controls.city.setValue(concert.city ?? null);
     this.concertForm.controls.state.setValue(concert.state ?? null);
     this.concertForm.controls.country.setValue(concert.country ?? null);
-    this.concertForm.controls.postedStartTime.setValue(lpStageDateTime?.toJSDate() ?? null);
+    this.concertForm.controls.postedStartTime.setValue(postedStartDateTime?.toJSDate() ?? null);
     this.concertForm.controls.timezone.setValue(concert.timeZoneId ?? null);
     this.concertForm.controls.lpuEarlyEntryConfirmed.setValue(concert.lpuEarlyEntryConfirmed ?? false);
     this.concertForm.controls.lpuEarlyEntryTime.setValue(lpuEarlyEntryDateTimeIsoStr?.substring(0, 5) ?? null);

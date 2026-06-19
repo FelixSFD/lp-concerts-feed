@@ -1,5 +1,5 @@
-import {ApplicationConfig, importProvidersFrom, provideZoneChangeDetection} from '@angular/core';
-import {provideRouter, withRouterConfig} from '@angular/router';
+import {ApplicationConfig, LOCALE_ID, provideZoneChangeDetection} from '@angular/core';
+import {provideRouter} from '@angular/router';
 
 import { routes } from './app.routes';
 import { authConfig } from './auth/auth.config';
@@ -22,6 +22,8 @@ import Aura from '@primeuix/themes/aura';
 import lpshowsPreset from '../lpshows-preset';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {TourConfig} from './data/tour-config';
+import { all } from "primelocale";
+import {DateTime} from 'luxon';
 
 const cookieConfig:NgcCookieConsentConfig = {
   "cookie": {
@@ -54,6 +56,10 @@ const cookieConfig:NgcCookieConsentConfig = {
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    {
+      provide: LOCALE_ID,
+      useFactory: () => navigator.language
+    },
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideAuth(authConfig),
@@ -77,6 +83,10 @@ export const appConfig: ApplicationConfig = {
     providePrimeNG({
       theme: {
         preset: lpshowsPreset
+      },
+      ripple: true,
+      translation: {
+        dateFormat: "dd.mm.yy"
       }
     }),
     ConfirmationService,
