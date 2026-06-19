@@ -16,7 +16,7 @@ import {RouterLink} from '@angular/router';
 import {Divider} from 'primeng/divider';
 import {ToggleSwitch} from 'primeng/toggleswitch';
 import {FormsModule} from '@angular/forms';
-import {CalendarFeedBuilderComponent} from '../../../calendar-feed-builder/calendar-feed-builder.component';
+import {CalendarFeedBuilderComponent} from '../calendar-feed-builder/calendar-feed-builder.component';
 import {ConcertCardComponent} from '../concert-card/concert-card.component';
 
 @Component({

@@ -3,7 +3,7 @@ import {RouterLink} from '@angular/router';
 import {environment} from '../../environments/environment';
 import {ConcertCardComponent} from '../concert-card/concert-card.component';
 import {ConcertsService} from '../services/concerts.service';
-import {CalendarFeedBuilderComponent} from '../calendar-feed-builder/calendar-feed-builder.component';
+import {CalendarFeedBuilderComponent} from '../components/v2/calendar-feed-builder/calendar-feed-builder.component';
 import {ToastrService} from 'ngx-toastr';
 import {MatomoTracker} from 'ngx-matomo-client';
 import {ConcertDto} from '../modules/lpshows-api';

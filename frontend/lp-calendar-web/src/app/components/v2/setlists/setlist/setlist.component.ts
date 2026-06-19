@@ -9,7 +9,7 @@ import {MatomoTracker} from 'ngx-matomo-client';
 import {ViewportScroller} from '@angular/common';
 import {AppleMusicService} from '../../../../services/music/apple-music.service';
 import Artwork = MusicKit.Artwork;
-import {AppleMusicArtworkComponent} from '../../../music/apple-music-artwork/apple-music-artwork.component';
+import {AppleMusicArtworkComponent} from '../../music/apple-music-artwork/apple-music-artwork.component';
 import {
   SetlistEntrySongExtraListComponent
 } from '../setlist-entry-song-extra-list/setlist-entry-song-extra-list.component';

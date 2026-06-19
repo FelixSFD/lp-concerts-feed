@@ -1,7 +1,7 @@
 import {Component, EventEmitter, inject, OnInit, Output} from '@angular/core';
-import {environment} from '../../environments/environment';
+import {environment} from '../../../../environments/environment';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {ConcertsService} from '../services/concerts.service';
+import {ConcertsService} from '../../../services/concerts.service';
 import {ToggleSwitch} from 'primeng/toggleswitch';
 import {ButtonLabel} from 'primeng/button';
 
