@@ -2,7 +2,7 @@
   <div class="sticky top-0 z-5">
     <app-main-menu [clock]="currentDateTime$" [isLoggedIn]="isAuthenticated$" />
     <div [class]="(routerProgress == 1 ? 'progress-hidden mx-3' : 'progress-visible mx-3')">
-      <p-progress-bar [value]="routerProgress * 100" class="mx-3" style="height: 2px" showValue="false" role="progressbar"  />
+      <p-progress-bar [value]="routerProgress * 100" style="height: 2px" showValue="false" role="progressbar"  />
     </div>
   </div>
 
