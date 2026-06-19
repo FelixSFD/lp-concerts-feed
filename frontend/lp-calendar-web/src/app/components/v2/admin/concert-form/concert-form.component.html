@@ -218,7 +218,8 @@
 
     <ng-template #footer>
       <p-divider />
-      <div class="flex gap-4 mt-1 align-content-end justify-content-end">
+      <div class="flex gap-4 mt-1 justify-content-between w-full">
+        <p-button label="Clear" severity="secondary" (onClick)="onClearClicked()" [disabled]="isSaving$" />
         <p-button [label]="isSaving$ ? 'Saving...' : 'Save'" [loading]="isSaving$" (onClick)="onSaveClicked()" [disabled]="isSaving$ || !concertForm.valid" />
       </div>
     </ng-template>
