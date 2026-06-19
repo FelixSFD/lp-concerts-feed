@@ -5,25 +5,21 @@ import { routes } from './app.routes';
 import { authConfig } from './auth/auth.config';
 import {
   AbstractSecurityStorage,
-  authInterceptor,
   DefaultLocalStorageService,
   provideAuth
 } from 'angular-auth-oidc-client';
 import {provideHttpClient, withInterceptors} from '@angular/common/http';
-import {provideToastr, ToastrModule} from 'ngx-toastr';
-import {BrowserAnimationsModule, provideAnimations} from '@angular/platform-browser/animations';
+import {provideToastr} from 'ngx-toastr';
+import {provideAnimations} from '@angular/platform-browser/animations';
 import {provideMatomo, withRouter} from 'ngx-matomo-client';
 import {environment} from '../environments/environment';
 import {NgcCookieConsentConfig, provideNgcCookieConsent} from 'ngx-cookieconsent';
 import {BASE_PATH} from './modules/lpshows-api';
 import {authTokenInterceptor} from './auth/auth-token.interceptor';
 import {providePrimeNG} from 'primeng/config';
-import Aura from '@primeuix/themes/aura';
 import lpshowsPreset from '../lpshows-preset';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {TourConfig} from './data/tour-config';
-import { all } from "primelocale";
-import {DateTime} from 'luxon';
 
 const cookieConfig:NgcCookieConsentConfig = {
   "cookie": {
