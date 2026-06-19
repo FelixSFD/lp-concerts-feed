@@ -1500,8 +1500,9 @@ export default {
         "gap": "0.5rem"
       },
       "title": {
-        "fontSize": "1.25rem",
-        "fontWeight": "500"
+        "fontSize": "1.5rem",
+        "fontWeight": "500",
+        "margin": "0 0 0 0"
       },
       "subtitle": {
         "color": "{text.muted.color}"
