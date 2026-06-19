@@ -26,9 +26,9 @@
   <app-concert-filter (applyClicked)="onFilterChanged($event)" />
 </div>
 
-<div class="grid justify-content-center">
+<div class="grid gap-4 mt-2 justify-content-center">
   @for (concert of concerts$; track concert.id) {
-    <p-card class="col-12 my-2 w-full xl:w-9 justify-content-center">
+    <p-card class="w-full justify-content-center">
       <ng-template #title>
         <a class="font-bold text-color {{ concert.concertStatus == ConcertStatusValueDto.Cancelled ? 'line-through' : 'no-underline' }}" [routerLink]="['/concerts/' + concert.id]">
           {{ ConcertTitleGenerator.getTitleFor(concert) }}
