@@ -36,6 +36,7 @@ import {FileBeforeUploadEvent, FileProgressEvent, FileUpload, FileUploadHandlerE
 import {HttpClient, HttpEvent, HttpEventType, HttpRequest, HttpResponse} from '@angular/common/http';
 import {ToggleSwitch} from 'primeng/toggleswitch';
 import {InputNumber} from 'primeng/inputnumber';
+import {Divider} from 'primeng/divider';
 
 // This class represents a form for adding and editing concerts
 @Component({
@@ -60,7 +61,8 @@ import {InputNumber} from 'primeng/inputnumber';
     Button,
     FileUpload,
     ToggleSwitch,
-    InputNumber
+    InputNumber,
+    Divider
   ],
   templateUrl: './concert-form.component.html',
   styleUrl: './concert-form.component.css'
