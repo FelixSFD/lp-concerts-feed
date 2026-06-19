@@ -11,7 +11,6 @@ import { listOfTours } from "../../../app.config";
 import {Message} from 'primeng/message';
 import {RouterLink} from '@angular/router';
 import {Button} from 'primeng/button';
-import {DataView} from 'primeng/dataview';
 import {Card} from 'primeng/card';
 import {Skeleton} from 'primeng/skeleton';
 import {ConcertBadgesComponent} from '../concert-badges/concert-badges.component';

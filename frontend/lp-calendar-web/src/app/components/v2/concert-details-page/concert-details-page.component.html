@@ -1,7 +1,7 @@
 <ng-template #timeCard let-cardTitle="cardTitle" let-timeString="timeString" let-timeZoneText="timeZoneText">
   <p-card>
     <ng-template #header>
-      <div class="ps-3 py-2 border-round-top surface-300">
+      <div class="pl-3 py-2 border-round-top surface-300">
         <span>{{ cardTitle }}</span>
       </div>
     </ng-template>
@@ -108,7 +108,7 @@
           <div class="mt-4 w-100">
             <p-card>
               <ng-template #header>
-                <div class="ps-3 py-2 border-round-top surface-300">
+                <div class="pl-3 py-2 border-round-top surface-300">
                   <p-tag value="BETA" severity="success" pTooltip="This is an early version of this feature and might not work perfectly" tooltipPosition="top" /> Setlist: {{ setlist.setName }}
                 </div>
               </ng-template>
@@ -178,7 +178,7 @@
       <div class="col-12 sm:col-4">
         <p-card>
           <ng-template #header>
-            <div class="ps-3 py-2 border-round-top surface-300">
+            <div class="pl-3 py-2 border-round-top surface-300">
               <span>Countdown <s>from</s>to zero</span>
             </div>
           </ng-template>
@@ -204,7 +204,7 @@
       <div class="w-max">
         <p-card>
           <ng-template #header>
-            <div class="ps-3 py-2 border-round-top surface-300">
+            <div class="pl-3 py-2 border-round-top surface-300">
               <span>Official Schedule</span>
             </div>
           </ng-template>
@@ -218,7 +218,7 @@
   @if (concert$?.venueLatitude != 0 && concert$?.venueLongitude != 0) {
     <p-card class="mt-3">
       <ng-template #header>
-        <div class="ps-3 py-2 border-round-top surface-300">
+        <div class="pl-3 py-2 border-round-top surface-300">
           <span>Venue Location</span>
         </div>
       </ng-template>

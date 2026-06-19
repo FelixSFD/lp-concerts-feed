@@ -20,6 +20,8 @@ import {providePrimeNG} from 'primeng/config';
 import lpshowsPreset from '../lpshows-preset';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {TourConfig} from './data/tour-config';
+import {definePreset} from '@primeuix/themes';
+import Aura from '@primeuix/themes/aura';
 
 const cookieConfig:NgcCookieConsentConfig = {
   "cookie": {
@@ -52,10 +54,10 @@ const cookieConfig:NgcCookieConsentConfig = {
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    {
+    /*{
       provide: LOCALE_ID,
       useFactory: () => navigator.language
-    },
+    },*/
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideAuth(authConfig),
@@ -78,7 +80,7 @@ export const appConfig: ApplicationConfig = {
     provideNgcCookieConsent(cookieConfig),
     providePrimeNG({
       theme: {
-        preset: lpshowsPreset
+        preset: definePreset(Aura, lpshowsPreset)
       },
       ripple: true,
       translation: {

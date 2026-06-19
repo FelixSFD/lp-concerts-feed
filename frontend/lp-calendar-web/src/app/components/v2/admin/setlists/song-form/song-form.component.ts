@@ -1,9 +1,8 @@
-import {Component, EventEmitter, inject, Input, OnInit, Output, signal, TemplateRef} from '@angular/core';
-import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {Component, EventEmitter, inject, Input, OnInit, Output, signal} from '@angular/core';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ToastrService} from 'ngx-toastr';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {AlbumDto, ErrorResponseDto, SongDto} from '../../../../../modules/lpshows-api';
-import {NgClass, NgTemplateOutlet} from '@angular/common';
 import {AlbumsService} from '../../../../../services/music/albums.service';
 import {AppleMusicService} from '../../../../../services/music/apple-music.service';
 import {AppleMusicSong} from '../../../../../data/music/apple/apple-music-song';
@@ -21,9 +20,6 @@ import {Select} from 'primeng/select';
   imports: [
     FormsModule,
     ReactiveFormsModule,
-    NgClass,
-    NgbTooltip,
-    NgTemplateOutlet,
     Button,
     Card,
     Divider,

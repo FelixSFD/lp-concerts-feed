@@ -176,7 +176,7 @@
                 <td colspan="2"></td>
                 <td colspan="3">
                   <span ngbTooltip="Select a variant here, if they didn't play the normal version">Select a variant:</span>
-                  <div class="btn-group btn-group-sm ms-2">
+                  <div class="btn-group btn-group-sm mr-2">
                     @for (variant of generatedEntry.possibleSongVariants; track variant.id) {
                       <p-button [label]="variant.variantName" (onClick)="setVariantBtnClicked(generatedEntry, variant)" size="small" />
                     }

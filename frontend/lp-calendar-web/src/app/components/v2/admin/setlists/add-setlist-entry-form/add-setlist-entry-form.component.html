@@ -193,19 +193,19 @@
     <!-- Switches for boolean fields -->
     <div class="col-12 flex gap-2 vertical-align-middle mb-0">
       <p-toggle-switch formControlName="wasPlayedFromRecording" id="wasPlayedFromRecording" size="small" class="h-full" />
-      <label for="wasPlayedFromRecording" class="h-full"><i class="pi pi-megaphone me-2"></i> Was played from recording</label>
+      <label for="wasPlayedFromRecording" class="h-full"><i class="pi pi-megaphone mr-"></i> Was played from recording</label>
     </div>
     <div class="col-12 flex gap-2 vertical-align-middle mt-0">
       <p-toggle-switch formControlName="wasRotationSong" id="wasRotationSong" size="small" class="h-full" />
-      <label for="wasRotationSong" class="h-full"><i class="pi pi-refresh me-2"></i> This is a rotation slot</label>
+      <label for="wasRotationSong" class="h-full"><i class="pi pi-refresh mr-"></i> This is a rotation slot</label>
     </div>
     <div class="col-12 flex gap-2 vertical-align-middle">
       <p-toggle-switch formControlName="wasWorldPremiere" id="wasWorldPremiere" size="small" class="h-full" />
-      <label for="wasWorldPremiere" class="h-full"><i class="pi pi-globe me-2"></i> Was a world premiere</label>
+      <label for="wasWorldPremiere" class="h-full"><i class="pi pi-globe mr-"></i> Was a world premiere</label>
     </div>
     <div class="col-12 flex gap-2 vertical-align-middle">
       <p-toggle-switch formControlName="wasLivePremiere" id="wasLivePremiere" size="small" class="h-full" />
-      <label for="wasLivePremiere" class="h-full"><i class="pi pi-sparkles me-2"></i> Was a live premiere</label>
+      <label for="wasLivePremiere" class="h-full"><i class="pi pi-sparkles mr-"></i> Was a live premiere</label>
     </div>
   </div>
 
@@ -229,7 +229,7 @@
             {{ extra.type }}
 
             @if (extra.description != null && extra.description.length > 0) {
-              <i class="pi pi-info-circle ms-2" style="cursor: help" [pTooltip]="extra.description"></i>
+              <i class="pi pi-info-circle mr-2" style="cursor: help" [pTooltip]="extra.description"></i>
             }
           </td>
           <td>{{ extra.song?.title }}</td>

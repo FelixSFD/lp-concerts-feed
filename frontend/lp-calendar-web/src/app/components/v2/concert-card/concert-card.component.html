@@ -1,6 +1,6 @@
 <p-card>
   <ng-template #header>
-    <div class="ps-3 pt-2 pb-1 border-round-top-sm surface-300">
+    <div class="px-3 pt-2 pb-1 border-round-top-sm surface-300">
       <span>{{ cardTitle }}</span>
     </div>
   </ng-template>
@@ -50,7 +50,7 @@
           <p-button variant="outlined" label="Details" icon="pi pi-info-circle" [routerLink]="['/concerts', concert$?.id]" size="small" />
 
           @if (canUpdateConcerts$) {
-            <p-button variant="outlined" label="Edit" icon="pi pi-pencil" [routerLink]="['/concerts', concert$?.id, 'edit']" size="small" class="pe-2" severity="info" />
+            <p-button variant="outlined" label="Edit" icon="pi pi-pencil" [routerLink]="['/concerts', concert$?.id, 'edit']" size="small" class="pr-2" severity="info" />
           }
         } @else if (isLoading$) {
           <p-skeleton borderRadius="2" width="5rem" height="2.2rem" />
