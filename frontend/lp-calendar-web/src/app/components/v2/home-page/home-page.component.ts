@@ -7,7 +7,6 @@ import {ConcertsService} from '../../../services/concerts.service';
 import {ToastrService} from 'ngx-toastr';
 import { environment } from "../../../../environments/environment";
 import {Message} from 'primeng/message';
-import {HomeComponent} from '../../../home/home.component';
 import {Card} from 'primeng/card';
 import {Button} from 'primeng/button';
 import {SplitButton} from 'primeng/splitbutton';
@@ -23,13 +22,11 @@ import {ConcertCardComponent} from '../concert-card/concert-card.component';
   selector: 'app-home-page',
   imports: [
     Message,
-    HomeComponent,
     Card,
     Button,
     SplitButton,
     RouterLink,
     Divider,
-    ToggleSwitch,
     FormsModule,
     CalendarFeedBuilderComponent,
     ConcertCardComponent,
