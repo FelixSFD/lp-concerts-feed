@@ -31,6 +31,24 @@ body {
   color: var(--p-primary-500);
 }
 
+@media (prefers-color-scheme: dark) {
+  .link {
+    color: var(--p-primary-400);
+  }
+
+  .link:hover {
+    color: var(--p-primary-600);
+  }
+
+  .link-subtle {
+    color: var(--p-surface-400);
+  }
+
+  .link-subtle:hover {
+    color: var(--p-primary-600);
+  }
+}
+
 
 .text-color-success {
   color: var(--p-green-600);
