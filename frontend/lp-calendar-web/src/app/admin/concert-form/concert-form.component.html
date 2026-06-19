@@ -101,6 +101,25 @@
             </div>
           </div>
         </p-tabpanel>
+
+        <p-tabpanel value="timing-details">
+          <div class="grid gap-2 mt-2">
+            <!-- Schedule Image -->
+            <div class="col-12">
+              <h6>Image of the official schedule</h6>
+              <p-fileupload #scheduleImgUpload name="scheduleImg" (uploadHandler)="uploadFileHandler($event, scheduleImgUpload)" (onProgress)="onUploadProgress($event)" [customUpload]="true" [multiple]="false" accept="image/*" maxFileSize="8000000">
+                <ng-template #empty>
+                  <div>Drag and drop file to here to upload the schedule of this concert.</div>
+                </ng-template>
+              </p-fileupload>
+
+              @if (concert$?.scheduleImageFile != undefined) {
+                <br />
+                <img width="35%" src="{{ environment.imageBaseUrl + '/' + concert$?.scheduleImageFile! }}" alt="Uploaded image" />
+              }
+            </div>
+          </div>
+        </p-tabpanel>
       </p-tabpanels>
     </p-tabs>
   </p-card>

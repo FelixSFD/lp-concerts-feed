@@ -32,6 +32,8 @@ import {DatePicker} from 'primeng/datepicker';
 import {InputGroup} from 'primeng/inputgroup';
 import {InputGroupAddon} from 'primeng/inputgroupaddon';
 import {Button} from 'primeng/button';
+import {FileBeforeUploadEvent, FileProgressEvent, FileUpload, FileUploadHandlerEvent} from 'primeng/fileupload';
+import {HttpClient, HttpEvent, HttpEventType, HttpRequest, HttpResponse} from '@angular/common/http';
 
 // This class represents a form for adding and editing concerts
 @Component({
@@ -53,7 +55,8 @@ import {Button} from 'primeng/button';
     DatePicker,
     InputGroup,
     InputGroupAddon,
-    Button
+    Button,
+    FileUpload
   ],
   templateUrl: './concert-form.component.html',
   styleUrl: './concert-form.component.css'
@@ -63,6 +66,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
   private concertsService = inject(ConcertsService);
   private locationsService = inject(LocationsService);
   private toastrService = inject(ToastrService);
+  private http = inject(HttpClient);
 
   concertForm = this.formBuilder.group({
     concertStatus: new FormControl('', [Validators.required]),
@@ -457,7 +461,68 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
     this.selectedScheduleFile = <File> event.target.files[0];
   }
 
+  uploadFileHandler(event: FileUploadHandlerEvent, fileUploadForm: FileUpload) {
+    console.debug("Upload File event:", event);
+    if (event.files.length == 0) {
+      this.toastrService.error("No file was selected.", "File upload failed!");
+      return;
+    }
 
+    this.scheduleIsUploading$ = true;
+    const file = event.files[0];
+    this.concertsService.getConcertScheduleUploadUrl(this.concertId!,file)
+        .subscribe((result) => {
+          const req = new HttpRequest(
+            'PUT',
+            result.uploadUrl!,
+            file,
+            {
+              reportProgress: true,
+            }
+          );
+          this.http.request(req).subscribe({
+            next: (httpEvent: HttpEvent<any>) => {
+
+              if (httpEvent.type === HttpEventType.UploadProgress) {
+                const progress = Math.round(
+                  100 * httpEvent.loaded / (httpEvent.total ?? file.size)
+                );
+
+                console.log('Progress:', progress);
+                fileUploadForm.progress = progress;
+                fileUploadForm.onProgress.emit({
+                  progress: progress,
+                  originalEvent: httpEvent,
+                });
+              }
+
+              if (httpEvent.type === HttpEventType.Response) {
+                console.log('Upload complete');
+                fileUploadForm.onUpload.emit({
+                  files: fileUploadForm.files,
+                  originalEvent: httpEvent,
+                });
+                fileUploadForm.uploadedFiles.push(...fileUploadForm.files);
+                fileUploadForm.files = [];
+                fileUploadForm.clear();
+              }
+            },
+            error: err => {
+              console.error(err);
+            }
+          });
+        });
+  }
+
+
+  onUploadProgress(event: FileProgressEvent) {
+    console.debug("Upload Progress event:", event);
+  }
+
+
+  /**
+   * @deprecated use new method
+   */
   uploadFileClicked() {
     if (this.selectedScheduleFile == undefined) {
       this.toastrService.error("No file was selected.", "File upload failed!");
@@ -466,10 +531,10 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
 
     this.scheduleIsUploading$ = true;
     this.concertsService.uploadConcertSchedule(this.concertId!, this.selectedScheduleFile)
-        .subscribe(() => {
-          this.scheduleIsUploading$ = false;
-          this.toastrService.success("Schedule successfully uploaded!");
-        })
+      .subscribe(() => {
+        this.scheduleIsUploading$ = false;
+        this.toastrService.success("Schedule successfully uploaded!");
+      })
   }
 
 
