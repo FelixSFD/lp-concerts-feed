@@ -7,7 +7,7 @@
     </ng-template>
 
     <div class="text-center">
-      <h4>{{ timeString }}</h4>
+      <h2>{{ timeString }}</h2>
       <small style="font-size: 0.65rem">{{ timeZoneText }}</small>
     </div>
   </p-card>
@@ -85,7 +85,7 @@
     <h2>Loading concert details...</h2>
   </div>
 } @else {
-  <h6>{{ getDateTimeInTimezone(concert$?.postedStartTime!, concert$?.timeZoneId!).toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY) }}</h6>
+  <h3>{{ getDateTimeInTimezone(concert$?.postedStartTime!, concert$?.timeZoneId!).toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY) }}</h3>
   <h1>
     {{ ConcertTitleGenerator.getTitleFor(concert$!) }}
   </h1>
