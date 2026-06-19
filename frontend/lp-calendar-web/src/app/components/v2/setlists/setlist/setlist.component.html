@@ -53,8 +53,6 @@
     }
   </div>
 
-  <small>Data provided by <a href="https://lplive.net/about.php/" target="_blank" class="link">LPlive</a>.</small>
-
   <!-- Fade overlay (only visible when collapsed) -->
   @if (!isExpanded$) {
     <div class="fade-overlay"></div>
@@ -64,3 +62,5 @@
 <div class="text-center mt-2">
   <p-button size="small" variant="outlined" [icon]="isExpanded$ ? 'pi pi-minus-circle' : 'pi pi-plus-circle'" [label]="isExpanded$ ? 'Hide setlist' : 'Show full setlist'" (onClick)="onToggleExpendedClicked()" />
 </div>
+
+<small>Data provided by <a href="https://lplive.net/about.php/" target="_blank" class="link">LPlive</a>.</small>
