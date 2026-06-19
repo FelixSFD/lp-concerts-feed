@@ -34,7 +34,7 @@
           </td>
           <td class="pl-4 white-space-nowrap vertical-align-middle">
             @if ("linkinpediaUrl" in entry && entry.linkinpediaUrl) {
-              <a [href]="entry.linkinpediaUrl" target="_blank" class="text-color-secondary hover:text-color">{{ entry.title }}</a> <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" [live-premiere]="entry.isLivePremiere" />
+              <a [href]="entry.linkinpediaUrl" target="_blank" class="link">{{ entry.title }}</a> <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" [live-premiere]="entry.isLivePremiere" />
             } @else {
               {{ entry.title }} <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" [live-premiere]="entry.isLivePremiere" />
             }
@@ -53,7 +53,7 @@
     }
   </div>
 
-  <small>Data provided by <a href="https://lplive.net/about.php/" target="_blank" class="link-info">LPlive</a>.</small>
+  <small>Data provided by <a href="https://lplive.net/about.php/" target="_blank" class="link">LPlive</a>.</small>
 
   <!-- Fade overlay (only visible when collapsed) -->
   @if (!isExpanded$) {

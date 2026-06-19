@@ -1,3 +1,5 @@
+@import "primeflex/primeflex.css";
+
 body {
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
@@ -9,4 +11,21 @@ body {
   margin-right: auto;
   color: dimgrey;
   margin-top: 30px;
+}
+
+
+.link {
+  color: var(--p-primary-500);
+}
+
+.link:hover {
+  color: var(--p-primary-800);
+}
+
+.link-subtle {
+  color: var(--p-surface-700);
+}
+
+.link-subtle:hover {
+  color: var(--p-primary-500);
 }
