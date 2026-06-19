@@ -2,19 +2,26 @@ import {Component, inject, OnInit} from '@angular/core';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
 
 import {RouterLink} from '@angular/router';
+import {Card} from 'primeng/card';
+import {Button} from 'primeng/button';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {InputText} from 'primeng/inputtext';
 
 @Component({
-  selector: 'app-user-profile',
+  selector: 'app-user-profile-page',
   imports: [
-    RouterLink
-],
-  templateUrl: './user-profile.component.html',
-  styleUrl: './user-profile.component.css'
+    RouterLink,
+    Card,
+    Button,
+    FormsModule,
+    InputText,
+    ReactiveFormsModule
+  ],
+  templateUrl: './user-profile-page.component.html',
+  styleUrl: './user-profile-page.component.css'
 })
-export class UserProfileComponent implements OnInit {
+export class UserProfilePageComponent implements OnInit {
   private readonly oidcSecurityService = inject(OidcSecurityService);
-
-  userData$ = this.oidcSecurityService.userData$;
 
   userId$ = ""
   email$ = ""
