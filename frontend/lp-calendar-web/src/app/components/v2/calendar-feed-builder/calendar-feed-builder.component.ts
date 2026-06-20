@@ -1,9 +1,7 @@
 import {Component, EventEmitter, inject, OnInit, Output} from '@angular/core';
 import {environment} from '../../../../environments/environment';
-import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {ConcertsService} from '../../../services/concerts.service';
+import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {ToggleSwitch} from 'primeng/toggleswitch';
-import {ButtonLabel} from 'primeng/button';
 
 @Component({
   selector: 'app-calendar-feed-builder',
@@ -11,7 +9,6 @@ import {ButtonLabel} from 'primeng/button';
     ReactiveFormsModule,
     ToggleSwitch,
     FormsModule,
-    ButtonLabel
   ],
   templateUrl: './calendar-feed-builder.component.html',
   styleUrl: './calendar-feed-builder.component.css'

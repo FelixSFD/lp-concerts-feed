@@ -1,21 +1,15 @@
 import {Component, inject} from '@angular/core';
-import {Router, RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
+import {Router, RouterOutlet} from '@angular/router';
 import {SelectButton} from 'primeng/selectbutton';
 import {MenuItem} from 'primeng/api';
-import {ButtonGroup} from 'primeng/buttongroup';
-import {Button} from 'primeng/button';
 import {FormsModule} from '@angular/forms';
 import {Divider} from 'primeng/divider';
 
 @Component({
   selector: 'app-setlist-admin-wrapper',
   imports: [
-    RouterLink,
-    RouterLinkActive,
     RouterOutlet,
     SelectButton,
-    ButtonGroup,
-    Button,
     FormsModule,
     Divider
   ],

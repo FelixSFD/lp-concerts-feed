@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import {Card} from 'primeng/card';
 import {Divider} from 'primeng/divider';
-import {Select} from 'primeng/select';
 import {Accordion, AccordionContent, AccordionHeader, AccordionPanel} from 'primeng/accordion';
 
 @Component({
@@ -9,7 +8,6 @@ import {Accordion, AccordionContent, AccordionHeader, AccordionPanel} from 'prim
   imports: [
     Card,
     Divider,
-    Select,
     Accordion,
     AccordionPanel,
     AccordionHeader,

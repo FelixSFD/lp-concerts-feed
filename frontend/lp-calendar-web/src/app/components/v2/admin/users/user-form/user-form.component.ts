@@ -1,9 +1,6 @@
 import {Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import { NgClass } from '@angular/common';
 import {UserDto, UserNotificationSettingsDto} from '../../../../../modules/lpshows-api';
-import ConcertRemindersStatusEnum = UserNotificationSettingsDto.ConcertRemindersStatusEnum;
-import MainStageTimeUpdatesStatusEnum = UserNotificationSettingsDto.MainStageTimeUpdatesStatusEnum;
 import {FloatLabel} from 'primeng/floatlabel';
 import {InputText} from 'primeng/inputtext';
 import {Card} from 'primeng/card';
@@ -15,7 +12,6 @@ import {Divider} from 'primeng/divider';
   imports: [
     FormsModule,
     ReactiveFormsModule,
-    NgClass,
     FloatLabel,
     InputText,
     Card,
