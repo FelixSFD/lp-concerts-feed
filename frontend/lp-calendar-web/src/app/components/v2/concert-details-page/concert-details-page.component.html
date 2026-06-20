@@ -1,0 +1,231 @@
+<ng-template #timeCard let-cardTitle="cardTitle" let-timeString="timeString" let-timeZoneText="timeZoneText">
+  <p-card>
+    <ng-template #header>
+      <div class="pl-3 py-2 border-round-top surface-300">
+        <span>{{ cardTitle }}</span>
+      </div>
+    </ng-template>
+
+    <div class="text-center">
+      <p class="text-3xl font-bold my-0">{{ timeString }}</p>
+      <small style="font-size: 0.65rem">{{ timeZoneText }}</small>
+    </div>
+  </p-card>
+</ng-template>
+
+@if (concert$ != null) {
+  <!-- Buttons for navigation bookmarks etc -->
+  <div class="mb-4 flex justify-content-between">
+    <!-- Left aligned buttons -->
+    <div class="flex flex-wrap gap-2">
+      <p-button-group>
+        <p-button icon="pi pi-arrow-left" variant="outlined" [disabled]="adjacentConcertData$?.previous == null" [routerLink]="['../', adjacentConcertData$?.previous]" ariaLabel="Navigate to previous concert" />
+        <p-button icon="pi pi-arrow-right" variant="outlined" [disabled]="adjacentConcertData$?.next == null" [routerLink]="['../', adjacentConcertData$?.next]" ariaLabel="Navigate to next concert" />
+      </p-button-group>
+
+      <p-button label="Edit" icon="pi pi-pencil" severity="info" variant="outlined" [routerLink]="['./edit']" [hidden]="!canUpdateConcerts$" />
+
+      @if (canEditSetlists) {
+        <p-split-button (onClick)="onAddSetlistBtnClicked()"
+                        [model]="addSetlistButtonItems"
+                        icon="pi pi-list"
+                        label="Add setlist"
+                        outlined severity="info"
+                        class="hidden md:inline-flex"
+        />
+        <p-split-button (onClick)="onAddSetlistBtnClicked()"
+                        [model]="addSetlistButtonItems"
+                        icon="pi pi-list"
+                        outlined severity="info"
+                        class="inline-flex md:hidden"
+        />
+      }
+
+      <p-button-group>
+        <p-button [icon]="concertBookmarks$?.currentUserStatus == 'Bookmarked' ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'"
+                  [label]="String(concertBookmarks$?.bookmarked ?? 0)"
+                  (onClick)="onBookmarkClicked()"
+                  [disabled]="concertBookmarks$ == null || concertBookmarksLoading$ || !isAuthenticated$"
+                  [pTooltip]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Bookmarked ? 'Remove bookmark' : 'Bookmark this show'"
+                  tooltipPosition="bottom"
+                  [outlined]="concertBookmarks$?.currentUserStatus == 'Bookmarked'"/>
+        <p-button [icon]="concertBookmarks$?.currentUserStatus == 'Attending' ? 'pi pi-ticket' : 'pi pi-ticket'"
+                  [label]="String(concertBookmarks$?.attending ?? 0)"
+                  (onClick)="onAttendingClicked()"
+                  [disabled]="concertBookmarks$ == null || concertBookmarksLoading$ || !isAuthenticated$"
+                  [pTooltip]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Attending ? 'Remove me from the show' : 'I will attend this show'"
+                  tooltipPosition="bottom"
+                  [outlined]="concertBookmarks$?.currentUserStatus == 'Attending'" severity="success"/>
+      </p-button-group>
+    </div>
+
+    <!-- right aligned buttons -->
+    <div>
+      <p-button [hidden]="!canUpdateConcerts$" (onClick)="openLinkinpediaClicked()" icon="pi pi-external-link" label="Open Linkinpedia"
+                pTooltip="Find more details on Linkinpedia" severity="info" tooltipPosition="bottom"
+                variant="outlined"
+                class="hidden xl:inline-flex"
+      />
+      <p-button [hidden]="!canUpdateConcerts$" [routerLink]="['./edit']" icon="pi pi-external-link"
+                pTooltip="Find more details on Linkinpedia" severity="info" tooltipPosition="bottom"
+                variant="outlined"
+                class="inline-flex xl:hidden"
+      />
+    </div>
+  </div>
+}
+
+@if (resolverError$ != null) {
+  <p-message severity="error">
+    <h3>{{ resolverError$.message }}</h3>
+  </p-message>
+} @else if (concert$ == null) {
+  <div style="text-align: center">
+    <p-progress-spinner strokeWidth="8" fill="transparent" animationDuration=".5s" [style]="{ width: '50px', height: '50px' }" />
+    <h2>Loading concert details...</h2>
+  </div>
+} @else {
+  <h3>{{ getDateTimeInTimezone(concert$?.postedStartTime!, concert$?.timeZoneId!).toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY) }}</h3>
+  <h1>
+    {{ ConcertTitleGenerator.getTitleFor(concert$!) }}
+  </h1>
+  <div style="margin-bottom: 10px">
+    <app-concert-badges [concert]="concert$"></app-concert-badges>
+  </div>
+
+  <p>
+    <b>{{ concert$?.venue }}</b>
+    <br />
+    <i>{{ concert$?.city }}{{ (concert$?.state?.length ?? 0) > 0 ? ", " + concert$?.state : ""}}, {{ concert$?.country }}</i>
+    <br />
+    {{ concert$?.showType }}
+  </p>
+
+  <div class="grid mt-3">
+    @if (setlists$?.length ?? 0 > 0) {
+      <div class="col-12">
+        @for (setlist of setlists$; track setlist) {
+          <div class="mt-4 w-100">
+            <p-card>
+              <ng-template #header>
+                <div class="pl-3 py-2 border-round-top surface-300">
+                  <p-tag value="BETA" severity="success" pTooltip="This is an early version of this feature and might not work perfectly" tooltipPosition="top" /> Setlist: {{ setlist.setName }}
+                </div>
+              </ng-template>
+
+              <app-setlist [setlist]="setlist" />
+
+              @if (setlistsCacheUpdatedAt$ != null) {
+                <div class="mt-2">
+                  <small>Last updated: {{ setlistsCacheUpdatedAt$?.toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS) }}</small>
+                </div>
+              }
+            </p-card>
+          </div>
+        }
+      </div>
+    }
+
+    @if (concert$?.mainStageTime != undefined) {
+      <div class="time-card col-12 sm:col-6 md:col-4 lg:col-2 xl:col-2">
+        <ng-container
+          *ngTemplateOutlet="timeCard; context: { cardTitle: 'Linkin Park stage time',
+            timeZoneText: `Venue\'s timezone (${concert$?.timeZoneId ?? '' })`,
+             timeString: getDateTimeInTimezone(concert$?.mainStageTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE) }" />
+      </div>
+
+      <div class="time-card col-12 sm:col-6 md:col-4 lg:col-2 xl:col-2">
+        <ng-container
+          *ngTemplateOutlet="timeCard; context: { cardTitle: 'Linkin Park stage time',
+            timeZoneText: `Your timezone`,
+             timeString: getDateTime(concert$?.mainStageTime!).toLocaleString(DateTime. DATETIME_SHORT) }" />
+      </div>
+    }
+
+    @if (concert$?.lpuEarlyEntryTime != undefined) {
+      <div class="time-card col-2">
+        <ng-container
+          *ngTemplateOutlet="timeCard; context: { cardTitle: 'LPU Early Entry',
+          timeZoneText: `Venue\'s timezone (${concert$?.timeZoneId ?? '' })`,
+           timeString: getDateTimeInTimezone(concert$?.lpuEarlyEntryTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE) }" />
+      </div>
+    }
+
+    @if (concert$?.doorsTime != undefined) {
+      <div class="time-card col-2">
+        <ng-container
+          *ngTemplateOutlet="timeCard; context: { cardTitle: 'Doors open at',
+          timeZoneText: `Venue\'s timezone (${concert$?.timeZoneId ?? '' })`,
+           timeString: getDateTimeInTimezone(concert$?.doorsTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE) }" />
+      </div>
+    }
+
+    @if (concert$?.mainStageTime == undefined) {
+      <div class="time-card col-2">
+        <ng-container
+          *ngTemplateOutlet="timeCard; context: { cardTitle: 'Your start time',
+           timeString: getDateTime(concert$?.postedStartTime!).toLocaleString(DateTime. DATETIME_SHORT) }" />
+      </div>
+
+      <div class="time-card col-2">
+        <ng-container
+          *ngTemplateOutlet="timeCard; context: { cardTitle: 'Venue start time',
+           timeString: getDateTimeInTimezone(concert$?.postedStartTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE) }" />
+      </div>
+    }
+
+    @if (!concert$?.isPast) {
+      <div class="col-12 sm:col-4">
+        <p-card>
+          <ng-template #header>
+            <div class="pl-3 py-2 border-round-top surface-300">
+              <span>Countdown <s>from</s>to zero</span>
+            </div>
+          </ng-template>
+
+          <div class="w-full justify-content-center flex">
+            <app-countdown [countdownToDate]="concert$?.mainStageTime ?? concert$?.postedStartTime!" [concertId]="concert$?.id" />
+          </div>
+        </p-card>
+      </div>
+    }
+
+    @if ((concert$?.expectedSetDuration ?? 0) > 0) {
+      <div class="time-card col-2">
+        <ng-container
+          *ngTemplateOutlet="timeCard; context: { cardTitle: 'Expected set duration',
+           timeString: concert$?.expectedSetDuration ?? 0 | timeSpan }" />
+      </div>
+    }
+  </div>
+
+  <div class="flex justify-content-center mt-3">
+    @if (concert$?.scheduleImageFile != undefined) {
+      <div class="w-max">
+        <p-card>
+          <ng-template #header>
+            <div class="pl-3 py-2 border-round-top surface-300">
+              <span>Official Schedule</span>
+            </div>
+          </ng-template>
+
+          <img style="width: 100%; max-width: 800px; max-height: 500px;" src="{{ environment.imageBaseUrl + '/' + concert$?.scheduleImageFile! }}" alt="Official schedule announcement" />
+        </p-card>
+      </div>
+    }
+  </div>
+
+  @if (concert$?.venueLatitude != 0 && concert$?.venueLongitude != 0) {
+    <p-card class="mt-3">
+      <ng-template #header>
+        <div class="pl-3 py-2 border-round-top surface-300">
+          <span>Venue Location</span>
+        </div>
+      </ng-template>
+
+      <ng-container #mapContainer>
+        <div #appleMaps class="map"></div>
+      </ng-container>
+    </p-card>
+  }
+}

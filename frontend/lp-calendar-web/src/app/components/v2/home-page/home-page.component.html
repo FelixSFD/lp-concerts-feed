@@ -1,0 +1,113 @@
+<h1>Linkin Park Concert Calendar</h1>
+<p>Want too keep track of the From Zero World Tour? Subscribe to the iCal-feed that contains all the concerts, so you never miss a show. <a class="link" [routerLink]="['/about']">More information...</a> </p>
+
+@if (newFeatureAlertDismissedToken != currentNewFeatureAlertToken && !isLoggedIn$) {
+  <p-message closable (onClose)="onNewFeatureAlertClosed()">
+    Our new iOS app is now available! You can download it for FREE on the AppStore.<br />
+
+    <a href="https://apps.apple.com/de/app/lp-concert-calendar/id6753590776?itscg=30200&itsct=apps_box_badge&mttnsubad=6753590776" style="display: inline-block" class="mt-3 text-color-secondary">
+      <img src="https://toolbox.marketingtools.apple.com/api/v2/badges/download-on-the-app-store/black/en-us?releaseDate=1771286400" height="52" alt="Download on the App Store" style="vertical-align: middle; object-fit: contain;" />
+    </a>
+  </p-message>
+}
+
+<div class="grid pt-4">
+  <!-- Next concert -->
+  <div class="col-12 xl:col-4 lg:col-5 md:col-6 sm:col-12">
+    <app-concert-card cardTitle="Next Concert"
+                      [concert]="nextConcert"
+                      [isLoading]="isLoadingNextConcert"
+                      notFoundAlertClass="info"
+                      notFoundAlertText="No upcoming concert found."
+    />
+  </div>
+
+  @if (isLoggedIn$) {
+    <div class="col-12 xl:col-4 lg:col-5 md:col-6 sm:col-12">
+      <app-concert-card cardTitle="The next concert you follow"
+                        [concert]="nextBookmarkedConcert"
+                        [isLoading]="isLoadingBookmarkedConcert"
+                        notFoundAlertClass="info"
+                        notFoundAlertText="You have not bookmarked any upcoming concerts. You can bookmark a concert on its detail page."
+      />
+    </div>
+
+    <div class="col-12 xl:col-4 lg:col-5 md:col-6 sm:col-12">
+      <app-concert-card cardTitle="The next concert you attend"
+                        [concert]="nextAttendingConcert"
+                        [isLoading]="isLoadingAttendingConcert"
+                        notFoundAlertClass="info"
+                        notFoundAlertText="You have no upcoming concerts. If you plan to attend a concert, find it on this site and click the 'Ticket'-button."
+      />
+    </div>
+  }
+
+  <!-- Subscribe to iCal Card -->
+  <div class="col-12 xl:col-4 lg:col-5 md:col-6 sm:col-12">
+    <p-card>
+      <ng-template #header>
+        <div class="px-3 py-2 border-round-top surface-300">
+          <span>Calendar feed</span>
+        </div>
+      </ng-template>
+      <ng-template #title>Subscribe to calendar feed</ng-template>
+      <p>
+        You can build your <b>custom calendar subscription</b>. This will generate a feed that your calendar app can subscribe to, so you'll always see the Linkin Park shows in your calendar.
+      </p>
+      <p-divider />
+
+      <app-calendar-feed-builder (feed-url)="onFeedUrlUpdated($event)" />
+
+      <ng-template #footer>
+        <p-divider />
+        <div class="flex gap-4 mt-1 align-content-end justify-content-end">
+          <p-splitbutton label="Add to calendar" icon="pi pi-calendar-plus" (onClick)="subscribeBtnClicked()" [model]="iCalButtonItems$" size="small" />
+        </div>
+      </ng-template>
+    </p-card>
+  </div>
+
+  <!-- Concerts list Card -->
+  <div class="col-12 xl:col-4 lg:col-5 md:col-6 sm:col-12">
+    <p-card>
+      <ng-template #header>
+        <div class="px-3 py-2 border-round-top surface-300">
+          <span>Concerts</span>
+        </div>
+      </ng-template>
+      <ng-template #title>View concert list</ng-template>
+      <p>
+        You can check out the list of all concerts we currently track on this website. Please note that this is <b>maintained by fans</b> and is <b>not official information</b>!
+      </p>
+
+      <ng-template #footer>
+        <p-divider />
+        <div class="flex gap-4 mt-1 align-content-end justify-content-end">
+          <p-button [routerLink]="['/concerts']" icon="pi pi-list" label="Check concert list" size="small" />
+        </div>
+      </ng-template>
+    </p-card>
+  </div>
+
+  <!-- Tour Map Card -->
+  <div class="col-12 xl:col-4 lg:col-5 md:col-6 sm:col-12">
+    <p-card>
+      <ng-template #header>
+        <div class="px-3 py-2 border-round-top surface-300">
+          <span>Map</span>
+        </div>
+      </ng-template>
+      <ng-template #title>View world tour map</ng-template>
+      <p>
+        On the map, you can find all concerts of the tour to find out, where your closest show is. And what parts of the world have the most shows nearby.
+      </p>
+
+      <ng-template #footer>
+        <p-divider />
+        <div class="flex gap-4 mt-1 align-content-end justify-content-end">
+          <p-button [routerLink]="['/map']" icon="pi pi-map" label="View map" size="small" />
+        </div>
+      </ng-template>
+    </p-card>
+  </div>
+</div>

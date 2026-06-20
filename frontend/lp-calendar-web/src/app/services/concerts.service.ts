@@ -80,6 +80,16 @@ export class ConcertsService {
   }
 
 
+  getConcertScheduleUploadUrl(concertId: string, imageFile: File) {
+    let getUrlRequest: ConcertFileUploadRequestDto = {};
+    getUrlRequest.concertId = concertId;
+    getUrlRequest.contentType = imageFile.type;
+    getUrlRequest.type = "ConcertSchedule";
+
+    return this.concertsApiClient.getUrlForConcertFileUpload(getUrlRequest);
+  }
+
+
   /**
    * Returns the previous and next ID based on the ID passed into the method
    * @param currentId ID of the current concert

@@ -1,0 +1,86 @@
+<p-card class="mb-3">
+  <ng-template #title>
+    About LPshows.live
+  </ng-template>
+  <p>
+    This page is a project made by Linkin Park fans to keep track of all the shows in different timezones. With almost <b>100 shows around the world for the FROM ZERO WORLD TOUR</b>, things can get confusing. That's why this project shows you all the shows in your local and also the venue's timezone.
+  </p>
+  <p>
+    Over time, some more features were added to more easily share the times.
+  </p>
+</p-card>
+
+<p-card class="mb-3">
+  <ng-template #title>
+    Calendar feed
+  </ng-template>
+  <p>
+    Many calendar applications (like on iOS, iPadOS and macOS) support calendar subscription. This project publishes a calendar feed with all the shows that you can use in your calendar app.
+  </p>
+</p-card>
+
+<p-divider />
+
+<p-card class="mb-3">
+  <ng-template #title>
+    <span class="hidden md:inline-flex">Frequently Asked Questions</span>
+    <span class="inline-flex md:hidden">FAQ</span>
+  </ng-template>
+
+  <p-accordion [value]="[]" [multiple]="true">
+    <p-accordion-panel value="behind-the-project">
+      <p-accordion-header>Who is behind this project?</p-accordion-header>
+      <p-accordion-content>
+        <p>This project was started by <a href="https://github.com/FelixSFD" target="_blank" class="link">FelixSFD</a> to learn new technologies and get an overview of all shows in his local timezone.</p>
+      </p-accordion-content>
+    </p-accordion-panel>
+
+    <p-accordion-panel value="account-required">
+      <p-accordion-header>Do I need to create an account?</p-accordion-header>
+      <p-accordion-content>
+        <p>If you want to bookmark concerts or link your account to a concert that you attend, you will have to create an account. But even without an account, you can access all the information about the concerts.</p>
+      </p-accordion-content>
+    </p-accordion-panel>
+
+    <p-accordion-panel value="contribute">
+      <p-accordion-header>How can I contribute?</p-accordion-header>
+      <p-accordion-content>
+        <p>In the future, select users might be added as administrators to manage the concert list. You can find the code on <a href="https://github.com/FelixSFD/lp-concerts-feed" target="_blank" class="link">GitHub</a>, but at the moment, there are no contributions needed as there is not a clear plan for the project yet.</p>
+      </p-accordion-content>
+    </p-accordion-panel>
+
+    <p-accordion-panel value="use-the-data">
+      <p-accordion-header>Can I use the data?</p-accordion-header>
+      <p-accordion-content>
+        <p><b>Yes!</b> The data is supposed to be public. If you have questions about the APIs, feel free to contact FelixSFD on Discord.</p>
+        <p>Please tell FelixSFD if you rely on the APIs for your project. Otherwise the API might change without you knowing about it and break your application.</p>
+      </p-accordion-content>
+    </p-accordion-panel>
+
+    <p-accordion-panel value="detailed-analytics">
+      <p-accordion-header>Can I get access to the statistics about the tour?</p-accordion-header>
+      <p-accordion-content>
+        <p>While the data is intended to be public, making the full dashboard available to the public could cause a lot of load on the database server. That's why only select users can get access to it.</p>
+        <p><b>If you need access for your fan-page (or something similar)</b>, please contact FelixSFD on Discord.</p>
+      </p-accordion-content>
+    </p-accordion-panel>
+
+    <p-accordion-panel value="map">
+      <p-accordion-header>Where does the data for the map come from?</p-accordion-header>
+      <p-accordion-content>
+        <p>Each location on the map was manually selected and saved to our database. The map itself is from <a href="https://developer.apple.com/documentation/mapkitjs/" target="_blank" class="link">Apple Maps</a>.</p>
+      </p-accordion-content>
+    </p-accordion-panel>
+
+    <p-accordion-panel value="past-concerts">
+      <p-accordion-header>Where can I find the history of past concerts?</p-accordion-header>
+      <p-accordion-content>
+        <p>
+          At the moment, this page is intended for <i>future</i> concerts. If you are interested in past concerts, setlists and more details about the shows, you should check out <a href="https://lplive.net" target="_blank" class="link">LPLive.net</a>.
+          They have a great database with detailed information about <i>every</i> single Linkin Park show.
+        </p>
+        <p>Right now, our page has information about all concerts since the comeback in 2024.</p>
+      </p-accordion-content>
+    </p-accordion-panel>
+  </p-accordion>
+</p-card>

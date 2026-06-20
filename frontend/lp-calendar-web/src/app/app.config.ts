@@ -1,22 +1,26 @@
-import {ApplicationConfig, importProvidersFrom, provideZoneChangeDetection} from '@angular/core';
-import {provideRouter, withRouterConfig} from '@angular/router';
+import {ApplicationConfig, LOCALE_ID, provideZoneChangeDetection} from '@angular/core';
+import {provideRouter} from '@angular/router';
 
 import { routes } from './app.routes';
 import { authConfig } from './auth/auth.config';
 import {
   AbstractSecurityStorage,
-  authInterceptor,
   DefaultLocalStorageService,
   provideAuth
 } from 'angular-auth-oidc-client';
 import {provideHttpClient, withInterceptors} from '@angular/common/http';
-import {provideToastr, ToastrModule} from 'ngx-toastr';
-import {BrowserAnimationsModule, provideAnimations} from '@angular/platform-browser/animations';
+import {provideAnimations} from '@angular/platform-browser/animations';
 import {provideMatomo, withRouter} from 'ngx-matomo-client';
 import {environment} from '../environments/environment';
 import {NgcCookieConsentConfig, provideNgcCookieConsent} from 'ngx-cookieconsent';
 import {BASE_PATH} from './modules/lpshows-api';
 import {authTokenInterceptor} from './auth/auth-token.interceptor';
+import {providePrimeNG} from 'primeng/config';
+import lpshowsPreset from '../lpshows-preset';
+import {ConfirmationService, MessageService} from 'primeng/api';
+import {TourConfig} from './data/tour-config';
+import {definePreset} from '@primeuix/themes';
+import Aura from '@primeuix/themes/aura';
 
 const cookieConfig:NgcCookieConsentConfig = {
   "cookie": {
@@ -49,16 +53,16 @@ const cookieConfig:NgcCookieConsentConfig = {
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    /*{
+      provide: LOCALE_ID,
+      useFactory: () => navigator.language
+    },*/
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideAuth(authConfig),
     { provide: AbstractSecurityStorage, useClass: DefaultLocalStorageService },
     provideHttpClient(withInterceptors([authTokenInterceptor])),
     provideAnimations(),
-    provideToastr({
-      positionClass: "toast-bottom-right",
-      newestOnTop: false
-    }),
     provideMatomo(
       {
         siteId: environment.trackingSiteId,
@@ -69,6 +73,17 @@ export const appConfig: ApplicationConfig = {
       }),
     ),
     provideNgcCookieConsent(cookieConfig),
+    providePrimeNG({
+      theme: {
+        preset: definePreset(Aura, lpshowsPreset)
+      },
+      ripple: true,
+      translation: {
+        dateFormat: "dd.mm.yy"
+      }
+    }),
+    ConfirmationService,
+    MessageService,
     { provide: BASE_PATH, useValue: environment.apiCachedBaseUrl } // base path for API
   ]
 };
@@ -76,6 +91,21 @@ export const appConfig: ApplicationConfig = {
 
 export const listOfShowTypes: string[] = ["Linkin Park Show", "Festival", "Other performance"];
 export const defaultShowType: string = listOfShowTypes[0];
+export const tourConfigs: TourConfig[] = [
+  {
+    label: "FROM ZERO WORLD TOUR 2024",
+    value: "FROM ZERO WORLD TOUR 2024",
+  },
+  {
+    label: "FROM ZERO WORLD TOUR 2025",
+    value: "FROM ZERO WORLD TOUR 2025",
+  },
+  {
+    label: "FROM ZERO WORLD TOUR 2026",
+    value: "FROM ZERO WORLD TOUR 2026",
+  }
+]
+
 export const listOfTours: string[] = ["FROM ZERO WORLD TOUR 2024", "FROM ZERO WORLD TOUR 2025", "FROM ZERO WORLD TOUR 2026"];
 
 export const mapAttribution: string = `<a href="${window.location.protocol}//${window.location.host}/about">Concert data by LPShows.live</a>`;

@@ -1,0 +1,9 @@
+<p-card>
+  <ng-template #title>
+    Edit album
+  </ng-template>
+
+  <p-button severity="secondary" variant="outlined" icon="pi pi-arrow-left" label="Album list" [routerLink]="['../']" />
+
+  <app-album-form (saveClicked)="onSaveClicked($event)" [is-saving]="isSaving$" />
+</p-card>

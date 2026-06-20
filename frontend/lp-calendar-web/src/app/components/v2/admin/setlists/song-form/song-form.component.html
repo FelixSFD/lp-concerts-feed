@@ -1,0 +1,68 @@
+<form #form="ngForm" [formGroup]="songForm" class="form">
+  <ng-template #formInputsGeneral>
+    <div class="grid gap-2">
+      <div class="col-12">
+        <p-floatlabel variant="on">
+          <input pInputText id="title" formControlName="title" autocomplete="off" fluid [invalid]="songForm.controls.title.invalid" />
+          <label for="title">Title</label>
+        </p-floatlabel>
+      </div>
+
+      <div class="col-12">
+        <p-floatlabel variant="on">
+          <p-select formControlName="selectedAlbumId" inputId="selectedAlbumId" [options]="availableAlbums$" optionLabel="title" optionValue="id" editable showClear />
+          <label for="selectedAlbumId">Album</label>
+        </p-floatlabel>
+      </div>
+
+      <div class="col-12 flex flex-wrap justify-center gap-4">
+        <p-floatlabel variant="on">
+          <input pInputText id="isrc" formControlName="isrc" autocomplete="off" [invalid]="songForm.controls.isrc.invalid" />
+          <label for="isrc">ISRC</label>
+        </p-floatlabel>
+
+        <p-floatlabel variant="on" class="w-auto">
+          <p-select formControlName="selectedAppleMusicId" inputId="selectedAppleMusicId" [options]="appleMusicSongsForIsrc$" optionValue="id" fluid editable showClear>
+            <ng-template #selecteditem let-song>
+              {{ song.title }} - {{ song.albumName }} ({{ song.id }})
+            </ng-template>
+            <ng-template #item let-song>
+              <div class="flex items-center gap-2">
+                <div>{{ song.title }} - {{ song.albumName }} ({{ song.id }})</div>
+              </div>
+            </ng-template>
+          </p-select>
+          <label for="selectedAlbumId">Apple Music ID</label>
+        </p-floatlabel>
+      </div>
+
+      <div class="col-12">
+        <p-inputgroup>
+          <p-floatlabel variant="on">
+            <input pInputText id="linkinpediaUrl" formControlName="linkinpediaUrl" [invalid]="songForm.controls.linkinpediaUrl.invalid" />
+            <label for="linkinpediaUrl">Linkinpedia URL</label>
+          </p-floatlabel>
+          <p-inputgroup-addon>
+            <p-button icon="pi pi-external-link" label="Open" severity="info" variant="outlined" [disabled]="songForm.controls.linkinpediaUrl.invalid" (onClick)="openLinkinpediaUrlClicked()" />
+          </p-inputgroup-addon>
+        </p-inputgroup>
+      </div>
+    </div>
+  </ng-template>
+
+  @if (standalone$) {
+    <p-card class="mt-3">
+      <ng-container *ngTemplateOutlet="formInputsGeneral" />
+
+      <ng-template #footer>
+        <p-divider />
+        <div class="flex gap-4 mt-1 align-content-end justify-content-end">
+          <p-button [label]="isSaving$ ? 'Saving...' : 'Save'" [loading]="isSaving$" (onClick)="onSaveClicked()" [disabled]="isSaving$ || !songForm.valid" />
+        </div>
+      </ng-template>
+    </p-card>
+  } @else {
+    <ng-container *ngTemplateOutlet="formInputsGeneral" />
+  }
+
+</form>

@@ -1,0 +1,246 @@
+<!-- add act modal -->
+<p-dialog header="Add new act to this setlist" [(visible)]="showAddActDialog" [modal]="true" [draggable]="false" [dismissableMask]="true">
+  <form #form="ngForm" [formGroup]="addActForm" class="form">
+    <div class="grid mt-0">
+      <!-- Act Number -->
+      <div class="col-12">
+        <p-floatlabel variant="on">
+          <p-input-number [showButtons]="true" inputId="actNumber" formControlName="actNumber" placeholder="Number of the entry in the setlist" [min]="0" [max]="10" fluid />
+          <label for="actNumber">Act Number</label>
+        </p-floatlabel>
+      </div>
+    </div>
+    <!-- Act Title -->
+    <div class="col-12">
+      <p-floatlabel variant="on">
+        <input pInputText id="actTitle" formControlName="actTitle" autocomplete="off" fluid />
+        <label for="actTitle">Title</label>
+      </p-floatlabel>
+    </div>
+  </form>
+
+  <ng-template #footer>
+    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="showAddActDialog = false" />
+    <p-button label="Add" (onClick)="onActAdd()" [disabled]="addActForm.invalid" />
+  </ng-template>
+</p-dialog>
+
+<!-- add song modal -->
+<p-dialog header="Add new song" [(visible)]="showAddSongDialog" [modal]="true" [draggable]="false" [dismissableMask]="true">
+  <form #form="ngForm" [formGroup]="addSongForm" class="form grid">
+    <!-- Song Title -->
+    <div class="col-12">
+      <p-floatlabel variant="on">
+        <input pInputText id="songTitle" formControlName="songTitle" autocomplete="off" fluid />
+        <label for="songTitle">Title</label>
+      </p-floatlabel>
+    </div>
+
+    <!-- Song ISRC -->
+    <div class="col-12">
+      <p-floatlabel variant="on">
+        <input pInputText id="songIsrc" formControlName="songIsrc" autocomplete="off" fluid />
+        <label for="songIsrc">ISRC</label>
+      </p-floatlabel>
+    </div>
+  </form>
+
+  <ng-template #footer>
+    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="showAddSongDialog = false" />
+    <p-button label="Add" (onClick)="onSongAdd()" [disabled]="addSongForm.invalid" />
+  </ng-template>
+</p-dialog>
+
+<!-- add setlist entry extra modal -->
+<p-dialog header="Add a new extra to this entry" [(visible)]="showAddSongExtrasDialog" [modal]="true" [draggable]="false" [dismissableMask]="true" [style]="{ height: '30rem', width: '30vw' }">
+  <app-setlist-entry-song-extra-form [setlist-id]="setlistId" [available-songs]="availableSongs$"></app-setlist-entry-song-extra-form>
+
+  <ng-template #footer>
+    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="showAddSongExtrasDialog = false" />
+    <p-button [label]="isAddingSongExtra$ ? 'Adding...' : 'Add'" (onClick)="onAddSongExtraConfirmed()" [disabled]="isAddingSongExtra$" [loading]="isAddingSongExtra$" />
+  </ng-template>
+</p-dialog>
+
+
+<form #form="ngForm" [formGroup]="setlistEntryForm" class="form">
+  <div class="grid mt-0 gap-2">
+    <!-- Song Number -->
+    <div class="col-12">
+      <p-floatlabel variant="on">
+        <p-input-number [showButtons]="true" inputId="vertical" formControlName="songNumber" placeholder="Number of the entry in the setlist" [min]="0" [max]="50" fluid />
+        <label for="on_label">Number of the entry</label>
+      </p-floatlabel>
+    </div>
+
+    <!-- Act selection -->
+    <div class="col-12">
+      <ng-template #actSelectionItem let-act="act">
+        Act {{ act.actNumber }}: {{ act.title }}
+      </ng-template>
+      <p-floatlabel variant="on">
+        <p-select inputId="selectedAct" [options]="availableActs$" formControlName="selectedAct" fluid showClear>
+          <ng-template #selectedItem let-selectedOption>
+            <ng-container *ngTemplateOutlet="actSelectionItem; context: { act: selectedOption }" />
+          </ng-template>
+          <ng-template let-act #item>
+            <ng-container *ngTemplateOutlet="actSelectionItem; context: { act: act }" />
+          </ng-template>
+
+          <ng-template #footer>
+            <div class="p-3">
+              <p-button label="Add New" fluid severity="primary" text size="small" icon="pi pi-plus" (onClick)="openAddActDialog()" />
+            </div>
+          </ng-template>
+        </p-select>
+        <label for="selectedAct">Act</label>
+      </p-floatlabel>
+    </div>
+
+    <!-- Type of entry -->
+    <div class="col-12">
+      <label for="entryType">Select type of entry:</label><br />
+      <p-select-button [options]="SetlistEntryTypeSelectorItem.possibleTypes" id="entryType" formControlName="entryType" optionLabel="label" optionValue="value" aria-labelledby="basic" allowEmpty="false" />
+    </div>
+
+    @if (selectedEntryType$ == AddSetlistEntryFormContent.entryTypeFreeText) {
+      <div class="mb-4">
+        <small>Use this entry type for entries like the intro song where we don't need statistics.</small>
+      </div>
+    }
+
+    @if (selectedEntryType$ == AddSetlistEntryFormContent.entryTypeSong) {
+      <!-- Song selection -->
+      <div class="col-12">
+        <ng-template #songSelectionItem let-song="song">
+          <div class="flex flex-wrap">
+            @if (song.album?.title) {
+              <div class="text-xs w-full">
+                {{ song.album!.title}}
+              </div>
+            }
+            <div class="font-bold w-full">
+              {{ song.title }}
+            </div>
+          </div>
+        </ng-template>
+        <p-floatlabel variant="on">
+          <p-select inputId="selectedSong" [options]="availableSongs$" formControlName="selectedSong" fluid showClear>
+            <ng-template #selectedItem let-selectedOption>
+              <ng-container *ngTemplateOutlet="songSelectionItem; context: { song: selectedOption }" />
+            </ng-template>
+            <ng-template let-song #item>
+              <ng-container *ngTemplateOutlet="songSelectionItem; context: { song: song }" />
+            </ng-template>
+
+            <ng-template #footer>
+              <div class="p-3">
+                <p-button label="Add New" fluid severity="primary" text size="small" icon="pi pi-plus" (onClick)="openAddSongDialog()" />
+              </div>
+            </ng-template>
+          </p-select>
+          <label for="selectedSong">Played Song</label>
+        </p-floatlabel>
+      </div>
+
+      <div class="col-12">
+        <ng-template #songVariantSelectionItem let-variant="variant">
+          {{ variant.variantName }} {{ variant.description != null && variant.description.length > 0 ? `(${variant.description})` : "" }}
+        </ng-template>
+        <p-floatlabel variant="on">
+          <p-select inputId="selectedSong" [options]="variantsOfSelectedSong$" formControlName="selectedSongVariant" fluid showClear>
+            <ng-template #selectedItem let-selectedOption>
+              <ng-container *ngTemplateOutlet="songVariantSelectionItem; context: { variant: selectedOption }" />
+            </ng-template>
+            <ng-template let-variant #item>
+              <ng-container *ngTemplateOutlet="songVariantSelectionItem; context: { variant: variant }" />
+            </ng-template>
+
+            <ng-template #footer>
+              <div class="p-3">
+                <p-button label="Add New" fluid severity="primary" text size="small" icon="pi pi-plus" (onClick)="openAddSongDialog()" />
+              </div>
+            </ng-template>
+          </p-select>
+          <label for="selectedSong">Played variation of this song</label>
+        </p-floatlabel>
+      </div>
+    } @else if (selectedEntryType$ == AddSetlistEntryFormContent.entryTypeSongMashup) {
+      <!-- Mashup -->
+      <div class="col-12">
+        <p-floatlabel variant="on">
+          <p-select inputId="selectedSongMashup" [options]="availableSongMashups$" optionLabel="title" formControlName="selectedSongMashup" fluid showClear />
+          <label for="selectedSongMashup">Mashup/Medley</label>
+        </p-floatlabel>
+      </div>
+    }
+
+    <!-- Optionally override the title of the song or mashup -->
+    <div class="col-12">
+      <p-floatlabel variant="on">
+        <input pInputText id="titleOverride" formControlName="titleOverride" placeholder="if empty, the name of the song/mashup will be used by default" autocomplete="off" fluid />
+        <label for="titleOverride">{{ selectedEntryType$ != AddSetlistEntryFormContent.entryTypeFreeText ? '(Optional)' : '' }} Override the title for this entry</label>
+      </p-floatlabel>
+    </div>
+
+    <!-- Optionally add extra notes -->
+    <div class="col-12">
+      <p-floatlabel variant="on">
+        <input pInputText id="extraNotes" formControlName="extraNotes" placeholder="Example: Joe threw a cake into the crowd" autocomplete="off" fluid />
+        <label for="extraNotes">(Optional) Additional notes</label>
+      </p-floatlabel>
+    </div>
+
+    <!-- Switches for boolean fields -->
+    <div class="col-12 flex gap-2 align-items-center">
+      <p-toggle-switch formControlName="wasPlayedFromRecording" id="wasPlayedFromRecording" size="small" />
+      <label for="wasPlayedFromRecording"><i class="pi pi-megaphone mr-"></i> Was played from recording</label>
+    </div>
+    <div class="col-12 flex gap-2 align-items-center">
+      <p-toggle-switch formControlName="wasRotationSong" id="wasRotationSong" size="small" />
+      <label for="wasRotationSong"><i class="pi pi-refresh mr-"></i> This is a rotation slot</label>
+    </div>
+    <div class="col-12 flex gap-2 align-items-center">
+      <p-toggle-switch formControlName="wasWorldPremiere" id="wasWorldPremiere" size="small" />
+      <label for="wasWorldPremiere"><i class="pi pi-globe mr-"></i> Was a world premiere</label>
+    </div>
+    <div class="col-12 flex gap-2 align-items-center">
+      <p-toggle-switch formControlName="wasLivePremiere" id="wasLivePremiere" size="small" />
+      <label for="wasLivePremiere"><i class="pi pi-sparkles mr-"></i> Was a live premiere</label>
+    </div>
+  </div>
+
+  <!-- song extras -->
+  <br />
+  <h4>Song extras <p-button size="small" label="Add" (onClick)="onAddSongExtraClicked()" /></h4>
+  @if (currentSongExtras$.length == 0) {
+    <p>You can add some extras like an extended bridge for this entry.</p>
+  } @else {
+    <p-table [value]="currentSongExtras$">
+      <ng-template #header let-columns>
+        <tr>
+          <th>Type</th>
+          <th>Song</th>
+          <th></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-extra>
+        <tr>
+          <td>
+            {{ extra.type }}
+
+            @if (extra.description != null && extra.description.length > 0) {
+              <i class="pi pi-info-circle mr-2" style="cursor: help" [pTooltip]="extra.description"></i>
+            }
+          </td>
+          <td>{{ extra.song?.title }}</td>
+          <td>
+            <p-confirmpopup [key]="confirmDeleteSongExtraKey" />
+            <p-button-group>
+              <p-button label="Delete" icon="pi pi-trash" severity="danger" variant="outlined" size="small" (onClick)="onDeleteSongExtraClicked($event, extra)" />
+            </p-button-group>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  }
+</form>

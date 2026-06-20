@@ -1,0 +1,227 @@
+<form #form="ngForm" [formGroup]="concertForm" [hidden]="!hasWriteAccess$" class="form">
+  <p-card class="mt-2">
+    <p-tabs value="main">
+      <p-tablist>
+        <p-tab value="main">General information</p-tab>
+        <p-tab value="timing-details">Timing Details</p-tab>
+        <p-tab value="lpu">LPU</p-tab>
+        <p-tab value="map">Map</p-tab>
+      </p-tablist>
+
+      <p-tabpanels>
+        <p-tabpanel value="main">
+          <div class="grid gap-2 mt-2">
+            <!-- Concert Status -->
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <p-select [options]="concertStatusValues" optionLabel="label" optionValue="value" formControlName="concertStatus" id="concertStatus" fluid />
+                <label for="concertStatus">Status</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- Concert Type -->
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <p-select [options]="listOfShowTypes" formControlName="showType" id="showType" fluid />
+                <label for="showType">Type of show</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- Tour -->
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <p-select [options]="availableTours$" optionValue="value" optionLabel="label" formControlName="tourName" id="tourName" showClear fluid />
+                <label for="tourName">Tour</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- Custom Title -->
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <input pInputText id="customTitle" formControlName="customTitle" autocomplete="off" fluid />
+                <label for="customTitle">Custom title (only used for special cases)</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- Posted start time -->
+            <div class="col-12">
+              <div class="flex flex-wrap gap-3">
+                <div>
+                  <p-floatlabel variant="on">
+                    <p-date-picker formControlName="postedStartTime" inputId="postedStartTime" showIcon iconDisplay="input" [showTime]="true" />
+                    <label for="postedStartTime">Start time</label>
+                  </p-floatlabel>
+                  <small>(according to ticket vendor)</small>
+                </div>
+
+                <div>
+                  <p-inputgroup>
+                    <p-floatlabel variant="on">
+                      <p-select [options]="timezones" optionValue="tzCode" optionLabel="label" formControlName="timezone" id="timezone" fluid filter class="w-max" />
+                      <label for="timezone">Venue's timezone</label>
+                    </p-floatlabel>
+                    <p-inputgroup-addon class="w-full">
+                      <p-button label="Load timezone" icon="pi pi-sync" variant="outlined" (onClick)="onUpdateTimeZoneClicked()" [disabled]="timeZoneIsLoading$" [loading]="timeZoneIsLoading$" />
+                    </p-inputgroup-addon>
+                  </p-inputgroup>
+                </div>
+              </div>
+            </div>
+
+            <!-- Venue Name -->
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <input pInputText id="venue" formControlName="venue" autocomplete="off" fluid />
+                <label for="venue">Venue Name</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- City -->
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <input pInputText id="city" formControlName="city" autocomplete="off" fluid />
+                <label for="city">City</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- State -->
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <input pInputText id="state" formControlName="state" autocomplete="off" fluid />
+                <label for="state">State (optional)</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- Country -->
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <input pInputText id="country" formControlName="country" autocomplete="off" fluid />
+                <label for="country">Country</label>
+              </p-floatlabel>
+            </div>
+          </div>
+        </p-tabpanel>
+
+        <p-tabpanel value="timing-details">
+          <div class="grid gap-2 mt-2">
+            <!-- Schedule Image -->
+            <div class="col-12">
+              <h6>Image of the official schedule</h6>
+              <p-fileupload #scheduleImgUpload name="scheduleImg" (uploadHandler)="uploadFileHandler($event, scheduleImgUpload)" (onProgress)="onUploadProgress($event)" [customUpload]="true" [multiple]="false" accept="image/*" maxFileSize="8000000">
+                <ng-template #empty>
+                  <div>Drag and drop file to here to upload the schedule of this concert.</div>
+                </ng-template>
+              </p-fileupload>
+
+              @if (concert$?.scheduleImageFile != undefined) {
+                <br />
+                <img width="35%" src="{{ environment.imageBaseUrl + '/' + concert$?.scheduleImageFile! }}" alt="Uploaded image" />
+              }
+            </div>
+
+            <!-- Official Doors Time -->
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <p-date-picker formControlName="doorsTime" inputId="doorsTime" showIcon iconDisplay="input" [timeOnly]="true" />
+                <label for="doorsTime">Doors time</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- LP stage Time -->
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <p-date-picker formControlName="lpStageTime" inputId="lpStageTime" showIcon iconDisplay="input" [timeOnly]="true" />
+                <label for="lpStageTime">Confirmed Linkin Park stage time</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- Expected set duration -->
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <p-date-picker formControlName="expectedSetDuration" inputId="expectedSetDuration" showIcon [showButtonBar]="true" iconDisplay="input" [timeOnly]="true">
+                  <ng-template #buttonbar let-todayCallback="todayCallback" let-clearCallback="clearCallback">
+                    <div class="flex justify-between w-full">
+                      <div class="flex gap-2">
+                        <p-button size="small" label="2h" severity="primary" variant="outlined" (onClick)="setExpectedSetDuration(120)" />
+                        <p-button size="small" label="90 min" severity="secondary" variant="outlined" (onClick)="setExpectedSetDuration(90)" />
+                        <p-button size="small" label="1h" severity="secondary" variant="outlined" (onClick)="setExpectedSetDuration(60)" />
+                      </div>
+                      <div class="flex gap-2">
+                        <p-button size="small" icon="pi pi-times" severity="danger" variant="text" (click)="clearCallback($event)" />
+                      </div>
+                    </div>
+                  </ng-template>
+                </p-date-picker>
+                <label for="expectedSetDuration">Expected set duration</label>
+              </p-floatlabel>
+            </div>
+          </div>
+        </p-tabpanel>
+
+        <p-tabpanel value="lpu">
+          <div class="grid gap-2 mt-2">
+            <!-- LPU EE confirmed -->
+            <div class="col-12 flex gap-2 vertical-align-middle mb-0">
+              <p-toggle-switch formControlName="lpuEarlyEntryConfirmed" id="lpuEarlyEntryConfirmed" size="small" class="h-full" />
+              <label for="lpuEarlyEntryConfirmed" class="h-full">LPU Early Entry has been officially confirmed for this show</label>
+            </div>
+
+            <!-- LPU Early Entry Time -->
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <p-date-picker formControlName="lpuEarlyEntryTime" inputId="lpuEarlyEntryTime" showIcon iconDisplay="input" [timeOnly]="true" [showButtonBar]="true" [disabled]="!concertForm.value.lpuEarlyEntryConfirmed">
+                  <ng-template #buttonbar let-todayCallback="todayCallback" let-clearCallback="clearCallback">
+                    <div class="flex justify-content-end w-full">
+                      <div class="flex gap-2">
+                        <p-button size="small" icon="pi pi-times" severity="danger" variant="text" (click)="clearCallback($event)" />
+                      </div>
+                    </div>
+                  </ng-template>
+                </p-date-picker>
+                <label for="lpuEarlyEntryTime">LPU early entry time</label>
+              </p-floatlabel>
+            </div>
+          </div>
+        </p-tabpanel>
+
+        <p-tabpanel value="map">
+          <div class="grid gap-2 mt-2">
+            <!-- Coordinates -->
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <p-input-number formControlName="venueLat" inputId="venueLat" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="25" fluid />
+                <label for="venueLat">Venue latitude</label>
+              </p-floatlabel>
+            </div>
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <p-input-number formControlName="venueLong" inputId="venueLong" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="25" fluid />
+                <label for="venueLong">Venue longitude</label>
+              </p-floatlabel>
+            </div>
+
+            <div class="col-12">
+              <div class="flex flex-wrap gap-2">
+                <p-button label="Try to set pin at venue" icon="pi pi-bullseye" (onClick)="tryAutoSetVenuePin()" severity="secondary" variant="outlined" />
+                <p-button label="Go to city" icon="pi pi-map" (onClick)="onGoToCityClicked()" severity="secondary" variant="outlined" />
+                <p-button label="Set pin here" icon="pi pi-map-marker" (onClick)="onSetPinClicked()" severity="secondary" variant="outlined" />
+              </div>
+            </div>
+
+            <div class="col-12">
+              <div #appleMaps class="concert-form-map"></div>
+            </div>
+          </div>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+
+    <ng-template #footer>
+      <p-divider />
+      <div class="flex gap-4 mt-1 justify-content-between w-full">
+        <p-button label="Clear" severity="secondary" (onClick)="onClearClicked()" [disabled]="isSaving$" />
+        <p-button [label]="isSaving$ ? 'Saving...' : 'Save'" [loading]="isSaving$" (onClick)="onSaveClicked()" [disabled]="isSaving$ || !concertForm.valid" />
+      </div>
+    </ng-template>
+  </p-card>
+</form>

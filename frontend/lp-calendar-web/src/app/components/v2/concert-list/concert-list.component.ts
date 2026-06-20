@@ -1,0 +1,198 @@
+import {Component, inject} from '@angular/core';
+import {ConcertDto, ConcertStatusValueDto, ErrorResponseDto} from '../../../modules/lpshows-api';
+import {AuthService} from '../../../auth/auth.service';
+import {ConcertFilter} from '../../../data/concert-filter';
+import {ConcertsService} from '../../../services/concerts.service';
+import { DateTime } from "luxon";
+import { ConcertTitleGenerator } from "../../../data/concert-title-generator";
+import {Message} from 'primeng/message';
+import {RouterLink} from '@angular/router';
+import {Button} from 'primeng/button';
+import {Card} from 'primeng/card';
+import {Skeleton} from 'primeng/skeleton';
+import {ConcertBadgesComponent} from '../concert-badges/concert-badges.component';
+import {CountdownComponent} from '../countdown/countdown.component';
+import {ButtonGroup} from 'primeng/buttongroup';
+import {ConfirmDialog} from 'primeng/confirmdialog';
+import {ConfirmationService, MessageService} from 'primeng/api';
+import {Tooltip} from 'primeng/tooltip';
+import {ConcertFilterComponent} from '../concert-filter/concert-filter.component';
+
+@Component({
+  selector: 'app-concert-list',
+  imports: [
+    Message,
+    RouterLink,
+    Button,
+    Card,
+    Skeleton,
+    ConcertBadgesComponent,
+    CountdownComponent,
+    ButtonGroup,
+    ConfirmDialog,
+    Tooltip,
+    ConcertFilterComponent,
+  ],
+  templateUrl: './concert-list.component.html',
+  styleUrl: './concert-list.component.css',
+})
+export class ConcertListComponent {
+  private confirmationService = inject(ConfirmationService);
+  private messageService = inject(MessageService);
+
+  concerts$: ConcertDto[] = [];
+
+  // status if the table is currently loading
+  isLoading$ = false;
+
+  // property to indicate if all concerts or only future should be displayed
+  showHistoricConcerts$ = false;
+
+  // property to show whether the concert is currently being deleted
+  concertDeleting$ = false;
+
+  // ID that will be deleted. Is used to store the ID for the confirmation modal
+  private concertIdToDelete: string | undefined;
+
+  // Service to check auth information
+  private readonly authService = inject(AuthService);
+
+  canAddConcerts$ = false;
+  canUpdateConcerts$ = false;
+  canDeleteConcerts$ = false;
+  canManageSetlists$ = false;
+
+  // default filter that is used when loading the list
+  defaultFilter: ConcertFilter = {
+    onlyFuture: true,
+    tour: null,
+    dateFrom: DateTime.now().set({hour: 0, minute: 0, second: 0, millisecond: 0}),
+    dateTo: null
+  };
+
+  // Filter that is used for loading the list
+  currentFilter: ConcertFilter = this.defaultFilter;
+
+  constructor(private concertsService: ConcertsService) {
+    this.reloadConcertList(true);
+
+    this.authService.canAddConcerts.subscribe(hasPermission => {
+      this.canAddConcerts$ = hasPermission;
+    });
+    this.authService.canUpdateConcerts.subscribe(hasPermission => {
+      this.canUpdateConcerts$ = hasPermission;
+    });
+    this.authService.canDeleteConcerts.subscribe(hasPermission => {
+      this.canDeleteConcerts$ = hasPermission;
+    });
+    this.authService.canManageSetlists.subscribe(hasPermission => {
+      this.canManageSetlists$ = hasPermission;
+    });
+  }
+
+
+  ngOnInit(): void {
+  }
+
+
+  private reloadConcertList(cache: boolean) {
+    this.isLoading$ = true;
+    this.concertsService.getFilteredConcerts(this.currentFilter, cache).subscribe({
+      next: result => {
+        this.concerts$ = result;
+        this.isLoading$ = false;
+      },
+      error: err => {
+        this.messageService.add({
+          severity: "danger",
+          summary: "Failed to load concerts",
+          text: err.message,
+        });
+      }
+    })
+  }
+
+
+  onShowHistoricSwitchChanged() {
+    this.reloadConcertList(true);
+    console.log("Show historic: " + this.showHistoricConcerts$)
+  }
+
+
+  onDeleteConcertClicked(event: Event, concertId: string | null) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Do you want to delete this concert?',
+      header: 'Delete Concert',
+      icon: 'pi pi-info-circle',
+      rejectLabel: 'Cancel',
+      rejectButtonProps: {
+        label: 'Cancel',
+        severity: 'secondary',
+        outlined: true
+      },
+      acceptButtonProps: {
+        label: 'Delete',
+        severity: 'danger'
+      },
+
+      accept: () => {
+        this.onDeleteConcertConfirm(concertId);
+      }
+    });
+  }
+
+
+  private onDeleteConcertConfirm(concertId: string | null) {
+    this.concertDeleting$ = true;
+    if (concertId == null) {
+      return;
+    }
+
+    let id = concertId!;
+    console.debug("Will delete concert: " + id);
+
+    this.concertsService.deleteConcert(id).subscribe({
+      next: result => {
+        console.debug("DELETE concert request finished");
+        console.debug(result);
+
+        this.concertDeleting$ = false;
+        this.reloadConcertList(false);
+      },
+      error: err => {
+        let errorResponse: ErrorResponseDto = err.error;
+        console.warn("Failed to delete concert:", err);
+        this.concertDeleting$ = false;
+
+        this.messageService.add({
+          severity: "danger",
+          summary: "Could not delete concert!",
+          text: errorResponse.message,
+        });
+      }
+    });
+  }
+
+
+  onFilterChanged(filter: ConcertFilter) {
+    console.debug("filterEvent: ", filter);
+    this.currentFilter = filter;
+    this.reloadConcertList(true);
+  }
+
+
+  public getDateTime(inputDate: string) {
+    return DateTime.fromISO(inputDate, {setZone: false});
+  }
+
+
+  public getDateTimeInTimezone(inputDate: string, timeZoneId: string) {
+    return DateTime.fromISO(inputDate, {zone: timeZoneId});
+  }
+
+
+  protected readonly DateTime = DateTime;
+  protected readonly ConcertTitleGenerator = ConcertTitleGenerator;
+  protected readonly ConcertStatusValueDto = ConcertStatusValueDto;
+}

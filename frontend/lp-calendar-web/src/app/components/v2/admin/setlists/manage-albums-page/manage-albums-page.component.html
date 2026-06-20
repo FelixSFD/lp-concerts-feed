@@ -1,0 +1,64 @@
+<p-confirmDialog />
+
+<p-card>
+  <ng-template #title>
+    Manage albums
+  </ng-template>
+
+  <p-table
+    #dt2
+    [value]="albums$"
+    dataKey="id"
+    stripedRows
+    rowHover
+    [rows]="25"
+    [rowsPerPageOptions]="[10, 25, 50, 100]"
+    [loading]="isLoading$"
+    [paginator]="true"
+    [globalFilterFields]="['title']"
+    [tableStyle]="{ 'min-width': '75rem' }"
+  >
+    <ng-template #caption>
+      <div class="flex">
+        <p-button variant="outlined" label="Add album" [routerLink]="['add']" />
+
+        <p-iconfield iconPosition="left" class="ml-auto">
+          <p-inputicon>
+            <i class="pi pi-search"></i>
+          </p-inputicon>
+          <input pInputText type="text" [(ngModel)]="globalSearchText$" (input)="dt2.filterGlobal(globalSearchText$, 'contains')" placeholder="Search keyword" />
+        </p-iconfield>
+      </div>
+    </ng-template>
+    <ng-template #header>
+      <tr>
+        <th scope="col">Album title</th>
+        <th scope="col"></th>
+      </tr>
+      <tr>
+        <th>
+          <p-column-filter type="text" field="title" placeholder="Album title" ariaLabel="Filter Album Title" filterOn="input"></p-column-filter>
+        </th>
+        <th></th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-album>
+      <tr>
+        <td>
+          {{ album.title }}
+        </td>
+        <td>
+          <p-button-group>
+            <p-button label="Edit" icon="pi pi-pencil" variant="outlined" size="small" [routerLink]="[album.id.toString()]" [disabled]="isDeletingAlbum$" />
+            <p-button label="Delete" icon="pi pi-trash" variant="outlined" size="small" severity="danger" (click)="onDeleteAlbumClicked($event, album)" [disabled]="isDeletingAlbum$" />
+          </p-button-group>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="5">No albums found.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
