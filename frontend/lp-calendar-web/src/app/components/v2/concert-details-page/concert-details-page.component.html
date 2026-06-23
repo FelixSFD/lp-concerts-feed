@@ -8,7 +8,7 @@
 
     <div class="text-center">
       <p class="text-3xl font-bold my-0">{{ timeString }}</p>
-      <small style="font-size: 0.65rem">{{ timeZoneText }}</small>
+      <small style="font-size: 0.75rem">{{ timeZoneText }}</small>
     </div>
   </p-card>
 </ng-template>
@@ -127,14 +127,14 @@
     }
 
     @if (concert$?.mainStageTime != undefined) {
-      <div class="time-card col-12 sm:col-6 md:col-4 lg:col-2 xl:col-2">
+      <div class="time-card col-12 sm:col-6 md:col-6 lg:col-4 xl:col-3">
         <ng-container
           *ngTemplateOutlet="timeCard; context: { cardTitle: 'Linkin Park stage time',
             timeZoneText: `Venue\'s timezone (${concert$?.timeZoneId ?? '' })`,
              timeString: getDateTimeInTimezone(concert$?.mainStageTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE) }" />
       </div>
 
-      <div class="time-card col-12 sm:col-6 md:col-4 lg:col-2 xl:col-2">
+      <div class="time-card col-12 sm:col-6 md:col-6 lg:col-4 xl:col-3">
         <ng-container
           *ngTemplateOutlet="timeCard; context: { cardTitle: 'Linkin Park stage time',
             timeZoneText: `Your timezone`,
@@ -143,7 +143,7 @@
     }
 
     @if (concert$?.lpuEarlyEntryTime != undefined) {
-      <div class="time-card col-2">
+      <div class="time-card col-12 sm:col-6 md:col-6 lg:col-4 xl:col-3">
         <ng-container
           *ngTemplateOutlet="timeCard; context: { cardTitle: 'LPU Early Entry',
           timeZoneText: `Venue\'s timezone (${concert$?.timeZoneId ?? '' })`,
@@ -152,7 +152,7 @@
     }
 
     @if (concert$?.doorsTime != undefined) {
-      <div class="time-card col-2">
+      <div class="time-card col-12 sm:col-6 md:col-6 lg:col-4 xl:col-3">
         <ng-container
           *ngTemplateOutlet="timeCard; context: { cardTitle: 'Doors open at',
           timeZoneText: `Venue\'s timezone (${concert$?.timeZoneId ?? '' })`,
@@ -161,13 +161,13 @@
     }
 
     @if (concert$?.mainStageTime == undefined) {
-      <div class="time-card col-2">
+      <div class="time-card col-12 sm:col-6 md:col-6 lg:col-4 xl:col-3">
         <ng-container
           *ngTemplateOutlet="timeCard; context: { cardTitle: 'Your start time',
            timeString: getDateTime(concert$?.postedStartTime!).toLocaleString(DateTime. DATETIME_SHORT) }" />
       </div>
 
-      <div class="time-card col-2">
+      <div class="time-card col-12 sm:col-6 md:col-6 lg:col-4 xl:col-3">
         <ng-container
           *ngTemplateOutlet="timeCard; context: { cardTitle: 'Venue start time',
            timeString: getDateTimeInTimezone(concert$?.postedStartTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE) }" />
@@ -175,7 +175,7 @@
     }
 
     @if (!concert$?.isPast) {
-      <div class="col-12 sm:col-4">
+      <div class="col-12 sm:col-12 md:col-12 lg:col-6 xl:col-3">
         <p-card>
           <ng-template #header>
             <div class="pl-3 py-2 border-round-top surface-300">
@@ -191,7 +191,7 @@
     }
 
     @if ((concert$?.expectedSetDuration ?? 0) > 0) {
-      <div class="time-card col-2">
+      <div class="time-card col-12 sm:col-6 md:col-6 lg:col-4 xl:col-3">
         <ng-container
           *ngTemplateOutlet="timeCard; context: { cardTitle: 'Expected set duration',
            timeString: concert$?.expectedSetDuration ?? 0 | timeSpan }" />

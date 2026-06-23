@@ -73,7 +73,6 @@ export class AddSetlistEntryFormComponent implements OnInit {
     songNumber: new FormControl(0, [Validators.max(99)]),
     titleOverride: new FormControl('', [Validators.maxLength(63)]),
     extraNotes: new FormControl('', [Validators.maxLength(255)]),
-    selectedActNumber: new FormControl(0, []),
     actNumber: new FormControl<number>(1, []),
     actTitle: new FormControl('', [Validators.maxLength(31)]),
     selectedAct: new FormControl<SetlistActDto | null>(null, []),
@@ -185,6 +184,11 @@ export class AddSetlistEntryFormComponent implements OnInit {
           data.sort((a, b) => (a.actNumber ?? 0) < (b.actNumber ?? 0) ? -1 : 1);
           this.availableActs$ = data;
           console.debug("Loaded acts: ", this.availableActs$);
+
+          if (this.storedEntry) {
+            console.debug("Has a stored entry: ", this.storedEntry);
+            this.setlistEntryForm.controls.selectedAct.setValue(this.availableActs$.find(act => this.storedEntry?.actNumber == act.actNumber) ?? null);
+          }
         },
         error: err => {
           let errorResponse: ErrorResponseDto = err.error;
@@ -195,6 +199,13 @@ export class AddSetlistEntryFormComponent implements OnInit {
           });
         }
       })
+  }
+
+  public clearForm() {
+    this.setlistEntryForm.reset();
+    this.isDeletingSongExtra$ = false;
+    this.isAddingSongExtra$ = false;
+    this.storedEntry = null;
   }
 
 
@@ -408,7 +419,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
           this.setlistEntryForm.controls.songNumber.setValue(entry.songNumber ?? null);
           this.setlistEntryForm.controls.titleOverride.setValue(entry.titleOverride ?? null);
           this.setlistEntryForm.controls.extraNotes.setValue(entry.extraNotes ?? null);
-          this.setlistEntryForm.controls.selectedActNumber.setValue(entry.actNumber ?? 0);
+          this.setlistEntryForm.controls.selectedAct.setValue(this.availableActs$.find(act => act.actNumber == entry.actNumber) ?? null);
           this.setlistEntryForm.controls.selectedSong.setValue(entry.playedSong ?? this.availableSongs$.find(s => s.id == (entry.playedSongVariant?.songId ?? 0)) ?? null);
           this.setlistEntryForm.controls.selectedSongVariant.setValue(entry.playedSongVariant ?? null);
           this.setlistEntryForm.controls.selectedSongMashup.setValue(entry.playedSongMashup ?? null);
@@ -455,7 +466,6 @@ export class AddSetlistEntryFormComponent implements OnInit {
     let wasPlayedFromRecording = this.setlistEntryForm.value.wasPlayedFromRecording?.valueOf() ?? false;
     let wasWorldPremiere = this.setlistEntryForm.value.wasWorldPremiere?.valueOf() ?? false;
     let wasLivePremiere = this.setlistEntryForm.value.wasLivePremiere?.valueOf() ?? false;
-    let selectedActNumber = Number(this.setlistEntryForm.value.selectedActNumber?.valueOf());
 
     let content: AddSetlistEntryFormContent = {
       entryType: entryType,
@@ -467,7 +477,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
       wasPlayedFromRecording: wasPlayedFromRecording,
       wasWorldPremiere: wasWorldPremiere,
       wasLivePremiere: wasLivePremiere,
-      selectedActNumber: selectedActNumber,
+      selectedActNumber: this.setlistEntryForm.value.selectedAct?.actNumber,
       // these fields are not present in every case
       actNumber: this.setlistEntryForm.value.selectedAct?.actNumber,
       actTitle: this.setlistEntryForm.value.selectedAct?.title,
