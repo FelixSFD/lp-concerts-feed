@@ -61,7 +61,8 @@
                       <label for="timezone">Venue's timezone</label>
                     </p-floatlabel>
                     <p-inputgroup-addon class="w-full">
-                      <p-button label="Load timezone" icon="pi pi-sync" variant="outlined" (onClick)="onUpdateTimeZoneClicked()" [disabled]="timeZoneIsLoading$" [loading]="timeZoneIsLoading$" />
+                      <p-button class="md:hidden" icon="pi pi-sync" variant="outlined" (onClick)="onUpdateTimeZoneClicked()" [disabled]="timeZoneIsLoading$" [loading]="timeZoneIsLoading$" />
+                      <p-button class="hidden md:inline" label="Load timezone" icon="pi pi-sync" variant="outlined" (onClick)="onUpdateTimeZoneClicked()" [disabled]="timeZoneIsLoading$" [loading]="timeZoneIsLoading$" />
                     </p-inputgroup-addon>
                   </p-inputgroup>
                 </div>
