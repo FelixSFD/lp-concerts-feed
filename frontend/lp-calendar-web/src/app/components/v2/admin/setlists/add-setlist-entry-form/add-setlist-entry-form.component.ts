@@ -201,6 +201,13 @@ export class AddSetlistEntryFormComponent implements OnInit {
       })
   }
 
+  public clearForm() {
+    this.setlistEntryForm.reset();
+    this.isDeletingSongExtra$ = false;
+    this.isAddingSongExtra$ = false;
+    this.storedEntry = null;
+  }
+
 
   onAddSongExtraClicked() {
     this.showAddSongExtrasDialog = true;

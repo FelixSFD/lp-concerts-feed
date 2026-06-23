@@ -189,6 +189,7 @@ export class EditSetlistPageComponent implements OnInit {
   onAddEntryClicked() {
     let largestSongNumber = this.getLargestSongNumber();
     console.debug("Largest Song Number right now: ", largestSongNumber);
+    this.addEntryFormComponent()?.clearForm();
     this.addEntryFormComponent()?.setSongNumber(largestSongNumber + 1);
 
     this.isShowingAddEntryDialog$ = true;
@@ -334,6 +335,7 @@ export class EditSetlistPageComponent implements OnInit {
     }
 
     this.isShowingEditEntryDialog$ = true;
+    content?.clearForm();
     content?.loadEntry(this.currentSetlistId, entry.id);
   }
 
