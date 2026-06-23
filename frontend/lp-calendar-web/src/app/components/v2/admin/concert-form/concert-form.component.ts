@@ -438,6 +438,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
 
     // LP stage time
     let lpStageTime = this.concertForm.value.lpStageTime?.valueOf();
+    console.debug("lpStageTime:", lpStageTime);
     if (lpStageTime != null && lpStageTime.length > 0) {
       let lpStageDateTime = zonedDateTime.set(DateTime.fromFormat(lpStageTime, 'hh:mm').toObject());
       // weird timezone issues can cause the LPU time to be on the next day. That's why we need to fix the date just to be sure

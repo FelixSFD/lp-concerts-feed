@@ -120,25 +120,25 @@
             </div>
 
             <!-- Official Doors Time -->
-            <div class="col-12">
+            <div class="col-12 sm:col-12 md:col-6 xl:col-3">
               <p-floatlabel variant="on">
-                <p-date-picker formControlName="doorsTime" inputId="doorsTime" showIcon iconDisplay="input" [timeOnly]="true" />
+                <input pInputText id="doorsTime" formControlName="doorsTime" autocomplete="off" type="time" fluid />
                 <label for="doorsTime">Doors time</label>
               </p-floatlabel>
             </div>
 
             <!-- LP stage Time -->
-            <div class="col-12">
+            <div class="col-12 sm:col-12 md:col-6 xl:col-3">
               <p-floatlabel variant="on">
-                <p-date-picker formControlName="lpStageTime" inputId="lpStageTime" showIcon iconDisplay="input" [timeOnly]="true" />
+                <input pInputText id="lpStageTime" formControlName="lpStageTime" autocomplete="off" type="time" fluid />
                 <label for="lpStageTime">Confirmed Linkin Park stage time</label>
               </p-floatlabel>
             </div>
 
             <!-- Expected set duration -->
-            <div class="col-12">
+            <div class="col-12 sm:col-12 md:col-6 xl:col-3">
               <p-floatlabel variant="on">
-                <p-date-picker formControlName="expectedSetDuration" inputId="expectedSetDuration" showIcon [showButtonBar]="true" iconDisplay="input" [timeOnly]="true">
+                <p-date-picker formControlName="expectedSetDuration" inputId="expectedSetDuration" showIcon [showButtonBar]="true" iconDisplay="input" [timeOnly]="true" fluid>
                   <ng-template #buttonbar let-todayCallback="todayCallback" let-clearCallback="clearCallback">
                     <div class="flex justify-between w-full">
                       <div class="flex gap-2">
