@@ -43,6 +43,9 @@
       <None Update="TestData\Wiki\setlist_source_Live_20260315_short.txt">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="TestData\Wiki\setlist_source_Live_20260630_short_two_breaks.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>
