@@ -133,7 +133,11 @@ public partial class WikitextParser : IWikitextParser
         if (lines.Any(l => l.StartsWith("| Song")))
         {
             // if any line started with Song, we know it's a song
-            var dictionary = lines.Select(ExtractSetlistLineKeyValue).ToDictionary(kv => kv.key, kv => kv.value);
+            var dictionary = lines
+                .Select(ExtractSetlistLineKeyValue)
+                .GroupBy(kv => kv.key, kv => kv.value)
+                .Where(g => g.Any())
+                .ToDictionary(g => g.Key, g => g.FirstOrDefault());
             var index = ExtractSetlistLineKeyValue(lines.First()).index; // since lines.Any() was true, we have at least one line
             return new SongWikiSetlistEntry
             {
