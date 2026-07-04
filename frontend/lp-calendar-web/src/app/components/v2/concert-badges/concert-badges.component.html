@@ -1,0 +1,23 @@
+<div class="flex flex-wrap justify-center gap-2">
+  @if (concert$?.concertStatus != undefined && concert$?.concertStatus == ConcertStatusValueDto.Cancelled) {
+    <p-tag icon="pi pi-times-circle" severity="danger" value="CANCELLED" pTooltip="This concert was cancelled 😭" tooltipPosition="bottom" size="small" />
+  } @else if (concert$?.concertStatus != undefined && concert$?.concertStatus == ConcertStatusValueDto.Running) {
+    <p-tag icon="pi pi-play-circle" severity="success" value="LIVE right now" pTooltip="This concert is currently running" tooltipPosition="bottom" size="small" />
+  }
+
+  @if (concert$?.showType != undefined && concert$?.showType != defaultShowType) {
+    <p-tag icon="pi pi-info-circle" severity="secondary" [value]="concert$?.showType ?? 'Other performance'" pTooltip="Type of the show" tooltipPosition="bottom" size="small" />
+  }
+
+  @if (concert$?.mainStageTime != undefined) {
+    <p-tag icon="pi pi-clock" value="LP Stage Time confirmed" pTooltip="Linkin Park stage time has been confirmed" tooltipPosition="bottom" size="small" />
+  }
+
+  @if (concert$?.lpuEarlyEntryConfirmed && concert$?.lpuEarlyEntryTime == undefined) {
+    <p-tag icon="pi pi-ticket" severity="info" value="LPU Early Entry" pTooltip="LPU Early Entry has been confirmed for this show but no time has been published yet" tooltipPosition="bottom" size="small" />
+  }
+
+  @if (concert$?.lpuEarlyEntryConfirmed && concert$?.lpuEarlyEntryTime != undefined) {
+    <p-tag icon="pi pi-ticket" severity="success" value="LPU Early Entry" pTooltip="LPU Early Entry time has been confirmed for this show" tooltipPosition="bottom" size="small" />
+  }
+</div>

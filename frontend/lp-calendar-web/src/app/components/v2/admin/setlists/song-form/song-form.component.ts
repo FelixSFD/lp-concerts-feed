@@ -1,0 +1,166 @@
+import {Component, EventEmitter, inject, Input, OnInit, Output, signal} from '@angular/core';
+import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
+import {AlbumDto, ErrorResponseDto, SongDto} from '../../../../../modules/lpshows-api';
+import {AlbumsService} from '../../../../../services/music/albums.service';
+import {AppleMusicService} from '../../../../../services/music/apple-music.service';
+import {AppleMusicSong} from '../../../../../data/music/apple/apple-music-song';
+import {Button} from 'primeng/button';
+import {Card} from 'primeng/card';
+import {Divider} from 'primeng/divider';
+import {FloatLabel} from 'primeng/floatlabel';
+import {InputGroup} from 'primeng/inputgroup';
+import {InputGroupAddon} from 'primeng/inputgroupaddon';
+import {InputText} from 'primeng/inputtext';
+import {Select} from 'primeng/select';
+import {MessageService} from 'primeng/api';
+import {NgTemplateOutlet} from '@angular/common';
+
+@Component({
+  selector: 'app-song-form',
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    Button,
+    Card,
+    Divider,
+    FloatLabel,
+    InputGroup,
+    InputGroupAddon,
+    InputText,
+    Select,
+    NgTemplateOutlet
+  ],
+  templateUrl: './song-form.component.html',
+  styleUrl: './song-form.component.css',
+})
+export class SongFormComponent implements OnInit {
+  private messageService = inject(MessageService);
+  private formBuilder = inject(FormBuilder);
+  private albumsService = inject(AlbumsService);
+  private appleMusicService = inject(AppleMusicService);
+
+  @Input("is-saving")
+  isSaving$: boolean = false;
+
+  /*
+   * true, if the for is "standalone", meaning it manages its own layout and has a save-button
+   */
+  @Input("standalone")
+  standalone$: boolean = true;
+
+  @Output("saveClicked")
+  saveClicked = new EventEmitter<SongFormContent>();
+
+  songForm = this.formBuilder.group({
+    title: new FormControl('', [Validators.required]),
+    selectedAlbumId: new FormControl(0, []),
+    isrc: new FormControl('', [Validators.pattern(/^(?<country>[A-Z]{2})(?<issuedBy>[A-Z0-9]{3})(?<year>\d{2})(?<number>\d{5})$/)]),
+    selectedAppleMusicId: new FormControl('', []),
+    linkinpediaUrl: new FormControl('', [Validators.pattern(/^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/)]),
+  });
+
+  selectedAppleMusicSong$ = signal<AppleMusicSong | null>(null);
+
+  availableAlbums$: AlbumDto[] = [];
+  appleMusicSongsForIsrc$: AppleMusicSong[] = [];
+
+  ngOnInit() {
+    this.albumsService.getAllAlbums(true)
+      .subscribe({
+        next: data => {
+          this.availableAlbums$ = data;
+        },
+        error: err => {
+          let errorResponse: ErrorResponseDto = err.error;
+          this.messageService.add({
+            severity: "danger",
+            summary: "Could not load albums",
+            text: errorResponse.message,
+          });
+        }
+      });
+
+    this.songForm.controls.isrc.valueChanges.subscribe(isrc => {
+      this.onIsrcChanged(isrc);
+    });
+  }
+
+
+  openLinkinpediaUrlClicked() {
+    let url = this.songForm.value.linkinpediaUrl?.valueOf();
+    if (url?.length == 0) {
+      return;
+    }
+
+    window.open(url, "_blank");
+  }
+
+
+  onSaveClicked() {
+    let content = this.readFromForm();
+    if (content) {
+      this.saveClicked.emit(content!);
+    }
+  }
+
+
+  public readFromForm(): SongFormContent | null {
+    let title = this.songForm.value.title?.valueOf();
+    let albumId = this.songForm.value.selectedAlbumId?.valueOf();
+    let isrc = this.songForm.value.isrc?.valueOf();
+    let appleMusicId = this.songForm.value.selectedAppleMusicId?.valueOf();
+    let linkinpediaUrl = this.songForm.value.linkinpediaUrl?.valueOf();
+
+    if (title == undefined) {
+      this.messageService.add({
+        severity: "danger",
+        summary: "Title is required",
+      });
+      return null;
+    }
+
+    if (appleMusicId == "null") {
+      appleMusicId = undefined;
+    }
+
+    return {
+      title: title!,
+      albumId: albumId ?? null,
+      isrc: isrc ?? null,
+      appleMusicId: appleMusicId ?? null,
+      linkinpediaUrl: linkinpediaUrl ?? null
+    };
+  }
+
+
+  public fillFormWith(song: SongDto) {
+    console.debug("Fill form with data:", song);
+    this.songForm.controls.title.setValue(song.title ?? null);
+    this.songForm.controls.selectedAlbumId.setValue(song.album?.id ?? null);
+    this.songForm.controls.isrc.setValue(song.isrc ?? null);
+    this.songForm.controls.selectedAppleMusicId.setValue(song.appleMusicId ?? null);
+    this.songForm.controls.linkinpediaUrl.setValue(song.linkinpediaUrl ?? null);
+  }
+
+
+  onIsrcChanged(isrc: string | undefined | null) {
+    if (isrc) {
+      this.appleMusicService.getSongsForIsrc(isrc ?? "").then(songs => {
+        console.debug("Songs from Isrc:", songs);
+        this.appleMusicSongsForIsrc$ = songs.sort((a, b) => a.albumName != null ? a.albumName.localeCompare(b.albumName ?? "") : a.id.localeCompare(b.id));
+      });
+
+      this.songForm.controls.selectedAppleMusicId.enable();
+    } else {
+      this.songForm.controls.selectedAppleMusicId.disable();
+    }
+  }
+}
+
+export class SongFormContent {
+  title!: string;
+  albumId: number | null = null;
+  isrc: string | null = null;
+  appleMusicId: string | null = null;
+  linkinpediaUrl: string | null = null;
+}

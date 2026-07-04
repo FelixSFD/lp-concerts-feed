@@ -1,0 +1,9 @@
+<p-card>
+  <ng-template #title>
+    Add a new mashup
+  </ng-template>
+
+  <p-button severity="secondary" variant="outlined" icon="pi pi-arrow-left" label="Mashup list" [routerLink]="['../']" />
+
+  <app-mashup-form (saveClicked)="onSaveClicked($event)" [is-saving]="isAdding$" />
+</p-card>

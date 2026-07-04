@@ -1,0 +1,7 @@
+<p-card>
+  <ng-template #title>
+    Add concert
+  </ng-template>
+
+  <app-concert-form [show-clear-button]="true" (saveClicked)="onFormSaved($event)" [is-saving]="isSaving$"></app-concert-form>
+</p-card>

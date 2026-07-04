@@ -27,7 +27,7 @@ import {
 } from '../modules/lpshows-api';
 import {map, Observable, throwError} from 'rxjs';
 import {Guid} from 'guid-typescript';
-import {AddSetlistEntryFormContent} from '../admin/setlists/add-setlist-entry-form/add-setlist-entry-form.component';
+import {AddSetlistEntryFormContent} from '../components/v2/admin/setlists/add-setlist-entry-form/add-setlist-entry-form.component';
 
 @Injectable({
   providedIn: 'root',

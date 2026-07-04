@@ -1,4 +1,9 @@
-.hidden {
+.progress-hidden {
   opacity: 0;
   transition: all 0.5s ease-out;
+  height: 2px;
+}
+
+.progress-visible {
+  height: 2px;
 }

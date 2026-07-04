@@ -3,12 +3,9 @@ import {
   EventType,
   Router,
   RouterLink,
-  RouterLinkActive,
   RouterOutlet
 } from '@angular/router';
-import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
-import {AsyncPipe, NgOptimizedImage, NgStyle} from '@angular/common';
 import {environment} from '../environments/environment';
 import {
   NgcCookieConsentService,
@@ -23,10 +20,15 @@ import {UserDto} from './modules/lpshows-api';
 import {AuthService} from './auth/auth.service';
 import {DateTime} from 'luxon';
 import {ClockService} from './services/clock.service';
+import {MainMenuComponent} from './components/v2/main-menu/main-menu.component';
+import {ScrollTop} from 'primeng/scrolltop';
+import {AutoBreadcrumbsComponent} from './components/v2/auto-breadcrumbs/auto-breadcrumbs.component';
+import {ProgressBar} from 'primeng/progressbar';
+import {Toast} from 'primeng/toast';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NgbModule, RouterLink, RouterLinkActive, AsyncPipe, NgOptimizedImage, NgStyle],
+  imports: [RouterOutlet, RouterLink, MainMenuComponent, ScrollTop, AutoBreadcrumbsComponent, ProgressBar, Toast],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -68,6 +70,7 @@ export class AppComponent implements OnInit, OnDestroy {
     EventType.GuardsCheckStart,
     EventType.GuardsCheckEnd,
     EventType.ResolveStart,
+    EventType.ResolveEnd,
     EventType.RouteConfigLoadStart,
     EventType.RouteConfigLoadEnd,
     EventType.NavigationEnd,
@@ -77,7 +80,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.initCookieConsent();
 
     this.router.events.subscribe((ev) => {
-      //console.debug("Router event: ", ev);
       let currentIndex = this.progressValues.indexOf(ev.type);
       if (currentIndex > -1) {
         console.debug("Current index: ",currentIndex);

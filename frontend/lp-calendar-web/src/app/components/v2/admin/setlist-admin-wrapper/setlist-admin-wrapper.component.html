@@ -1,0 +1,10 @@
+<p-select-button
+  [options]="menuItems"
+  [(ngModel)]="selectedArea"
+  optionLabel="label"
+  (onChange)="navigate($event.value)"
+/>
+
+<p-divider />
+
+<router-outlet />

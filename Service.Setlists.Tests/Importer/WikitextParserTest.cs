@@ -135,6 +135,16 @@ public class WikitextParserTest
         var entries = parser.GetEntries(setlistSource);
         AssertSameContent(expectedEntries, entries);
     }
+    
+    [Fact]
+    public async Task GetEntries_WithDoubleBreak()
+    {
+        var setlistSource = await File.ReadAllTextAsync("TestData/Wiki/setlist_source_Live_20260630_short_two_breaks.txt");
+        
+        var parser = new WikitextParser();
+        var entries = parser.GetEntries(setlistSource);
+        Assert.NotEmpty(entries);
+    }
 
     private void AssertSameContent(WikiSetlistEntry[] expected, WikiSetlistEntry[] actual)
     {

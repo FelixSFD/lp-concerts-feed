@@ -1,4 +1,5 @@
 import {DateTime} from 'luxon';
+import {TourConfig} from './tour-config';
 
 export class ConcertFilter {
   // Name of the tour to filter by

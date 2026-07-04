@@ -1,0 +1,25 @@
+<ng-template #songEntry let-song="song">
+  <div class="flex flex-wrap">
+    @if (song.album != null) {
+      <div class="text-xs w-full">
+        {{ song.album?.title }}
+      </div>
+    }
+
+    <div class="w-full">
+      {{ song.title }}
+    </div>
+  </div>
+</ng-template>
+
+<p-select [options]="availableSongs$" [(ngModel)]="selectedSong" (ngModelChange)="onSongSelectionChanged($event)" placeholder="Select a song" fluid>
+  <ng-template #selectedItem let-selectedOption>
+    <ng-container *ngTemplateOutlet="songEntry; context: { song: selectedOption }" />
+  </ng-template>
+  <ng-template let-song #item>
+    <ng-container *ngTemplateOutlet="songEntry; context: { song: song }" />
+  </ng-template>
+  <ng-template #dropdownicon>
+    <i class="pi pi-headphones"></i>
+  </ng-template>
+</p-select>
