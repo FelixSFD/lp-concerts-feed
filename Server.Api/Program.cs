@@ -24,7 +24,7 @@ var connectionString = builder.Configuration.GetConnectionString("lpdb") ??
 
 builder.Services.AddDbContext<ToursDbContext>(options =>
 {
-    options.UseMySQL(connectionString);
+    options.UseMySQL(connectionString, dbContextBuilder => dbContextBuilder.MigrationsAssembly(typeof(ToursDbContext).Assembly.FullName));
 });
 builder.Services.AddScoped<ICountryRepository, SqlCountryRepository>();
 builder.Services.AddScoped<LocationService>();
