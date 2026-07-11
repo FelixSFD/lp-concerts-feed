@@ -1,5 +1,6 @@
 ﻿using Database.Tours.DataObjects;
 using Database.Tours.Repositories;
+using LPCalendar.DataStructure.Tours.Locations;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
@@ -18,6 +19,48 @@ public class LocationServiceTest
         var logger = Substitute.For<ILogger<LocationService>>();
         _countryRepository = Substitute.For<ICountryRepository>();
         _service = new LocationService(_countryRepository, logger);
+    }
+
+    [Fact]
+    public async Task GetAllCountries()
+    {
+        var countryGer = new CountryDo
+        {
+            IsoCode = "GER",
+            Name = "Germany",
+            NativeName = "Deutschland",
+        };
+        
+        var countryAut = new CountryDo
+        {
+            IsoCode = "AUT",
+            Name = "Austria",
+            NativeName = "Österreich",
+        };
+
+        CountryDo[] mockCountries = [countryGer, countryAut];
+        
+        _countryRepository
+            .Configure()
+            .QueryAsync(Arg.Any<CancellationToken>())
+            .Returns(mockCountries.ToAsyncEnumerable());
+
+        var result = await _service.GetCountriesAsync(CancellationToken.None).ToArrayAsync();
+        Assert.Equal(mockCountries.Length, result.Length);
+    }
+    
+    [Fact]
+    public async Task GetAllCountries_Empty()
+    {
+        CountryDo[] mockCountries = [];
+        
+        _countryRepository
+            .Configure()
+            .QueryAsync(Arg.Any<CancellationToken>())
+            .Returns(mockCountries.ToAsyncEnumerable());
+
+        var result = await _service.GetCountriesAsync(CancellationToken.None).ToArrayAsync();
+        Assert.Empty(result);
     }
     
     [Theory]

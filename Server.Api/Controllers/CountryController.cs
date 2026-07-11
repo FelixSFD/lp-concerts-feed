@@ -9,9 +9,14 @@ namespace Server.Api.Controllers;
 public class CountryController(LocationService locationService, ILogger<CountryController> logger) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<CountryDto>> GetCountries()
+    public async Task<ActionResult<CountryDto>> GetCountries(CancellationToken cancellationToken)
     {
-        throw new NotImplementedException("Not implemented yet!");
+        logger.LogDebug("Getting all countries");
+        var countries = await locationService
+            .GetCountriesAsync(cancellationToken)
+            .ToArrayAsync(cancellationToken);
+        logger.LogDebug("Found {countries} countries", countries.Length);
+        return Ok(countries);
     }
     
     [HttpGet("{countryCode}")]

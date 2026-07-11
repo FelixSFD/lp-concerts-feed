@@ -8,6 +8,19 @@ namespace Service.Tours;
 public class LocationService(ICountryRepository countryRepository, ILogger<LocationService> logger)
 {
     /// <summary>
+    /// Returns a list of countries
+    /// </summary>
+    /// <param name="cancellationToken">token to cancel the query</param>
+    /// <returns>async enumerable of the countries that were found</returns>
+    public IAsyncEnumerable<CountryDto> GetCountriesAsync(CancellationToken cancellationToken)
+    {
+        logger.LogDebug("Requesting list of countries...");
+        return countryRepository
+            .QueryAsync(cancellationToken)
+            .Select(DtoMapper.ToDto);
+    }
+    
+    /// <summary>
     /// Returns a country for the given ISO-code
     /// </summary>
     /// <param name="isoCode"></param>
