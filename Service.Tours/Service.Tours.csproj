@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Database.Tours\Database.Tours.csproj" />
+      <ProjectReference Include="..\DataStructure\DataStructure.csproj" />
     </ItemGroup>
 
 </Project>

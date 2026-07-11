@@ -1,5 +1,5 @@
-using Database.Tours.DataObjects;
 using Database.Tours.Repositories;
+using LPCalendar.DataStructure.Tours.Locations;
 using Microsoft.Extensions.Logging;
 using Service.Tours.Exceptions;
 
@@ -12,8 +12,8 @@ public class LocationService(ICountryRepository countryRepository, ILogger<Locat
     /// </summary>
     /// <param name="isoCode"></param>
     /// <returns></returns>
-    /// <exception cref="CountryNotFoundException"></exception>
-    public async Task<CountryDo> GetCountry(string isoCode)
+    /// <exception cref="CountryNotFoundException">if the country does not exist</exception>
+    public async Task<CountryDto> GetCountry(string isoCode)
     {
         logger.LogDebug("Fetching country with ISO-code: {isoCode}", isoCode);
         var country = await countryRepository.GetByPrimaryKeyAsync(isoCode);
@@ -24,6 +24,6 @@ public class LocationService(ICountryRepository countryRepository, ILogger<Locat
         }
         
         logger.LogDebug("Country '{countryName}' ({isoCode}) found.", country.Name, isoCode);
-        return country;
+        return country.ToDto();
     }
 }

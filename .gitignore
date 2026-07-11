@@ -6,3 +6,6 @@ riderModule.iml
 
 # ignore lambda output
 lambda_packages
+
+# ignore appsettings
+appsettings.*.json
