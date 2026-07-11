@@ -4,3 +4,61 @@
   width: 100%;
   height: 600px;
 }
+
+/* ── Concert details hero ── */
+.hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.hero-main {
+  min-width: 220px;
+}
+
+.eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--p-primary-color);
+}
+
+.hero-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--p-text-color);
+}
+
+.hero-meta {
+  margin: 0.45rem 0 0;
+  font-size: 0.85rem;
+  color: var(--p-surface-500);
+}
+
+.hero-meta .pi {
+  font-size: 0.8rem;
+  margin-right: 0.15rem;
+}
+
+.hero-badges:not(:empty) {
+  margin-top: 0.75rem;
+}
+
+.hero-countdown {
+  flex-shrink: 0;
+}
+
+.hero-ended {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  color: var(--p-surface-500);
+}

@@ -85,21 +85,35 @@
     <h2>Loading concert details...</h2>
   </div>
 } @else {
-  <h3>{{ getDateTimeInTimezone(concert$?.postedStartTime!, concert$?.timeZoneId!).toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY) }}</h3>
-  <h1>
-    {{ ConcertTitleGenerator.getTitleFor(concert$!) }}
-  </h1>
-  <div style="margin-bottom: 10px">
-    <app-concert-badges [concert]="concert$"></app-concert-badges>
-  </div>
+  <p-card class="hero-card">
+    <div class="hero">
+      <div class="hero-main">
+        @if (concert$?.tourName) {
+          <p class="eyebrow">{{ concert$?.tourName }}</p>
+        }
+        <h1 class="hero-title">{{ ConcertTitleGenerator.getTitleFor(concert$!) }}</h1>
+        <p class="hero-meta">
+          <i class="pi pi-map-marker"></i>
+          {{ concert$?.venue }} · {{ concert$?.city }}{{ (concert$?.state?.length ?? 0) > 0 ? ", " + concert$?.state : "" }}, {{ concert$?.country }}
+          · {{ getDateTimeInTimezone(concert$?.postedStartTime!, concert$?.timeZoneId!).toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY) }}
+        </p>
+        <div class="hero-badges">
+          <app-concert-badges [concert]="concert$"></app-concert-badges>
+        </div>
+      </div>
 
-  <p>
-    <b>{{ concert$?.venue }}</b>
-    <br />
-    <i>{{ concert$?.city }}{{ (concert$?.state?.length ?? 0) > 0 ? ", " + concert$?.state : ""}}, {{ concert$?.country }}</i>
-    <br />
-    {{ concert$?.showType }}
-  </p>
+      @if (!concert$?.isPast) {
+        <div class="hero-countdown">
+          <app-countdown [countdownToDate]="concert$?.mainStageTime ?? concert$?.postedStartTime!" [concertId]="concert$?.id" />
+        </div>
+      } @else {
+        <div class="hero-ended">
+          <i class="pi pi-check-circle"></i>
+          <span>This show has ended</span>
+        </div>
+      }
+    </div>
+  </p-card>
 
   <div class="grid mt-3">
     @if (setlists$?.length ?? 0 > 0) {
@@ -171,22 +185,6 @@
         <ng-container
           *ngTemplateOutlet="timeCard; context: { cardTitle: 'Venue start time',
            timeString: getDateTimeInTimezone(concert$?.postedStartTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE) }" />
-      </div>
-    }
-
-    @if (!concert$?.isPast) {
-      <div class="col-12 sm:col-12 md:col-12 lg:col-6 xl:col-3">
-        <p-card>
-          <ng-template #header>
-            <div class="pl-3 py-2 border-round-top surface-300">
-              <span>Countdown <s>from</s>to zero</span>
-            </div>
-          </ng-template>
-
-          <div class="w-full justify-content-center flex">
-            <app-countdown [countdownToDate]="concert$?.mainStageTime ?? concert$?.postedStartTime!" [concertId]="concert$?.id" />
-          </div>
-        </p-card>
       </div>
     }
 
