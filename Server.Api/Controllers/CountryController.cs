@@ -8,6 +8,25 @@ namespace Server.Api.Controllers;
 [Route("v3/countries")]
 public class CountryController(LocationService locationService, ILogger<CountryController> logger) : ControllerBase
 {
+    /// <summary>
+    /// Creates a new country
+    /// </summary>
+    /// <param name="request">Data of the new country</param>
+    /// <returns></returns>
+    [HttpPost]
+    public async Task<CreatedAtActionResult> CreateCountry([FromBody] CreateCountryRequestDto request)
+    {
+        logger.LogDebug("Requested to create country: {name}", request.Name);
+        var isoCode = await locationService.CreateCountry(request);
+        logger.LogDebug("Successfully created country: {isoCode}", isoCode);
+        return CreatedAtAction("GetCountryByIsoCode", new { countryCode = isoCode }, isoCode);
+    }
+    
+    /// <summary>
+    /// Returns a list of all countries
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet]
     public async Task<ActionResult<CountryDto>> GetCountries(CancellationToken cancellationToken)
     {
@@ -19,6 +38,11 @@ public class CountryController(LocationService locationService, ILogger<CountryC
         return Ok(countries);
     }
     
+    /// <summary>
+    /// Returns a country by its ISO code
+    /// </summary>
+    /// <param name="countryCode">3-letter ISO-code of the country</param>
+    /// <returns></returns>
     [HttpGet("{countryCode}")]
     public async Task<ActionResult<CountryDto>> GetCountryByIsoCode(string countryCode)
     {

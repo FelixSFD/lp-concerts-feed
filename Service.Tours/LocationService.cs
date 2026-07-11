@@ -8,6 +8,22 @@ namespace Service.Tours;
 public class LocationService(ICountryRepository countryRepository, ILogger<LocationService> logger)
 {
     /// <summary>
+    /// Creates a new country and saves the DB-context
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns>ISO code of the created country</returns>
+    public async Task<string> CreateCountry(CreateCountryRequestDto request)
+    {
+        logger.LogDebug("Creating country with ISO-code: {isoCode}", request.IsoCode);
+        var newCountry = request.ToDto();
+        logger.LogDebug("Mapped request to the new data object");
+        countryRepository.Add(newCountry);
+        await countryRepository.SaveChangesAsync();
+        logger.LogDebug("Successfully created country with ISO-code: {isoCode}", newCountry.IsoCode);
+        return newCountry.IsoCode;
+    }
+    
+    /// <summary>
     /// Returns a list of countries
     /// </summary>
     /// <param name="cancellationToken">token to cancel the query</param>

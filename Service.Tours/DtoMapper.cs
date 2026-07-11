@@ -19,4 +19,34 @@ internal static class DtoMapper
             NativeName = dataObject.NativeName,
         };
     }
+    
+    /// <summary>
+    /// Converts a <see cref="CountryDto"/> to the <see cref="CountryDo"/>
+    /// </summary>
+    /// <param name="dto">DTO to convert to the DataObject</param>
+    /// <returns>the mapped DTO</returns>
+    public static CountryDo ToDto(this CountryDto dto)
+    {
+        return new CountryDo
+        {
+            IsoCode = dto.IsoCode,
+            Name = dto.Name,
+            NativeName = dto.NativeName,
+        };
+    }
+    
+    /// <summary>
+    /// Converts a <see cref="CreateCountryRequestDto"/> to the <see cref="CountryDo"/>
+    /// </summary>
+    /// <param name="dto">DTO to convert to the DataObject</param>
+    /// <returns>the mapped DTO</returns>
+    public static CountryDo ToDto(this CreateCountryRequestDto dto)
+    {
+        return new CountryDo
+        {
+            IsoCode = dto.IsoCode,
+            Name = dto.Name,
+            NativeName = dto.NativeName,
+        };
+    }
 }

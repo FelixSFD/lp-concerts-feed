@@ -21,6 +21,29 @@ public class LocationServiceTest
         _service = new LocationService(_countryRepository, logger);
     }
 
+    [Theory]
+    [InlineData("GER", "Germany", "Deutschland")]
+    [InlineData("AUT", "Austria", "Österreich")]
+    public async Task CreateCountry(string isoCode, string name, string nativeName)
+    {
+        var request = new CreateCountryRequestDto
+        {
+            IsoCode = isoCode,
+            Name = name,
+            NativeName = nativeName,
+        };
+        
+        // call the service
+        var resultIsoCode = await _service.CreateCountry(request);
+        
+        Assert.Equal(isoCode, resultIsoCode);
+        
+        // verify mock calls
+        _countryRepository
+            .Received(1)
+            .Add(Arg.Is<CountryDo>(c => c.IsoCode == isoCode && c.Name == name && c.NativeName == nativeName));
+    }
+
     [Fact]
     public async Task GetAllCountries()
     {
