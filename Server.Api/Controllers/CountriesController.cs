@@ -6,7 +6,7 @@ namespace Server.Api.Controllers;
 
 [ApiController]
 [Route("v3/countries")]
-public class CountryController(LocationService locationService, ILogger<CountryController> logger) : ControllerBase
+public class CountriesController(LocationService locationService, ILogger<CountriesController> logger) : ControllerBase
 {
     /// <summary>
     /// Creates a new country
