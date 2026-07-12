@@ -55,4 +55,24 @@ public class LocationService(ICountryRepository countryRepository, ILogger<Locat
         logger.LogDebug("Country '{countryName}' ({isoCode}) found.", country.Name, isoCode);
         return country.ToDto();
     }
+    
+    /// <summary>
+    /// Deletes a country with a given ISO code
+    /// </summary>
+    /// <param name="isoCode"></param>
+    /// <exception cref="CountryNotFoundException"></exception>
+    public async Task DeleteCountryAsync(string isoCode)
+    {
+        logger.LogInformation("Deleting country with ISO-code: {isoCode}", isoCode);
+        var country = await countryRepository.GetByPrimaryKeyAsync(isoCode);
+        if (country == null)
+        {
+            logger.LogWarning("Country '{isoCode}' not found!", isoCode);
+            throw new CountryNotFoundException(isoCode);
+        }
+        
+        countryRepository.Delete(country);
+        await countryRepository.SaveChangesAsync();
+        logger.LogInformation("Country '{countryName}' ({isoCode}) was deleted successfully!", country.Name, isoCode);
+    }
 }

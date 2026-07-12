@@ -138,4 +138,55 @@ public class LocationServiceTest
             .Received(1)
             .GetByPrimaryKeyAsync(Arg.Is("AAA"));
     }
+
+    [Fact]
+    public async Task DeleteCountry_ExistingCountry()
+    {
+        var countryGer = new CountryDo
+        {
+            IsoCode = "GER",
+            Name = "Germany",
+            NativeName = "Deutschland",
+        };
+        
+        // setup mocks
+        _countryRepository
+            .Configure()
+            .GetByPrimaryKeyAsync(countryGer.IsoCode)
+            .Returns(countryGer);
+        
+        // call the service
+        await _service.DeleteCountryAsync(countryGer.IsoCode);
+        
+        // verify mock calls
+        await _countryRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(Arg.Is(countryGer.IsoCode));
+        _countryRepository
+            .Received(1)
+            .Delete(Arg.Is<CountryDo>(c => c.IsoCode == countryGer.IsoCode));
+    }
+    
+    [Fact]
+    public async Task DeleteCountry_CountryNotFound()
+    {
+        // setup mocks
+        _countryRepository
+            .Configure()
+            .GetByPrimaryKeyAsync("AAA")
+            .ThrowsAsync(new CountryNotFoundException("AAA"));
+        
+        // call the service
+        var exception = await Assert.ThrowsAsync<CountryNotFoundException>(async () => await _service.DeleteCountryAsync("AAA"));
+        Assert.NotNull(exception);
+        Assert.Equal("AAA", exception.CountryCode);
+        
+        // verify mock calls
+        await _countryRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(Arg.Is("AAA"));
+        _countryRepository
+            .DidNotReceive()
+            .Delete(Arg.Any<CountryDo>());
+    }
 }
