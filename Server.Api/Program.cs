@@ -27,6 +27,7 @@ builder.Services.AddDbContext<ToursDbContext>(options =>
     options.UseMySQL(connectionString, dbContextBuilder => dbContextBuilder.MigrationsAssembly(typeof(ToursDbContext).Assembly.FullName));
 });
 builder.Services.AddScoped<ICountryRepository, SqlCountryRepository>();
+builder.Services.AddScoped<IStateRepository, SqlStateRepository>();
 builder.Services.AddScoped<LocationService>();
 
 builder.Services.AddControllers();

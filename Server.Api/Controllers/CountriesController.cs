@@ -8,6 +8,8 @@ namespace Server.Api.Controllers;
 [Route("v3/countries")]
 public class CountriesController(LocationService locationService, ILogger<CountriesController> logger) : ControllerBase
 {
+    #region Countries
+
     /// <summary>
     /// Creates a new country
     /// </summary>
@@ -65,4 +67,25 @@ public class CountriesController(LocationService locationService, ILogger<Countr
         logger.LogDebug("Successfully deleted country: {isoCode}", countryCode);
         return NoContent();
     }
+    
+    #endregion
+
+    #region States
+
+    /// <summary>
+    /// Creates a new state in a country
+    /// </summary>
+    /// <param name="countryCode">ISO code of the country where this state is located in</param>
+    /// <param name="request">Data of the new country</param>
+    /// <returns></returns>
+    [HttpPost("{countryCode}/states")]
+    public async Task<CreatedAtActionResult> CreateState([FromRoute(Name = "countryCode")] string countryCode, [FromBody] CreateStateRequestDto request)
+    {
+        logger.LogDebug("Requested to create state: {name}", request.Name);
+        var stateWithCountryDto = await locationService.CreateState(request, countryCode);
+        logger.LogDebug("Successfully created state: {isoCode}", stateWithCountryDto.Name);
+        return CreatedAtAction("GetCountryByIsoCode", new { countryCode = stateWithCountryDto.CountryCode }, stateWithCountryDto); // TODO: correct action
+    }
+
+    #endregion
 }

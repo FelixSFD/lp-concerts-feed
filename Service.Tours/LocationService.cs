@@ -5,8 +5,10 @@ using Service.Tours.Exceptions;
 
 namespace Service.Tours;
 
-public class LocationService(ICountryRepository countryRepository, ILogger<LocationService> logger)
+public class LocationService(ICountryRepository countryRepository, IStateRepository stateRepository, ILogger<LocationService> logger)
 {
+    #region Countries
+    
     /// <summary>
     /// Creates a new country and saves the DB-context
     /// </summary>
@@ -15,7 +17,7 @@ public class LocationService(ICountryRepository countryRepository, ILogger<Locat
     public async Task<string> CreateCountry(CreateCountryRequestDto request)
     {
         logger.LogDebug("Creating country with ISO-code: {isoCode}", request.IsoCode);
-        var newCountry = request.ToDto();
+        var newCountry = request.ToDo();
         logger.LogDebug("Mapped request to the new data object");
         countryRepository.Add(newCountry);
         await countryRepository.SaveChangesAsync();
@@ -75,4 +77,39 @@ public class LocationService(ICountryRepository countryRepository, ILogger<Locat
         await countryRepository.SaveChangesAsync();
         logger.LogInformation("Country '{countryName}' ({isoCode}) was deleted successfully!", country.Name, isoCode);
     }
+    
+    #endregion
+    
+    #region States
+
+    /// <summary>
+    /// Creates a new state in a country and saves the DB-context
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="countryCode">ISO code of the country where the state is located in</param>
+    /// <returns>the created state</returns>
+    public async Task<StateWithCountryDto> CreateState(CreateStateRequestDto request, string countryCode)
+    {
+        logger.LogDebug("Creating state '{stateName}' in country '{isoCode}'", request.Name, countryCode);
+        
+        logger.LogDebug("Checking if country actually exists in the database...");
+        var country = await countryRepository.GetByPrimaryKeyAsync(countryCode);
+        if (country == null)
+        {
+            logger.LogError("Country '{isoCode}' not found while creating a new state!", countryCode);
+            throw new CountryNotFoundException(countryCode);
+        }
+        logger.LogDebug("Country exists in the database.");
+        
+        var newState = request.ToDo(country.IsoCode);
+        newState.CountryCode = countryCode;
+        logger.LogDebug("Mapped request to the new data object");
+        stateRepository.Add(newState);
+        await stateRepository.SaveChangesAsync();
+        logger.LogDebug("Successfully created state");
+        newState = await stateRepository.GetByPrimaryKeyAsync(countryCode, request.Code);
+        return newState?.ToDtoWithCountry() ?? throw new Exception("Creating state was successful but the created entry could not be found in the database! This shouldn't happen.");
+    }
+
+    #endregion
 }

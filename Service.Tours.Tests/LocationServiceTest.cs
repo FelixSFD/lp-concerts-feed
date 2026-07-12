@@ -12,13 +12,15 @@ namespace Service.Tours.Tests;
 public class LocationServiceTest
 {
     private readonly ICountryRepository _countryRepository;
+    private readonly IStateRepository _stateRepository;
     private readonly LocationService _service;
 
     public LocationServiceTest()
     {
         var logger = Substitute.For<ILogger<LocationService>>();
         _countryRepository = Substitute.For<ICountryRepository>();
-        _service = new LocationService(_countryRepository, logger);
+        _stateRepository = Substitute.For<IStateRepository>();
+        _service = new LocationService(_countryRepository, _stateRepository, logger);
     }
 
     [Theory]
@@ -42,6 +44,9 @@ public class LocationServiceTest
         _countryRepository
             .Received(1)
             .Add(Arg.Is<CountryDo>(c => c.IsoCode == isoCode && c.Name == name && c.NativeName == nativeName));
+        await _countryRepository
+            .Received(1)
+            .SaveChangesAsync();
     }
 
     [Fact]
@@ -165,6 +170,9 @@ public class LocationServiceTest
         _countryRepository
             .Received(1)
             .Delete(Arg.Is<CountryDo>(c => c.IsoCode == countryGer.IsoCode));
+        await _countryRepository
+            .Received(1)
+            .SaveChangesAsync();
     }
     
     [Fact]
@@ -188,5 +196,61 @@ public class LocationServiceTest
         _countryRepository
             .DidNotReceive()
             .Delete(Arg.Any<CountryDo>());
+        await _countryRepository
+            .DidNotReceive()
+            .SaveChangesAsync();
+    }
+    
+    [Theory]
+    [InlineData("GER", "BY", "Bavaria", "Bayern")]
+    [InlineData("GER", "BW", "Baden-Württemberg", "Baden-Württemberg")]
+    public async Task CreateState(string countryCode, string stateCode, string name, string nativeName)
+    {
+        var countryGer = new CountryDo
+        {
+            IsoCode = "GER",
+            Name = "Germany",
+            NativeName = "Deutschland",
+        };
+
+        var mockState = new StateDo
+        {
+            CountryCode = countryCode,
+            Code = stateCode,
+            Name = name,
+            NativeName = nativeName,
+            Country = countryGer
+        };
+        
+        var request = new CreateStateRequestDto
+        {
+            Code = stateCode,
+            Name = name,
+            NativeName = nativeName,
+        };
+        
+        // setup mocks
+        _stateRepository
+            .GetByPrimaryKeyAsync(Arg.Is(countryCode), Arg.Is(stateCode))
+            .Returns(mockState);
+        
+        // call the service
+        var resultStateDto = await _service.CreateState(request, countryCode);
+        Assert.NotNull(resultStateDto);
+        Assert.Equal(countryCode, resultStateDto.CountryCode);
+        Assert.Equal(stateCode, resultStateDto.Code);
+        Assert.Equal(name, resultStateDto.Name);
+        Assert.Equal(nativeName, resultStateDto.NativeName);
+        
+        // verify mock calls
+        await _stateRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(Arg.Is(countryCode), Arg.Is(stateCode));
+        _stateRepository
+            .Received(1)
+            .Add(Arg.Is<StateDo>(c => c.CountryCode == countryCode && c.Name == name && c.NativeName == nativeName && c.Code == stateCode));
+        await _stateRepository
+            .Received(1)
+            .SaveChangesAsync();
     }
 }
