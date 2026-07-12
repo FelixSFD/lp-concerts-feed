@@ -131,6 +131,21 @@ public class LocationService(ICountryRepository countryRepository, IStateReposit
         logger.LogDebug("State '{stateName}' ({stateCode}) found.", state.Name, stateCode);
         return state.ToDtoWithCountry();
     }
+    
+    /// <summary>
+    /// Returns a list of all states in a country
+    /// </summary>
+    /// <param name="countryCode">ISO code of the country</param>
+    /// <param name="cancellationToken">token to cancel the query</param>
+    /// <returns>async enumerable of the countries that were found</returns>
+    public IAsyncEnumerable<StateDto> GetStatesInCountryAsync(string countryCode, CancellationToken cancellationToken)
+    {
+        logger.LogDebug("Requesting list of states in '{countryCode}'...", countryCode);
+        return stateRepository
+            .QueryAsync(cancellationToken)
+            .Where(s => s.CountryCode == countryCode)
+            .Select(DtoMapper.ToDto);
+    }
 
     #endregion
 }

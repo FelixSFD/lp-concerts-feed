@@ -101,6 +101,23 @@ public class CountriesController(LocationService locationService, ILogger<Countr
         logger.LogDebug("Found the state: {stateName} (Country: {countryName})", stateWithCountry.Name, stateWithCountry.Country.Name);
         return Ok(stateWithCountry);
     }
+    
+    /// <summary>
+    /// Returns a list of all states in a country
+    /// </summary>
+    /// <param name="countryCode">3-letter ISO-code of the country</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("{countryCode}/states")]
+    public async Task<ActionResult<StateWithCountryDto>> GetCountries(string countryCode, CancellationToken cancellationToken)
+    {
+        logger.LogDebug("Getting all states in '{countryCode}'", countryCode);
+        var states = await locationService
+            .GetStatesInCountryAsync(countryCode, cancellationToken)
+            .ToArrayAsync(cancellationToken);
+        logger.LogDebug("Found {states} states", states.Length);
+        return Ok(states);
+    }
 
     #endregion
 }

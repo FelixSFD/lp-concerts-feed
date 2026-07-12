@@ -68,7 +68,7 @@ internal static class DtoMapper
     }
     
     /// <summary>
-    /// Converts a <see cref="CreateStateRequestDto"/> to the <see cref="StateDo"/>
+    /// Converts a <see cref="StateDo"/> to the <see cref="StateWithCountryDto"/>
     /// </summary>
     /// <param name="dataObject">DataObject to convert to the DTO</param>
     /// <returns>the mapped DTO</returns>
@@ -81,6 +81,22 @@ internal static class DtoMapper
             Name = dataObject.Name,
             NativeName = dataObject.NativeName,
             Country = dataObject.Country.ToDto()
+        };
+    }
+    
+    /// <summary>
+    /// Converts a <see cref="StateDo"/> to the <see cref="StateDto"/>
+    /// </summary>
+    /// <param name="dataObject">DataObject to convert to the DTO</param>
+    /// <returns>the mapped DTO</returns>
+    public static StateDto ToDto(this StateDo dataObject)
+    {
+        return new StateDto
+        {
+            CountryCode = dataObject.CountryCode,
+            Code = dataObject.Code,
+            Name = dataObject.Name,
+            NativeName = dataObject.NativeName,
         };
     }
 }

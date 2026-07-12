@@ -323,4 +323,82 @@ public class LocationServiceTest
             .Received(1)
             .GetByPrimaryKeyAsync("AAA", "BB");
     }
+    
+    [Fact]
+    public async Task GetAllStatesInCountry()
+    {
+        var countryGer = new CountryDo
+        {
+            IsoCode = "GER",
+            Name = "Germany",
+            NativeName = "Deutschland",
+        };
+
+        var stateBy = new StateDo
+        {
+            CountryCode = countryGer.IsoCode,
+            Code = "BY",
+            Name = "Bavaria",
+            NativeName = "Bayern",
+        };
+        
+        var stateBw = new StateDo
+        {
+            CountryCode = countryGer.IsoCode,
+            Code = "BW",
+            Name = "Baden-Württemberg",
+            NativeName = "nähe Stuttgart",
+        };
+        
+        var stateOtherCountry = new StateDo
+        {
+            CountryCode = "SUI",
+            Code = "ZH",
+            Name = "Zürich",
+            NativeName = "Zürich",
+        };
+
+        StateDo[] mockStates = [stateBy, stateBw, stateOtherCountry];
+        
+        _stateRepository
+            .Configure()
+            .QueryAsync(Arg.Any<CancellationToken>())
+            .Returns(mockStates.ToAsyncEnumerable());
+
+        var result = await _service
+            .GetStatesInCountryAsync(countryGer.IsoCode, CancellationToken.None)
+            .ToArrayAsync();
+        Assert.Equal(2, result.Length);
+    }
+    
+    [Fact]
+    public async Task GetAllStatesInCountry_Empty()
+    {
+        var countryGer = new CountryDo
+        {
+            IsoCode = "GER",
+            Name = "Germany",
+            NativeName = "Deutschland",
+        };
+        
+        var stateOtherCountry = new StateDo
+        {
+            CountryCode = "SUI",
+            Code = "ZH",
+            Name = "Zürich",
+            NativeName = "Zürich",
+        };
+
+        StateDo[] mockStates = [stateOtherCountry];
+        
+        _stateRepository
+            .Configure()
+            .QueryAsync(Arg.Any<CancellationToken>())
+            .Returns(mockStates.ToAsyncEnumerable());
+
+        var result = await _service
+            .GetStatesInCountryAsync(countryGer.IsoCode, CancellationToken.None)
+            .ToArrayAsync();
+        Assert.Empty(result);
+    }
 }
