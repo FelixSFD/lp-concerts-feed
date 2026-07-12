@@ -3,7 +3,6 @@ using Database.Tours.Repositories;
 using LPCalendar.DataStructure.Tours.Locations;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 using NSubstitute.Extensions;
 using Service.Tours.Exceptions;
 
@@ -131,7 +130,7 @@ public class LocationServiceTest
         _countryRepository
             .Configure()
             .GetByPrimaryKeyAsync("AAA")
-            .ThrowsAsync(new CountryNotFoundException("AAA"));
+            .Returns(Task.FromResult<CountryDo?>(null));
 
         // Call the service
         var exception = await Assert.ThrowsAsync<CountryNotFoundException>(async () => await _service.GetCountry("AAA"));
@@ -182,7 +181,7 @@ public class LocationServiceTest
         _countryRepository
             .Configure()
             .GetByPrimaryKeyAsync("AAA")
-            .ThrowsAsync(new CountryNotFoundException("AAA"));
+            .Returns(Task.FromResult<CountryDo?>(null));
         
         // call the service
         var exception = await Assert.ThrowsAsync<CountryNotFoundException>(async () => await _service.DeleteCountryAsync("AAA"));
@@ -228,8 +227,11 @@ public class LocationServiceTest
             Name = name,
             NativeName = nativeName,
         };
-        
+
         // setup mocks
+        _countryRepository
+            .GetByPrimaryKeyAsync(Arg.Is(countryCode))
+            .Returns(countryGer);
         _stateRepository
             .GetByPrimaryKeyAsync(Arg.Is(countryCode), Arg.Is(stateCode))
             .Returns(mockState);
@@ -252,5 +254,73 @@ public class LocationServiceTest
         await _stateRepository
             .Received(1)
             .SaveChangesAsync();
+    }
+    
+    [Theory]
+    [InlineData("GER", "Germany", "Deutschland", "BY", "Bavaria", "Bayern")]
+    [InlineData("GER", "Germany", "Deutschland", "BW", "Baden-Württemberg", "Nähe Stuttgart")]
+    [InlineData("AUT", "Austria", "Österreich", "TT", "Test", "Testing")]
+    public async Task GetState_ByCode(string countryCode, string mockCountryName, string mockCountryNativeName, string stateCode, string mockStateName, string mockStateNativeName)
+    {
+        var mockCountry = new CountryDo
+        {
+            IsoCode = countryCode,
+            Name = mockCountryName,
+            NativeName = mockCountryNativeName,
+        };
+        
+        var mockState = new StateDo
+        {
+            CountryCode = countryCode,
+            Code = stateCode,
+            Name = mockStateName,
+            NativeName = mockStateNativeName,
+            Country = mockCountry
+        };
+
+        // setup mocks
+        _stateRepository
+            .Configure()
+            .GetByPrimaryKeyAsync(Arg.Is(countryCode), Arg.Is(stateCode))
+            .Returns(mockState);
+
+        // Call the service
+        var stateWithCountry = await _service.GetStateInCountryAsync(countryCode, stateCode);
+        
+        // verify result
+        Assert.NotNull(stateWithCountry);
+        Assert.Equal(mockState.Name, stateWithCountry.Name);
+        Assert.Equal(mockState.NativeName, stateWithCountry.NativeName);
+        Assert.Equal(mockState.CountryCode, stateWithCountry.CountryCode);
+        Assert.Equal(mockState.Code, stateWithCountry.Code);
+        Assert.Equal(mockCountry.IsoCode, stateWithCountry.Country.IsoCode);
+        Assert.Equal(mockCountry.Name, stateWithCountry.Country.Name);
+        Assert.Equal(mockCountry.NativeName, stateWithCountry.Country.NativeName);
+        
+        // verify mock calls
+        await _stateRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(Arg.Is(countryCode), Arg.Is(stateCode));
+    }
+    
+    [Fact]
+    public async Task GetState_NotFound()
+    {
+        // setup mocks
+        _stateRepository
+            .Configure()
+            .GetByPrimaryKeyAsync("AAA", "BB")
+            .Returns(Task.FromResult<StateDo?>(null));
+
+        // Call the service
+        var exception = await Assert.ThrowsAsync<StateNotFoundException>(async () => await _service.GetStateInCountryAsync("AAA", "BB"));
+        Assert.NotNull(exception);
+        Assert.Equal("AAA", exception.CountryCode);
+        Assert.Equal("BB", exception.StateCode);
+        
+        // verify mock calls
+        await _stateRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync("AAA", "BB");
     }
 }

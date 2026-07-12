@@ -110,6 +110,27 @@ public class LocationService(ICountryRepository countryRepository, IStateReposit
         newState = await stateRepository.GetByPrimaryKeyAsync(countryCode, request.Code);
         return newState?.ToDtoWithCountry() ?? throw new Exception("Creating state was successful but the created entry could not be found in the database! This shouldn't happen.");
     }
+    
+    /// <summary>
+    /// Returns a state for the given code in a country
+    /// </summary>
+    /// <param name="countryCode">ISO code of the country</param>
+    /// <param name="stateCode">code of the state</param>
+    /// <returns></returns>
+    /// <exception cref="StateNotFoundException">if the state does not exist</exception>
+    public async Task<StateWithCountryDto> GetStateInCountryAsync(string countryCode, string stateCode)
+    {
+        logger.LogDebug("Fetching state: {countryCode} - {stateCode}", countryCode, stateCode);
+        var state = await stateRepository.GetByPrimaryKeyAsync(countryCode, stateCode);
+        if (state == null)
+        {
+            logger.LogWarning("State '{countryCode}' not found!", stateCode);
+            throw new StateNotFoundException(countryCode, stateCode);
+        }
+        
+        logger.LogDebug("State '{stateName}' ({stateCode}) found.", state.Name, stateCode);
+        return state.ToDtoWithCountry();
+    }
 
     #endregion
 }

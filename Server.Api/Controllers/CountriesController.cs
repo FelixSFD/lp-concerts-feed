@@ -86,6 +86,21 @@ public class CountriesController(LocationService locationService, ILogger<Countr
         logger.LogDebug("Successfully created state: {isoCode}", stateWithCountryDto.Name);
         return CreatedAtAction("GetCountryByIsoCode", new { countryCode = stateWithCountryDto.CountryCode }, stateWithCountryDto); // TODO: correct action
     }
+    
+    /// <summary>
+    /// Returns a state in a country
+    /// </summary>
+    /// <param name="countryCode">3-letter ISO-code of the country</param>
+    /// <param name="stateCode">Code of the state</param>
+    /// <returns>The state including the information about the country</returns>
+    [HttpGet("{countryCode}/states/{stateCode}")]
+    public async Task<ActionResult<CountryDto>> GetState(string countryCode, string stateCode)
+    {
+        logger.LogDebug("Requested state '{stateCode}' in country '{countryCode}'", stateCode, countryCode);
+        var stateWithCountry = await locationService.GetStateInCountryAsync(countryCode, stateCode);
+        logger.LogDebug("Found the state: {stateName} (Country: {countryName})", stateWithCountry.Name, stateWithCountry.Country.Name);
+        return Ok(stateWithCountry);
+    }
 
     #endregion
 }
