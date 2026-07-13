@@ -146,6 +146,27 @@ public class LocationService(ICountryRepository countryRepository, IStateReposit
             .Where(s => s.CountryCode == countryCode)
             .Select(DtoMapper.ToDto);
     }
+    
+    /// <summary>
+    /// Deletes a state with a given ISO code and state code
+    /// </summary>
+    /// <param name="isoCode">ISO code of the country</param>
+    /// <param name="stateCode">Code of the state within <paramref name="isoCode"/></param>
+    /// <exception cref="StateNotFoundException"></exception>
+    public async Task DeleteStateAsync(string isoCode, string stateCode)
+    {
+        logger.LogInformation("Deleting country with ISO-code: {isoCode}", isoCode);
+        var state = await stateRepository.GetByPrimaryKeyAsync(isoCode, stateCode);
+        if (state == null)
+        {
+            logger.LogWarning("Country '{isoCode}' not found!", isoCode);
+            throw new CountryNotFoundException(isoCode);
+        }
+        
+        stateRepository.Delete(state);
+        await stateRepository.SaveChangesAsync();
+        logger.LogInformation("State '{stateName}' ({isoCode} - {stateCode}) was deleted successfully!", state.Name, state.CountryCode, state.Code);
+    }
 
     #endregion
 }

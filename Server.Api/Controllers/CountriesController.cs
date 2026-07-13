@@ -118,6 +118,21 @@ public class CountriesController(LocationService locationService, ILogger<Countr
         logger.LogDebug("Found {states} states", states.Length);
         return Ok(states);
     }
+    
+    /// <summary>
+    /// Deletes a state
+    /// </summary>
+    /// <param name="countryCode">3-letter ISO-code of the country</param>
+    /// <param name="stateCode">Code of the state</param>
+    /// <returns>no content</returns>
+    [HttpDelete("{countryCode}/states/{stateCode}")]
+    public async Task<NoContentResult> DeleteCountryByIsoCode(string countryCode, string stateCode)
+    {
+        logger.LogDebug("Requested to delete state: {countryCode} - {stateCode}", countryCode, stateCode);
+        await locationService.DeleteStateAsync(countryCode, stateCode);
+        logger.LogDebug("Successfully deleted state: {countryCode} - {stateCode}", countryCode, stateCode);
+        return NoContent();
+    }
 
     #endregion
 }

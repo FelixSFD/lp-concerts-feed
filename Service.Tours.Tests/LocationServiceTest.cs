@@ -401,4 +401,44 @@ public class LocationServiceTest
             .ToArrayAsync();
         Assert.Empty(result);
     }
+    
+    [Fact]
+    public async Task DeleteState_ExistingCountry()
+    {
+        var countryGer = new CountryDo
+        {
+            IsoCode = "GER",
+            Name = "Germany",
+            NativeName = "Deutschland",
+        };
+        
+        var stateBy = new StateDo
+        {
+            CountryCode = countryGer.IsoCode,
+            Code = "BY",
+            Name = "Bavaria",
+            NativeName = "Bayern",
+            Country = countryGer,
+        };
+        
+        // setup mocks
+        _stateRepository
+            .Configure()
+            .GetByPrimaryKeyAsync(countryGer.IsoCode, stateBy.Code)
+            .Returns(stateBy);
+        
+        // call the service
+        await _service.DeleteStateAsync(countryGer.IsoCode, stateBy.Code);
+        
+        // verify mock calls
+        await _stateRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(Arg.Is(countryGer.IsoCode), Arg.Is(stateBy.Code));
+        _stateRepository
+            .Received(1)
+            .Delete(Arg.Is<StateDo>(c => c.CountryCode == countryGer.IsoCode && c.Code == stateBy.Code));
+        await _stateRepository
+            .Received(1)
+            .SaveChangesAsync();
+    }
 }
