@@ -84,7 +84,7 @@ public class CountriesController(LocationService locationService, ILogger<Countr
         logger.LogDebug("Requested to create state: {name}", request.Name);
         var stateWithCountryDto = await locationService.CreateState(request, countryCode);
         logger.LogDebug("Successfully created state: {isoCode}", stateWithCountryDto.Name);
-        return CreatedAtAction("GetCountryByIsoCode", new { countryCode = stateWithCountryDto.CountryCode }, stateWithCountryDto); // TODO: correct action
+        return CreatedAtAction("GetState", new { countryCode = stateWithCountryDto.CountryCode, stateCode = stateWithCountryDto.Code }, stateWithCountryDto);
     }
     
     /// <summary>
@@ -109,7 +109,7 @@ public class CountriesController(LocationService locationService, ILogger<Countr
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpGet("{countryCode}/states")]
-    public async Task<ActionResult<StateWithCountryDto>> GetCountries(string countryCode, CancellationToken cancellationToken)
+    public async Task<ActionResult<StateWithCountryDto>> GetStatesInCountry(string countryCode, CancellationToken cancellationToken)
     {
         logger.LogDebug("Getting all states in '{countryCode}'", countryCode);
         var states = await locationService
