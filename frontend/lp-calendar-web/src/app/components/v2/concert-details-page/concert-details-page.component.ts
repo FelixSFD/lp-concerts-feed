@@ -450,6 +450,18 @@ export class ConcertDetailsPageComponent implements OnInit {
     return DateTime.fromISO(inputDate, {zone: timeZoneId});
   }
 
+  public zoneCityLabel(timeZoneId: string | null | undefined): string {
+    if (!timeZoneId) {
+      return "";
+    }
+    const parts = timeZoneId.split("/");
+    return parts[parts.length - 1].replace(/_/g, " ");
+  }
+
+  public localZoneCityLabel(): string {
+    return this.zoneCityLabel(DateTime.local().zoneName);
+  }
+
   protected readonly ConcertTitleGenerator = ConcertTitleGenerator;
   protected readonly DateTime = DateTime;
   protected readonly String = String;

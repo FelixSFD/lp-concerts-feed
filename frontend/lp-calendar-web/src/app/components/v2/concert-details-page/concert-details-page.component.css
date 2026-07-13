@@ -5,7 +5,7 @@
   height: 600px;
 }
 
-/* ── Concert details hero ── */
+/* Concert details hero */
 .hero {
   display: flex;
   justify-content: space-between;
@@ -61,4 +61,109 @@
   font-size: 0.9rem;
   white-space: nowrap;
   color: var(--p-surface-500);
+}
+
+/* Concert details timeline */
+.timeline {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 1.25rem 0.5rem 0.5rem;
+}
+
+.timeline-step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  text-align: center;
+}
+
+.timeline-arrow {
+  flex: 0 0 auto;
+  margin-top: 1.05rem;
+  font-size: 0.85rem;
+  color: var(--p-surface-300);
+}
+
+.timeline-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-bottom: 0.65rem;
+  border-radius: 50%;
+  border: 1.5px solid var(--p-primary-300);
+  background: color-mix(in srgb, var(--p-primary-color) 8%, transparent);
+  color: var(--p-primary-color);
+  font-size: 1.1rem;
+}
+
+.timeline-time {
+  font-size: 1.05rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--p-text-color);
+}
+
+.timeline-yours {
+  font-size: 0.75rem;
+  color: var(--p-primary-color);
+}
+
+.timeline-label {
+  margin-top: 0.25rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.01em;
+  color: var(--p-surface-500);
+}
+
+.timeline-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.78rem;
+}
+
+.timeline-legend-venue {
+  font-weight: 500;
+  color: var(--p-text-color);
+}
+
+.timeline-legend-zone {
+  margin-left: 0.3rem;
+  color: var(--p-surface-400);
+}
+
+.timeline-legend-yours {
+  color: var(--p-primary-color);
+}
+
+/* Past show: muted look */
+.timeline--past {
+  opacity: 0.7;
+}
+
+.timeline--past .timeline-marker {
+  border-color: var(--p-surface-300);
+  background: transparent;
+  color: var(--p-surface-400);
+}
+
+.timeline--past .timeline-yours {
+  color: var(--p-surface-400);
+}
+
+.timeline-step--empty .timeline-marker {
+  border-color: var(--p-surface-300);
+  background: transparent;
+  color: var(--p-surface-300);
+}
+
+.timeline-placeholder {
+  color: var(--p-surface-400);
 }
