@@ -41,22 +41,6 @@
         />
       }
 
-      <p-button-group>
-        <p-button [icon]="concertBookmarks$?.currentUserStatus == 'Bookmarked' ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'"
-                  [label]="String(concertBookmarks$?.bookmarked ?? 0)"
-                  (onClick)="onBookmarkClicked()"
-                  [disabled]="concertBookmarks$ == null || concertBookmarksLoading$ || !isAuthenticated$"
-                  [pTooltip]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Bookmarked ? 'Remove bookmark' : 'Bookmark this show'"
-                  tooltipPosition="bottom"
-                  [outlined]="concertBookmarks$?.currentUserStatus == 'Bookmarked'"/>
-        <p-button [icon]="concertBookmarks$?.currentUserStatus == 'Attending' ? 'pi pi-ticket' : 'pi pi-ticket'"
-                  [label]="String(concertBookmarks$?.attending ?? 0)"
-                  (onClick)="onAttendingClicked()"
-                  [disabled]="concertBookmarks$ == null || concertBookmarksLoading$ || !isAuthenticated$"
-                  [pTooltip]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Attending ? 'Remove me from the show' : 'I will attend this show'"
-                  tooltipPosition="bottom"
-                  [outlined]="concertBookmarks$?.currentUserStatus == 'Attending'" severity="success"/>
-      </p-button-group>
     </div>
 
     <!-- right aligned buttons -->
@@ -114,6 +98,35 @@
       }
     </div>
   </p-card>
+
+  <div class="action-strip">
+    <div class="action-strip-main">
+      <p-button class="action-btn"
+                [icon]="concertBookmarks$?.currentUserStatus == 'Bookmarked' ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'"
+                [label]="'Bookmark · ' + (concertBookmarks$?.bookmarked ?? 0)"
+                (onClick)="onBookmarkClicked()"
+                [disabled]="concertBookmarks$ == null || concertBookmarksLoading$ || !isAuthenticated$"
+                variant="outlined" severity="secondary"
+                [pTooltip]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Bookmarked ? 'Remove bookmark' : 'Bookmark this show'"
+                tooltipPosition="bottom" />
+      <p-button class="action-btn action-btn-accent"
+                icon="pi pi-ticket"
+                [label]="'Attending · ' + (concertBookmarks$?.attending ?? 0)"
+                (onClick)="onAttendingClicked()"
+                [disabled]="concertBookmarks$ == null || concertBookmarksLoading$ || !isAuthenticated$"
+                variant="outlined" severity="secondary"
+                [pTooltip]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Attending ? 'Remove me from the show' : 'I will attend this show'"
+                tooltipPosition="bottom" />
+      <p-button class="action-btn action-btn-accent"
+                icon="pi pi-calendar-plus"
+                label="Add to calendar"
+                variant="outlined" severity="secondary"
+                pTooltip="Coming soon" tooltipPosition="bottom" />
+    </div>
+    <p-button class="action-share" icon="pi pi-share-alt"
+              variant="outlined" severity="secondary"
+              ariaLabel="Share" pTooltip="Coming soon" tooltipPosition="bottom" />
+  </div>
 
   <p-card class="timeline-card">
     <div class="timeline-legend">
