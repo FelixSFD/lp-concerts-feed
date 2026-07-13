@@ -1,0 +1,39 @@
+.hc {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.hc-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 2.25rem;
+}
+
+.hc-val {
+  font-size: 1.7rem;
+  font-weight: 500;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.hc-lbl {
+  margin-top: 0.3rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+
+.hc-sep {
+  font-size: 1.4rem;
+  font-weight: 500;
+  line-height: 1;
+  opacity: 0.4;
+}
+
+.hc-live {
+  font-size: 1.35rem;
+  font-weight: 500;
+}

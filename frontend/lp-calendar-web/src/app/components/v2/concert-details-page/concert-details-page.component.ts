@@ -31,7 +31,7 @@ import {MenuItem, MessageService} from 'primeng/api';
 import {FormsModule} from '@angular/forms';
 import {Tooltip} from 'primeng/tooltip';
 import {TimeSpanPipe} from '../../../data/time-span-pipe';
-import {CountdownComponent} from '../countdown/countdown.component';
+import {HeroCountdownComponent} from '../hero-countdown/hero-countdown.component';
 import {Message} from 'primeng/message';
 import {SetlistComponent} from '../setlists/setlist/setlist.component';
 import {Tag} from 'primeng/tag';
@@ -50,8 +50,7 @@ import {Tag} from 'primeng/tag';
     FormsModule,
     Tooltip,
     TimeSpanPipe,
-    CountdownComponent,
-    CountdownComponent,
+    HeroCountdownComponent,
     Message,
     SetlistComponent,
     Tag
@@ -460,6 +459,17 @@ export class ConcertDetailsPageComponent implements OnInit {
 
   public localZoneCityLabel(): string {
     return this.zoneCityLabel(DateTime.local().zoneName);
+  }
+
+  onShareClicked() {
+    const link = window.location.protocol + "//" + window.location.host + "/concerts/" + this.concert$?.id;
+    if (navigator.share) {
+      navigator.share({title: document.title, url: link}).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(link).then(() => {
+        this.messageService.add({severity: "success", summary: "Copied link to clipboard!"});
+      });
+    }
   }
 
   protected readonly ConcertTitleGenerator = ConcertTitleGenerator;

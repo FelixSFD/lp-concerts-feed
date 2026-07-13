@@ -6,6 +6,14 @@
 }
 
 /* Concert details hero */
+.hero-card {
+  --p-card-background: linear-gradient(135deg, var(--p-primary-700), var(--p-primary-900));
+  --p-card-border-color: transparent;
+  --p-card-color: #fff;
+  --p-card-border-radius: 16px;
+  --p-card-body-padding: 1.75rem 2rem;
+}
+
 .hero {
   display: flex;
   justify-content: space-between;
@@ -19,25 +27,25 @@
 }
 
 .eyebrow {
-  margin: 0 0 0.35rem;
+  margin: 0 0 0.5rem;
   font-size: 0.72rem;
   font-weight: 500;
-  letter-spacing: 0.06em;
-  color: var(--p-primary-color);
+  letter-spacing: 0.1em;
+  color: var(--p-primary-200);
 }
 
 .hero-title {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: 500;
-  line-height: 1.2;
-  color: var(--p-text-color);
+  line-height: 1.15;
+  color: #fff;
 }
 
 .hero-meta {
-  margin: 0.45rem 0 0;
+  margin: 0.5rem 0 0;
   font-size: 0.85rem;
-  color: var(--p-surface-500);
+  color: var(--p-primary-100);
 }
 
 .hero-meta .pi {
@@ -46,11 +54,16 @@
 }
 
 .hero-badges:not(:empty) {
-  margin-top: 0.75rem;
+  margin-top: 0.85rem;
 }
 
 .hero-countdown {
   flex-shrink: 0;
+  /*color: #fff;*/
+  /*padding: 0.85rem 1.1rem;*/
+  /*background: rgba(255, 255, 255, 0.08);*/
+  /*border: 1px solid rgba(255, 255, 255, 0.14);*/
+  /*border-radius: 14px;*/
 }
 
 .hero-ended {
@@ -60,7 +73,7 @@
   flex-shrink: 0;
   font-size: 0.9rem;
   white-space: nowrap;
-  color: var(--p-surface-500);
+  color: var(--p-primary-100);
 }
 
 /* Concert details timeline */

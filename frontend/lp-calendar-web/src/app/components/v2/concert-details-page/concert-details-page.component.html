@@ -88,7 +88,7 @@
 
       @if (!concert$?.isPast) {
         <div class="hero-countdown">
-          <app-countdown [countdownToDate]="concert$?.mainStageTime ?? concert$?.postedStartTime!" [concertId]="concert$?.id" />
+          <app-hero-countdown [countdownToDate]="concert$?.mainStageTime ?? concert$?.postedStartTime!" />
         </div>
       } @else {
         <div class="hero-ended">
@@ -125,13 +125,14 @@
     </div>
     <p-button class="action-share" icon="pi pi-share-alt"
               variant="outlined" severity="secondary"
-              ariaLabel="Share" pTooltip="Coming soon" tooltipPosition="bottom" />
+              (onClick)="onShareClicked()"
+              ariaLabel="Share" pTooltip="Share this show" tooltipPosition="bottom" />
   </div>
 
   <p-card class="timeline-card">
     <div class="timeline-legend">
       <span><span class="timeline-legend-venue">Venue time</span> <span class="timeline-legend-zone">({{ zoneCityLabel(concert$?.timeZoneId) }})</span></span>
-      <span class="timeline-legend-yours">· your time ({{ localZoneCityLabel() }})</span>
+      <span class="timeline-legend-yours">· Your time ({{ localZoneCityLabel() }})</span>
     </div>
     <div class="timeline" [class.timeline--past]="concert$?.isPast">
       <div class="timeline-step" [class.timeline-step--empty]="concert$?.lpuEarlyEntryTime == undefined">
