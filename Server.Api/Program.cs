@@ -1,6 +1,7 @@
 using Database.Tours;
 using Database.Tours.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Server.Api.ExceptionHandling;
 using Service.Tours;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,7 +33,20 @@ builder.Services.AddScoped<LocationService>();
 
 builder.Services.AddControllers();
 
+//Register Problem Details Service for API Errors
+builder.Services.AddProblemDetails();
+
+//Register the GlobalExceptionHandler
+//Custom Global Exception Handler for HTTP Status Codes
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
 var app = builder.Build();
+
+//Add exception handler in the middleware
+app.UseExceptionHandler();
+
+// Add Middleware so that the http status codes that do not return a JSON body will return a JSON body
+app.UseStatusCodePages();
 
 // run DB migrations
 using (var scope = app.Services.CreateScope())
