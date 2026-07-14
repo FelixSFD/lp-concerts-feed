@@ -218,6 +218,27 @@ public class LocationService(
         newCity = await cityRepository.GetByPrimaryKeyAsync(countryCode, newCity.Id);
         return newCity?.ToDtoWithCountry() ?? throw new Exception("Creating city was successful but the created entry could not be found in the database! This shouldn't happen.");
     }
+    
+    /// <summary>
+    /// Returns a city for the given ID in a country
+    /// </summary>
+    /// <param name="countryCode">ISO code of the country</param>
+    /// <param name="cityId">ID of the city</param>
+    /// <returns></returns>
+    /// <exception cref="StateNotFoundException">if the state does not exist</exception>
+    public async Task<CityWithCountryDto> GetCityInCountryAsync(uint cityId, string countryCode)
+    {
+        logger.LogDebug("Fetching city: {countryCode} - {id}", countryCode, cityId);
+        var city = await cityRepository.GetByPrimaryKeyAsync(countryCode, cityId);
+        if (city == null)
+        {
+            logger.LogWarning("City with ID '{id}' not found!", cityId);
+            throw new CityNotFoundException(cityId);
+        }
+        
+        logger.LogDebug("City '{cityName}' ({countryCode}) found.", city.Name, countryCode);
+        return city.ToDtoWithCountry();
+    }
 
     #endregion
 }

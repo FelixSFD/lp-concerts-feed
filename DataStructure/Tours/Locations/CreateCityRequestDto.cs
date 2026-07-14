@@ -6,11 +6,6 @@ namespace LPCalendar.DataStructure.Tours.Locations;
 public class CreateCityRequestDto
 {
     /// <summary>
-    /// City-ID
-    /// </summary>
-    public uint Id { get; set; }
-    
-    /// <summary>
     /// State code
     /// </summary>
     public string? StateCode { get; set; }
