@@ -135,4 +135,24 @@ public class CountriesController(LocationService locationService, ILogger<Countr
     }
 
     #endregion
+
+    #region Cities
+
+    /// <summary>
+    /// Creates a new city in a country
+    /// </summary>
+    /// <param name="countryCode">ISO code of the country where this city is located in</param>
+    /// <param name="request">Data of the new city</param>
+    /// <returns></returns>
+    [HttpPost("{countryCode}/cities")]
+    public async Task<CreatedAtActionResult> CreateCity([FromRoute(Name = "countryCode")] string countryCode, [FromBody] CreateCityRequestDto request)
+    {
+        logger.LogDebug("Requested to create city: {name}", request.Name);
+        var cityWithCountryDto = await locationService.CreateCity(request, countryCode);
+        logger.LogDebug("Successfully created city: {isoCode}", cityWithCountryDto.Name);
+        // TODO: correct action
+        return CreatedAtAction("GetState", new { countryCode = cityWithCountryDto.CountryCode, stateCode = cityWithCountryDto.StateCode }, cityWithCountryDto);
+    }
+
+    #endregion
 }

@@ -7,6 +7,6 @@ public class SqlCityRepository(ToursDbContext dbContext) : SqlRepositoryBase<Cit
 {
     public async Task<CityDo?> GetByPrimaryKeyAsync(string countryCode, uint cityId)
     {
-        return await DbSet.FindAsync(countryCode, cityId);
+        return await DbSet.FindAsync(cityId, countryCode);
     }
 }

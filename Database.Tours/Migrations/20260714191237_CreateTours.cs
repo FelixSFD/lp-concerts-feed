@@ -102,15 +102,17 @@ namespace Database.Tours.Migrations
                 name: "City",
                 columns: table => new
                 {
+                    Id = table.Column<uint>(type: "int unsigned", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     CountryCode = table.Column<string>(type: "varchar(3)", maxLength: 3, nullable: false),
-                    Id = table.Column<uint>(type: "int unsigned", nullable: false),
                     StateCode = table.Column<string>(type: "varchar(3)", maxLength: 3, nullable: true),
                     Name = table.Column<string>(type: "varchar(63)", maxLength: 63, nullable: false),
                     NativeName = table.Column<string>(type: "varchar(63)", maxLength: 63, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_City", x => new { x.CountryCode, x.Id });
+                    table.PrimaryKey("PK_City", x => new { x.Id, x.CountryCode });
+                    table.UniqueConstraint("AK_City_CountryCode_Id", x => new { x.CountryCode, x.Id });
                     table.ForeignKey(
                         name: "FK_City_Country_CountryCode",
                         column: x => x.CountryCode,

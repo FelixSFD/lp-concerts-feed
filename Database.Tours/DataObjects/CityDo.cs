@@ -6,21 +6,22 @@ using Microsoft.EntityFrameworkCore;
 namespace Database.Tours.DataObjects;
 
 [Table("City")]
-[PrimaryKey(nameof(CountryCode), nameof(Id))]
+[PrimaryKey(nameof(Id), nameof(CountryCode))]
 public class CityDo : BaseDo
 {
+    /// <summary>
+    /// City-ID. This is part of the composite key
+    /// </summary>
+    [Column("Id")]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public uint Id { get; set; }
+    
     /// <summary>
     /// Country code. This is part of the composite key
     /// </summary>
     [Column("CountryCode")]
     [MaxLength(DataConstants.CountryCodeLength)]
     public required string CountryCode { get; set; }
-    
-    /// <summary>
-    /// City-ID. This is part of the composite key
-    /// </summary>
-    [Column("Id")]
-    public uint Id { get; set; }
     
     /// <summary>
     /// State code. This is part of the composite key

@@ -29,6 +29,7 @@ builder.Services.AddDbContext<ToursDbContext>(options =>
 });
 builder.Services.AddScoped<ICountryRepository, SqlCountryRepository>();
 builder.Services.AddScoped<IStateRepository, SqlStateRepository>();
+builder.Services.AddScoped<ICityRepository, SqlCityRepository>();
 builder.Services.AddScoped<LocationService>();
 
 builder.Services.AddControllers();

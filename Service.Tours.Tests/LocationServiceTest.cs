@@ -12,6 +12,7 @@ public class LocationServiceTest
 {
     private readonly ICountryRepository _countryRepository;
     private readonly IStateRepository _stateRepository;
+    private readonly ICityRepository _cityRepository;
     private readonly LocationService _service;
 
     public LocationServiceTest()
@@ -19,7 +20,8 @@ public class LocationServiceTest
         var logger = Substitute.For<ILogger<LocationService>>();
         _countryRepository = Substitute.For<ICountryRepository>();
         _stateRepository = Substitute.For<IStateRepository>();
-        _service = new LocationService(_countryRepository, _stateRepository, logger);
+        _cityRepository = Substitute.For<ICityRepository>();
+        _service = new LocationService(_countryRepository, _stateRepository, _cityRepository, logger);
     }
 
     [Theory]

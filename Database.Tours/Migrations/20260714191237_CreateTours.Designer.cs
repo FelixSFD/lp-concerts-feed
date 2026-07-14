@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Tours.Migrations
 {
     [DbContext(typeof(ToursDbContext))]
-    [Migration("20260530180840_CreateTours")]
+    [Migration("20260714191237_CreateTours")]
     partial class CreateTours
     {
         /// <inheritdoc />
@@ -19,19 +19,20 @@ namespace Database.Tours.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.5")
+                .HasAnnotation("ProductVersion", "10.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("Database.Tours.DataObjects.CityDo", b =>
                 {
+                    b.Property<uint>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("Id");
+
                     b.Property<string>("CountryCode")
                         .HasMaxLength(3)
                         .HasColumnType("varchar(3)")
                         .HasColumnName("CountryCode");
-
-                    b.Property<uint>("Id")
-                        .HasColumnType("int unsigned")
-                        .HasColumnName("Id");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -50,7 +51,7 @@ namespace Database.Tours.Migrations
                         .HasColumnType("varchar(3)")
                         .HasColumnName("StateCode");
 
-                    b.HasKey("CountryCode", "Id");
+                    b.HasKey("Id", "CountryCode");
 
                     b.HasIndex("CountryCode", "StateCode");
 
@@ -421,6 +422,7 @@ namespace Database.Tours.Migrations
                     b.HasOne("Database.Tours.DataObjects.CityDo", "City")
                         .WithMany()
                         .HasForeignKey("CountryCode", "CityId")
+                        .HasPrincipalKey("CountryCode", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

@@ -1,5 +1,6 @@
 using Database.Tours.DataObjects;
 using Microsoft.EntityFrameworkCore;
+using MySql.EntityFrameworkCore.Extensions;
 
 namespace Database.Tours;
 
