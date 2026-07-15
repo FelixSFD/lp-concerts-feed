@@ -141,7 +141,7 @@ public class LocationService(
     /// </summary>
     /// <param name="countryCode">ISO code of the country</param>
     /// <param name="cancellationToken">token to cancel the query</param>
-    /// <returns>async enumerable of the countries that were found</returns>
+    /// <returns>async enumerable of the states that were found</returns>
     public IAsyncEnumerable<StateDto> GetStatesInCountryAsync(string countryCode, CancellationToken cancellationToken)
     {
         logger.LogDebug("Requesting list of states in '{countryCode}'...", countryCode);
@@ -238,6 +238,21 @@ public class LocationService(
         
         logger.LogDebug("City '{cityName}' ({countryCode}) found.", city.Name, countryCode);
         return city.ToDtoWithCountry();
+    }
+    
+    /// <summary>
+    /// Returns a list of all cities in a country
+    /// </summary>
+    /// <param name="countryCode">ISO code of the country</param>
+    /// <param name="cancellationToken">token to cancel the query</param>
+    /// <returns>async enumerable of the cities that were found</returns>
+    public IAsyncEnumerable<CityDto> GetCitiesInCountryAsync(string countryCode, CancellationToken cancellationToken)
+    {
+        logger.LogDebug("Requesting list of cities in '{countryCode}'...", countryCode);
+        return cityRepository
+            .QueryAsync(cancellationToken)
+            .Where(s => s.CountryCode == countryCode)
+            .Select(DtoMapper.ToDto);
     }
 
     #endregion

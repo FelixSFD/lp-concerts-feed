@@ -167,6 +167,23 @@ public class CountriesController(LocationService locationService, ILogger<Countr
         logger.LogDebug("Found the city: {cityName} (Country: {countryName})", cityInCountry.Name, cityInCountry.Country.Name);
         return Ok(cityInCountry);
     }
+    
+    /// <summary>
+    /// Returns a list of all cities in a country
+    /// </summary>
+    /// <param name="countryCode">3-letter ISO-code of the country</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("{countryCode}/cities")]
+    public async Task<ActionResult<CityWithCountryDto>> GetCitiesInCountry(string countryCode, CancellationToken cancellationToken)
+    {
+        logger.LogDebug("Getting all cities in '{countryCode}'", countryCode);
+        var cities = await locationService
+            .GetCitiesInCountryAsync(countryCode, cancellationToken)
+            .ToArrayAsync(cancellationToken);
+        logger.LogDebug("Found {cities} cities", cities.Length);
+        return Ok(cities);
+    }
 
     #endregion
 }

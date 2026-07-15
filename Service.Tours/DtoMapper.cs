@@ -118,7 +118,7 @@ internal static class DtoMapper
     }
     
     /// <summary>
-    /// Converts a <see cref="CityWithCountryDto"/> to the <see cref="CityWithCountryDto"/>
+    /// Converts a <see cref="CityDo"/> to the <see cref="CityWithCountryDto"/>
     /// </summary>
     /// <param name="dataObject">DataObject to convert to the DTO</param>
     /// <returns>the mapped DTO</returns>
@@ -133,6 +133,23 @@ internal static class DtoMapper
             NativeName = dataObject.NativeName,
             Country = dataObject.Country.ToDto(),
             State = dataObject.State?.ToDto()
+        };
+    }
+    
+    /// <summary>
+    /// Converts a <see cref="CityDo"/> to the <see cref="CityDto"/>
+    /// </summary>
+    /// <param name="dataObject">DataObject to convert to the DTO</param>
+    /// <returns>the mapped DTO</returns>
+    public static CityDto ToDto(this CityDo dataObject)
+    {
+        return new CityDto
+        {
+            Id = dataObject.Id,
+            CountryCode = dataObject.CountryCode,
+            StateCode = dataObject.StateCode,
+            Name = dataObject.Name,
+            NativeName = dataObject.NativeName,
         };
     }
 }

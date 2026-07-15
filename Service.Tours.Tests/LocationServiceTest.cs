@@ -607,4 +607,53 @@ public class LocationServiceTest
             .DidNotReceive()
             .SaveChangesAsync();
     }
+    
+    [Fact]
+    public async Task GetAllCitiesInCountry()
+    {
+        var countryGer = new CountryDo
+        {
+            IsoCode = "GER",
+            Name = "Germany",
+            NativeName = "Deutschland",
+        };
+
+        var stateBy = new StateDo
+        {
+            CountryCode = countryGer.IsoCode,
+            Code = "BY",
+            Name = "Bavaria",
+            NativeName = "Bayern",
+        };
+
+        var city1 = new CityDo
+        {
+            CountryCode = countryGer.IsoCode,
+            Name = "Berlin",
+            NativeName = "Berlin",
+            Country = countryGer,
+        };
+        
+        var city2 = new CityDo
+        {
+            CountryCode = countryGer.IsoCode,
+            StateCode = stateBy.Code,
+            Name = "Augsburg",
+            NativeName = "Augschburg",
+            Country = countryGer,
+            State = stateBy
+        };
+
+        CityDo[] mockCities = [city1, city2];
+        
+        _cityRepository
+            .Configure()
+            .QueryAsync(Arg.Any<CancellationToken>())
+            .Returns(mockCities.ToAsyncEnumerable());
+
+        var result = await _service
+            .GetCitiesInCountryAsync(countryGer.IsoCode, CancellationToken.None)
+            .ToArrayAsync();
+        Assert.Equal(2, result.Length);
+    }
 }
