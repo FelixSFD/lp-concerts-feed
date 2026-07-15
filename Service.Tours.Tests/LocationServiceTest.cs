@@ -524,4 +524,87 @@ public class LocationServiceTest
             .Received(1)
             .SaveChangesAsync();
     }
+    
+    [Fact]
+    public async Task CreateCity_CountryNotFound()
+    {
+        var countryGer = new CountryDo
+        {
+            IsoCode = "GER",
+            Name = "Germany",
+            NativeName = "Deutschland",
+        };
+        
+        var request = new CreateCityRequestDto
+        {
+            StateCode = null,
+            Name = "Bielefeld",
+            NativeName = "Bielefeld",
+        };
+
+        // setup mocks
+        _countryRepository
+            .GetByPrimaryKeyAsync(Arg.Is(countryGer.IsoCode))
+            .Returns(countryGer);
+        
+        // call the service
+        var exception = await Assert.ThrowsAsync<CountryNotFoundException>(() => _service.CreateCity(request, "AUT"));
+        Assert.Equal("AUT", exception.CountryCode);
+        
+        // verify mock calls
+        await _countryRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(Arg.Is("AUT"));
+        await _stateRepository
+            .DidNotReceiveWithAnyArgs()
+            .GetByPrimaryKeyAsync(Arg.Any<string>(), Arg.Any<string>());
+        _cityRepository
+            .DidNotReceiveWithAnyArgs()
+            .Add(Arg.Any<CityDo>());
+        await _cityRepository
+            .DidNotReceive()
+            .SaveChangesAsync();
+    }
+    
+    [Fact]
+    public async Task CreateCity_StateNotFound()
+    {
+        var countryGer = new CountryDo
+        {
+            IsoCode = "GER",
+            Name = "Germany",
+            NativeName = "Deutschland",
+        };
+        
+        var request = new CreateCityRequestDto
+        {
+            StateCode = "X",
+            Name = "Bielefeld",
+            NativeName = "Bielefeld",
+        };
+
+        // setup mocks
+        _countryRepository
+            .GetByPrimaryKeyAsync(Arg.Is(countryGer.IsoCode))
+            .Returns(countryGer);
+        
+        // call the service
+        var exception = await Assert.ThrowsAsync<StateNotFoundException>(() => _service.CreateCity(request, countryGer.IsoCode));
+        Assert.Equal(countryGer.IsoCode, exception.CountryCode);
+        Assert.Equal("X", exception.StateCode);
+        
+        // verify mock calls
+        await _countryRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(Arg.Is(countryGer.IsoCode));
+        await _stateRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(Arg.Is(countryGer.IsoCode), Arg.Is(request.StateCode));
+        _cityRepository
+            .DidNotReceiveWithAnyArgs()
+            .Add(Arg.Any<CityDo>());
+        await _cityRepository
+            .DidNotReceive()
+            .SaveChangesAsync();
+    }
 }
