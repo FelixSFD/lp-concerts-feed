@@ -184,6 +184,22 @@ public class CountriesController(LocationService locationService, ILogger<Countr
         logger.LogDebug("Found {cities} cities", cities.Length);
         return Ok(cities);
     }
+    
+    /// <summary>
+    /// Deletes a city
+    /// </summary>
+    /// <param name="countryCode">3-letter ISO-code of the country where the city is located in</param>
+    /// <param name="cityIdStr">ID of the city</param>
+    /// <returns>no content</returns>
+    [HttpDelete("{countryCode}/cities/{cityId}")]
+    public async Task<NoContentResult> DeleteCity([FromRoute] string countryCode, [FromRoute(Name = "cityId")] string cityIdStr)
+    {
+        logger.LogDebug("Requested to delete city: {countryCode} - {cityId}", countryCode, cityIdStr);
+        var cityId = uint.Parse(cityIdStr);
+        await locationService.DeleteCityAsync(countryCode, cityId);
+        logger.LogDebug("Successfully deleted state: {countryCode} - {cityId}", countryCode, cityId);
+        return NoContent();
+    }
 
     #endregion
 }

@@ -254,6 +254,27 @@ public class LocationService(
             .Where(s => s.CountryCode == countryCode)
             .Select(DtoMapper.ToDto);
     }
+    
+    /// <summary>
+    /// Deletes a city with a given ISO code and state code
+    /// </summary>
+    /// <param name="isoCode">ISO code of the country</param>
+    /// <param name="cityId">ID of the city within <paramref name="isoCode"/></param>
+    /// <exception cref="StateNotFoundException"></exception>
+    public async Task DeleteCityAsync(string isoCode, uint cityId)
+    {
+        logger.LogInformation("Deleting city with ID: {cityId}", cityId);
+        var city = await cityRepository.GetByPrimaryKeyAsync(isoCode, cityId);
+        if (city == null)
+        {
+            logger.LogWarning("City with ID '{cityId}' not found!", cityId);
+            throw new CityNotFoundException(cityId);
+        }
+        
+        cityRepository.Delete(city);
+        await cityRepository.SaveChangesAsync();
+        logger.LogInformation("City '{cityName}' ({isoCode} - {cityId}) was deleted successfully!", city.Name, city.CountryCode, city.Id);
+    }
 
     #endregion
 }
