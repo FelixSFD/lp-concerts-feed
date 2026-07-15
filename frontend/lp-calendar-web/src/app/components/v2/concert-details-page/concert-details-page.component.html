@@ -1,18 +1,3 @@
-<ng-template #timeCard let-cardTitle="cardTitle" let-timeString="timeString" let-timeZoneText="timeZoneText">
-  <p-card>
-    <ng-template #header>
-      <div class="pl-3 py-2 border-round-top surface-300">
-        <span>{{ cardTitle }}</span>
-      </div>
-    </ng-template>
-
-    <div class="text-center">
-      <p class="text-3xl font-bold my-0">{{ timeString }}</p>
-      <small style="font-size: 0.75rem">{{ timeZoneText }}</small>
-    </div>
-  </p-card>
-</ng-template>
-
 @if (concert$ != null) {
   <!-- Buttons for navigation bookmarks etc -->
   <div class="mb-4 flex justify-content-between">
@@ -81,9 +66,6 @@
           {{ concert$?.venue }} · {{ concert$?.city }}{{ (concert$?.state?.length ?? 0) > 0 ? ", " + concert$?.state : "" }}, {{ concert$?.country }}
           · {{ getDateTimeInTimezone(concert$?.postedStartTime!, concert$?.timeZoneId!).toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY) }}
         </p>
-        <div class="hero-badges">
-          <app-concert-badges [concert]="concert$"></app-concert-badges>
-        </div>
       </div>
 
       @if (!concert$?.isPast) {
@@ -98,6 +80,10 @@
       }
     </div>
   </p-card>
+
+  <div class="hero-badges">
+    <app-concert-badges [concert]="concert$"></app-concert-badges>
+  </div>
 
   <div class="action-strip">
     <div class="action-strip-main">
@@ -162,14 +148,14 @@
       <i class="pi pi-chevron-right timeline-arrow" aria-hidden="true"></i>
 
       @if (concert$?.mainStageTime != undefined) {
-        <div class="timeline-step">
+        <div class="timeline-step timeline-step--lead">
           <div class="timeline-marker"><i class="pi pi-microphone"></i></div>
           <div class="timeline-time">{{ getDateTimeInTimezone(concert$?.mainStageTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE) }}</div>
           <div class="timeline-yours">{{ getDateTime(concert$?.mainStageTime!).toLocaleString(DateTime.TIME_SIMPLE) }} your time</div>
           <div class="timeline-label">LP stage time</div>
         </div>
       } @else {
-        <div class="timeline-step">
+        <div class="timeline-step timeline-step--lead">
           <div class="timeline-marker"><i class="pi pi-microphone"></i></div>
           <div class="timeline-time">{{ getDateTimeInTimezone(concert$?.postedStartTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE) }}</div>
           <div class="timeline-yours">{{ getDateTime(concert$?.postedStartTime!).toLocaleString(DateTime.TIME_SIMPLE) }} your time</div>
@@ -179,65 +165,39 @@
     </div>
   </p-card>
 
-  <div class="grid mt-3">
-    @if (setlists$?.length ?? 0 > 0) {
-      <div class="col-12">
-        @for (setlist of setlists$; track setlist) {
-          <div class="mt-4 w-100">
-            <p-card>
-              <ng-template #header>
-                <div class="pl-3 py-2 border-round-top surface-300">
-                  <p-tag value="BETA" severity="success" pTooltip="This is an early version of this feature and might not work perfectly" tooltipPosition="top" /> Setlist: {{ setlist.setName }}
-                </div>
-              </ng-template>
+  @if ((concert$?.expectedSetDuration ?? 0) > 0) {
+    <p class="set-duration"><i class="pi pi-clock"></i> Expected set duration · {{ concert$?.expectedSetDuration ?? 0 | timeSpan }}</p>
+  }
 
-              <app-setlist [setlist]="setlist" />
+  @if (setlists$?.length ?? 0 > 0) {
+    @for (setlist of setlists$; track setlist) {
+      <p-card class="section-card">
+        <p class="section-head">
+          <i class="pi pi-list"></i> Setlist: {{ setlist.setName }}
+          <p-tag value="BETA" severity="secondary" pTooltip="This is an early version of this feature and might not work perfectly" tooltipPosition="top" />
+        </p>
 
-              @if (setlistsCacheUpdatedAt$ != null) {
-                <div class="mt-2">
-                  <small>Last updated: {{ setlistsCacheUpdatedAt$?.toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS) }}</small>
-                </div>
-              }
-            </p-card>
-          </div>
+        <app-setlist [setlist]="setlist" />
+
+        @if (setlistsCacheUpdatedAt$ != null) {
+          <small class="section-note">Last updated: {{ setlistsCacheUpdatedAt$?.toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS) }}</small>
         }
-      </div>
+      </p-card>
     }
+  }
 
-
-    @if ((concert$?.expectedSetDuration ?? 0) > 0) {
-      <div class="time-card col-12 sm:col-6 md:col-6 lg:col-4 xl:col-3">
-        <ng-container
-          *ngTemplateOutlet="timeCard; context: { cardTitle: 'Expected set duration',
-           timeString: concert$?.expectedSetDuration ?? 0 | timeSpan }" />
+  @if (concert$?.scheduleImageFile != undefined) {
+    <p-card class="section-card">
+      <p class="section-head"><i class="pi pi-calendar"></i> Official schedule</p>
+      <div class="schedule-img">
+        <img src="{{ environment.imageBaseUrl + '/' + concert$?.scheduleImageFile! }}" alt="Official schedule announcement" />
       </div>
-    }
-  </div>
-
-  <div class="flex justify-content-center mt-3">
-    @if (concert$?.scheduleImageFile != undefined) {
-      <div class="w-max">
-        <p-card>
-          <ng-template #header>
-            <div class="pl-3 py-2 border-round-top surface-300">
-              <span>Official Schedule</span>
-            </div>
-          </ng-template>
-
-          <img style="width: 100%; max-width: 800px; max-height: 500px;" src="{{ environment.imageBaseUrl + '/' + concert$?.scheduleImageFile! }}" alt="Official schedule announcement" />
-        </p-card>
-      </div>
-    }
-  </div>
+    </p-card>
+  }
 
   @if (concert$?.venueLatitude != 0 && concert$?.venueLongitude != 0) {
-    <p-card class="mt-3">
-      <ng-template #header>
-        <div class="pl-3 py-2 border-round-top surface-300">
-          <span>Venue Location</span>
-        </div>
-      </ng-template>
-
+    <p-card class="section-card">
+      <p class="section-head"><i class="pi pi-map-marker"></i> Venue location</p>
       <ng-container #mapContainer>
         <div #appleMaps class="map"></div>
       </ng-container>

@@ -54,7 +54,11 @@
 }
 
 .hero-badges:not(:empty) {
-  margin-top: 0.85rem;
+  margin: 1.5rem 0 0;
+}
+
+.hero-badges ::ng-deep .justify-center {
+  justify-content: flex-start !important;
 }
 
 .hero-countdown {
@@ -108,10 +112,15 @@
   height: 2.75rem;
   margin-bottom: 0.65rem;
   border-radius: 50%;
-  border: 1.5px solid var(--p-primary-300);
-  background: color-mix(in srgb, var(--p-primary-color) 8%, transparent);
-  color: var(--p-primary-color);
+  background: var(--p-primary-100);
+  color: var(--p-primary-700);
   font-size: 1.1rem;
+}
+
+.timeline-step--lead .timeline-marker {
+  background: var(--p-primary-600);
+  color: #fff;
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--p-primary-color) 14%, transparent);
 }
 
 .timeline-time {
@@ -162,9 +171,14 @@
 }
 
 .timeline--past .timeline-marker {
-  border-color: var(--p-surface-300);
-  background: transparent;
+  background: var(--p-surface-100);
   color: var(--p-surface-400);
+}
+
+.timeline--past .timeline-step--lead .timeline-marker {
+  background: var(--p-surface-200);
+  color: var(--p-surface-500);
+  box-shadow: none;
 }
 
 .timeline--past .timeline-yours {
@@ -172,9 +186,8 @@
 }
 
 .timeline-step--empty .timeline-marker {
-  border-color: var(--p-surface-300);
-  background: transparent;
-  color: var(--p-surface-300);
+  background: var(--p-surface-100);
+  color: var(--p-surface-400);
 }
 
 .timeline-placeholder {
@@ -186,7 +199,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin: 1rem 0;
+  margin: 1.5rem 0;
   flex-wrap: wrap;
 }
 
@@ -218,4 +231,57 @@
 
 .action-share ::ng-deep .p-button {
   border-radius: 50%;
+}
+
+/* Concert details sections (setlist, schedule, map) */
+.section-card {
+  margin-top: 1.5rem;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--p-text-color);
+}
+
+.section-head .pi {
+  color: var(--p-primary-color);
+}
+
+.section-note {
+  display: block;
+  margin-top: 0.75rem;
+  font-size: 0.72rem;
+  color: var(--p-surface-500);
+}
+
+.schedule-img {
+  display: flex;
+  justify-content: center;
+}
+
+.schedule-img img {
+  width: 100%;
+  max-width: 800px;
+  max-height: 500px;
+  border-radius: 8px;
+}
+
+.set-duration {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin: 0.85rem 0 0;
+  font-size: 0.8rem;
+  color: var(--p-surface-500);
+}
+
+.set-duration .pi {
+  color: var(--p-primary-color);
+  font-size: 0.85rem;
 }
