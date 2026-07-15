@@ -443,4 +443,85 @@ public class LocationServiceTest
             .Received(1)
             .SaveChangesAsync();
     }
+    
+    [Theory]
+    [InlineData("GER", "BY", "Munich", "München", 1)]
+    [InlineData("GER", null, "Berlin", "Berlin", 2)]
+    public async Task CreateCity(string countryCode, string? stateCode, string name, string nativeName, uint mockId)
+    {
+        var countryGer = new CountryDo
+        {
+            IsoCode = "GER",
+            Name = "Germany",
+            NativeName = "Deutschland",
+        };
+        
+        var stateBy = new StateDo
+        {
+            CountryCode = "GER",
+            Code = stateCode ?? "BY",
+            Name = "Bavaria",
+            NativeName = "Bayern",
+        };
+
+        var mockCity = new CityDo
+        {
+            Id = mockId,
+            CountryCode = countryCode,
+            StateCode = stateCode,
+            Name = name,
+            NativeName = nativeName,
+            Country = countryGer,
+            State = stateCode != null ? stateBy : null,
+        };
+        
+        var request = new CreateCityRequestDto
+        {
+            StateCode = stateCode,
+            Name = name,
+            NativeName = nativeName,
+        };
+
+        // setup mocks
+        _countryRepository
+            .GetByPrimaryKeyAsync(Arg.Is(countryCode))
+            .Returns(countryGer);
+        _stateRepository
+            .GetByPrimaryKeyAsync(Arg.Is(countryCode), Arg.Is(stateCode))
+            .Returns(stateBy);
+        _cityRepository
+            .GetByPrimaryKeyAsync(Arg.Is(countryCode), Arg.Is(mockId))
+            .Returns(mockCity);
+        
+        // make sure to set the mockId to the newly created object. This is usually done by EFcore automatically
+        _cityRepository
+            .When(cr => cr.Add(Arg.Is<CityDo>(c => c.CountryCode == countryCode && c.Name == name && c.NativeName == nativeName && c.StateCode == stateCode)))
+            .Do(ci => ci.Arg<CityDo>().Id = mockId);
+        
+        // call the service
+        var resultCityDto = await _service.CreateCity(request, countryCode);
+        Assert.NotNull(resultCityDto);
+        Assert.Equal(countryCode, resultCityDto.CountryCode);
+        Assert.Equal(stateCode, resultCityDto.StateCode);
+        Assert.Equal(name, resultCityDto.Name);
+        Assert.Equal(nativeName, resultCityDto.NativeName);
+        Assert.Equal(mockId, resultCityDto.Id);
+        
+        // verify mock calls
+        await _countryRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(Arg.Is(countryCode));
+        await _stateRepository
+            .Received(stateCode != null ? 1 : 0)
+            .GetByPrimaryKeyAsync(Arg.Is(countryCode), Arg.Is(stateCode));
+        await _cityRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(Arg.Is(countryCode), Arg.Is(mockCity.Id));
+        _cityRepository
+            .Received(1)
+            .Add(Arg.Is<CityDo>(c => c.CountryCode == countryCode && c.Name == name && c.NativeName == nativeName && c.StateCode == stateCode));
+        await _cityRepository
+            .Received(1)
+            .SaveChangesAsync();
+    }
 }

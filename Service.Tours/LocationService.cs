@@ -213,7 +213,7 @@ public class LocationService(
         newCity.StateCode = request.StateCode;
         logger.LogDebug("Mapped request to the new data object");
         cityRepository.Add(newCity);
-        await stateRepository.SaveChangesAsync();
+        await cityRepository.SaveChangesAsync();
         logger.LogDebug("Successfully created city");
         newCity = await cityRepository.GetByPrimaryKeyAsync(countryCode, newCity.Id);
         return newCity?.ToDtoWithCountry() ?? throw new Exception("Creating city was successful but the created entry could not be found in the database! This shouldn't happen.");
