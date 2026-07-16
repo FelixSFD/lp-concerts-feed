@@ -45,13 +45,21 @@
 }
 
 @if (resolverError$ != null) {
-  <p-message severity="error">
-    <h3>{{ resolverError$.message }}</h3>
-  </p-message>
+  <div class="page-state">
+    <i class="pi pi-exclamation-circle"></i>
+    <h2>{{ resolverError$.message }}</h2>
+    <p>This show may have been removed, or the link isn't quite right.</p>
+    <p-button label="Back to concerts" icon="pi pi-arrow-left" [routerLink]="['/concerts']" variant="outlined" />
+  </div>
 } @else if (concert$ == null) {
-  <div style="text-align: center">
-    <p-progress-spinner strokeWidth="8" fill="transparent" animationDuration=".5s" [style]="{ width: '50px', height: '50px' }" />
-    <h2>Loading concert details...</h2>
+  <div class="loading-skeleton" aria-busy="true">
+    <div class="sk sk-hero"></div>
+    <div class="sk-actions">
+      <div class="sk sk-pill"></div>
+      <div class="sk sk-pill"></div>
+      <div class="sk sk-pill"></div>
+    </div>
+    <div class="sk sk-timeline"></div>
   </div>
 } @else {
   <p-card class="hero-card">
