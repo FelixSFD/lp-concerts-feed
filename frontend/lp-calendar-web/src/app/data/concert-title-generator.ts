@@ -13,4 +13,14 @@ export class ConcertTitleGenerator {
       }
     }
   }
+
+  public static getVenueTitleFor(concert: ConcertDto) {
+    if (concert.customTitle) {
+      return concert.customTitle;
+    }
+    if (concert.venue) {
+      return "Linkin Park · " + concert.venue;
+    }
+    return this.getTitleFor(concert);
+  }
 }

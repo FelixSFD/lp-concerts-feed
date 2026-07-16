@@ -60,10 +60,10 @@
         @if (concert$?.tourName) {
           <p class="eyebrow">{{ concert$?.tourName }}</p>
         }
-        <h1 class="hero-title">{{ ConcertTitleGenerator.getTitleFor(concert$!) }}</h1>
+        <h1 class="hero-title">{{ ConcertTitleGenerator.getVenueTitleFor(concert$!) }}</h1>
         <p class="hero-meta">
           <i class="pi pi-map-marker"></i>
-          {{ concert$?.venue }} · {{ concert$?.city }}{{ (concert$?.state?.length ?? 0) > 0 ? ", " + concert$?.state : "" }}, {{ concert$?.country }}
+          {{ concert$?.city }}{{ (concert$?.state?.length ?? 0) > 0 ? ", " + concert$?.state : "" }}, {{ concert$?.country }}
           · {{ getDateTimeInTimezone(concert$?.postedStartTime!, concert$?.timeZoneId!).toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY) }}
         </p>
       </div>
