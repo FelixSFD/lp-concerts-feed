@@ -194,21 +194,24 @@
     }
   }
 
-  @if (concert$?.scheduleImageFile != undefined) {
-    <p-card class="section-card">
-      <p class="section-head"><i class="pi pi-calendar"></i> Official schedule</p>
-      <div class="schedule-img">
-        <img src="{{ environment.imageBaseUrl + '/' + concert$?.scheduleImageFile! }}" alt="Official schedule announcement" />
-      </div>
-    </p-card>
-  }
-
-  @if (concert$?.venueLatitude != 0 && concert$?.venueLongitude != 0) {
-    <p-card class="section-card">
-      <p class="section-head"><i class="pi pi-map-marker"></i> Venue location</p>
-      <ng-container #mapContainer>
-        <div #appleMaps class="map"></div>
-      </ng-container>
-    </p-card>
+  @if (concert$?.scheduleImageFile != undefined || (concert$?.venueLatitude != 0 && concert$?.venueLongitude != 0)) {
+    <div class="panel-row">
+      @if (concert$?.venueLatitude != 0 && concert$?.venueLongitude != 0) {
+        <p-card class="panel-half">
+          <p class="section-head"><i class="pi pi-map-marker"></i> Venue location</p>
+          <ng-container #mapContainer>
+            <div #appleMaps class="map"></div>
+          </ng-container>
+        </p-card>
+      }
+      @if (concert$?.scheduleImageFile != undefined) {
+        <p-card class="panel-half">
+          <p class="section-head"><i class="pi pi-calendar"></i> Official schedule</p>
+          <div class="schedule-img">
+            <p-image src="{{ environment.imageBaseUrl + '/' + concert$?.scheduleImageFile! }}" alt="Official schedule announcement" [preview]="true" />
+          </div>
+        </p-card>
+      }
+    </div>
   }
 }

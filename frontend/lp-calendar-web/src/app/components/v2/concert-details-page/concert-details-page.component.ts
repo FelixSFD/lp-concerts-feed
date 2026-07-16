@@ -35,6 +35,7 @@ import {HeroCountdownComponent} from '../hero-countdown/hero-countdown.component
 import {Message} from 'primeng/message';
 import {SetlistComponent} from '../setlists/setlist/setlist.component';
 import {Tag} from 'primeng/tag';
+import {Image} from 'primeng/image';
 
 @Component({
   selector: 'app-concert-details-page',
@@ -53,7 +54,8 @@ import {Tag} from 'primeng/tag';
     HeroCountdownComponent,
     Message,
     SetlistComponent,
-    Tag
+    Tag,
+    Image
   ],
   templateUrl: './concert-details-page.component.html',
   styleUrl: './concert-details-page.component.css',
