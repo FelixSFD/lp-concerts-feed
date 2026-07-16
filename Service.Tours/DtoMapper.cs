@@ -152,4 +152,41 @@ internal static class DtoMapper
             NativeName = dataObject.NativeName,
         };
     }
+    
+    /// <summary>
+    /// Converts a <see cref="CreateVenueRequestDto"/> to the <see cref="VenueDo"/>
+    /// </summary>
+    /// <param name="dto">DTO to convert to the DataObject</param>
+    /// <returns>the mapped DataObject</returns>
+    public static VenueDo ToDo(this CreateVenueRequestDto dto)
+    {
+        return new VenueDo
+        {
+            CountryCode = dto.CountryCode,
+            StateCode = dto.StateCode,
+            CurrentName = dto.CurrentName,
+            TimeZone = dto.TimeZone,
+            Latitude = dto.Latitude ?? 0,
+            Longitude = dto.Longitude ?? 0
+        };
+    }
+    
+    /// <summary>
+    /// Converts a <see cref="VenueDo"/> to the <see cref="VenueDto"/>
+    /// </summary>
+    /// <param name="dataObject">DataObject to convert to the DTO</param>
+    /// <returns>the mapped DTO</returns>
+    public static VenueDto ToDto(this VenueDo dataObject)
+    {
+        return new VenueDto
+        {
+            Id = dataObject.Id,
+            CountryCode = dataObject.CountryCode,
+            StateCode = dataObject.StateCode,
+            CurrentName = dataObject.CurrentName,
+            TimeZone = dataObject.TimeZone,
+            Latitude = dataObject.Latitude,
+            Longitude = dataObject.Longitude,
+        };
+    }
 }
