@@ -16,7 +16,7 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
     /// </summary>
     /// <param name="request"></param>
     /// <returns>ID of the created venue</returns>
-    public async Task<uint> CreateVenue(CreateVenueRequestDto request)
+    public async Task<uint> CreateVenueAsync(CreateVenueRequestDto request)
     {
         logger.LogDebug("Requested to create a new venue: {name}", request.CurrentName);
         var venue = request.ToDo();
@@ -32,11 +32,25 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
     /// <param name="venueId">ID of the venue</param>
     /// <returns></returns>
     /// <exception cref="VenueNotFoundException">if the venue was not found</exception>
-    public async Task<VenueDto> GetVenueById(uint venueId)
+    public async Task<VenueDto> GetVenueByIdAsync(uint venueId)
     {
         logger.LogDebug("Searching for venue with ID: {venueId}", venueId);
         var venue = await venueRepository.GetByPrimaryKeyAsync(venueId) ?? throw new VenueNotFoundException(venueId);
         logger.LogDebug("Found venue: {name}", venue.CurrentName);
         return venue.ToDto();
+    }
+    
+    /// <summary>
+    /// Returns the information about a venue by its ID including the data of the city, state and country.
+    /// </summary>
+    /// <param name="venueId">ID of the venue</param>
+    /// <returns></returns>
+    /// <exception cref="VenueNotFoundException">if the venue was not found</exception>
+    public async Task<VenueDto> GetVenueWithDetailsByIdAsync(uint venueId)
+    {
+        logger.LogDebug("Searching for venue with ID: {venueId}", venueId);
+        var venue = await venueRepository.GetByPrimaryKeyWithReferencesAsync(venueId) ?? throw new VenueNotFoundException(venueId);
+        logger.LogDebug("Found venue: {name}", venue.CurrentName);
+        return venue.ToDtoWithCityDetails();
     }
 }

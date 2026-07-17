@@ -6,6 +6,15 @@ namespace Database.Tours.Repositories;
 
 public class SqlStateRepository(ToursDbContext dbContext) : SqlRepositoryBase<StateDo>(dbContext, dbContext.States), IStateRepository
 {
+    protected override async Task<StateDo> LoadReferences(StateDo dataObject)
+    {
+        await Context.Entry(dataObject)
+            .Reference(v => v.Country)
+            .LoadAsync();
+        
+        return dataObject;
+    }
+    
     /// <inheritdoc/>
     public async Task<StateDo?> GetByPrimaryKeyAsync(string countryCode, string stateCode)
     {

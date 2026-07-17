@@ -44,7 +44,7 @@ public class VenueServiceTest
             .Do(cb => cb.Arg<VenueDo>().Id = mockVenueId);
         
         // call the service
-        var resultId = await _service.CreateVenue(request);
+        var resultId = await _service.CreateVenueAsync(request);
         Assert.Equal(resultId, mockVenueId);
         
         // verify mock calls
@@ -106,7 +106,7 @@ public class VenueServiceTest
             .Returns(mockVenue);
         
         // call the service
-        var result = await _service.GetVenueById(mockVenue.Id);
+        var result = await _service.GetVenueByIdAsync(mockVenue.Id);
         Assert.Equal(mockVenue.Id, result.Id);
         Assert.Equal(mockVenue.CountryCode, result.CountryCode);
         Assert.Equal(mockVenue.StateCode, result.StateCode);

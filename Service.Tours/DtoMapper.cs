@@ -191,4 +191,25 @@ internal static class DtoMapper
             Longitude = dataObject.Longitude,
         };
     }
+    
+    /// <summary>
+    /// Converts a <see cref="VenueDo"/> to the <see cref="VenueWithCityDto"/>
+    /// </summary>
+    /// <param name="dataObject">DataObject to convert to the DTO</param>
+    /// <returns>the mapped DTO</returns>
+    public static VenueDto ToDtoWithCityDetails(this VenueDo dataObject)
+    {
+        return new VenueWithCityDto
+        {
+            Id = dataObject.Id,
+            CountryCode = dataObject.CountryCode,
+            StateCode = dataObject.StateCode,
+            CityId = dataObject.CityId,
+            CurrentName = dataObject.CurrentName,
+            TimeZone = dataObject.TimeZone,
+            Latitude = dataObject.Latitude,
+            Longitude = dataObject.Longitude,
+            City = dataObject.City.ToDtoWithCountry(),
+        };
+    }
 }

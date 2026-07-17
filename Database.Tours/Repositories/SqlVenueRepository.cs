@@ -5,8 +5,18 @@ namespace Database.Tours.Repositories;
 
 public class SqlVenueRepository(ToursDbContext dbContext) : SingleKeySqlRepositoryBase<VenueDo, uint>(dbContext, dbContext.Venues), IVenueRepository
 {
-    protected override Task<VenueDo> LoadReferences(VenueDo dataObject)
+    protected override async Task<VenueDo> LoadReferences(VenueDo dataObject)
     {
-        return Task.FromResult(dataObject);
+        await Context.Entry(dataObject)
+            .Reference(v => v.Country)
+            .LoadAsync();
+        await Context.Entry(dataObject)
+            .Reference(v => v.State)
+            .LoadAsync();
+        await Context.Entry(dataObject)
+            .Reference(v => v.City)
+            .LoadAsync();
+        
+        return dataObject;
     }
 }

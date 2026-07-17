@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Common.Datbase.MySql.Repositories;
 
-public class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObject> where TDataObject : BaseDo
+public abstract class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObject> where TDataObject : BaseDo
 {
     protected DbContext Context { get; }
     protected DbSet<TDataObject> DbSet { get; }
@@ -15,6 +15,13 @@ public class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObject> where
         Context = dbContext;
         DbSet = dbSet;
     }
+
+    /// <summary>
+    /// Loads the referenced objects for the <paramref name="dataObject" />
+    /// </summary>
+    /// <param name="dataObject">The object that was retrieved from the DB, but has no referenced data yet</param>
+    /// <returns>the <paramref name="dataObject"/> but with all referenced objects</returns>
+    protected abstract Task<TDataObject> LoadReferences(TDataObject dataObject);
 
     public virtual void Add(TDataObject data)
     {
