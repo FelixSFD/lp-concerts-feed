@@ -164,6 +164,7 @@ internal static class DtoMapper
         {
             CountryCode = dto.CountryCode,
             StateCode = dto.StateCode,
+            CityId = dto.CityId,
             CurrentName = dto.CurrentName,
             TimeZone = dto.TimeZone,
             Latitude = dto.Latitude ?? 0,
@@ -183,6 +184,7 @@ internal static class DtoMapper
             Id = dataObject.Id,
             CountryCode = dataObject.CountryCode,
             StateCode = dataObject.StateCode,
+            CityId = dataObject.CityId,
             CurrentName = dataObject.CurrentName,
             TimeZone = dataObject.TimeZone,
             Latitude = dataObject.Latitude,

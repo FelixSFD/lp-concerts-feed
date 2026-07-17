@@ -22,9 +22,16 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
         return CreatedAtAction(nameof(GetVenueById), new { venueId = newId }, null);
     }
 
+    /// <summary>
+    /// Returns the basic information about a venue by its ID
+    /// </summary>
+    /// <param name="venueId">ID of the venue</param>
+    /// <returns>basic information about the venue</returns>
     [HttpGet("{venueId:int}")]
-    public Task<ActionResult<VenueDto>> GetVenueById(uint venueId)
+    public async Task<ActionResult<VenueDto>> GetVenueById(uint venueId)
     {
-        throw new NotImplementedException();
+        logger.LogDebug("Requested venue with ID: {venueId}", venueId);
+        var venue = await service.GetVenueById(venueId);
+        return Ok(venue);
     }
 }

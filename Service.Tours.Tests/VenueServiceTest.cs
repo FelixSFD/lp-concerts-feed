@@ -55,4 +55,64 @@ public class VenueServiceTest
             .Received(1)
             .SaveChangesAsync();
     }
+
+    [Fact]
+    public async Task GetVenueById()
+    {
+        var countryGer = new CountryDo
+        {
+            IsoCode = "GER",
+            Name = "Germany",
+            NativeName = "Deutschland",
+        };
+
+        var stateBy = new StateDo
+        {
+            CountryCode = "GER",
+            Code = "BY",
+            Name = "Bavaria",
+            NativeName = "Bayern",
+        };
+
+        var cityAux = new CityDo
+        {
+            Id = 1907,
+            CountryCode = "GER",
+            StateCode = "BY",
+            Name = "Augsburg",
+            NativeName = "Augschburg",
+            Country = countryGer,
+            State = stateBy,
+        };
+        
+        var mockVenue = new VenueDo
+        {
+            Id = 1337,
+            CountryCode = "GER",
+            StateCode = "BY",
+            CityId = 1907,
+            CurrentName = "WWK Arena",
+            TimeZone = "Europe/Berlin",
+            Latitude = 12,
+            Longitude = 21,
+            Country = countryGer,
+            State = stateBy,
+            City = cityAux
+        };
+        
+        // setup mocks
+        _venueRepository
+            .GetByPrimaryKeyAsync(Arg.Is<uint>(c => c == mockVenue.Id))
+            .Returns(mockVenue);
+        
+        // call the service
+        var result = await _service.GetVenueById(mockVenue.Id);
+        Assert.Equal(mockVenue.Id, result.Id);
+        Assert.Equal(mockVenue.CountryCode, result.CountryCode);
+        Assert.Equal(mockVenue.StateCode, result.StateCode);
+        Assert.Equal(mockVenue.CityId, result.CityId);
+        Assert.Equal(mockVenue.Latitude, result.Latitude);
+        Assert.Equal(mockVenue.Longitude, result.Longitude);
+        Assert.Equal(mockVenue.CurrentName, result.CurrentName);
+    }
 }
