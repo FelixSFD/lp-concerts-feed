@@ -14,7 +14,7 @@ public abstract class SingleKeySqlRepositoryBase<TDataObject, TPrimaryKey> : Sql
     /// <inheritdoc />
     public virtual async Task<TDataObject?> GetByPrimaryKeyAsync(TPrimaryKey primaryKey)
     {
-        var loadedObject = await DbSet.FindAsync(primaryKey);
+        var loadedObject = await GetByPrimaryKeyWithoutReferencesAsync(primaryKey);
         if (loadedObject == null)
             return null;
         
@@ -22,12 +22,8 @@ public abstract class SingleKeySqlRepositoryBase<TDataObject, TPrimaryKey> : Sql
     }
 
     /// <inheritdoc/>
-    public virtual async Task<TDataObject?> GetByPrimaryKeyWithReferencesAsync(TPrimaryKey primaryKey)
+    public virtual async Task<TDataObject?> GetByPrimaryKeyWithoutReferencesAsync(TPrimaryKey primaryKey)
     {
-        var loadedObject = await GetByPrimaryKeyAsync(primaryKey);
-        if (loadedObject == null)
-            return null;
-        
-        return await LoadReferences(loadedObject);
+       return await DbSet.FindAsync(primaryKey);
     }
 }

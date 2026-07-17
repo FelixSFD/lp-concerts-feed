@@ -35,7 +35,7 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
     public async Task<VenueDto> GetVenueByIdAsync(uint venueId)
     {
         logger.LogDebug("Searching for venue with ID: {venueId}", venueId);
-        var venue = await venueRepository.GetByPrimaryKeyAsync(venueId) ?? throw new VenueNotFoundException(venueId);
+        var venue = await venueRepository.GetByPrimaryKeyWithoutReferencesAsync(venueId) ?? throw new VenueNotFoundException(venueId);
         logger.LogDebug("Found venue: {name}", venue.CurrentName);
         return venue.ToDto();
     }
@@ -48,8 +48,8 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
     /// <exception cref="VenueNotFoundException">if the venue was not found</exception>
     public async Task<VenueDto> GetVenueWithDetailsByIdAsync(uint venueId)
     {
-        logger.LogDebug("Searching for venue with ID: {venueId}", venueId);
-        var venue = await venueRepository.GetByPrimaryKeyWithReferencesAsync(venueId) ?? throw new VenueNotFoundException(venueId);
+        logger.LogDebug("Searching for venue details with ID: {venueId}", venueId);
+        var venue = await venueRepository.GetByPrimaryKeyAsync(venueId) ?? throw new VenueNotFoundException(venueId);
         logger.LogDebug("Found venue: {name}", venue.CurrentName);
         return venue.ToDtoWithCityDetails();
     }
