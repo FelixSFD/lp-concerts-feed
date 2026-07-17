@@ -118,7 +118,7 @@ public class VenueServiceTest
         
         // setup mocks
         _venueRepository
-            .GetByPrimaryKeyAsync(Arg.Is<uint>(c => c == mockVenue.Id))
+            .GetByPrimaryKeyWithoutReferencesAsync(Arg.Is<uint>(c => c == mockVenue.Id))
             .Returns(mockVenue);
         
         // call the service
@@ -134,7 +134,7 @@ public class VenueServiceTest
         // verify mock calls
         await _venueRepository
             .Received(1)
-            .GetByPrimaryKeyAsync(Arg.Is<uint>(c => c == mockVenue.Id));
+            .GetByPrimaryKeyWithoutReferencesAsync(Arg.Is<uint>(c => c == mockVenue.Id));
     }
 
     #region Venue Names
