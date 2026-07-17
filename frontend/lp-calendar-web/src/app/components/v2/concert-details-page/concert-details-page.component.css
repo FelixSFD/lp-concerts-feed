@@ -375,3 +375,30 @@
 .sk-timeline {
   height: 190px;
 }
+
+/* Bottom section */
+.page-footer {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--p-surface-200);
+}
+
+.footer-pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.footer-lp {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.footer-admin {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
