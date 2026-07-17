@@ -47,5 +47,11 @@ public class PreviousVenueNameDo : BaseDo
     /// The venue got a new name after this day
     /// </summary>
     [Column("To")]
-    public DateOnly To { get; set; }
+    public DateOnly? To { get; set; }
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+        return $"{Name} {{ Name: {Name}, From: {From}, To: {To.ToString() ?? "infinity"} }}";
+    }
 }

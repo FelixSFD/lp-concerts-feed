@@ -29,6 +29,8 @@ public class VenueServiceTest
     [InlineData("AUT", 2, "Austria", "Österreich", 0.12, 12.3456789, 123)]
     public async Task CreateVenue(string countryCode, uint cityId, string name, string timeZone, decimal latitude, decimal longitude, uint mockVenueId)
     {
+        var dateTime = DateTime.Today;
+        
         var request = new CreateVenueRequestDto
         {
             CountryCode = countryCode,
@@ -38,14 +40,28 @@ public class VenueServiceTest
             Latitude = latitude,
             Longitude = longitude,
         };
-        
+
+        VenueDo? savedVenueDo = null;
         _venueRepository
             .When(r => r.Add(Arg.Is<VenueDo>(c => c.CountryCode == countryCode && c.CurrentName == name && c.TimeZone == timeZone && c.Latitude == latitude && c.Longitude == longitude)))
-            .Do(cb => cb.Arg<VenueDo>().Id = mockVenueId);
+            .Do(cb =>
+            {
+                savedVenueDo = cb.Arg<VenueDo>();
+                savedVenueDo.Id = mockVenueId;
+            });
         
         // call the service
         var resultId = await _service.CreateVenueAsync(request);
         Assert.Equal(resultId, mockVenueId);
+        Assert.NotNull(savedVenueDo);
+        Assert.Equal(mockVenueId, savedVenueDo.Id);
+
+        // check the previous names. When a new venue is created, this should have exactly one entry with the current date as start and an open end
+        var savedPreviousNames = savedVenueDo.PreviousNames.ToArray();
+        var currentName = Assert.Single(savedPreviousNames);
+        Assert.Equal(name, currentName.Name);
+        Assert.Equal(DateOnly.FromDateTime(dateTime), currentName.From);
+        Assert.Null(currentName.To);
         
         // verify mock calls
         _venueRepository
@@ -114,5 +130,134 @@ public class VenueServiceTest
         Assert.Equal(mockVenue.Latitude, result.Latitude);
         Assert.Equal(mockVenue.Longitude, result.Longitude);
         Assert.Equal(mockVenue.CurrentName, result.CurrentName);
+        
+        // verify mock calls
+        await _venueRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(Arg.Is<uint>(c => c == mockVenue.Id));
     }
+
+    #region Venue Names
+
+    private VenueDo GetSampleVenue()
+    {
+        var countryGer = new CountryDo
+        {
+            IsoCode = "GER",
+            Name = "Germany",
+            NativeName = "Deutschland",
+        };
+
+        var stateBy = new StateDo
+        {
+            CountryCode = "GER",
+            Code = "BY",
+            Name = "Bavaria",
+            NativeName = "Bayern",
+        };
+
+        var cityAux = new CityDo
+        {
+            Id = 1907,
+            CountryCode = "GER",
+            StateCode = "BY",
+            Name = "Augsburg",
+            NativeName = "Augschburg",
+            Country = countryGer,
+            State = stateBy,
+        };
+        
+        var mockVenue = new VenueDo
+        {
+            Id = 1337,
+            CountryCode = "GER",
+            StateCode = "BY",
+            CityId = 1907,
+            CurrentName = "WWK Arena",
+            TimeZone = "Europe/Berlin",
+            Latitude = 12,
+            Longitude = 21,
+            Country = countryGer,
+            State = stateBy,
+            City = cityAux,
+            PreviousNames = [
+                new PreviousVenueNameDo
+                {
+                    Id = 1,
+                    Name = "WWK Arena",
+                    From = DateOnly.ParseExact("2015-07-01", "yyyy-MM-dd"),
+                }
+            ],
+        };
+        
+        return mockVenue;
+    }
+
+    [Theory]
+    [InlineData("Arena Augsburg", "2025-07-01")]
+    public async Task AddVenueName_NewName(string newName, string fromDateStr)
+    {
+        var fromDate = DateOnly.ParseExact(fromDateStr, "yyyy-MM-dd");
+        var newToDateForFirstEntry = fromDate.AddDays(-1);
+        var mockVenue = GetSampleVenue();
+        var oldName = mockVenue.CurrentName;
+        
+        // setup mocks
+        VenueDo? savedVenueDo = null;
+        _venueRepository
+            .GetByPrimaryKeyAsync(Arg.Is<uint>(c => c == mockVenue.Id))
+            .Returns(mockVenue);
+        _venueRepository
+            .When(r => r.Update(Arg.Is<VenueDo>(v => v.Id == mockVenue.Id)))
+            .Do(c => savedVenueDo = c.Arg<VenueDo>());
+        
+        // call the service
+        Assert.Single(mockVenue.PreviousNames);
+        var request = new AddVenueNameRequestDto
+        {
+            VenueId = mockVenue.Id,
+            Name = newName,
+            From = fromDate,
+        };
+        await _service.AddVenueName(request);
+        
+        Assert.NotNull(savedVenueDo);
+        Assert.Equal(newName, savedVenueDo.CurrentName);
+        Assert.Equal(mockVenue.Id, savedVenueDo.Id);
+        Assert.Equal(mockVenue.CountryCode, savedVenueDo.CountryCode);
+        Assert.Equal(mockVenue.StateCode, savedVenueDo.StateCode);
+        Assert.Equal(mockVenue.CityId, savedVenueDo.CityId);
+        
+        // there should now be a second name entry
+        Assert.Equal(2, savedVenueDo.PreviousNames.Count);
+        var latestName = savedVenueDo
+            .PreviousNames
+            .OrderBy(pn => pn.From)
+            .Last();
+        Assert.NotNull(latestName);
+        Assert.Equal(newName, latestName.Name);
+        Assert.Equal(fromDate, latestName.From);
+        
+        var firstName = savedVenueDo
+            .PreviousNames
+            .OrderBy(pn => pn.From)
+            .First();
+        Assert.NotNull(firstName);
+        Assert.Equal(oldName, firstName.Name);
+        Assert.Equal(mockVenue.PreviousNames.FirstOrDefault()?.From, firstName.From);
+        Assert.Equal(newToDateForFirstEntry, firstName.To);
+        
+        // verify mock calls
+        await _venueRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(Arg.Is<uint>(c => c == mockVenue.Id));
+        _venueRepository
+            .Received(1)
+            .Update(Arg.Is<VenueDo>(v => v.Id == mockVenue.Id));
+        await _venueRepository
+            .Received(1)
+            .SaveChangesAsync();
+    }
+
+    #endregion
 }
