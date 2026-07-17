@@ -16,6 +16,18 @@
     <div class="sk sk-timeline"></div>
   </div>
 } @else {
+  <div class="page-nav">
+    <div class="nav-pager">
+      <p-button label="Previous show" icon="pi pi-arrow-left" variant="text" severity="secondary"
+                [disabled]="adjacentConcertData$?.previous == null"
+                [routerLink]="adjacentConcertData$?.previous ? ['../', adjacentConcertData$?.previous] : null" ariaLabel="Previous show" />
+      <p-button label="Next show" icon="pi pi-arrow-right" iconPos="right" variant="text" severity="secondary"
+                [disabled]="adjacentConcertData$?.next == null"
+                [routerLink]="adjacentConcertData$?.next ? ['../', adjacentConcertData$?.next] : null" ariaLabel="Next show" />
+    </div>
+    <p-button label="See this show on Linkinpedia" icon="pi pi-external-link" variant="text" (onClick)="openLinkinpediaClicked()" />
+  </div>
+
   <p-card class="hero-card">
     <div class="hero">
       <div class="hero-main">
@@ -169,28 +181,14 @@
     </div>
   }
 
-  <div class="page-footer">
-    <div class="footer-pager">
-      <p-button label="Previous show" icon="pi pi-arrow-left" variant="outlined" severity="secondary"
-                [disabled]="adjacentConcertData$?.previous == null"
-                [routerLink]="adjacentConcertData$?.previous ? ['../', adjacentConcertData$?.previous] : null" ariaLabel="Previous show" />
-      <p-button label="Next show" icon="pi pi-arrow-right" iconPos="right" variant="outlined" severity="secondary"
-                [disabled]="adjacentConcertData$?.next == null"
-                [routerLink]="adjacentConcertData$?.next ? ['../', adjacentConcertData$?.next] : null" ariaLabel="Next show" />
-    </div>
-
-    <div class="footer-lp">
-      <p-button label="See this show on Linkinpedia" icon="pi pi-external-link" variant="text" (onClick)="openLinkinpediaClicked()" />
-    </div>
-
-    @if (canUpdateConcerts$ || canEditSetlists) {
+  @if (canUpdateConcerts$ || canEditSetlists) {
+    <div class="page-footer">
       <div class="footer-admin">
         <p-button [hidden]="!canUpdateConcerts$" label="Edit" icon="pi pi-pencil" variant="text" severity="secondary" size="small" [routerLink]="['./edit']" />
         @if (canEditSetlists) {
           <p-split-button (onClick)="onAddSetlistBtnClicked()" [model]="addSetlistButtonItems" icon="pi pi-list" label="Add setlist" text size="small" />
         }
       </div>
-    }
-
-  </div>
+    </div>
+  }
 }
