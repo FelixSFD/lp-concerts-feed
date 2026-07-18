@@ -34,6 +34,22 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
         var venue = await service.GetVenueByIdAsync(venueId);
         return Ok(venue);
     }
+
+    /// <summary>
+    /// Returns an unfiltered list of all venues
+    /// </summary>
+    /// <param name="cancellationToken">Token to cancel the request</param>
+    /// <returns>lift of all venues</returns>
+    [HttpGet]
+    public async Task<ActionResult<VenueDto[]>> GetAllVenues(CancellationToken cancellationToken)
+    {
+        logger.LogDebug("Requested to get all venues.");
+        var venues = await service
+            .GetAllVenuesAsync(cancellationToken)
+            .ToArrayAsync(cancellationToken);
+        logger.LogDebug("Found {count} venues", venues.Length);
+        return Ok(venues);
+    }
     
     /// <summary>
     /// Returns the detailed information about a venue by its ID including information about the city and country

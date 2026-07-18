@@ -63,6 +63,19 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
     }
 
     /// <summary>
+    /// Returns a list of all venues
+    /// </summary>
+    /// <param name="cancellationToken">Token to cancel the search</param>
+    /// <returns>List of all venues</returns>
+    public IAsyncEnumerable<VenueDto> GetAllVenuesAsync(CancellationToken cancellationToken = default)
+    {
+        logger.LogDebug("Searching for all venues...");
+        return venueRepository
+            .QueryAsync(cancellationToken)
+            .Select(DtoMapper.ToDto);
+    }
+
+    /// <summary>
     /// Deletes a venue with a given ID
     /// </summary>
     /// <param name="venueId">ID of the venue</param>

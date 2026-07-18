@@ -164,6 +164,105 @@ public class VenueServiceTest
             .Received(1)
             .SaveChangesAsync();
     }
+
+    [Fact]
+    public async Task GetAllVenuesAsync()
+    {
+        var countryGer = new CountryDo
+        {
+            IsoCode = "GER",
+            Name = "Germany",
+            NativeName = "Deutschland",
+        };
+
+        var stateBy = new StateDo
+        {
+            CountryCode = "GER",
+            Code = "BY",
+            Name = "Bavaria",
+            NativeName = "Bayern",
+        };
+
+        var cityAux = new CityDo
+        {
+            Id = 1907,
+            CountryCode = "GER",
+            StateCode = "BY",
+            Name = "Augsburg",
+            NativeName = "Augschburg",
+            Country = countryGer,
+            State = stateBy,
+        };
+        
+        var mockVenue1 = new VenueDo
+        {
+            Id = 1337,
+            CountryCode = "GER",
+            StateCode = "BY",
+            CityId = 1907,
+            CurrentName = "WWK Arena",
+            TimeZone = "Europe/Berlin",
+            Latitude = 12,
+            Longitude = 21,
+            Country = countryGer,
+            State = stateBy,
+            City = cityAux
+        };
+        
+        var mockVenue2 = new VenueDo
+        {
+            Id = 9999,
+            CountryCode = "GER",
+            StateCode = "BY",
+            CityId = 1907,
+            CurrentName = "City-Club",
+            TimeZone = "Europe/Berlin",
+            Latitude = 12,
+            Longitude = 21,
+            Country = countryGer,
+            State = stateBy,
+            City = cityAux
+        };
+
+        VenueDo[] mockVenues = [mockVenue1, mockVenue2];
+        
+        // setup mocks
+        _venueRepository
+            .QueryAsync(Arg.Any<CancellationToken>())
+            .Returns(mockVenues.ToAsyncEnumerable());
+        
+        // call the service
+        var venues = await _service.GetAllVenuesAsync().ToArrayAsync();
+        Assert.Equal(2, venues.Length);
+        
+        AssertVenueDtoAgainstDo(mockVenue1, venues[0]);
+        AssertVenueDtoAgainstDo(mockVenue2, venues[1]);
+        
+        // validate mock calls
+        _venueRepository
+            .Received(1)
+            .QueryAsync(Arg.Any<CancellationToken>());
+    }
+    
+    [Fact]
+    public async Task GetAllVenuesAsync_Empty()
+    {
+        VenueDo[] mockVenues = [];
+        
+        // setup mocks
+        _venueRepository
+            .QueryAsync(Arg.Any<CancellationToken>())
+            .Returns(mockVenues.ToAsyncEnumerable());
+        
+        // call the service
+        var venues = await _service.GetAllVenuesAsync().ToArrayAsync();
+        Assert.Empty(venues);
+        
+        // validate mock calls
+        _venueRepository
+            .Received(1)
+            .QueryAsync(Arg.Any<CancellationToken>());
+    }
     
     [Fact]
     public async Task DeleteVenueAsync_NotFound()
@@ -312,4 +411,15 @@ public class VenueServiceTest
     }
 
     #endregion
+
+    private void AssertVenueDtoAgainstDo(VenueDo expected, VenueDto actual)
+    {
+        Assert.Equal(expected.Id, actual.Id);
+        Assert.Equal(expected.CurrentName, actual.CurrentName);
+        Assert.Equal(expected.Latitude, actual.Latitude);
+        Assert.Equal(expected.Longitude, actual.Longitude);
+        Assert.Equal(expected.CountryCode, actual.CountryCode);
+        Assert.Equal(expected.StateCode, actual.StateCode);
+        Assert.Equal(expected.CityId, actual.CityId);
+    }
 }
