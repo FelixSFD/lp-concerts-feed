@@ -16,9 +16,13 @@
 </div>
 
 <!-- Disclaimer about the data source -->
-<p-message severity="warn" [motionOptions]="{ appear: false, disabled: true }" class="mb-4">
-  Please be aware, that this list is <b>maintained by fans</b> and is not official information by Linkin Park or any organizer! <b>YOU</b> are responsible for making sure you are at the correct venue at the correct time and with a valid ticket.
-</p-message>
+<div class="p-message p-message-warn w-100 mb-4">
+  <div class="p-message-content-wrapper">
+    <div class="p-message-content">
+      <p class="p-message-text m-0">Please be aware, that this list is <b>maintained by fans</b> and is not official information by Linkin Park or any organizer! <b>YOU</b> are responsible for making sure you are at the correct venue at the correct time and with a valid ticket.</p>
+    </div>
+  </div>
+</div>
 
 <p-confirmDialog />
 
@@ -27,6 +31,15 @@
 </div>
 
 <div class="grid gap-4 mt-2 justify-content-center">
+  @if (concerts$.length == 0) {
+    <div class="p-message p-message-secondary w-100">
+      <div class="p-message-content-wrapper">
+        <div class="p-message-content">
+          <p class="p-message-text m-0">No concerts are matching your filter</p>
+        </div>
+      </div>
+    </div>
+  }
   @for (concert of concerts$; track concert.id) {
     <p-card class="w-full justify-content-center">
       <ng-template #title>
