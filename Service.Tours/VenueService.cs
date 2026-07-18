@@ -63,6 +63,20 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
     }
 
     /// <summary>
+    /// Deletes a venue with a given ID
+    /// </summary>
+    /// <param name="venueId">ID of the venue</param>
+    /// <exception cref="VenueNotFoundException">if the venue does not exist</exception>
+    public async Task DeleteVenueAsync(uint venueId)
+    {
+        logger.LogDebug("Deleting venue with ID: {venueId}", venueId);
+        var venue = await venueRepository.GetByPrimaryKeyWithoutReferencesAsync(venueId) ?? throw new VenueNotFoundException(venueId);
+        venueRepository.Delete(venue);
+        await venueRepository.SaveChangesAsync();
+        logger.LogDebug("Deleted venue with ID: {venueId}", venueId);
+    }
+
+    /// <summary>
     /// Adds a name to a venue. This can either be the new name or some historic name
     /// </summary>
     /// <param name="request"></param>

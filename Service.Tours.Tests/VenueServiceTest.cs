@@ -3,6 +3,8 @@ using Database.Tours.Repositories;
 using LPCalendar.DataStructure.Tours.Locations;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
+using Service.Tours.Exceptions;
 
 namespace Service.Tours.Tests;
 
@@ -135,6 +137,56 @@ public class VenueServiceTest
         await _venueRepository
             .Received(1)
             .GetByPrimaryKeyWithoutReferencesAsync(Arg.Is<uint>(c => c == mockVenue.Id));
+    }
+
+    [Fact]
+    public async Task DeleteVenueAsync()
+    {
+        var mockVenue = GetSampleVenue();
+        mockVenue.Id = 1234;
+        
+        // setup mocks
+        _venueRepository
+            .GetByPrimaryKeyWithoutReferencesAsync(Arg.Is<uint>(c => c == mockVenue.Id))
+            .Returns(mockVenue);
+        
+        // call the service
+        await _service.DeleteVenueAsync(mockVenue.Id);
+        
+        // verify mock calls
+        await _venueRepository
+            .Received(1)
+            .GetByPrimaryKeyWithoutReferencesAsync(Arg.Is<uint>(c => c == mockVenue.Id));
+        _venueRepository
+            .Received(1)
+            .Delete(Arg.Is<VenueDo>(c => c.Id == mockVenue.Id));
+        await _venueRepository
+            .Received(1)
+            .SaveChangesAsync();
+    }
+    
+    [Fact]
+    public async Task DeleteVenueAsync_NotFound()
+    {
+        // setup mocks
+        _venueRepository
+            .GetByPrimaryKeyWithoutReferencesAsync(Arg.Any<uint>())
+            .ThrowsAsync(new VenueNotFoundException(1234));
+        
+        // call the service
+        var exception = await Assert.ThrowsAsync<VenueNotFoundException>(async () => await _service.DeleteVenueAsync(1234));
+        Assert.Equal(1234u, exception.VenueId);
+        
+        // verify mock calls
+        await _venueRepository
+            .Received(1)
+            .GetByPrimaryKeyWithoutReferencesAsync(Arg.Is<uint>(c => c == 1234u));
+        _venueRepository
+            .DidNotReceive()
+            .Delete(Arg.Any<VenueDo>());
+        await _venueRepository
+            .DidNotReceive()
+            .SaveChangesAsync();
     }
 
     #region Venue Names

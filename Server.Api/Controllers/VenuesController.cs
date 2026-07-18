@@ -47,4 +47,18 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
         var venue = await service.GetVenueWithDetailsByIdAsync(venueId);
         return Ok(venue);
     }
+    
+    /// <summary>
+    /// Deletes a venue
+    /// </summary>
+    /// <param name="venueId">ID of the venue</param>
+    /// <returns>no content</returns>
+    [HttpDelete("{venueId:int}")]
+    public async Task<NoContentResult> DeleteVenueById(uint venueId)
+    {
+        logger.LogInformation("Requested to delete venue with ID: {venueId}", venueId);
+        await service.DeleteVenueAsync(venueId);
+        logger.LogInformation("Deleted venue with ID: {venueId}", venueId);
+        return NoContent();
+    }
 }
