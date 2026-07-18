@@ -1,7 +1,7 @@
 @if (differenceMillis$ >= 0) {
   <div class="hc">
     <div class="hc-cell">
-      <span class="hc-val">{{ days$ }}</span>
+      <span class="hc-val">{{ days$ | number: "2.0" }}</span>
       <span class="hc-lbl">days</span>
     </div>
     <div class="hc-sep">:</div>
@@ -16,7 +16,7 @@
     </div>
     <div class="hc-sep">:</div>
     <div class="hc-cell">
-      <span class="hc-val">{{ seconds$ }}</span>
+      <span class="hc-val">{{ seconds$ | number: "2.0" }}</span>
       <span class="hc-lbl">sec</span>
     </div>
   </div>

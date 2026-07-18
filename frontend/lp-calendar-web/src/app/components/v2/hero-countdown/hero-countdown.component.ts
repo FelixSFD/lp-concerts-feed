@@ -1,9 +1,12 @@
 import {AfterViewInit, Component, inject, Input, OnInit} from '@angular/core';
 import {ClockService} from '../../../services/clock.service';
+import {DecimalPipe} from '@angular/common';
 
 @Component({
   selector: 'app-hero-countdown',
-  imports: [],
+  imports: [
+    DecimalPipe
+  ],
   templateUrl: './hero-countdown.component.html',
   styleUrl: './hero-countdown.component.css'
 })
