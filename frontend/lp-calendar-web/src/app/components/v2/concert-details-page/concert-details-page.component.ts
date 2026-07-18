@@ -32,7 +32,6 @@ import {FormsModule} from '@angular/forms';
 import {Tooltip} from 'primeng/tooltip';
 import {TimeSpanPipe} from '../../../data/time-span-pipe';
 import {HeroCountdownComponent} from '../hero-countdown/hero-countdown.component';
-import {Message} from 'primeng/message';
 import {SetlistComponent} from '../setlists/setlist/setlist.component';
 import {Tag} from 'primeng/tag';
 import {Image} from 'primeng/image';
@@ -41,18 +40,14 @@ import {Image} from 'primeng/image';
   selector: 'app-concert-details-page',
   imports: [
     ConcertBadgesComponent,
-    ProgressSpinner,
     Card,
     SplitButton,
-    NgTemplateOutlet,
     Button,
     RouterLink,
-    ButtonGroup,
     FormsModule,
     Tooltip,
     TimeSpanPipe,
     HeroCountdownComponent,
-    Message,
     SetlistComponent,
     Tag,
     Image
@@ -77,9 +72,6 @@ export class ConcertDetailsPageComponent implements OnInit {
   // Apple Maps
   private mapKit: MapKit | undefined;
   private appleMap: AppleMap | undefined;
-
-  // Service to check auth information
-  private readonly oidcSecurityService = inject(OidcSecurityService);
 
   isAuthenticated$ = false;
   canUpdateConcerts$ = false;
@@ -152,7 +144,7 @@ export class ConcertDetailsPageComponent implements OnInit {
   }
 
   onAddSetlistBtnClicked() {
-    this.router.navigate(['/admin', 'setlists', 'add', this.concertId]).then().catch((err) => {
+    this.router.navigate(['/admin', 'setlists', 'add', this.concert$?.id]).then().catch((err) => {
       this.messageService.add({
         severity: "danger",
         summary: "Could not navigate to setlist",
@@ -206,9 +198,9 @@ export class ConcertDetailsPageComponent implements OnInit {
     this.concertBookmarksLoading$ = true;
 
     this.authService.isAuthenticated$.subscribe((isAuthenticated) => {
-      if (this.concertId == undefined || this.concertBookmarks$ == null) {
+      if (this.concert$?.id == undefined || this.concertBookmarks$ == null) {
         this.messageService.add({
-          severity: "danger",
+          severity: "error",
           summary: "Concert not loaded",
         });
         this.concertBookmarksLoading$ = false;
@@ -219,7 +211,7 @@ export class ConcertDetailsPageComponent implements OnInit {
         if (this.concertBookmarks$?.currentUserStatus == status) {
           // remove bookmark
           this.tracker.trackEvent("concert_bookmark", "remove", status);
-          this.concertsService.setBookmarksForConcert(this.concertId, ConcertBookmarkUpdateRequestDto.StatusEnum.None).subscribe({
+          this.concertsService.setBookmarksForConcert(this.concert$?.id, ConcertBookmarkUpdateRequestDto.StatusEnum.None).subscribe({
             next: () => {
               //this.toastr.success("Removed bookmark!");
               this.concertBookmarks$!.currentUserStatus = GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.None;
@@ -229,7 +221,7 @@ export class ConcertDetailsPageComponent implements OnInit {
               console.log(err);
               let errorResponse: ErrorResponseDto = err.error;
               this.messageService.add({
-                severity: "danger",
+                severity: "error",
                 summary: "Failed to remove bookmark!",
                 text: errorResponse.message,
               });
@@ -238,7 +230,7 @@ export class ConcertDetailsPageComponent implements OnInit {
         } else {
           // add bookmark
           this.tracker.trackEvent("concert_bookmark", "set", status);
-          this.concertsService.setBookmarksForConcert(this.concertId, status).subscribe({
+          this.concertsService.setBookmarksForConcert(this.concert$?.id, status).subscribe({
             next: () => {
               //this.toastr.success("Added bookmark!");
               this.concertBookmarks$!.currentUserStatus = status;
@@ -291,56 +283,6 @@ export class ConcertDetailsPageComponent implements OnInit {
           }
         });
     }
-  }
-
-
-  loadDataForId(id: string | undefined) {
-    console.log("loadDataForId: " + id);
-    if (id == undefined) {
-      this.concertId = undefined;
-      this.concert$ = null;
-      this.adjacentConcertData$ = null;
-      return;
-    }
-
-    this.concertId = id!;
-
-    // delete current concert data to show a loading spinner
-    this.concert$ = null;
-    this.setlists$ = [];
-
-    this.loadAdjacentConcerts();
-
-    this.loadBookmarkStatus();
-
-    this.concertsService
-      .getConcert(this.concertId)
-      .subscribe(result => {
-        if (result != undefined) {
-          let concertDateTitleExtension = "";
-          if (result.postedStartTime != undefined) {
-            let concertDate = new Date(result.postedStartTime);
-            concertDateTitleExtension = " - " + concertDate.toLocaleDateString();
-          }
-
-          let titleInfo = result.city + ", " + result.country + concertDateTitleExtension;
-          window.document.title = window.document.title.replace("Details", titleInfo);
-
-          this.updateMetaInfo(result);
-        }
-
-        // Set coordinates in map
-        console.log(result);
-        if (result.venueLongitude != undefined && result.venueLatitude != undefined
-          && result.venueLongitude != 0 && result.venueLatitude != 0) {
-          this.addOrMoveMarker(result.venueLongitude, result.venueLatitude);
-        }
-
-        this.setlists$ = result.cachedSetlists?.map(s => Setlist.fromDto(s)) ?? [];
-        this.setlistsCacheUpdatedAt$ = result.cachedSetlistsAt != null ? this.getDateTime(result.cachedSetlistsAt) : null;
-
-        return this.concert$ = result;
-      });
   }
 
 
