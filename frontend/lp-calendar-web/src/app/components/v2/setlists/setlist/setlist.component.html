@@ -1,52 +1,58 @@
 <div class="table-wrapper position-relative" [class.expanded]="isExpanded$" id="setlist-container-{{ setlist?.id }}">
   <div class="collapsible-table">
-    <p-table [value]="setlist?.entries ?? []" rowGroupMode="subheader" groupRowsBy="actNumber" size="small">
-      <ng-template #header>
-        <tr>
-          <th>#</th>
-          <th></th>
-          <th style="max-width: 30px"></th><!-- Artwork -->
-          <th>Song</th>
-          <th>Notes</th>
-        </tr>
-      </ng-template>
-      <ng-template #groupheader let-firstEntry>
-        @if (getActForEntry(setlist, firstEntry)?.actNumber ?? 0 > 0) {
-          <tr pRowGroupHeader>
-            <td colspan="3">
-              <b>Act {{ getActForEntry(setlist, firstEntry)?.actNumber ?? "" }}</b>
-            </td>
-            <td colspan="2">
-              <b>{{ getActForEntry(setlist, firstEntry)?.title ?? "" }}</b>
-            </td>
-          </tr>
+    <div class="tracklist">
+      @for (entry of setlist?.entries ?? []; track entry.id; let i = $index) {
+        @if (isActStart(setlist?.entries ?? [], i)) {
+          @let act = getActForEntry(setlist, entry);
+          @if (act != null) {
+            <div class="tl-act">
+              @if (act.actNumber > 0 && act.actNumber < Number.MAX_SAFE_INTEGER) {
+                <span class="tl-act-num">Act {{ act.actNumber }}</span>
+              }
+              <span class="tl-act-title">{{ act.title }}</span>
+            </div>
+          } @else if (entry.actNumber === Number.MAX_SAFE_INTEGER && (setlist?.acts?.length ?? 0) > 0) {
+            <div class="tl-act">
+              <span class="tl-act-title">Encore</span>
+            </div>
+          }
         }
-      </ng-template>
 
-      <ng-template #body let-entry let-rowIndex="rowIndex">
-        <tr [class]="entry.isWorldPremiere ? 'bg-warning-subtle' : (entry.isLivePremiere ? 'bg-success-subtle' : '')">
-          <td class="pl-4">&nbsp;&nbsp;{{ entry.songNumber == 0 ? "" : `${entry.songNumber}.` }}</td>
-          <td><app-setlist-entry-icons [record-tape]="entry.isPlayedFromRecording" /></td>
-          <td>
-            @if (entry.appleMusicId != null && songArtworks$.get(entry.appleMusicId) != null) {
-              <app-apple-music-artwork [artwork]="songArtworks$.get(entry.appleMusicId)!" [width]="25" [pTooltip]="entry.albumTitle" tooltipPosition="top" />
-            }
-          </td>
-          <td class="pl-4 white-space-nowrap vertical-align-middle">
-            @if ("linkinpediaUrl" in entry && entry.linkinpediaUrl) {
-              <a [href]="entry.linkinpediaUrl" target="_blank" class="link">{{ entry.title }}</a> <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" [live-premiere]="entry.isLivePremiere" />
-            } @else {
-              {{ entry.title }} <app-setlist-entry-icons [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" [live-premiere]="entry.isLivePremiere" />
-            }
+        <div class="tl-row">
+          <div class="tl-head">
+            <span class="tl-num">{{ entry.songNumber == 0 ? "" : entry.songNumber }}</span>
 
-            @if (entry.songExtras) {
-              <app-setlist-entry-song-extra-list [extras]="entry.songExtras" />
-            }
-          </td>
-          <td class="pl-4 white-space-nowrap small" style="font-style: italic">{{ entry.extraNotes }}</td>
-        </tr>
-      </ng-template>
-    </p-table>
+            <span class="tl-art">
+              @if (entry.appleMusicId != null && songArtworks$.get(entry.appleMusicId) != null) {
+                <app-apple-music-artwork [artwork]="songArtworks$.get(entry.appleMusicId)!" [width]="44" [pTooltip]="entry.albumTitle ?? ''" tooltipPosition="top" />
+              } @else {
+                <span class="tl-art-ph"><i class="pi pi-headphones"></i></span>
+              }
+            </span>
+
+            <span class="tl-title">
+              @if ("linkinpediaUrl" in entry && entry.linkinpediaUrl) {
+                <a [href]="entry.linkinpediaUrl" target="_blank" class="link">{{ entry.title }}</a>
+              } @else {
+                {{ entry.title }}
+              }
+              <app-setlist-entry-icons [record-tape]="entry.isPlayedFromRecording" [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" [live-premiere]="entry.isLivePremiere" />
+            </span>
+          </div>
+
+          @if (entry.extraNotes || entry.songExtras.length > 0) {
+            <div class="tl-body">
+              @if (entry.extraNotes) {
+                <span class="tl-notes">{{ entry.extraNotes }}</span>
+              }
+              @if (entry.songExtras.length > 0) {
+                <app-setlist-entry-song-extra-list [extras]="entry.songExtras" />
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
 
     @if (setlist) {
       <app-setlist-album-chart [setlist]="setlist" />
