@@ -125,6 +125,37 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
         await venueRepository.SaveChangesAsync();
         logger.LogDebug("Successfully added new name to venue.");
     }
+    
+    /// <summary>
+    /// Updates a name of a venue
+    /// </summary>
+    /// <param name="request"></param>
+    /// <exception cref="VenueNotFoundException"></exception>
+    public async Task UpdateVenueName(UpdateVenueNameRequestDto request, uint venueId, uint venueNameId)
+    {
+        logger.LogDebug("Updating the name '{venueNameId}' to '{newName}' for venue with ID: {venueId}", venueNameId, request.Name, venueId);
+        var venue = await venueRepository.GetByPrimaryKeyAsync(venueId);
+        if (venue == null)
+        {
+            logger.LogError("Failed to update venue name! Could not find venue with ID: {venueId}", venueId);
+            throw new VenueNotFoundException(venueId);
+        }
+
+        var nameToUpdate = venue.PreviousNames.FirstOrDefault(pn => pn.Id == venueNameId) ?? throw new VenueNameNotFoundException(venueId, venueNameId);
+        nameToUpdate.Name = request.Name;
+        nameToUpdate.From = request.From;
+        nameToUpdate.To = request.To;
+        
+        // fix the time ranges of the entries if possible
+        ValidateVenueNameDateRanges(venue);
+        
+        // update to the currently valid name
+        venue.CurrentName = venue.PreviousNames.GetValidNameEntryAt(DateTimeOffset.UtcNow).Name;
+        
+        venueRepository.Update(venue);
+        await venueRepository.SaveChangesAsync();
+        logger.LogDebug("Successfully updated new name of venue.");
+    }
 
     /// <summary>
     /// Makes sure that the <see cref="PreviousVenueNameDo"/>s are not overlapping.

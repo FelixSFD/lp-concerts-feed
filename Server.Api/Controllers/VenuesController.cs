@@ -83,12 +83,26 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// </summary>
     /// <param name="request"></param>
     /// <param name="venueId">ID of the venue</param>
-    /// <returns></returns>
+    /// <returns>Venue information with details</returns>
     [HttpPost("{venueId:int}/names")]
-    public async Task<VenueWithCityDto> AddNewVenueName([FromBody] AddVenueNameRequestDto request, [FromRoute] uint venueId)
+    public async Task<VenueWithDetailsDto> AddNewVenueName([FromBody] AddVenueNameRequestDto request, [FromRoute] uint venueId)
     {
         await service.AddVenueName(request, venueId);
         var venue = await service.GetVenueWithDetailsByIdAsync(venueId);
         return venue;
+    }
+    
+    /// <summary>
+    /// Changes an existing name of a venue
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="venueId">ID of the venue</param>
+    /// <param name="venueNameId">ID of the venue name</param>
+    /// <returns>no content</returns>
+    [HttpPut("{venueId:int}/names/{venueNameId:int}")]
+    public async Task<NoContentResult> AddNewVenueName([FromBody] UpdateVenueNameRequestDto request, [FromRoute] uint venueId, [FromRoute] uint venueNameId)
+    {
+        await service.UpdateVenueName(request, venueId, venueNameId);
+        return NoContent();
     }
 }
