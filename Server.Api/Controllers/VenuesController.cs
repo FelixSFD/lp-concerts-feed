@@ -4,6 +4,11 @@ using Service.Tours;
 
 namespace Server.Api.Controllers;
 
+/// <summary>
+/// Controller to manage venues
+/// </summary>
+/// <param name="service">Service that manages venues</param>
+/// <param name="logger">Logger</param>
 [ApiController]
 [Route("[controller]")]
 public class VenuesController(VenueService service, ILogger<VenuesController> logger) : ControllerBase
@@ -69,6 +74,8 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// </summary>
     /// <param name="venueId">ID of the venue</param>
     /// <returns>no content</returns>
+    /// <response code="201">If the venue was deleted successfully</response>
+    /// <response code="404">If the venue was not found</response>
     [HttpDelete("{venueId:int}")]
     public async Task<NoContentResult> DeleteVenueById(uint venueId)
     {
@@ -84,6 +91,7 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <param name="request"></param>
     /// <param name="venueId">ID of the venue</param>
     /// <returns>Venue information with details</returns>
+    /// <response code="404">If the venue was not found</response>
     [HttpPost("{venueId:int}/names")]
     public async Task<VenueWithDetailsDto> AddNewVenueName([FromBody] AddVenueNameRequestDto request, [FromRoute] uint venueId)
     {
@@ -99,8 +107,10 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <param name="venueId">ID of the venue</param>
     /// <param name="venueNameId">ID of the venue name</param>
     /// <returns>no content</returns>
+    /// <response code="201">If the name was updated successfully</response>
+    /// <response code="404">If the venue or name was not found</response>
     [HttpPut("{venueId:int}/names/{venueNameId:int}")]
-    public async Task<NoContentResult> AddNewVenueName([FromBody] UpdateVenueNameRequestDto request, [FromRoute] uint venueId, [FromRoute] uint venueNameId)
+    public async Task<NoContentResult> UpdateVenueName([FromBody] UpdateVenueNameRequestDto request, [FromRoute] uint venueId, [FromRoute] uint venueNameId)
     {
         await service.UpdateVenueNameAsync(request, venueId, venueNameId);
         return NoContent();
@@ -112,6 +122,8 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <param name="venueId">ID of the venue</param>
     /// <param name="venueNameId">ID of the venue name</param>
     /// <returns>no content</returns>
+    /// <response code="201">If the name was deleted successfully</response>
+    /// <response code="404">If the venue was not found</response>
     [HttpDelete("{venueId:int}/names/{venueNameId:int}")]
     public async Task<NoContentResult> DeleteVenueName([FromRoute] uint venueId, [FromRoute] uint venueNameId)
     {
