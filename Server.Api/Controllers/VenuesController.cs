@@ -26,6 +26,21 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
         logger.LogDebug("created venue with id {id}", newId);
         return CreatedAtAction(nameof(GetVenueById), new { venueId = newId }, null);
     }
+    
+    /// <summary>
+    /// Updates the information about a venue. Please note that updates of the name have to be made through special routes.
+    /// </summary>
+    /// <param name="request">New information of the venue. Partial updates are not possible.</param>
+    /// <param name="venueId">ID of the venue</param>
+    /// <returns>all information about the venue</returns>
+    [HttpPut("{venueId:int}")]
+    public async Task<ActionResult<VenueWithDetailsDto>> UpdateVenue([FromBody] UpdateVenueRequestDto request, [FromRoute] uint venueId)
+    {
+        logger.LogDebug("Update venue with ID: {venueId}", venueId);
+        await service.UpdateVenueAsync(request, venueId);
+        var venue = await service.GetVenueWithDetailsByIdAsync(venueId);
+        return Ok(venue);
+    }
 
     /// <summary>
     /// Returns the basic information about a venue by its ID

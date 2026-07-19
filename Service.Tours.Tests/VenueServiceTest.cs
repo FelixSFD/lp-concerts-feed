@@ -288,6 +288,53 @@ public class VenueServiceTest
             .SaveChangesAsync();
     }
 
+    [Fact]
+    public async Task UpdateVenueAsync()
+    {
+        var mockVenue = GetSampleVenue();
+        mockVenue.Id = 1234;
+        
+        // setup mocks
+        VenueDo? savedVenueDo = null;
+        _venueRepository
+            .GetByPrimaryKeyWithoutReferencesAsync(Arg.Is<uint>(c => c == mockVenue.Id))
+            .Returns(mockVenue);
+        _venueRepository
+            .When(r => r.Update(Arg.Is<VenueDo>(v => v.Id == mockVenue.Id)))
+            .Do(c => savedVenueDo = c.Arg<VenueDo>());
+        
+        // call the service
+        var updateRequest = new UpdateVenueRequestDto
+        {
+            CountryCode = "GBR",
+            StateCode = null,
+            CityId = 418,
+            Latitude = 0.12m,
+            Longitude = 89.89m,
+            TimeZone = "Europe/London",
+        };
+        await _service.UpdateVenueAsync(updateRequest, mockVenue.Id);
+        Assert.NotNull(savedVenueDo);
+        Assert.Equal(mockVenue.Id, savedVenueDo.Id);
+        Assert.Equal(updateRequest.CountryCode, savedVenueDo.CountryCode);
+        Assert.Equal(updateRequest.StateCode, savedVenueDo.StateCode);
+        Assert.Equal(updateRequest.CityId, savedVenueDo.CityId);
+        Assert.Equal(updateRequest.Latitude, savedVenueDo.Latitude);
+        Assert.Equal(updateRequest.Longitude, savedVenueDo.Longitude);
+        Assert.Equal(updateRequest.TimeZone, savedVenueDo.TimeZone);
+        
+        // verify mock calls
+        await _venueRepository
+            .Received(1)
+            .GetByPrimaryKeyWithoutReferencesAsync(Arg.Is<uint>(c => c == mockVenue.Id));
+        _venueRepository
+            .Received(1)
+            .Update(Arg.Is<VenueDo>(c => c.Id == mockVenue.Id));
+        await _venueRepository
+            .Received(1)
+            .SaveChangesAsync();
+    }
+
     #region Venue Names
 
     private VenueDo GetSampleVenue()

@@ -234,6 +234,23 @@ internal static class DtoMapper
             VenueNames = dataObject.PreviousNames.Select(ToDto).ToArray(),
         };
     }
+
+    /// <summary>
+    /// Updates the properties of the <see cref="VenueDo"/> with the information in the <param name="updateRequest"></param>
+    /// </summary>
+    /// <param name="dataObject"></param>
+    /// <param name="updateRequest">Information to update the DataObject</param>
+    /// <returns>the updated object</returns>
+    public static VenueDo UpdateFromRequestDto(this VenueDo dataObject, UpdateVenueRequestDto updateRequest)
+    {
+        dataObject.CountryCode = updateRequest.CountryCode;
+        dataObject.StateCode = updateRequest.StateCode;
+        dataObject.CityId = updateRequest.CityId;
+        dataObject.Latitude = updateRequest.Latitude ?? 0;
+        dataObject.Longitude = updateRequest.Longitude ?? 0;
+        dataObject.TimeZone = updateRequest.TimeZone;
+        return dataObject;
+    }
     
     /// <summary>
     /// Converts a <see cref="PreviousVenueNameDo"/> to the <see cref="PreviousVenueNameDto"/>

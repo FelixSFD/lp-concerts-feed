@@ -3,7 +3,6 @@ using Database.Tours.Extensions;
 using Database.Tours.Repositories;
 using LPCalendar.DataStructure.Tours.Locations;
 using Microsoft.Extensions.Logging;
-using Mysqlx;
 using Service.Tours.Exceptions;
 
 namespace Service.Tours;
@@ -73,6 +72,27 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
         return venueRepository
             .QueryAsync(cancellationToken)
             .Select(DtoMapper.ToDto);
+    }
+
+    /// <summary>
+    /// Updates the information about a venue.
+    /// </summary>
+    /// <remarks>
+    /// Note that this method cannot update the name of the venue.
+    /// Please use <see cref="AddVenueNameAsync"/> or <see cref="UpdateVenueNameAsync"/> instead.
+    /// </remarks>
+    /// <param name="request">New data of the venue. Partial updates are not possible!</param>
+    /// <param name="venueId">ID of the venue to update</param>
+    /// <exception cref="VenueNotFoundException">if the venue does not exist</exception>
+    public async Task UpdateVenueAsync(UpdateVenueRequestDto request, uint venueId)
+    {
+        logger.LogDebug("Updating venue with ID: {venueId}", venueId);
+        var venue = await venueRepository.GetByPrimaryKeyWithoutReferencesAsync(venueId) ?? throw new VenueNotFoundException(venueId);
+        logger.LogDebug("Found venue: {name}", venue.CurrentName);
+        venue.UpdateFromRequestDto(request);
+        venueRepository.Update(venue);
+        await venueRepository.SaveChangesAsync();
+        logger.LogDebug("Successfully updated the venue.");
     }
 
     /// <summary>
