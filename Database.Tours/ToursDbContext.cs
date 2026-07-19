@@ -43,6 +43,12 @@ public class ToursDbContext(DbContextOptions<ToursDbContext> options) : DbContex
             .WithMany()
             .HasForeignKey(v => new { v.CountryCode, v.StateCode })
             .HasPrincipalKey(s => new { s.CountryCode, s.Code });
+
+        modelBuilder.Entity<VenueDo>()
+            .HasMany(v => v.PreviousNames)
+            .WithOne(pn => pn.Venue)
+            .HasForeignKey(pn => new { pn.VenueId })
+            .HasPrincipalKey(v => new { v.Id });
         
         modelBuilder.Entity<TourLegDo>()
             .HasOne(tl => tl.Tour)

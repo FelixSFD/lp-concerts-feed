@@ -54,12 +54,12 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
     /// <param name="venueId">ID of the venue</param>
     /// <returns></returns>
     /// <exception cref="VenueNotFoundException">if the venue was not found</exception>
-    public async Task<VenueDto> GetVenueWithDetailsByIdAsync(uint venueId)
+    public async Task<VenueWithDetailsDto> GetVenueWithDetailsByIdAsync(uint venueId)
     {
         logger.LogDebug("Searching for venue details with ID: {venueId}", venueId);
         var venue = await venueRepository.GetByPrimaryKeyAsync(venueId) ?? throw new VenueNotFoundException(venueId);
         logger.LogDebug("Found venue: {name}", venue.CurrentName);
-        return venue.ToDtoWithCityDetails();
+        return venue.ToDtoWithAllDetails();
     }
 
     /// <summary>

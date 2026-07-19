@@ -16,6 +16,9 @@ public class SqlVenueRepository(ToursDbContext dbContext) : SingleKeySqlReposito
         await Context.Entry(dataObject)
             .Reference(v => v.City)
             .LoadAsync();
+        await Context.Entry(dataObject)
+            .Collection(v => v.PreviousNames)
+            .LoadAsync();
         
         return dataObject;
     }

@@ -27,7 +27,6 @@ public class PreviousVenueNameDo : BaseDo
     /// <summary>
     /// Venue that used to have this name
     /// </summary>
-    [ForeignKey(nameof(VenueId))]
     public virtual VenueDo Venue { get; set; }
     
     /// <summary>

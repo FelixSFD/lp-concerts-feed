@@ -77,4 +77,17 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
         logger.LogInformation("Deleted venue with ID: {venueId}", venueId);
         return NoContent();
     }
+
+    /// <summary>
+    /// Adds a new name to a venue for a given time range
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPost("{venueId:int}/names")]
+    public async Task<VenueWithCityDto> AddNewVenueName([FromBody] AddVenueNameRequestDto request)
+    {
+        await service.AddVenueName(request);
+        var venue = await service.GetVenueWithDetailsByIdAsync(request.VenueId);
+        return venue;
+    }
 }

@@ -197,7 +197,7 @@ internal static class DtoMapper
     /// </summary>
     /// <param name="dataObject">DataObject to convert to the DTO</param>
     /// <returns>the mapped DTO</returns>
-    public static VenueDto ToDtoWithCityDetails(this VenueDo dataObject)
+    public static VenueWithCityDto ToDtoWithCityDetails(this VenueDo dataObject)
     {
         return new VenueWithCityDto
         {
@@ -210,6 +210,45 @@ internal static class DtoMapper
             Latitude = dataObject.Latitude,
             Longitude = dataObject.Longitude,
             City = dataObject.City.ToDtoWithCountry(),
+        };
+    }
+    
+    /// <summary>
+    /// Converts a <see cref="VenueDo"/> to the <see cref="VenueWithDetailsDto"/>
+    /// </summary>
+    /// <param name="dataObject">DataObject to convert to the DTO</param>
+    /// <returns>the mapped DTO</returns>
+    public static VenueWithDetailsDto ToDtoWithAllDetails(this VenueDo dataObject)
+    {
+        return new VenueWithDetailsDto
+        {
+            Id = dataObject.Id,
+            CountryCode = dataObject.CountryCode,
+            StateCode = dataObject.StateCode,
+            CityId = dataObject.CityId,
+            CurrentName = dataObject.CurrentName,
+            TimeZone = dataObject.TimeZone,
+            Latitude = dataObject.Latitude,
+            Longitude = dataObject.Longitude,
+            City = dataObject.City.ToDtoWithCountry(),
+            VenueNames = dataObject.PreviousNames.Select(ToDto).ToArray(),
+        };
+    }
+    
+    /// <summary>
+    /// Converts a <see cref="PreviousVenueNameDo"/> to the <see cref="PreviousVenueNameDto"/>
+    /// </summary>
+    /// <param name="dataObject">DataObject to convert to the DTO</param>
+    /// <returns>the mapped DTO</returns>
+    public static PreviousVenueNameDto ToDto(this PreviousVenueNameDo dataObject)
+    {
+        return new PreviousVenueNameDto
+        {
+            Id = dataObject.Id,
+            VenueId = dataObject.VenueId,
+            Name = dataObject.Name,
+            UsedFrom = dataObject.From,
+            UsedUntil = dataObject.To,
         };
     }
 }
