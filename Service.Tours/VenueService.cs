@@ -94,7 +94,7 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
     /// </summary>
     /// <param name="request"></param>
     /// <exception cref="VenueNotFoundException"></exception>
-    public async Task AddVenueName(AddVenueNameRequestDto request, uint venueId)
+    public async Task AddVenueNameAsync(AddVenueNameRequestDto request, uint venueId)
     {
         logger.LogDebug("Adding name '{newName}' for venue with ID: {venueId}", request.Name, venueId);
         var venue = await venueRepository.GetByPrimaryKeyAsync(venueId);
@@ -131,7 +131,7 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
     /// </summary>
     /// <param name="request"></param>
     /// <exception cref="VenueNotFoundException"></exception>
-    public async Task UpdateVenueName(UpdateVenueNameRequestDto request, uint venueId, uint venueNameId)
+    public async Task UpdateVenueNameAsync(UpdateVenueNameRequestDto request, uint venueId, uint venueNameId)
     {
         logger.LogDebug("Updating the name '{venueNameId}' to '{newName}' for venue with ID: {venueId}", venueNameId, request.Name, venueId);
         var venue = await venueRepository.GetByPrimaryKeyAsync(venueId);
@@ -155,6 +155,38 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
         venueRepository.Update(venue);
         await venueRepository.SaveChangesAsync();
         logger.LogDebug("Successfully updated new name of venue.");
+    }
+    
+    /// <summary>
+    /// Deletes a name of a venue
+    /// </summary>
+    /// <param name="venueId">ID of the venue</param>
+    /// <param name="venueNameId">ID of the name</param>
+    /// <exception cref="VenueNotFoundException"></exception>
+    public async Task DeleteVenueNameAsync(uint venueId, uint venueNameId)
+    {
+        logger.LogDebug("Deleting the name '{venueNameId}' for venue with ID: {venueId}", venueNameId, venueId);
+        var venue = await venueRepository.GetByPrimaryKeyAsync(venueId);
+        if (venue == null)
+        {
+            logger.LogError("Failed to delete venue name! Could not find venue with ID: {venueId}", venueId);
+            throw new VenueNotFoundException(venueId);
+        }
+
+        venue.PreviousNames = venue
+            .PreviousNames
+            .Where(pn => pn.Id != venueNameId)
+            .ToArray();
+        
+        // fix the time ranges of the entries if possible
+        ValidateVenueNameDateRanges(venue);
+        
+        // update to the currently valid name
+        venue.CurrentName = venue.PreviousNames.GetValidNameEntryAt(DateTimeOffset.UtcNow).Name;
+        
+        venueRepository.Update(venue);
+        await venueRepository.SaveChangesAsync();
+        logger.LogDebug("Successfully deleted name of venue.");
     }
 
     /// <summary>

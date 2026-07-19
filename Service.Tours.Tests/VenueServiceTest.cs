@@ -334,6 +334,13 @@ public class VenueServiceTest
             PreviousNames = [
                 new PreviousVenueNameDo
                 {
+                    Id = 2,
+                    Name = "SQL Arena",
+                    From = DateOnly.ParseExact("2010-07-01", "yyyy-MM-dd"),
+                    To = DateOnly.ParseExact("2015-06-30", "yyyy-MM-dd"),
+                },
+                new PreviousVenueNameDo
+                {
                     Id = 1,
                     Name = "WWK Arena",
                     From = DateOnly.ParseExact("2015-07-01", "yyyy-MM-dd"),
@@ -352,6 +359,16 @@ public class VenueServiceTest
         var newToDateForFirstEntry = fromDate.AddDays(-1);
         var mockVenue = GetSampleVenue();
         var oldName = mockVenue.CurrentName;
+
+        mockVenue.PreviousNames =
+        [
+            new PreviousVenueNameDo
+            {
+                Id = 1,
+                Name = "WWK Arena",
+                From = DateOnly.ParseExact("2015-07-01", "yyyy-MM-dd"),
+            }
+        ];
         
         // setup mocks
         VenueDo? savedVenueDo = null;
@@ -369,7 +386,7 @@ public class VenueServiceTest
             Name = newName,
             From = fromDate,
         };
-        await _service.AddVenueName(request, mockVenue.Id);
+        await _service.AddVenueNameAsync(request, mockVenue.Id);
         
         Assert.NotNull(savedVenueDo);
         Assert.Equal(newName, savedVenueDo.CurrentName);
@@ -407,6 +424,26 @@ public class VenueServiceTest
         await _venueRepository
             .Received(1)
             .SaveChangesAsync();
+    }
+
+    [Fact]
+    public async Task DeleteNameFromVenue()
+    {
+        var mockVenue = GetSampleVenue();
+        
+        // setup mocks
+        VenueDo? savedVenueDo = null;
+        _venueRepository
+            .GetByPrimaryKeyAsync(Arg.Is<uint>(c => c == mockVenue.Id))
+            .Returns(mockVenue);
+        _venueRepository
+            .When(r => r.Update(Arg.Is<VenueDo>(v => v.Id == mockVenue.Id)))
+            .Do(c => savedVenueDo = c.Arg<VenueDo>());
+        
+        await _service.DeleteVenueNameAsync(mockVenue.Id, 2);
+        Assert.NotNull(savedVenueDo);
+        var remainingName = Assert.Single(savedVenueDo.PreviousNames);
+        Assert.Equal(1u, remainingName.Id);
     }
 
     #endregion

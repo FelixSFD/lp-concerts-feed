@@ -87,7 +87,7 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     [HttpPost("{venueId:int}/names")]
     public async Task<VenueWithDetailsDto> AddNewVenueName([FromBody] AddVenueNameRequestDto request, [FromRoute] uint venueId)
     {
-        await service.AddVenueName(request, venueId);
+        await service.AddVenueNameAsync(request, venueId);
         var venue = await service.GetVenueWithDetailsByIdAsync(venueId);
         return venue;
     }
@@ -102,7 +102,20 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     [HttpPut("{venueId:int}/names/{venueNameId:int}")]
     public async Task<NoContentResult> AddNewVenueName([FromBody] UpdateVenueNameRequestDto request, [FromRoute] uint venueId, [FromRoute] uint venueNameId)
     {
-        await service.UpdateVenueName(request, venueId, venueNameId);
+        await service.UpdateVenueNameAsync(request, venueId, venueNameId);
+        return NoContent();
+    }
+    
+    /// <summary>
+    /// Deletes a previous name of a venue
+    /// </summary>
+    /// <param name="venueId">ID of the venue</param>
+    /// <param name="venueNameId">ID of the venue name</param>
+    /// <returns>no content</returns>
+    [HttpDelete("{venueId:int}/names/{venueNameId:int}")]
+    public async Task<NoContentResult> DeleteVenueName([FromRoute] uint venueId, [FromRoute] uint venueNameId)
+    {
+        await service.DeleteVenueNameAsync(venueId, venueNameId);
         return NoContent();
     }
 }
