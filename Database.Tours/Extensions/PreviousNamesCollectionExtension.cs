@@ -14,9 +14,14 @@ public static class PreviousNamesCollectionExtension
     public static PreviousVenueNameDo GetValidNameEntryAt(this IEnumerable<PreviousVenueNameDo> previousNames, DateTimeOffset validAt)
     {
         var checkDate = DateOnly.FromDateTime(validAt.UtcDateTime);
-        return previousNames
+        var names = previousNames.ToArray();
+        var currentName = names
             .Where(pn => pn.From <= checkDate && (pn.To ?? DateOnly.MaxValue) >= checkDate)
             .OrderBy(pn  => pn.From)
+            .LastOrDefault();
+        currentName ??= names
+            .OrderBy(pn => pn.From)
             .Last();
+        return currentName;
     }
 }
