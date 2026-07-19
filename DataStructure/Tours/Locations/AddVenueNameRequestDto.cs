@@ -6,11 +6,6 @@ namespace LPCalendar.DataStructure.Tours.Locations;
 public class AddVenueNameRequestDto
 {
     /// <summary>
-    /// ID of the venue which has/had this name
-    /// </summary>
-    public uint VenueId { get; set; }
-    
-    /// <summary>
     /// Name of the venue during the given time range
     /// </summary>
     public required string Name { get; set; }

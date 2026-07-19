@@ -366,11 +366,10 @@ public class VenueServiceTest
         Assert.Single(mockVenue.PreviousNames);
         var request = new AddVenueNameRequestDto
         {
-            VenueId = mockVenue.Id,
             Name = newName,
             From = fromDate,
         };
-        await _service.AddVenueName(request);
+        await _service.AddVenueName(request, mockVenue.Id);
         
         Assert.NotNull(savedVenueDo);
         Assert.Equal(newName, savedVenueDo.CurrentName);

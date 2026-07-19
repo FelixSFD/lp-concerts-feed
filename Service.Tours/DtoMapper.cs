@@ -251,4 +251,21 @@ internal static class DtoMapper
             UsedUntil = dataObject.To,
         };
     }
+    
+    /// <summary>
+    /// Converts a <see cref="AddVenueNameRequestDto"/> to the <see cref="PreviousVenueNameDo"/>
+    /// </summary>
+    /// <param name="request">DataObject to convert to the DTO</param>
+    /// <param name="venueId">ID of the venue</param>
+    /// <returns>the mapped DataObject</returns>
+    public static PreviousVenueNameDo ToDo(this AddVenueNameRequestDto request, uint venueId)
+    {
+        return new PreviousVenueNameDo
+        {
+            VenueId = venueId,
+            Name = request.Name,
+            From = request.From,
+            To = request.To,
+        };
+    }
 }

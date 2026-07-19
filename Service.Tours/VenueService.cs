@@ -94,14 +94,14 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
     /// </summary>
     /// <param name="request"></param>
     /// <exception cref="VenueNotFoundException"></exception>
-    public async Task AddVenueName(AddVenueNameRequestDto request)
+    public async Task AddVenueName(AddVenueNameRequestDto request, uint venueId)
     {
-        logger.LogDebug("Adding name '{newName}' for venue with ID: {venueId}", request.Name, request.VenueId);
-        var venue = await venueRepository.GetByPrimaryKeyAsync(request.VenueId);
+        logger.LogDebug("Adding name '{newName}' for venue with ID: {venueId}", request.Name, venueId);
+        var venue = await venueRepository.GetByPrimaryKeyAsync(venueId);
         if (venue == null)
         {
-            logger.LogError("Failed to add venue name! Could not find venue with ID: {venueId}", request.VenueId);
-            throw new VenueNotFoundException(request.VenueId);
+            logger.LogError("Failed to add venue name! Could not find venue with ID: {venueId}", venueId);
+            throw new VenueNotFoundException(venueId);
         }
 
         var newName = new PreviousVenueNameDo

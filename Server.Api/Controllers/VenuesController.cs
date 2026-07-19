@@ -82,12 +82,13 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// Adds a new name to a venue for a given time range
     /// </summary>
     /// <param name="request"></param>
+    /// <param name="venueId">ID of the venue</param>
     /// <returns></returns>
     [HttpPost("{venueId:int}/names")]
-    public async Task<VenueWithCityDto> AddNewVenueName([FromBody] AddVenueNameRequestDto request)
+    public async Task<VenueWithCityDto> AddNewVenueName([FromBody] AddVenueNameRequestDto request, [FromRoute] uint venueId)
     {
-        await service.AddVenueName(request);
-        var venue = await service.GetVenueWithDetailsByIdAsync(request.VenueId);
+        await service.AddVenueName(request, venueId);
+        var venue = await service.GetVenueWithDetailsByIdAsync(venueId);
         return venue;
     }
 }
