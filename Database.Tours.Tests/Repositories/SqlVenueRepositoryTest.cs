@@ -59,6 +59,9 @@ public class SqlVenueRepositoryTest : ToursDbIntegrationTestsBase
         
         repo.Add(testVenue);
         await repo.SaveChangesAsync();
+        
+        // make sure auto-increment for the ID works
+        Assert.NotEqual(0u, testVenue.Id);
 
         var retrievedVenue = await repo.GetByPrimaryKeyAsync(testVenue.Id);
         Assert.NotNull(retrievedVenue);
