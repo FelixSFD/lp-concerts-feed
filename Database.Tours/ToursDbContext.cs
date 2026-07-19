@@ -65,5 +65,21 @@ public class ToursDbContext(DbContextOptions<ToursDbContext> options) : DbContex
         modelBuilder.Entity<TourLegDo>()
             .Navigation(tl => tl.Tour)
             .AutoInclude();
+        
+        modelBuilder.Entity<PreviousVenueNameDo>()
+            .Property(x => x.From)
+            .HasConversion(
+                d => d.ToDateTime(TimeOnly.MinValue),
+                d => DateOnly.FromDateTime(d));
+
+        modelBuilder.Entity<PreviousVenueNameDo>()
+            .Property(x => x.To)
+            .HasConversion(
+                d => d.HasValue
+                    ? d.Value.ToDateTime(TimeOnly.MinValue)
+                    : (DateTime?)null,
+                d => d.HasValue
+                    ? DateOnly.FromDateTime(d.Value)
+                    : null);
     }
 }
