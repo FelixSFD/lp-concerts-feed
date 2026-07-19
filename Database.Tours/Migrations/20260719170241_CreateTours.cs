@@ -216,15 +216,16 @@ namespace Database.Tours.Migrations
                 name: "PreviousVenueName",
                 columns: table => new
                 {
+                    Id = table.Column<uint>(type: "int unsigned", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     VenueId = table.Column<uint>(type: "int unsigned", nullable: false),
-                    Id = table.Column<uint>(type: "int unsigned", nullable: false),
                     Name = table.Column<string>(type: "varchar(127)", maxLength: 127, nullable: false),
-                    From = table.Column<DateOnly>(type: "date", nullable: false),
-                    To = table.Column<DateOnly>(type: "date", nullable: false)
+                    From = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    To = table.Column<DateTime>(type: "datetime(6)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PreviousVenueName", x => new { x.VenueId, x.Id });
+                    table.PrimaryKey("PK_PreviousVenueName", x => x.Id);
                     table.ForeignKey(
                         name: "FK_PreviousVenueName_Venue_VenueId",
                         column: x => x.VenueId,
@@ -257,6 +258,11 @@ namespace Database.Tours.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Concert_VenueId",
                 table: "Concert",
+                column: "VenueId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PreviousVenueName_VenueId",
+                table: "PreviousVenueName",
                 column: "VenueId");
 
             migrationBuilder.CreateIndex(

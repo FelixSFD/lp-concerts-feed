@@ -77,6 +77,20 @@ public class SqlVenueRepositoryTest : ToursDbIntegrationTestsBase
         var currentName = retrievedVenue.PreviousNames.Last();
         Assert.Equal(DateOnly.ParseExact("2024-09-05", "yyyy-MM-dd"), currentName.From);
         Assert.Null(currentName.To);
+        
+        // add another name and make sure auto-increment for that works, too
+        var newVenueName = new PreviousVenueNameDo
+        {
+            Name = "First venue name",
+            Venue = testVenue,
+            VenueId = testVenue.Id,
+            From = DateOnly.ParseExact("2020-01-01", "yyyy-MM-dd"),
+            To = DateOnly.ParseExact("2020-12-31", "yyyy-MM-dd"),
+        };
+        retrievedVenue.PreviousNames.Add(newVenueName);
+        //repo.Update(retrievedVenue);
+        await repo.SaveChangesAsync();
+        Assert.NotEqual(0u, newVenueName.Id);
     }
     
     

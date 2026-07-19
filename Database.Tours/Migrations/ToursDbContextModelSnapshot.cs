@@ -179,16 +179,13 @@ namespace Database.Tours.Migrations
 
             modelBuilder.Entity("Database.Tours.DataObjects.PreviousVenueNameDo", b =>
                 {
-                    b.Property<uint>("VenueId")
-                        .HasColumnType("int unsigned")
-                        .HasColumnName("VenueId");
-
                     b.Property<uint>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int unsigned")
                         .HasColumnName("Id");
 
-                    b.Property<DateOnly>("From")
-                        .HasColumnType("date")
+                    b.Property<DateTime>("From")
+                        .HasColumnType("datetime(6)")
                         .HasColumnName("From");
 
                     b.Property<string>("Name")
@@ -197,11 +194,17 @@ namespace Database.Tours.Migrations
                         .HasColumnType("varchar(127)")
                         .HasColumnName("Name");
 
-                    b.Property<DateOnly?>("To")
-                        .HasColumnType("date")
+                    b.Property<DateTime?>("To")
+                        .HasColumnType("datetime(6)")
                         .HasColumnName("To");
 
-                    b.HasKey("VenueId", "Id");
+                    b.Property<uint>("VenueId")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("VenueId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VenueId");
 
                     b.ToTable("PreviousVenueName");
                 });
