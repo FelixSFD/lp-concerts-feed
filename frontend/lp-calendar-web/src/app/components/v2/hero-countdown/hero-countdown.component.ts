@@ -2,11 +2,21 @@ import { AfterViewInit, Component, inject, Input, OnInit } from '@angular/core';
 import { ClockService } from '../../../services/clock.service';
 import { DecimalPipe } from '@angular/common';
 import { DiscordShareService } from '../../../services/discord-share.service';
+import { Popover } from 'primeng/popover';
+import { InputGroup } from 'primeng/inputgroup';
+import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import { InputText } from 'primeng/inputtext';
+import { Button } from 'primeng/button';
 
 @Component({
   selector: 'app-hero-countdown',
   imports: [
-    DecimalPipe
+    DecimalPipe,
+    Popover,
+    InputGroup,
+    InputGroupAddon,
+    InputText,
+    Button
   ],
   templateUrl: './hero-countdown.component.html',
   styleUrl: './hero-countdown.component.css'
@@ -22,11 +32,16 @@ export class HeroCountdownComponent implements OnInit, AfterViewInit {
   minutes$ = 0;
   seconds$ = 0;
 
+  discordFull = '';
+  discordRelative = '';
+
   @Input()
   countdownToDate!: string;
 
   ngOnInit() {
     this.updateView();
+    this.discordFull = this.discordShare.timestamp(this.countdownToDate, 'F');
+    this.discordRelative = this.discordShare.timestamp(this.countdownToDate, 'R');
   }
 
   ngAfterViewInit() {

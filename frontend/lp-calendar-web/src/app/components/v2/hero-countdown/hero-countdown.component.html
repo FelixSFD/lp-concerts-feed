@@ -21,11 +21,44 @@
     </div>
   </div>
   <button
-    type="button" class="hc-discord"
-    (click)="discordShare.copyTimestamp(countdownToDate, 'R', 'countdown')"
+    type="button"
+    class="hc-discord"
+    (click)="sharePopover.toggle($event)"
   >
-    <i class="pi pi-discord"></i> Copy as Discord countdown
+    <i class="pi pi-discord"></i> Share on Discord
   </button>
+  <p-popover #sharePopover>
+    <div class="discord-share">
+      <div class="discord-share-row">
+        <span class="discord-share-label">Discord timestamp</span>
+        <p-inputgroup>
+          <input pInputText [value]="discordFull" readonly class="discord-share-input" />
+          <p-inputgroup-addon>
+            <p-button
+              icon="pi pi-copy"
+              severity="secondary"
+              ariaLabel="Copy Discord timestamp"
+              (onClick)="discordShare.copyTimestamp(countdownToDate, 'F', 'countdown')"
+            />
+          </p-inputgroup-addon>
+        </p-inputgroup>
+      </div>
+      <div class="discord-share-row">
+        <span class="discord-share-label">Discord countdown</span>
+        <p-inputgroup>
+          <input pInputText [value]="discordRelative" readonly class="discord-share-input" />
+          <p-inputgroup-addon>
+            <p-button
+              icon="pi pi-copy"
+              severity="secondary"
+              ariaLabel="Copy Discord countdown"
+              (onClick)="discordShare.copyTimestamp(countdownToDate, 'R', 'countdown')"
+            />
+          </p-inputgroup-addon>
+        </p-inputgroup>
+      </div>
+    </div>
+  </p-popover>
 } @else {
   <div class="hc-live">It's showtime!</div>
 }
