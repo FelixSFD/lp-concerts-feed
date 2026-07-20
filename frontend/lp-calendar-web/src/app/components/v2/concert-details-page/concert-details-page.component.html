@@ -104,6 +104,18 @@
           <div class="timeline-time timeline-placeholder">—</div>
         }
         <div class="timeline-label">LPU early entry</div>
+        @if (concert$?.lpuEarlyEntryTime != undefined) {
+          <button
+            type="button"
+            class="timeline-copy"
+            (click)="discordShare.copyTimestamp(concert$?.lpuEarlyEntryTime, 'F', 'LPU early entry')"
+            pTooltip="Copy for Discord"
+            tooltipPosition="bottom"
+            aria-label="Copy Discord timestamp"
+          >
+            <i class="pi pi-discord"></i>
+          </button>
+        }
       </div>
 
       <i class="pi pi-chevron-right timeline-arrow" aria-hidden="true"></i>
@@ -117,6 +129,18 @@
           <div class="timeline-time timeline-placeholder">—</div>
         }
         <div class="timeline-label">Doors open</div>
+        @if (concert$?.doorsTime != undefined) {
+          <button
+            type="button"
+            class="timeline-copy"
+            (click)="discordShare.copyTimestamp(concert$?.doorsTime, 'F', 'Doors open')"
+            pTooltip="Copy for Discord"
+            tooltipPosition="bottom"
+            aria-label="Copy Discord timestamp"
+          >
+            <i class="pi pi-discord"></i>
+          </button>
+        }
       </div>
 
       <i class="pi pi-chevron-right timeline-arrow" aria-hidden="true"></i>
@@ -127,6 +151,16 @@
           <div class="timeline-time">{{ getDateTimeInTimezone(concert$?.mainStageTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE) }}</div>
           <div class="timeline-yours">{{ getDateTime(concert$?.mainStageTime!).toLocaleString(DateTime.TIME_SIMPLE) }} your time</div>
           <div class="timeline-label">LP stage time</div>
+          <button
+            type="button"
+            class="timeline-copy"
+            (click)="discordShare.copyTimestamp(concert$?.mainStageTime, 'F', 'LP stage time')"
+            pTooltip="Copy for Discord"
+            tooltipPosition="bottom"
+            aria-label="Copy Discord timestamp"
+          >
+            <i class="pi pi-discord"></i>
+          </button>
         </div>
       } @else {
         <div class="timeline-step timeline-step--lead">
@@ -134,6 +168,16 @@
           <div class="timeline-time">{{ getDateTimeInTimezone(concert$?.postedStartTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE) }}</div>
           <div class="timeline-yours">{{ getDateTime(concert$?.postedStartTime!).toLocaleString(DateTime.TIME_SIMPLE) }} your time</div>
           <div class="timeline-label">Show starts</div>
+          <button
+            type="button"
+            class="timeline-copy"
+            (click)="discordShare.copyTimestamp(concert$?.postedStartTime, 'F', 'Show starts')"
+            pTooltip="Copy for Discord"
+            tooltipPosition="bottom"
+            aria-label="Copy Discord timestamp"
+          >
+            <i class="pi pi-discord"></i>
+          </button>
         </div>
       }
     </div>
@@ -184,9 +228,24 @@
   @if (canUpdateConcerts$ || canEditSetlists) {
     <div class="page-footer">
       <div class="footer-admin">
-        <p-button [hidden]="!canUpdateConcerts$" label="Edit" icon="pi pi-pencil" variant="text" severity="secondary" size="small" [routerLink]="['./edit']" />
+        <p-button
+          [hidden]="!canUpdateConcerts$"
+          label="Edit"
+          icon="pi pi-pencil"
+          variant="text"
+          severity="secondary"
+          size="small"
+          [routerLink]="['./edit']"
+        />
         @if (canEditSetlists) {
-          <p-split-button (onClick)="onAddSetlistBtnClicked()" [model]="addSetlistButtonItems" icon="pi pi-list" label="Add setlist" text size="small" />
+          <p-split-button
+            (onClick)="onAddSetlistBtnClicked()"
+            [model]="addSetlistButtonItems"
+            icon="pi pi-list"
+            label="Add setlist"
+            text
+            size="small"
+          />
         }
       </div>
     </div>

@@ -20,6 +20,10 @@
       <span class="hc-lbl">sec</span>
     </div>
   </div>
+  <button type="button" class="hc-discord"
+          (click)="discordShare.copyTimestamp(countdownToDate, 'R', 'countdown')">
+    <i class="pi pi-discord"></i> Copy as Discord countdown
+  </button>
 } @else {
   <div class="hc-live">It's showtime!</div>
 }

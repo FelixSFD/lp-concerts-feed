@@ -166,6 +166,31 @@
   color: var(--p-surface-500);
 }
 
+.timeline-copy {
+  margin-top: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--p-surface-400);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.timeline-copy:hover {
+  color: var(--p-primary-color);
+  background: var(--p-surface-100);
+}
+
+.timeline-copy .pi {
+  font-size: 0.85rem;
+}
+
 .timeline-legend {
   display: flex;
   flex-wrap: wrap;

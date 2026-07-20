@@ -15,6 +15,7 @@ import {Setlist} from '../../../data/setlists/setlist';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {ConcertsService} from '../../../services/concerts.service';
 import {SetlistsService} from '../../../services/setlists.service';
+import {DiscordShareService} from '../../../services/discord-share.service';
 import {Meta} from '@angular/platform-browser';
 import {HttpErrorResponse} from '@angular/common/http';
 import {DateTime} from 'luxon';
@@ -61,6 +62,7 @@ export class ConcertDetailsPageComponent implements OnInit {
   private readonly messageService = inject(MessageService);
 
   tracker = inject(MatomoTracker);
+  protected readonly discordShare = inject(DiscordShareService);
 
   resolverError$: ErrorResponseDto | null = null;
   concert$: ConcertDto | null = null;
