@@ -166,7 +166,7 @@
   color: var(--p-surface-500);
 }
 
-.timeline-copy {
+.timeline-copy ::ng-deep .p-button {
   margin-top: 0.5rem;
   display: inline-flex;
   align-items: center;
@@ -182,7 +182,7 @@
   transition: color 0.15s ease, background 0.15s ease;
 }
 
-.timeline-copy:hover {
+.timeline-copy ::ng-deep .p-button:hover {
   color: var(--p-primary-color);
   background: var(--p-surface-100);
 }

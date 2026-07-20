@@ -130,7 +130,7 @@
         }
         <div class="timeline-label">LPU early entry</div>
         @if (concert$?.lpuEarlyEntryTime != undefined) {
-          <button
+          <p-button
             type="button"
             class="timeline-copy"
             (click)="discordShare.copyTimestamp(concert$?.lpuEarlyEntryTime, 'F', 'LPU early entry')"
@@ -139,7 +139,7 @@
             aria-label="Copy Discord timestamp"
           >
             <i class="pi pi-discord"></i>
-          </button>
+          </p-button>
         }
       </div>
 
@@ -157,7 +157,7 @@
         }
         <div class="timeline-label">Doors open</div>
         @if (concert$?.doorsTime != undefined) {
-          <button
+          <p-button
             type="button"
             class="timeline-copy"
             (click)="discordShare.copyTimestamp(concert$?.doorsTime, 'F', 'Doors open')"
@@ -166,7 +166,7 @@
             aria-label="Copy Discord timestamp"
           >
             <i class="pi pi-discord"></i>
-          </button>
+          </p-button>
         }
       </div>
 
@@ -180,7 +180,7 @@
             your time
           </div>
           <div class="timeline-label">LP stage time</div>
-          <button
+          <p-button
             type="button"
             class="timeline-copy"
             (click)="discordShare.copyTimestamp(concert$?.mainStageTime, 'F', 'LP stage time')"
@@ -189,7 +189,7 @@
             aria-label="Copy Discord timestamp"
           >
             <i class="pi pi-discord"></i>
-          </button>
+          </p-button>
         </div>
       } @else {
         <div class="timeline-step timeline-step--lead">
@@ -199,7 +199,7 @@
             your time
           </div>
           <div class="timeline-label">Show starts</div>
-          <button
+          <p-button
             type="button"
             class="timeline-copy"
             (click)="discordShare.copyTimestamp(concert$?.postedStartTime, 'F', 'Show starts')"
@@ -208,7 +208,7 @@
             aria-label="Copy Discord timestamp"
           >
             <i class="pi pi-discord"></i>
-          </button>
+          </p-button>
         </div>
       }
     </div>
