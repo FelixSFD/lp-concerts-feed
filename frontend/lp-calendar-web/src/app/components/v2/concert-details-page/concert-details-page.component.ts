@@ -15,7 +15,7 @@ import {Setlist} from '../../../data/setlists/setlist';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {ConcertsService} from '../../../services/concerts.service';
 import {SetlistsService} from '../../../services/setlists.service';
-import {DiscordShareService} from '../../../services/discord-share.service';
+import { DiscordShareService } from '../../../services/discord-share.service';
 import {Meta} from '@angular/platform-browser';
 import {HttpErrorResponse} from '@angular/common/http';
 import {DateTime} from 'luxon';
@@ -32,10 +32,10 @@ import {MenuItem, MessageService} from 'primeng/api';
 import {FormsModule} from '@angular/forms';
 import {Tooltip} from 'primeng/tooltip';
 import {TimeSpanPipe} from '../../../data/time-span-pipe';
-import {HeroCountdownComponent} from '../hero-countdown/hero-countdown.component';
+import { HeroCountdownComponent } from '../hero-countdown/hero-countdown.component';
 import {SetlistComponent} from '../setlists/setlist/setlist.component';
 import {Tag} from 'primeng/tag';
-import {Image} from 'primeng/image';
+import { Image } from 'primeng/image';
 
 @Component({
   selector: 'app-concert-details-page',

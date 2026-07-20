@@ -1,7 +1,7 @@
-import {AfterViewInit, Component, inject, Input, OnInit} from '@angular/core';
-import {ClockService} from '../../../services/clock.service';
-import {DecimalPipe} from '@angular/common';
-import {DiscordShareService} from '../../../services/discord-share.service';
+import { AfterViewInit, Component, inject, Input, OnInit } from '@angular/core';
+import { ClockService } from '../../../services/clock.service';
+import { DecimalPipe } from '@angular/common';
+import { DiscordShareService } from '../../../services/discord-share.service';
 
 @Component({
   selector: 'app-hero-countdown',
@@ -11,6 +11,7 @@ import {DiscordShareService} from '../../../services/discord-share.service';
   templateUrl: './hero-countdown.component.html',
   styleUrl: './hero-countdown.component.css'
 })
+
 export class HeroCountdownComponent implements OnInit, AfterViewInit {
   private clockService = inject(ClockService);
   protected readonly discordShare = inject(DiscordShareService);

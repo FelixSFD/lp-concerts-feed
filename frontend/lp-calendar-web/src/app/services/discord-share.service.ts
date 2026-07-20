@@ -1,7 +1,7 @@
 import {inject, Injectable} from '@angular/core';
-import {DateTime} from 'luxon';
-import {MessageService} from 'primeng/api';
-import {MatomoTracker} from 'ngx-matomo-client';
+import { DateTime } from 'luxon';
+import { MessageService } from 'primeng/api';
+import { MatomoTracker } from 'ngx-matomo-client';
 
 export type DiscordTimestampStyle = 't' | 'T' | 'd' | 'D' | 'f' | 'F' | 'R';
 

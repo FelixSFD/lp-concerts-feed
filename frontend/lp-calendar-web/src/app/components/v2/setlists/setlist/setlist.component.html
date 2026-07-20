@@ -24,7 +24,12 @@
 
             <span class="tl-art">
               @if (entry.appleMusicId != null && songArtworks$.get(entry.appleMusicId) != null) {
-                <app-apple-music-artwork [artwork]="songArtworks$.get(entry.appleMusicId)!" [width]="44" [pTooltip]="entry.albumTitle ?? ''" tooltipPosition="top" />
+                <app-apple-music-artwork
+                  [artwork]="songArtworks$.get(entry.appleMusicId)!"
+                  [width]="44"
+                  [pTooltip]="entry.albumTitle ?? ''"
+                  tooltipPosition="top"
+                />
               } @else {
                 <span class="tl-art-ph"><i class="pi pi-headphones"></i></span>
               }
@@ -36,7 +41,12 @@
               } @else {
                 {{ entry.title }}
               }
-              <app-setlist-entry-icons [record-tape]="entry.isPlayedFromRecording" [rotation-song]="entry.isRotationSong" [world-premiere]="entry.isWorldPremiere" [live-premiere]="entry.isLivePremiere" />
+              <app-setlist-entry-icons
+                [record-tape]="entry.isPlayedFromRecording"
+                [rotation-song]="entry.isRotationSong"
+                [world-premiere]="entry.isWorldPremiere"
+                [live-premiere]="entry.isLivePremiere"
+              />
             </span>
           </div>
 
@@ -66,7 +76,13 @@
 </div>
 
 <div class="text-center mt-2">
-  <p-button size="small" variant="outlined" [icon]="isExpanded$ ? 'pi pi-minus-circle' : 'pi pi-plus-circle'" [label]="isExpanded$ ? 'Hide setlist' : 'Show full setlist'" (onClick)="onToggleExpendedClicked()" />
+  <p-button
+    size="small"
+    variant="outlined"
+    [icon]="isExpanded$ ? 'pi pi-minus-circle' : 'pi pi-plus-circle'"
+    [label]="isExpanded$ ? 'Hide setlist' : 'Show full setlist'"
+    (onClick)="onToggleExpendedClicked()"
+  />
 </div>
 
 <small>Data provided by <a href="https://lplive.net/about.php/" target="_blank" class="link">LPlive</a>.</small>
