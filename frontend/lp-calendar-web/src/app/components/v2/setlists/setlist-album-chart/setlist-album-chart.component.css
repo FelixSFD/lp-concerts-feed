@@ -1,0 +1,91 @@
+.album-chart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2.25rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 0.25rem;
+}
+
+.chart-donut {
+  position: relative;
+  width: 168px;
+  flex-shrink: 0;
+}
+
+.chart-donut p-chart {
+  display: block;
+  width: 100%;
+}
+
+.donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.chart-donut:hover .donut-center {
+  opacity: 0;
+}
+
+.donut-total {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 1.8rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--p-text-color);
+}
+
+.donut-label {
+  margin-top: 0.2rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--p-surface-500);
+}
+
+.album-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  flex: 0 1 240px;
+  width: 240px;
+  max-width: 100%;
+}
+
+.album-legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  color: var(--p-text-color);
+}
+
+.album-legend .dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.album-legend .name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.album-legend .count {
+  margin-left: auto;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.8rem;
+  color: var(--p-surface-500);
+}

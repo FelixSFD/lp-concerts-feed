@@ -1,5 +1,4 @@
 import {Component, inject, Input, OnInit} from '@angular/core';
-import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {SetlistsService} from '../../../../services/setlists.service';
 import {ErrorResponseDto} from '../../../../modules/lpshows-api';
 import {Setlist} from '../../../../data/setlists/setlist';
@@ -13,7 +12,6 @@ import {AppleMusicArtworkComponent} from '../../music/apple-music-artwork/apple-
 import {
   SetlistEntrySongExtraListComponent
 } from '../setlist-entry-song-extra-list/setlist-entry-song-extra-list.component';
-import {TableModule} from 'primeng/table';
 import {Tooltip} from 'primeng/tooltip';
 import {Button} from 'primeng/button';
 import {MessageService} from 'primeng/api';
@@ -23,13 +21,10 @@ import {SetlistEntry} from '../../../../data/setlists/setlist-entry';
 @Component({
   selector: 'app-setlist',
   imports: [
-    FormsModule,
-    ReactiveFormsModule,
     SetlistEntryIconsComponent,
     SetlistAlbumChartComponent,
     AppleMusicArtworkComponent,
     SetlistEntrySongExtraListComponent,
-    TableModule,
     Tooltip,
     Button
   ],
@@ -47,8 +42,6 @@ export class SetlistComponent implements OnInit {
 
   @Input({ required: false })
   setlist: Setlist | undefined;
-
-  setlistEntriesArtwork$: (Artwork | null)[] = [];
 
   // map that stores the artwork for an Apple Music Song ID
   songArtworks$ = new Map<string, Artwork>();
@@ -80,23 +73,15 @@ export class SetlistComponent implements OnInit {
 
     this.isLoadingThumbnails = true;
 
-    let appleMusicIds = this.setlist?.entries.filter(entry => entry.appleMusicId != null).map(entry => entry.appleMusicId!);
-    let foundSongs = appleMusicIds ? await this.appleMusicService.getSongsById(appleMusicIds ?? []) : [];
-    this.setlistEntriesArtwork$ = [];
-    for (let i = 0; i < (this.setlist?.entries.length ?? 0); i++) {
-      let appleMusicId = this.setlist?.entries[i].appleMusicId ?? null;
-      if (appleMusicId != null) {
-        // entry exists and has an Apple Music ID
-        // find the song in foundSongs to get the artwork
-        let song = foundSongs.find(song => song.id == appleMusicId);
-        console.debug("Found song", song);
-        if (song?.attributes?.artwork) {
-          this.songArtworks$.set(appleMusicId!, song?.attributes?.artwork!);
-        } else {
-          console.debug("Song has no artwork");
-        }
-      } else {
-        // entry doesn't have an Apple Music ID
+    const appleMusicIds = this.setlist?.entries.filter(entry => entry.appleMusicId != null).map(entry => entry.appleMusicId!);
+    const foundSongs = appleMusicIds ? await this.appleMusicService.getSongsById(appleMusicIds ?? []) : [];
+    for (const entry of this.setlist?.entries ?? []) {
+      if (entry.appleMusicId == null) {
+        continue;
+      }
+      const song = foundSongs.find(song => song.id == entry.appleMusicId);
+      if (song?.attributes?.artwork) {
+        this.songArtworks$.set(entry.appleMusicId, song.attributes.artwork);
       }
     }
 
@@ -134,6 +119,13 @@ export class SetlistComponent implements OnInit {
 
   getActForEntry(setlist: Setlist | undefined | null, firstEntry: SetlistEntry): SetlistAct | null {
     return setlist?.acts?.find(a => a.actNumber == firstEntry.actNumber) ?? null;
+  }
+
+  isActStart(entries: SetlistEntry[], index: number): boolean {
+    if (index <= 0) {
+      return true;
+    }
+    return entries[index].actNumber !== entries[index - 1].actNumber;
   }
 
   protected readonly Number = Number;

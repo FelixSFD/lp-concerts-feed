@@ -2,5 +2,453 @@
 
 .map {
   width: 100%;
-  height: 600px;
+  height: 360px;
+}
+
+/* Bottom panels: setlist, map, schedule */
+.panel-row {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  align-items: stretch;
+}
+
+.panel-half {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .panel-row {
+    flex-wrap: wrap;
+  }
+
+  .panel-half {
+    flex-basis: 100%;
+  }
+}
+
+/* Concert details hero */
+.hero-card {
+  --p-card-background: linear-gradient(135deg, var(--p-primary-700), var(--p-primary-900));
+  --p-card-border-color: transparent;
+  --p-card-color: #fff;
+  --p-card-border-radius: 16px;
+  --p-card-body-padding: 1.75rem 2rem;
+}
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.hero-main {
+  min-width: 220px;
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--p-primary-200);
+}
+
+.hero-title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 500;
+  line-height: 1.15;
+  color: #fff;
+}
+
+.hero-meta {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: var(--p-primary-100);
+}
+
+.hero-meta .pi {
+  font-size: 0.8rem;
+  margin-right: 0.15rem;
+}
+
+.hero-badges:not(:empty) {
+  margin: 1.5rem 0 0;
+}
+
+.hero-badges ::ng-deep .justify-center {
+  justify-content: flex-start !important;
+}
+
+/* Glass effect */
+.hero-countdown {
+  flex-shrink: 0;
+  /*color: #fff;*/
+  /*padding: 0.85rem 1.1rem;*/
+  /*background: rgba(255, 255, 255, 0.08);*/
+  /*border: 1px solid rgba(255, 255, 255, 0.14);*/
+  /*border-radius: 14px;*/
+}
+
+.hero-ended {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  color: var(--p-primary-100);
+}
+
+/* Concert details timeline */
+.timeline {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 1.25rem 0.5rem 0.5rem;
+}
+
+.timeline-step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  text-align: center;
+}
+
+.timeline-arrow {
+  flex: 0 0 auto;
+  margin-top: 1.05rem;
+  font-size: 0.85rem;
+  color: var(--p-surface-300);
+}
+
+.timeline-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-bottom: 0.65rem;
+  border-radius: 50%;
+  background: var(--p-primary-100);
+  color: var(--p-primary-700);
+  font-size: 1.1rem;
+}
+
+.timeline-step--lead .timeline-marker {
+  background: var(--p-primary-600);
+  color: #fff;
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--p-primary-color) 14%, transparent);
+}
+
+.timeline-time {
+  font-size: 1.05rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--p-text-color);
+}
+
+.timeline-yours {
+  font-size: 0.75rem;
+  color: var(--p-primary-color);
+}
+
+.timeline-label {
+  margin-top: 0.25rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.01em;
+  color: var(--p-surface-500);
+}
+
+.timeline-copy ::ng-deep .p-button {
+  margin-top: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--p-surface-400);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.timeline-copy ::ng-deep .p-button:hover {
+  color: var(--p-primary-color);
+  background: var(--p-surface-100);
+}
+
+.timeline-copy .pi {
+  font-size: 0.85rem;
+}
+
+.timeline-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.78rem;
+}
+
+.timeline-legend-venue {
+  font-weight: 500;
+  color: var(--p-text-color);
+}
+
+.timeline-legend-zone {
+  margin-left: 0.3rem;
+  color: var(--p-surface-400);
+}
+
+.timeline-legend-yours {
+  color: var(--p-primary-color);
+}
+
+/* Past show: muted look */
+.timeline--past {
+  opacity: 0.7;
+}
+
+.timeline--past .timeline-marker {
+  background: var(--p-surface-100);
+  color: var(--p-surface-400);
+}
+
+.timeline--past .timeline-step--lead .timeline-marker {
+  background: var(--p-surface-200);
+  color: var(--p-surface-500);
+  box-shadow: none;
+}
+
+.timeline--past .timeline-yours {
+  color: var(--p-surface-400);
+}
+
+.timeline-step--empty .timeline-marker {
+  background: var(--p-surface-100);
+  color: var(--p-surface-400);
+}
+
+.timeline-placeholder {
+  color: var(--p-surface-400);
+}
+
+/* Concert details action strip */
+.action-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+  flex-wrap: wrap;
+}
+
+.action-strip-main {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.action-share {
+  margin-left: auto;
+}
+
+.action-strip ::ng-deep .p-button {
+  color: var(--p-text-color);
+  border-color: var(--p-surface-300);
+  border-radius: 8px;
+}
+
+.action-strip ::ng-deep .p-button:enabled:hover {
+  background: var(--p-surface-100);
+  border-color: var(--p-surface-400);
+  color: var(--p-text-color);
+}
+
+.action-btn-accent ::ng-deep .p-button-icon {
+  color: var(--p-primary-color);
+}
+
+.action-share ::ng-deep .p-button {
+  border-radius: 50%;
+}
+
+/* Concert details sections (setlist, schedule, map) */
+.section-card {
+  margin-top: 1.5rem;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--p-text-color);
+}
+
+.section-head .pi {
+  color: var(--p-primary-color);
+}
+
+.section-note {
+  display: block;
+  margin-top: 0.75rem;
+  font-size: 0.72rem;
+  color: var(--p-surface-500);
+}
+
+.schedule-img {
+  cursor: zoom-in;
+}
+
+.schedule-img ::ng-deep .p-image {
+  display: block;
+  width: 100%;
+}
+
+.schedule-img ::ng-deep .p-image > img {
+  display: block;
+  width: 100%;
+  height: 360px;
+  object-fit: cover;
+  background: var(--p-surface-50);
+  border-radius: 8px;
+}
+
+.set-duration {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin: 0.85rem 0 0;
+  font-size: 0.8rem;
+  color: var(--p-surface-500);
+}
+
+.set-duration .pi {
+  color: var(--p-primary-color);
+  font-size: 0.85rem;
+}
+
+/* Loading + error states */
+.page-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.4rem;
+  padding: 3.5rem 1rem;
+}
+
+.page-state .pi {
+  font-size: 2.5rem;
+  color: var(--p-surface-400);
+  margin-bottom: 0.5rem;
+}
+
+.page-state h2 {
+  margin: 0;
+  color: var(--p-text-color);
+}
+
+.page-state p {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+  color: var(--p-surface-500);
+}
+
+.sk {
+  background: var(--p-surface-200);
+  border-radius: 12px;
+  animation: sk-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes sk-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+.sk-hero {
+  height: 150px;
+  border-radius: 16px;
+}
+
+.sk-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1.5rem 0;
+}
+
+.sk-pill {
+  width: 160px;
+  height: 44px;
+  border-radius: 24px;
+}
+
+.sk-timeline {
+  height: 190px;
+}
+
+/* Top navigation row */
+.page-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.nav-pager {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.page-nav ::ng-deep .p-button {
+  padding: 0.3rem 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--p-surface-500);
+  border: none;
+  background: transparent;
+}
+
+.page-nav ::ng-deep .p-button .p-button-icon {
+  font-size: 0.8rem;
+  color: var(--p-surface-400);
+}
+
+.page-nav ::ng-deep .p-button:enabled:hover {
+  background: transparent;
+  color: var(--p-text-color);
+}
+
+.page-nav ::ng-deep .p-button:enabled:hover .p-button-icon {
+  color: var(--p-primary-color);
+}
+
+/* Bottom section */
+.page-footer {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--p-surface-200);
+}
+
+.footer-admin {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
 }
