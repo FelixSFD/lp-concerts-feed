@@ -257,6 +257,25 @@ public class LocationService(
     }
     
     /// <summary>
+    /// Updates a city and saves the DB-context
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="countryCode">ISO code of the country where the city is located in</param>
+    /// <param name="cityId">ID of the city to update</param>
+    /// <returns>The updated state</returns>
+    public async Task<CityWithCountryDto> UpdateCityAsync(UpdateCityRequestDto request, string countryCode, uint cityId)
+    {
+        logger.LogDebug("Updating city {isoCode} - {cityId}", countryCode, cityId);
+        var city = await cityRepository.GetByPrimaryKeyAsync(countryCode, cityId) ?? throw new CityNotFoundException(cityId);
+        city.UpdateFromRequestDto(request);
+        logger.LogDebug("Mapped request to the updated data object");
+        cityRepository.Update(city);
+        await cityRepository.SaveChangesAsync();
+        logger.LogDebug("Successfully updated city {isoCode} - {stateCode}", city.CountryCode, city.Id);
+        return city.ToDtoWithCountry();
+    }
+    
+    /// <summary>
     /// Returns a city for the given ID in a country
     /// </summary>
     /// <param name="countryCode">ISO code of the country</param>
