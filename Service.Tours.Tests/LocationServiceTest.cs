@@ -79,6 +79,42 @@ public class LocationServiceTest
     }
     
     [Fact]
+    public async Task UpdateCountryAsync()
+    {
+        var mockCountry = new CountryDo
+        {
+            IsoCode = "GER",
+            Name = "Germany",
+            NativeName = "Deutschland",
+        };
+
+        // setup mocks
+        _countryRepository
+            .GetByPrimaryKeyAsync(Arg.Is(mockCountry.IsoCode))
+            .Returns(mockCountry);
+
+        // Call the service
+        var request = new UpdateCountryRequestDto
+        {
+            Name = "New Germany",
+            NativeName = "Bayern"
+        };
+        
+        var updatedCountry = await _service.UpdateCountryAsync(request, mockCountry.IsoCode);
+        
+        // verify result
+        Assert.NotNull(updatedCountry);
+        Assert.Equal(request.Name, updatedCountry.Name);
+        Assert.Equal(request.NativeName, updatedCountry.NativeName);
+        Assert.Equal(mockCountry.IsoCode, updatedCountry.IsoCode);
+        
+        // verify mock calls
+        await _countryRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(Arg.Is(mockCountry.IsoCode));
+    }
+    
+    [Fact]
     public async Task GetAllCountries_Empty()
     {
         CountryDo[] mockCountries = [];

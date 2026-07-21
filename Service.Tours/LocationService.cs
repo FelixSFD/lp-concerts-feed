@@ -30,6 +30,24 @@ public class LocationService(
     }
     
     /// <summary>
+    /// Updates a country and saves the DB-context
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="countryCode">ISO code of the country to update</param>
+    /// <returns>The updated country</returns>
+    public async Task<CountryDto> UpdateCountryAsync(UpdateCountryRequestDto request, string countryCode)
+    {
+        logger.LogDebug("Updating country with ISO-code: {isoCode}", countryCode);
+        var country = await countryRepository.GetByPrimaryKeyAsync(countryCode) ?? throw new CountryNotFoundException(countryCode);
+        country.UpdateFromRequestDto(request);
+        logger.LogDebug("Mapped request to the updated data object");
+        countryRepository.Update(country);
+        await countryRepository.SaveChangesAsync();
+        logger.LogDebug("Successfully updated country with ISO-code: {isoCode}", country.IsoCode);
+        return country.ToDto();
+    }
+    
+    /// <summary>
     /// Returns a list of countries
     /// </summary>
     /// <param name="cancellationToken">token to cancel the query</param>

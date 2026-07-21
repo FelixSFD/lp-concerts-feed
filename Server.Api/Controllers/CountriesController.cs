@@ -25,6 +25,21 @@ public class CountriesController(LocationService locationService, ILogger<Countr
     }
     
     /// <summary>
+    /// Updates an existing country
+    /// </summary>
+    /// <param name="request">new data of the country</param>
+    /// <param name="countryCode">ISO-code of the country</param>
+    /// <returns>the updated data</returns>
+    [HttpPut("{countryCode}")]
+    public async Task<ActionResult<CountryDto>> CreateCountry([FromBody] UpdateCountryRequestDto request, [FromRoute] string countryCode)
+    {
+        logger.LogDebug("Requested to update country: {countryCode}", countryCode);
+        var updatedCountry = await locationService.UpdateCountryAsync(request, countryCode);
+        logger.LogDebug("Successfully updated country: {isoCode}", updatedCountry.IsoCode);
+        return Ok(updatedCountry);
+    }
+    
+    /// <summary>
     /// Returns a list of all countries
     /// </summary>
     /// <param name="cancellationToken"></param>
