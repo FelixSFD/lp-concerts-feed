@@ -31,7 +31,7 @@ public class CountriesController(LocationService locationService, ILogger<Countr
     /// <param name="countryCode">ISO-code of the country</param>
     /// <returns>the updated data</returns>
     [HttpPut("{countryCode}")]
-    public async Task<ActionResult<CountryDto>> CreateCountry([FromBody] UpdateCountryRequestDto request, [FromRoute] string countryCode)
+    public async Task<ActionResult<CountryDto>> UpdateCountry([FromBody] UpdateCountryRequestDto request, [FromRoute] string countryCode)
     {
         logger.LogDebug("Requested to update country: {countryCode}", countryCode);
         var updatedCountry = await locationService.UpdateCountryAsync(request, countryCode);
@@ -100,6 +100,21 @@ public class CountriesController(LocationService locationService, ILogger<Countr
         var stateWithCountryDto = await locationService.CreateState(request, countryCode);
         logger.LogDebug("Successfully created state: {isoCode}", stateWithCountryDto.Name);
         return CreatedAtAction("GetState", new { countryCode = stateWithCountryDto.CountryCode, stateCode = stateWithCountryDto.Code }, stateWithCountryDto);
+    }
+    
+    /// <summary>
+    /// Creates a new state in a country
+    /// </summary>
+    /// <param name="countryCode">ISO code of the country where this state is located in</param>
+    /// <param name="request">Data of the new country</param>
+    /// <returns></returns>
+    [HttpPut("{countryCode}/states/{stateCode}")]
+    public async Task<ActionResult<StateWithCountryDto>> UpdateState([FromRoute(Name = "countryCode")] string countryCode, [FromRoute] string stateCode, [FromBody] UpdateStateRequestDto request)
+    {
+        logger.LogDebug("Requested to update state: {stateCode}", stateCode);
+        var stateWithCountryDto = await locationService.UpdateStateAsync(request, countryCode, stateCode);
+        logger.LogDebug("Successfully updated state: {stateCode}", stateWithCountryDto.Code);
+        return Ok(stateWithCountryDto);
     }
     
     /// <summary>

@@ -81,6 +81,19 @@ internal static class DtoMapper
     }
     
     /// <summary>
+    /// Fills the <see cref="StateDo"/> with updated information from a <see cref="UpdateStateRequestDto"/>
+    /// </summary>
+    /// <param name="dataObject">Object to update</param>
+    /// <param name="dto">DTO to convert to the DataObject</param>
+    /// <returns>the updated object</returns>
+    public static StateDo UpdateFromRequestDto(this StateDo dataObject, UpdateStateRequestDto dto)
+    {
+        dataObject.Name = dto.Name;
+        dataObject.NativeName = dto.NativeName;
+        return dataObject;
+    }
+    
+    /// <summary>
     /// Converts a <see cref="StateDo"/> to the <see cref="StateWithCountryDto"/>
     /// </summary>
     /// <param name="dataObject">DataObject to convert to the DTO</param>
