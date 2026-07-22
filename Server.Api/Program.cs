@@ -31,8 +31,10 @@ builder.Services.AddScoped<ICountryRepository, SqlCountryRepository>();
 builder.Services.AddScoped<IStateRepository, SqlStateRepository>();
 builder.Services.AddScoped<ICityRepository, SqlCityRepository>();
 builder.Services.AddScoped<IVenueRepository, SqlVenueRepository>();
+builder.Services.AddScoped<ITourRepository, SqlTourRepository>();
 builder.Services.AddScoped<LocationService>();
 builder.Services.AddScoped<VenueService>();
+builder.Services.AddScoped<TourService>();
 
 builder.Services.AddControllers();
 

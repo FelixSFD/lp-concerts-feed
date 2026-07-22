@@ -1,0 +1,58 @@
+using Database.Tours.DataObjects;
+using Database.Tours.Repositories;
+using LPCalendar.DataStructure.Tours;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
+
+namespace Service.Tours.Tests;
+
+public class TourServiceTest
+{
+    private readonly ITourRepository _tourRepository;
+    private readonly TourService _service;
+
+    public TourServiceTest()
+    {
+        var logger = Substitute.For<ILogger<TourService>>();
+        _tourRepository = Substitute.For<ITourRepository>();
+        _service = new TourService(_tourRepository, logger);
+    }
+
+    [Theory]
+    [InlineData("fz-world-tour", "From Zero World Tour")]
+    [InlineData("oml-world-tour", "One More Light World Tour")]
+    public async Task CreateTour(string tourId, string name)
+    {
+        var request = new CreateTourRequestDto
+        {
+            Id = tourId,
+            Name = name,
+        };
+
+        TourDo? savedTourDo = null;
+        _tourRepository
+            .When(r => r.Add(Arg.Is<TourDo>(t => t.Id == tourId && t.Name == name)))
+            .Do(cb =>
+            {
+                savedTourDo = cb.Arg<TourDo>();
+                savedTourDo.Id = tourId;
+            });
+        
+        // call the service
+        var createdTour = await _service.CreateTourAsync(request);
+        Assert.NotNull(createdTour);
+        Assert.Equal(tourId, createdTour.Id);
+        Assert.Equal(name, createdTour.Name);
+        Assert.NotNull(savedTourDo);
+        Assert.Equal(tourId, savedTourDo.Id);
+        Assert.Equal(name, savedTourDo.Name);
+        
+        // verify mock calls
+        _tourRepository
+            .Received(1)
+            .Add(Arg.Is<TourDo>(t => t.Id == tourId && t.Name == name));
+        await _tourRepository
+            .Received(1)
+            .SaveChangesAsync();
+    }
+}

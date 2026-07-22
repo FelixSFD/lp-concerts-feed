@@ -1,4 +1,5 @@
 using Database.Tours.DataObjects;
+using LPCalendar.DataStructure.Tours;
 using LPCalendar.DataStructure.Tours.Locations;
 
 namespace Service.Tours;
@@ -323,6 +324,34 @@ internal static class DtoMapper
             Name = request.Name,
             From = request.From,
             To = request.To,
+        };
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="TourDo"/> from a <see cref="CreateTourRequestDto"/>
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <returns>the new data object</returns>
+    public static TourDo ToDo(this CreateTourRequestDto dto)
+    {
+        return new TourDo
+        {
+            Id = dto.Id,
+            Name = dto.Name,
+        };
+    }
+    
+    /// <summary>
+    /// Creates a new <see cref="TourDto"/> from a <see cref="TourDo"/>
+    /// </summary>
+    /// <param name="dataObject"></param>
+    /// <returns>the new DTO</returns>
+    public static TourDto ToDto(this TourDo dataObject)
+    {
+        return new TourDto
+        {
+            Id = dataObject.Id,
+            Name = dataObject.Name,
         };
     }
 }
