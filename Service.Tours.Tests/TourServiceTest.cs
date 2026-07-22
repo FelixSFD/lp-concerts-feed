@@ -55,4 +55,33 @@ public class TourServiceTest
             .Received(1)
             .SaveChangesAsync();
     }
+
+    [Fact]
+    public async Task GetTourByIdAsync()
+    {
+        var mockTour = new TourDo
+        {
+            Id = "fz-world-tour",
+            Name = "From Zero World Tour"
+        };
+        
+        // setup mocks
+        _tourRepository
+            .GetByPrimaryKeyAsync(mockTour.Id)
+            .Returns(mockTour);
+        
+        // call the service
+        var foundTour = await _service.GetTourByIdAsync(mockTour.Id);
+        Assert.NotNull(foundTour);
+        Assert.Equal(mockTour.Id, foundTour.Id);
+        Assert.Equal(mockTour.Name, foundTour.Name);
+        
+        // verify mock calls
+        await _tourRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(mockTour.Id);
+        await _tourRepository
+            .DidNotReceive()
+            .SaveChangesAsync();
+    }
 }

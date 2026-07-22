@@ -35,6 +35,7 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
     [HttpGet("{tourId}")]
     public async Task<ActionResult<TourDto>> GetTour([FromRoute] string tourId)
     {
-        throw new NotImplementedException();
+        var tour = await tourService.GetTourByIdAsync(tourId);
+        return Ok(tour);
     }
 }
