@@ -29,9 +29,8 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
     /// <summary>
     /// Returns information about a tour
     /// </summary>
-    /// <param name="tourId"></param>
+    /// <param name="tourId">ID of the tour</param>
     /// <returns></returns>
-    /// <exception cref="NotImplementedException"></exception>
     [HttpGet("{tourId}")]
     public async Task<ActionResult<TourDto>> GetTour([FromRoute] string tourId)
     {
