@@ -283,4 +283,46 @@ public class TourServiceTest
             .DidNotReceive()
             .SaveChangesAsync();
     }
+    
+    [Fact]
+    public async Task DeleteTourLegByIdAsync()
+    {
+        var mockTour = new TourDo
+        {
+            Id = "fz-world-tour",
+            Name = "From Zero World Tour",
+            Legs = [],
+        };
+        var mockLeg1 = new TourLegDo
+        {
+            TourId = mockTour.Id,
+            Id = "fz-eu-1",
+            Name = "Leg 1",
+            Tour = mockTour
+        };
+        mockTour.Legs.Add(mockLeg1);
+        
+        // setup mocks
+        _tourRepository
+            .GetByPrimaryKeyAsync(mockTour.Id)
+            .Returns(mockTour);
+        
+        // call the service
+        await _service.DeleteTourLegAsync(mockTour.Id, mockLeg1.Id);
+        Assert.Empty(mockTour.Legs);
+        
+        // verify mock calls
+        await _tourRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(mockTour.Id);
+        _tourRepository
+            .Received()
+            .Update(Arg.Is<TourDo>(t => t.Id == mockTour.Id && t.Legs.Count == 0));
+        _tourRepository
+            .DidNotReceive()
+            .Delete(Arg.Is<TourDo>(t => t.Id == mockTour.Id));
+        await _tourRepository
+            .Received(1)
+            .SaveChangesAsync();
+    }
 }

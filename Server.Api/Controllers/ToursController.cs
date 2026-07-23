@@ -90,4 +90,17 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
         logger.LogDebug("Found tour leg: {legName} (Tour: {tourId})", leg.Name, leg.TourId);
         return Ok(leg);
     }
+    
+    /// <summary>
+    /// Deletes a leg of a tour
+    /// </summary>
+    /// <param name="tourId">ID of the tour</param>
+    /// <param name="legId">ID of the tour leg</param>
+    /// <returns>no content</returns>
+    [HttpDelete("{tourId}/legs/{legId}")]
+    public async Task<NoContentResult> DeleteTour([FromRoute] string tourId, [FromRoute] string legId)
+    {
+        await tourService.DeleteTourLegAsync(tourId, legId);
+        return NoContent();
+    }
 }

@@ -102,4 +102,26 @@ public class TourService(ITourRepository tourRepository, ILogger<TourService> lo
         logger.LogDebug("Found tour: {tourName}", tour.Name);
         return tour.Legs.FirstOrDefault(l => l.Id == legId)?.ToDto() ?? throw new TourLegNotFoundException(tourId, legId);
     }
+    
+    /// <summary>
+    /// Deletes a tour leg
+    /// </summary>
+    /// <param name="tourId">ID of the tour</param>
+    /// <param name="legId">ID of the tour leg</param>
+    /// <returns>Information about the tour leg</returns>
+    /// <exception cref="TourNotFoundException">if the tour does not exist</exception>
+    /// <exception cref="TourLegNotFoundException">if the tour leg does not exist, but the tour itself does exist</exception>
+    public async Task DeleteTourLegAsync(string tourId, string legId)
+    {
+        logger.LogDebug("DELETING leg '{tourLegId}' from tour with ID: {tourId}", legId, tourId);
+        var tour = await tourRepository.GetByPrimaryKeyAsync(tourId) ?? throw new TourNotFoundException(tourId);
+        var tourName = tour.Name;
+        logger.LogDebug("Found tour: {tourName}", tourName);
+        var foundLeg = tour.Legs.FirstOrDefault(l => l.Id == legId) ?? throw new TourLegNotFoundException(tourId, legId);
+        logger.LogDebug("Found leg to delete: {legName}", foundLeg.Name);
+        tour.Legs.Remove(foundLeg);
+        tourRepository.Update(tour);
+        await tourRepository.SaveChangesAsync();
+        logger.LogDebug("Successfully deleted tour leg: {legId}", legId);
+    }
 }
