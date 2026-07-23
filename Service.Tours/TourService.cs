@@ -54,4 +54,22 @@ public class TourService(ITourRepository tourRepository, ILogger<TourService> lo
         await tourRepository.SaveChangesAsync();
         logger.LogDebug("Successfully deleted tour: {tourName}", tourName);
     }
+    
+    /// <summary>
+    /// Adds a new leg to a tour
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="tourId">ID of the tour</param>
+    /// <returns>the newly created leg</returns>
+    public async Task<TourLegDto> AddTourLegAsync(AddTourLegRequestDto request, string tourId)
+    {
+        logger.LogDebug("Creating tour leg '{tourLegName}' in tour: {tourId}", request.Name, tourId);
+        var tour = await tourRepository.GetByPrimaryKeyAsync(tourId) ?? throw new TourNotFoundException(tourId);
+        var tourLeg = request.ToDo(tourId);
+        tour.Legs.Add(tourLeg);
+        tourRepository.Update(tour);
+        await tourRepository.SaveChangesAsync();
+        logger.LogDebug("Successfully created tour leg: {tourLegName}", request.Name);
+        return tourLeg.ToDto();
+    }
 }

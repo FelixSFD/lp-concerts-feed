@@ -49,4 +49,18 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
         await tourService.DeleteTourAsync(tourId);
         return NoContent();
     }
+    
+    /// <summary>
+    /// Creates a new leg of a tour
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="tourId">ID of the tour</param>
+    /// <returns></returns>
+    [HttpPost("{tourId}/legs")]
+    public async Task<CreatedAtActionResult> CreateTourLeg([FromBody] AddTourLegRequestDto request, [FromRoute] string tourId)
+    {
+        var createdTourLeg = await tourService.AddTourLegAsync(request, tourId);
+        logger.LogDebug("Successfully created tour leg: {tourName} (ID: {tourId})", createdTourLeg.Name, createdTourLeg.Id);
+        return CreatedAtAction(nameof(GetTour), new { tourId = request.Id }, request);
+    }
 }

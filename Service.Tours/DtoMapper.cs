@@ -354,4 +354,35 @@ internal static class DtoMapper
             Name = dataObject.Name,
         };
     }
+    
+    /// <summary>
+    /// Creates a new <see cref="TourLegDo"/> from a <see cref="AddTourLegRequestDto"/>
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <param name="tourId">ID of the tour that contains this new leg</param>
+    /// <returns>the new data object</returns>
+    public static TourLegDo ToDo(this AddTourLegRequestDto dto, string tourId)
+    {
+        return new TourLegDo
+        {
+            TourId = tourId,
+            Id = dto.Id,
+            Name = dto.Name,
+        };
+    }
+    
+    /// <summary>
+    /// Creates a new <see cref="TourLegDto"/> from a <see cref="TourLegDo"/>
+    /// </summary>
+    /// <param name="dataObject"></param>
+    /// <returns>the new DTO</returns>
+    public static TourLegDto ToDto(this TourLegDo dataObject)
+    {
+        return new TourLegDto
+        {
+            TourId = dataObject.TourId,
+            Id = dataObject.Id,
+            Name = dataObject.Name,
+        };
+    }
 }
