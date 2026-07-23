@@ -3,6 +3,7 @@ using Database.Tours.Repositories;
 using LPCalendar.DataStructure.Tours;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using Service.Tours.Exceptions;
 
 namespace Service.Tours.Tests;
 
@@ -80,6 +81,59 @@ public class TourServiceTest
         await _tourRepository
             .Received(1)
             .GetByPrimaryKeyAsync(mockTour.Id);
+        await _tourRepository
+            .DidNotReceive()
+            .SaveChangesAsync();
+    }
+    
+    [Fact]
+    public async Task DeleteTourByIdAsync()
+    {
+        var mockTour = new TourDo
+        {
+            Id = "fz-world-tour",
+            Name = "From Zero World Tour"
+        };
+        
+        // setup mocks
+        _tourRepository
+            .GetByPrimaryKeyAsync(mockTour.Id)
+            .Returns(mockTour);
+        
+        // call the service
+        await _service.DeleteTourAsync(mockTour.Id);
+        
+        // verify mock calls
+        await _tourRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(mockTour.Id);
+        _tourRepository
+            .Received(1)
+            .Delete(Arg.Is<TourDo>(t => t.Id == mockTour.Id));
+        await _tourRepository
+            .Received(1)
+            .SaveChangesAsync();
+    }
+    
+    [Fact]
+    public async Task DeleteTourByIdAsync_NotFound()
+    {
+        // setup mocks
+        _tourRepository
+            .GetByPrimaryKeyAsync(Arg.Any<string>())
+            .Returns((TourDo?)null);
+        
+        // call the service
+        var exception = await Assert.ThrowsAsync<TourNotFoundException>(async () => await _service.DeleteTourAsync("test-tour"));
+        Assert.Equal("test-tour", exception.TourId);
+        
+        // verify mock calls
+        await _tourRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync("test-tour");
+        _tourRepository
+            .DidNotReceive()
+            .Delete(Arg.Any<TourDo>());
         await _tourRepository
             .DidNotReceive()
             .SaveChangesAsync();

@@ -38,4 +38,20 @@ public class TourService(ITourRepository tourRepository, ILogger<TourService> lo
         logger.LogDebug("Found tour: {tourName}", tour.Name);
         return tour.ToDto();
     }
+    
+    /// <summary>
+    /// Deletes a tour
+    /// </summary>
+    /// <param name="id">ID of the tour</param>
+    /// <exception cref="TourNotFoundException">if the tour does not exist</exception>
+    public async Task DeleteTourAsync(string id)
+    {
+        logger.LogInformation("DELETING tour with ID: {tourId}", id);
+        var tour = await tourRepository.GetByPrimaryKeyAsync(id) ?? throw new TourNotFoundException(id);
+        var tourName = tour.Name;
+        logger.LogDebug("Found tour: {tourName}", tourName);
+        tourRepository.Delete(tour);
+        await tourRepository.SaveChangesAsync();
+        logger.LogDebug("Successfully deleted tour: {tourName}", tourName);
+    }
 }

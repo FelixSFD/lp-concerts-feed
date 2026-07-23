@@ -37,4 +37,16 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
         var tour = await tourService.GetTourByIdAsync(tourId);
         return Ok(tour);
     }
+    
+    /// <summary>
+    /// Deletes a tour
+    /// </summary>
+    /// <param name="tourId">ID of the tour</param>
+    /// <returns>no content</returns>
+    [HttpDelete("{tourId}")]
+    public async Task<NoContentResult> DeleteTour([FromRoute] string tourId)
+    {
+        await tourService.DeleteTourAsync(tourId);
+        return NoContent();
+    }
 }
