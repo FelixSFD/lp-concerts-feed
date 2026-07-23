@@ -24,6 +24,20 @@ public class TourService(ITourRepository tourRepository, ILogger<TourService> lo
         logger.LogDebug("Successfully created tour: {tourName}", request.Name);
         return tour.ToDto();
     }
+    
+    /// <summary>
+    /// Returns a list of all tours
+    /// </summary>
+    /// <param name="cancellationToken">Token to cancel the request</param>
+    /// <returns>Information about the tours</returns>
+    /// <exception cref="TourNotFoundException">if the tour does not exist</exception>
+    public IAsyncEnumerable<TourDto> GetToursAsync(CancellationToken cancellationToken)
+    {
+        logger.LogDebug("Loading a list of all tours...");
+        return tourRepository
+            .QueryAsync(cancellationToken)
+            .Select(DtoMapper.ToDto);
+    }
 
     /// <summary>
     /// Returns information about a tour

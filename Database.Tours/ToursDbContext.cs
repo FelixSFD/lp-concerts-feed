@@ -62,6 +62,9 @@ public class ToursDbContext(DbContextOptions<ToursDbContext> options) : DbContex
             .HasForeignKey(c => new { c.TourLegId })
             .HasPrincipalKey(tl => new { tl.Id });
         
+        modelBuilder.Entity<TourDo>()
+            .Navigation(t => t.Legs)
+            .AutoInclude();
         modelBuilder.Entity<TourLegDo>()
             .Navigation(tl => tl.Tour)
             .AutoInclude();

@@ -25,6 +25,19 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
         logger.LogDebug("Successfully created tour: {tourName} (ID: {tourId})", createdTour.Name, createdTour.Id);
         return CreatedAtAction(nameof(GetTour), new { tourId = request.Id }, request);
     }
+    
+    /// <summary>
+    /// Returns a list of all tours
+    /// </summary>
+    /// <returns>List of all tours</returns>
+    [HttpGet]
+    public async Task<ActionResult<TourDto[]>> GetTours(CancellationToken cancellationToken)
+    {
+        var tours = await tourService
+            .GetToursAsync(cancellationToken)
+            .ToArrayAsync(cancellationToken);
+        return Ok(tours);
+    }
 
     /// <summary>
     /// Returns information about a tour
