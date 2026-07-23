@@ -72,4 +72,20 @@ public class TourService(ITourRepository tourRepository, ILogger<TourService> lo
         logger.LogDebug("Successfully created tour leg: {tourLegName}", request.Name);
         return tourLeg.ToDto();
     }
+    
+    /// <summary>
+    /// Returns information about a tour leg
+    /// </summary>
+    /// <param name="tourId">ID of the tour</param>
+    /// <param name="legId">ID of the tour leg</param>
+    /// <returns>Information about the tour leg</returns>
+    /// <exception cref="TourNotFoundException">if the tour does not exist</exception>
+    /// <exception cref="TourLegNotFoundException">if the tour leg does not exist, but the tour itself does exist</exception>
+    public async Task<TourLegDto> GetTourLegByIdAsync(string tourId, string legId)
+    {
+        logger.LogDebug("Searching for leg '{tourLegId}' in tour with ID: {tourId}", legId, tourId);
+        var tour = await tourRepository.GetByPrimaryKeyAsync(tourId) ?? throw new TourNotFoundException(tourId);
+        logger.LogDebug("Found tour: {tourName}", tour.Name);
+        return tour.Legs.FirstOrDefault(l => l.Id == legId)?.ToDto() ?? throw new TourLegNotFoundException(tourId, legId);
+    }
 }

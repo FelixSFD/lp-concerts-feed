@@ -185,4 +185,102 @@ public class TourServiceTest
             .Received(1)
             .SaveChangesAsync();
     }
+    
+    [Fact]
+    public async Task GetTourLegByIdAsync()
+    {
+        var mockTour = new TourDo
+        {
+            Id = "fz-world-tour",
+            Name = "From Zero World Tour",
+            Legs = [],
+        };
+        var mockLeg1 = new TourLegDo
+        {
+            TourId = mockTour.Id,
+            Id = "fz-eu-1",
+            Name = "Leg 1",
+            Tour = mockTour
+        };
+        mockTour.Legs.Add(mockLeg1);
+        
+        // setup mocks
+        _tourRepository
+            .GetByPrimaryKeyAsync(mockTour.Id)
+            .Returns(mockTour);
+        
+        // call the service
+        var foundLeg = await _service.GetTourLegByIdAsync(mockTour.Id, mockLeg1.Id);
+        Assert.NotNull(foundLeg);
+        Assert.Equal(mockTour.Id, foundLeg.TourId);
+        Assert.Equal(mockLeg1.Id, foundLeg.Id);
+        Assert.Equal(mockLeg1.Name, foundLeg.Name);
+        
+        // verify mock calls
+        await _tourRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(mockTour.Id);
+        await _tourRepository
+            .DidNotReceive()
+            .SaveChangesAsync();
+    }
+    
+    [Fact]
+    public async Task GetTourLegByIdAsync_TourNotFound()
+    {
+        // setup mocks
+        _tourRepository
+            .GetByPrimaryKeyAsync("not-found-tour")
+            .Returns((TourDo?)null);
+        
+        // call the service
+        var exception = await Assert.ThrowsAsync<TourNotFoundException>(async () => await _service.GetTourLegByIdAsync("not-found-tour", "leg-1"));
+        Assert.Equal("not-found-tour", exception.TourId);
+        
+        // verify mock calls
+        await _tourRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync("not-found-tour");
+        await _tourRepository
+            .DidNotReceive()
+            .SaveChangesAsync();
+    }
+    
+    [Fact]
+    public async Task GetTourLegByIdAsync_LegNotFound()
+    {
+        var mockTour = new TourDo
+        {
+            Id = "fz-world-tour",
+            Name = "From Zero World Tour",
+            Legs = [],
+        };
+        var mockLeg1 = new TourLegDo
+        {
+            TourId = mockTour.Id,
+            Id = "fz-eu-1",
+            Name = "Leg 1",
+            Tour = mockTour
+        };
+        mockTour.Legs.Add(mockLeg1);
+        
+        // setup mocks
+        _tourRepository
+            .GetByPrimaryKeyAsync(mockTour.Id)
+            .Returns(mockTour);
+        
+        // call the service
+        var exception = await Assert.ThrowsAsync<TourLegNotFoundException>(async () =>
+            await _service.GetTourLegByIdAsync(mockTour.Id, "western-australian-leg"));
+        Assert.Equal(mockTour.Id, exception.TourId);
+        Assert.Equal("western-australian-leg", exception.LegId);
+        
+        // verify mock calls
+        await _tourRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(mockTour.Id);
+        await _tourRepository
+            .DidNotReceive()
+            .SaveChangesAsync();
+    }
 }

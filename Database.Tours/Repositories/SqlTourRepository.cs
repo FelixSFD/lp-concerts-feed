@@ -6,8 +6,12 @@ namespace Database.Tours.Repositories;
 public class SqlTourRepository(ToursDbContext dbContext)
     : SingleKeySqlRepositoryBase<TourDo, string>(dbContext, dbContext.Tours), ITourRepository
 {
-    protected override Task<TourDo> LoadReferences(TourDo dataObject)
+    protected override async Task<TourDo> LoadReferences(TourDo dataObject)
     {
-        return Task.FromResult(dataObject);
+        await Context.Entry(dataObject)
+            .Collection(t => t.Legs)
+            .LoadAsync();
+        
+        return dataObject;
     }
 }

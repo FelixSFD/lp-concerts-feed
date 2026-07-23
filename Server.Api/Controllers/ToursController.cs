@@ -61,6 +61,20 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
     {
         var createdTourLeg = await tourService.AddTourLegAsync(request, tourId);
         logger.LogDebug("Successfully created tour leg: {tourName} (ID: {tourId})", createdTourLeg.Name, createdTourLeg.Id);
-        return CreatedAtAction(nameof(GetTour), new { tourId = request.Id }, request);
+        return CreatedAtAction(nameof(GetTourLeg), new { tourId = createdTourLeg.TourId, legId = createdTourLeg.Id }, request);
+    }
+    
+    /// <summary>
+    /// Returns information about a tour leg
+    /// </summary>
+    /// <param name="tourId">ID of the tour</param>
+    /// <param name="legId">ID of the tour leg</param>
+    /// <returns>information about the leg</returns>
+    [HttpGet("{tourId}/legs/{legId}")]
+    public async Task<ActionResult<TourLegDto>> GetTourLeg([FromRoute] string tourId, [FromRoute] string legId)
+    {
+        var leg = await tourService.GetTourLegByIdAsync(tourId, legId);
+        logger.LogDebug("Found tour leg: {legName} (Tour: {tourId})", leg.Name, leg.TourId);
+        return Ok(leg);
     }
 }
