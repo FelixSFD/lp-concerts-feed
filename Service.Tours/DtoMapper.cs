@@ -352,6 +352,7 @@ internal static class DtoMapper
         {
             Id = dataObject.Id,
             Name = dataObject.Name,
+            Legs = [.. dataObject.Legs.Select(ToDto)],
         };
     }
     

@@ -14,4 +14,9 @@ public class TourDto
     /// Name of this tour
     /// </summary>
     public required string Name { get; set; }
+
+    /// <summary>
+    /// Legs of this tour. Not all tours might be split into different legs.
+    /// </summary>
+    public ICollection<TourLegDto> Legs { get; set; } = [];
 }
