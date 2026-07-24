@@ -386,4 +386,31 @@ internal static class DtoMapper
             Name = dataObject.Name,
         };
     }
+
+    /// <summary>
+    /// Creates a new <see cref="ConcertTypeDo"/> from a <see cref="CreateConcertTypeRequestDto"/>
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <returns>the new data object</returns>
+    public static ConcertTypeDo ToDo(this CreateConcertTypeRequestDto dto)
+    {
+        return new ConcertTypeDo
+        {
+            Name = dto.Name,
+        };
+    }
+    
+    /// <summary>
+    /// Creates a new <see cref="TourLegDto"/> from a <see cref="ConcertTypeDo"/>
+    /// </summary>
+    /// <param name="dataObject"></param>
+    /// <returns>the new DTO</returns>
+    public static ConcertTypeDto ToDto(this ConcertTypeDo dataObject)
+    {
+        return new ConcertTypeDto
+        {
+            Id = dataObject.Id,
+            Name = dataObject.Name,
+        };
+    }
 }
