@@ -1,0 +1,49 @@
+<footer class="app-footer">
+  <div class="app-footer-inner">
+    <div class="app-footer-top">
+      <div class="app-footer-brand">
+        <img ngSrc="logo.webp" alt="Logo" width="48" height="48" />
+        <div>
+          <div class="app-footer-name">L<span class="app-footer-flip">P</span> Concert Calendar</div>
+          <div class="app-footer-tag">
+            A fan-made calendar of Linkin Park shows - setlists, times, and venues.
+          </div>
+        </div>
+      </div>
+
+      <div class="app-footer-col">
+        <span class="app-footer-heading">Explore</span>
+        <a [routerLink]="['/home']">Home</a>
+        <a [routerLink]="['/concerts']">Concerts</a>
+        <a [routerLink]="['/map']">Map</a>
+        <a [routerLink]="['/about']">About</a>
+      </div>
+
+      <div class="app-footer-col">
+        <span class="app-footer-heading">Resources</span>
+        <a href="https://linkinpedia.com" target="_blank">Linkinpedia</a>
+        <a href="https://lplive.net" target="_blank">LPLive</a>
+        <a href="https://www.linkinpark.com" target="_blank">Linkin Park</a>
+      </div>
+
+      <div class="app-footer-col">
+        <span class="app-footer-heading">Download</span>
+        <a [routerLink]="['/app']">iOS App</a>
+      </div>
+    </div>
+
+    <div class="app-footer-bottom">
+      <span>This is a fan-site and not affiliated with Linkin Park!</span>
+      <span>
+        <a [routerLink]="['/privacy']">
+          Privacy
+        </a>
+        · Data by
+        <a href="https://lplive.net/about.php/" target="_blank">
+          LPlive
+        </a>
+        · © {{ currentYear }} · Build: {{ environment.build }}
+      </span>
+    </div>
+  </div>
+</footer>

@@ -1,6 +1,6 @@
 import {Component, inject, Input, OnInit} from '@angular/core';
 import {MenuItem} from 'primeng/api';
-import {Router} from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {Menubar} from 'primeng/menubar';
 import {NgOptimizedImage} from '@angular/common';
 import {Button} from 'primeng/button';
@@ -16,7 +16,8 @@ import {environment} from '../../../../environments/environment';
     Menubar,
     NgOptimizedImage,
     Button,
-    Menu
+    Menu,
+    RouterLink
   ],
   templateUrl: './main-menu.component.html',
   styleUrl: './main-menu.component.css',
@@ -44,27 +45,18 @@ export class MainMenuComponent implements OnInit {
     this.mainMenuItems = [
       {
         label: 'Home',
-        icon: 'pi pi-home',
         routerLink: '/home',
       },
       {
         label: 'Concerts',
-        icon: 'pi pi-calendar',
         routerLink: '/concerts'
       },
       {
         label: 'Map',
-        icon: 'pi pi-map',
         routerLink: '/map'
       },
       {
-        label: 'App',
-        icon: 'pi pi-mobile',
-        routerLink: '/app'
-      },
-      {
         label: 'About',
-        icon: 'pi pi-info-circle',
         routerLink: '/about'
       },
     ];

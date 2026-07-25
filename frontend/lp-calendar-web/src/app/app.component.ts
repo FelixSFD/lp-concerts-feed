@@ -2,7 +2,6 @@ import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {
   EventType,
   Router,
-  RouterLink,
   RouterOutlet
 } from '@angular/router';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
@@ -21,6 +20,7 @@ import {AuthService} from './auth/auth.service';
 import {DateTime} from 'luxon';
 import {ClockService} from './services/clock.service';
 import {MainMenuComponent} from './components/v2/main-menu/main-menu.component';
+import { FooterComponent } from './components/v2/footer/footer.component';
 import {ScrollTop} from 'primeng/scrolltop';
 import {AutoBreadcrumbsComponent} from './components/v2/auto-breadcrumbs/auto-breadcrumbs.component';
 import {ProgressBar} from 'primeng/progressbar';
@@ -28,7 +28,7 @@ import {Toast} from 'primeng/toast';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, MainMenuComponent, ScrollTop, AutoBreadcrumbsComponent, ProgressBar, Toast],
+  imports: [RouterOutlet, MainMenuComponent, FooterComponent, ScrollTop, AutoBreadcrumbsComponent, ProgressBar, Toast],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -208,7 +208,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.noCookieLawSubscription.unsubscribe();
   }
 
-  protected readonly environment = environment;
   protected readonly DateTime = DateTime;
   protected readonly EventType = EventType;
 }

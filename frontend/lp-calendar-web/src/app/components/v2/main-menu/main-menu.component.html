@@ -1,4 +1,4 @@
-<div class="card mx-3">
+<div class="card">
   <p-menubar [model]="mainMenuItems">
     <ng-template #start>
       <a href="/" class="mr-2">
@@ -8,15 +8,16 @@
     </ng-template>
 
     <ng-template #end>
-      <span class="mr-3 hidden md:inline">
-        Your time: {{ currentDateTime$.toLocaleString(DateTime.TIME_WITH_SECONDS) }}
+      <span class="header-clock mr-3 hidden md:inline">
+        {{ currentDateTime$.toLocaleString(DateTime.TIME_SIMPLE) }}
       </span>
 
       @if (isLoggedIn$) {
         <p-menu #menu [model]="loggedInMenuItems" [popup]="true" />
         <p-button (click)="menu.toggle($event)" icon="pi pi-cog" variant="outlined" />
       } @else {
-        <p-button variant="outlined" (click)="login()">Login</p-button>
+        <p-button variant="text" (click)="login()">Log in</p-button>
+        <p-button label="Get the app" [routerLink]="['/app']" />
       }
     </ng-template>
   </p-menubar>
