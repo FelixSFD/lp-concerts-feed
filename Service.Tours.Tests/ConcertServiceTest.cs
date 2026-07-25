@@ -3,6 +3,7 @@ using Database.Tours.Repositories;
 using LPCalendar.DataStructure.Tours;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using Service.Tours.Exceptions;
 
 namespace Service.Tours.Tests;
 
@@ -40,7 +41,7 @@ public class ConcertServiceTest
             });
         
         // call the service
-        var createdType = await _service.CreateConcertType(request);
+        var createdType = await _service.CreateConcertTypeAsync(request);
         Assert.NotNull(createdType);
         Assert.Equal(mockId, createdType.Id);
         Assert.Equal(name, createdType.Name);
@@ -55,5 +56,44 @@ public class ConcertServiceTest
         await _concertTypeRepository
             .Received(1)
             .SaveChangesAsync();
+    }
+
+    [Fact]
+    public async Task GetConcertTypeAsync()
+    {
+        var mockType = new ConcertTypeDo
+        {
+            Id = 1337u,
+            Name = "Linkin Park",
+        };
+        
+        _concertTypeRepository
+            .GetByPrimaryKeyAsync(Arg.Is<uint>(id => id == mockType.Id))
+            .Returns(mockType);
+
+        var result = await _service.GetConcertTypeAsync(mockType.Id);
+        Assert.NotNull(result);
+        Assert.Equal(mockType.Id, result.Id);
+        Assert.Equal(mockType.Name, result.Name);
+        
+        await _concertTypeRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(Arg.Is<uint>(id => id == mockType.Id));
+    }
+    
+    [Fact]
+    public async Task GetConcertTypeAsync_NotFound()
+    {
+        _concertTypeRepository
+            .GetByPrimaryKeyAsync(Arg.Any<uint>())
+            .Returns((ConcertTypeDo?)null);
+
+        var exception = await Assert.ThrowsAsync<ConcertTypeNotFoundException>(async () 
+            => await _service.GetConcertTypeAsync(404u));
+        Assert.Equal(404u, exception.TypeId);
+        
+        await _concertTypeRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(Arg.Any<uint>());
     }
 }
