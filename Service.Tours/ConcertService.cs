@@ -89,4 +89,18 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         logger.LogDebug("Successfully created concert with ID: {concertId}", concert.Id);
         return concert.ToDto();
     }
+
+    /// <summary>
+    /// Returns the concert without any of the referenced objects like the venue
+    /// </summary>
+    /// <param name="id">ID of the concert</param>
+    /// <returns></returns>
+    /// <exception cref="ConcertNotFoundException">if the concert does not exist</exception>
+    public async Task<RawConcertDto> GetConcertWithoutDetailsByIdAsync(string id)
+    {
+        logger.LogDebug("Requested concert without references to other objects. ID: {id}", id);
+        var concert = await concertRepository.GetByPrimaryKeyWithoutReferencesAsync(id) ?? throw new ConcertNotFoundException(id);
+        logger.LogDebug("Found concert.");
+        return concert.ToDto();
+    }
 }
