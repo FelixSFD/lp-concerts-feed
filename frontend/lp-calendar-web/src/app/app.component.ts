@@ -1,11 +1,9 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
-import {
-  EventType,
-  Router,
-  RouterOutlet
-} from '@angular/router';
-import {OidcSecurityService} from 'angular-auth-oidc-client';
-import {environment} from '../environments/environment';
+// Setting up correct import order - from external -> to internal
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { EventType, Router, RouterOutlet } from '@angular/router';
+// 3rd party
+import { OidcSecurityService } from 'angular-auth-oidc-client';
+import { DateTime } from 'luxon';
 import {
   NgcCookieConsentService,
   NgcInitializationErrorEvent,
@@ -13,18 +11,19 @@ import {
   NgcNoCookieLawEvent,
   NgcStatusChangeEvent
 } from 'ngx-cookieconsent';
-import {Subscription} from 'rxjs';
-import {MatomoTracker} from 'ngx-matomo-client';
-import {UserDto} from './modules/lpshows-api';
-import {AuthService} from './auth/auth.service';
-import {DateTime} from 'luxon';
-import {ClockService} from './services/clock.service';
-import {MainMenuComponent} from './components/v2/main-menu/main-menu.component';
+import { MatomoTracker } from 'ngx-matomo-client';
+import { ProgressBar } from 'primeng/progressbar';
+import { ScrollTop } from 'primeng/scrolltop';
+import { Toast } from 'primeng/toast';
+import { Subscription } from 'rxjs';
+// internal
+import { environment } from '../environments/environment';
+import { AuthService } from './auth/auth.service';
+import { AutoBreadcrumbsComponent } from './components/v2/auto-breadcrumbs/auto-breadcrumbs.component';
 import { FooterComponent } from './components/v2/footer/footer.component';
-import {ScrollTop} from 'primeng/scrolltop';
-import {AutoBreadcrumbsComponent} from './components/v2/auto-breadcrumbs/auto-breadcrumbs.component';
-import {ProgressBar} from 'primeng/progressbar';
-import {Toast} from 'primeng/toast';
+import { MainMenuComponent } from './components/v2/main-menu/main-menu.component';
+import { UserDto } from './modules/lpshows-api';
+import { ClockService } from './services/clock.service';
 
 @Component({
   selector: 'app-root',
