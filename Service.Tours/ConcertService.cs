@@ -27,6 +27,23 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         logger.LogDebug("Successfully created concert type with name: {typeName} (ID: {id})", request.Name, typeDo.Id);
         return typeDo.ToDto();
     }
+    
+    /// <summary>
+    /// Updates a type of concert
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="id">ID of the concert type</param>
+    /// <returns></returns>
+    public async Task<ConcertTypeDto> UpdateConcertTypeAsync(UpdateConcertTypeRequestDto request, uint id)
+    {
+        logger.LogDebug("Updating concert type with ID: {id}", id);
+        var typeDo = await concertTypeRepository.GetByPrimaryKeyWithoutReferencesAsync(id) ?? throw new ConcertTypeNotFoundException(id);
+        typeDo.UpdateFromRequestDto(request);
+        concertTypeRepository.Update(typeDo);
+        await concertTypeRepository.SaveChangesAsync();
+        logger.LogDebug("Successfully updated concert type with name: {typeName} (ID: {id})", request.Name, typeDo.Id);
+        return typeDo.ToDto();
+    }
 
     /// <summary>
     /// Returns the <see cref="ConcertTypeDto"/> for a given ID

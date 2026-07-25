@@ -401,6 +401,18 @@ internal static class DtoMapper
     }
     
     /// <summary>
+    /// Updates the properties of the <see cref="ConcertTypeDo"/> with the information in the <param name="updateRequest"></param>
+    /// </summary>
+    /// <param name="dataObject"></param>
+    /// <param name="updateRequest">Information to update the DataObject</param>
+    /// <returns>the updated object</returns>
+    public static ConcertTypeDo UpdateFromRequestDto(this ConcertTypeDo dataObject, UpdateConcertTypeRequestDto updateRequest)
+    {
+        dataObject.Name = updateRequest.Name;
+        return dataObject;
+    }
+    
+    /// <summary>
     /// Creates a new <see cref="TourLegDto"/> from a <see cref="ConcertTypeDo"/>
     /// </summary>
     /// <param name="dataObject"></param>
