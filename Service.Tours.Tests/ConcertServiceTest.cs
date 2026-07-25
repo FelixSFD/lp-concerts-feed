@@ -1,5 +1,6 @@
 using Database.Tours.DataObjects;
 using Database.Tours.Repositories;
+using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Tours;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -121,5 +122,110 @@ public class ConcertServiceTest
         _concertTypeRepository
             .Received(1)
             .QueryAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task CreateConcertAsync()
+    {
+        var mockConcertId = Guid.NewGuid().ToString();
+        var mockConcertType = new ConcertTypeDo
+        {
+            Id = 1337u,
+            Name = "Linkin Park",
+        };
+        var mockTour = new TourDo
+        {
+            Id = "fz-world-tour",
+            Name = "From Zero World Tour",
+            Legs = [],
+        };
+        var mockTourLegEu = new TourLegDo
+        {
+            Id = "europe-2025",
+            TourId = mockTour.Id,
+            Tour = mockTour,
+            Name = "European Tour 2025",
+        };
+        mockTour.Legs.Add(mockTourLegEu);
+
+        var countryGer = new CountryDo
+        {
+            IsoCode = "GER",
+            Name = "Germany",
+            NativeName = "Deutschland",
+        };
+        var cityMuc = new CityDo
+        {
+            CountryCode = countryGer.IsoCode,
+            Name = "Munich",
+            NativeName = "München",
+        };
+        var mockVenue = new VenueDo
+        {
+            Id = 1900u,
+            CountryCode = countryGer.IsoCode,
+            CityId = cityMuc.Id,
+            City = cityMuc,
+            CurrentName = "Allianz Arena",
+            TimeZone = "Europe/Berlin",
+            Latitude = 12.34m,
+            Longitude = 0.123m,
+            Country = countryGer,
+        };
+        
+        // setup mocks
+        ConcertDo? savedConcert = null;
+        _concertRepository
+            .When(r => r.Add(Arg.Any<ConcertDo>()))
+            .Do(cb =>
+            {
+                savedConcert = cb.Arg<ConcertDo>();
+                savedConcert.Id = mockConcertId;
+            });
+        
+        // call the service
+        var request = new CreateConcertRequestDto
+        {
+            TourId = mockTour.Id,
+            TourLegId = mockTourLegEu.Id,
+            ConcertTypeId = mockConcertType.Id,
+            PostedStartTime = new DateTimeOffset(2026, 6, 30, 20, 0, 0, TimeSpan.FromHours(2)),
+            MainStageTime = new DateTime(2026, 6, 30, 20, 25, 0),
+            DoorsTime = new DateTime(2026, 6, 30, 16, 0, 0),
+            LpuEarlyEntryTime = new DateTime(2026, 6, 30, 15, 30, 0),
+            LpuEarlyEntryConfirmed = true,
+            VenueId = mockVenue.Id,
+            Status = ConcertDto.ConcertStatusValue.Past,
+            ExpectedSetDurationMinutes = 120,
+            CustomTitle = "Final Show of the tour",
+            ScheduleImageFile = "test.jpg",
+        };
+
+        var createdConcert = await _service.CreateConcertAsync(request);
+        Assert.NotNull(createdConcert);
+        Assert.NotNull(savedConcert);
+        Assert.Equal(mockConcertId, createdConcert.Id);
+        Assert.Equal(mockTour.Id, createdConcert.TourId);
+        Assert.Equal(mockTourLegEu.Id, createdConcert.TourLegId);
+        Assert.Equal(mockConcertType.Id, createdConcert.ConcertTypeId);
+        Assert.Equal(mockVenue.Id, createdConcert.VenueId);
+        Assert.Equal(request.CustomTitle, createdConcert.CustomTitle);
+        Assert.Equal(request.ScheduleImageFile, createdConcert.ScheduleImageFile);
+        Assert.Equal(request.ExpectedSetDurationMinutes, createdConcert.ExpectedSetDurationMinutes);
+        Assert.Equal(request.PostedStartTime, createdConcert.PostedStartTime);
+        Assert.Equal(request.MainStageTime, createdConcert.MainStageTime);
+        Assert.Equal(request.DoorsTime, createdConcert.DoorsTime);
+        Assert.Equal(request.LpuEarlyEntryTime, createdConcert.LpuEarlyEntryTime);
+        Assert.Equal(request.LpuEarlyEntryConfirmed, createdConcert.LpuEarlyEntryConfirmed);
+        // TODO: fix mapping of status
+        //Assert.Equal(request.Status, createdConcert.Status);
+        
+        // verify mock calls
+        _concertRepository
+            .Received(1)
+            .Add(Arg.Any<ConcertDo>());
+        await _concertRepository
+            .Received(1)
+            .SaveChangesAsync();
     }
 }

@@ -425,4 +425,58 @@ internal static class DtoMapper
             Name = dataObject.Name,
         };
     }
+    
+    /// <summary>
+    /// Creates a new <see cref="ConcertDo"/> from a <see cref="CreateConcertRequestDto"/>
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <returns>the new data object</returns>
+    public static ConcertDo ToDo(this CreateConcertRequestDto dto)
+    {
+        return new ConcertDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            ConcertTypeId = dto.ConcertTypeId,
+            TourId = dto.TourId,
+            TourLegId = dto.TourLegId,
+            CustomTitle = dto.CustomTitle,
+            VenueId = dto.VenueId,
+            PostedStartTime = dto.PostedStartTime,
+            MainStageTime = dto.MainStageTime,
+            DoorsTime = dto.DoorsTime,
+            LpuEarlyEntryTime = dto.LpuEarlyEntryTime,
+            LpuEarlyEntryConfirmed = dto.LpuEarlyEntryConfirmed,
+            ExpectedSetDurationMinutes = dto.ExpectedSetDurationMinutes,
+            ScheduleImageFile = dto.ScheduleImageFile,
+            DeletedAt = dto.DeletedAt,
+            //Status = dto.Status,
+        };
+    }
+    
+    /// <summary>
+    /// Creates a <see cref="RawConcertDto"/> from the <see cref="ConcertDo"/>
+    /// </summary>
+    /// <param name="dataObject"></param>
+    /// <returns>the new DTO</returns>
+    public static RawConcertDto ToDto(this ConcertDo dataObject)
+    {
+        return new RawConcertDto
+        {
+            Id = dataObject.Id,
+            ConcertTypeId = dataObject.ConcertTypeId,
+            TourId = dataObject.TourId,
+            TourLegId = dataObject.TourLegId,
+            CustomTitle = dataObject.CustomTitle,
+            VenueId = dataObject.VenueId,
+            PostedStartTime = dataObject.PostedStartTime,
+            MainStageTime = dataObject.MainStageTime,
+            DoorsTime = dataObject.DoorsTime,
+            LpuEarlyEntryTime = dataObject.LpuEarlyEntryTime,
+            LpuEarlyEntryConfirmed = dataObject.LpuEarlyEntryConfirmed,
+            ExpectedSetDurationMinutes = dataObject.ExpectedSetDurationMinutes,
+            ScheduleImageFile = dataObject.ScheduleImageFile,
+            DeletedAt = dataObject.DeletedAt,
+            //Status = dto.Status,
+        };
+    }
 }

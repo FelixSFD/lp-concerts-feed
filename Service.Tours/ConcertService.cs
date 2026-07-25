@@ -13,6 +13,8 @@ namespace Service.Tours;
 /// <param name="logger"></param>
 public class ConcertService(IConcertRepository concertRepository, IConcertTypeRepository concertTypeRepository, ILogger<ConcertService> logger)
 {
+    #region Concert Types
+    
     /// <summary>
     /// Creates a new type of concert
     /// </summary>
@@ -70,5 +72,21 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         return concertTypeRepository
             .QueryAsync(cancellationToken)
             .Select(DtoMapper.ToDto);
+    }
+    
+    #endregion
+
+    /// <summary>
+    /// Creates a new concert
+    /// </summary>
+    /// <param name="request"></param>
+    public async Task<RawConcertDto> CreateConcertAsync(CreateConcertRequestDto request)
+    {
+        logger.LogDebug("Requested to create a new concert");
+        var concert = request.ToDo();
+        concertRepository.Add(concert);
+        await concertRepository.SaveChangesAsync();
+        logger.LogDebug("Successfully created concert with ID: {concertId}", concert.Id);
+        return concert.ToDto();
     }
 }
