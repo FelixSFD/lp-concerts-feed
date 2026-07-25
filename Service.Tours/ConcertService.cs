@@ -41,4 +41,17 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         logger.LogDebug("Found concert type: {name}", type.Name);
         return type.ToDto();
     }
+    
+    /// <summary>
+    /// Returns all <see cref="ConcertTypeDto"/>s
+    /// </summary>
+    /// <param name="cancellationToken">Token to cancel the request</param>
+    /// <returns>Information about all concert types</returns>
+    public IAsyncEnumerable<ConcertTypeDto> GetConcertTypesAsync(CancellationToken cancellationToken)
+    {
+        logger.LogDebug("Read all concert types");
+        return concertTypeRepository
+            .QueryAsync(cancellationToken)
+            .Select(DtoMapper.ToDto);
+    }
 }

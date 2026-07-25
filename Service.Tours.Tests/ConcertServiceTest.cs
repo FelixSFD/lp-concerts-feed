@@ -96,4 +96,30 @@ public class ConcertServiceTest
             .Received(1)
             .GetByPrimaryKeyAsync(Arg.Any<uint>());
     }
+    
+    [Fact]
+    public async Task GetConcertTypesAsync()
+    {
+        var mockType = new ConcertTypeDo
+        {
+            Id = 1337u,
+            Name = "Linkin Park",
+        };
+
+        ConcertTypeDo[] mockTypes = [mockType];
+
+        _concertTypeRepository
+            .QueryAsync(Arg.Any<CancellationToken>())
+            .Returns(mockTypes.ToAsyncEnumerable());
+
+        var results = await _service.GetConcertTypesAsync(CancellationToken.None).ToArrayAsync();
+        Assert.NotNull(results);
+        var result = Assert.Single(results);
+        Assert.Equal(mockType.Id, result.Id);
+        Assert.Equal(mockType.Name, result.Name);
+        
+        _concertTypeRepository
+            .Received(1)
+            .QueryAsync(Arg.Any<CancellationToken>());
+    }
 }
