@@ -33,4 +33,16 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
         var concert = await concertService.GetConcertWithoutDetailsByIdAsync(concertId);
         return Ok(concert);
     }
+    
+    /// <summary>
+    /// Returns all details about a concert. This includes information about the venue and general location.
+    /// </summary>
+    /// <param name="concertId"></param>
+    /// <returns></returns>
+    [HttpGet("{concertId}/details")]
+    public async Task<ActionResult<ConcertDetailsDto>> GetConcertById([FromRoute] string concertId)
+    {
+        var concert = await concertService.GetConcertByIdAsync(concertId);
+        return Ok(concert);
+    }
 }

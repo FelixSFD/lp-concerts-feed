@@ -103,4 +103,18 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         logger.LogDebug("Found concert.");
         return concert.ToDto();
     }
+    
+    /// <summary>
+    /// Returns the concert including all the referenced objects like the venue
+    /// </summary>
+    /// <param name="id">ID of the concert</param>
+    /// <returns></returns>
+    /// <exception cref="ConcertNotFoundException">if the concert does not exist</exception>
+    public async Task<ConcertDetailsDto> GetConcertByIdAsync(string id)
+    {
+        logger.LogDebug("Requested concert including references to other objects. ID: {id}", id);
+        var concert = await concertRepository.GetByPrimaryKeyAsync(id) ?? throw new ConcertNotFoundException(id);
+        logger.LogDebug("Found concert.");
+        return concert.ToDtoWithDetails();
+    }
 }

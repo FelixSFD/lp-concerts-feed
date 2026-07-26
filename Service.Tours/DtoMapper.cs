@@ -479,4 +479,31 @@ internal static class DtoMapper
             //Status = dto.Status,
         };
     }
+    
+    /// <summary>
+    /// Creates a <see cref="ConcertDetailsDto"/> from the <see cref="ConcertDo"/> including all references.
+    /// </summary>
+    /// <param name="dataObject"></param>
+    /// <returns>the new DTO</returns>
+    public static ConcertDetailsDto ToDtoWithDetails(this ConcertDo dataObject)
+    {
+        return new ConcertDetailsDto
+        {
+            Id = dataObject.Id,
+            ConcertType = dataObject.Type.ToDto(),
+            Tour = dataObject.Tour?.ToDto(),
+            TourLeg = dataObject.TourLeg?.ToDto(),
+            CustomTitle = dataObject.CustomTitle,
+            Venue = dataObject.Venue.ToDtoWithAllDetails(),
+            PostedStartTime = dataObject.PostedStartTime,
+            MainStageTime = dataObject.MainStageTime,
+            DoorsTime = dataObject.DoorsTime,
+            LpuEarlyEntryTime = dataObject.LpuEarlyEntryTime,
+            LpuEarlyEntryConfirmed = dataObject.LpuEarlyEntryConfirmed,
+            ExpectedSetDurationMinutes = dataObject.ExpectedSetDurationMinutes,
+            ScheduleImageFile = dataObject.ScheduleImageFile,
+            DeletedAt = dataObject.DeletedAt,
+            //Status = dto.Status,
+        };
+    }
 }
