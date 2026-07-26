@@ -403,9 +403,6 @@ export class ConcertDetailsPageComponent implements OnInit {
     return parts[parts.length - 1].replace(/_/g, " ");
   }
 
-  public localZoneCityLabel(): string {
-    return this.zoneCityLabel(DateTime.local().zoneName);
-  }
 
   onShareClicked() {
     const link = window.location.protocol + "//" + window.location.host + "/concerts/" + this.concert$?.id;

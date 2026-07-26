@@ -10,6 +10,12 @@ body {
   background: var(--p-surface-50);
 }
 
+@media (prefers-color-scheme: dark) {
+  body {
+    background: var(--p-surface-950);
+  }
+}
+
 
 
 .link {

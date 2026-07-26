@@ -4,10 +4,16 @@
 
 .app-footer {
   margin: 1rem 0.5rem 0.5rem;
-  border: 1px solid var(--p-surface-200);
+  border: 1px solid var(--p-content-border-color);
   border-radius: 14px;
   overflow: hidden;
   background: var(--p-surface-100);
+}
+
+@media (prefers-color-scheme: dark) {
+  .app-footer {
+    background: var(--p-surface-900);
+  }
 }
 
 .app-footer-inner {
@@ -97,7 +103,7 @@
   justify-content: space-between;
   margin-top: 2rem;
   padding-top: 1.25rem;
-  border-top: 1px solid var(--p-surface-200);
+  border-top: 1px solid var(--p-content-border-color);
   font-size: 0.8rem;
   color: var(--p-surface-500);
 }
