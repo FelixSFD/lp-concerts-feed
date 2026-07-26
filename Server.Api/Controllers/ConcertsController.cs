@@ -65,4 +65,12 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
         var concert = await concertService.GetConcertByIdAsync(concertId);
         return Ok(concert);
     }
+
+    [HttpGet]
+    public async Task<ActionResult<ConcertDetailsDto[]>> GetConcertsAsync(CancellationToken cancellationToken, [FromQuery] string? countryCode)
+    {
+        var concerts = await concertService.GetConcertsWithDetailsAsync(cancellationToken, countryCode).ToArrayAsync(cancellationToken);
+        logger.LogDebug("Retrieved {count} concert details.", concerts.Length);
+        return Ok(concerts);
+    }
 }

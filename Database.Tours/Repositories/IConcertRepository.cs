@@ -5,4 +5,5 @@ namespace Database.Tours.Repositories;
 
 public interface IConcertRepository : ISingleKeyRepositoryBase<ConcertDo, string>, IRepositoryBase<ConcertDo>
 {
+    IAsyncEnumerable<ConcertDo> GetConcerts(CancellationToken token, string? countryCode = null);
 }

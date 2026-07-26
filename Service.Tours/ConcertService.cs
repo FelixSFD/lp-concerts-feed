@@ -133,4 +133,11 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         logger.LogDebug("Found concert.");
         return concert.ToDtoWithDetails();
     }
+
+    public IAsyncEnumerable<ConcertDetailsDto> GetConcertsWithDetailsAsync(CancellationToken cancellationToken, string? countryCode = null)
+    {
+        return concertRepository
+            .GetConcerts(cancellationToken, countryCode)
+            .Select(DtoMapper.ToDtoWithDetails);
+    }
 }

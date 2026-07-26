@@ -1,5 +1,6 @@
 using Common.Datbase.MySql.Repositories;
 using Database.Tours.DataObjects;
+using Microsoft.EntityFrameworkCore;
 
 namespace Database.Tours.Repositories;
 
@@ -40,5 +41,19 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
             .LoadAsync();
         
         return dataObject;
+    }
+    
+    public IAsyncEnumerable<ConcertDo> GetConcerts(CancellationToken token, string? countryCode = null)
+    {
+        return StartQuery(token)
+            .Include(c => c.Type)
+            .Include(c => c.Venue)
+            .Include(c => c.Venue.City)
+            .Include(c => c.Venue.Country)
+            .Include(c => c.Venue.State)
+            .Include(c => c.Tour)
+            .Include(c => c.TourLeg)
+            .Where(c => countryCode == null || c.Venue.CountryCode == countryCode)
+            .ToAsyncEnumerable();
     }
 }

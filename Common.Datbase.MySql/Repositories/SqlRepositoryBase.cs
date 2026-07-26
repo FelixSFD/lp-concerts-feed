@@ -38,9 +38,15 @@ public abstract class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObje
         DbSet.Remove(data);
     }
 
+    [Obsolete("Use StartQuery(token) instead")]
     public virtual IAsyncEnumerable<TDataObject> QueryAsync(CancellationToken token)
     {
         return DbSet.AsAsyncEnumerable();
+    }
+    
+    protected IQueryable<TDataObject> StartQuery(CancellationToken token)
+    {
+        return DbSet.AsQueryable();
     }
 
 
