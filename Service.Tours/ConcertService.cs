@@ -89,6 +89,22 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         logger.LogDebug("Successfully created concert with ID: {concertId}", concert.Id);
         return concert.ToDto();
     }
+    
+    /// <summary>
+    /// Updates an existing concert
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="concertId">ID of the concert to update</param>
+    public async Task<RawConcertDto> UpdateConcertAsync(string concertId, UpdateConcertRequestDto request)
+    {
+        logger.LogDebug("Requested to update the concert with ID: {concertId}", concertId);
+        var concert = await concertRepository.GetByPrimaryKeyWithoutReferencesAsync(concertId) ?? throw new ConcertNotFoundException(concertId);
+        concert.UpdateFromRequestDto(request);
+        concertRepository.Update(concert);
+        await concertRepository.SaveChangesAsync();
+        logger.LogDebug("Successfully updated concert with ID: {concertId}", concert.Id);
+        return concert.ToDto();
+    }
 
     /// <summary>
     /// Returns the concert without any of the referenced objects like the venue

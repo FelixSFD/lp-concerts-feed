@@ -454,6 +454,31 @@ internal static class DtoMapper
     }
     
     /// <summary>
+    /// Updates the <see cref="ConcertDo"/> from a <see cref="UpdateConcertRequestDto"/>
+    /// </summary>
+    /// <param name="dataObject"></param>
+    /// <param name="dto"></param>
+    /// <returns>the new data object</returns>
+    public static ConcertDo UpdateFromRequestDto(this ConcertDo dataObject, UpdateConcertRequestDto dto)
+    {
+        dataObject.ConcertTypeId = dto.ConcertTypeId;
+        dataObject.TourId = dto.TourId;
+        dataObject.TourLegId = dto.TourLegId;
+        dataObject.CustomTitle = dto.CustomTitle;
+        dataObject.VenueId = dto.VenueId;
+        dataObject.PostedStartTime = dto.PostedStartTime;
+        dataObject.MainStageTime = dto.MainStageTime;
+        dataObject.DoorsTime = dto.DoorsTime;
+        dataObject.LpuEarlyEntryTime = dto.LpuEarlyEntryTime;
+        dataObject.LpuEarlyEntryConfirmed = dto.LpuEarlyEntryConfirmed;
+        dataObject.ExpectedSetDurationMinutes = dto.ExpectedSetDurationMinutes;
+        dataObject.ScheduleImageFile = dto.ScheduleImageFile;
+        dataObject.DeletedAt = dto.DeletedAt;
+        //dataObject.Status = dto.Status;
+        return dataObject;
+    }
+    
+    /// <summary>
     /// Creates a <see cref="RawConcertDto"/> from the <see cref="ConcertDo"/>
     /// </summary>
     /// <param name="dataObject"></param>

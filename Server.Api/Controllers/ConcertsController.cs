@@ -4,6 +4,11 @@ using Service.Tours;
 
 namespace Server.Api.Controllers;
 
+/// <summary>
+/// Controller to manage concert data
+/// </summary>
+/// <param name="concertService"></param>
+/// <param name="logger"></param>
 [ApiController]
 [Route("v3/[controller]")]
 public class ConcertsController(ConcertService concertService, ILogger<ConcertsController> logger) : ControllerBase
@@ -20,6 +25,21 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
         var concert = await concertService.CreateConcertAsync(request);
         logger.LogDebug("Created concert with id: {id}", concert.Id);
         return CreatedAtAction(nameof(GetRawConcertById), new { concertId = concert.Id }, concert);
+    }
+    
+    /// <summary>
+    /// Updates a concert in the database
+    /// </summary>
+    /// <param name="concertId">ID of the concert to update</param>
+    /// <param name="request"></param>
+    /// <returns>no content</returns>
+    [HttpPut("{concertId}")]
+    public async Task<NoContentResult> UpdateConcert([FromBody] UpdateConcertRequestDto request, [FromRoute] string concertId)
+    {
+        logger.LogDebug("Requested to update the concert with id: {concertId}", concertId);
+        var concert = await concertService.UpdateConcertAsync(concertId, request);
+        logger.LogDebug("Updated concert with id: {id}", concert.Id);
+        return NoContent();
     }
 
     /// <summary>
