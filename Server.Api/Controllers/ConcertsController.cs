@@ -5,7 +5,7 @@ using Service.Tours;
 namespace Server.Api.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("v3/[controller]")]
 public class ConcertsController(ConcertService concertService, ILogger<ConcertsController> logger) : ControllerBase
 {
     /// <summary>
