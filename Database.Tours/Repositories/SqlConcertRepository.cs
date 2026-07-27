@@ -1,3 +1,4 @@
+using Common.Database.Repositories;
 using Common.Datbase.MySql.Repositories;
 using Database.Tours.DataObjects;
 using Microsoft.EntityFrameworkCore;
@@ -42,18 +43,19 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
         
         return dataObject;
     }
-    
-    public IAsyncEnumerable<ConcertDo> GetConcerts(CancellationToken token, string? countryCode = null)
-    {
-        return StartQuery(token)
-            .Include(c => c.Type)
+
+    private static IQueryable<ConcertDo> IncludeAllReferences(IQueryable<ConcertDo> queryable) =>
+        queryable.Include(c => c.Type)
             .Include(c => c.Venue)
             .Include(c => c.Venue.City)
             .Include(c => c.Venue.Country)
             .Include(c => c.Venue.State)
             .Include(c => c.Tour)
-            .Include(c => c.TourLeg)
-            .Where(c => countryCode == null || c.Venue.CountryCode == countryCode)
-            .ToAsyncEnumerable();
+            .Include(c => c.TourLeg);
+
+    public IAsyncEnumerable<ConcertDo> GetConcerts(CancellationToken token, string? countryCode = null, IPaginationParams? paginationParams = null)
+    {
+        paginationParams ??= new PaginationParams(0, 100);
+        return FindAsync(c => countryCode == null || c.Venue.CountryCode == countryCode, IncludeAllReferences, paginationParams);
     }
 }

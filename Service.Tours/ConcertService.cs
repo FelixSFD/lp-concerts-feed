@@ -1,3 +1,4 @@
+using Common.Database.Repositories;
 using Database.Tours.Repositories;
 using LPCalendar.DataStructure.Tours;
 using Microsoft.Extensions.Logging;
@@ -134,10 +135,11 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         return concert.ToDtoWithDetails();
     }
 
-    public IAsyncEnumerable<ConcertDetailsDto> GetConcertsWithDetailsAsync(CancellationToken cancellationToken, string? countryCode = null)
+    public IAsyncEnumerable<ConcertDetailsDto> GetConcertsWithDetailsAsync(CancellationToken cancellationToken, GetConcertsFilterDto filter)
     {
+        var paginationParams = new PaginationParams(filter.Skip, filter.Limit);
         return concertRepository
-            .GetConcerts(cancellationToken, countryCode)
+            .GetConcerts(cancellationToken, filter.CountryCode, paginationParams)
             .Select(DtoMapper.ToDtoWithDetails);
     }
 }

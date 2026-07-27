@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Common.Database.DataObjects;
 using Common.Database.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -38,15 +39,30 @@ public abstract class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObje
         DbSet.Remove(data);
     }
 
-    [Obsolete("Use StartQuery(token) instead")]
+    [Obsolete("Use FindAsync() instead")]
     public virtual IAsyncEnumerable<TDataObject> QueryAsync(CancellationToken token)
     {
         return DbSet.AsAsyncEnumerable();
     }
-    
-    protected IQueryable<TDataObject> StartQuery(CancellationToken token)
+
+    /// <summary>
+    /// Runs a query for objects in the repository
+    /// </summary>
+    /// <param name="predicate">Filter for the query</param>
+    /// <param name="configureQuery">Optional parameter for further configuration of the query. If referenced objects should be included, do that in this parameter</param>
+    /// <param name="paginationParams">Pagination of the results</param>
+    /// <returns>The results matching the <paramref name="predicate"/></returns>
+    protected IAsyncEnumerable<TDataObject> FindAsync(Expression<Func<TDataObject, bool>> predicate, Func<IQueryable<TDataObject>, IQueryable<TDataObject>>? configureQuery = null, IPaginationParams? paginationParams = null)
     {
-        return DbSet.AsQueryable();
+        IQueryable<TDataObject> query = DbSet;
+
+        if (configureQuery != null)
+            query = configureQuery(query);
+        
+        return query
+            .Where(predicate)
+            .ApplyPagination(paginationParams)
+            .ToAsyncEnumerable();
     }
 
 

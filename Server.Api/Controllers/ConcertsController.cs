@@ -66,10 +66,16 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
         return Ok(concert);
     }
 
+    /// <summary>
+    /// Returns a list of concerts that can be filtered
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <param name="filter">Filter for the query</param>
+    /// <returns>List of concerts including referenced objects</returns>
     [HttpGet]
-    public async Task<ActionResult<ConcertDetailsDto[]>> GetConcertsAsync(CancellationToken cancellationToken, [FromQuery] string? countryCode)
+    public async Task<ActionResult<ConcertDetailsDto[]>> GetConcertsAsync(CancellationToken cancellationToken, [FromQuery] GetConcertsFilterDto filter)
     {
-        var concerts = await concertService.GetConcertsWithDetailsAsync(cancellationToken, countryCode).ToArrayAsync(cancellationToken);
+        var concerts = await concertService.GetConcertsWithDetailsAsync(cancellationToken, filter).ToArrayAsync(cancellationToken);
         logger.LogDebug("Retrieved {count} concert details.", concerts.Length);
         return Ok(concerts);
     }
