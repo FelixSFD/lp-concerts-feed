@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Common.Database;
 using Common.Database.Repositories;
 using Common.Datbase.MySql.Repositories;
 using Database.Tours.DataObjects;
@@ -64,19 +65,9 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
             .Include(c => c.Tour)
             .Include(c => c.TourLeg);
 
-    private static IQueryable<ConcertDo> IncludeAllReferencesAndOrderBy<TOrderByProperty>(IQueryable<ConcertDo> queryable, Expression<Func<ConcertDo, TOrderByProperty>> orderBy)
-    {
-        queryable = IncludeAllReferences(queryable);
-        return queryable.OrderBy(orderBy);
-    }
-
-    public IAsyncEnumerable<ConcertDo> GetConcerts(CancellationToken token, string? countryCode = null, IPaginationParams? paginationParams = null)
+    public IAsyncEnumerable<ConcertDo> GetConcerts(CancellationToken token, string? countryCode = null, IEnumerable<SortDescriptor>? orderBy = null, IPaginationParams? paginationParams = null)
     {
         paginationParams ??= new PaginationParams(0, 100);
-        return FindAsync(c => countryCode == null || c.Venue.CountryCode == countryCode, q => IncludeAllReferencesAndOrderBy(q, c => c.PostedStartTime), [
-            new("country"),
-            new("city"),
-            new("date", true)
-        ], paginationParams);
+        return FindAsync(c => countryCode == null || c.Venue.CountryCode == countryCode, IncludeAllReferences, orderBy, paginationParams);
     }
 }

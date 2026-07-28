@@ -1,3 +1,4 @@
+using Common.Database;
 using Common.Database.Repositories;
 using Database.Tours.DataObjects;
 
@@ -12,6 +13,6 @@ public interface IConcertRepository : ISingleKeyRepositoryBase<ConcertDo, string
     /// <param name="countryCode"></param>
     /// <param name="paginationParams"></param>
     /// <returns></returns>
-    IAsyncEnumerable<ConcertDo> GetConcerts(CancellationToken token, string? countryCode = null,
+    IAsyncEnumerable<ConcertDo> GetConcerts(CancellationToken token, string? countryCode = null, IEnumerable<SortDescriptor>? orderBy = null,
         IPaginationParams? paginationParams = null);
 }

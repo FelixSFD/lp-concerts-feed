@@ -1,3 +1,4 @@
+using Common.Database;
 using Common.Database.Repositories;
 using Database.Tours.Repositories;
 using LPCalendar.DataStructure.Tours;
@@ -139,7 +140,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
     {
         var paginationParams = new PaginationParams(filter.Skip, filter.Limit);
         return concertRepository
-            .GetConcerts(cancellationToken, filter.CountryCode, paginationParams)
+            .GetConcerts(cancellationToken, filter.CountryCode, orderBy: filter.OrderBy.Select(SortDescriptor.FromString), paginationParams)
             .Select(DtoMapper.ToDtoWithDetails);
     }
 }
