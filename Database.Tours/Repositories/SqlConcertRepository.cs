@@ -8,6 +8,16 @@ namespace Database.Tours.Repositories;
 
 public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlRepositoryBase<ConcertDo, string>(dbContext, dbContext.Concerts), IConcertRepository
 {
+    protected override IReadOnlyDictionary<string, LambdaExpression> SortExpressions { get; } = new Dictionary<string, LambdaExpression>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["date"] = (Expression<Func<ConcertDo, DateTimeOffset>>)(c => c.PostedStartTime),
+        ["venue"] = (Expression<Func<ConcertDo, string>>)(c => c.Venue.CurrentName),
+        ["city"] = (Expression<Func<ConcertDo, string>>)(c => c.Venue.City.Name),
+        ["country"] = (Expression<Func<ConcertDo, string>>)(c => c.Venue.Country.Name),
+        ["tour"] = (Expression<Func<ConcertDo, string>>)(c => c.Tour!.Name),
+        ["type"] = (Expression<Func<ConcertDo, string>>)(c => c.Type.Name)
+    };
+    
     protected override async Task<ConcertDo> LoadReferences(ConcertDo dataObject)
     {
         await Context.Entry(dataObject)
@@ -63,6 +73,10 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
     public IAsyncEnumerable<ConcertDo> GetConcerts(CancellationToken token, string? countryCode = null, IPaginationParams? paginationParams = null)
     {
         paginationParams ??= new PaginationParams(0, 100);
-        return FindAsync(c => countryCode == null || c.Venue.CountryCode == countryCode, q => IncludeAllReferencesAndOrderBy(q, c => c.PostedStartTime), paginationParams);
+        return FindAsync(c => countryCode == null || c.Venue.CountryCode == countryCode, q => IncludeAllReferencesAndOrderBy(q, c => c.PostedStartTime), [
+            new("country"),
+            new("city"),
+            new("date", true)
+        ], paginationParams);
     }
 }
