@@ -1,4 +1,4 @@
-import {Component, inject, Input, OnInit} from '@angular/core';
+import { Component, inject, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import {MenuItem} from 'primeng/api';
 import { Router, RouterLink } from '@angular/router';
 import {Menubar} from 'primeng/menubar';
@@ -22,7 +22,7 @@ import {environment} from '../../../../environments/environment';
   templateUrl: './main-menu.component.html',
   styleUrl: './main-menu.component.css',
 })
-export class MainMenuComponent implements OnInit {
+export class MainMenuComponent implements OnInit, OnChanges {
   private router = inject(Router);
   private readonly authStateService = inject(AuthService);
   private readonly oidcSecurityService = inject(OidcSecurityService);
@@ -34,32 +34,21 @@ export class MainMenuComponent implements OnInit {
   private canManageUsers: boolean = false;
   private canManageSetlists: boolean = false;
 
-  // the current clock
   @Input("clock")
   currentDateTime$: DateTime = DateTime.now();
 
   @Input("isLoggedIn")
   isLoggedIn$: boolean = false;
 
+  ngOnChanges(changes: SimpleChanges): void {
+    // Rebuild only when the auth state flips
+    if (changes['isLoggedIn$']) {
+      this.loadMainMenuItems();
+    }
+  }
+
   ngOnInit() {
-    this.mainMenuItems = [
-      {
-        label: 'Home',
-        routerLink: '/home',
-      },
-      {
-        label: 'Concerts',
-        routerLink: '/concerts'
-      },
-      {
-        label: 'Map',
-        routerLink: '/map'
-      },
-      {
-        label: 'About',
-        routerLink: '/about'
-      },
-    ];
+    this.loadMainMenuItems();
 
     this.loggedInMenuItems = [];
 
@@ -80,6 +69,28 @@ export class MainMenuComponent implements OnInit {
 
       this.loadLoggedInMenuItems();
     });
+  }
+
+
+  loadMainMenuItems(): void {
+    const items: MenuItem[] = [
+      { label: 'Home', routerLink: '/home' },
+      { label: 'Concerts', routerLink: '/concerts' },
+      { label: 'Map', routerLink: '/map' },
+      { label: 'About', routerLink: '/about' },
+    ];
+
+    // On mobile the "Get the app" CTA moves into the hamburger menu
+    if (!this.isLoggedIn$) {
+      items.push({
+        label: 'Get the app',
+        icon: 'pi pi-download',
+        styleClass: 'menu-getapp-item',
+        routerLink: '/app',
+      });
+    }
+
+    this.mainMenuItems = items;
   }
 
 

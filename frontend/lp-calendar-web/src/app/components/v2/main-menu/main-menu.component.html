@@ -25,7 +25,7 @@
         <p-button (click)="menu.toggle($event)" icon="pi pi-cog" variant="outlined" />
       } @else {
         <p-button variant="text" (click)="login()">Log in</p-button>
-        <p-button label="Get the app" [routerLink]="['/app']" />
+        <p-button class="getapp-desktop" label="Get the app" [routerLink]="['/app']" />
       }
     </ng-template>
   </p-menubar>
