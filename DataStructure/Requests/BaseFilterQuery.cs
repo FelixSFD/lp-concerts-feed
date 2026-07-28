@@ -11,4 +11,10 @@ public abstract class BaseFilterQuery
     /// Number of results to skip
     /// </summary>
     public uint Skip { get; set; } = 0;
+
+    /// <summary>
+    /// List of fields to sort the results by. Only some predefined fields can be used.
+    /// To order in descending order, prepend the field name with a dash: "-"
+    /// </summary>
+    public string[] OrderBy { get; set; } = [];
 }
