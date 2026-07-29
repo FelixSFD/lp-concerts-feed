@@ -65,9 +65,9 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
             .Include(c => c.Tour)
             .Include(c => c.TourLeg);
 
-    public IAsyncEnumerable<ConcertDo> GetConcerts(CancellationToken token, string? countryCode = null, IEnumerable<SortDescriptor>? orderBy = null, IPaginationParams? paginationParams = null)
+    public IAsyncEnumerable<ConcertDo> GetConcerts(CancellationToken token, string? countryCode = null, IEnumerable<SortDescriptor>? orderBy = null, IPaginationParams? paginationParams = null, bool includeDeleted = false)
     {
         paginationParams ??= new PaginationParams(0, 100);
-        return FindAsync(c => countryCode == null || c.Venue.CountryCode == countryCode, IncludeAllReferences, orderBy, paginationParams);
+        return FindDeletableAsync(c => countryCode == null || c.Venue.CountryCode == countryCode, IncludeAllReferences, orderBy, paginationParams, includeDeleted);
     }
 }

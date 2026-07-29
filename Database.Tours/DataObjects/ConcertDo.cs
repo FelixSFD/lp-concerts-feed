@@ -8,7 +8,7 @@ namespace Database.Tours.DataObjects;
 /// All information about a concert
 /// </summary>
 [Table("Concert")]
-public class ConcertDo : BaseDo
+public class ConcertDo : BaseDo, IDeletableDataObject
 {
     /// <summary>
     /// Status of a concert

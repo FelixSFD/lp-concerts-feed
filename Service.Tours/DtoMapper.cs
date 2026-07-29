@@ -448,7 +448,6 @@ internal static class DtoMapper
             LpuEarlyEntryConfirmed = dto.LpuEarlyEntryConfirmed,
             ExpectedSetDurationMinutes = dto.ExpectedSetDurationMinutes,
             ScheduleImageFile = dto.ScheduleImageFile,
-            DeletedAt = dto.DeletedAt,
             //Status = dto.Status,
         };
     }

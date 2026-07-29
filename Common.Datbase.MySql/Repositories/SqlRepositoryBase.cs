@@ -75,6 +75,43 @@ public abstract class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObje
             .ApplyPagination(paginationParams)
             .ToAsyncEnumerable();
     }
+    
+    /// <summary>
+    /// Runs a query for objects in the repository. By using the <paramref name="includeDeleted"/> parameter, deleted objects can be returned, too.
+    /// </summary>
+    /// <param name="predicate">Filter for the query</param>
+    /// <param name="configureQuery">Optional parameter for further configuration of the query. If referenced objects should be included, do that in this parameter</param>
+    /// <param name="paginationParams">Pagination of the results</param>
+    /// <param name="includeDeleted">true, if entries that are marked as deleted should be returned anyway</param>
+    /// <returns>The results matching the <paramref name="predicate"/></returns>
+    protected IAsyncEnumerable<TDataObject> FindDeletableAsync(Expression<Func<TDataObject, bool>> predicate, Func<IQueryable<TDataObject>, IQueryable<TDataObject>>? configureQuery = null, IEnumerable<SortDescriptor>? orderBy = null, IPaginationParams? paginationParams = null, bool includeDeleted = false)
+    {
+        if (!typeof(TDataObject).IsAssignableTo(typeof(IDeletableDataObject)))
+        {
+            throw new InvalidCastException($"The data object '{typeof(TDataObject).FullName}' must be of type IDeletableDataObject!");
+        }
+        
+        IQueryable<TDataObject> query = DbSet;
+        
+        orderBy ??= new List<SortDescriptor>();
+
+        if (configureQuery != null)
+            query = configureQuery(query);
+        
+        if (!includeDeleted)
+        {
+            query = query
+                .Cast<IDeletableDataObject>()
+                .NotDeleted()
+                .Cast<TDataObject>();
+        }
+        
+        return query
+            .Where(predicate)
+            .ApplySorting(orderBy, SortExpressions)
+            .ApplyPagination(paginationParams)
+            .ToAsyncEnumerable();
+    }
 
 
     public async Task SaveChangesAsync()
