@@ -136,11 +136,43 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         return concert.ToDtoWithDetails();
     }
 
+    /// <summary>
+    /// Returns a (filtered) list of concerts.
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <param name="filter">Filter and sorting</param>
+    /// <returns>Details about the concerts matching the filter</returns>
     public IAsyncEnumerable<ConcertDetailsDto> GetConcertsWithDetailsAsync(CancellationToken cancellationToken, GetConcertsFilterDto filter)
     {
         var paginationParams = new PaginationParams(filter.Skip, filter.Limit);
         return concertRepository
             .GetConcerts(cancellationToken, filter.CountryCode, orderBy: filter.OrderBy.Select(SortDescriptor.FromString), paginationParams)
             .Select(DtoMapper.ToDtoWithDetails);
+    }
+
+    /// <summary>
+    /// Deletes a concert
+    /// </summary>
+    /// <param name="concertId"></param>
+    /// <param name="removeFromDb">true, if the entry should actually be removed from the DB. The default is "false", which only marks the concert as deleted.</param>
+    /// <exception cref="ConcertNotFoundException">if the concert doesn't exist</exception>
+    public async Task DeleteConcertAsync(string concertId, bool removeFromDb = false)
+    {
+        logger.LogInformation("Deleting concert with ID: {concertId}", concertId);
+        var concert = await concertRepository.GetByPrimaryKeyWithoutReferencesAsync(concertId) ?? throw new ConcertNotFoundException(concertId);
+        logger.LogDebug("Found concert.");
+        if (removeFromDb)
+        {
+            logger.LogWarning("Will actually remove the concert '{concertId}' from the database", concertId);
+            concertRepository.Delete(concert);
+        }
+        else
+        {
+            concert.DeletedAt = DateTime.UtcNow;
+            concertRepository.Update(concert);
+            logger.LogDebug("Marked concert as deleted.");
+        }
+        
+        await concertRepository.SaveChangesAsync();
     }
 }
