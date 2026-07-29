@@ -263,6 +263,7 @@ public class ConcertServiceTest
             CountryCode = countryGer.IsoCode,
             Name = "Munich",
             NativeName = "München",
+            Country = countryGer,
         };
         var mockVenue = new VenueDo
         {
@@ -283,12 +284,14 @@ public class ConcertServiceTest
             TourId = mockTour.Id,
             TourLegId = mockTourLegEu.Id,
             ConcertTypeId = mockConcertType.Id,
+            Type = mockConcertType,
             PostedStartTime = new DateTimeOffset(2026, 6, 30, 20, 0, 0, TimeSpan.FromHours(2)),
             MainStageTime = new DateTime(2026, 6, 30, 20, 25, 0),
             DoorsTime = new DateTime(2026, 6, 30, 16, 0, 0),
             LpuEarlyEntryTime = new DateTime(2026, 6, 30, 15, 30, 0),
             LpuEarlyEntryConfirmed = true,
             VenueId = mockVenue.Id,
+            Venue = mockVenue,
             Status = ConcertDo.ConcertStatus.Planned,
             ExpectedSetDurationMinutes = 120,
             CustomTitle = "Final Show of the tour",
@@ -359,5 +362,65 @@ public class ConcertServiceTest
         await _concertRepository
             .Received(1)
             .SaveChangesAsync();
+    }
+
+    [Fact]
+    public async Task GetConcertById()
+    {
+        var mockConcert = CreateMockConcert();
+        
+        // setup mocks
+        _concertRepository
+            .GetByPrimaryKeyAsync(Arg.Is<string>(s => s == mockConcert.Id))
+            .Returns(mockConcert);
+        
+        // call the service
+        var result = await _service.GetConcertByIdAsync(mockConcert.Id);
+        Assert.NotNull(result);
+        Assert.Equal(mockConcert.Id, result.Id);
+        
+        // verify mock calls
+        await _concertRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(Arg.Is<string>(s => s == mockConcert.Id));
+    }
+    
+    [Fact]
+    public async Task GetConcertById_Deleted()
+    {
+        var mockConcert = CreateMockConcert();
+        mockConcert.DeletedAt = new DateTimeOffset(2026, 6, 30, 20, 25, 0, TimeSpan.Zero);
+        
+        // setup mocks
+        _concertRepository
+            .GetByPrimaryKeyAsync(Arg.Is<string>(s => s == mockConcert.Id))
+            .Returns(mockConcert);
+        
+        // call the service
+        var exception = await Assert.ThrowsAsync<ConcertNotFoundException>(async () => await _service.GetConcertByIdAsync(mockConcert.Id));
+        Assert.Equal(mockConcert.Id, exception.ConcertId);
+        
+        // verify mock calls
+        await _concertRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(Arg.Any<string>());
+    }
+    
+    [Fact]
+    public async Task GetConcertById_NotFound()
+    {
+        // setup mocks
+        _concertRepository
+            .GetByPrimaryKeyAsync(Arg.Any<string>())
+            .Returns((ConcertDo?)null);
+        
+        // call the service
+        var exception = await Assert.ThrowsAsync<ConcertNotFoundException>(async () => await _service.GetConcertByIdAsync("not-found"));
+        Assert.Equal("not-found", exception.ConcertId);
+        
+        // verify mock calls
+        await _concertRepository
+            .Received(1)
+            .GetByPrimaryKeyAsync(Arg.Any<string>());
     }
 }

@@ -1,6 +1,8 @@
 using Common.Database;
 using Common.Database.Repositories;
+using Database.Tours.DataObjects;
 using Database.Tours.Repositories;
+using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Tours;
 using Microsoft.Extensions.Logging;
 using Service.Tours.Exceptions;
@@ -112,12 +114,17 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
     /// Returns the concert without any of the referenced objects like the venue
     /// </summary>
     /// <param name="id">ID of the concert</param>
+    /// <param name="includeDeleted">true, if deleted concerts are allowed to be returned. (Default: false)</param>
     /// <returns></returns>
     /// <exception cref="ConcertNotFoundException">if the concert does not exist</exception>
-    public async Task<RawConcertDto> GetConcertWithoutDetailsByIdAsync(string id)
+    public async Task<RawConcertDto> GetConcertWithoutDetailsByIdAsync(string id, bool includeDeleted = false)
     {
         logger.LogDebug("Requested concert without references to other objects. ID: {id}", id);
         var concert = await concertRepository.GetByPrimaryKeyWithoutReferencesAsync(id) ?? throw new ConcertNotFoundException(id);
+        if (!includeDeleted)
+        {
+            ThrowNotFoundExceptionIfConcertDeleted(concert);
+        }
         logger.LogDebug("Found concert.");
         return concert.ToDto();
     }
@@ -126,14 +133,28 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
     /// Returns the concert including all the referenced objects like the venue
     /// </summary>
     /// <param name="id">ID of the concert</param>
+    /// <param name="includeDeleted">true, if deleted concerts are allowed to be returned. (Default: false)</param>
     /// <returns></returns>
     /// <exception cref="ConcertNotFoundException">if the concert does not exist</exception>
-    public async Task<ConcertDetailsDto> GetConcertByIdAsync(string id)
+    public async Task<ConcertDetailsDto> GetConcertByIdAsync(string id, bool includeDeleted = false)
     {
         logger.LogDebug("Requested concert including references to other objects. ID: {id}", id);
         var concert = await concertRepository.GetByPrimaryKeyAsync(id) ?? throw new ConcertNotFoundException(id);
+        if (!includeDeleted)
+        {
+            ThrowNotFoundExceptionIfConcertDeleted(concert);
+        }
         logger.LogDebug("Found concert.");
         return concert.ToDtoWithDetails();
+    }
+
+    private void ThrowNotFoundExceptionIfConcertDeleted(ConcertDo concert)
+    {
+        if (concert.DeletedAt != null && concert.DeletedAt <= DateTimeOffset.UtcNow)
+        {
+            logger.LogInformation("The concert with ID '{concertId}' was found in the database, but it's marked as deleted.", concert.Id);
+           throw new ConcertNotFoundException(concert.Id); 
+        }
     }
 
     /// <summary>
