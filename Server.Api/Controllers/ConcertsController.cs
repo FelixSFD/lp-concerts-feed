@@ -79,4 +79,16 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
         logger.LogDebug("Retrieved {count} concert details.", concerts.Length);
         return Ok(concerts);
     }
+    
+    /// <summary>
+    /// Deletes a concert. Note that the data will not be fully removed from the database. Admins will still be able to see deleted concerts.
+    /// </summary>
+    /// <param name="concertId">ID of the concert to delete</param>
+    /// <returns>no content</returns>
+    [HttpDelete("{concertId}")]
+    public async Task<NoContentResult> DeleteConcertById([FromRoute] string concertId)
+    {
+        await concertService.DeleteConcertAsync(concertId);
+        return NoContent();
+    }
 }
