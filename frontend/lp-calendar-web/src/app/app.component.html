@@ -1,5 +1,5 @@
 <div>
-  <div class="sticky top-0 z-5 pt-2 px-2">
+  <div class="sticky top-0 z-5 app-header-bar" [class.scrolled]="scrolled">
     <app-main-menu [clock]="currentDateTime$" [isLoggedIn]="isAuthenticated$" />
     <div [class]="(routerProgress == 1 ? 'progress-hidden' : 'progress-visible')">
       <p-progress-bar [value]="routerProgress * 100" style="height: 2px" showValue="false" role="progressbar"  />

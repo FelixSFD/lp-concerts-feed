@@ -1,5 +1,5 @@
 // Setting up correct import order - from external -> to internal
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, inject, OnDestroy, OnInit } from '@angular/core';
 import { EventType, Router, RouterOutlet } from '@angular/router';
 // 3rd party
 import { OidcSecurityService } from 'angular-auth-oidc-client';
@@ -61,6 +61,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // Loading progress of the router
   routerProgress: number = 0;
+  scrolled = false;
 
   // All relevant router events in the correct order. This can calculate the current progress
   private progressValues: EventType[] = [
@@ -121,6 +122,14 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.destroyCookieConsent();
+  }
+
+  @HostListener('window:scroll')
+  onWindowScroll(): void {
+    const scrolled = window.scrollY > 8;
+    if (scrolled !== this.scrolled) {
+      this.scrolled = scrolled;
+    }
   }
 
 

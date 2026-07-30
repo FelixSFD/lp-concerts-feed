@@ -10,6 +10,14 @@
   border-radius: 14px;
   padding: 1rem 2rem;
   gap: 1.5rem;
+  transition: border-radius 0.2s ease, border-color 0.2s ease;
+}
+
+:host-context(.scrolled) ::ng-deep .p-menubar {
+  border-radius: 0;
+  border-top-color: transparent;
+  border-left-color: transparent;
+  border-right-color: transparent;
 }
 
 :host ::ng-deep .p-menubar:not(.p-menubar-mobile) .p-menubar-root-list {
@@ -78,17 +86,17 @@
 
 :host ::ng-deep .p-menubar-button {
   order: 1;
-  color: var(--p-surface-600);
+  color: var(--p-text-color);
   width: 2.6rem;
   height: 2.6rem;
   border-radius: 10px;
-  background: var(--p-surface-100);
-  border: 1px solid var(--p-surface-200);
+  background: var(--p-content-hover-background);
+  border: 1px solid var(--p-content-border-color);
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
 :host ::ng-deep .p-menubar-button:hover {
-  background: var(--p-surface-200);
+  background: var(--p-content-border-color);
   color: var(--p-text-color);
 }
 
@@ -127,7 +135,7 @@
 }
 
 :host ::ng-deep .p-menubar-mobile .menu-getapp-item .p-menubar-item-icon,
-:host ::ng-deep .p-menubar-mobile .menu-getapp-item .p-menubar-item-icon:hover {
+:host ::ng-deep .p-menubar-mobile .menu-getapp-item .p-menubar-item-content:hover .p-menubar-item-icon {
   color: var(--p-primary-contrast-color);
 }
 
