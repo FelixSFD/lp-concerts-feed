@@ -9,7 +9,14 @@
 }
 
 .app-header-bar {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  padding: 0.5rem 1rem 0;
   transition: padding 0.2s ease;
+}
+
+.app-header-bar.scrolled {
+  padding: 0;
 }
 
 /* Frosted glass effect */

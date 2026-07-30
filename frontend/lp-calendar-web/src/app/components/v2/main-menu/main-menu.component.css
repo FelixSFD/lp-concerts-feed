@@ -13,6 +13,13 @@
   transition: border-radius 0.2s ease, border-color 0.2s ease;
 }
 
+/* Frosted glass effect */
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :host ::ng-deep .p-menubar {
+    background: color-mix(in srgb, var(--p-content-background) 72%, transparent);
+  }
+}
+
 :host-context(.scrolled) ::ng-deep .p-menubar {
   border-radius: 0;
   border-top-color: transparent;
@@ -149,6 +156,12 @@
   border: 1px solid var(--p-content-border-color);
   border-radius: 14px;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+}
+
+:host-context(.scrolled) ::ng-deep .p-menubar-mobile .p-menubar-root-list {
+  left: 0.5rem;
+  right: 0.5rem;
+  width: auto;
 }
 
 :host ::ng-deep .p-menubar-mobile .p-menubar-item-link {
