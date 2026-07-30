@@ -2,7 +2,7 @@ using Common.Database.DataObjects;
 using Common.Database.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace Common.Datbase.MySql.Repositories;
+namespace Common.Database.MySql.Repositories;
 
 public abstract class SingleKeySqlRepositoryBase<TDataObject, TPrimaryKey> : SqlRepositoryBase<TDataObject>, ISingleKeyRepositoryBase<TDataObject, TPrimaryKey>
     where TDataObject : BaseDo

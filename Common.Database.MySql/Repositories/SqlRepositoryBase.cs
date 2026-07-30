@@ -4,7 +4,7 @@ using Common.Database.DataObjects;
 using Common.Database.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace Common.Datbase.MySql.Repositories;
+namespace Common.Database.MySql.Repositories;
 
 public abstract class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObject> where TDataObject : BaseDo
 {

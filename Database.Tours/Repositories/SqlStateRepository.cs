@@ -1,4 +1,4 @@
-using Common.Datbase.MySql.Repositories;
+using Common.Database.MySql.Repositories;
 using Database.Tours.DataObjects;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using Common.Database;
 using Common.Database.Repositories;
-using Common.Datbase.MySql.Repositories;
+using Common.Database.MySql.Repositories;
 using Database.Tours.DataObjects;
 using Microsoft.EntityFrameworkCore;
 
