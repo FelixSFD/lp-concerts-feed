@@ -1,7 +1,5 @@
-// Setting up correct import order - from external -> to internal
 import { Component, HostListener, inject, OnDestroy, OnInit } from '@angular/core';
 import { EventType, Router, RouterOutlet } from '@angular/router';
-// 3rd party
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { DateTime } from 'luxon';
 import {
@@ -16,7 +14,6 @@ import { ProgressBar } from 'primeng/progressbar';
 import { ScrollTop } from 'primeng/scrolltop';
 import { Toast } from 'primeng/toast';
 import { Subscription } from 'rxjs';
-// internal
 import { environment } from '../environments/environment';
 import { AuthService } from './auth/auth.service';
 import { AutoBreadcrumbsComponent } from './components/v2/auto-breadcrumbs/auto-breadcrumbs.component';
