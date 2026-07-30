@@ -1,12 +1,7 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
-import {
-  EventType,
-  Router,
-  RouterLink,
-  RouterOutlet
-} from '@angular/router';
-import {OidcSecurityService} from 'angular-auth-oidc-client';
-import {environment} from '../environments/environment';
+import { Component, HostListener, inject, OnDestroy, OnInit } from '@angular/core';
+import { EventType, Router, RouterOutlet } from '@angular/router';
+import { OidcSecurityService } from 'angular-auth-oidc-client';
+import { DateTime } from 'luxon';
 import {
   NgcCookieConsentService,
   NgcInitializationErrorEvent,
@@ -14,21 +9,22 @@ import {
   NgcNoCookieLawEvent,
   NgcStatusChangeEvent
 } from 'ngx-cookieconsent';
-import {Subscription} from 'rxjs';
-import {MatomoTracker} from 'ngx-matomo-client';
-import {UserDto} from './modules/lpshows-api';
-import {AuthService} from './auth/auth.service';
-import {DateTime} from 'luxon';
-import {ClockService} from './services/clock.service';
-import {MainMenuComponent} from './components/v2/main-menu/main-menu.component';
-import {ScrollTop} from 'primeng/scrolltop';
-import {AutoBreadcrumbsComponent} from './components/v2/auto-breadcrumbs/auto-breadcrumbs.component';
-import {ProgressBar} from 'primeng/progressbar';
-import {Toast} from 'primeng/toast';
+import { MatomoTracker } from 'ngx-matomo-client';
+import { ProgressBar } from 'primeng/progressbar';
+import { ScrollTop } from 'primeng/scrolltop';
+import { Toast } from 'primeng/toast';
+import { Subscription } from 'rxjs';
+import { environment } from '../environments/environment';
+import { AuthService } from './auth/auth.service';
+import { AutoBreadcrumbsComponent } from './components/v2/auto-breadcrumbs/auto-breadcrumbs.component';
+import { FooterComponent } from './components/v2/footer/footer.component';
+import { MainMenuComponent } from './components/v2/main-menu/main-menu.component';
+import { UserDto } from './modules/lpshows-api';
+import { ClockService } from './services/clock.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, MainMenuComponent, ScrollTop, AutoBreadcrumbsComponent, ProgressBar, Toast],
+  imports: [RouterOutlet, MainMenuComponent, FooterComponent, ScrollTop, AutoBreadcrumbsComponent, ProgressBar, Toast],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -62,6 +58,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // Loading progress of the router
   routerProgress: number = 0;
+  scrolled = false;
 
   // All relevant router events in the correct order. This can calculate the current progress
   private progressValues: EventType[] = [
@@ -122,6 +119,14 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.destroyCookieConsent();
+  }
+
+  @HostListener('window:scroll')
+  onWindowScroll(): void {
+    const scrolled = window.scrollY > 8;
+    if (scrolled !== this.scrolled) {
+      this.scrolled = scrolled;
+    }
   }
 
 
@@ -208,7 +213,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.noCookieLawSubscription.unsubscribe();
   }
 
-  protected readonly environment = environment;
   protected readonly DateTime = DateTime;
   protected readonly EventType = EventType;
 }

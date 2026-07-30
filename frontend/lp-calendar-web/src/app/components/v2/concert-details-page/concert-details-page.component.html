@@ -112,11 +112,6 @@
   </div>
 
   <p-card class="timeline-card">
-    <div class="timeline-legend">
-      <span><span class="timeline-legend-venue">Venue time</span> <span class="timeline-legend-zone">({{ zoneCityLabel(concert$?.timeZoneId) }}
-                                                                                                     )</span></span>
-      <span class="timeline-legend-yours">· Your time ({{ localZoneCityLabel() }})</span>
-    </div>
     <div class="timeline" [class.timeline--past]="concert$?.isPast">
       <div class="timeline-step" [class.timeline-step--empty]="concert$?.lpuEarlyEntryTime == undefined">
         <div class="timeline-marker"><i class="pi pi-star"></i></div>
