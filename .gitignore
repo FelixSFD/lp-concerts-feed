@@ -9,3 +9,6 @@ lambda_packages
 
 # ignore appsettings
 appsettings.*.json
+
+# JetBrains IDE
+.idea/

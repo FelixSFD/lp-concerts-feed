@@ -1,0 +1,98 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.hc {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.hc-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 2.25rem;
+}
+
+.hc-val {
+  font-size: 1.7rem;
+  font-weight: 500;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.hc-lbl {
+  margin-top: 0.3rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+
+.hc-sep {
+  font-size: 1.4rem;
+  font-weight: 500;
+  line-height: 1;
+  opacity: 0.4;
+}
+
+.hc-live {
+  font-size: 1.35rem;
+  font-weight: 500;
+}
+
+.hc-discord {
+  margin-top: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.72rem;
+  font-family: inherit;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 7px;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.hc-discord:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.hc-discord .pi {
+  font-size: 0.8rem;
+}
+
+/* Discord share popover */
+.discord-share {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  width: 260px;
+}
+
+.discord-share-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.discord-share-label {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--p-surface-500);
+}
+
+.discord-share-input {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.8rem;
+}

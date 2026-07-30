@@ -7,3 +7,22 @@
 .progress-visible {
   height: 2px;
 }
+
+.app-header-bar {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  padding: 0.5rem 1rem 0;
+  transition: padding 0.2s ease;
+}
+
+.app-header-bar.scrolled {
+  padding: 0;
+}
+
+/* Frosted glass effect */
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .app-header-bar {
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+  }
+}

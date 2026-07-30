@@ -1,31 +1,23 @@
 <div>
-  <div class="sticky top-0 z-5">
+  <div class="sticky top-0 z-5 app-header-bar" [class.scrolled]="scrolled">
     <app-main-menu [clock]="currentDateTime$" [isLoggedIn]="isAuthenticated$" />
-    <div [class]="(routerProgress == 1 ? 'progress-hidden mx-3' : 'progress-visible mx-3')">
+    <div [class]="(routerProgress == 1 ? 'progress-hidden' : 'progress-visible')">
       <p-progress-bar [value]="routerProgress * 100" style="height: 2px" showValue="false" role="progressbar"  />
     </div>
   </div>
 
-  <div class="grid justify-content-center m-0">
+  <div class="grid justify-content-center m-0 px-2 py-3">
     <div class="w-full sm:w-10 md:w-10 lg:w-8">
       <app-auto-breadcrumbs />
 
-      <!-- Content here -->
+      <!-- Content -->
       <div class="mt-2">
         <router-outlet />
       </div>
     </div>
   </div>
 
-
-  <footer id="main-footer" class="mb-4">
-    <small>This is a fan-site and not affiliated with Linkin Park!</small>
-    <br />
-    <small>
-      <a class="no-underline hover:underline link-subtle" [routerLink]="['/', 'privacy']">Privacy Policy</a>
-    </small>
-    <small>&nbsp;|&nbsp;Build: {{ environment.build }}</small>
-  </footer>
+  <app-footer />
 </div>
 
 <p-scroll-top behavior="smooth" aria-label="Scroll to top" />

@@ -1,4 +1,19 @@
-<!-- pie chart -->
-<div class="chart-container">
-  <p-chart type="doughnut" [data]="data" [options]="options" responsive class="w-full md:w-[30rem]" />
+<div class="album-chart">
+  <div class="chart-donut">
+    <p-chart type="doughnut" [data]="data" [options]="options" />
+    <div class="donut-center">
+      <span class="donut-total">{{ totalSongs }}</span>
+      <span class="donut-label">songs</span>
+    </div>
+  </div>
+
+  <ul class="album-legend">
+    @for (item of legendItems; track item.label) {
+      <li>
+        <span class="dot" [style.background-color]="item.color"></span>
+        <span class="name">{{ item.label }}</span>
+        <span class="count">{{ item.value }}</span>
+      </li>
+    }
+  </ul>
 </div>
