@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Common.Database.DataObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace Database.Setlists.DataObjects;

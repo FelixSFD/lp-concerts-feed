@@ -21,6 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Common.Database.Tests\Common.Database.Tests.csproj" />
       <ProjectReference Include="..\Database.Setlists\Database.Setlists.csproj" />
     </ItemGroup>
 

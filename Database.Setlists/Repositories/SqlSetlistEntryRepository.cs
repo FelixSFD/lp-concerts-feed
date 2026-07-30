@@ -1,3 +1,4 @@
+using Common.Database.MySql.Repositories;
 using Database.Setlists.DataObjects;
 using Microsoft.EntityFrameworkCore;
 

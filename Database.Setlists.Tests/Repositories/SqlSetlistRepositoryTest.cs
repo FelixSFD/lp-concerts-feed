@@ -4,7 +4,7 @@ using Database.Setlists.Repositories;
 namespace Database.Setlists.Tests.Repositories;
 
 
-public class SqlSetlistRepositoryTest : DbIntegrationTestsBase
+public class SqlSetlistRepositoryTest : SetlistsDbIntegrationTestsBase
 {
     [Fact]
     public async Task UpdateSetlist()

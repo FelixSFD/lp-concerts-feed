@@ -4,7 +4,7 @@ using Database.Setlists.Repositories;
 namespace Database.Setlists.Tests.Repositories;
 
 
-public class SqlSongMashupRepositoryTest : DbIntegrationTestsBase
+public class SqlSongMashupRepositoryTest : SetlistsDbIntegrationTestsBase
 {
     [Fact]
     public async Task TestWithTwoSongs()
