@@ -5,6 +5,7 @@ using Server.Api.ExceptionHandling;
 using Service.Tours;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddEnvironmentVariables();
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
