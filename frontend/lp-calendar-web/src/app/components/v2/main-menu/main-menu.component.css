@@ -184,10 +184,13 @@
   background: var(--p-content-background);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
 }
-
-:host ::ng-deep .p-menu-item-link {
+:host ::ng-deep .p-menu-item-link,
+:host ::ng-deep .p-menu-item-link:hover {
   padding: 0.6rem 0.85rem;
   border-radius: 10px;
+  color: var(--p-text-color);
+  font-weight: 500;
+  font-size: 0.9rem;
 }
 
 :host ::ng-deep .p-menu-submenu-label {
