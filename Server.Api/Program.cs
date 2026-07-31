@@ -44,11 +44,9 @@ builder.Services.AddOpenApi("v3", opt =>
 
         if (!requiresAuth)
             return Task.CompletedTask;
-
-        operation.Security ??= new List<OpenApiSecurityRequirement>();
         
-        var bearerSchemeRef = new OpenApiSecuritySchemeReference(JwtBearerDefaults.AuthenticationScheme, context.Document);
         // Add Security Requirement
+        var bearerSchemeRef = new OpenApiSecuritySchemeReference(JwtBearerDefaults.AuthenticationScheme, context.Document);
         operation.Security ??= new List<OpenApiSecurityRequirement>();
         operation.Security.Add(
             new OpenApiSecurityRequirement
@@ -56,6 +54,11 @@ builder.Services.AddOpenApi("v3", opt =>
                 [bearerSchemeRef] = []
             }
         );
+        
+        // Add additional documentation
+        operation.Responses?.Add("401", new OpenApiResponse { Description = "Unauthorized: Credentials are missing or not valid" });
+        operation.Responses?.Add("403", new OpenApiResponse { Description = "Forbidden: Credentials are valid, but the caller is not allowed to perform this operation" });
+        
         return Task.CompletedTask;
     });
 });
