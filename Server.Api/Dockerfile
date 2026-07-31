@@ -1,4 +1,10 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
+
+# install curl in the runtime image
+RUN apt update \
+    && apt install -y curl
+
+
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
@@ -18,7 +24,7 @@ ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./Server.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
-HEALTHCHECK CMD curl --fail http://localhost:8080/health || exit 1
+HEALTHCHECK CMD curl -o - --fail http://localhost:8080/health || exit 1
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Server.Api.dll"]
