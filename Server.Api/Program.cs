@@ -24,6 +24,7 @@ builder.Services.AddOpenApi("v3", opt =>
         document.Info.Description = "This is the API for the Linkin Park Concert Calendar fan project";
         
         document.Components ??= new OpenApiComponents();
+        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
         document.Components.SecuritySchemes?["Bearer"] = new OpenApiSecurityScheme
         {
             Type = SecuritySchemeType.Http,
@@ -32,6 +33,28 @@ builder.Services.AddOpenApi("v3", opt =>
             Description = "JWT Bearer authentication"
         };
         
+        return Task.CompletedTask;
+    });
+
+    opt.AddOperationTransformer((operation, context, cancellationToken) =>
+    {
+        var requiresAuth = context.Description.ActionDescriptor?.EndpointMetadata
+            .OfType<IAuthorizeData>()
+            .Any() ?? false;
+
+        if (!requiresAuth)
+            return Task.CompletedTask;
+
+        operation.Security ??= new List<OpenApiSecurityRequirement>();
+        
+        var bearerSchemeRef = new OpenApiSecuritySchemeReference("Bearer");
+        var securityRequirement = new OpenApiSecurityRequirement
+        {
+            [
+                bearerSchemeRef
+            ] = []
+        };
+        operation.Security?.Add(securityRequirement);
         return Task.CompletedTask;
     });
 });
