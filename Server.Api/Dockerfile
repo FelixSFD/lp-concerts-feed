@@ -3,7 +3,7 @@
 # install curl in the runtime image
 RUN apt update \
     && apt install -y curl
-
+RUN apt clean
 
 USER $APP_UID
 WORKDIR /app
