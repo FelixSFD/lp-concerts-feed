@@ -11,6 +11,7 @@ public class DbConnectedHealthCheck(ToursDbContext toursDbContext, ILogger<DbCon
     /// <inheritdoc />
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new CancellationToken())
     {
+        logger.LogDebug("Health check started: {name}", context.Registration.Name);
         try
         {
             await toursDbContext.Database.CanConnectAsync(cancellationToken);
