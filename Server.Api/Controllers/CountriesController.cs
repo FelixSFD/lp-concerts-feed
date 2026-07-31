@@ -1,10 +1,12 @@
 using LPCalendar.DataStructure.Tours.Locations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Tours;
 
 namespace Server.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("v3/countries")]
 public class CountriesController(LocationService locationService, ILogger<CountriesController> logger) : ControllerBase
 {
