@@ -105,7 +105,8 @@ builder.Services
                 var clientId = castedToken?.GetPayloadValue<string>("client_id");
 
                 return validAudience == clientId;
-            }
+            },
+            RoleClaimType = "cognito:groups"
         };
     });
 
