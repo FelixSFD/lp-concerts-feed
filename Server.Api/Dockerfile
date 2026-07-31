@@ -24,7 +24,8 @@ ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./Server.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
-HEALTHCHECK CMD curl -o - --fail http://localhost:8080/health || exit 1
+HEALTHCHECK --start-period=5s --timeout=10s --interval=15s \
+ CMD curl -o - --fail http://localhost:8080/health || exit 1
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Server.Api.dll"]
