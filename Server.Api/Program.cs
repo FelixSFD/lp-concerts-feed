@@ -25,10 +25,10 @@ builder.Services.AddOpenApi("v3", opt =>
         
         document.Components ??= new OpenApiComponents();
         document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
-        document.Components.SecuritySchemes?["Bearer"] = new OpenApiSecurityScheme
+        document.Components.SecuritySchemes?[JwtBearerDefaults.AuthenticationScheme] = new OpenApiSecurityScheme
         {
             Type = SecuritySchemeType.Http,
-            Scheme = "bearer",
+            Scheme = JwtBearerDefaults.AuthenticationScheme,
             BearerFormat = "JWT",
             Description = "JWT Bearer authentication"
         };
@@ -47,14 +47,15 @@ builder.Services.AddOpenApi("v3", opt =>
 
         operation.Security ??= new List<OpenApiSecurityRequirement>();
         
-        var bearerSchemeRef = new OpenApiSecuritySchemeReference("Bearer");
-        var securityRequirement = new OpenApiSecurityRequirement
-        {
-            [
-                bearerSchemeRef
-            ] = []
-        };
-        operation.Security?.Add(securityRequirement);
+        var bearerSchemeRef = new OpenApiSecuritySchemeReference(JwtBearerDefaults.AuthenticationScheme, context.Document);
+        // Add Security Requirement
+        operation.Security ??= new List<OpenApiSecurityRequirement>();
+        operation.Security.Add(
+            new OpenApiSecurityRequirement
+            {
+                [bearerSchemeRef] = []
+            }
+        );
         return Task.CompletedTask;
     });
 });
