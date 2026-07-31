@@ -174,3 +174,50 @@
 :host ::ng-deep .p-menubar-mobile .p-menubar-item-link-active {
   color: var(--p-primary-color);
 }
+
+
+/* Logged-in dropdown */
+:host ::ng-deep .p-menu-overlay {
+  padding: 0.4rem;
+  border-radius: 14px;
+  border: 1px solid var(--p-content-border-color);
+  background: var(--p-content-background);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+}
+:host ::ng-deep .p-menu-item-link,
+:host ::ng-deep .p-menu-item-link:hover {
+  padding: 0.6rem 0.85rem;
+  border-radius: 10px;
+  color: var(--p-text-color);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+:host ::ng-deep .p-menu-submenu-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--p-surface-500);
+}
+
+/* Account round button */
+.account-btn {
+  width: 2.6rem;
+  height: 2.6rem;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--p-primary-color);
+  color: var(--p-primary-contrast-color);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: filter 0.15s ease;
+}
+
+.account-btn:hover {
+  filter: brightness(0.93);
+}
