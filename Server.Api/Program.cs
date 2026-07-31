@@ -2,6 +2,7 @@ using Database.Tours;
 using Database.Tours.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Server.Api.ExceptionHandling;
+using Server.Api.HealthChecks;
 using Service.Tours;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -49,6 +50,11 @@ builder.Services.AddProblemDetails();
 //Custom Global Exception Handler for HTTP Status Codes
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
+// Configure health checks
+builder.Services
+    .AddHealthChecks()
+    .AddCheck<DbConnectedHealthCheck>("Database Connection");
+
 var app = builder.Build();
 
 //Add exception handler in the middleware
@@ -79,5 +85,6 @@ app.MapControllers();
 
 app.UseHttpsRedirection();
 
+app.MapHealthChecks("/health");
 
 app.Run();
