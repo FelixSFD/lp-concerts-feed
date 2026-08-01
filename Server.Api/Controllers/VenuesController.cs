@@ -1,5 +1,6 @@
 using LPCalendar.DataStructure.Tours.Locations;
 using Microsoft.AspNetCore.Mvc;
+using Server.Api.Auth;
 using Service.Tours;
 
 namespace Server.Api.Controllers;
@@ -19,6 +20,7 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <param name="request">data of the new venue</param>
     /// <returns></returns>
     [HttpPost]
+    [AuthorizeRoles]
     public async Task<CreatedAtActionResult> CreateVenue([FromBody] CreateVenueRequestDto request)
     {
         logger.LogDebug("Requested to create venue");
@@ -34,6 +36,7 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <param name="venueId">ID of the venue</param>
     /// <returns>all information about the venue</returns>
     [HttpPut("{venueId:int}")]
+    [AuthorizeRoles]
     public async Task<ActionResult<VenueWithDetailsDto>> UpdateVenue([FromBody] UpdateVenueRequestDto request, [FromRoute] uint venueId)
     {
         logger.LogDebug("Update venue with ID: {venueId}", venueId);
@@ -59,8 +62,9 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// Returns an unfiltered list of all venues
     /// </summary>
     /// <param name="cancellationToken">Token to cancel the request</param>
-    /// <returns>lift of all venues</returns>
+    /// <returns>list of all venues</returns>
     [HttpGet]
+    [AuthorizeRoles]
     public async Task<ActionResult<VenueDto[]>> GetAllVenues(CancellationToken cancellationToken)
     {
         logger.LogDebug("Requested to get all venues.");
@@ -92,6 +96,7 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <response code="201">If the venue was deleted successfully</response>
     /// <response code="404">If the venue was not found</response>
     [HttpDelete("{venueId:int}")]
+    [AuthorizeRoles]
     public async Task<NoContentResult> DeleteVenueById(uint venueId)
     {
         logger.LogInformation("Requested to delete venue with ID: {venueId}", venueId);
@@ -108,6 +113,7 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <returns>Venue information with details</returns>
     /// <response code="404">If the venue was not found</response>
     [HttpPost("{venueId:int}/names")]
+    [AuthorizeRoles]
     public async Task<VenueWithDetailsDto> AddNewVenueName([FromBody] AddVenueNameRequestDto request, [FromRoute] uint venueId)
     {
         await service.AddVenueNameAsync(request, venueId);
@@ -125,6 +131,7 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <response code="201">If the name was updated successfully</response>
     /// <response code="404">If the venue or name was not found</response>
     [HttpPut("{venueId:int}/names/{venueNameId:int}")]
+    [AuthorizeRoles]
     public async Task<NoContentResult> UpdateVenueName([FromBody] UpdateVenueNameRequestDto request, [FromRoute] uint venueId, [FromRoute] uint venueNameId)
     {
         await service.UpdateVenueNameAsync(request, venueId, venueNameId);
@@ -140,6 +147,7 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <response code="201">If the name was deleted successfully</response>
     /// <response code="404">If the venue was not found</response>
     [HttpDelete("{venueId:int}/names/{venueNameId:int}")]
+    [AuthorizeRoles]
     public async Task<NoContentResult> DeleteVenueName([FromRoute] uint venueId, [FromRoute] uint venueNameId)
     {
         await service.DeleteVenueNameAsync(venueId, venueNameId);

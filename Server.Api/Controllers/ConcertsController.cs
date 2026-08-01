@@ -1,5 +1,6 @@
 using LPCalendar.DataStructure.Tours;
 using Microsoft.AspNetCore.Mvc;
+using Server.Api.Auth;
 using Service.Tours;
 
 namespace Server.Api.Controllers;
@@ -19,6 +20,7 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
     /// <param name="request"></param>
     /// <returns>the created concert</returns>
     [HttpPost]
+    [AuthorizeRoles]
     public async Task<CreatedAtActionResult> CreateConcert([FromBody] CreateConcertRequestDto request)
     {
         logger.LogDebug("Requested to create a new concert...");
@@ -34,6 +36,7 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
     /// <param name="request"></param>
     /// <returns>no content</returns>
     [HttpPut("{concertId}")]
+    [AuthorizeRoles]
     public async Task<NoContentResult> UpdateConcert([FromBody] UpdateConcertRequestDto request, [FromRoute] string concertId)
     {
         logger.LogDebug("Requested to update the concert with id: {concertId}", concertId);
@@ -48,6 +51,7 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
     /// <param name="concertId"></param>
     /// <returns></returns>
     [HttpGet("{concertId}")]
+    [AuthorizeRoles]
     public async Task<ActionResult<RawConcertDto>> GetRawConcertById([FromRoute] string concertId)
     {
         var concert = await concertService.GetConcertWithoutDetailsByIdAsync(concertId);
@@ -86,6 +90,7 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
     /// <param name="concertId">ID of the concert to delete</param>
     /// <returns>no content</returns>
     [HttpDelete("{concertId}")]
+    [AuthorizeRoles]
     public async Task<NoContentResult> DeleteConcertById([FromRoute] string concertId)
     {
         await concertService.DeleteConcertAsync(concertId);

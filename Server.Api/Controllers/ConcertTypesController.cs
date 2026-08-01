@@ -1,5 +1,6 @@
 using LPCalendar.DataStructure.Tours;
 using Microsoft.AspNetCore.Mvc;
+using Server.Api.Auth;
 using Service.Tours;
 
 namespace Server.Api.Controllers;
@@ -19,6 +20,7 @@ public class ConcertTypesController(ConcertService concertService, ILogger<Conce
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPost]
+    [AuthorizeRoles]
     public async Task<CreatedAtActionResult> CreateConcertType([FromBody] CreateConcertTypeRequestDto request)
     {
         var createdType = await concertService.CreateConcertTypeAsync(request);
@@ -30,6 +32,7 @@ public class ConcertTypesController(ConcertService concertService, ILogger<Conce
     /// </summary>
     /// <returns>information about the concert types</returns>
     [HttpGet]
+    [AuthorizeRoles]
     public async Task<ActionResult<ConcertTypeDto>> GetConcertTypes(CancellationToken cancellationToken)
     {
         var types = await concertService

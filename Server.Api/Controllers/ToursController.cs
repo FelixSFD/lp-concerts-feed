@@ -1,5 +1,6 @@
 using LPCalendar.DataStructure.Tours;
 using Microsoft.AspNetCore.Mvc;
+using Server.Api.Auth;
 using Service.Tours;
 
 namespace Server.Api.Controllers;
@@ -19,6 +20,7 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPost]
+    [AuthorizeRoles]
     public async Task<CreatedAtActionResult> CreateTour([FromBody] CreateTourRequestDto request)
     {
         var createdTour = await tourService.CreateTourAsync(request);
@@ -57,6 +59,7 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
     /// <param name="tourId">ID of the tour</param>
     /// <returns>no content</returns>
     [HttpDelete("{tourId}")]
+    [AuthorizeRoles]
     public async Task<NoContentResult> DeleteTour([FromRoute] string tourId)
     {
         await tourService.DeleteTourAsync(tourId);
@@ -70,6 +73,7 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
     /// <param name="tourId">ID of the tour</param>
     /// <returns></returns>
     [HttpPost("{tourId}/legs")]
+    [AuthorizeRoles]
     public async Task<CreatedAtActionResult> CreateTourLeg([FromBody] AddTourLegRequestDto request, [FromRoute] string tourId)
     {
         var createdTourLeg = await tourService.AddTourLegAsync(request, tourId);
@@ -98,6 +102,7 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
     /// <param name="legId">ID of the tour leg</param>
     /// <returns>no content</returns>
     [HttpDelete("{tourId}/legs/{legId}")]
+    [AuthorizeRoles]
     public async Task<NoContentResult> DeleteTour([FromRoute] string tourId, [FromRoute] string legId)
     {
         await tourService.DeleteTourLegAsync(tourId, legId);
