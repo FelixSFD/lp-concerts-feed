@@ -103,7 +103,7 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
     /// <returns>no content</returns>
     [HttpDelete("{tourId}/legs/{legId}")]
     [AuthorizeRoles]
-    public async Task<NoContentResult> DeleteTour([FromRoute] string tourId, [FromRoute] string legId)
+    public async Task<NoContentResult> DeleteTourLeg([FromRoute] string tourId, [FromRoute] string legId)
     {
         await tourService.DeleteTourLegAsync(tourId, legId);
         return NoContent();

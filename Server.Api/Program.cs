@@ -2,6 +2,7 @@ using Database.Tours;
 using Database.Tours.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
@@ -59,6 +60,19 @@ builder.Services.AddOpenApi("v3", opt =>
         operation.Responses?.Add("401", new OpenApiResponse { Description = "Unauthorized: Credentials are missing or not valid" });
         operation.Responses?.Add("403", new OpenApiResponse { Description = "Forbidden: Credentials are valid, but the caller is not allowed to perform this operation" });
         
+        return Task.CompletedTask;
+    });
+    
+    opt.AddOperationTransformer((operation, context, cancellationToken) =>
+    {
+        // Check if it's a MapIdentityApi action
+        if (context.Description.ActionDescriptor is not ControllerActionDescriptor controllerActionDescriptor)
+        {
+            return Task.CompletedTask;
+        }
+
+        // For other controller actions, set OperationId based on controller and action names
+        operation.OperationId = $"{controllerActionDescriptor.ActionName}";
         return Task.CompletedTask;
     });
 });

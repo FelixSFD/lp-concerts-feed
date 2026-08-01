@@ -169,7 +169,7 @@ public class CountriesController(LocationService locationService, ILogger<Countr
     /// <returns>no content</returns>
     [HttpDelete("{countryCode}/states/{stateCode}")]
     [AuthorizeRoles]
-    public async Task<NoContentResult> DeleteCountryByIsoCode(string countryCode, string stateCode)
+    public async Task<NoContentResult> DeleteState(string countryCode, string stateCode)
     {
         logger.LogDebug("Requested to delete state: {countryCode} - {stateCode}", countryCode, stateCode);
         await locationService.DeleteStateAsync(countryCode, stateCode);

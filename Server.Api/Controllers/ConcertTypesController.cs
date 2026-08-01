@@ -59,7 +59,7 @@ public class ConcertTypesController(ConcertService concertService, ILogger<Conce
     /// <param name="concertTypeId">ID of the concert type</param>
     /// <returns>updated information about the concert type</returns>
     [HttpPut("{concertTypeId:int}")]
-    public async Task<ActionResult<ConcertTypeDto>> GetTypeById([FromRoute] uint concertTypeId, [FromBody] UpdateConcertTypeRequestDto request)
+    public async Task<ActionResult<ConcertTypeDto>> UpdateType([FromRoute] uint concertTypeId, [FromBody] UpdateConcertTypeRequestDto request)
     {
         var type = await concertService.UpdateConcertTypeAsync(request, concertTypeId);
         return Ok(type);

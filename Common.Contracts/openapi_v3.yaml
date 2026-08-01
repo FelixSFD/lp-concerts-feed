@@ -11,6 +11,7 @@ paths:
       tags:
         - Concerts
       summary: Creates a new concert in the database
+      operationId: CreateConcert
       requestBody:
         description: ""
         content:
@@ -38,6 +39,7 @@ paths:
       tags:
         - Concerts
       summary: Returns a list of concerts that can be filtered
+      operationId: GetConcerts
       parameters:
         - name: CountryCode
           in: query
@@ -89,6 +91,7 @@ paths:
       tags:
         - Concerts
       summary: Updates a concert in the database
+      operationId: UpdateConcert
       parameters:
         - name: concertId
           in: path
@@ -124,6 +127,7 @@ paths:
         - Concerts
       summary: Returns a concert without loading the referenced objects like the venue
         details
+      operationId: GetRawConcertById
       parameters:
         - name: concertId
           in: path
@@ -156,6 +160,7 @@ paths:
         - Concerts
       summary: Deletes a concert. Note that the data will not be fully removed from
         the database. Admins will still be able to see deleted concerts.
+      operationId: DeleteConcertById
       parameters:
         - name: concertId
           in: path
@@ -179,6 +184,7 @@ paths:
         - Concerts
       summary: Returns all details about a concert. This includes information about
         the venue and general location.
+      operationId: GetConcertById
       parameters:
         - name: concertId
           in: path
@@ -204,6 +210,7 @@ paths:
       tags:
         - ConcertTypes
       summary: Creates a new type of concert
+      operationId: CreateConcertType
       requestBody:
         description: ""
         content:
@@ -231,6 +238,7 @@ paths:
       tags:
         - ConcertTypes
       summary: Returns all available concert types
+      operationId: GetConcertTypes
       responses:
         "200":
           description: information about the concert types
@@ -256,6 +264,7 @@ paths:
       tags:
         - ConcertTypes
       summary: Returns information about a concert type
+      operationId: GetTypeById
       parameters:
         - name: concertTypeId
           in: path
@@ -282,6 +291,7 @@ paths:
       tags:
         - ConcertTypes
       summary: Updates information of a concert type
+      operationId: UpdateType
       parameters:
         - name: concertTypeId
           in: path
@@ -321,6 +331,7 @@ paths:
       tags:
         - Countries
       summary: Creates a new country
+      operationId: CreateCountry
       requestBody:
         description: Data of the new country
         content:
@@ -348,6 +359,7 @@ paths:
       tags:
         - Countries
       summary: Returns a list of all countries
+      operationId: GetCountries
       responses:
         "200":
           description: ""
@@ -366,6 +378,7 @@ paths:
       tags:
         - Countries
       summary: Updates an existing country
+      operationId: UpdateCountry
       parameters:
         - name: countryCode
           in: path
@@ -410,6 +423,7 @@ paths:
       tags:
         - Countries
       summary: Returns a country by its ISO code
+      operationId: GetCountryByIsoCode
       parameters:
         - name: countryCode
           in: path
@@ -434,6 +448,7 @@ paths:
       tags:
         - Countries
       summary: Deletes a country
+      operationId: DeleteCountryByIsoCode
       parameters:
         - name: countryCode
           in: path
@@ -456,6 +471,7 @@ paths:
       tags:
         - Countries
       summary: Creates a new state in a country
+      operationId: CreateState
       parameters:
         - name: countryCode
           in: path
@@ -490,6 +506,7 @@ paths:
       tags:
         - Countries
       summary: Returns a list of all states in a country
+      operationId: GetStatesInCountry
       parameters:
         - name: countryCode
           in: path
@@ -515,6 +532,7 @@ paths:
       tags:
         - Countries
       summary: Updates a state in a country
+      operationId: UpdateState
       parameters:
         - name: countryCode
           in: path
@@ -564,6 +582,7 @@ paths:
       tags:
         - Countries
       summary: Returns a state in a country
+      operationId: GetState
       parameters:
         - name: countryCode
           in: path
@@ -594,6 +613,7 @@ paths:
       tags:
         - Countries
       summary: Deletes a state
+      operationId: DeleteState
       parameters:
         - name: countryCode
           in: path
@@ -622,6 +642,7 @@ paths:
       tags:
         - Countries
       summary: Creates a new city in a country
+      operationId: CreateCity
       parameters:
         - name: countryCode
           in: path
@@ -656,6 +677,7 @@ paths:
       tags:
         - Countries
       summary: Returns a list of all cities in a country
+      operationId: GetCitiesInCountry
       parameters:
         - name: countryCode
           in: path
@@ -681,6 +703,7 @@ paths:
       tags:
         - Countries
       summary: Updates a city in a country
+      operationId: UpdateCity
       parameters:
         - name: countryCode
           in: path
@@ -732,6 +755,7 @@ paths:
       tags:
         - Countries
       summary: Returns a state in a country
+      operationId: GetCity
       parameters:
         - name: countryCode
           in: path
@@ -766,6 +790,7 @@ paths:
       tags:
         - Countries
       summary: Deletes a city
+      operationId: DeleteCity
       parameters:
         - name: countryCode
           in: path
@@ -793,6 +818,7 @@ paths:
       tags:
         - Tours
       summary: Creates a new tour
+      operationId: CreateTour
       requestBody:
         description: ""
         content:
@@ -820,6 +846,7 @@ paths:
       tags:
         - Tours
       summary: Returns a list of all tours
+      operationId: GetTours
       responses:
         "200":
           description: List of all tours
@@ -844,6 +871,7 @@ paths:
       tags:
         - Tours
       summary: Returns information about a tour
+      operationId: GetTour
       parameters:
         - name: tourId
           in: path
@@ -868,6 +896,7 @@ paths:
       tags:
         - Tours
       summary: Deletes a tour
+      operationId: DeleteTour
       parameters:
         - name: tourId
           in: path
@@ -890,6 +919,7 @@ paths:
       tags:
         - Tours
       summary: Creates a new leg of a tour
+      operationId: CreateTourLeg
       parameters:
         - name: tourId
           in: path
@@ -925,6 +955,7 @@ paths:
       tags:
         - Tours
       summary: Returns information about a tour leg
+      operationId: GetTourLeg
       parameters:
         - name: tourId
           in: path
@@ -955,6 +986,7 @@ paths:
       tags:
         - Tours
       summary: Deletes a leg of a tour
+      operationId: DeleteTourLeg
       parameters:
         - name: tourId
           in: path
@@ -1011,6 +1043,7 @@ paths:
       tags:
         - Venues
       summary: Returns an unfiltered list of all venues
+      operationId: GetAllVenues
       responses:
         "200":
           description: list of all venues
@@ -1043,6 +1076,7 @@ paths:
         - Venues
       summary: Updates the information about a venue. Please note that updates of the
         name have to be made through special routes.
+      operationId: UpdateVenue
       parameters:
         - name: venueId
           in: path
@@ -1089,6 +1123,7 @@ paths:
       tags:
         - Venues
       summary: Returns the basic information about a venue by its ID
+      operationId: GetVenueById
       parameters:
         - name: venueId
           in: path
@@ -1115,6 +1150,7 @@ paths:
       tags:
         - Venues
       summary: Deletes a venue
+      operationId: DeleteVenueById
       parameters:
         - name: venueId
           in: path
@@ -1140,6 +1176,7 @@ paths:
         - Venues
       summary: Returns the detailed information about a venue by its ID including
         information about the city and country
+      operationId: GetVenueWithCityById
       parameters:
         - name: venueId
           in: path
@@ -1167,6 +1204,7 @@ paths:
       tags:
         - Venues
       summary: Adds a new name to a venue for a given time range
+      operationId: AddNewVenueName
       parameters:
         - name: venueId
           in: path
@@ -1214,6 +1252,7 @@ paths:
       tags:
         - Venues
       summary: Changes an existing name of a venue
+      operationId: UpdateVenueName
       parameters:
         - name: venueId
           in: path
@@ -1258,6 +1297,7 @@ paths:
       tags:
         - Venues
       summary: Deletes a previous name of a venue
+      operationId: DeleteVenueName
       parameters:
         - name: venueId
           in: path
