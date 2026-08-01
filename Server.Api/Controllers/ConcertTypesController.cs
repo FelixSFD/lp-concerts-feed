@@ -2,6 +2,7 @@ using Common.Contracts.Generated.Controllers;
 using Common.Contracts.Generated.Models;
 using Microsoft.AspNetCore.Mvc;
 using Server.Api.Auth;
+using Server.Api.ExceptionHandling;
 using Service.Tours;
 
 namespace Server.Api.Controllers;
@@ -52,7 +53,7 @@ public class ConcertTypesController(ConcertService concertService, ILogger<Conce
     [HttpGet("{concertTypeId:int}")]
     public override async Task<IActionResult> GetTypeById(int concertTypeId, CancellationToken cancellationToken)
     {
-        var type = await concertService.GetConcertTypeAsync((uint)concertTypeId);
+        var type = await concertService.GetConcertTypeAsync(concertTypeId.ConvertToUnsigned());
         return Ok(type);
     }
 
@@ -66,7 +67,7 @@ public class ConcertTypesController(ConcertService concertService, ILogger<Conce
     [HttpPut("{concertTypeId:int}")]
     public override async Task<IActionResult> UpdateType([FromRoute] int concertTypeId, [FromBody] UpdateConcertTypeRequestDto request, CancellationToken cancellationToken)
     {
-        var type = await concertService.UpdateConcertTypeAsync(request.ToBo(), (uint)concertTypeId);
+        var type = await concertService.UpdateConcertTypeAsync(request.ToBo(), concertTypeId.ConvertToUnsigned());
         return Ok(type);
     }
 }
