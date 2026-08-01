@@ -15,7 +15,7 @@ public class ConcertDetailsDto
     /// <summary>
     /// Type of the concert
     /// </summary>
-    public required ConcertTypeDto ConcertType { get; set; }
+    public required ConcertTypeBo ConcertType { get; set; }
     
     /// <summary>
     /// Information about the tour where this concert was played

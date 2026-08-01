@@ -18,7 +18,7 @@ public class LocationService(
     /// </summary>
     /// <param name="request"></param>
     /// <returns>ISO code of the created country</returns>
-    public async Task<string> CreateCountry(CreateCountryRequestDto request)
+    public async Task<string> CreateCountry(CreateCountryRequest request)
     {
         logger.LogDebug("Creating country with ISO-code: {isoCode}", request.IsoCode);
         var newCountry = request.ToDo();
@@ -35,7 +35,7 @@ public class LocationService(
     /// <param name="request"></param>
     /// <param name="countryCode">ISO code of the country to update</param>
     /// <returns>The updated country</returns>
-    public async Task<CountryDto> UpdateCountryAsync(UpdateCountryRequestDto request, string countryCode)
+    public async Task<CountryBo> UpdateCountryAsync(UpdateCountryRequestDto request, string countryCode)
     {
         logger.LogDebug("Updating country with ISO-code: {isoCode}", countryCode);
         var country = await countryRepository.GetByPrimaryKeyAsync(countryCode) ?? throw new CountryNotFoundException(countryCode);
@@ -52,7 +52,7 @@ public class LocationService(
     /// </summary>
     /// <param name="cancellationToken">token to cancel the query</param>
     /// <returns>async enumerable of the countries that were found</returns>
-    public IAsyncEnumerable<CountryDto> GetCountriesAsync(CancellationToken cancellationToken)
+    public IAsyncEnumerable<CountryBo> GetCountriesAsync(CancellationToken cancellationToken)
     {
         logger.LogDebug("Requesting list of countries...");
         return countryRepository
@@ -66,7 +66,7 @@ public class LocationService(
     /// <param name="isoCode"></param>
     /// <returns></returns>
     /// <exception cref="CountryNotFoundException">if the country does not exist</exception>
-    public async Task<CountryDto> GetCountry(string isoCode)
+    public async Task<CountryBo> GetCountry(string isoCode)
     {
         logger.LogDebug("Fetching country with ISO-code: {isoCode}", isoCode);
         var country = await countryRepository.GetByPrimaryKeyAsync(isoCode);

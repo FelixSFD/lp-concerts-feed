@@ -3,7 +3,7 @@ namespace LPCalendar.DataStructure.Tours;
 /// <summary>
 /// Type of concert
 /// </summary>
-public class ConcertTypeDto
+public class ConcertTypeBo
 {
     /// <summary>
     /// Unique ID

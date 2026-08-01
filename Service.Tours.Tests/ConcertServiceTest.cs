@@ -27,7 +27,7 @@ public class ConcertServiceTest
     [InlineData("Festival", 1337u)]
     public async Task CreateConcertType(string name, uint mockId)
     {
-        var request = new CreateConcertTypeRequestDto
+        var request = new CreateConcertTypeRequest
         {
             Name = name,
         };

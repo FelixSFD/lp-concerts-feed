@@ -24,7 +24,7 @@ public class CountriesController(LocationService locationService, ILogger<Countr
     /// <returns></returns>
     [HttpPost]
     [AuthorizeRoles]
-    public async Task<CreatedAtActionResult> CreateCountry([FromBody] CreateCountryRequestDto request)
+    public async Task<CreatedAtActionResult> CreateCountry([FromBody] CreateCountryRequest request)
     {
         logger.LogDebug("Requested to create country: {name}", request.Name);
         var isoCode = await locationService.CreateCountry(request);
@@ -40,7 +40,7 @@ public class CountriesController(LocationService locationService, ILogger<Countr
     /// <returns>the updated data</returns>
     [HttpPut("{countryCode}")]
     [AuthorizeRoles]
-    public async Task<ActionResult<CountryDto>> UpdateCountry([FromBody] UpdateCountryRequestDto request, [FromRoute] string countryCode)
+    public async Task<ActionResult<CountryBo>> UpdateCountry([FromBody] UpdateCountryRequestDto request, [FromRoute] string countryCode)
     {
         logger.LogDebug("Requested to update country: {countryCode}", countryCode);
         var updatedCountry = await locationService.UpdateCountryAsync(request, countryCode);
@@ -54,7 +54,7 @@ public class CountriesController(LocationService locationService, ILogger<Countr
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpGet]
-    public async Task<ActionResult<CountryDto>> GetCountries(CancellationToken cancellationToken)
+    public async Task<ActionResult<CountryBo>> GetCountries(CancellationToken cancellationToken)
     {
         logger.LogDebug("Getting all countries");
         var countries = await locationService
@@ -70,7 +70,7 @@ public class CountriesController(LocationService locationService, ILogger<Countr
     /// <param name="countryCode">3-letter ISO-code of the country</param>
     /// <returns></returns>
     [HttpGet("{countryCode}")]
-    public async Task<ActionResult<CountryDto>> GetCountryByIsoCode(string countryCode)
+    public async Task<ActionResult<CountryBo>> GetCountryByIsoCode(string countryCode)
     {
         logger.LogDebug("Requested country by ISO code: {countryCode}", countryCode);
         var country = await locationService.GetCountry(countryCode);
@@ -136,7 +136,7 @@ public class CountriesController(LocationService locationService, ILogger<Countr
     /// <param name="stateCode">Code of the state</param>
     /// <returns>The state including the information about the country</returns>
     [HttpGet("{countryCode}/states/{stateCode}")]
-    public async Task<ActionResult<CountryDto>> GetState(string countryCode, string stateCode)
+    public async Task<ActionResult<CountryBo>> GetState(string countryCode, string stateCode)
     {
         logger.LogDebug("Requested state '{stateCode}' in country '{countryCode}'", stateCode, countryCode);
         var stateWithCountry = await locationService.GetStateInCountryAsync(countryCode, stateCode);

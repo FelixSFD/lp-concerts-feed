@@ -3,7 +3,7 @@ namespace LPCalendar.DataStructure.Tours;
 /// <summary>
 /// Request to update a concert type
 /// </summary>
-public class UpdateConcertTypeRequestDto
+public class UpdateConcertTypeRequest
 {
     /// <summary>
     /// Displayed name of the type

@@ -5,7 +5,7 @@ namespace LPCalendar.DataStructure.Tours.Locations;
 /// <summary>
 /// Request to create a new country
 /// </summary>
-public class CreateCountryRequestDto
+public class CreateCountryRequest
 {
     /// <summary>
     /// ISO-alpha-3 code of the country

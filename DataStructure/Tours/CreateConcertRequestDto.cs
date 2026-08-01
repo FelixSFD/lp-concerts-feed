@@ -6,7 +6,7 @@ namespace LPCalendar.DataStructure.Tours;
 public class CreateConcertRequestDto
 {
     /// <summary>
-    /// ID of the <see cref="ConcertTypeDto"/>
+    /// ID of the <see cref="ConcertTypeBo"/>
     /// </summary>
     public uint ConcertTypeId { get; set; }
     

@@ -11,7 +11,7 @@ public class RawConcertDto
     public required string Id { get; set; }
     
     /// <summary>
-    /// ID of the <see cref="ConcertTypeDto"/>
+    /// ID of the <see cref="ConcertTypeBo"/>
     /// </summary>
     public uint ConcertTypeId { get; set; }
     

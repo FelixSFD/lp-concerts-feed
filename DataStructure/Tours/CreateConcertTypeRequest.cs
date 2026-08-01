@@ -3,7 +3,7 @@ namespace LPCalendar.DataStructure.Tours;
 /// <summary>
 /// Request to create a new concert type
 /// </summary>
-public class CreateConcertTypeRequestDto
+public class CreateConcertTypeRequest
 {
     /// <summary>
     /// Displayed name of the type

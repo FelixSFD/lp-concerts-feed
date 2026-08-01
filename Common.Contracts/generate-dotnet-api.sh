@@ -7,8 +7,8 @@ docker run --rm \
   -i /local/openapi_v3.yaml \
   -g aspnetcore \
   -o /local/tmp/generated_code \
-  --additional-properties=packageName=Common.Contracts.Generated,modelNameSuffix=Dto,buildTarget=library \
-  --additional-properties=operationModifier=abstract,operationResultTask=true,useNewtonsoft=false,useSwashbuckle=false,useDateTimeOffset=true \
+  --additional-properties=packageName=Common.Contracts.Generated,modelNameSuffix=Dto \
+  --additional-properties=operationModifier=virtual,operationResultTask=true,operationIsAsync=true,useNewtonsoft=false,useSwashbuckle=false,useDateTimeOffset=true \
   --additional-properties=nullableReferenceTypes=true,useDataAnnotations=false \
     --global-property=models,apis,supportingFiles \
     --enable-post-process-file
@@ -17,7 +17,11 @@ docker run --rm \
 echo "Finished generating models and API."
 
 rm -R ${PWD}/Generated
-mv ${PWD}/tmp/generated_code/src/Common.Contracts.Generated/ ${PWD}/Generated
+mkdir "Generated"
+mv ${PWD}/tmp/generated_code/src/Common.Contracts.Generated/Attributes ${PWD}/Generated/Attributes
+mv ${PWD}/tmp/generated_code/src/Common.Contracts.Generated/Converters ${PWD}/Generated/Converters
+mv ${PWD}/tmp/generated_code/src/Common.Contracts.Generated/Controllers ${PWD}/Generated/Controllers
+mv ${PWD}/tmp/generated_code/src/Common.Contracts.Generated/Models ${PWD}/Generated/Models
 rm -R ${PWD}/tmp
 
 #mv ${PWD}/tmp/generated_code/src/Common.Contracts.Generated/Models ${PWD}/Common.Contracts/Generated

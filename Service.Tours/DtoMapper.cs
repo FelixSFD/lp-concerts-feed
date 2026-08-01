@@ -7,13 +7,13 @@ namespace Service.Tours;
 internal static class DtoMapper
 {
     /// <summary>
-    /// Converts a <see cref="CountryDo"/> to the <see cref="CountryDto"/>
+    /// Converts a <see cref="CountryDo"/> to the <see cref="CountryBo"/>
     /// </summary>
     /// <param name="dataObject">DataObject to convert to the DTO</param>
     /// <returns>the mapped DTO</returns>
-    public static CountryDto ToDto(this CountryDo dataObject)
+    public static CountryBo ToDto(this CountryDo dataObject)
     {
-        return new CountryDto
+        return new CountryBo
         {
             IsoCode = dataObject.IsoCode,
             Name = dataObject.Name,
@@ -22,26 +22,26 @@ internal static class DtoMapper
     }
     
     /// <summary>
-    /// Converts a <see cref="CountryDto"/> to the <see cref="CountryDo"/>
+    /// Converts a <see cref="CountryBo"/> to the <see cref="CountryDo"/>
     /// </summary>
-    /// <param name="dto">DTO to convert to the DataObject</param>
+    /// <param name="bo">DTO to convert to the DataObject</param>
     /// <returns>the mapped DTO</returns>
-    public static CountryDo ToDto(this CountryDto dto)
+    public static CountryDo ToDto(this CountryBo bo)
     {
         return new CountryDo
         {
-            IsoCode = dto.IsoCode,
-            Name = dto.Name,
-            NativeName = dto.NativeName,
+            IsoCode = bo.IsoCode,
+            Name = bo.Name,
+            NativeName = bo.NativeName,
         };
     }
     
     /// <summary>
-    /// Converts a <see cref="CreateCountryRequestDto"/> to the <see cref="CountryDo"/>
+    /// Converts a <see cref="CreateCountryRequest"/> to the <see cref="CountryDo"/>
     /// </summary>
     /// <param name="dto">DTO to convert to the DataObject</param>
     /// <returns>the mapped DTO</returns>
-    public static CountryDo ToDo(this CreateCountryRequestDto dto)
+    public static CountryDo ToDo(this CreateCountryRequest dto)
     {
         return new CountryDo
         {
@@ -388,11 +388,11 @@ internal static class DtoMapper
     }
 
     /// <summary>
-    /// Creates a new <see cref="ConcertTypeDo"/> from a <see cref="CreateConcertTypeRequestDto"/>
+    /// Creates a new <see cref="ConcertTypeDo"/> from a <see cref="CreateConcertTypeRequest"/>
     /// </summary>
     /// <param name="dto"></param>
     /// <returns>the new data object</returns>
-    public static ConcertTypeDo ToDo(this CreateConcertTypeRequestDto dto)
+    public static ConcertTypeDo ToDo(this CreateConcertTypeRequest dto)
     {
         return new ConcertTypeDo
         {
@@ -406,7 +406,7 @@ internal static class DtoMapper
     /// <param name="dataObject"></param>
     /// <param name="updateRequest">Information to update the DataObject</param>
     /// <returns>the updated object</returns>
-    public static ConcertTypeDo UpdateFromRequestDto(this ConcertTypeDo dataObject, UpdateConcertTypeRequestDto updateRequest)
+    public static ConcertTypeDo UpdateFromRequestDto(this ConcertTypeDo dataObject, UpdateConcertTypeRequest updateRequest)
     {
         dataObject.Name = updateRequest.Name;
         return dataObject;
@@ -417,9 +417,9 @@ internal static class DtoMapper
     /// </summary>
     /// <param name="dataObject"></param>
     /// <returns>the new DTO</returns>
-    public static ConcertTypeDto ToDto(this ConcertTypeDo dataObject)
+    public static ConcertTypeBo ToDto(this ConcertTypeDo dataObject)
     {
-        return new ConcertTypeDto
+        return new ConcertTypeBo
         {
             Id = dataObject.Id,
             Name = dataObject.Name,
