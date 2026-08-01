@@ -9,4 +9,9 @@
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
+
+    <!-- Run the OpenAPI generator before build -->
+    <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+        <Exec Command="./generate-dotnet-api.sh" />
+    </Target>
 </Project>
