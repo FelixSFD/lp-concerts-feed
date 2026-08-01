@@ -1,12 +1,17 @@
 using LPCalendar.DataStructure.Tours.Locations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Server.Api.Auth;
 using Service.Tours;
 
 namespace Server.Api.Controllers;
 
+/// <summary>
+/// Controller to manage countries and cities
+/// </summary>
+/// <param name="locationService"></param>
+/// <param name="logger"></param>
 [ApiController]
-[Authorize]
 [Route("v3/countries")]
 public class CountriesController(LocationService locationService, ILogger<CountriesController> logger) : ControllerBase
 {
@@ -18,6 +23,7 @@ public class CountriesController(LocationService locationService, ILogger<Countr
     /// <param name="request">Data of the new country</param>
     /// <returns></returns>
     [HttpPost]
+    [AuthorizeRoles]
     public async Task<CreatedAtActionResult> CreateCountry([FromBody] CreateCountryRequestDto request)
     {
         logger.LogDebug("Requested to create country: {name}", request.Name);
@@ -33,6 +39,7 @@ public class CountriesController(LocationService locationService, ILogger<Countr
     /// <param name="countryCode">ISO-code of the country</param>
     /// <returns>the updated data</returns>
     [HttpPut("{countryCode}")]
+    [AuthorizeRoles]
     public async Task<ActionResult<CountryDto>> UpdateCountry([FromBody] UpdateCountryRequestDto request, [FromRoute] string countryCode)
     {
         logger.LogDebug("Requested to update country: {countryCode}", countryCode);
@@ -77,6 +84,7 @@ public class CountriesController(LocationService locationService, ILogger<Countr
     /// <param name="countryCode">3-letter ISO-code of the country</param>
     /// <returns>no content</returns>
     [HttpDelete("{countryCode}")]
+    [AuthorizeRoles]
     public async Task<NoContentResult> DeleteCountryByIsoCode(string countryCode)
     {
         logger.LogDebug("Requested to delete country: {countryCode}", countryCode);
@@ -96,6 +104,7 @@ public class CountriesController(LocationService locationService, ILogger<Countr
     /// <param name="request">Data of the new country</param>
     /// <returns></returns>
     [HttpPost("{countryCode}/states")]
+    [AuthorizeRoles]
     public async Task<CreatedAtActionResult> CreateState([FromRoute(Name = "countryCode")] string countryCode, [FromBody] CreateStateRequestDto request)
     {
         logger.LogDebug("Requested to create state: {name}", request.Name);
@@ -111,6 +120,7 @@ public class CountriesController(LocationService locationService, ILogger<Countr
     /// <param name="request">Data of the updated state</param>
     /// <returns></returns>
     [HttpPut("{countryCode}/states/{stateCode}")]
+    [AuthorizeRoles]
     public async Task<ActionResult<StateWithCountryDto>> UpdateState([FromRoute(Name = "countryCode")] string countryCode, [FromRoute] string stateCode, [FromBody] UpdateStateRequestDto request)
     {
         logger.LogDebug("Requested to update state: {stateCode}", stateCode);
@@ -158,6 +168,7 @@ public class CountriesController(LocationService locationService, ILogger<Countr
     /// <param name="stateCode">Code of the state</param>
     /// <returns>no content</returns>
     [HttpDelete("{countryCode}/states/{stateCode}")]
+    [AuthorizeRoles]
     public async Task<NoContentResult> DeleteCountryByIsoCode(string countryCode, string stateCode)
     {
         logger.LogDebug("Requested to delete state: {countryCode} - {stateCode}", countryCode, stateCode);
@@ -177,6 +188,7 @@ public class CountriesController(LocationService locationService, ILogger<Countr
     /// <param name="request">Data of the new city</param>
     /// <returns></returns>
     [HttpPost("{countryCode}/cities")]
+    [AuthorizeRoles]
     public async Task<CreatedAtActionResult> CreateCity([FromRoute(Name = "countryCode")] string countryCode, [FromBody] CreateCityRequestDto request)
     {
         logger.LogDebug("Requested to create city: {name}", request.Name);
@@ -192,7 +204,8 @@ public class CountriesController(LocationService locationService, ILogger<Countr
     /// <param name="request">Data of the updated city</param>
     /// <returns></returns>
     [HttpPut("{countryCode}/cities/{cityId:int}")]
-    public async Task<ActionResult<StateWithCountryDto>> UpdateState([FromRoute(Name = "countryCode")] string countryCode, [FromRoute] uint cityId, [FromBody] UpdateCityRequestDto request)
+    [AuthorizeRoles]
+    public async Task<ActionResult<StateWithCountryDto>> UpdateCity([FromRoute(Name = "countryCode")] string countryCode, [FromRoute] uint cityId, [FromBody] UpdateCityRequestDto request)
     {
         logger.LogDebug("Requested to update city: {cityId}", cityId);
         var updatedCity = await locationService.UpdateCityAsync(request, countryCode, cityId);
@@ -239,6 +252,7 @@ public class CountriesController(LocationService locationService, ILogger<Countr
     /// <param name="cityIdStr">ID of the city</param>
     /// <returns>no content</returns>
     [HttpDelete("{countryCode}/cities/{cityId}")]
+    [AuthorizeRoles]
     public async Task<NoContentResult> DeleteCity([FromRoute] string countryCode, [FromRoute(Name = "cityId")] string cityIdStr)
     {
         logger.LogDebug("Requested to delete city: {countryCode} - {cityId}", countryCode, cityIdStr);
