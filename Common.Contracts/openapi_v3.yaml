@@ -1,3576 +1,2072 @@
-openapi: 3.0.4
+openapi: 3.1.1
 info:
-  title: LP Concerts API
-  description: API for the LP Concerts application
-  version: 1.0.0
-
-components:
-  securitySchemes:
-    ConcertsCognitoAuthorizer:
-      type: apiKey
-      name: Authorization
-      in: header
-      x-amazon-apigateway-authtype: cognito_user_pools
-      x-amazon-apigateway-authorizer:
-        type: cognito_user_pools
-        providerARNs:
-          - Fn::ImportValue:
-              Fn::Sub: '${BaseProductName}-cognito-authorizer-user-pool'
-  
-  responses:
-    400:
-      description: Bad Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    401:
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    403:
-      description: Forbidden
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    404:
-      description: Not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    500:
-      description: Internal Server Error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-        
-  schemas:
-    # Common error response
-    ErrorResponse:
-      type: object
-      description: Common class to return errors
-      properties: 
-        message:
-          type: string
-          description: Error-Message
-    # Concerts
-    ConcertStatusValue:
-      type: string
-      description: Describes the status of a concert. Like if it was cancelled or it is live right now
-      enum:
-        - Planned
-        - Running
-        - Past
-        - Cancelled
-    
-    AdjacentConcertsResponse:
-      type: object
-      description: Response to get the IDs of the previous and next concerts
-      properties: 
-        current:
-          type: string
-          description: ID of the requested concert
-        previous:
-          type: string
-          description: ID of the previous concert
-        next:
-          type: string
-          description: ID of the next concert
-    
-    Concert:
-      type: object
-      description: Information about a concert
-      properties: 
-        id:
-          type: string
-          description: Unique ID of the concert
-        showType:
-          type: string
-          description: Type of the show
-        customTitle:
-          type: string
-          description: Custom title for the show to display in the calendar. Only used if the auto-generated title is not suitable
-          nullable: true
-        tourName:
-          type: string
-          description: Name of the tour
-          nullable: true
-        concertStatus:
-          $ref: "#/components/schemas/ConcertStatusValue"
-        status:
-          type: string
-          description: Status of the show (always PUBLISHED for now)
-          nullable: false
-          enum:
-            - PUBLISHED
-        postedStartTime:
-          type: string
-          description: Time when the concert starts according to Ticketmaster. It' technically nullable but should exist in every show as this property is used as fallback if other times are not known yet.
-          nullable: false
-          format: date-time
-          example: '2024-09-05T22:00:00Z'
-        lpuEarlyEntryConfirmed:
-          type: boolean
-          description: true, if LPU early entry has been confirmed for the show. Not all shows are guaranteed to have early entry.
-        lpuEarlyEntryTime:
-          type: string
-          description: Time when doors will open for LPU early entry. If null, the time is probably not announced yet.
-          format: date-time
-          example: '2024-09-05T20:30:00Z'
-        doorsTime:
-          type: string
-          description: Time when the doors will open for the general public. If null, the time is probably not announced yet
-          format: date-time
-          example: '2024-09-05T21:00:00Z'
-        mainStageTime:
-          type: string
-          description: Time when Linkin Park is expected to enter the stage. If null, the time is probably not announced yet
-          format: date-time
-          example: '2024-09-05T22:01:00Z'
-        expectedSetDuration:
-          type: integer
-          description: Expected duration in minutes of the Linkin Park set during this event
-          example: 120
-        timeZoneId:
-          type: string
-          description: Timezone of the venue
-          example: "Europe/Berlin"
-        country:
-          type: string
-          description: Country of the venue
-        state:
-          type: string
-          description: State where the venue is located in
-          nullable: true
-        city:
-          type: string
-          description: City of the venue
-        venue:
-          type: string
-          description: Name of the venue
-          nullable: true
-        locationLong:
-          type: string
-          description: Long version of the location string (includes Venue, City, State, Country if available)
-          readOnly: true
-        locationMedium:
-          type: string
-          description: Shorter version of the location string (includes Venue, City, Country if available)
-          readOnly: true
-        locationShort:
-          type: string
-          description: Short version of the location string (includes City, Country if available)
-          readOnly: true
-        venueLatitude:
-          type: number
-          description: Latitude of the venue
-        venueLongitude:
-          type: number
-          description: Longitude of the venue
-        scheduleImageFile:
-          type: string
-          description: Filename of the image that contains the show's schedule. It's possible that the name is set, but the image doesn't exist. In that case, the file was not uploaded (yet)
-          nullable: true
-          readOnly: true
-        isPast:
-          type: boolean
-          description: A show is considered as "past", when the posted start time was more than 4 hour ago
-          readOnly: true
-        lastChange:
-          type: string
-          description: Time when the concert has been changes
-          format: date-time
-          example: '2024-09-05T22:01:00Z'
-          
-    ConcertWithSetlists:
-      type: object
-      description: Information about a concert including the setlist (from cache)
-      allOf:
-        - $ref: "#/components/schemas/Concert"
-        - type: object
-          properties:
-            cachedSetlistsAt:
-              type: string
-              description: Time when the setlist cache was last updated for this concert
-              format: date-time
-              example: '2024-09-05T22:01:00Z'
-            cachedSetlists:
-              type: array
-              description: Cached setlists for this concert
-              items:
-                $ref: "#/components/schemas/Setlist"
-    
-    ConcertFileUploadRequest:
-      type: object
-      description: Request to get a S3 url to upload the schedule for a concert
-      properties: 
-        type:
-          type: string
-          description: Type of the file to upload. (not the MIME-type)
-          enum: 
-            - ConcertSchedule
-          default: ConcertSchedule
-          nullable: false
-        concertId:
-          type: string
-          description: ID of the concert where the file is uploaded to
-          nullable: false
-        contentType:
-          type: string
-          description: Type of the file to be uploaded
-          nullable: false
-    
-    ConcertFileUploadResponse:
-      type: object
-      description: Response that tells the client which URL to use for the upload
-      properties:
-        uploadUrl:
-          type: string
-          description: URL to use when uploading the file. This URL is only valid for the requested file
-          nullable: false
-    
-    ConcertSubEventCategory:
-      type: string
-      description: Describes a type of "sub-event". This is a part of the concert and can be something like "doors time" or "LP stage time"
-      enum:
-        - AsOneSingleEvent
-        - LinkinPark
-        - Doors
-        - SupportAct
-    
-    # Bookmarks
-    ConcertBookmarkUpdateRequest:
-      type: object
-      description: Request to set a bookmark to a concert
-      properties:
-        status:
-          type: string
-          description: Bookmark status. Defined if there is a bookmark set and what kind of it
-          enum:
-            - None
-            - Bookmarked
-            - Attending
-          default: None
-          nullable: false
-    
-    GetConcertBookmarkCountsResponse:
-      type: object
-      description: Response from server to tell the number of people who bookmarked or attended a show
-      properties:
-        bookmarked:
-          type: number
-          description: Number of users who bookmarked the concert
-        attending:
-          type: number
-          description: Number of users who are attending the concert
-        currentUserStatus:
-          type: string
-          description: Bookmark status. Of the current user
-          enum:
-            - None
-            - Bookmarked
-            - Attending
-          default: None
-          nullable: false
-    
-    ConcertWithBookmarkStatus:
-      type: object
-      description: Concert information with bookmark data
-      allOf:
-        - $ref: "#/components/schemas/Concert"
-      properties: 
-        bookmarkStatus:
-          $ref: "#/components/schemas/GetConcertBookmarkCountsResponse"
-
-    # Syncing Concerts
-    SyncConcertsRequest:
-      type: object
-      description: Request to sync concerts. This API can be used to make sure all Concerts in a local DB are up-to-date.
-      properties:
-        lastSync:
-          type: string
-          description: Time when the last sync on this system was done
-          nullable: false
-          example: '2024-09-05T22:00:00.999Z'
-        localConcertIds:
-          type: array
-          description: List of all IDs currently stored locally. This is needed to find out which Concerts were deleted.
-          items:
-            type: string
-    
-    SyncConcertsResponse:
-      type: object
-      description: Response with all the Concerts that were changed since the last sync
-      properties:
-        syncTime:
-          type: string
-          description: Time when the this sync was done
-          nullable: false
-          example: '2024-09-05T22:00:00Z'
-        added:
-          type: array
-          description: Concerts that were added since the last sync
-          items:
-            $ref: "#/components/schemas/ConcertWithSetlists"
-        updated:
-          type: array
-          description: Concerts that were updated since the last sync
-          items:
-            $ref: "#/components/schemas/ConcertWithSetlists"
-        deletedConcertIds:
-          type: array
-          description: List of all IDs that were deleted since the last sync
-          items:
-            type: string
-    
-    # Users
-    UserGroup:
-      type: object
-      description: Group of users
-      properties:
-        name:
-          type: string
-          description: Name of the group
-        description:
-          type: string
-          description: Description of the group
-    User:
-      type: object
-      description: User information
-      properties:
-        id:
-          type: string
-          description: ID of the group
-          nullable: false
-        username:
-          type: string
-          description: Name of the user
-        email:
-          type: string
-          description: e-mail address of the user
-        emailVerified:
-          type: boolean
-          description: true, if the address was verified
-        userGroups:
-          type: array
-          description: Groups the user is a member of
-          items: 
-            $ref: "#/components/schemas/UserGroup"
-    
-    # Push notifications
-    RegisterEndpointRequest:
-      type: object
-      description: Request to register an endpoint for push notifications
-      properties:
-        userId:
-          type: string
-          description: ID of the user who will receive the notifications
-          nullable: false
-        deviceToken:
-          type: string
-          description: Token for the device of the user
-          nullable: false
-        receiveConcertReminders:
-          type: boolean
-          description: true if the user wants to receive concert reminders
-          nullable: false
-        concertRemindersStatus:
-          type: array
-          description: minimum Status of the concerts for which the user wants to receive reminders
-          items:
-            type: string
-            enum:
-              - None
-              - Bookmarked
-              - Attending
-            default: None
-            nullable: false
-        receiveMainStageTimeUpdates:
-          type: boolean
-          description: true if the user wants to receive notifications when main stage time is updated
-          nullable: false
-        mainStageTimeUpdatesStatus:
-          type: array
-          description: minimum Status of the concerts for which the user wants to receive updates of the stage time
-          items:
-            type: string
-            enum:
-              - None
-              - Bookmarked
-              - Attending
-            default: None
-            nullable: false
-        receiveSetlistSongPremiereAlerts:
-          type: boolean
-          description: true if the user wants to receive an alert when a new song was played at a show.
-          nullable: false
-    
-    UserNotificationSettings:
-      type: object
-      description: Request to update notification settings for a user
-      properties:
-        userId:
-          type: string
-          description: ID of the user who will receive the notifications
-          nullable: false
-        receiveConcertReminders:
-          type: boolean
-          description: true if the user wants to receive concert reminders
-          nullable: false
-        concertRemindersStatus:
-          type: array
-          description: minimum Status of the concerts for which the user wants to receive reminders
-          items:
-            type: string
-            enum:
-              - None
-              - Bookmarked
-              - Attending
-            default: None
-            nullable: false
-        receiveMainStageTimeUpdates:
-          type: boolean
-          description: true if the user wants to receive notifications when main stage time is updated
-          nullable: false
-        mainStageTimeUpdatesStatus:
-          type: array
-          description: minimum Status of the concerts for which the user wants to receive updates of the stage time
-          items:
-            type: string
-            enum:
-              - None
-              - Bookmarked
-              - Attending
-            default: None
-            nullable: false
-        receiveSetlistSongPremiereAlerts:
-          type: boolean
-          description: true if the user wants to receive an alert when a new song was played at a show.
-          nullable: false
-
-    # Timezones
-    TimeZoneResponse:
-      type: object
-      properties:
-        timeZoneId:
-          type: string
-          description: Name/ID of the timezone
-          example: Europe/Berlin
-          nullable: false
-    
-    # Setlists
-    Album:
-      type: object
-      description: Information about an album
-      properties:
-        id:
-          type: number
-          description: ID of the album
-        title:
-          type: string
-          description: Title of the album
-          nullable: true
-        linkinpediaUrl:
-          type: string
-          description: URL to the wiki page on Linkinpedia
-          nullable: true
-          
-    Song:
-      type: object
-      description: Information about a song
-      properties:
-        id:
-          type: number
-          description: ID of the song
-        title:
-          type: string
-          description: Title of the song
-          nullable: true
-        album:
-          type: object
-          description: Album that contains this song
-          nullable: true
-          anyOf:
-            - $ref: "#/components/schemas/Album"
-        isrc:
-          type: string
-          description: ISRC of the song
-          nullable: true
-        appleMusicId:
-          type: string
-          description: Unique ID for the Song on Apple Music
-          nullable: true
-        linkinpediaUrl:
-          type: string
-          description: URL to the wiki page on Linkinpedia
-          nullable: true
-    
-    SongVariant:
-      type: object
-      description: Information about a variation of a song
-      properties:
-        id:
-          type: number
-          description: ID of the song variant
-        songId:
-          type: number
-          description: ID of the main version of the song
-        isrcOverride:
-          type: string
-          description: ISRC of the variant if it is different from the normal version
-          nullable: true
-        appleMusicIdOverride:
-          type: string
-          description: unique ID for the Song on Apple Music. If not present, the ID of the original song will be used
-          nullable: true
-        variantName:
-          type: string
-          description: Name of this variant. This will be visible as the Song-Title in the setlist
-        description:
-          type: string
-          description: Optional description of the variant. What makes this variant different from the original?
-          nullable: true
-    
-    SongMashup:
-      type: object
-      description: Information about a song mashup. A mashup is used when the band plays a special mix of two or more songs. For example "Remember The Name" and "When They Come For Me" during the FROM ZERO WORLD TOUR 2024-2026.
-      properties:
-        id:
-          type: number
-          description: ID of the mashup
-        title:
-          type: string
-          description: Title of the mashup
-        linkinpediaUrl:
-          type: string
-          description: URL to the wiki page on Linkinpedia
-          nullable: true
-        songs:
-          type: array
-          description: Songs that are included in this mashup
-          items:
-            $ref: "#/components/schemas/Song"
-    
-    SetlistAct:
-      type: object
-      description: Act within a setlist
-      properties:
-        setlistId:
-          type: number
-          description: ID of the setlist that contains this act
-        actNumber:
-          type: number
-          description: Number of the act within the setlist
-        title:
-          type: string
-          description: Title of this act
-          nullable: true
-    
-    SetlistEntrySongExtra:
-      type: object
-      description: Something added to a song in a setlist entry. And example for this is playing the "Cut The Bridge" bridge in the extended bridge of "Bleed It Out".
-      properties:
-        id:
-          type: string
-          description: Unique ID of the extra
-        song:
-          type: object
-          description: The song that has been used in this extra
-          nullable: true
-          oneOf:
-            - $ref: "#/components/schemas/Song"
-        type:
-          type: string
-          description: Defines how the SongId was included
-          enum: 
-            - ExtendedBridge
-            - ExtraVerse
-        description:
-          type: string
-          description: Description of the extra
-          nullable: true
-    
-    AddSongExtraToSetlistEntryRequest:
-      type: object
-      description: Adds an extra to a song in a setlist entry. And example for this is playing the "Cut The Bridge" bridge in the extended bridge of "Bleed It Out".
-      properties:
-        songId:
-          type: number
-          description: ID of the song that has been used in this extra
-          nullable: true
-        type:
-          type: string
-          description: Defines how the SongId was included
-          enum:
-            - ExtendedBridge
-            - ExtraVerse
-        description:
-          type: string
-          description: Description of the extra
-          nullable: true
-    
-    AddSongExtraToSetlistEntryResponse:
-      type: object
-      description: Response after an extra was added successfully.
-      properties:
-        entry:
-          type: object
-          description: The setlist entry that was updated
-          oneOf:
-            - $ref: "#/components/schemas/RawSetlistEntry"
-    
-    SetlistEntry:
-      type: object
-      description: An entry in a setlist
-      properties:
-        id:
-          type: string
-          description: Unique ID of the entry
-        actNumber:
-          type: number
-          description: Number of the act in which this song was played
-          nullable: true
-        sortNumber:
-          type: number
-          description: Number to sort the entries
-        songNumber:
-          type: number
-          description: Number of the song in this setlist. Is displayed as an orientation
-        playedSong:
-          type: object
-          description: Song that was played. If not set, they didn't play a song, but a mashup or song variant instead
-          nullable: true
-          oneOf:
-            - $ref: "#/components/schemas/Song"
-        playedSongVariant:
-          type: object
-          description: Song variant that was played. If not set, they didn't play a song variant, but a mashup or normal song instead
-          nullable: true
-          oneOf:
-            - $ref: "#/components/schemas/SongVariant"
-        playedSongMashup:
-          type: object
-          description: Song mashup or medley that was played. If not set, they didn't play a mashup, but a song or song variant instead
-          nullable: true
-          oneOf:
-            - $ref: "#/components/schemas/SongMashup"
-        title:
-          type: string
-          description: Title of this setlist entry. This can for example be the title of a song or a mashup
-        extraNotes:
-          type: string
-          description: Field to store additional notes about this entry
-          nullable: true
-          maxLength: 127
-        isrc:
-          type: string
-          description: ISRC for this entry. This can be used to find the song on Apple Music or Spotify
-          nullable: true
-        appleMusicId:
-          type: string
-          description: Unique ID for the Song on Apple Music
-          nullable: true
-        linkinpediaUrl:
-          type: string
-          description: URL to the wiki page on Linkinpedia. This value is stored either in the song or the mashup
-          nullable: true
-        isRotationSong:
-          type: boolean
-          description: true if this slot is known to rotate between shows on the same tour.
-        isPlayedFromRecording:
-          type: boolean
-          description: true if the song was played from a recording only. Not played live. (this can happen for pre-show-songs for example)
-        isWorldPremiere:
-          type: boolean
-          description: true if this song has not only not been played before, but was not released before this show. For example "Heavy Is The Crown" in Hamburg 2024
-        isLivePremiere:
-          type: boolean
-          description: true if this song was already released, but played live for the first time. For example "Keys To The Kingdom" in Los Angeles 2024
-        songExtras:
-          type: array
-          description: List of extras included in this song. This can for example be an extended bridge with parts of another song
-          items: 
-            $ref: "#/components/schemas/SetlistEntrySongExtra"
-    
-    RawSetlistEntry:
-      type: object
-      description: An entry in a setlist
-      properties:
-        id:
-          type: string
-          description: Unique ID of the entry
-        actNumber:
-          type: number
-          description: Number of the act in which this song was played
-          nullable: true
-        sortNumber:
-          type: number
-          description: Number to sort the entries
-        songNumber:
-          type: number
-          description: Number of the song in this setlist. Is displayed as an orientation
-        playedSong:
-          type: object
-          description: Song that was played. If not set, they didn't play a song, but a mashup or song variant instead
-          nullable: true
-          oneOf:
-            - $ref: "#/components/schemas/Song"
-        playedSongVariant:
-          type: object
-          description: Song variant that was played. If not set, they didn't play a song variant, but a mashup or normal song instead
-          nullable: true
-          oneOf:
-            - $ref: "#/components/schemas/SongVariant"
-        playedSongMashup:
-          type: object
-          description: Song mashup or medley that was played. If not set, they didn't play a mashup, but a song or song variant instead
-          nullable: true
-          oneOf:
-            - $ref: "#/components/schemas/SongMashup"
-        titleOverride:
-          type: string
-          description: Optional field to override the title of a setlist entry
-          nullable: true
-        extraNotes:
-          type: string
-          description: Field to store additional notes about this entry
-          nullable: true
-          maxLength: 127
-        linkinpediaUrl:
-          type: string
-          description: URL to the wiki page on Linkinpedia. This value is stored either in the song or the mashup
-          nullable: true
-        isRotationSong:
-          type: boolean
-          description: true if this slot is known to rotate between shows on the same tour.
-        isPlayedFromRecording:
-          type: boolean
-          description: true if the song was played from a recording only. Not played live. (this can happen for pre-show-songs for example)
-        isWorldPremiere:
-          type: boolean
-          description: true if this song has not only not been played before, but was not released before this show. For example "Heavy Is The Crown" in Hamburg 2024
-        isLivePremiere:
-          type: boolean
-          description: true if this song was already released, but played live for the first time. For example "Keys To The Kingdom" in Los Angeles 2024
-        songExtras:
-          type: array
-          description: List of extras included in this song. This can for example be an extended bridge with parts of another song
-          items:
-            $ref: "#/components/schemas/SetlistEntrySongExtra"
-    
-    SetlistHeader:
-      type: object
-      description: Information about a setlist including all entries
-      properties:
-        id:
-          type: number
-          description: ID of the setlist
-        concertId:
-          type: string
-          description: ID of the concert where this set was played
-        concertTitle:
-          type: string
-          description: Title of the concert
-          example: Hamburg 22.09.2024
-        setName:
-          type: string
-          description: Name of the set
-          example: Set A
-          nullable: true
-        linkinpediaUrl:
-          type: string
-          description: URL to the wiki page on Linkinpedia
-    
-    Setlist:
-      type: object
-      description: Information about a setlist including all entries
-      properties:
-        id:
-          type: number
-          description: ID of the setlist
-          example: 1
-        concertId:
-          type: string
-          description: ID of the concert where this set was played
-          example: e710bebe-13b8-4cfb-aa84-ff6c208d5c21
-        concertTitle:
-          type: string
-          description: Title of the concert
-          example: Hamburg 22.09.2024
-        setName:
-          type: string
-          description: Name of the set
-          example: Set A
-          nullable: true
-        linkinpediaUrl:
-          type: string
-          description: URL to the wiki page on Linkinpedia
-        acts:
-          type: array
-          description: All acts in this setlist. The act numbers are referenced in the entries, so that not every entry must contain all the act information.
-          items:
-            $ref: "#/components/schemas/SetlistAct"
-        entries:
-          type: array
-          items:
-            $ref: "#/components/schemas/SetlistEntry"
-    
-    CreateSetlistRequest:
-      type: object
-      description: Request to create a new (empty) setlist
-      properties:
-        concertId:
-          type: string
-          description: ID of the concert where this setlist was played
-        concertTitle:
-          type: string
-          description: Title of the concert
-          example: Hamburg 22.09.2024
-        setName:
-          type: string
-          description: Name of the set
-          example: Set A
-          nullable: true
-        linkinpediaUrl:
-          type: string
-          description: URL to the wiki page on Linkinpedia
-          nullable: true
-        addSongs:
-          type: array
-          description: If set, the songs are appended automatically to this setlist
-          nullable: true
-          items:
-            $ref: "#/components/schemas/AddSongToSetlistRequest"
-        addSongVariants:
-          type: array
-          description: If set, the song variants are appended automatically to this setlist
-          nullable: true
-          items:
-            $ref: "#/components/schemas/AddSongVariantToSetlistRequest"
-        addSongMashups:
-          type: array
-          description: If set, the song mashups are appended automatically to this setlist
-          nullable: true
-          items:
-            $ref: "#/components/schemas/AddSongMashupToSetlistRequest"
-    
-    CreateSetlistResponse:
-      type: object
-      description: Response after a setlist was created
-      properties:
-        id:
-          type: string
-          description: ID of the newly created setlist
-        concertId:
-          type: string
-          description: ID of the concert where this setlist was played
-        concertTitle:
-          type: string
-          description: Title of the concert
-          example: Hamburg 22.09.2024
-        setName:
-          type: string
-          description: Name of the set
-          example: Set A
-          nullable: true
-        linkinpediaUrl:
-          type: string
-          description: URL to the wiki page on Linkinpedia
-          nullable: true
-          
-    UpdateSetlistHeaderRequest:
-      type: object
-      description: Request to update header-information of a setlist
-      properties:
-        concertId:
-          type: string
-          description: ID of the concert where this set was played
-        setName:
-          type: string
-          description: Name of the set
-          example: Set A
-          nullable: true
-        linkinpediaUrl:
-          type: string
-          description: URL to the wiki page on Linkinpedia
-          nullable: true
-    
-    CreateSongMashupRequest:
-      type: object
-      description: Request to create a new mashup of two or more songs
-      properties:
-        title:
-          type: string
-          description: Title of the mashup
-        linkinpediaUrl:
-          type: string
-          description: URL to the wiki page on Linkinpedia
-          nullable: true
-        songIds:
-          type: array
-          description: IDs of the songs that are included in this mashup
-          items:
-            type: number
-    
-    UpdateSongMashupRequest:
-      type: object
-      description: Request to update a mashup of two or more songs
-      properties:
-        title:
-          type: string
-          description: Title of the mashup
-        linkinpediaUrl:
-          type: string
-          description: URL to the wiki page on Linkinpedia
-          nullable: true
-        songIds:
-          type: array
-          description: IDs of the songs that are included in this mashup
-          items:
-            type: number
-    
-    CreateAlbumRequest:
-      type: object
-      description: Request to create a new album
-      properties:
-        title:
-          type: string
-          description: Title of the album
-        linkinpediaUrl:
-          type: string
-          description: URL to the wiki page on Linkinpedia
-          nullable: true
-    
-    UpdateAlbumRequest:
-      type: object
-      description: Request to update an album
-      properties:
-        title:
-          type: string
-          description: Title of the album
-        linkinpediaUrl:
-          type: string
-          description: URL to the wiki page on Linkinpedia
-          nullable: true
-    
-    CreateSongRequest:
-      type: object
-      description: Request to create a new song
-      properties:
-        title:
-          type: string
-          description: Title of the song
-        albumId:
-          type: number
-          description: ID of the album that contains this song
-          nullable: true
-        isrc:
-          type: string
-          description: ISRC of the song
-          nullable: true
-        appleMusicId:
-          type: string
-          description: Unique ID for the Song on Apple Music
-          nullable: true
-        linkinpediaUrl:
-          type: string
-          description: URL to the wiki page on Linkinpedia
-          nullable: true
-    
-    UpdateSongRequest:
-      type: object
-      description: Request to create a new song
-      properties:
-        title:
-          type: string
-          description: Title of the song
-        albumId:
-          type: number
-          description: ID of the album that contains this song
-          nullable: true
-        isrc:
-          type: string
-          description: ISRC of the song
-          nullable: true
-        appleMusicId:
-          type: string
-          description: Unique ID for the Song on Apple Music
-          nullable: true
-        linkinpediaUrl:
-          type: string
-          description: URL to the wiki page on Linkinpedia
-          nullable: true
-    
-    ActParameters:
-      type: object
-      description: Set of properties used whenever data of an act is passed to the server.
-      properties:
-        setlistId:
-          type: number
-          description: ID of the setlist. Does not need to be passed if this object is included in a request that already contains the ID of the setlist.
-          nullable: true
-        actNumber:
-          type: number
-          description: Number of the act within the setlist
-        title:
-          type: string
-          description: Title of this act
-          nullable: true
-    
-    SongParameters:
-      type: object
-      description: Set of parameters used when song data is passed to the server
-      properties:
-        songId:
-          type: number
-          description: ID of the song. If not set, a new song will be created based on the other parameters
-          nullable: true
-        songTitle:
-          type: string
-          description: Title of the song. If not present, the ID of the song must be set.
-          nullable: true
-        isrc:
-          type: string
-          description: ISRC of the song. If not present, the ID of the song must be set.
-          nullable: true
-        appleMusicId:
-          type: string
-          description: Unique ID for the Song on Apple Music
-          nullable: true
-        linkinpediaUrl:
-          type: string
-          description: URL to the wiki page on Linkinpedia
-          nullable: true
-    
-    SongVariantParameters:
-      type: object
-      description: Set of parameters used when song variant data is passed to the server
-      properties:
-        songVariantId:
-          type: number
-          description: If you want to add an existing song variant, this parameter must contain the ID of the variant
-          nullable: true
-        songId:
-          type: number
-          description: ID of the song. If this is null, the songVariantId must be set
-          nullable: true
-        variantName:
-          type: string
-          description: Name of this variant. This will be visible as the Song-Title in the setlist. If this is null, the songVariantId must be set
-          nullable: true
-        isrcOverride:
-          type: string
-          description: ISRC of the song. If not present, the ISRC of the original song will be used
-          nullable: true
-        appleMusicIdOverride:
-          type: string
-          description: unique ID for the Song on Apple Music. If not present, the ID of the original song will be used
-          nullable: true
-        description:
-          type: string
-          description: Optional description of the variant. What makes this variant different from the original?
-          nullable: true
-    
-    SongMashupParameters:
-      type: object
-      description: Set of parameters used when song mashup data is passed to the server
-      properties:
-        songMashupId:
-          type: number
-          description: ID of the mashup
-    
-    SetlistEntryParameters:
-      type: object
-      description: Common parameters for setlist entries
-      properties:
-        sortNumber:
-          type: number
-          description: Number to sort the entries
-        songNumber:
-          type: number
-          description: Number of the song in this setlist. Is displayed as an orientation
-        titleOverride:
-          type: string
-          description: Optional property to override the title of the song or mashup in this entry only.
-          nullable: true
-          maxLength: 31
-        extraNotes:
-          type: string
-          description: Field to store additional notes about this entry
-          nullable: true
-          maxLength: 127
-        isRotationSong:
-          type: boolean
-          description: true if this slot is known to rotate between shows on the same tour.
-        isPlayedFromRecording:
-          type: boolean
-          description: true if the song was played from a recording only. Not played live. (this can happen for pre-show-songs for example)
-        isWorldPremiere:
-          type: boolean
-          description: true if this song has not only not been played before, but was not released before this show. For example "Heavy Is The Crown" in Hamburg 2024
-        isLivePremiere:
-          type: boolean
-          description: true if this song was already released, but played live for the first time. For example "Keys To The Kingdom" in Los Angeles 2024
-    
-    AddSongVariantToSetlistRequest:
-      type: object
-      description: Request to add a song variant to an existing setlist
-      properties:
-        songVariantParameters:
-          type: object
-          description: Parameters of the song variant for this entry
-          oneOf:
-            - $ref: "#/components/schemas/SongVariantParameters"
-        actParameters:
-          type: object
-          description: If set, the added song will be added to this Act. Title isn't required if the Act already exists.
-          nullable: true
-          anyOf:
-            - $ref: "#/components/schemas/ActParameters"
-        entryParameters:
-          type: object
-          description: Common parameters for that entry, no matter if it was a song or mashup
-          oneOf:
-            - $ref: "#/components/schemas/SetlistEntryParameters"
-    
-    AddSongVariantToSetlistResponse:
-      type: object
-      description: Response after a song variant was added to the setlist
-      properties:
-        addedSetlistEntry:
-          type: object
-          description: The new entry that was added to the setlist
-          oneOf:
-            - $ref: "#/components/schemas/SetlistEntry"
-    
-    AddSongMashupToSetlistRequest:
-      type: object
-      description: Request to add a song mashup to an existing setlist
-      properties:
-        songMashupParameters:
-          type: object
-          description: Parameters of the song mashup for this entry
-          oneOf:
-            - $ref: "#/components/schemas/SongMashupParameters"
-        actParameters:
-          type: object
-          description: If set, the added song will be added to this Act. Title isn't required if the Act already exists.
-          nullable: true
-          anyOf:
-            - $ref: "#/components/schemas/ActParameters"
-        entryParameters:
-          type: object
-          description: Common parameters for that entry, no matter if it was a song or mashup
-          oneOf:
-            - $ref: "#/components/schemas/SetlistEntryParameters"
-
-    AddSongMashupToSetlistResponse:
-      type: object
-      description: Response after a song mashup was added to the setlist
-      properties:
-        addedSetlistEntry:
-          type: object
-          description: The new entry that was added to the setlist
-          oneOf:
-            - $ref: "#/components/schemas/SetlistEntry"
-    
-    AddSongToSetlistRequest:
-      type: object
-      description: Request to add a song to an existing setlist
-      properties:
-        songParameters:
-          type: object
-          description: Parameters of the song for this entry
-          oneOf:
-            - $ref: "#/components/schemas/SongParameters"
-        actParameters:
-          type: object
-          description: If set, the added song will be added to this Act. Title isn't required if the Act already exists.
-          nullable: true
-          anyOf:
-            - $ref: "#/components/schemas/ActParameters"
-        entryParameters:
-          type: object
-          description: Common parameters for that entry, no matter if it was a song or mashup
-          oneOf:
-            - $ref: "#/components/schemas/SetlistEntryParameters"
-    
-    AddSongToSetlistResponse:
-      type: object
-      description: Response after a song was added to the setlist
-      properties:
-        addedSetlistEntry:
-          type: object
-          description: The new entry that was added to the setlist
-          oneOf:
-            - $ref: "#/components/schemas/SetlistEntry"
-    
-    AddCustomEntryToSetlistRequest:
-      type: object
-      description: Request to add a custom entry to an existing setlist
-      properties:
-        actParameters:
-          type: object
-          description: If set, the added song will be added to this Act. Title isn't required if the Act already exists.
-          nullable: true
-          anyOf:
-            - $ref: "#/components/schemas/ActParameters"
-        entryParameters:
-          type: object
-          description: Common parameters for that entry, no matter if it was a song or mashup
-          oneOf:
-            - $ref: "#/components/schemas/SetlistEntryParameters"
-
-    AddCustomEntryToSetlistResponse:
-      type: object
-      description: Response after a entry was added to the setlist
-      properties:
-        addedSetlistEntry:
-          type: object
-          description: The new entry that was added to the setlist
-          oneOf:
-            - $ref: "#/components/schemas/SetlistEntry"
-    
-    UpdateSetlistEntryRequest:
-      type: object
-      description: Request to update a single setlist entry
-      properties:
-        songParameters:
-          type: object
-          description: Parameters of the song for this entry
-          oneOf:
-            - $ref: "#/components/schemas/SongParameters"
-        songVariantParameters:
-          type: object
-          description: Parameters of the song variant for this entry
-          oneOf:
-            - $ref: "#/components/schemas/SongVariantParameters"
-        songMashupParameters:
-          type: object
-          description: Parameters of the song mashup for this entry
-          oneOf:
-            - $ref: "#/components/schemas/SongMashupParameters"
-        actParameters:
-          type: object
-          description: If set, the added song will be added to this Act. Title isn't required if the Act already exists.
-          nullable: true
-          anyOf:
-            - $ref: "#/components/schemas/ActParameters"
-        entryParameters:
-          type: object
-          description: Common parameters for that entry, no matter if it was a song or mashup
-          oneOf:
-            - $ref: "#/components/schemas/SetlistEntryParameters"
-    
-    ReorderSetlistEntriesRequest:
-      type: object
-      description: Request to update the order of entries in a setlist. It's important that ALL entries are used here!
-      properties:
-        entryIds:
-          type: array
-          description: The IDs of all entries in that setlist in the preferred order
-          items:
-            type: string
-            
-    ReorderSetlistEntriesResponse:
-      type: object
-      description: Response after a setlist was reordered
-      properties:
-        reorderedEntries:
-          type: array
-          description: The newly ordered entries
-          items:
-            $ref: "#/components/schemas/SetlistEntry"
-    
-    ImportSetlistRequest:
-      type: object
-      description: Request to import a setlist
-      properties:
-        concertId:
-          type: string
-          description: ID of the concert where this setlist will be added
-        linkinpediaUrl:
-          type: string
-          description: Link to the concert page on Linkinpedia. This page must contain the setlist
-          
-    ImportSetlistEntryPreview:
-      type: object
-      description: Contains data of a setlist entry. Some entries might have IDs for existing songs/mashups, some only a title.
-      properties:
-        title:
-          type: string
-          description: Title of this entry
-        extraNotes:
-          type: string
-          description: Additional notes for this entry
-          nullable: true
-        songNumber:
-          type: number
-          description: Number of this entry within the setlist
-        actNumber:
-          type: number
-          description: Number of this act within the setlist
-          nullable: true
-        foundSongId:
-          type: number
-          description: If an existing song was found, the ID will be in this property. If not, you either have to select an existing song or create it.
-          nullable: true
-        possibleSongVariants:
-          type: array
-          description: If a songId was found and the song has variants, all possible variants are listed here
-          items:
-            $ref: "#/components/schemas/SongVariant"
-        foundSongIds:
-          type: array
-          description: If more than 1 matching song was found, the possible IDs are listed here
-          items:
-            type: number
-        foundSongVariantId:
-          type: number
-          description: If an existing song variant was found, the ID will be in this property. If not, you either have to select an existing song variant or create it.
-          nullable: true
-        foundMashupId:
-          type: number
-          description: If an existing mashup was found, the ID will be in this property. If not, you either have to select an existing mashup or create it.
-          nullable: true
-    
-    ImportSetlistActPreview:
-      type: object
-      description: Contains data of a setlist entry. Some entries might have IDs for existing songs/mashups, some only a title.
-      properties:
-        name:
-          type: string
-          description: Name of this act
-        extraNotes:
-          type: string
-          description: Additional notes for this entry
-          nullable: true
-        actNumber:
-          type: number
-          description: Number of this act within the setlist
-    
-    ImportSetlistPreview:
-      type: object
-      description: Contains data of a setlist that could be created
-      properties:
-        concertId:
-          type: string
-          description: ID of the concert where this setlist will be added
-        acts:
-          type: array
-          description: The acts that could be added to the new setlist
-          items:
-            $ref: "#/components/schemas/ImportSetlistActPreview"
-        entries:
-          type: array
-          description: The entries that could be added to the new setlist
-          items:
-            $ref: "#/components/schemas/ImportSetlistEntryPreview"
-
+  title: LPshows.live API v3
+  description: This is the API for the Linkin Park Concert Calendar fan project
+  version: 3.0.0
+servers:
+  - url: http://localhost:5133/
 paths:
-  /addConcert:
-    put:
-      operationId: AddOrUpdateConcert
-      summary: Adds a new concert to the database or updates an existing entry (this API is not using /concerts because the Angular frontend couldn't decide whether to require authentication)
-      tags:
-        - concerts
-      requestBody:
-        content: 
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Concert"
-      responses:
-        "201":
-          description: when the concert was saved
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-add-concert-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /deleteConcert/{concertId}:
-    delete:
-      operationId: DeleteConcert
-      summary: Deletes a concert from the database (this API is not using /concerts because the Angular frontend couldn't decide whether to require authentication)
-      tags:
-        - concerts
-      parameters:
-        - in: path
-          name: concertId
-          description: ID of the concert
-          required: true
-          schema: 
-            type: string
-      responses:
-        "201":
-          description: when the concert was saved
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-delete-concert-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /concerts:
-    get:
-      operationId: GetConcerts
-      summary: Returns a list of concerts
-      description: The list can be filtered if needed. See list of parameters for more information. Some filters are applied by default
-      tags:
-        - concerts
-      parameters:
-        - in: query
-          name: tour
-          schema:
-            type: string
-            example: FROM ZERO WORLD TOUR 2026
-          description: 'Name of the tour. (TODO: describe possible values)'
-          required: false
-        - in: query
-          name: date_from
-          schema:
-            type: string
-            format: date-time
-            example: '2024-09-05T22:00:00Z'
-          description: 'Search for concerts after this date'
-          required: false
-        - in: query
-          name: date_to
-          schema:
-            type: string
-            format: date-time
-            example: '2024-12-31T12:00:00Z'
-          description: 'Search for concerts before this date'
-          required: false
-        # optional header "request ID". By setting a random value, the cache is disabled
-        - in: header
-          name: X-LP-Request-Id
-          description: Unique request id to bypass server caching
-          required: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: A JSON array with the concerts that were found
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Concert"
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-find-concerts-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /concerts/attending:
-    get:
-      operationId: GetUsersConcerts
-      summary: Returns a list of concerts the user is attending
-      tags:
-        - concerts
-      parameters:
-        # optional header "request ID". By setting a random value, the cache is disabled
-        - in: header
-          name: X-LP-Request-Id
-          description: Unique request id to bypass server caching
-          required: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: A JSON array with the bookmarked concerts that were found
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ConcertWithBookmarkStatus"
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-find-concerts-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /concerts/bookmarked:
-    get:
-      operationId: GetBookmarkedConcerts
-      summary: Returns a list of bookmarked concerts
-      tags:
-        - concerts
-      parameters:
-        # optional header "request ID". By setting a random value, the cache is disabled
-        - in: header
-          name: X-LP-Request-Id
-          description: Unique request id to bypass server caching
-          required: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: A JSON array with the bookmarked concerts that were found
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ConcertWithBookmarkStatus"
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-find-concerts-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /concerts/sync:
-    get:
-      operationId: SyncConcertChanges
-      summary: API to get all changes since your last sync. Make sure to set the correct lastSync-time.
-      tags:
-        - concerts
-      parameters:
-        - in: query
-          name: lastSync
-          description: Time when the last sync was performed by the client
-          required: true
-          schema:
-            type: string
-        # optional header "request ID". By setting a random value, the cache is disabled
-        - in: header
-          name: X-LP-Request-Id
-          description: Unique request id to bypass server caching
-          required: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: A JSON object with the information of the concerts
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SyncConcertsResponse"
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-find-concerts-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
+  /Concerts:
     post:
-      operationId: SyncConcerts
-      summary: API to get all changes since your last sync. Make sure to set the correct lastSync-time.
       tags:
-        - concerts
-      parameters:
-        # optional header "request ID". By setting a random value, the cache is disabled
-        - in: header
-          name: X-LP-Request-Id
-          description: Unique request id to bypass server caching
-          required: false
-          schema:
-            type: string
+        - Concerts
+      summary: Creates a new concert in the database
       requestBody:
+        description: ""
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SyncConcertsRequest"
-      responses:
-        "200":
-          description: A JSON object with the information of the concert
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SyncConcertsResponse"
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-find-concerts-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /concerts/{id}:
-    get:
-      operationId: GetConcertById
-      summary: Returns a single concert
-      tags:
-        - concerts
-      parameters:
-        - in: path
-          name: id
-          description: ID of the concert
-          required: true
-          schema:
-            type: string
-        # optional header "request ID". By setting a random value, the cache is disabled
-        - in: header
-          name: X-LP-Request-Id
-          description: Unique request id to bypass server caching
-          required: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: A JSON object with the information of the concert
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ConcertWithSetlists"
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-find-concerts-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /concerts/{id}/adjacent:
-    get:
-      operationId: GetAdjacentConcertsForId
-      summary: Returns information about the previous and next concerts
-      tags:
-        - concerts
-      parameters:
-        - in: path
-          name: id
-          description: ID of the concert
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: A JSON object with the information of the adjacent concerts
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AdjacentConcertsResponse"
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-adjacent-concerts-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  
-  /concerts/{id}/setlists:
-    get:
-      operationId: GetSetlistsForConcert
-      summary: Returns all setlists for a given concert
-      tags:
-        - concerts
-      parameters:
-        - in: path
-          name: id
-          description: ID of the concert
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: A JSON object with the setlist information
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Setlist"
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  
-  /concerts/{id}/setlists/import:
-    post:
-      operationId: ImportSetlistFromLinkinpedia
-      summary: Imports a setlist for the concert by using the data on Linkinpedia
-      tags:
-        - concerts
-      parameters:
-        - in: path
-          name: id
-          description: ID of the concert
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
+              $ref: "#/components/schemas/CreateConcertRequest"
+          text/json:
             schema:
-              $ref: "#/components/schemas/ImportSetlistRequest"
-      responses:
-        "200":
-          description: A JSON object with the setlist information
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ImportSetlistPreview"
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  
-  /concerts/{id}/bookmarks:
-    put:
-      operationId: SetBookmarkOnConcert
-      summary: Sets the bookmark of the current user to the concert
-      tags:
-        - concerts
-      parameters:
-        - in: path
-          name: id
-          description: ID of the concert
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
+              $ref: "#/components/schemas/CreateConcertRequest"
+          application/*+json:
             schema:
-              $ref: "#/components/schemas/ConcertBookmarkUpdateRequest"
+              $ref: "#/components/schemas/CreateConcertRequest"
+        required: true
       responses:
-        "204":
-          description: Bookmark updated successfully
+        "200":
+          description: the created concert
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
       security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-add-concert-bookmarks-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-        
-  /concerts/{id}/bookmarks/count:
+        - Bearer: []
     get:
-      operationId: GetBookmarkCountForConcert
-      summary: Checks how many bookmarks there are for a concert. Use GetBookmarkStatusForConcert if you want to check the status for the ucrrent user
       tags:
-        - concerts
+        - Concerts
+      summary: Returns a list of concerts that can be filtered
       parameters:
-        - in: path
-          name: id
-          description: ID of the concert
-          required: true
+        - name: CountryCode
+          in: query
           schema:
             type: string
-      responses:
-        "200":
-          description: Found the number of bookmarks
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GetConcertBookmarkCountsResponse"
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-concert-bookmarks-read-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  
-  /concerts/{id}/bookmarks/status:
-    get:
-      operationId: GetBookmarkStatusForConcert
-      summary: Checks how many bookmarks there are for a concert and what the current user has set
-      tags:
-        - concerts
-      parameters:
-        - in: path
-          name: id
-          description: ID of the concert
-          required: true
+        - name: Limit
+          in: query
           schema:
-            type: string
-        # optional header "request ID". By setting a random value, the cache is disabled
-        - in: header
-          name: X-LP-Request-Id
-          description: Unique request id to bypass server caching
-          required: false
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type:
+              - integer
+              - string
+            format: uint32
+        - name: Skip
+          in: query
           schema:
-            type: string
-      responses:
-        "200":
-          description: Found the number of bookmarks
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GetConcertBookmarkCountsResponse"
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-concert-bookmarks-read-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  
-  /concerts/next:
-    get:
-      operationId: GetNextConcert
-      summary: Returns the next concert
-      tags:
-        - concerts
-      responses:
-        "200":
-          description: A JSON object with the information of the concert
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Concert"
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-find-concerts-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /feed/ical:
-    get:
-      operationId: GetCalendarFeed
-      summary: Returns the calendar as iCal
-      parameters:
-        - in: query
-          name: event_categories
-          style: form
-          explode: false
-          example: LinkinPark,Doors
-          schema: 
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type:
+              - integer
+              - string
+            format: uint32
+        - name: OrderBy
+          in: query
+          schema:
             type: array
             items:
-              $ref: "#/components/schemas/ConcertSubEventCategory"
-      responses: 
-        "200":
-          description: The calendar entries for all shows in the iCal format
-          content: 
-            text/calendar:
-              schema: 
-                type: string
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-get-ical-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /requestFileUpload:
-    put:
-      operationId: GetUrlForConcertFileUpload
-      summary: Requests a URL that can be used to upload a file to a concert
-      tags:
-        - concerts
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ConcertFileUploadRequest"
+              type: string
       responses:
         "200":
-          description: URL for upload requested successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ConcertFileUploadResponse"
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-concert-s3-upload-url-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /timeZone/byCoordinates:
-    get:
-      operationId: GetTimeZoneByCoordinates
-      summary: Returns the timezone for the given coordinates
-      tags:
-        - timezone
-      parameters:
-        - in: query
-          name: lat
-          schema:
-            type: number
-          description: Latitude of the location
-        - in: query
-          name: lon
-          schema:
-            type: number
-          description: Longitude of the location
-      responses:
-        "200":
-          description: A JSON object with the data of the timezone
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/TimeZoneResponse"
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-get-time-zone-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /users:
-    get:
-      operationId: GetUsers
-      summary: Returns a list of users.
-      tags:
-        - users
-      parameters:
-        # optional header "request ID". By setting a random value, the cache is disabled
-        - in: header
-          name: X-LP-Request-Id
-          description: Unique request id to bypass server caching
-          required: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: A JSON array of users
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/User"
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-users-read-write-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /users/{id}:
-    get:
-      operationId: GetUserById
-      summary: Returns a user
-      tags:
-        - users
-      parameters:
-        - in: path
-          name: id
-          description: ID of the user
-          required: true
-          schema:
-            type: string
-        # optional header "request ID". By setting a random value, the cache is disabled
-        - in: header
-          name: X-LP-Request-Id
-          description: Unique request id to bypass server caching
-          required: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: A JSON object with user information
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-users-read-write-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-    put:
-      operationId: UpdateUser
-      summary: Updates a user
-      tags:
-        - users
-      parameters:
-        - in: path
-          name: id
-          description: ID of the user
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/User"
-      responses:
-        "204":
-          description: User updated successfully
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-users-read-write-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  
-  /users/{id}/notifications/settings:
-    get:
-      operationId: GetUserNotificationSettings
-      summary: OBSOLETE!!! Returns the notification settings for a user
-      tags:
-        - users
-        - notifications
-      parameters:
-        - in: path
-          name: id
-          description: ID of the user
-          required: true
-          schema:
-            type: string
-        # optional header "request ID". By setting a random value, the cache is disabled
-        - in: header
-          name: X-LP-Request-Id
-          description: Unique request id to bypass server caching
-          required: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: A JSON object with the notification settings for the user
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UserNotificationSettings"
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-user-notification-settings-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-    put:
-      operationId: UpdateUserNotificationSettings
-      summary: OBSOLETE!!! Updates the notification settings for a user
-      tags:
-        - users
-      parameters:
-        - in: path
-          name: id
-          description: ID of the user
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UserNotificationSettings"
-      responses:
-        "204":
-          description: User notification settings updated successfully
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-user-notification-settings-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  
-  # Push notifications
-  /notifications/push:
-    put:
-      operationId: RegisterPushEndpoint
-      summary: Registers a push-notification endpoint for a user
-      tags:
-        - notifications
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/RegisterEndpointRequest"
-      responses:
-        "204":
-          description: Nothing. Endpoint registered successfully
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-push-endpoint-management-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-
-  /setlists:
-    get:
-      operationId: GetSetlists
-      summary: Returns all setlist headers
-      description: This contains all header info for setlists
-      tags:
-        - setlists
-      parameters:
-        # optional header "request ID". By setting a random value, the cache is disabled
-        - in: header
-          name: X-LP-Request-Id
-          description: Unique request id to bypass server caching
-          required: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: The header data of each setlist
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/SetlistHeader"
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-    post:
-      operationId: CreateSetlist
-      summary: Creates a new setlist
-      description: Creates a new (empty) setlist
-      tags:
-        - setlists
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CreateSetlistRequest"
-      responses:
-        "201":
-          description: The setlist that has just been created
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/CreateSetlistResponse"
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /setlists/{setlistId}/entries/{setlistEntryId}:
-    get:
-      operationId: GetSetlistEntry
-      summary: Gets an entry of a setlist
-      tags:
-        - setlists
-      parameters:
-        - in: path
-          name: setlistId
-          description: ID of the setlist
-          required: true
-          schema:
-            type: number
-        - in: path
-          name: setlistEntryId
-          description: ID of the setlist entry
-          required: true
-          schema:
-            type: string
-        # optional header "request ID". By setting a random value, the cache is disabled
-        - in: header
-          name: X-LP-Request-Id
-          description: Unique request id to bypass server caching
-          required: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: The complete setlist entry information
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/RawSetlistEntry"
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-    post:
-      operationId: UpdateSetlistEntry
-      summary: Updates an entry of a setlist
-      tags:
-        - setlists
-      parameters:
-        - in: path
-          name: setlistId
-          description: ID of the setlist
-          required: true
-          schema:
-            type: number
-        - in: path
-          name: setlistEntryId
-          description: ID of the setlist entry
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UpdateSetlistEntryRequest"
-      responses:
-        "204":
-          description: No content
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-    delete:
-      operationId: DeleteSetlistEntry
-      summary: Deletes an entry of a setlist
-      tags:
-        - setlists
-      parameters:
-        - in: path
-          name: setlistId
-          description: ID of the setlist
-          required: true
-          schema:
-            type: number
-        - in: path
-          name: setlistEntryId
-          description: ID of the setlist entry
-          required: true
-          schema:
-            type: string
-      responses:
-        "204":
-          description: No content
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /setlists/{setlistId}/entries/{setlistEntryId}/extras:
-    post:
-      operationId: AddSongExtraToSetlistEntry
-      summary: Adds an extra to a setlist entry
-      tags:
-        - setlists
-      parameters:
-        - in: path
-          name: setlistId
-          description: ID of the setlist
-          required: true
-          schema:
-            type: number
-        - in: path
-          name: setlistEntryId
-          description: ID of the setlist entry
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AddSongExtraToSetlistEntryRequest"
-      responses:
-        "201":
-          description: The extra was successfully added to the setlist entry
-          content: 
-            application/json:
-              schema: 
-                $ref: "#/components/schemas/AddSongExtraToSetlistEntryResponse"
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /setlists/{setlistId}/acts:
-    get:
-      operationId: GetActsWithinSetlist
-      summary: Returns all acts in a setlist
-      tags:
-        - setlists
-      parameters:
-        - in: path
-          name: setlistId
-          description: ID of the setlist
-          required: true
-          schema:
-            type: number
-        # optional header "request ID". By setting a random value, the cache is disabled
-        - in: header
-          name: X-LP-Request-Id
-          description: Unique request id to bypass server caching
-          required: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: The acts within the given setlist
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/SetlistAct"
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /setlists/{setlistId}/entries/{setlistEntryId}/extras/{songExtraId}:
-    delete:
-      operationId: DeleteSongExtraFromSetlistEntry
-      summary: Deletes an extra from a setlist entry
-      tags:
-        - setlists
-      parameters:
-        - in: path
-          name: setlistId
-          description: ID of the setlist
-          required: true
-          schema:
-            type: number
-        - in: path
-          name: setlistEntryId
-          description: ID of the setlist entry
-          required: true
-          schema:
-            type: string
-        - in: path
-          name: songExtraId
-          description: ID of the extra to remove
-          required: true
-          schema:
-            type: string
-      responses:
-        "204":
-          description: No content
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /setlists/{setlistId}/songs:
-    post:
-      operationId: AddSongToSetlist
-      summary: Adds a new song to the setlist and creates 
-      description: In case the song doesn't exist yet, its entry in the database will be created, too
-      tags:
-        - setlists
-      parameters:
-        - in: path
-          name: setlistId
-          description: ID of the setlist
-          required: true
-          schema:
-            type: number
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AddSongToSetlistRequest"
-      responses:
-        "201":
-          description: The setlist entry that has just been created
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/AddSongToSetlistResponse"
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /setlists/{setlistId}/variants:
-    post:
-      operationId: AddSongVariantToSetlist
-      summary: Adds a new song variant to the setlist and creates
-      description: In case the song variant doesn't exist yet, its entry in the database will be created, too
-      tags:
-        - setlists
-      parameters:
-        - in: path
-          name: setlistId
-          description: ID of the setlist
-          required: true
-          schema:
-            type: number
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AddSongVariantToSetlistRequest"
-      responses:
-        "201":
-          description: The setlist entry that has just been created
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/AddSongVariantToSetlistResponse"
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /setlists/{setlistId}/mashups:
-    post:
-      operationId: AddSongMashupToSetlist
-      summary: Adds a new song mashup to the setlist
-      tags:
-        - setlists
-      parameters:
-        - in: path
-          name: setlistId
-          description: ID of the setlist
-          required: true
-          schema:
-            type: number
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AddSongMashupToSetlistRequest"
-      responses:
-        "201":
-          description: The setlist entry that has just been created
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/AddSongMashupToSetlistResponse"
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /setlists/{setlistId}/custom:
-    post:
-      operationId: AddCustomEntryToSetlist
-      summary: Adds a new custom entry to the setlist and creates
-      description: Only use this if we don't want to reuse the title played. (like the intro song)
-      tags:
-        - setlists
-      parameters:
-        - in: path
-          name: setlistId
-          description: ID of the setlist
-          required: true
-          schema:
-            type: number
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AddCustomEntryToSetlistRequest"
-      responses:
-        "201":
-          description: The setlist entry that has just been created
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/AddCustomEntryToSetlistResponse"
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /setlists/{setlistId}/reorder:
-    post:
-      operationId: ReorderSetlistEntries
-      summary: Reorders the entries in a setlist
-      description: This always sets the new order for ALL entries in that setlist!
-      tags:
-        - setlists
-      parameters:
-        - in: path
-          name: setlistId
-          description: ID of the setlist
-          required: true
-          schema:
-            type: number
-      requestBody:
-        description: The updated values
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ReorderSetlistEntriesRequest"
-      responses:
-        "200":
-          description: The reordered entries
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ReorderSetlistEntriesResponse"
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /setlists/{setlistId}:
-    get:
-      operationId: GetCompleteSetlist
-      summary: Returns the complete setlist
-      description: This contains all entries
-      tags:
-        - setlists
-      parameters:
-        - in: path
-          name: setlistId
-          description: ID of the setlist
-          required: true
-          schema:
-            type: number
-        # optional header "request ID". By setting a random value, the cache is disabled
-        - in: header
-          name: X-LP-Request-Id
-          description: Unique request id to bypass server caching
-          required: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: The complete setlist information
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Setlist"
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-    post:
-      operationId: UpdateSetlistHeader
-      summary: Updates the header information of a setlist
-      description: The setlist entries are managed by a different API
-      tags:
-        - setlists
-      parameters:
-        - in: path
-          name: setlistId
-          description: ID of the setlist
-          required: true
-          schema:
-            type: number
-      requestBody:
-        description: The updated values
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UpdateSetlistHeaderRequest"
-      responses:
-        "200":
-          description: The complete setlist information
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Setlist"
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-    delete:
-      operationId: DeleteSetlist
-      summary: Deletes a setlist with all its entries
-      tags:
-        - setlists
-      parameters:
-        - in: path
-          name: setlistId
-          description: ID of the setlist
-          required: true
-          schema:
-            type: number
-      responses:
-        "204":
-          description: No content
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /albums:
-    get:
-      operationId: GetAllAlbums
-      summary: Returns all albums sorted alphabetically
-      tags:
-        - albums
-      parameters:
-        # optional header "request ID". By setting a random value, the cache is disabled
-        - in: header
-          name: X-LP-Request-Id
-          description: Unique request id to bypass server caching
-          required: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: The album information
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Album"
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-    post:
-      operationId: CreateAlbum
-      summary: Creates a new album
-      description: Creates a new album
-      tags:
-        - albums
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CreateAlbumRequest"
-      responses:
-        "201":
-          description: The album that has just been created
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Album"
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /albums/{albumId}:
-    get:
-      operationId: GetAlbum
-      summary: Returns information about a album
-      tags:
-        - albums
-      parameters:
-        - in: path
-          name: albumId
-          description: ID of the album
-          required: true
-          schema:
-            type: number
-        # optional header "request ID". By setting a random value, the cache is disabled
-        - in: header
-          name: X-LP-Request-Id
-          description: Unique request id to bypass server caching
-          required: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: The album information
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Album"
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-    post:
-      operationId: UpdateAlbum
-      summary: Updates the album in the database
-      tags:
-        - albums
-      parameters:
-        - in: path
-          name: albumId
-          description: ID of the album
-          required: true
-          schema:
-            type: number
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UpdateAlbumRequest"
-      responses:
-        "200":
-          description: The updated album
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Album"
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-    delete:
-      operationId: DeleteAlbum
-      summary: Deletes a album
-      tags:
-        - albums
-      parameters:
-        - in: path
-          name: albumId
-          description: ID of the album
-          required: true
-          schema:
-            type: number
-      responses:
-        "204":
-          description: No content
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /songs:
-    get:
-      operationId: GetAllSongs
-      summary: Returns all songs sorted alphabetically
-      tags:
-        - songs
-      parameters:
-        # optional header "request ID". By setting a random value, the cache is disabled
-        - in: header
-          name: X-LP-Request-Id
-          description: Unique request id to bypass server caching
-          required: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: The song information
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Song"
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-    post:
-      operationId: CreateSong
-      summary: Creates a new song
-      description: Creates a new song
-      tags:
-        - songs
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CreateSongRequest"
-      responses:
-        "201":
-          description: The song that has just been created
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Song"
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /songs/{songId}:
-    get:
-      operationId: GetSong
-      summary: Returns information about a song
-      tags:
-        - songs
-      parameters:
-        - in: path
-          name: songId
-          description: ID of the song
-          required: true
-          schema:
-            type: number
-        # optional header "request ID". By setting a random value, the cache is disabled
-        - in: header
-          name: X-LP-Request-Id
-          description: Unique request id to bypass server caching
-          required: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: The song information
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Song"
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-    post:
-      operationId: UpdateSong
-      summary: Updates the song in the database
-      tags:
-        - songs
-      parameters:
-        - in: path
-          name: songId
-          description: ID of the song
-          required: true
-          schema:
-            type: number
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UpdateSongRequest"
-      responses:
-        "200":
-          description: The updated song
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Song"
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-    delete:
-      operationId: DeleteSong
-      summary: Deletes a song 
-      tags:
-        - songs
-      parameters:
-        - in: path
-          name: songId
-          description: ID of the song
-          required: true
-          schema:
-            type: number
-      responses:
-        "204":
-          description: No content
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /songs/{songId}/variants:
-    get:
-      operationId: GetVariantsOfSong
-      summary: Returns all variants of a song
-      tags:
-        - songs
-      parameters:
-        - in: path
-          name: songId
-          description: ID of the song
-          required: true
-          schema:
-            type: number
-        # optional header "request ID". By setting a random value, the cache is disabled
-        - in: header
-          name: X-LP-Request-Id
-          description: Unique request id to bypass server caching
-          required: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: The list of all variants of the song
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/SongVariant"
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /mashups:
-    get:
-      operationId: GetSongMashups
-      summary: Returns all mashups
-      tags:
-        - songs
-      parameters:
-        # optional header "request ID". By setting a random value, the cache is disabled
-        - in: header
-          name: X-LP-Request-Id
-          description: Unique request id to bypass server caching
-          required: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: The list of all mashups
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/SongMashup"
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-    post:
-      operationId: CreateSongMashup
-      summary: Creates a new mashup
-      description: Creates a new mashup of two or more songs
-      tags:
-        - songs
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CreateSongMashupRequest"
-      responses:
-        "201":
-          description: The mashup that has just been created
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SongMashup"
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /mashups/{mashupId}:
-    get:
-      operationId: GetSongMashupById
-      summary: Returns the mashup with the given ID
-      tags:
-        - songs
-      parameters:
-        - in: path
-          name: mashupId
-          description: ID of the mashup
-          required: true
-          schema:
-            type: number
-        # optional header "request ID". By setting a random value, the cache is disabled
-        - in: header
-          name: X-LP-Request-Id
-          description: Unique request id to bypass server caching
-          required: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: The song mashup
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SongMashup"
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-read-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-    post:
-      operationId: UpdateSongMashup
-      summary: Updates the mashup in the database
-      tags:
-        - songs
-      parameters:
-        - in: path
-          name: mashupId
-          description: ID of the mashup
-          required: true
-          schema:
-            type: number
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UpdateSongMashupRequest"
-      responses:
-        "200":
-          description: The updated song mashup
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SongMashup"
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-    delete:
-      operationId: DeleteSongMashup
-      summary: Deletes an song mashup
-      tags:
-        - songs
-      parameters:
-        - in: path
-          name: mashupId
-          description: ID of the mashup
-          required: true
-          schema:
-            type: number
-      responses:
-        "204":
-          description: No content
-      security:
-        - ConcertsCognitoAuthorizer: [ "openid" ]
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-setlists-write-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /apple-music/token:
-    get:
-      operationId: GetAppleMusicDeveloperToken
-      summary: Returns a developer token to access the Apple Music API
-      tags:
-        - appleMusic
-      responses:
-        "201":
-          description: The token as plain text
+          description: List of concerts including referenced objects
           content:
             text/plain:
               schema:
-                type: string
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-apple-music-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConcertDetails"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConcertDetails"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConcertDetails"
+  /Concerts/{concertId}:
+    put:
+      tags:
+        - Concerts
+      summary: Updates a concert in the database
+      parameters:
+        - name: concertId
+          in: path
+          description: ID of the concert to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: ""
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateConcertRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/UpdateConcertRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/UpdateConcertRequest"
+        required: true
+      responses:
+        "200":
+          description: no content
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: []
+    get:
+      tags:
+        - Concerts
+      summary: Returns a concert without loading the referenced objects like the venue
+        details
+      parameters:
+        - name: concertId
+          in: path
+          description: ""
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/RawConcert"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RawConcert"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/RawConcert"
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: []
+    delete:
+      tags:
+        - Concerts
+      summary: Deletes a concert. Note that the data will not be fully removed from
+        the database. Admins will still be able to see deleted concerts.
+      parameters:
+        - name: concertId
+          in: path
+          description: ID of the concert to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: no content
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: []
+  /Concerts/{concertId}/details:
+    get:
+      tags:
+        - Concerts
+      summary: Returns all details about a concert. This includes information about
+        the venue and general location.
+      parameters:
+        - name: concertId
+          in: path
+          description: ""
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/ConcertDetails"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConcertDetails"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/ConcertDetails"
+  /ConcertTypes:
+    post:
+      tags:
+        - ConcertTypes
+      summary: Creates a new type of concert
+      requestBody:
+        description: ""
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateConcertTypeRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateConcertTypeRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateConcertTypeRequest"
+        required: true
+      responses:
+        "200":
+          description: ""
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: []
+    get:
+      tags:
+        - ConcertTypes
+      summary: Returns all available concert types
+      responses:
+        "200":
+          description: information about the concert types
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/ConcertType"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConcertType"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/ConcertType"
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: []
+  /ConcertTypes/{concertTypeId}:
+    get:
+      tags:
+        - ConcertTypes
+      summary: Returns information about a concert type
+      parameters:
+        - name: concertTypeId
+          in: path
+          description: ID of the concert type
+          required: true
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: information about the concert type
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/ConcertType"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConcertType"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/ConcertType"
+    put:
+      tags:
+        - ConcertTypes
+      summary: Updates information of a concert type
+      parameters:
+        - name: concertTypeId
+          in: path
+          description: ID of the concert type
+          required: true
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: integer
+            format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateConcertTypeRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/UpdateConcertTypeRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/UpdateConcertTypeRequest"
+        required: true
+      responses:
+        "200":
+          description: updated information about the concert type
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/ConcertType"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConcertType"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/ConcertType"
+  /countries:
+    post:
+      tags:
+        - Countries
+      summary: Creates a new country
+      requestBody:
+        description: Data of the new country
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCountryRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateCountryRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateCountryRequest"
+        required: true
+      responses:
+        "200":
+          description: ""
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: []
+    get:
+      tags:
+        - Countries
+      summary: Returns a list of all countries
+      responses:
+        "200":
+          description: ""
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/Country"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Country"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/Country"
+  /countries/{countryCode}:
+    put:
+      tags:
+        - Countries
+      summary: Updates an existing country
+      parameters:
+        - name: countryCode
+          in: path
+          description: ISO-code of the country
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: new data of the country
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCountryRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCountryRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/UpdateCountryRequest"
+        required: true
+      responses:
+        "200":
+          description: the updated data
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/Country"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Country"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/Country"
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: []
+    get:
+      tags:
+        - Countries
+      summary: Returns a country by its ISO code
+      parameters:
+        - name: countryCode
+          in: path
+          description: 3-letter ISO-code of the country
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/Country"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Country"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/Country"
+    delete:
+      tags:
+        - Countries
+      summary: Deletes a country
+      parameters:
+        - name: countryCode
+          in: path
+          description: 3-letter ISO-code of the country
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: no content
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: []
+  /countries/{countryCode}/states:
+    post:
+      tags:
+        - Countries
+      summary: Creates a new state in a country
+      parameters:
+        - name: countryCode
+          in: path
+          description: ISO code of the country where this state is located in
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Data of the new country
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStateRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateStateRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateStateRequest"
+        required: true
+      responses:
+        "200":
+          description: ""
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: []
+    get:
+      tags:
+        - Countries
+      summary: Returns a list of all states in a country
+      parameters:
+        - name: countryCode
+          in: path
+          description: 3-letter ISO-code of the country
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/StateWithCountry"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StateWithCountry"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/StateWithCountry"
+  /countries/{countryCode}/states/{stateCode}:
+    put:
+      tags:
+        - Countries
+      summary: Updates a state in a country
+      parameters:
+        - name: countryCode
+          in: path
+          description: ISO code of the country where this state is located in
+          required: true
+          schema:
+            type: string
+        - name: stateCode
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Data of the updated state
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateStateRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/UpdateStateRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/UpdateStateRequest"
+        required: true
+      responses:
+        "200":
+          description: ""
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/StateWithCountry"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StateWithCountry"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/StateWithCountry"
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: []
+    get:
+      tags:
+        - Countries
+      summary: Returns a state in a country
+      parameters:
+        - name: countryCode
+          in: path
+          description: 3-letter ISO-code of the country
+          required: true
+          schema:
+            type: string
+        - name: stateCode
+          in: path
+          description: Code of the state
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The state including the information about the country
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/Country"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Country"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/Country"
+    delete:
+      tags:
+        - Countries
+      summary: Deletes a state
+      parameters:
+        - name: countryCode
+          in: path
+          description: 3-letter ISO-code of the country
+          required: true
+          schema:
+            type: string
+        - name: stateCode
+          in: path
+          description: Code of the state
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: no content
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: []
+  /countries/{countryCode}/cities:
+    post:
+      tags:
+        - Countries
+      summary: Creates a new city in a country
+      parameters:
+        - name: countryCode
+          in: path
+          description: ISO code of the country where this city is located in
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Data of the new city
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCityRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateCityRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateCityRequest"
+        required: true
+      responses:
+        "200":
+          description: ""
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: []
+    get:
+      tags:
+        - Countries
+      summary: Returns a list of all cities in a country
+      parameters:
+        - name: countryCode
+          in: path
+          description: 3-letter ISO-code of the country
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/CityWithCountry"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CityWithCountry"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/CityWithCountry"
+  /countries/{countryCode}/cities/{cityId}:
+    put:
+      tags:
+        - Countries
+      summary: Updates a city in a country
+      parameters:
+        - name: countryCode
+          in: path
+          description: ISO code of the country where this state is located in
+          required: true
+          schema:
+            type: string
+        - name: cityId
+          in: path
+          required: true
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: integer
+            format: int32
+      requestBody:
+        description: Data of the updated city
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCityRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCityRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/UpdateCityRequest"
+        required: true
+      responses:
+        "200":
+          description: ""
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/StateWithCountry"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StateWithCountry"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/StateWithCountry"
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: []
+    get:
+      tags:
+        - Countries
+      summary: Returns a state in a country
+      parameters:
+        - name: countryCode
+          in: path
+          description: 3-letter ISO-code of the country
+          required: true
+          schema:
+            type: string
+        - name: cityId
+          in: path
+          description: ID of the city
+          required: true
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type:
+              - integer
+              - string
+            format: uint32
+      responses:
+        "200":
+          description: The city including the information about the country
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/CityWithCountry"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CityWithCountry"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/CityWithCountry"
+    delete:
+      tags:
+        - Countries
+      summary: Deletes a city
+      parameters:
+        - name: countryCode
+          in: path
+          description: 3-letter ISO-code of the country where the city is located in
+          required: true
+          schema:
+            type: string
+        - name: cityId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: no content
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: []
+  /Tours:
+    post:
+      tags:
+        - Tours
+      summary: Creates a new tour
+      requestBody:
+        description: ""
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTourRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateTourRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateTourRequest"
+        required: true
+      responses:
+        "200":
+          description: ""
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: []
+    get:
+      tags:
+        - Tours
+      summary: Returns a list of all tours
+      responses:
+        "200":
+          description: List of all tours
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tour"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tour"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tour"
+  /Tours/{tourId}:
+    get:
+      tags:
+        - Tours
+      summary: Returns information about a tour
+      parameters:
+        - name: tourId
+          in: path
+          description: ID of the tour
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/Tour"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tour"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/Tour"
+    delete:
+      tags:
+        - Tours
+      summary: Deletes a tour
+      parameters:
+        - name: tourId
+          in: path
+          description: ID of the tour
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: no content
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: []
+  /Tours/{tourId}/legs:
+    post:
+      tags:
+        - Tours
+      summary: Creates a new leg of a tour
+      parameters:
+        - name: tourId
+          in: path
+          description: ID of the tour
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: ""
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdurLegRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/AdurLegRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/AdurLegRequest"
+        required: true
+      responses:
+        "200":
+          description: ""
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: []
+  /Tours/{tourId}/legs/{legId}:
+    get:
+      tags:
+        - Tours
+      summary: Returns information about a tour leg
+      parameters:
+        - name: tourId
+          in: path
+          description: ID of the tour
+          required: true
+          schema:
+            type: string
+        - name: legId
+          in: path
+          description: ID of the tour leg
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: information about the leg
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/TourLeg"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TourLeg"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/TourLeg"
+    delete:
+      tags:
+        - Tours
+      summary: Deletes a leg of a tour
+      parameters:
+        - name: tourId
+          in: path
+          description: ID of the tour
+          required: true
+          schema:
+            type: string
+        - name: legId
+          in: path
+          description: ID of the tour leg
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: no content
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: []
+  /Venues:
+    post:
+      tags:
+        - Venues
+      summary: Creates a new venue
+      operationId: CreateVenue
+      requestBody:
+        description: data of the new venue
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateVenueRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateVenueRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateVenueRequest"
+        required: true
+      responses:
+        "200":
+          description: ""
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: []
+    get:
+      tags:
+        - Venues
+      summary: Returns an unfiltered list of all venues
+      responses:
+        "200":
+          description: list of all venues
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Venue"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Venue"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Venue"
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: []
+  /Venues/{venueId}:
+    put:
+      tags:
+        - Venues
+      summary: Updates the information about a venue. Please note that updates of the
+        name have to be made through special routes.
+      parameters:
+        - name: venueId
+          in: path
+          description: ID of the venue
+          required: true
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: integer
+            format: int32
+      requestBody:
+        description: New information of the venue. Partial updates are not possible.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateVenueRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/UpdateVenueRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/UpdateVenueRequest"
+        required: true
+      responses:
+        "200":
+          description: all information about the venue
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/VenueWithDetails"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VenueWithDetails"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/VenueWithDetails"
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: []
+    get:
+      tags:
+        - Venues
+      summary: Returns the basic information about a venue by its ID
+      parameters:
+        - name: venueId
+          in: path
+          description: ID of the venue
+          required: true
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: basic information about the venue
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/Venue"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Venue"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/Venue"
+    delete:
+      tags:
+        - Venues
+      summary: Deletes a venue
+      parameters:
+        - name: venueId
+          in: path
+          description: ID of the venue
+          required: true
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: no content
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: []
+  /Venues/{venueId}/details:
+    get:
+      tags:
+        - Venues
+      summary: Returns the detailed information about a venue by its ID including
+        information about the city and country
+      parameters:
+        - name: venueId
+          in: path
+          description: ID of the venue
+          required: true
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: detailed information about the venue
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/VenueWithCity"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VenueWithCity"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/VenueWithCity"
+  /Venues/{venueId}/names:
+    post:
+      tags:
+        - Venues
+      summary: Adds a new name to a venue for a given time range
+      parameters:
+        - name: venueId
+          in: path
+          description: ID of the venue
+          required: true
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: integer
+            format: int32
+      requestBody:
+        description: ""
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddVenueNameRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/AddVenueNameRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/AddVenueNameRequest"
+        required: true
+      responses:
+        "200":
+          description: Venue information with details
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/VenueWithDetails"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VenueWithDetails"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/VenueWithDetails"
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: []
+  /Venues/{venueId}/names/{venueNameId}:
+    put:
+      tags:
+        - Venues
+      summary: Changes an existing name of a venue
+      parameters:
+        - name: venueId
+          in: path
+          description: ID of the venue
+          required: true
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: integer
+            format: int32
+        - name: venueNameId
+          in: path
+          description: ID of the venue name
+          required: true
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: integer
+            format: int32
+      requestBody:
+        description: ""
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateVenueNameRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/UpdateVenueNameRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/UpdateVenueNameRequest"
+        required: true
+      responses:
+        "200":
+          description: no content
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: []
+    delete:
+      tags:
+        - Venues
+      summary: Deletes a previous name of a venue
+      parameters:
+        - name: venueId
+          in: path
+          description: ID of the venue
+          required: true
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: integer
+            format: int32
+        - name: venueNameId
+          in: path
+          description: ID of the venue name
+          required: true
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: no content
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: []
+components:
+  schemas:
+    AdurLegRequest:
+      required:
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    AddVenueNameRequest:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+        from:
+          type: string
+          format: date
+        to:
+          type:
+            - "null"
+            - string
+          format: date
+    CityWithCountry:
+      required:
+        - country
+        - countryCode
+        - name
+        - nativeName
+      type: object
+      properties:
+        country:
+          $ref: "#/components/schemas/Country"
+        state:
+          oneOf:
+            - type: "null"
+            - $ref: "#/components/schemas/State"
+        countryCode:
+          type: string
+        id:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type:
+            - integer
+            - string
+          format: uint32
+        stateCode:
+          type:
+            - "null"
+            - string
+        name:
+          type: string
+        nativeName:
+          type: string
+    ConcertDetails:
+      required:
+        - id
+        - concertType
+        - venue
+      type: object
+      properties:
+        id:
+          type: string
+        concertType:
+          $ref: "#/components/schemas/ConcertType"
+        tour:
+          oneOf:
+            - type: "null"
+            - $ref: "#/components/schemas/Tour"
+        tourLeg:
+          oneOf:
+            - type: "null"
+            - $ref: "#/components/schemas/TourLeg"
+        customTitle:
+          type:
+            - "null"
+            - string
+        venue:
+          $ref: "#/components/schemas/VenueWithDetails"
+        postedStartTime:
+          type: string
+          format: date-time
+        mainStageTime:
+          type:
+            - "null"
+            - string
+          format: date-time
+        doorsTime:
+          type:
+            - "null"
+            - string
+          format: date-time
+        lpuEarlyEntryTime:
+          type:
+            - "null"
+            - string
+          format: date-time
+        lpuEarlyEntryConfirmed:
+          type: boolean
+        expectedSetDurationMinutes:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type:
+            - integer
+            - string
+          format: uint32
+        scheduleImageFile:
+          type:
+            - "null"
+            - string
+        deletedAt:
+          type:
+            - "null"
+            - string
+          format: date-time
+        status:
+          $ref: "#/components/schemas/ConcertStatusValue"
+    ConcertStatusValue:
+      type: integer
+    ConcertType:
+      required:
+        - name
+      type: object
+      properties:
+        id:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type:
+            - integer
+            - string
+          format: uint32
+        name:
+          type: string
+    Country:
+      required:
+        - isoCode
+        - name
+        - nativeName
+      type: object
+      properties:
+        isoCode:
+          maxLength: 3
+          minLength: 3
+          type: string
+        name:
+          type: string
+        nativeName:
+          type: string
+    CreateCityRequest:
+      required:
+        - name
+        - nativeName
+      type: object
+      properties:
+        stateCode:
+          type:
+            - "null"
+            - string
+        name:
+          type: string
+        nativeName:
+          type: string
+    CreateConcertRequest:
+      type: object
+      properties:
+        concertTypeId:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type:
+            - integer
+            - string
+          format: uint32
+        tourId:
+          type:
+            - "null"
+            - string
+        tourLegId:
+          type:
+            - "null"
+            - string
+        customTitle:
+          type:
+            - "null"
+            - string
+        venueId:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type:
+            - integer
+            - string
+          format: uint32
+        postedStartTime:
+          type: string
+          format: date-time
+        mainStageTime:
+          type:
+            - "null"
+            - string
+          format: date-time
+        doorsTime:
+          type:
+            - "null"
+            - string
+          format: date-time
+        lpuEarlyEntryTime:
+          type:
+            - "null"
+            - string
+          format: date-time
+        lpuEarlyEntryConfirmed:
+          type: boolean
+        expectedSetDurationMinutes:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type:
+            - integer
+            - string
+          format: uint32
+        scheduleImageFile:
+          type:
+            - "null"
+            - string
+        status:
+          $ref: "#/components/schemas/ConcertStatusValue"
+    CreateConcertTypeRequest:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+    CreateCountryRequest:
+      required:
+        - isoCode
+        - name
+        - nativeName
+      type: object
+      properties:
+        isoCode:
+          maxLength: 3
+          minLength: 3
+          type: string
+        name:
+          type: string
+        nativeName:
+          type: string
+    CreateStateRequest:
+      required:
+        - code
+        - name
+        - nativeName
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        nativeName:
+          type: string
+    CreateTourRequest:
+      required:
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    CreateVenueRequest:
+      required:
+        - countryCode
+        - currentName
+        - timeZone
+      type: object
+      properties:
+        countryCode:
+          maxLength: 3
+          minLength: 3
+          type: string
+        stateCode:
+          maxLength: 3
+          type:
+            - "null"
+            - string
+        cityId:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type:
+            - integer
+            - string
+          format: uint32
+        currentName:
+          type: string
+        timeZone:
+          type: string
+        latitude:
+          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
+          type:
+            - "null"
+            - number
+            - string
+          format: double
+        longitude:
+          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
+          type:
+            - "null"
+            - number
+            - string
+          format: double
+    PreviousVenueName:
+      required:
+        - venueId
+        - id
+        - name
+        - usedFrom
+      type: object
+      properties:
+        venueId:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type:
+            - integer
+            - string
+          format: uint32
+        id:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type:
+            - integer
+            - string
+          format: uint32
+        name:
+          type: string
+        usedFrom:
+          type: string
+          format: date
+        usedUntil:
+          type:
+            - "null"
+            - string
+          format: date
+    RawConcert:
+      required:
+        - id
+      type: object
+      properties:
+        id:
+          type: string
+        concertTypeId:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type:
+            - integer
+            - string
+          format: uint32
+        tourId:
+          type:
+            - "null"
+            - string
+        tourLegId:
+          type:
+            - "null"
+            - string
+        customTitle:
+          type:
+            - "null"
+            - string
+        venueId:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type:
+            - integer
+            - string
+          format: uint32
+        postedStartTime:
+          type: string
+          format: date-time
+        mainStageTime:
+          type:
+            - "null"
+            - string
+          format: date-time
+        doorsTime:
+          type:
+            - "null"
+            - string
+          format: date-time
+        lpuEarlyEntryTime:
+          type:
+            - "null"
+            - string
+          format: date-time
+        lpuEarlyEntryConfirmed:
+          type: boolean
+        expectedSetDurationMinutes:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type:
+            - integer
+            - string
+          format: uint32
+        scheduleImageFile:
+          type:
+            - "null"
+            - string
+        deletedAt:
+          type:
+            - "null"
+            - string
+          format: date-time
+        status:
+          $ref: "#/components/schemas/ConcertStatusValue"
+    State:
+      required:
+        - countryCode
+        - code
+        - name
+        - nativeName
+      type: object
+      properties:
+        countryCode:
+          type: string
+        code:
+          type: string
+        name:
+          type: string
+        nativeName:
+          type: string
+    StateWithCountry:
+      required:
+        - country
+        - countryCode
+        - code
+        - name
+        - nativeName
+      type: object
+      properties:
+        country:
+          $ref: "#/components/schemas/Country"
+        countryCode:
+          type: string
+        code:
+          type: string
+        name:
+          type: string
+        nativeName:
+          type: string
+    Tour:
+      required:
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        legs:
+          type: array
+          items:
+            $ref: "#/components/schemas/TourLeg"
+    TourLeg:
+      required:
+        - tourId
+        - id
+        - name
+      type: object
+      properties:
+        tourId:
+          type: string
+        id:
+          type: string
+        name:
+          type: string
+    UpdateCityRequest:
+      required:
+        - name
+        - nativeName
+      type: object
+      properties:
+        stateCode:
+          type:
+            - "null"
+            - string
+        name:
+          type: string
+        nativeName:
+          type: string
+    UpdateConcertRequest:
+      type: object
+      properties:
+        concertTypeId:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type:
+            - integer
+            - string
+          format: uint32
+        tourId:
+          type:
+            - "null"
+            - string
+        tourLegId:
+          type:
+            - "null"
+            - string
+        customTitle:
+          type:
+            - "null"
+            - string
+        venueId:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type:
+            - integer
+            - string
+          format: uint32
+        postedStartTime:
+          type: string
+          format: date-time
+        mainStageTime:
+          type:
+            - "null"
+            - string
+          format: date-time
+        doorsTime:
+          type:
+            - "null"
+            - string
+          format: date-time
+        lpuEarlyEntryTime:
+          type:
+            - "null"
+            - string
+          format: date-time
+        lpuEarlyEntryConfirmed:
+          type: boolean
+        expectedSetDurationMinutes:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type:
+            - integer
+            - string
+          format: uint32
+        scheduleImageFile:
+          type:
+            - "null"
+            - string
+        deletedAt:
+          type:
+            - "null"
+            - string
+          format: date-time
+        status:
+          $ref: "#/components/schemas/ConcertStatusValue"
+    UpdateConcertTypeRequest:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+    UpdateCountryRequest:
+      required:
+        - name
+        - nativeName
+      type: object
+      properties:
+        name:
+          type: string
+        nativeName:
+          type: string
+    UpdateStateRequest:
+      required:
+        - name
+        - nativeName
+      type: object
+      properties:
+        name:
+          type: string
+        nativeName:
+          type: string
+    UpdateVenueNameRequest:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+        from:
+          type: string
+          format: date
+        to:
+          type:
+            - "null"
+            - string
+          format: date
+    UpdateVenueRequest:
+      required:
+        - countryCode
+        - timeZone
+      type: object
+      properties:
+        countryCode:
+          maxLength: 3
+          minLength: 3
+          type: string
+        stateCode:
+          maxLength: 3
+          type:
+            - "null"
+            - string
+        cityId:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type:
+            - integer
+            - string
+          format: uint32
+        timeZone:
+          type: string
+        latitude:
+          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
+          type:
+            - "null"
+            - number
+            - string
+          format: double
+        longitude:
+          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
+          type:
+            - "null"
+            - number
+            - string
+          format: double
+    Venue:
+      required:
+        - countryCode
+        - currentName
+        - timeZone
+      type: object
+      properties:
+        id:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type:
+            - integer
+            - string
+          format: uint32
+        countryCode:
+          maxLength: 3
+          minLength: 3
+          type: string
+        stateCode:
+          maxLength: 3
+          type:
+            - "null"
+            - string
+        cityId:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type:
+            - integer
+            - string
+          format: uint32
+        currentName:
+          type: string
+        timeZone:
+          type: string
+        latitude:
+          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
+          type:
+            - "null"
+            - number
+            - string
+          format: double
+        longitude:
+          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
+          type:
+            - "null"
+            - number
+            - string
+          format: double
+    VenueWithCity:
+      required:
+        - city
+        - countryCode
+        - currentName
+        - timeZone
+      type: object
+      properties:
+        city:
+          $ref: "#/components/schemas/CityWithCountry"
+        id:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type:
+            - integer
+            - string
+          format: uint32
+        countryCode:
+          maxLength: 3
+          minLength: 3
+          type: string
+        stateCode:
+          maxLength: 3
+          type:
+            - "null"
+            - string
+        cityId:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type:
+            - integer
+            - string
+          format: uint32
+        currentName:
+          type: string
+        timeZone:
+          type: string
+        latitude:
+          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
+          type:
+            - "null"
+            - number
+            - string
+          format: double
+        longitude:
+          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
+          type:
+            - "null"
+            - number
+            - string
+          format: double
+    VenueWithDetails:
+      required:
+        - venueNames
+        - city
+        - countryCode
+        - currentName
+        - timeZone
+      type: object
+      properties:
+        venueNames:
+          type: array
+          items:
+            $ref: "#/components/schemas/PreviousVenueName"
+        city:
+          $ref: "#/components/schemas/CityWithCountry"
+        id:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type:
+            - integer
+            - string
+          format: uint32
+        countryCode:
+          maxLength: 3
+          minLength: 3
+          type: string
+        stateCode:
+          maxLength: 3
+          type:
+            - "null"
+            - string
+        cityId:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type:
+            - integer
+            - string
+          format: uint32
+        currentName:
+          type: string
+        timeZone:
+          type: string
+        latitude:
+          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
+          type:
+            - "null"
+            - number
+            - string
+          format: double
+        longitude:
+          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
+          type:
+            - "null"
+            - number
+            - string
+          format: double
+  securitySchemes:
+    Bearer:
+      type: http
+      description: JWT Bearer authentication
+      scheme: Bearer
+      bearerFormat: JWT
+tags:
+  - name: Concerts
+  - name: ConcertTypes
+  - name: Countries
+  - name: Tours
+  - name: Venues

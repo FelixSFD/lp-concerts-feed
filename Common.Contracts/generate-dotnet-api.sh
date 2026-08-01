@@ -9,7 +9,7 @@ docker run --rm \
   -o /local/tmp/generated_code \
   --additional-properties=packageName=Common.Contracts.Generated,modelNameSuffix=Dto,buildTarget=library \
   --additional-properties=operationModifier=abstract,operationResultTask=true,useNewtonsoft=false,useSwashbuckle=false,useDateTimeOffset=true \
-  --additional-properties=nullableReferenceTypes=true \
+  --additional-properties=nullableReferenceTypes=true,useDataAnnotations=false \
     --global-property=models,apis,supportingFiles \
     --enable-post-process-file
 

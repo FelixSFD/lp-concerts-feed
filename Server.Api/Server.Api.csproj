@@ -27,6 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Common.Contracts\Common.Contracts.csproj" />
       <ProjectReference Include="..\DataStructure\DataStructure.csproj" />
       <ProjectReference Include="..\Service.Tours\Service.Tours.csproj" />
     </ItemGroup>
