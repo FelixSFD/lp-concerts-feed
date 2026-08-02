@@ -22,7 +22,9 @@
 
       @if (isLoggedIn$) {
         <p-menu #menu [model]="loggedInMenuItems" [popup]="true" />
-        <p-button (click)="menu.toggle($event)" icon="pi pi-cog" variant="outlined" />
+        <button class="account-btn" type="button" aria-label="Account" (click)="menu.toggle($event)">
+          @if (userInitial) { {{ userInitial }} } @else { <i class="pi pi-user"></i> }
+        </button>
       } @else {
         <p-button variant="text" (click)="login()">Log in</p-button>
         <p-button class="getapp-desktop" label="Get the app" [routerLink]="['/app']" />

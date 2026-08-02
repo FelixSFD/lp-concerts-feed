@@ -95,70 +95,52 @@ export class MainMenuComponent implements OnInit, OnChanges {
 
 
   loadLoggedInMenuItems(): void {
-    this.loggedInMenuItems = [
-      {
+    const items: MenuItem[] = [];
+
+    if (this.canManageSetlists) {
+      items.push({
         label: 'Songs & Setlists',
         items: [
-          {
-            label: 'Setlists',
-            icon: 'pi pi-list',
-            routerLink: '/admin/setlists',
-            visible: this.canManageSetlists,
-          },
-          {
-            label: 'Albums',
-            icon: 'pi pi-images',
-            routerLink: '/admin/albums',
-            visible: this.canManageSetlists,
-          },
-          {
-            label: 'Songs',
-            icon: 'pi pi-headphones',
-            routerLink: '/admin/songs',
-            visible: this.canManageSetlists,
-          },
-          {
-            label: 'Mashups',
-            icon: 'pi pi-sliders-v',
-            routerLink: '/admin/mashups',
-            visible: this.canManageSetlists,
-          },
+          { label: 'Setlists', icon: 'pi pi-list', routerLink: '/admin/setlists' },
+          { label: 'Albums', icon: 'pi pi-images', routerLink: '/admin/albums' },
+          { label: 'Songs', icon: 'pi pi-headphones', routerLink: '/admin/songs' },
+          { label: 'Mashups', icon: 'pi pi-sliders-v', routerLink: '/admin/mashups' },
         ],
-        visible: this.canManageSetlists,
-      },
-      {
+      });
+    }
+
+    if (this.canManageUsers) {
+      items.push({
         label: 'Administration',
         items: [
-          {
-            label: 'Users',
-            icon: 'pi pi-users',
-            routerLink: '/users',
-            visible: this.canManageUsers,
-          }
+          { label: 'Users', icon: 'pi pi-users', routerLink: '/users' },
         ],
-        visible: this.canManageUsers,
-      },
-      {
-        label: this.username ?? "No Username",
-        items: [
-          {
-            label: "Your Profile",
-            icon: "pi pi-user",
-            routerLink: '/profile'
-          },
-          {
-            label: "Logout",
-            icon: "pi pi-sign-out",
-            linkClass: '!text-red-500 dark:!text-red-400',
-            command: (event => {
-              this.logout()
-            }),
-          }
-        ]
-      },
-    ];
+      });
+    }
+
+    items.push({
+      label: this.username ?? 'Account',
+      items: [
+        { label: 'Your Profile', icon: 'pi pi-user', routerLink: '/profile' },
+        {
+          label: 'Logout',
+          icon: 'pi pi-sign-out',
+          linkClass: '!text-red-500 dark:!text-red-400',
+          command: (event => {
+            this.logout()
+          }),
+        },
+      ],
+    });
+
+    this.loggedInMenuItems = items;
   }
 
+
+  get userInitial(): string | null {
+    const name = this.username?.trim();
+    return name ? name.charAt(0).toUpperCase() : null;
+  }
 
   login(): void {
     this.oidcSecurityService.authorize();
