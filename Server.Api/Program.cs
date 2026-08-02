@@ -15,6 +15,15 @@ using Service.Tours;
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:4200");
+        });
+});
+
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi("v3", opt =>
@@ -172,6 +181,8 @@ if (app.Environment.IsDevelopment())
         options.SwaggerEndpoint("/openapi/v3.yaml", "LPshows API");
     });
 }
+
+app.UseCors();
 
 app.UseAuthentication(); // responsible for constructing AuthenticationTicket objects representing the user's identity
 app.UseAuthorization();
