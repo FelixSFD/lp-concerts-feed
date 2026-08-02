@@ -10,6 +10,13 @@
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
 
+    <ItemGroup>
+        <None Include="openapi_v3.yaml">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>openapi_v3.yaml</Link>
+        </None>
+    </ItemGroup>
+
     <!-- Run the OpenAPI generator before build -->
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
         <Exec Command="./generate-dotnet-api.sh" />

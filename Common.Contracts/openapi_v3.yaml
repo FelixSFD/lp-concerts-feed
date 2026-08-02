@@ -4,7 +4,7 @@ info:
   description: This is the API for the Linkin Park Concert Calendar fan project
   version: 3.0.0
 servers:
-  - url: http://localhost:5133/
+  - url: http://localhost:5133/v3
 paths:
   /Concerts:
     post:

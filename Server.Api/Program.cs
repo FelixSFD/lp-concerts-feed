@@ -161,11 +161,15 @@ using (var scope = app.Services.CreateScope())
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.MapGet("/openapi/v3.yaml", () => Results.File(
+        Path.Combine(
+            AppContext.BaseDirectory,
+            "openapi_v3.yaml"),
+        "text/yaml"));
     
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/openapi/v3.json", "LPshows API");
+        options.SwaggerEndpoint("/openapi/v3.yaml", "LPshows API");
     });
 }
 
