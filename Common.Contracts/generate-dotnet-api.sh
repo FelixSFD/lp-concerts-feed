@@ -34,6 +34,7 @@ mkdir "Generated"
 
 ls -la ./tmp
 ls -la ./tmp/generated_code/src/Common.Contracts.Generated/Models/
+ls -la ../Common.Database
 
 mv ./tmp/generated_code/src/Common.Contracts.Generated/Attributes ./Generated/Attributes
 mv ./tmp/generated_code/src/Common.Contracts.Generated/Converters ./Generated/Converters
@@ -41,7 +42,5 @@ mv ./tmp/generated_code/src/Common.Contracts.Generated/Models ./Generated/Models
 
 ls -la ./Generated
 ls -la ./Generated/Models
-
-cat ./Generated/Models/TourDto.cs
 
 rm -R ./tmp
