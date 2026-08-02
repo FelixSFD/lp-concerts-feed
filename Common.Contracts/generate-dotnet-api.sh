@@ -42,4 +42,6 @@ mv ./tmp/generated_code/src/Common.Contracts.Generated/Models ./Generated/Models
 ls -la ./Generated
 ls -la ./Generated/Models
 
+cat ./Generated/Models/TourDto.cs
+
 rm -R ./tmp
