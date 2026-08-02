@@ -1,4 +1,4 @@
-openapi: 3.1.1
+openapi: 3.0.4
 info:
   title: LPshows.live API v3
   description: This is the API for the Linkin Park Concert Calendar fan project
@@ -33,6 +33,10 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Concerts
       security:
         - Bearer: []
     get:
@@ -86,6 +90,11 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ConcertDetails"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Concerts
+  
   /Concerts/{concertId}:
     put:
       tags:
@@ -120,6 +129,12 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: PUT
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Concerts/{concertId}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.concertId
       security:
         - Bearer: []
     get:
@@ -153,6 +168,12 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Concerts/{concertId}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.concertId
       security:
         - Bearer: []
     delete:
@@ -176,6 +197,12 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: DELETE
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Concerts/{concertId}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.concertId
       security:
         - Bearer: []
   /Concerts/{concertId}/details:
@@ -205,6 +232,48 @@ paths:
             text/json:
               schema:
                 $ref: "#/components/schemas/ConcertDetails"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Concerts/{concertId}/details
+        requestParameters:
+          integration.request.path.concertId: method.request.path.concertId
+  
+  /concerts/{id}/bookmarks/count:
+    get:
+      operationId: GetBookmarkCountForConcert
+      summary: Checks how many bookmarks there are for a concert. Use GetBookmarkStatusForConcert if you want to check the status for the ucrrent user
+      tags:
+        - concerts
+      parameters:
+        - in: path
+          name: id
+          description: ID of the concert
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Found the number of bookmarks
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetConcertBookmarkCountsResponse"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-concert-bookmarks-read-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  
   /ConcertTypes:
     post:
       tags:
@@ -232,6 +301,10 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/ConcertTypes
       security:
         - Bearer: []
     get:
@@ -257,6 +330,10 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/ConcertTypes
       security:
         - Bearer: []
   /ConcertTypes/{concertTypeId}:
@@ -287,6 +364,12 @@ paths:
             text/json:
               schema:
                 $ref: "#/components/schemas/ConcertType"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/ConcertTypes/{concertTypeId}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.concertTypeId
     put:
       tags:
         - ConcertTypes
@@ -326,6 +409,12 @@ paths:
             text/json:
               schema:
                 $ref: "#/components/schemas/ConcertType"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: PUT
+        uri: https://api.dev.lpshows.felixsfd.de/v3/ConcertTypes/{concertTypeId}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.concertTypeId
   /countries:
     post:
       tags:
@@ -353,6 +442,10 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries
       security:
         - Bearer: []
     get:
@@ -373,6 +466,10 @@ paths:
             text/json:
               schema:
                 $ref: "#/components/schemas/Country"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries
   /countries/{countryCode}:
     put:
       tags:
@@ -417,6 +514,12 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: PUT
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/{countryCode}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
       security:
         - Bearer: []
     get:
@@ -444,6 +547,12 @@ paths:
             text/json:
               schema:
                 $ref: "#/components/schemas/Country"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/{countryCode}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
     delete:
       tags:
         - Countries
@@ -464,6 +573,12 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: DELETE
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/{countryCode}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
       security:
         - Bearer: []
   /countries/{countryCode}/states:
@@ -500,6 +615,12 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/{countryCode}/states
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
       security:
         - Bearer: []
     get:
@@ -527,6 +648,13 @@ paths:
             text/json:
               schema:
                 $ref: "#/components/schemas/StateWithCountry"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/{countryCode}/states
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
+  
   /countries/{countryCode}/states/{stateCode}:
     put:
       tags:
@@ -576,6 +704,13 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: PUT
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/{countryCode}/states/{stateCode}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
+          integration.request.path.stateCode: method.request.path.stateCode
       security:
         - Bearer: []
     get:
@@ -609,6 +744,13 @@ paths:
             text/json:
               schema:
                 $ref: "#/components/schemas/Country"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/{countryCode}/states/{stateCode}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
+          integration.request.path.stateCode: method.request.path.stateCode
     delete:
       tags:
         - Countries
@@ -635,8 +777,16 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: DELETE
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/{countryCode}/states/{stateCode}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
+          integration.request.path.stateCode: method.request.path.stateCode
       security:
         - Bearer: []
+  
   /countries/{countryCode}/cities:
     post:
       tags:
@@ -671,6 +821,12 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/{countryCode}/cities
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
       security:
         - Bearer: []
     get:
@@ -698,6 +854,13 @@ paths:
             text/json:
               schema:
                 $ref: "#/components/schemas/CityWithCountry"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/{countryCode}/cities
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
+  
   /countries/{countryCode}/cities/{cityId}:
     put:
       tags:
@@ -749,6 +912,13 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: PUT
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/{countryCode}/cities/{cityId}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
+          integration.request.path.cityId: method.request.path.cityId
       security:
         - Bearer: []
     get:
@@ -786,6 +956,13 @@ paths:
             text/json:
               schema:
                 $ref: "#/components/schemas/CityWithCountry"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/{countryCode}/cities/{cityId}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
+          integration.request.path.cityId: method.request.path.cityId
     delete:
       tags:
         - Countries
@@ -811,6 +988,13 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: DELETE
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/{countryCode}/cities/{cityId}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
+          integration.request.path.cityId: method.request.path.cityId
       security:
         - Bearer: []
   /Tours:
@@ -840,6 +1024,10 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Tours
       security:
         - Bearer: []
     get:
@@ -866,6 +1054,11 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Tour"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Tours
+  
   /Tours/{tourId}:
     get:
       tags:
@@ -892,6 +1085,12 @@ paths:
             text/json:
               schema:
                 $ref: "#/components/schemas/Tour"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/tours/{tourId}
+        requestParameters:
+          integration.request.path.tourId: method.request.path.tourId
     delete:
       tags:
         - Tours
@@ -912,6 +1111,12 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: DELETE
+        uri: https://api.dev.lpshows.felixsfd.de/v3/tours/{tourId}
+        requestParameters:
+          integration.request.path.tourId: method.request.path.tourId
       security:
         - Bearer: []
   /Tours/{tourId}/legs:
@@ -948,6 +1153,12 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/tours/{tourId}/legs
+        requestParameters:
+          integration.request.path.tourId: method.request.path.tourId
       security:
         - Bearer: []
   /Tours/{tourId}/legs/{legId}:
@@ -982,6 +1193,13 @@ paths:
             text/json:
               schema:
                 $ref: "#/components/schemas/TourLeg"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/tours/{tourId}/legs/{legId}
+        requestParameters:
+          integration.request.path.tourId: method.request.path.tourId
+          integration.request.path.legId: method.request.path.legId
     delete:
       tags:
         - Tours
@@ -1008,6 +1226,13 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: DELETE
+        uri: https://api.dev.lpshows.felixsfd.de/v3/tours/{tourId}/legs/{legId}
+        requestParameters:
+          integration.request.path.tourId: method.request.path.tourId
+          integration.request.path.legId: method.request.path.legId
       security:
         - Bearer: []
   /Venues:
@@ -1037,6 +1262,10 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/venues
       security:
         - Bearer: []
     get:
@@ -1068,6 +1297,10 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/venues
       security:
         - Bearer: []
   /Venues/{venueId}:
@@ -1117,6 +1350,12 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: PUT
+        uri: https://api.dev.lpshows.felixsfd.de/v3/venues/{venueId}
+        requestParameters:
+          integration.request.path.venueId: method.request.path.venueId
       security:
         - Bearer: []
     get:
@@ -1146,6 +1385,12 @@ paths:
             text/json:
               schema:
                 $ref: "#/components/schemas/Venue"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/venues/{venueId}
+        requestParameters:
+          integration.request.path.venueId: method.request.path.venueId
     delete:
       tags:
         - Venues
@@ -1168,6 +1413,12 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: DELETE
+        uri: https://api.dev.lpshows.felixsfd.de/v3/venues/{venueId}
+        requestParameters:
+          integration.request.path.venueId: method.request.path.venueId
       security:
         - Bearer: []
   /Venues/{venueId}/details:
@@ -1199,6 +1450,12 @@ paths:
             text/json:
               schema:
                 $ref: "#/components/schemas/VenueWithCity"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/venues/{venueId}/details
+        requestParameters:
+          integration.request.path.venueId: method.request.path.venueId
   /Venues/{venueId}/names:
     post:
       tags:
@@ -1245,6 +1502,12 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/venues/{venueId}/names
+        requestParameters:
+          integration.request.path.venueId: method.request.path.venueId
       security:
         - Bearer: []
   /Venues/{venueId}/names/{venueNameId}:
@@ -1291,6 +1554,13 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: PUT
+        uri: https://api.dev.lpshows.felixsfd.de/v3/venues/{venueId}/names/{venueNameId}
+        requestParameters:
+          integration.request.path.venueId: method.request.path.venueId
+          integration.request.path.venueNameId: method.request.path.venueNameId
       security:
         - Bearer: []
     delete:
@@ -1323,6 +1593,13 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: DELETE
+        uri: https://api.dev.lpshows.felixsfd.de/v3/venues/{venueId}/names/{venueNameId}
+        requestParameters:
+          integration.request.path.venueId: method.request.path.venueId
+          integration.request.path.venueNameId: method.request.path.venueNameId
       security:
         - Bearer: []
 components:
@@ -2094,13 +2371,46 @@ components:
             - number
             - string
           format: double
+    
+    # Schemas from Lambdas
+    GetConcertBookmarkCountsResponse:
+      type: object
+      description: Response from server to tell the number of people who bookmarked or attended a show
+      properties:
+        bookmarked:
+          type: number
+          description: Number of users who bookmarked the concert
+        attending:
+          type: number
+          description: Number of users who are attending the concert
+        currentUserStatus:
+          type: string
+          description: Bookmark status. Of the current user
+          enum:
+            - None
+            - Bookmarked
+            - Attending
+          default: None
+          nullable: false
+
   securitySchemes:
     Bearer:
       type: http
       description: JWT Bearer authentication
       scheme: Bearer
-      bearerFormat: JWT
+    ConcertsCognitoAuthorizer:
+      type: apiKey
+      name: Authorization
+      in: header
+      x-amazon-apigateway-authtype: cognito_user_pools
+      x-amazon-apigateway-authorizer:
+        type: cognito_user_pools
+        providerARNs:
+          - Fn::ImportValue:
+              Fn::Sub: '${BaseProductName}-cognito-authorizer-user-pool'
+
 tags:
+  - name: concerts
   - name: Concerts
   - name: ConcertTypes
   - name: Countries
