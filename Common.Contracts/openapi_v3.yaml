@@ -452,17 +452,23 @@ paths:
       operationId: GetCountries
       responses:
         "200":
-          description: ""
+          description: List of all countries
           content:
             text/plain:
               schema:
-                $ref: "#/components/schemas/Country"
+                type: array
+                items:
+                  $ref: "#/components/schemas/Country"
             application/json:
               schema:
-                $ref: "#/components/schemas/Country"
+                type: array
+                items:
+                  $ref: "#/components/schemas/Country"
             text/json:
               schema:
-                $ref: "#/components/schemas/Country"
+                type: array
+                items:
+                  $ref: "#/components/schemas/Country"
       x-amazon-apigateway-integration:
         type: HTTP_PROXY
         httpMethod: GET

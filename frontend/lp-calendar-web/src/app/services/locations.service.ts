@@ -21,7 +21,7 @@ export class LocationsService {
   /**
    * Returns a list of all countries
    */
-  getCountries(): Observable<CountryDto> {
+  getCountries(): Observable<CountryDto[]> {
     return this.countriesApi.getCountries();
   }
 
