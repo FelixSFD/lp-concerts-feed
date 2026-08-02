@@ -18,7 +18,7 @@
     </ItemGroup>
 
     <!-- Run the OpenAPI generator before build -->
-    <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Target Name="GenerateApi" BeforeTargets="BeforeBuild">
         <Exec Command="./generate-dotnet-api.sh" />
     </Target>
 </Project>
