@@ -3,7 +3,7 @@
 echo "Start generating models and API..."
 
 docker run --rm \
-  -v ${PWD}:/local openapitools/openapi-generator-cli generate \
+  -v ${PWD}:/local:rw openapitools/openapi-generator-cli generate \
   -i /local/openapi_v3.yaml \
   -g aspnetcore \
   -o /local/tmp/generated_code \
@@ -20,9 +20,5 @@ rm -R ${PWD}/Generated
 mkdir "Generated"
 mv ${PWD}/tmp/generated_code/src/Common.Contracts.Generated/Attributes ${PWD}/Generated/Attributes
 mv ${PWD}/tmp/generated_code/src/Common.Contracts.Generated/Converters ${PWD}/Generated/Converters
-mv ${PWD}/tmp/generated_code/src/Common.Contracts.Generated/Controllers ${PWD}/Generated/Controllers
 mv ${PWD}/tmp/generated_code/src/Common.Contracts.Generated/Models ${PWD}/Generated/Models
 rm -R ${PWD}/tmp
-
-#mv ${PWD}/tmp/generated_code/src/Common.Contracts.Generated/Models ${PWD}/Common.Contracts/Generated
-#mv ${PWD}/tmp/generated_code/src/Server.Api.Controllers.Generated/Controllers ${PWD}/Server.Api/Controllers/Generated
