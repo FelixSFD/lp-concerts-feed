@@ -56,7 +56,7 @@ Resources:
   ConcertsApiV3:
     Type: AWS::Serverless::Api
     Properties:
-      Name: !Sub ${BaseProductName}-api
+      Name: !Sub ${BaseProductName}-api-v3
       StageName: v3
       Cors:
         AllowMethods: "'POST, GET, PUT, DELETE'"
@@ -273,3 +273,8 @@ Outputs:
     Value: !Sub "${ConcertsApiV2}.execute-api.${AWS::Region}.amazonaws.com"
     Export:
       Name: !Sub '${BaseProductName}-api-gateway-domain'
+  ConcertsApiGatewayDomainV3Export:
+    Description: Domain of API Gateway V3
+    Value: !Sub "${ConcertsApiV3}.execute-api.${AWS::Region}.amazonaws.com"
+    Export:
+      Name: !Sub '${BaseProductName}-api-gateway-domain-v3'

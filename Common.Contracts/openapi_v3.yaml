@@ -4,9 +4,9 @@ info:
   description: This is the API for the Linkin Park Concert Calendar fan project
   version: 3.0.0
 servers:
-  - url: http://localhost:5133/v3
+  - url: http://localhost:5133
 paths:
-  /Concerts:
+  /v3/Concerts:
     post:
       tags:
         - Concerts
@@ -53,17 +53,13 @@ paths:
           in: query
           schema:
             pattern: ^-?(?:0|[1-9]\d*)$
-            type:
-              - integer
-              - string
+            type: string
             format: uint32
         - name: Skip
           in: query
           schema:
             pattern: ^-?(?:0|[1-9]\d*)$
-            type:
-              - integer
-              - string
+            type: string
             format: uint32
         - name: OrderBy
           in: query
@@ -95,7 +91,7 @@ paths:
         httpMethod: GET
         uri: https://api.dev.lpshows.felixsfd.de/v3/Concerts
   
-  /Concerts/{concertId}:
+  /v3/Concerts/{concertId}:
     put:
       tags:
         - Concerts
@@ -205,7 +201,7 @@ paths:
           integration.request.path.concertId: method.request.path.concertId
       security:
         - Bearer: []
-  /Concerts/{concertId}/details:
+  /v3/Concerts/{concertId}/details:
     get:
       tags:
         - Concerts
@@ -239,10 +235,10 @@ paths:
         requestParameters:
           integration.request.path.concertId: method.request.path.concertId
   
-  /concerts/{id}/bookmarks/count:
+  /v2/concerts/{id}/bookmarks/count:
     get:
       operationId: GetBookmarkCountForConcert
-      summary: Checks how many bookmarks there are for a concert. Use GetBookmarkStatusForConcert if you want to check the status for the ucrrent user
+      summary: Checks how many bookmarks there are for a concert. Use GetBookmarkStatusForConcert if you want to check the status for the current user
       tags:
         - concerts
       parameters:
@@ -274,7 +270,7 @@ paths:
         contentHandling: "CONVERT_TO_TEXT"
         type: "aws_proxy"
   
-  /ConcertTypes:
+  /v3/ConcertTypes:
     post:
       tags:
         - ConcertTypes
@@ -336,7 +332,8 @@ paths:
         uri: https://api.dev.lpshows.felixsfd.de/v3/ConcertTypes
       security:
         - Bearer: []
-  /ConcertTypes/{concertTypeId}:
+  
+  /v3/ConcertTypes/{concertTypeId}:
     get:
       tags:
         - ConcertTypes
@@ -415,7 +412,7 @@ paths:
         uri: https://api.dev.lpshows.felixsfd.de/v3/ConcertTypes/{concertTypeId}
         requestParameters:
           integration.request.path.concertId: method.request.path.concertTypeId
-  /countries:
+  /v3/countries:
     post:
       tags:
         - Countries
@@ -470,7 +467,7 @@ paths:
         type: HTTP_PROXY
         httpMethod: GET
         uri: https://api.dev.lpshows.felixsfd.de/v3/countries
-  /countries/{countryCode}:
+  /v3/countries/{countryCode}:
     put:
       tags:
         - Countries
@@ -581,7 +578,7 @@ paths:
           integration.request.path.concertId: method.request.path.countryCode
       security:
         - Bearer: []
-  /countries/{countryCode}/states:
+  /v3/countries/{countryCode}/states:
     post:
       tags:
         - Countries
@@ -655,7 +652,7 @@ paths:
         requestParameters:
           integration.request.path.concertId: method.request.path.countryCode
   
-  /countries/{countryCode}/states/{stateCode}:
+  /v3/countries/{countryCode}/states/{stateCode}:
     put:
       tags:
         - Countries
@@ -787,7 +784,7 @@ paths:
       security:
         - Bearer: []
   
-  /countries/{countryCode}/cities:
+  /v3/countries/{countryCode}/cities:
     post:
       tags:
         - Countries
@@ -861,7 +858,7 @@ paths:
         requestParameters:
           integration.request.path.concertId: method.request.path.countryCode
   
-  /countries/{countryCode}/cities/{cityId}:
+  /v3/countries/{countryCode}/cities/{cityId}:
     put:
       tags:
         - Countries
@@ -939,9 +936,7 @@ paths:
           required: true
           schema:
             pattern: ^-?(?:0|[1-9]\d*)$
-            type:
-              - integer
-              - string
+            type: string
             format: uint32
       responses:
         "200":
@@ -997,7 +992,7 @@ paths:
           integration.request.path.cityId: method.request.path.cityId
       security:
         - Bearer: []
-  /Tours:
+  /v3/Tours:
     post:
       tags:
         - Tours
@@ -1059,7 +1054,7 @@ paths:
         httpMethod: GET
         uri: https://api.dev.lpshows.felixsfd.de/v3/Tours
   
-  /Tours/{tourId}:
+  /v3/Tours/{tourId}:
     get:
       tags:
         - Tours
@@ -1119,7 +1114,7 @@ paths:
           integration.request.path.tourId: method.request.path.tourId
       security:
         - Bearer: []
-  /Tours/{tourId}/legs:
+  /v3/Tours/{tourId}/legs:
     post:
       tags:
         - Tours
@@ -1161,7 +1156,7 @@ paths:
           integration.request.path.tourId: method.request.path.tourId
       security:
         - Bearer: []
-  /Tours/{tourId}/legs/{legId}:
+  /v3/Tours/{tourId}/legs/{legId}:
     get:
       tags:
         - Tours
@@ -1235,7 +1230,7 @@ paths:
           integration.request.path.legId: method.request.path.legId
       security:
         - Bearer: []
-  /Venues:
+  /v3/Venues:
     post:
       tags:
         - Venues
@@ -1303,7 +1298,7 @@ paths:
         uri: https://api.dev.lpshows.felixsfd.de/v3/venues
       security:
         - Bearer: []
-  /Venues/{venueId}:
+  /v3/Venues/{venueId}:
     put:
       tags:
         - Venues
@@ -1421,7 +1416,7 @@ paths:
           integration.request.path.venueId: method.request.path.venueId
       security:
         - Bearer: []
-  /Venues/{venueId}/details:
+  /v3/Venues/{venueId}/details:
     get:
       tags:
         - Venues
@@ -1456,7 +1451,7 @@ paths:
         uri: https://api.dev.lpshows.felixsfd.de/v3/venues/{venueId}/details
         requestParameters:
           integration.request.path.venueId: method.request.path.venueId
-  /Venues/{venueId}/names:
+  /v3/Venues/{venueId}/names:
     post:
       tags:
         - Venues
@@ -1510,7 +1505,8 @@ paths:
           integration.request.path.venueId: method.request.path.venueId
       security:
         - Bearer: []
-  /Venues/{venueId}/names/{venueNameId}:
+  
+  /v3/Venues/{venueId}/names/{venueNameId}:
     put:
       tags:
         - Venues
@@ -1625,9 +1621,7 @@ components:
           type: string
           format: date
         to:
-          type:
-            - "null"
-            - string
+          type: string
           format: date
     CityWithCountry:
       required:
@@ -1647,14 +1641,10 @@ components:
           type: string
         id:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type:
-            - integer
-            - string
+          type: string
           format: uint32
         stateCode:
-          type:
-            - "null"
-            - string
+          type: string
         name:
           type: string
         nativeName:
@@ -1679,45 +1669,31 @@ components:
             - type: "null"
             - $ref: "#/components/schemas/TourLeg"
         customTitle:
-          type:
-            - "null"
-            - string
+          type: string
         venue:
           $ref: "#/components/schemas/VenueWithDetails"
         postedStartTime:
           type: string
           format: date-time
         mainStageTime:
-          type:
-            - "null"
-            - string
+          type: string
           format: date-time
         doorsTime:
-          type:
-            - "null"
-            - string
+          type: string
           format: date-time
         lpuEarlyEntryTime:
-          type:
-            - "null"
-            - string
+          type: string
           format: date-time
         lpuEarlyEntryConfirmed:
           type: boolean
         expectedSetDurationMinutes:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type:
-            - integer
-            - string
+          type: string
           format: uint32
         scheduleImageFile:
-          type:
-            - "null"
-            - string
+          type: string
         deletedAt:
-          type:
-            - "null"
-            - string
+          type: string
           format: date-time
         status:
           $ref: "#/components/schemas/ConcertStatusValue"
@@ -1754,9 +1730,7 @@ components:
       type: object
       properties:
         stateCode:
-          type:
-            - "null"
-            - string
+          type: string
         name:
           type: string
         nativeName:
@@ -1766,58 +1740,38 @@ components:
       properties:
         concertTypeId:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type:
-            - integer
-            - string
+          type: string
           format: uint32
         tourId:
-          type:
-            - "null"
-            - string
+          type: string
         tourLegId:
-          type:
-            - "null"
-            - string
+          type: string
         customTitle:
-          type:
-            - "null"
-            - string
+          type: string
         venueId:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type:
-            - integer
-            - string
+          type: string
           format: uint32
         postedStartTime:
           type: string
           format: date-time
         mainStageTime:
-          type:
-            - "null"
-            - string
+          type: string
           format: date-time
         doorsTime:
-          type:
-            - "null"
-            - string
+          type: string
           format: date-time
         lpuEarlyEntryTime:
-          type:
-            - "null"
-            - string
+          type: string
           format: date-time
         lpuEarlyEntryConfirmed:
           type: boolean
         expectedSetDurationMinutes:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type:
-            - integer
-            - string
+          type: string
           format: uint32
         scheduleImageFile:
-          type:
-            - "null"
-            - string
+          type: string
         status:
           $ref: "#/components/schemas/ConcertStatusValue"
     CreateConcertTypeRequest:
@@ -1878,14 +1832,10 @@ components:
           type: string
         stateCode:
           maxLength: 3
-          type:
-            - "null"
-            - string
+          type: string
         cityId:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type:
-            - integer
-            - string
+          type: string
           format: uint32
         currentName:
           type: string
@@ -1893,17 +1843,11 @@ components:
           type: string
         latitude:
           pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type:
-            - "null"
-            - number
-            - string
+          type: string
           format: double
         longitude:
           pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type:
-            - "null"
-            - number
-            - string
+          type: string
           format: double
     PreviousVenueName:
       required:
@@ -1915,15 +1859,11 @@ components:
       properties:
         venueId:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type:
-            - integer
-            - string
+          type: string
           format: uint32
         id:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type:
-            - integer
-            - string
+          type: string
           format: uint32
         name:
           type: string
@@ -1931,9 +1871,7 @@ components:
           type: string
           format: date
         usedUntil:
-          type:
-            - "null"
-            - string
+          type: string
           format: date
     RawConcert:
       required:
@@ -1944,63 +1882,42 @@ components:
           type: string
         concertTypeId:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type:
-            - integer
-            - string
+          type: string
           format: uint32
         tourId:
-          type:
-            - "null"
-            - string
+          type: string
         tourLegId:
-          type:
-            - "null"
-            - string
+          type: string
         customTitle:
-          type:
-            - "null"
-            - string
+          type: string
         venueId:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type:
-            - integer
-            - string
+          type: string
           format: uint32
         postedStartTime:
           type: string
           format: date-time
         mainStageTime:
-          type:
-            - "null"
-            - string
+          type: string
           format: date-time
         doorsTime:
-          type:
-            - "null"
-            - string
+          type: string
           format: date-time
         lpuEarlyEntryTime:
-          type:
-            - "null"
-            - string
+          type: string
           format: date-time
         lpuEarlyEntryConfirmed:
           type: boolean
         expectedSetDurationMinutes:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type:
-            - integer
-            - string
+          type: string
           format: uint32
         scheduleImageFile:
-          type:
-            - "null"
-            - string
+          type: string
         deletedAt:
-          type:
-            - "null"
-            - string
+          type: string
           format: date-time
+          nullable: true
         status:
           $ref: "#/components/schemas/ConcertStatusValue"
     State:
@@ -2072,9 +1989,8 @@ components:
       type: object
       properties:
         stateCode:
-          type:
-            - "null"
-            - string
+          type: string
+          nullable: true
         name:
           type: string
         nativeName:
@@ -2084,62 +2000,48 @@ components:
       properties:
         concertTypeId:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type:
-            - integer
-            - string
+          type: string
           format: uint32
         tourId:
-          type:
-            - "null"
-            - string
+          type: string
+          nullable: true
         tourLegId:
-          type:
-            - "null"
-            - string
+          type: string
+          nullable: true
         customTitle:
-          type:
-            - "null"
-            - string
+          type: string
+          nullable: true
         venueId:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type:
-            - integer
-            - string
+          type: string
           format: uint32
         postedStartTime:
           type: string
           format: date-time
         mainStageTime:
-          type:
-            - "null"
-            - string
+          type: string
+          nullable: true
           format: date-time
         doorsTime:
-          type:
-            - "null"
-            - string
+          type: string
+          nullable: true
           format: date-time
         lpuEarlyEntryTime:
-          type:
-            - "null"
-            - string
+          type: string
+          nullable: true
           format: date-time
         lpuEarlyEntryConfirmed:
           type: boolean
         expectedSetDurationMinutes:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type:
-            - integer
-            - string
+          type: string
           format: uint32
         scheduleImageFile:
-          type:
-            - "null"
-            - string
+          type: string
+          nullable: true
         deletedAt:
-          type:
-            - "null"
-            - string
+          type: string
+          nullable: true
           format: date-time
         status:
           $ref: "#/components/schemas/ConcertStatusValue"
@@ -2181,9 +2083,8 @@ components:
           type: string
           format: date
         to:
-          type:
-            - "null"
-            - string
+          type: string
+          nullable: true
           format: date
     UpdateVenueRequest:
       required:
@@ -2197,30 +2098,23 @@ components:
           type: string
         stateCode:
           maxLength: 3
-          type:
-            - "null"
-            - string
+          type: string
+          nullable: true
         cityId:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type:
-            - integer
-            - string
+          type: string
           format: uint32
         timeZone:
           type: string
         latitude:
           pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type:
-            - "null"
-            - number
-            - string
+          type: string
+          nullable: true
           format: double
         longitude:
           pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type:
-            - "null"
-            - number
-            - string
+          type: string
+          nullable: true
           format: double
     Venue:
       required:
@@ -2231,9 +2125,7 @@ components:
       properties:
         id:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type:
-            - integer
-            - string
+          type: string
           format: uint32
         countryCode:
           maxLength: 3
@@ -2241,14 +2133,10 @@ components:
           type: string
         stateCode:
           maxLength: 3
-          type:
-            - "null"
-            - string
+          type: string
         cityId:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type:
-            - integer
-            - string
+          type: string
           format: uint32
         currentName:
           type: string
@@ -2256,17 +2144,13 @@ components:
           type: string
         latitude:
           pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type:
-            - "null"
-            - number
-            - string
+          type: string
+          nullable: true
           format: double
         longitude:
           pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type:
-            - "null"
-            - number
-            - string
+          type: string
+          nullable: true
           format: double
     VenueWithCity:
       required:
@@ -2280,9 +2164,7 @@ components:
           $ref: "#/components/schemas/CityWithCountry"
         id:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type:
-            - integer
-            - string
+          type: string
           format: uint32
         countryCode:
           maxLength: 3
@@ -2290,14 +2172,11 @@ components:
           type: string
         stateCode:
           maxLength: 3
-          type:
-            - "null"
-            - string
+          type: string
+          nullable: true
         cityId:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type:
-            - integer
-            - string
+          type: string
           format: uint32
         currentName:
           type: string
@@ -2305,17 +2184,13 @@ components:
           type: string
         latitude:
           pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type:
-            - "null"
-            - number
-            - string
+          type: string
+          nullable: true
           format: double
         longitude:
           pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type:
-            - "null"
-            - number
-            - string
+          type: string
+          nullable: true
           format: double
     VenueWithDetails:
       required:
@@ -2334,9 +2209,7 @@ components:
           $ref: "#/components/schemas/CityWithCountry"
         id:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type:
-            - integer
-            - string
+          type: string
           format: uint32
         countryCode:
           maxLength: 3
@@ -2344,14 +2217,11 @@ components:
           type: string
         stateCode:
           maxLength: 3
-          type:
-            - "null"
-            - string
+          type: string
+          nullable: true
         cityId:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type:
-            - integer
-            - string
+          type: string
           format: uint32
         currentName:
           type: string
@@ -2359,20 +2229,16 @@ components:
           type: string
         latitude:
           pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type:
-            - "null"
-            - number
-            - string
+          type: string
+          nullable: true
           format: double
         longitude:
           pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type:
-            - "null"
-            - number
-            - string
+          type: string
+          nullable: true
           format: double
     
-    # Schemas from Lambdas
+    # Schemas from v2
     GetConcertBookmarkCountsResponse:
       type: object
       description: Response from server to tell the number of people who bookmarked or attended a show
