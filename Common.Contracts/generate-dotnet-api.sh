@@ -31,12 +31,14 @@ whoami
 
 rm -R ${PWD}/Generated
 mkdir "Generated"
-cp -R ${PWD}/tmp/generated_code/src/Common.Contracts.Generated/Attributes ${PWD}/Generated/Attributes
-cp -R ${PWD}/tmp/generated_code/src/Common.Contracts.Generated/Converters ${PWD}/Generated/Converters
-cp -R ${PWD}/tmp/generated_code/src/Common.Contracts.Generated/Models ${PWD}/Generated/Models
 
-ls -la ${PWD}/Generated
 ls -la ${PWD}/tmp
 ls -la ${PWD}/tmp/generated_code/src/Common.Contracts.Generated/Models/
+
+mv ${PWD}/tmp/generated_code/src/Common.Contracts.Generated/Attributes ${PWD}/Generated/Attributes
+mv ${PWD}/tmp/generated_code/src/Common.Contracts.Generated/Converters ${PWD}/Generated/Converters
+mv ${PWD}/tmp/generated_code/src/Common.Contracts.Generated/Models ${PWD}/Generated/Models
+
+ls -la ${PWD}/Generated
 
 rm -R ${PWD}/tmp
