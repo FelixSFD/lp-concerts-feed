@@ -33,6 +33,20 @@ internal static class DtoMapper
         };
     }
     
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bo">BusinessObject to map</param>
+    /// <returns>the mapped DTO</returns>
+    public static ConcertTypeDto ToDto(this ConcertTypeBo bo)
+    {
+        return new ConcertTypeDto
+        {
+            Id = (int)bo.Id,
+            Name = bo.Name,
+        };
+    }
+    
     #endregion
 
     #region Tours

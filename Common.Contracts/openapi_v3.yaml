@@ -1452,11 +1452,7 @@ components:
       type: object
       properties:
         id:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type:
-            - integer
-            - string
-          format: uint32
+          type: integer
         name:
           type: string
     Country:

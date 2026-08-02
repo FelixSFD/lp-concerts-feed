@@ -1,4 +1,3 @@
-using Common.Contracts.Generated.Controllers;
 using Common.Contracts.Generated.Models;
 using Microsoft.AspNetCore.Mvc;
 using Server.Api.Auth;
@@ -15,7 +14,7 @@ namespace Server.Api.Controllers;
 /// <param name="cancellationToken">Token to cancel the request</param>
 [ApiController]
 [Route("v3/[controller]")]
-public class ConcertTypesController(ConcertService concertService, ILogger<ConcertTypesController> logger, CancellationToken cancellationToken) : ConcertTypesApiController
+public class ConcertTypesController(ConcertService concertService, ILogger<ConcertTypesController> logger) : ControllerBase
 {
     /// <summary>
     /// Creates a new type of concert
@@ -24,7 +23,7 @@ public class ConcertTypesController(ConcertService concertService, ILogger<Conce
     /// <returns></returns>
     [HttpPost]
     [AuthorizeRoles]
-    public override async Task<IActionResult> CreateConcertType([FromBody] CreateConcertTypeRequestDto createConcertTypeRequestDto)
+    public async Task<CreatedAtActionResult> CreateConcertType([FromBody] CreateConcertTypeRequestDto createConcertTypeRequestDto)
     {
         var createdType = await concertService.CreateConcertTypeAsync(createConcertTypeRequestDto.ToBo());
         return CreatedAtAction(nameof(GetTypeById), new { concertTypeId = createdType.Id }, createdType);
@@ -36,10 +35,11 @@ public class ConcertTypesController(ConcertService concertService, ILogger<Conce
     /// <returns>information about the concert types</returns>
     [HttpGet]
     [AuthorizeRoles]
-    public override async Task<IActionResult> GetConcertTypes()
+    public async Task<ActionResult<ConcertTypeDto>> GetConcertTypes(CancellationToken cancellationToken)
     {
         var types = await concertService
             .GetConcertTypesAsync(cancellationToken)
+            .Select(DtoMapper.ToDto)
             .ToArrayAsync(cancellationToken);
         return Ok(types);
     }
@@ -50,7 +50,7 @@ public class ConcertTypesController(ConcertService concertService, ILogger<Conce
     /// <param name="concertTypeId">ID of the concert type</param>
     /// <returns>information about the concert type</returns>
     [HttpGet("{concertTypeId:int}")]
-    public override async Task<IActionResult> GetTypeById(int concertTypeId)
+    public async Task<ActionResult<ConcertTypeDto>> GetTypeById(int concertTypeId)
     {
         var type = await concertService.GetConcertTypeAsync(concertTypeId.ConvertToUnsigned());
         return Ok(type);
@@ -63,9 +63,9 @@ public class ConcertTypesController(ConcertService concertService, ILogger<Conce
     /// <param name="request">new data for the type</param>
     /// <returns>updated information about the concert type</returns>
     [HttpPut("{concertTypeId:int}")]
-    public override async Task<IActionResult> UpdateType([FromRoute] int concertTypeId, [FromBody] UpdateConcertTypeRequestDto request)
+    public async Task<ActionResult<ConcertTypeDto>> UpdateType([FromRoute] int concertTypeId, [FromBody] UpdateConcertTypeRequestDto request)
     {
         var type = await concertService.UpdateConcertTypeAsync(request.ToBo(), concertTypeId.ConvertToUnsigned());
-        return Ok(type);
+        return Ok(type.ToDto());
     }
 }
