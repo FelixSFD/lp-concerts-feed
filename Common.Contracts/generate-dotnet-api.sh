@@ -1,10 +1,19 @@
 #!/bin/bash
 
+if stat -c '%u:%g' . >/dev/null 2>&1; then
+    owner=$(stat -c '%u:%g' .)
+else
+    owner=$(stat -f '%u:%g' .)
+fi
+
+echo "Current directory owner: $owner"
+
 echo "Start generating models and API..."
 
 mkdir -p tmp/generated_code 
 
 docker run --rm \
+  --user "$owner" \
   -v ${PWD}:/local:rw openapitools/openapi-generator-cli generate \
   -i /local/openapi_v3.yaml \
   -g aspnetcore \
