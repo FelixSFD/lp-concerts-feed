@@ -2,6 +2,8 @@
 
 echo "Start generating models and API..."
 
+mkdir -p tmp/generated_code 
+
 docker run --rm \
   -v ${PWD}:/local:rw openapitools/openapi-generator-cli generate \
   -i /local/openapi_v3.yaml \
@@ -15,6 +17,8 @@ docker run --rm \
 
 
 echo "Finished generating models and API."
+
+whoami
 
 rm -R ${PWD}/Generated
 mkdir "Generated"
