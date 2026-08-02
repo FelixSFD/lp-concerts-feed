@@ -5,6 +5,7 @@ import {OsmCity} from '../data/osm/osm-city';
 import {Coordinates} from '../data/location/coordinates';
 import {environment} from '../../environments/environment';
 import {TimeZoneResponseDto, TimezoneService} from '../modules/lpshows-api';
+import { CountriesApi, CountryDto } from '../modules/lpshows-api/v3';
 
 /**
  * Service to retrieve location data like coordinates and timezones
@@ -15,8 +16,14 @@ import {TimeZoneResponseDto, TimezoneService} from '../modules/lpshows-api';
 export class LocationsService {
   private osmApiBaseUrl = "https://nominatim.openstreetmap.org";
 
-  constructor(private httpClient: HttpClient, private timezoneApiClient: TimezoneService) { }
+  constructor(private httpClient: HttpClient, private timezoneApiClient: TimezoneService, private countriesApi: CountriesApi) { }
 
+  /**
+   * Returns a list of all countries
+   */
+  getCountries(): Observable<CountryDto> {
+    return this.countriesApi.getCountries();
+  }
 
   getCoordinatesFor(city: string, state: string | null, country: string): Observable<Coordinates | undefined> {
     let osmUrl = this.osmApiBaseUrl + "/search.php?format=jsonv2&city=" + encodeURIComponent(city) + "&country=" + encodeURIComponent(country);
