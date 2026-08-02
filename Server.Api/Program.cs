@@ -172,7 +172,6 @@ if (app.Environment.IsDevelopment())
 app.UseAuthentication(); // responsible for constructing AuthenticationTicket objects representing the user's identity
 app.UseAuthorization();
 
-app.UsePathBase("/v3");
 app.MapControllers();
 
 app.MapHealthChecks("/health");

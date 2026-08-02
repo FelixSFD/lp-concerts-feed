@@ -11,7 +11,7 @@ namespace Server.Api.Controllers;
 /// <param name="service">Service that manages venues</param>
 /// <param name="logger">Logger</param>
 [ApiController]
-[Route("[controller]")]
+[Route("v3/[controller]")]
 public class VenuesController(VenueService service, ILogger<VenuesController> logger) : ControllerBase
 {
     /// <summary>
