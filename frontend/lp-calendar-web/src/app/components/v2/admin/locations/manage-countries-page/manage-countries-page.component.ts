@@ -62,7 +62,7 @@ export class ManageCountriesPageComponent {
       error: err => {
         let errorResponse: ErrorResponseDto = err.error;
         this.messageService.add({
-          severity: "danger",
+          severity: "error",
           summary: "Could not load countries!",
           text: errorResponse.message,
         });
