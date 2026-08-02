@@ -20,12 +20,12 @@ public class ConcertDetailsDto
     /// <summary>
     /// Information about the tour where this concert was played
     /// </summary>
-    public TourDto? Tour { get; set; }
+    public TourBo? Tour { get; set; }
     
     /// <summary>
     /// Information about the leg in the <see cref="Tour"/>
     /// </summary>
-    public TourLegDto? TourLeg { get; set; }
+    public TourLegBo? TourLeg { get; set; }
 
     /// <summary>
     /// Field to override the automatically generated title for this concert. Will only be used if it's not null

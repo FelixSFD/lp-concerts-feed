@@ -1,3 +1,4 @@
+using Asp.Versioning.Conventions;
 using Database.Tours;
 using Database.Tours.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -171,6 +172,7 @@ if (app.Environment.IsDevelopment())
 app.UseAuthentication(); // responsible for constructing AuthenticationTicket objects representing the user's identity
 app.UseAuthorization();
 
+app.UsePathBase("/v3");
 app.MapControllers();
 
 app.MapHealthChecks("/health");

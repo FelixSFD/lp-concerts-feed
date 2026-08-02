@@ -328,11 +328,11 @@ internal static class DtoMapper
     }
 
     /// <summary>
-    /// Creates a new <see cref="TourDo"/> from a <see cref="CreateTourRequestDto"/>
+    /// Creates a new <see cref="TourDo"/> from a <see cref="CreateTourRequest"/>
     /// </summary>
     /// <param name="dto"></param>
     /// <returns>the new data object</returns>
-    public static TourDo ToDo(this CreateTourRequestDto dto)
+    public static TourDo ToDo(this CreateTourRequest dto)
     {
         return new TourDo
         {
@@ -342,13 +342,13 @@ internal static class DtoMapper
     }
     
     /// <summary>
-    /// Creates a new <see cref="TourDto"/> from a <see cref="TourDo"/>
+    /// Creates a new <see cref="TourBo"/> from a <see cref="TourDo"/>
     /// </summary>
     /// <param name="dataObject"></param>
     /// <returns>the new DTO</returns>
-    public static TourDto ToDto(this TourDo dataObject)
+    public static TourBo ToDto(this TourDo dataObject)
     {
-        return new TourDto
+        return new TourBo
         {
             Id = dataObject.Id,
             Name = dataObject.Name,
@@ -357,12 +357,12 @@ internal static class DtoMapper
     }
     
     /// <summary>
-    /// Creates a new <see cref="TourLegDo"/> from a <see cref="AddTourLegRequestDto"/>
+    /// Creates a new <see cref="TourLegDo"/> from a <see cref="AddTourLegRequest"/>
     /// </summary>
     /// <param name="dto"></param>
     /// <param name="tourId">ID of the tour that contains this new leg</param>
     /// <returns>the new data object</returns>
-    public static TourLegDo ToDo(this AddTourLegRequestDto dto, string tourId)
+    public static TourLegDo ToDo(this AddTourLegRequest dto, string tourId)
     {
         return new TourLegDo
         {
@@ -373,13 +373,13 @@ internal static class DtoMapper
     }
     
     /// <summary>
-    /// Creates a new <see cref="TourLegDto"/> from a <see cref="TourLegDo"/>
+    /// Creates a new <see cref="TourLegBo"/> from a <see cref="TourLegDo"/>
     /// </summary>
     /// <param name="dataObject"></param>
     /// <returns>the new DTO</returns>
-    public static TourLegDto ToDto(this TourLegDo dataObject)
+    public static TourLegBo ToDto(this TourLegDo dataObject)
     {
-        return new TourLegDto
+        return new TourLegBo
         {
             TourId = dataObject.TourId,
             Id = dataObject.Id,
@@ -413,7 +413,7 @@ internal static class DtoMapper
     }
     
     /// <summary>
-    /// Creates a new <see cref="TourLegDto"/> from a <see cref="ConcertTypeDo"/>
+    /// Creates a new <see cref="TourLegBo"/> from a <see cref="ConcertTypeDo"/>
     /// </summary>
     /// <param name="dataObject"></param>
     /// <returns>the new DTO</returns>

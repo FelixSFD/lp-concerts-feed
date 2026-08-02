@@ -1,4 +1,5 @@
-using LPCalendar.DataStructure.Tours;
+using Common.Contracts.Generated.Controllers;
+using Common.Contracts.Generated.Models;
 using Microsoft.AspNetCore.Mvc;
 using Server.Api.Auth;
 using Service.Tours;
@@ -11,32 +12,30 @@ namespace Server.Api.Controllers;
 /// <param name="tourService"></param>
 /// <param name="logger"></param>
 [ApiController]
-[Route("v3/[controller]")]
-public class ToursController(TourService tourService, ILogger<ToursController> logger) : ControllerBase
+public class ToursController(TourService tourService, ILogger<ToursController> logger, CancellationToken cancellationToken) : ToursApiController
 {
     /// <summary>
     /// Creates a new tour
     /// </summary>
-    /// <param name="request"></param>
+    /// <param name="createTourRequestDto"></param>
     /// <returns></returns>
-    [HttpPost]
     [AuthorizeRoles]
-    public async Task<CreatedAtActionResult> CreateTour([FromBody] CreateTourRequestDto request)
+    public override async Task<IActionResult> CreateTour([FromBody] CreateTourRequestDto createTourRequestDto)
     {
-        var createdTour = await tourService.CreateTourAsync(request);
+        var createdTour = await tourService.CreateTourAsync(createTourRequestDto.ToBo());
         logger.LogDebug("Successfully created tour: {tourName} (ID: {tourId})", createdTour.Name, createdTour.Id);
-        return CreatedAtAction(nameof(GetTour), new { tourId = request.Id }, request);
+        return CreatedAtAction(nameof(GetTour), new { tourId = createTourRequestDto.Id }, createdTour);
     }
     
     /// <summary>
     /// Returns a list of all tours
     /// </summary>
     /// <returns>List of all tours</returns>
-    [HttpGet]
-    public async Task<ActionResult<TourDto[]>> GetTours(CancellationToken cancellationToken)
+    public override async Task<IActionResult> GetTours()
     {
         var tours = await tourService
             .GetToursAsync(cancellationToken)
+            .Select(DtoMapper.ToDto)
             .ToArrayAsync(cancellationToken);
         return Ok(tours);
     }
@@ -46,11 +45,10 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
     /// </summary>
     /// <param name="tourId">ID of the tour</param>
     /// <returns></returns>
-    [HttpGet("{tourId}")]
-    public async Task<ActionResult<TourDto>> GetTour([FromRoute] string tourId)
+    public override async Task<IActionResult> GetTour([FromRoute] string tourId)
     {
         var tour = await tourService.GetTourByIdAsync(tourId);
-        return Ok(tour);
+        return Ok(tour.ToDto());
     }
     
     /// <summary>
@@ -60,7 +58,7 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
     /// <returns>no content</returns>
     [HttpDelete("{tourId}")]
     [AuthorizeRoles]
-    public async Task<NoContentResult> DeleteTour([FromRoute] string tourId)
+    public override async Task<IActionResult> DeleteTour([FromRoute] string tourId)
     {
         await tourService.DeleteTourAsync(tourId);
         return NoContent();
@@ -69,18 +67,18 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
     /// <summary>
     /// Creates a new leg of a tour
     /// </summary>
-    /// <param name="request"></param>
+    /// <param name="addTourLegRequestDto"></param>
     /// <param name="tourId">ID of the tour</param>
     /// <returns></returns>
     [HttpPost("{tourId}/legs")]
     [AuthorizeRoles]
-    public async Task<CreatedAtActionResult> CreateTourLeg([FromBody] AddTourLegRequestDto request, [FromRoute] string tourId)
+    public override async Task<IActionResult> CreateTourLeg(string tourId, AddTourLegRequestDto addTourLegRequestDto)
     {
-        var createdTourLeg = await tourService.AddTourLegAsync(request, tourId);
+        var createdTourLeg = await tourService.AddTourLegAsync(addTourLegRequestDto.ToBo(), tourId);
         logger.LogDebug("Successfully created tour leg: {tourName} (ID: {tourId})", createdTourLeg.Name, createdTourLeg.Id);
-        return CreatedAtAction(nameof(GetTourLeg), new { tourId = createdTourLeg.TourId, legId = createdTourLeg.Id }, request);
+        return CreatedAtAction(nameof(GetTourLeg), new { tourId = createdTourLeg.TourId, legId = createdTourLeg.Id }, createdTourLeg.ToDto());
     }
-    
+
     /// <summary>
     /// Returns information about a tour leg
     /// </summary>
@@ -88,11 +86,11 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
     /// <param name="legId">ID of the tour leg</param>
     /// <returns>information about the leg</returns>
     [HttpGet("{tourId}/legs/{legId}")]
-    public async Task<ActionResult<TourLegDto>> GetTourLeg([FromRoute] string tourId, [FromRoute] string legId)
+    public override async Task<IActionResult> GetTourLeg([FromRoute] string tourId, [FromRoute] string legId)
     {
         var leg = await tourService.GetTourLegByIdAsync(tourId, legId);
         logger.LogDebug("Found tour leg: {legName} (Tour: {tourId})", leg.Name, leg.TourId);
-        return Ok(leg);
+        return Ok(leg.ToDto());
     }
     
     /// <summary>
@@ -103,7 +101,7 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
     /// <returns>no content</returns>
     [HttpDelete("{tourId}/legs/{legId}")]
     [AuthorizeRoles]
-    public async Task<NoContentResult> DeleteTourLeg([FromRoute] string tourId, [FromRoute] string legId)
+    public override async Task<IActionResult> DeleteTourLeg([FromRoute] string tourId, [FromRoute] string legId)
     {
         await tourService.DeleteTourLegAsync(tourId, legId);
         return NoContent();

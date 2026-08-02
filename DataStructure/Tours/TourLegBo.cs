@@ -3,7 +3,7 @@ namespace LPCalendar.DataStructure.Tours;
 /// <summary>
 /// Basic information about a tour leg
 /// </summary>
-public class TourLegDto
+public class TourLegBo
 {
     /// <summary>
     /// ID of the Tour

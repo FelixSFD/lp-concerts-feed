@@ -1,17 +1,17 @@
 namespace LPCalendar.DataStructure.Tours;
 
 /// <summary>
-/// Request to create a new tour
+/// Request to add a new leg to a tour
 /// </summary>
-public class CreateTourRequestDto
+public class AddTourLegRequest
 {
     /// <summary>
-    /// Unique ID
+    /// Unique ID of this leg
     /// </summary>
     public required string Id { get; set; }
 
     /// <summary>
-    /// Name of this tour
+    /// Name of this tour leg
     /// </summary>
     public required string Name { get; set; }
 }

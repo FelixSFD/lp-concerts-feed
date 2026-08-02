@@ -932,13 +932,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AdurLegRequest"
+              $ref: "#/components/schemas/AddTourLegRequest"
           text/json:
             schema:
-              $ref: "#/components/schemas/AdurLegRequest"
+              $ref: "#/components/schemas/AddTourLegRequest"
           application/*+json:
             schema:
-              $ref: "#/components/schemas/AdurLegRequest"
+              $ref: "#/components/schemas/AddTourLegRequest"
         required: true
       responses:
         "200":
@@ -1327,7 +1327,7 @@ paths:
         - Bearer: []
 components:
   schemas:
-    AdurLegRequest:
+    AddTourLegRequest:
       required:
         - id
         - name

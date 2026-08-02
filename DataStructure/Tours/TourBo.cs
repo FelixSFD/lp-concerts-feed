@@ -3,7 +3,7 @@ namespace LPCalendar.DataStructure.Tours;
 /// <summary>
 /// Basic information about a tour
 /// </summary>
-public class TourDto
+public class TourBo
 {
     /// <summary>
     /// Unique ID
@@ -18,5 +18,5 @@ public class TourDto
     /// <summary>
     /// Legs of this tour. Not all tours might be split into different legs.
     /// </summary>
-    public ICollection<TourLegDto> Legs { get; set; } = [];
+    public ICollection<TourLegBo> Legs { get; set; } = [];
 }

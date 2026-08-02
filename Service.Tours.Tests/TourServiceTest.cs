@@ -24,7 +24,7 @@ public class TourServiceTest
     [InlineData("oml-world-tour", "One More Light World Tour")]
     public async Task CreateTour(string tourId, string name)
     {
-        var request = new CreateTourRequestDto
+        var request = new CreateTourRequest
         {
             Id = tourId,
             Name = name,
@@ -163,7 +163,7 @@ public class TourServiceTest
             .Returns(mockTour);
         
         // call the service
-        var request = new AddTourLegRequestDto
+        var request = new AddTourLegRequest
         {
             Id = "fz-eu-2",
             Name = "Leg 2",

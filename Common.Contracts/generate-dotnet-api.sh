@@ -8,7 +8,7 @@ docker run --rm \
   -g aspnetcore \
   -o /local/tmp/generated_code \
   --additional-properties=packageName=Common.Contracts.Generated,modelNameSuffix=Dto \
-  --additional-properties=operationModifier=virtual,operationResultTask=true,operationIsAsync=true,useNewtonsoft=false,useSwashbuckle=false,useDateTimeOffset=true \
+  --additional-properties=operationModifier=abstract,classModifier=abstract,operationResultTask=true,operationIsAsync=false,useNewtonsoft=false,useSwashbuckle=false,useDateTimeOffset=true \
   --additional-properties=nullableReferenceTypes=true,useDataAnnotations=false \
     --global-property=models,apis,supportingFiles \
     --enable-post-process-file
