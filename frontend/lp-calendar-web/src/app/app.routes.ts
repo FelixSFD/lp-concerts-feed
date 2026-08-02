@@ -57,6 +57,14 @@ export const manageSetlistsGuard: CanActivateFn = (
   return authService.canManageSetlists;
 };
 
+export const manageLocationsGuard: CanActivateFn = (
+  route: ActivatedRouteSnapshot,
+  state: RouterStateSnapshot,
+) => {
+  const authService = inject(AuthService);
+  return authService.canManageLocations;
+};
+
 export const routes: Routes = [
   {
     path: 'home',
@@ -319,6 +327,13 @@ export const routes: Routes = [
         resolve: {
           album: albumResolver,
         },
+      },
+      {
+        path: 'countries',
+        loadComponent: () =>
+          import("./components/v2/admin/locations/manage-countries-page/manage-countries-page.component").then(m => m.ManageCountriesPageComponent),
+        title: baseTitle + 'Manage countries',
+        canActivate: [authGuard, manageLocationsGuard],
       },
     ]
   },

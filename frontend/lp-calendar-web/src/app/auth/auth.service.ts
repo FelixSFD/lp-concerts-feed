@@ -120,5 +120,12 @@ export class AuthService {
   get canManageUsers() {
     return this.isMemberOfOrAdmin("ManageUsers");
   }
+
+  /**
+   * true if the user can manage locations like countries, cities or venues
+   */
+  get canManageLocations() {
+    return this.isMemberOfOrAdmin("ManageLocations");
+  }
 }
 
