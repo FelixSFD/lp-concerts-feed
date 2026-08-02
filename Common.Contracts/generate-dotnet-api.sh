@@ -28,5 +28,6 @@ cp -R ${PWD}/tmp/generated_code/src/Common.Contracts.Generated/Models ${PWD}/Gen
 
 ls -la ${PWD}/Generated
 ls -la ${PWD}/tmp
+ls -la ${PWD}/tmp/generated_code/src/Common.Contracts.Generated/Models/
 
 rm -R ${PWD}/tmp
