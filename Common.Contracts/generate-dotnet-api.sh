@@ -14,7 +14,7 @@ mkdir -p tmp/generated_code
 
 docker run --rm \
   --user "$owner" \
-  -v ${PWD}:/local:rw openapitools/openapi-generator-cli generate \
+  -v ./:/local:rw openapitools/openapi-generator-cli generate \
   -i /local/openapi_v3.yaml \
   -g aspnetcore \
   -o /local/tmp/generated_code \
@@ -29,16 +29,17 @@ echo "Finished generating models and API."
 
 whoami
 
-rm -R ${PWD}/Generated
+rm -R ./Generated
 mkdir "Generated"
 
-ls -la ${PWD}/tmp
-ls -la ${PWD}/tmp/generated_code/src/Common.Contracts.Generated/Models/
+ls -la ./tmp
+ls -la ./tmp/generated_code/src/Common.Contracts.Generated/Models/
 
-mv ${PWD}/tmp/generated_code/src/Common.Contracts.Generated/Attributes ${PWD}/Generated/Attributes
-mv ${PWD}/tmp/generated_code/src/Common.Contracts.Generated/Converters ${PWD}/Generated/Converters
-mv ${PWD}/tmp/generated_code/src/Common.Contracts.Generated/Models ${PWD}/Generated/Models
+mv ./tmp/generated_code/src/Common.Contracts.Generated/Attributes ./Generated/Attributes
+mv ./tmp/generated_code/src/Common.Contracts.Generated/Converters ./Generated/Converters
+mv ./tmp/generated_code/src/Common.Contracts.Generated/Models ./Generated/Models
 
-ls -la ${PWD}/Generated
+ls -la ./Generated
+ls -la ./Generated/Models
 
-rm -R ${PWD}/tmp
+rm -R ./tmp
