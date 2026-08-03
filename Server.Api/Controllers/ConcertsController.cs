@@ -55,7 +55,7 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
     /// <returns></returns>
     [HttpGet("{concertId}")]
     [AuthorizeRoles]
-    [OutputCache(PolicyName = CachePolicyNames.Short)]
+    [OutputCache(PolicyName = CachePolicyNames.Short, Tags = [CacheTags.ConcertsAll, CacheTags.Concert])]
     public async Task<ActionResult<RawConcertDto>> GetRawConcertById([FromRoute] string concertId)
     {
         var concert = await concertService.GetConcertWithoutDetailsByIdAsync(concertId);
@@ -68,7 +68,7 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
     /// <param name="concertId"></param>
     /// <returns></returns>
     [HttpGet("{concertId}/details")]
-    [OutputCache(PolicyName = CachePolicyNames.Medium)]
+    [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll, CacheTags.Concert])]
     [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<ConcertDetailsDto>> GetConcertById([FromRoute] string concertId)
     {
@@ -84,7 +84,7 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
     /// <returns>List of concerts including referenced objects</returns>
     [HttpGet]
     [CustomResponseCache(Duration = CacheExpiration.Default)]
-    [OutputCache(PolicyName = CachePolicyNames.Medium)]
+    [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
     public async Task<ActionResult<ConcertDetailsDto[]>> GetConcertsAsync(CancellationToken cancellationToken, [FromQuery] GetConcertsFilterDto filter)
     {
         var concerts = await concertService.GetConcertsWithDetailsAsync(cancellationToken, filter).ToArrayAsync(cancellationToken);
