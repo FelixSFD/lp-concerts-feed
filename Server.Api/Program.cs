@@ -20,7 +20,9 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(
         policy =>
         {
-            policy.WithOrigins("http://localhost:4200");
+            policy
+                .WithOrigins(builder.Configuration.GetValue<string[]>("CORS:AllowedOrigins") ?? ["http://localhost:4200"])
+                .WithMethods(builder.Configuration.GetValue<string[]>("CORS:AllowedMethods") ?? []);
         });
 });
 
