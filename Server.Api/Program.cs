@@ -13,7 +13,7 @@ using Server.Api.HealthChecks;
 using Service.Tours;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration.AddEnvironmentVariables("App");
+builder.Configuration.AddEnvironmentVariables("App_");
 
 builder.Services.AddCors(options =>
 {
