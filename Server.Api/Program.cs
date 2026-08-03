@@ -13,7 +13,7 @@ using Server.Api.HealthChecks;
 using Service.Tours;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration.AddEnvironmentVariables();
+builder.Configuration.AddEnvironmentVariables("App");
 
 builder.Services.AddCors(options =>
 {
@@ -168,7 +168,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("EnableSwaggerUI"))
 {
     app.MapGet("/openapi/v3.yaml", () => Results.File(
         Path.Combine(
