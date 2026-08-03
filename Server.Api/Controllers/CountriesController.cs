@@ -1,7 +1,10 @@
+using Common.Utils.Cache;
 using LPCalendar.DataStructure.Tours.Locations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Server.Api.Auth;
+using Server.Api.Cache;
 using Service.Tours;
 
 namespace Server.Api.Controllers;
@@ -54,6 +57,8 @@ public class CountriesController(LocationService locationService, ILogger<Countr
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpGet]
+    [OutputCache(PolicyName = CachePolicyNames.Long)]
+    [CustomResponseCache(Duration = CacheExpiration.Long)]
     public async Task<ActionResult<CountryBo>> GetCountries(CancellationToken cancellationToken)
     {
         logger.LogDebug("Getting all countries");
@@ -70,6 +75,8 @@ public class CountriesController(LocationService locationService, ILogger<Countr
     /// <param name="countryCode">3-letter ISO-code of the country</param>
     /// <returns></returns>
     [HttpGet("{countryCode}")]
+    [OutputCache(PolicyName = CachePolicyNames.Default)]
+    [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<CountryBo>> GetCountryByIsoCode(string countryCode)
     {
         logger.LogDebug("Requested country by ISO code: {countryCode}", countryCode);
@@ -136,6 +143,8 @@ public class CountriesController(LocationService locationService, ILogger<Countr
     /// <param name="stateCode">Code of the state</param>
     /// <returns>The state including the information about the country</returns>
     [HttpGet("{countryCode}/states/{stateCode}")]
+    [OutputCache(PolicyName = CachePolicyNames.Default)]
+    [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<CountryBo>> GetState(string countryCode, string stateCode)
     {
         logger.LogDebug("Requested state '{stateCode}' in country '{countryCode}'", stateCode, countryCode);
@@ -151,6 +160,8 @@ public class CountriesController(LocationService locationService, ILogger<Countr
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpGet("{countryCode}/states")]
+    [OutputCache(PolicyName = CachePolicyNames.Default)]
+    [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<StateWithCountryDto>> GetStatesInCountry(string countryCode, CancellationToken cancellationToken)
     {
         logger.LogDebug("Getting all states in '{countryCode}'", countryCode);
@@ -220,6 +231,8 @@ public class CountriesController(LocationService locationService, ILogger<Countr
     /// <param name="cityId">ID of the city</param>
     /// <returns>The city including the information about the country</returns>
     [HttpGet("{countryCode}/cities/{cityId}")]
+    [OutputCache(PolicyName = CachePolicyNames.Default)]
+    [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<CityWithCountryDto>> GetCity(string countryCode, uint cityId)
     {
         logger.LogDebug("Requested city with ID '{cityId}' in country '{countryCode}'", cityId, countryCode);
@@ -235,6 +248,8 @@ public class CountriesController(LocationService locationService, ILogger<Countr
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpGet("{countryCode}/cities")]
+    [OutputCache(PolicyName = CachePolicyNames.Default)]
+    [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<CityWithCountryDto>> GetCitiesInCountry(string countryCode, CancellationToken cancellationToken)
     {
         logger.LogDebug("Getting all cities in '{countryCode}'", countryCode);

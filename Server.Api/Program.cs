@@ -1,14 +1,17 @@
 using Asp.Versioning.Conventions;
+using Common.Utils.Cache;
 using Database.Tours;
 using Database.Tours.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using Server.Api.Cache;
 using Server.Api.ExceptionHandling;
 using Server.Api.HealthChecks;
 using Service.Tours;
@@ -32,6 +35,43 @@ builder.Services.AddHttpLogging(opt =>
 {
     opt.LoggingFields = HttpLoggingFields.All;
     opt.CombineLogs = true;
+});
+
+// Configure cache
+builder.Services.AddResponseCaching(options =>
+{
+    options.SizeLimit = 128_000_000; // 128 MB
+});
+builder.Services.AddOutputCache(options =>
+{
+    options.SizeLimit = 128_000_000; // 128 MB
+    
+    // define policies
+    options.AddPolicy(CachePolicyNames.Short, policy =>
+    {
+        policy.Cache()
+            .Expire(TimeSpan.FromSeconds(CacheExpiration.Short));
+    });
+    options.AddPolicy(CachePolicyNames.Medium, policy =>
+    {
+        policy.Cache()
+            .Expire(TimeSpan.FromSeconds(CacheExpiration.Medium));
+    });
+    options.AddPolicy(CachePolicyNames.Long, policy =>
+    {
+        policy.Cache()
+            .Expire(TimeSpan.FromSeconds(CacheExpiration.Long));
+    });
+    options.AddPolicy(CachePolicyNames.VeryLong, policy =>
+    {
+        policy.Cache()
+            .Expire(TimeSpan.FromSeconds(CacheExpiration.VeryLong));
+    });
+    options.AddPolicy(CachePolicyNames.BasicallyForever, policy =>
+    {
+        policy.Cache()
+            .Expire(TimeSpan.FromSeconds(CacheExpiration.Maximum));
+    });
 });
 
 // Add services to the container.
@@ -148,7 +188,14 @@ builder.Services
     });
 
 // register API controllers
-builder.Services.AddControllers();
+builder.Services.AddControllers(opt =>
+{
+    opt.CacheProfiles.Add(CachePolicyNames.Short, new CacheProfile
+    {
+        Duration = CacheExpiration.Short,
+        Location = ResponseCacheLocation.Any,
+    });
+});
 
 //Register Problem Details Service for API Errors
 builder.Services.AddProblemDetails();
@@ -199,6 +246,9 @@ app.UseCors();
 
 app.UseAuthentication(); // responsible for constructing AuthenticationTicket objects representing the user's identity
 app.UseAuthorization();
+
+app.UseOutputCache();
+app.UseResponseCaching();
 
 app.MapControllers();
 
