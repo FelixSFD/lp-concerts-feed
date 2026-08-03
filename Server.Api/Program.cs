@@ -147,7 +147,7 @@ var cognitoAWSRegion = builder.Configuration["Cognito:AWSRegion"];
 var validIssuer = $"https://cognito-idp.{cognitoAWSRegion}.amazonaws.com/{cognitoUserPoolId}";
 var validAudience = cognitoAppClientId;
 
-builder.Services.AddDbContext<ToursDbContext>(options =>
+builder.Services.AddDbContextPool<ToursDbContext>(options =>
 {
     options.UseMySQL(connectionString, dbContextBuilder => dbContextBuilder.MigrationsAssembly(typeof(ToursDbContext).Assembly.FullName));
 });
