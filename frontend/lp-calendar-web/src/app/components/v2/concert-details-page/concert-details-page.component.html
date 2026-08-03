@@ -3,7 +3,12 @@
     <i class="pi pi-exclamation-circle"></i>
     <h2>{{ resolverError$.message }}</h2>
     <p>This show may have been removed, or the link isn't quite right.</p>
-    <p-button label="Back to concerts" icon="pi pi-arrow-left" [routerLink]="['/concerts']" variant="outlined" />
+    <p-button
+      label="Back to concerts"
+      icon="pi pi-arrow-left"
+      [routerLink]="['/concerts']"
+      variant="outlined"
+    />
   </div>
 } @else if (concert$ == null) {
   <div class="loading-skeleton" aria-busy="true">
@@ -24,13 +29,26 @@
         variant="text"
         severity="secondary"
         [disabled]="adjacentConcertData$?.previous == null"
-        [routerLink]="adjacentConcertData$?.previous ? ['../', adjacentConcertData$?.previous] : null"
+        [routerLink]="
+          adjacentConcertData$?.previous
+            ? ['../', adjacentConcertData$?.previous]
+            : null
+        "
         ariaLabel="Previous show"
       />
       <p-button
-        label="Next show" icon="pi pi-arrow-right" iconPos="right" variant="text" severity="secondary"
+        label="Next show"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        variant="text"
+        severity="secondary"
         [disabled]="adjacentConcertData$?.next == null"
-        [routerLink]="adjacentConcertData$?.next ? ['../', adjacentConcertData$?.next] : null" ariaLabel="Next show"
+        [routerLink]="
+          adjacentConcertData$?.next
+            ? ['../', adjacentConcertData$?.next]
+            : null
+        "
+        ariaLabel="Next show"
       />
     </div>
     <p-button
@@ -41,226 +59,318 @@
     />
   </div>
 
-  <p-card class="hero-card">
-    <div class="hero">
-      <div class="hero-main">
-        @if (concert$?.tourName) {
-          <p class="eyebrow">{{ concert$?.tourName }}</p>
-        }
-        <h1 class="hero-title">{{ ConcertTitleGenerator.getVenueTitleFor(concert$!) }}</h1>
-        <p class="hero-meta">
+  <section class="panel">
+    <div class="panel-head">
+      <span class="panel-label">
+        {{ concert$?.tourName ?? "Concert" }}
+      </span>
+
+      <div class="panel-tools">
+        <button
+          type="button"
+          class="tool-btn"
+          [class.tool-btn-on]="
+            concertBookmarks$?.currentUserStatus ===
+            GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Bookmarked
+          "
+          [disabled]="
+            concertBookmarks$ == null || concertBookmarksLoading$ || !isAuthenticated$
+          "
+          (click)="onBookmarkClicked()"
+          [pTooltip]="
+            isAuthenticated$ ? 'Bookmark this show' : 'Log in to bookmark'
+          "
+          tooltipPosition="bottom"
+        >
+          <i
+            [class]="
+              concertBookmarks$?.currentUserStatus ===
+              GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Bookmarked
+                ? 'pi pi-bookmark-fill'
+                : 'pi pi-bookmark'
+            "
+          ></i>
+          <span class="tool-label">Bookmark</span>
+          <span class="tool-count">{{ concertBookmarks$?.bookmarked ?? 0 }}</span>
+        </button>
+
+        <button
+          type="button"
+          class="tool-btn"
+          [class.tool-btn-on]="
+            concertBookmarks$?.currentUserStatus ===
+            GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Attending
+          "
+          [disabled]="
+            concertBookmarks$ == null || concertBookmarksLoading$ || !isAuthenticated$
+          "
+          (click)="onAttendingClicked()"
+          [pTooltip]="
+            isAuthenticated$ ? 'I will attend this show' : 'Log in to mark attendance'
+          "
+          tooltipPosition="bottom"
+        >
+          <i class="pi pi-ticket"></i>
+          <span class="tool-label">Attending</span>
+          <span class="tool-count">{{ concertBookmarks$?.attending ?? 0 }}</span>
+        </button>
+
+        <button
+          type="button"
+          class="tool-btn"
+          (click)="onAddToCalendarClicked()"
+          pTooltip="Add this show to your calendar"
+          tooltipPosition="bottom"
+        >
+          <i class="pi pi-calendar-plus"></i>
+          <span class="tool-label">Add to calendar</span>
+        </button>
+
+        <button
+          type="button"
+          class="tool-btn tool-btn-icon"
+          (click)="onShareClicked()"
+          aria-label="Share this show"
+          pTooltip="Share this show"
+          tooltipPosition="bottom"
+        >
+          <i class="pi pi-share-alt"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="panel-body">
+      <div class="lead-date">
+        <span class="lead-day">{{ concertDay }}</span>
+        <span class="lead-monthyear">
+          <span>{{ concertMonth }}</span>
+          <span class="lead-year">{{ concertYear }}</span>
+        </span>
+      </div>
+
+      <div class="lead-identity">
+        <h1 class="lead-venue">
+          {{ ConcertTitleGenerator.getVenueTitleFor(concert$!) }}
+        </h1>
+        <p class="lead-city">
           <i class="pi pi-map-marker"></i>
-          {{ concert$?.city }}{{ (concert$?.state?.length ?? 0) > 0 ? ", " + concert$?.state : "" }}
-          , {{ concert$?.country }}
-          · {{ getDateTimeInTimezone(concert$?.postedStartTime!, concert$?.timeZoneId!).toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY) }}
+          {{ concert$?.city
+          }}{{ (concert$?.state?.length ?? 0) > 0 ? ", " + concert$?.state : "" }},
+          {{ concert$?.country }}
         </p>
+
+        <div class="lead-tags">
+          <app-concert-badges [concert]="concert$"></app-concert-badges>
+        </div>
       </div>
 
       @if (!concert$?.isPast) {
-        <div class="hero-countdown">
-          <app-hero-countdown [countdownToDate]="concert$?.mainStageTime ?? concert$?.postedStartTime!" />
+        <div class="lead-countdown">
+          <app-hero-countdown
+            [countdownToDate]="concert$?.mainStageTime ?? concert$?.postedStartTime!"
+          />
         </div>
       } @else {
-        <div class="hero-ended">
+        <div class="lead-ended">
           <i class="pi pi-check-circle"></i>
           <span>This show has ended</span>
         </div>
       }
     </div>
-  </p-card>
 
-  <div class="hero-badges">
-    <app-concert-badges [concert]="concert$"></app-concert-badges>
-  </div>
-
-  <div class="action-strip">
-    <div class="action-strip-main">
-      <p-button
-        class="action-btn"
-        [icon]="concertBookmarks$?.currentUserStatus == 'Bookmarked' ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'"
-        [label]="'Bookmark · ' + (concertBookmarks$?.bookmarked ?? 0)"
-        (onClick)="onBookmarkClicked()"
-        [disabled]="concertBookmarks$ == null || concertBookmarksLoading$ || !isAuthenticated$"
-        variant="outlined" severity="secondary"
-        [pTooltip]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Bookmarked ? 'Remove bookmark' : 'Bookmark this show'"
-        tooltipPosition="bottom"
-      />
-      <p-button
-        class="action-btn action-btn-accent"
-        icon="pi pi-ticket"
-        [label]="'Attending · ' + (concertBookmarks$?.attending ?? 0)"
-        (onClick)="onAttendingClicked()"
-        [disabled]="concertBookmarks$ == null || concertBookmarksLoading$ || !isAuthenticated$"
-        variant="outlined" severity="secondary"
-        [pTooltip]="concertBookmarks$?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Attending ? 'Remove me from the show' : 'I will attend this show'"
-        tooltipPosition="bottom"
-      />
-      <p-button
-        class="action-btn action-btn-accent"
-        icon="pi pi-calendar-plus"
-        label="Add to calendar"
-        variant="outlined" severity="secondary"
-        pTooltip="Coming soon" tooltipPosition="bottom" disabled
-      />
-    </div>
-    <p-button
-      class="action-share" icon="pi pi-share-alt"
-      variant="outlined" severity="secondary"
-      (onClick)="onShareClicked()"
-      ariaLabel="Share" pTooltip="Share this show" tooltipPosition="bottom"
+    <app-concert-schedule
+      class="panel-schedule"
+      [concert]="concert$"
+      [showDiscordShare]="true"
     />
-  </div>
+  </section>
 
-  <p-card class="timeline-card">
-    <div class="timeline" [class.timeline--past]="concert$?.isPast">
-      <div class="timeline-step" [class.timeline-step--empty]="concert$?.lpuEarlyEntryTime == undefined">
-        <div class="timeline-marker"><i class="pi pi-star"></i></div>
-        @if (concert$?.lpuEarlyEntryTime != undefined) {
-          <div class="timeline-time">{{ getDateTimeInTimezone(concert$?.lpuEarlyEntryTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE) }}</div>
-          <div class="timeline-yours">{{ getDateTime(concert$?.lpuEarlyEntryTime!).toLocaleString(DateTime.TIME_SIMPLE) }}
-            your time
-          </div>
-        } @else {
-          <div class="timeline-time timeline-placeholder">—</div>
-        }
-        <div class="timeline-label">LPU early entry</div>
-        @if (concert$?.lpuEarlyEntryTime != undefined) {
-          <p-button
-            type="button"
-            class="timeline-copy"
-            (click)="discordShare.copyTimestamp(concert$?.lpuEarlyEntryTime, 'F', 'LPU early entry')"
-            pTooltip="Copy for Discord"
-            tooltipPosition="bottom"
-            aria-label="Copy Discord timestamp"
-          >
-            <i class="pi pi-discord"></i>
-          </p-button>
-        }
-      </div>
-
-      <i class="pi pi-chevron-right timeline-arrow" aria-hidden="true"></i>
-
-      <div class="timeline-step" [class.timeline-step--empty]="concert$?.doorsTime == undefined">
-        <div class="timeline-marker"><i class="pi pi-sign-in"></i></div>
-        @if (concert$?.doorsTime != undefined) {
-          <div class="timeline-time">{{ getDateTimeInTimezone(concert$?.doorsTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE) }}</div>
-          <div class="timeline-yours">{{ getDateTime(concert$?.doorsTime!).toLocaleString(DateTime.TIME_SIMPLE) }} your
-                                                                                                                   time
-          </div>
-        } @else {
-          <div class="timeline-time timeline-placeholder">—</div>
-        }
-        <div class="timeline-label">Doors open</div>
-        @if (concert$?.doorsTime != undefined) {
-          <p-button
-            type="button"
-            class="timeline-copy"
-            (click)="discordShare.copyTimestamp(concert$?.doorsTime, 'F', 'Doors open')"
-            pTooltip="Copy for Discord"
-            tooltipPosition="bottom"
-            aria-label="Copy Discord timestamp"
-          >
-            <i class="pi pi-discord"></i>
-          </p-button>
-        }
-      </div>
-
-      <i class="pi pi-chevron-right timeline-arrow" aria-hidden="true"></i>
-
-      @if (concert$?.mainStageTime != undefined) {
-        <div class="timeline-step timeline-step--lead">
-          <div class="timeline-marker"><i class="pi pi-microphone"></i></div>
-          <div class="timeline-time">{{ getDateTimeInTimezone(concert$?.mainStageTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE) }}</div>
-          <div class="timeline-yours">{{ getDateTime(concert$?.mainStageTime!).toLocaleString(DateTime.TIME_SIMPLE) }}
-            your time
-          </div>
-          <div class="timeline-label">LP stage time</div>
-          <p-button
-            type="button"
-            class="timeline-copy"
-            (click)="discordShare.copyTimestamp(concert$?.mainStageTime, 'F', 'LP stage time')"
-            pTooltip="Copy for Discord"
-            tooltipPosition="bottom"
-            aria-label="Copy Discord timestamp"
-          >
-            <i class="pi pi-discord"></i>
-          </p-button>
+  <div class="bento">
+    @if (concert$?.scheduleImageFile != undefined) {
+      <section class="tile">
+        <div class="tile-head">
+          <span class="panel-label">
+            <i class="pi pi-calendar"></i> Official schedule
+          </span>
         </div>
-      } @else {
-        <div class="timeline-step timeline-step--lead">
-          <div class="timeline-marker"><i class="pi pi-microphone"></i></div>
-          <div class="timeline-time">{{ getDateTimeInTimezone(concert$?.postedStartTime!, concert$?.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE) }}</div>
-          <div class="timeline-yours">{{ getDateTime(concert$?.postedStartTime!).toLocaleString(DateTime.TIME_SIMPLE) }}
-            your time
-          </div>
-          <div class="timeline-label">Show starts</div>
-          <p-button
-            type="button"
-            class="timeline-copy"
-            (click)="discordShare.copyTimestamp(concert$?.postedStartTime, 'F', 'Show starts')"
-            pTooltip="Copy for Discord"
-            tooltipPosition="bottom"
-            aria-label="Copy Discord timestamp"
-          >
-            <i class="pi pi-discord"></i>
-          </p-button>
-        </div>
-      }
-    </div>
-  </p-card>
-
-  @if ((concert$?.expectedSetDuration ?? 0) > 0) {
-    <p class="set-duration"><i class="pi pi-clock"></i> Expected set duration
-                                                        · {{ concert$?.expectedSetDuration ?? 0 | timeSpan }}</p>
-  }
-
-  @if (setlists$?.length ?? 0 > 0) {
-    @for (setlist of setlists$; track setlist) {
-      <p-card class="section-card">
-        <p class="section-head">
-          <i class="pi pi-list"></i> Setlist: {{ setlist.setName }}
-          <p-tag
-            value="BETA"
-            severity="secondary"
-            pTooltip="This is an early version of this feature and might not work perfectly"
-            tooltipPosition="top"
+        <div class="tile-media schedule-img">
+          <p-image
+            src="{{
+              environment.imageBaseUrl + '/' + concert$?.scheduleImageFile!
+            }}"
+            alt="Official schedule announcement"
+            [preview]="true"
           />
-        </p>
-
-        <app-setlist [setlist]="setlist" />
-
-        @if (setlistsCacheUpdatedAt$ != null) {
-          <small class="section-note">Last
-                                      updated: {{ setlistsCacheUpdatedAt$?.toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS) }}</small>
-        }
-      </p-card>
+        </div>
+      </section>
     }
-  }
 
-  @if (concert$?.scheduleImageFile != undefined || (concert$?.venueLatitude != 0 && concert$?.venueLongitude != 0)) {
-    <div class="panel-row">
-      @if (concert$?.venueLatitude != 0 && concert$?.venueLongitude != 0) {
-        <p-card class="panel-half">
-          <p class="section-head"><i class="pi pi-map-marker"></i> Venue location</p>
+    @if (concert$?.venueLatitude != 0 && concert$?.venueLongitude != 0) {
+      <section class="tile">
+        <div class="tile-head">
+          <span class="panel-label">
+            <i class="pi pi-map-marker"></i> Venue location
+          </span>
+        </div>
+        <div class="tile-media">
           <ng-container #mapContainer>
             <div #appleMaps class="map"></div>
           </ng-container>
-        </p-card>
-      }
-      @if (concert$?.scheduleImageFile != undefined) {
-        <p-card class="panel-half">
-          <p class="section-head"><i class="pi pi-calendar"></i> Official schedule</p>
-          <div class="schedule-img">
-            <p-image
-              src="{{ environment.imageBaseUrl + '/' + concert$?.scheduleImageFile! }}"
-              alt="Official schedule announcement"
-              [preview]="true"
-            />
-          </div>
-        </p-card>
-      }
-    </div>
-  }
+        </div>
+      </section>
+    }
+
+    @if (primarySetlist != null) {
+      <section class="tile">
+        <div class="tile-head">
+          <span class="panel-label">
+            <i class="pi pi-list"></i> Setlist
+          </span>
+          <p-tag
+            value="BETA"
+            severity="secondary"
+            [rounded]="true"
+            pTooltip="This is an early version of this feature and might not work perfectly"
+            tooltipPosition="top"
+          />
+        </div>
+
+        <ol class="setlist-preview">
+          @for (entry of primarySetlistPreview; track entry.id) {
+            <li class="sl-row">
+              <span class="sl-num">{{
+                entry.songNumber == 0 ? "-" : entry.songNumber
+              }}</span>
+              <span class="sl-title">{{ entry.title }}</span>
+            </li>
+          }
+        </ol>
+
+        <div class="tile-foot">
+          <span class="tile-note">
+            {{ primarySetlist!.entries.length }} songs
+          </span>
+          <p-button
+            label="Show full setlist"
+            icon="pi pi-window-maximize"
+            size="small"
+            variant="outlined"
+            (onClick)="onShowSetlistDialogClicked(primarySetlist!)"
+          />
+        </div>
+      </section>
+    }
+
+    @if (additionalSetlists.length > 0) {
+      <section class="tile tile-tabs">
+        <div class="tile-head">
+          <span class="panel-label">
+            <i class="pi pi-list"></i> Additional setlists
+          </span>
+        </div>
+
+        <p-tabs [value]="0">
+          <p-tablist>
+            @for (setlist of additionalSetlists; track setlist.id; let i = $index) {
+              <p-tab [value]="i">{{ setlist.setName || "Set " + (i + 2) }}</p-tab>
+            }
+          </p-tablist>
+          <p-tabpanels>
+            @for (setlist of additionalSetlists; track setlist.id; let i = $index) {
+              <p-tabpanel [value]="i">
+
+                <ol class="setlist-preview">
+                  @for (entry of previewFor(setlist); track entry.id) {
+                    <li class="sl-row">
+                      <span class="sl-num">{{
+                        entry.songNumber == 0 ? "-" : entry.songNumber
+                      }}</span>
+                      <span class="sl-title">{{ entry.title }}</span>
+                    </li>
+                  }
+                </ol>
+
+                <div class="tile-foot">
+                  <span class="tile-note">{{ setlist.entries.length }} songs</span>
+                  <p-button
+                    label="Show full setlist"
+                    icon="pi pi-window-maximize"
+                    size="small"
+                    variant="outlined"
+                    (onClick)="onShowSetlistDialogClicked(setlist)"
+                  />
+                </div>
+              </p-tabpanel>
+            }
+          </p-tabpanels>
+        </p-tabs>
+      </section>
+    }
+  </div>
+
+  <!-- Explore -->
+  <h2 class="section-title">Explore</h2>
+  <div class="rows">
+    <a class="row" [routerLink]="['/concerts']">
+      <span class="row-icon"><i class="pi pi-calendar"></i></span>
+      <span class="row-text">
+        <span class="row-name">All shows</span>
+        <span class="row-sub">Every date on the tour.</span>
+      </span>
+      <i class="pi pi-arrow-right row-arrow"></i>
+    </a>
+
+    <a class="row" [routerLink]="['/map']">
+      <span class="row-icon"><i class="pi pi-map"></i></span>
+      <span class="row-text">
+        <span class="row-name">World tour map</span>
+        <span class="row-sub">Every venue they have played.</span>
+      </span>
+      <i class="pi pi-arrow-right row-arrow"></i>
+    </a>
+
+    <a class="row" [routerLink]="['/app']">
+      <span class="row-icon"><i class="pi pi-apple"></i></span>
+      <span class="row-text">
+        <span class="row-name">iOS app</span>
+        <span class="row-sub">Free on the App Store.</span>
+      </span>
+      <i class="pi pi-arrow-right row-arrow"></i>
+    </a>
+
+    <a class="row" [routerLink]="['/about']">
+      <span class="row-icon"><i class="pi pi-info-circle"></i></span>
+      <span class="row-text">
+        <span class="row-name">About &amp; sources</span>
+        <span class="row-sub">Where the data comes from.</span>
+      </span>
+      <i class="pi pi-arrow-right row-arrow"></i>
+    </a>
+  </div>
+
+  <p-dialog
+    class="setlist-dialog"
+    [header]="'Setlist' + (setlistForDialog?.setName ? ': ' + setlistForDialog!.setName : '')"
+    [(visible)]="setlistDialogVisible"
+    [modal]="true"
+    [dismissableMask]="true"
+    [draggable]="false"
+  >
+    @if (setlistForDialog != null) {
+      <app-setlist [setlist]="setlistForDialog" [forceExpanded]="true" />
+    }
+
+    @if (setlistsCacheUpdatedAt$ != null) {
+      <small class="section-note">
+        Last updated:
+        {{
+          setlistsCacheUpdatedAt$?.toLocaleString(
+            DateTime.DATETIME_FULL_WITH_SECONDS
+          )
+        }}
+      </small>
+    }
+  </p-dialog>
 
   @if (canUpdateConcerts$ || canEditSetlists) {
     <div class="page-footer">

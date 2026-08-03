@@ -1,0 +1,75 @@
+@if (concert != null) {
+  <div class="schedule" [class.schedule-past]="isPast">
+    <div class="schedule-head">
+      <span class="schedule-heading">{{ heading }}</span>
+
+      @if (setDurationLabel) {
+        <span class="schedule-duration">
+          <i class="pi pi-clock"></i> {{ setDurationLabel }} set
+        </span>
+      }
+
+      @if (isPast) {
+        <span class="schedule-ended">
+          <i class="pi pi-check-circle"></i> This show has ended
+        </span>
+      }
+
+      @if (timezonesDiffer) {
+        <div class="tz-toggle" role="group" aria-label="Show times in">
+          <button
+            type="button"
+            [attr.aria-pressed]="showVenueTime"
+            (click)="setTimeMode(true)"
+          >
+            Venue time
+          </button>
+          <button
+            type="button"
+            [attr.aria-pressed]="!showVenueTime"
+            (click)="setTimeMode(false)"
+          >
+            My time
+          </button>
+        </div>
+      }
+    </div>
+
+    <div class="steps">
+      @for (step of steps; track step.key) {
+        <div class="step" [class.step-lead]="step.isLead">
+          <span class="step-label">{{ step.label }}</span>
+
+          @if (step.venueTime) {
+            <span class="step-time">
+              {{ showVenueTime ? step.venueTime : step.readerTime }}
+            </span>
+          } @else {
+            <span class="step-time step-time-none">—</span>
+          }
+
+          @if (step.note) {
+            <span class="step-note">{{ step.note }}</span>
+          }
+
+          <span class="step-badge" [class]="'step-badge-' + step.badgeKind">
+            {{ step.badge }}
+          </span>
+
+          @if (showDiscordShare && step.isoTime) {
+            <button
+              type="button"
+              class="step-discord"
+              (click)="discordShare.copyTimestamp(step.isoTime, 'F', step.label)"
+              pTooltip="Copy for Discord"
+              tooltipPosition="bottom"
+              [attr.aria-label]="'Copy ' + step.label + ' as a Discord timestamp'"
+            >
+              <i class="pi pi-discord"></i>
+            </button>
+          }
+        </div>
+      }
+    </div>
+  </div>
+}

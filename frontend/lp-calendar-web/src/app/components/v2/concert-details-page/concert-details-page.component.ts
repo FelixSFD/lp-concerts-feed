@@ -10,48 +10,52 @@ import {
 } from '../../../modules/lpshows-api';
 import {load, MapKit} from '@apple/mapkit-loader';
 import {Map as AppleMap} from 'apple-mapkit/mapkit';
-import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {Setlist} from '../../../data/setlists/setlist';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {ConcertsService} from '../../../services/concerts.service';
-import {SetlistsService} from '../../../services/setlists.service';
 import { DiscordShareService } from '../../../services/discord-share.service';
 import {Meta} from '@angular/platform-browser';
 import {HttpErrorResponse} from '@angular/common/http';
 import {DateTime} from 'luxon';
+import { Button } from 'primeng/button';
+import { Dialog } from 'primeng/dialog';
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
+import { Tag } from 'primeng/tag';
+import { Image } from 'primeng/image';
+
 import {environment} from '../../../../environments/environment';
 import {ConcertTitleGenerator} from '../../../data/concert-title-generator';
+import { downloadConcertIcs } from '../../../data/calendar-event';
 import {ConcertBadgesComponent} from '../concert-badges/concert-badges.component';
-import {ProgressSpinner} from 'primeng/progressspinner';
-import {Card} from 'primeng/card';
+import { ConcertScheduleComponent } from '../concert-schedule/concert-schedule.component';
 import {SplitButton} from 'primeng/splitbutton';
-import {NgTemplateOutlet} from '@angular/common';
-import {Button} from 'primeng/button';
-import {ButtonGroup} from 'primeng/buttongroup';
 import {MenuItem, MessageService} from 'primeng/api';
 import {FormsModule} from '@angular/forms';
 import {Tooltip} from 'primeng/tooltip';
-import {TimeSpanPipe} from '../../../data/time-span-pipe';
 import { HeroCountdownComponent } from '../hero-countdown/hero-countdown.component';
 import {SetlistComponent} from '../setlists/setlist/setlist.component';
-import {Tag} from 'primeng/tag';
-import { Image } from 'primeng/image';
+import { SetlistEntry } from '../../../data/setlists/setlist-entry';
 
 @Component({
   selector: 'app-concert-details-page',
   imports: [
     ConcertBadgesComponent,
-    Card,
-    SplitButton,
+    ConcertScheduleComponent,
     Button,
+    SplitButton,
     RouterLink,
     FormsModule,
     Tooltip,
-    TimeSpanPipe,
     HeroCountdownComponent,
     SetlistComponent,
     Tag,
-    Image
+    Image,
+    Dialog,
+    Tabs,
+    TabList,
+    Tab,
+    TabPanels,
+    TabPanel
   ],
   templateUrl: './concert-details-page.component.html',
   styleUrl: './concert-details-page.component.css',
@@ -84,7 +88,36 @@ export class ConcertDetailsPageComponent implements OnInit {
 
   addSetlistButtonItems: MenuItem[] = [];
 
-  constructor(private route: ActivatedRoute, private concertsService: ConcertsService, private setlistService: SetlistsService, private metaService: Meta) {
+  /** Tracklist dialog */
+  setlistDialogVisible = false;
+
+  setlistForDialog: Setlist | null = null;
+
+  private static readonly SETLIST_PREVIEW_COUNT = 5;
+
+  get primarySetlist(): Setlist | null {
+    return this.setlists$[0] ?? null;
+  }
+
+  get primarySetlistPreview(): SetlistEntry[] {
+    return this.primarySetlist ? this.previewFor(this.primarySetlist) : [];
+  }
+
+  get additionalSetlists(): Setlist[] {
+    return this.setlists$.slice(1);
+  }
+
+  previewFor(setlist: Setlist): SetlistEntry[] {
+    return setlist.entries.slice(0, ConcertDetailsPageComponent.SETLIST_PREVIEW_COUNT);
+  }
+
+  onShowSetlistDialogClicked(setlist: Setlist) {
+    this.setlistForDialog = setlist;
+    this.setlistDialogVisible = true;
+    this.tracker.trackEvent("setlist", "open_dialog", this.concert$?.id ?? "");
+  }
+
+  constructor(private route: ActivatedRoute, private concertsService: ConcertsService, private metaService: Meta) {
   }
 
 
@@ -401,6 +434,47 @@ export class ConcertDetailsPageComponent implements OnInit {
     }
     const parts = timeZoneId.split("/");
     return parts[parts.length - 1].replace(/_/g, " ");
+  }
+
+
+  private get concertDateTime(): DateTime | null {
+    const start = this.concert$?.postedStartTime;
+    if (!start) {
+      return null;
+    }
+
+    return this.concert$?.timeZoneId
+      ? DateTime.fromISO(start, {zone: this.concert$.timeZoneId})
+      : DateTime.fromISO(start);
+  }
+
+  get concertDay(): string {
+    return this.concertDateTime?.toFormat("dd") ?? "";
+  }
+
+  get concertMonth(): string {
+    return this.concertDateTime?.toFormat("LLL") ?? "";
+  }
+
+  get concertYear(): string {
+    return this.concertDateTime?.toFormat("yyyy") ?? "";
+  }
+
+  onAddToCalendarClicked() {
+    if (this.concert$ == null) {
+      return;
+    }
+
+    if (!downloadConcertIcs(this.concert$)) {
+      this.messageService.add({
+        severity: "warn",
+        summary: "No start time for this show yet",
+        detail: "Once the times are confirmed you'll be able to add it to your calendar.",
+      });
+      return;
+    }
+
+    this.tracker.trackEvent("ical_sub", "single show", this.concert$.id ?? "");
   }
 
 
