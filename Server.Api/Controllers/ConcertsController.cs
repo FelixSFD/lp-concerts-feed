@@ -15,7 +15,7 @@ namespace Server.Api.Controllers;
 /// <param name="logger"></param>
 [ApiController]
 [Route("v3/[controller]")]
-public class ConcertsController(ConcertService concertService, ILogger<ConcertsController> logger) : ControllerBase
+public class ConcertsController(ConcertService concertService, IOutputCacheStore outputCacheStore, ILogger<ConcertsController> logger) : ControllerBase
 {
     /// <summary>
     /// Creates a new concert in the database
@@ -29,6 +29,7 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
         logger.LogDebug("Requested to create a new concert...");
         var concert = await concertService.CreateConcertAsync(request);
         logger.LogDebug("Created concert with id: {id}", concert.Id);
+        await EvictConcertCacheAsync();
         return CreatedAtAction(nameof(GetRawConcertById), new { concertId = concert.Id }, concert);
     }
     
@@ -45,6 +46,7 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
         logger.LogDebug("Requested to update the concert with id: {concertId}", concertId);
         var concert = await concertService.UpdateConcertAsync(concertId, request);
         logger.LogDebug("Updated concert with id: {id}", concert.Id);
+        await EvictConcertCacheAsync();
         return NoContent();
     }
 
@@ -55,7 +57,7 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
     /// <returns></returns>
     [HttpGet("{concertId}")]
     [AuthorizeRoles]
-    [OutputCache(PolicyName = CachePolicyNames.Short, Tags = [CacheTags.ConcertsAll, CacheTags.Concert])]
+    [OutputCache(PolicyName = CachePolicyNames.Short, Tags = [CacheTags.ConcertsAll])]
     public async Task<ActionResult<RawConcertDto>> GetRawConcertById([FromRoute] string concertId)
     {
         var concert = await concertService.GetConcertWithoutDetailsByIdAsync(concertId);
@@ -68,7 +70,7 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
     /// <param name="concertId"></param>
     /// <returns></returns>
     [HttpGet("{concertId}/details")]
-    [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll, CacheTags.Concert])]
+    [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
     [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<ConcertDetailsDto>> GetConcertById([FromRoute] string concertId)
     {
@@ -102,6 +104,20 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
     public async Task<NoContentResult> DeleteConcertById([FromRoute] string concertId)
     {
         await concertService.DeleteConcertAsync(concertId);
+        await EvictConcertCacheAsync();
         return NoContent();
+    }
+
+    private async Task EvictConcertCacheAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await outputCacheStore.EvictByTagAsync(CacheTags.ConcertsAll, cancellationToken);
+            logger.LogDebug("Evicted concerts cache.");
+        }
+        catch (Exception e)
+        {
+            logger.LogWarning(e, "Failed to evict concerts cache!");
+        }
     }
 }
