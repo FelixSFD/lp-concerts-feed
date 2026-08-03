@@ -83,8 +83,8 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
     /// <param name="filter">Filter for the query</param>
     /// <returns>List of concerts including referenced objects</returns>
     [HttpGet]
-    [OutputCache(PolicyName = CachePolicyNames.Medium)]
     [CustomResponseCache(Duration = CacheExpiration.Default)]
+    [OutputCache(PolicyName = CachePolicyNames.Medium)]
     public async Task<ActionResult<ConcertDetailsDto[]>> GetConcertsAsync(CancellationToken cancellationToken, [FromQuery] GetConcertsFilterDto filter)
     {
         var concerts = await concertService.GetConcertsWithDetailsAsync(cancellationToken, filter).ToArrayAsync(cancellationToken);

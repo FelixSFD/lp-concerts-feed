@@ -8,4 +8,6 @@ public class GetConcertsFilterDto : BaseFilterQuery
     /// Filter for a country by its 3-letter ISO-code
     /// </summary>
     public string? CountryCode { get; set; }
+
+    public override string[] OrderBy { get; set; } = ["date"];
 }

@@ -187,14 +187,7 @@ builder.Services
     });
 
 // register API controllers
-builder.Services.AddControllers(opt =>
-{
-    opt.CacheProfiles.Add(CachePolicyNames.Short, new CacheProfile
-    {
-        Duration = CacheExpiration.Short,
-        Location = ResponseCacheLocation.Any,
-    });
-});
+builder.Services.AddControllers();
 
 //Register Problem Details Service for API Errors
 builder.Services.AddProblemDetails();
@@ -247,7 +240,6 @@ app.UseAuthentication(); // responsible for constructing AuthenticationTicket ob
 app.UseAuthorization();
 
 app.UseOutputCache();
-app.UseResponseCaching();
 
 app.MapControllers();
 

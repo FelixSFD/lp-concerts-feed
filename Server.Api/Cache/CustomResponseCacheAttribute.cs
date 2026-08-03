@@ -6,6 +6,7 @@ namespace Server.Api.Cache;
 /// <summary>
 /// Enable caching of the response in a shared cache, but not on the client itself
 /// </summary>
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
 public sealed class CustomResponseCacheAttribute : ResultFilterAttribute
 {
     /// <summary>
