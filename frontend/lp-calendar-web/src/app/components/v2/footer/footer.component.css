@@ -3,16 +3,38 @@
 }
 
 .app-footer {
-  margin: 1rem 0.5rem 0.5rem;
+  position: relative;
+  margin: 2.5rem 1.5rem 1.5rem;
   border: 1px solid var(--p-content-border-color);
   border-radius: 14px;
   overflow: hidden;
-  background: var(--p-surface-100);
+  background: var(--p-content-background);
+}
+
+.app-footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(
+    90deg,
+    var(--p-primary-600),
+    var(--p-primary-400),
+    var(--p-primary-600)
+  );
 }
 
 @media (prefers-color-scheme: dark) {
   .app-footer {
     background: var(--p-surface-900);
+  }
+}
+
+@media (max-width: 700px) {
+  .app-footer {
+    margin: 1.5rem 0.75rem 0.75rem;
   }
 }
 
