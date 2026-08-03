@@ -4,12 +4,12 @@ using Database.Tours.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpLogging;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using Prometheus;
 using Server.Api.Cache;
 using Server.Api.ExceptionHandling;
 using Server.Api.HealthChecks;
@@ -239,10 +239,13 @@ app.UseCors();
 app.UseAuthentication(); // responsible for constructing AuthenticationTicket objects representing the user's identity
 app.UseAuthorization();
 
-app.UseOutputCache();
-
 app.MapControllers();
+app.UseHttpMetrics();
 
 app.MapHealthChecks("/health");
+
+app.UseOutputCache();
+
+app.MapMetrics();
 
 app.Run();
