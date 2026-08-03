@@ -3,6 +3,7 @@ using Database.Tours;
 using Database.Tours.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -24,6 +25,13 @@ builder.Services.AddCors(options =>
                 .WithOrigins(builder.Configuration.GetValue<string[]>("CORS:AllowedOrigins") ?? ["http://localhost:4200"])
                 .WithMethods(builder.Configuration.GetValue<string[]>("CORS:AllowedMethods") ?? []);
         });
+});
+
+// Configure HTTP logging
+builder.Services.AddHttpLogging(opt =>
+{
+    opt.LoggingFields = HttpLoggingFields.All;
+    opt.CombineLogs = true;
 });
 
 // Add services to the container.
@@ -183,6 +191,9 @@ if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("EnableS
         options.SwaggerEndpoint("/openapi/v3.yaml", "LPshows API");
     });
 }
+
+// enable HTTP logging
+app.UseHttpLogging();
 
 app.UseCors();
 
