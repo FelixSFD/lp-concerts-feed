@@ -1,6 +1,9 @@
 using Common.Contracts.Generated.Models;
+using Common.Utils.Cache;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Server.Api.Auth;
+using Server.Api.Cache;
 using Server.Api.ExceptionHandling;
 using Service.Tours;
 
@@ -11,7 +14,6 @@ namespace Server.Api.Controllers;
 /// </summary>
 /// <param name="concertService"></param>
 /// <param name="logger"></param>
-/// <param name="cancellationToken">Token to cancel the request</param>
 [ApiController]
 [Route("v3/[controller]")]
 public class ConcertTypesController(ConcertService concertService, ILogger<ConcertTypesController> logger) : ControllerBase
@@ -35,6 +37,8 @@ public class ConcertTypesController(ConcertService concertService, ILogger<Conce
     /// <returns>information about the concert types</returns>
     [HttpGet]
     [AuthorizeRoles]
+    [OutputCache(PolicyName = CachePolicyNames.VeryLong)]
+    [CustomResponseCache(Duration = CacheExpiration.VeryLong)]
     public async Task<ActionResult<ConcertTypeDto>> GetConcertTypes(CancellationToken cancellationToken)
     {
         var types = await concertService
@@ -50,6 +54,8 @@ public class ConcertTypesController(ConcertService concertService, ILogger<Conce
     /// <param name="concertTypeId">ID of the concert type</param>
     /// <returns>information about the concert type</returns>
     [HttpGet("{concertTypeId:int}")]
+    [OutputCache(PolicyName = CachePolicyNames.VeryLong)]
+    [CustomResponseCache(Duration = CacheExpiration.VeryLong)]
     public async Task<ActionResult<ConcertTypeDto>> GetTypeById(int concertTypeId)
     {
         var type = await concertService.GetConcertTypeAsync(concertTypeId.ConvertToUnsigned());

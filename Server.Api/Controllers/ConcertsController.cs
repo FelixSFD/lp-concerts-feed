@@ -1,6 +1,9 @@
+using Common.Utils.Cache;
 using LPCalendar.DataStructure.Tours;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Server.Api.Auth;
+using Server.Api.Cache;
 using Service.Tours;
 
 namespace Server.Api.Controllers;
@@ -52,6 +55,7 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
     /// <returns></returns>
     [HttpGet("{concertId}")]
     [AuthorizeRoles]
+    [OutputCache(PolicyName = CachePolicyNames.Short)]
     public async Task<ActionResult<RawConcertDto>> GetRawConcertById([FromRoute] string concertId)
     {
         var concert = await concertService.GetConcertWithoutDetailsByIdAsync(concertId);
@@ -64,6 +68,8 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
     /// <param name="concertId"></param>
     /// <returns></returns>
     [HttpGet("{concertId}/details")]
+    [OutputCache(PolicyName = CachePolicyNames.Medium)]
+    [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<ConcertDetailsDto>> GetConcertById([FromRoute] string concertId)
     {
         var concert = await concertService.GetConcertByIdAsync(concertId);
@@ -77,6 +83,8 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
     /// <param name="filter">Filter for the query</param>
     /// <returns>List of concerts including referenced objects</returns>
     [HttpGet]
+    [OutputCache(PolicyName = CachePolicyNames.Medium)]
+    [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<ConcertDetailsDto[]>> GetConcertsAsync(CancellationToken cancellationToken, [FromQuery] GetConcertsFilterDto filter)
     {
         var concerts = await concertService.GetConcertsWithDetailsAsync(cancellationToken, filter).ToArrayAsync(cancellationToken);

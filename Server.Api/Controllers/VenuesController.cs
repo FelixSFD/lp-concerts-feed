@@ -1,6 +1,9 @@
+using Common.Utils.Cache;
 using LPCalendar.DataStructure.Tours.Locations;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Server.Api.Auth;
+using Server.Api.Cache;
 using Service.Tours;
 
 namespace Server.Api.Controllers;
@@ -51,6 +54,8 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <param name="venueId">ID of the venue</param>
     /// <returns>basic information about the venue</returns>
     [HttpGet("{venueId:int}")]
+    [OutputCache(PolicyName = CachePolicyNames.Long)]
+    [CustomResponseCache(Duration = CacheExpiration.Medium)]
     public async Task<ActionResult<VenueDto>> GetVenueById(uint venueId)
     {
         logger.LogDebug("Requested venue with ID: {venueId}", venueId);
@@ -65,6 +70,8 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <returns>list of all venues</returns>
     [HttpGet]
     [AuthorizeRoles]
+    [OutputCache(PolicyName = CachePolicyNames.Medium)]
+    [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<VenueDto[]>> GetAllVenues(CancellationToken cancellationToken)
     {
         logger.LogDebug("Requested to get all venues.");
@@ -81,6 +88,8 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <param name="venueId">ID of the venue</param>
     /// <returns>detailed information about the venue</returns>
     [HttpGet("{venueId:int}/details")]
+    [OutputCache(PolicyName = CachePolicyNames.Long)]
+    [CustomResponseCache(Duration = CacheExpiration.Long)]
     public async Task<ActionResult<VenueWithCityDto>> GetVenueWithCityById(uint venueId)
     {
         logger.LogDebug("Requested venue including details with ID: {venueId}", venueId);
