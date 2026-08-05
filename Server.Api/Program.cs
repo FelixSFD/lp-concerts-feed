@@ -34,6 +34,20 @@ builder.Services.AddHttpLogging(opt =>
 {
     opt.LoggingFields = HttpLoggingFields.All;
     opt.CombineLogs = true;
+    
+    // Allow some more headers to be logged
+    opt.RequestHeaders.Add("Via");
+    opt.RequestHeaders.Add("Referer");
+    opt.RequestHeaders.Add("Cache-Control");
+    opt.RequestHeaders.Add("X-Amz-Cf-Id");
+    opt.RequestHeaders.Add("X-Forwarded-For");
+    opt.RequestHeaders.Add("X-Forwarded-Server");
+    opt.RequestHeaders.Add("X-Forwarded-Proto");
+    opt.RequestHeaders.Add("X-Forwarded-Port");
+    opt.RequestHeaders.Add("X-Forwarded-Host");
+    opt.RequestHeaders.Add("X-Real-Ip");
+    
+    opt.ResponseHeaders.Add("Cache-Control");
 });
 
 // Configure cache
