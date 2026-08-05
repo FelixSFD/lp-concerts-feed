@@ -28,6 +28,9 @@ Parameters:
   SignS3MrapLambdaArn:
     Description: ARN of the Lambda@Edge function to sign requests to S3 MRAPs (must be passed like this because the function is in a different region)
     Type: String
+  ApiV3OriginHeaderSecret:
+    Description: A secret string that can be verified by the origin server to make sure it only accepts requests form CloudFront
+    Type: String
 
 
 
@@ -216,6 +219,9 @@ Resources:
               OriginProtocolPolicy: https-only
               OriginSSLProtocols:
                 - TLSv1.2
+            OriginCustomHeaders:
+              - HeaderName: X-CloudFront-Secret
+                HeaderValue: !Ref ApiV3OriginHeaderSecret
           - Id: StaticFilesOrigin
             DomainName: !GetAtt StaticFilesBucket.RegionalDomainName
             OriginPath: /api_distribution
