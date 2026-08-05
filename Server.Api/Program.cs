@@ -46,6 +46,8 @@ builder.Services.AddHttpLogging(opt =>
     opt.RequestHeaders.Add("X-Forwarded-Port");
     opt.RequestHeaders.Add("X-Forwarded-Host");
     opt.RequestHeaders.Add("X-Real-Ip");
+    opt.RequestHeaders.Add("X-Warp-Provider");
+    opt.RequestHeaders.Add("X-Warp-Trusted");
     
     opt.ResponseHeaders.Add("Cache-Control");
 });
