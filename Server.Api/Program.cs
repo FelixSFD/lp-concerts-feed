@@ -1,3 +1,4 @@
+using Common.Server.ClientIp;
 using Common.Utils.Cache;
 using Database.Tours;
 using Database.Tours.Repositories;
@@ -53,6 +54,9 @@ builder.Services.AddHttpLogging(opt =>
     
     opt.ResponseHeaders.Add("Cache-Control");
 });
+
+// configure extension to read the client's IP from a request
+builder.Services.UseClientIpFinder();
 
 // Configure cache
 builder.Services.AddResponseCaching(options =>
