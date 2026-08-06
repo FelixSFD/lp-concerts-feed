@@ -1,6 +1,5 @@
 using Common.Utils.Cache;
 using LPCalendar.DataStructure.Tours.Locations;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Server.Api.Auth;
@@ -16,7 +15,7 @@ namespace Server.Api.Controllers;
 /// <param name="logger"></param>
 [ApiController]
 [Route("v3/countries")]
-public class CountriesController(LocationService locationService, ILogger<CountriesController> logger) : ControllerBase
+public class CountriesController(LocationService locationService, IHttpContextAccessor httpContextAccessor, ILogger<CountriesController> logger) : ControllerBase
 {
     #region Countries
 

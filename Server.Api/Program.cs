@@ -18,6 +18,8 @@ using Service.Tours;
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables("App_");
 
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(
