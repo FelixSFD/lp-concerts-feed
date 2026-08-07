@@ -16,7 +16,10 @@ import { CountriesApi, CountryDto } from '../modules/lpshows-api/v3';
 export class LocationsService {
   private osmApiBaseUrl = "https://nominatim.openstreetmap.org";
 
-  constructor(private httpClient: HttpClient, private timezoneApiClient: TimezoneService, private countriesApi: CountriesApi) { }
+  constructor(private httpClient: HttpClient, private timezoneApiClient: TimezoneService, private countriesApi: CountriesApi) {
+    // Override base URL as CountriesApi uses v3
+    countriesApi.configuration.basePath = environment.apiBaseUrl;
+  }
 
   /**
    * Returns a list of all countries
