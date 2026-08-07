@@ -45,7 +45,7 @@ export class AddCountryPageComponent {
       },
       error: err => {
         let errorResponse: ErrorResponseDto = err.error;
-        this.messageService.add({severity: "error", summary: "Could not create the song", text: errorResponse.message});
+        this.messageService.add({severity: "error", summary: "Could not create the country", text: errorResponse.message});
         this.isAdding$ = false;
       }
     });
