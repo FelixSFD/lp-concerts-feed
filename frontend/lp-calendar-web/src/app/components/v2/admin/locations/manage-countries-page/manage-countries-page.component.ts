@@ -54,6 +54,54 @@ export class ManageCountriesPageComponent {
   }
 
 
+  onDeleteCountryClicked(event: Event, country: CountryDto) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: `Do you want to delete the country "${country.name}"?`,
+      header: 'Delete country',
+      icon: 'pi pi-info-circle',
+      rejectLabel: 'Cancel',
+      rejectButtonProps: {
+        label: 'Cancel',
+        severity: 'secondary',
+        outlined: true
+      },
+      acceptButtonProps: {
+        label: 'Delete',
+        severity: 'danger'
+      },
+
+      accept: () => {
+        this.onDeleteCountryConfirm(country);
+      }
+    });
+  }
+
+
+  onDeleteCountryConfirm(country: CountryDto) {
+    this.isDeletingCountry$ = true;
+
+    if (country) {
+      this.locationsService.deleteCountry(country.isoCode!)
+        .subscribe({
+          next: () => {
+            this.reloadList(false);
+            this.isDeletingCountry$ = false;
+          },
+          error: err => {
+            let errorResponse: ErrorResponseDto = err.error;
+            this.messageService.add({
+              severity: "danger",
+              summary: "Could not load delete country!",
+              text: errorResponse.message,
+            });
+            this.isDeletingCountry$ = false;
+          }
+        });
+    }
+  }
+
+
   private reloadList(cache: boolean) {
     this.locationsService.getCountries().subscribe({
       next: countries => {

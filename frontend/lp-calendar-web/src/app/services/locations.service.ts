@@ -53,6 +53,14 @@ export class LocationsService {
     return this.countriesApi.updateCountry(countryCode, country);
   }
 
+  /**
+   * Deletes the country
+   * @param countryCode
+   */
+  deleteCountry(countryCode: string): Observable<any> {
+    return this.countriesApi.deleteCountryByIsoCode(countryCode);
+  }
+
   getCoordinatesFor(city: string, state: string | null, country: string): Observable<Coordinates | undefined> {
     let osmUrl = this.osmApiBaseUrl + "/search.php?format=jsonv2&city=" + encodeURIComponent(city) + "&country=" + encodeURIComponent(country);
     if (state != null) {
