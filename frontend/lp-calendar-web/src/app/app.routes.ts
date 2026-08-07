@@ -6,6 +6,7 @@ import {concertResolver} from './resolvers/concert-resolver';
 import {userResolver} from './resolvers/user-resolver';
 import {albumResolver} from './resolvers/album-resolver';
 import {songResolver} from './resolvers/song-resolver';
+import { countryResolver } from './resolvers/country-resolver';
 
 let baseTitle = "LP Concerts - ";
 
@@ -341,6 +342,16 @@ export const routes: Routes = [
           import("./components/v2/admin/locations/add-country-page/add-country-page.component").then(m => m.AddCountryPageComponent),
         title: baseTitle + 'Create country',
         canActivate: [authGuard, manageLocationsGuard],
+      },
+      {
+        path: 'countries/:countryCode',
+        loadComponent: () =>
+          import("./components/v2/admin/locations/edit-country-page/edit-country-page.component").then(m => m.EditCountryPageComponent),
+        title: baseTitle + 'Edit country',
+        canActivate: [authGuard, manageSetlistsGuard],
+        resolve: {
+          country: countryResolver,
+        },
       },
     ]
   },

@@ -5,7 +5,7 @@ import {OsmCity} from '../data/osm/osm-city';
 import {Coordinates} from '../data/location/coordinates';
 import {environment} from '../../environments/environment';
 import {TimeZoneResponseDto, TimezoneService} from '../modules/lpshows-api';
-import { CountriesApi, CountryDto, CreateCountryRequestDto } from '../modules/lpshows-api/v3';
+import { CountriesApi, CountryDto, CreateCountryRequestDto, UpdateCountryRequestDto } from '../modules/lpshows-api/v3';
 import { addAuthentication } from '../auth/auth.config';
 
 /**
@@ -30,12 +30,27 @@ export class LocationsService {
     return this.countriesApi.getCountries();
   }
 
+
+  /**
+   * Returns a list of all countries
+   */
+  getCountry(countryCode: string): Observable<CountryDto> {
+    return this.countriesApi.getCountryByIsoCode(countryCode);
+  }
+
   /**
    * Creates a new country
    * @param country
    */
   createCountry(country: CreateCountryRequestDto): Observable<CountryDto> {
     return this.countriesApi.createCountry(country);
+  }
+
+  /**
+   * Updates a country
+   */
+  updateCountry(countryCode: string, country: UpdateCountryRequestDto): Observable<CountryDto> {
+    return this.countriesApi.updateCountry(countryCode, country);
   }
 
   getCoordinatesFor(city: string, state: string | null, country: string): Observable<Coordinates | undefined> {
