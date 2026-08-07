@@ -87,7 +87,7 @@ export class CountryFormComponent {
     return {
       isoCode: isoCode,
       name: name,
-      nativeName: name
+      nativeName: nativeName
     };
   }
 
