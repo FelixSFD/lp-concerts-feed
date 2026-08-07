@@ -335,6 +335,13 @@ export const routes: Routes = [
         title: baseTitle + 'Manage countries',
         canActivate: [authGuard, manageLocationsGuard],
       },
+      {
+        path: 'countries/add',
+        loadComponent: () =>
+          import("./components/v2/admin/locations/add-country-page/add-country-page.component").then(m => m.AddCountryPageComponent),
+        title: baseTitle + 'Create country',
+        canActivate: [authGuard, manageLocationsGuard],
+      },
     ]
   },
   {

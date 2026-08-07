@@ -1,6 +1,9 @@
 import {LogLevel, PassedInitialConfig} from 'angular-auth-oidc-client';
-import {provideHttpClient} from '@angular/common/http';
 import {environment} from '../../environments/environment';
+import { Configuration } from '../modules/lpshows-api/v3';
+import { inject } from '@angular/core';
+import { AuthService } from './auth.service';
+import { BaseService } from '../modules/lpshows-api/v3/api.base.service';
 
 //export const apiCachedBaseUrl = "https://d1pwzjk6lcvg96.cloudfront.net";
 //export const apiNoCacheBaseUrl = "https://o1qqdpvb23.execute-api.eu-central-1.amazonaws.com";
@@ -45,3 +48,23 @@ export const authRoutePatterns: RegExp[] = [
   /\/mashups/,
   /\/mashups\/[^/]+/,
 ]
+
+
+function addAuthenticationInternal(configuration: Configuration) {
+  let authService = inject(AuthService);
+  configuration.credentials["Bearer"] = authService.accessToken;
+}
+
+/**
+ * Adds the authentication configuration to an API service or its configuration
+ * @param target
+ */
+export function addAuthentication(target: BaseService | Configuration) {
+  if (target instanceof BaseService) {
+    addAuthenticationInternal(target.configuration);
+  } else if (target instanceof Configuration) {
+    addAuthenticationInternal(target);
+  } else {
+    throw new Error("Unable to add authentication. Target type unknown.");
+  }
+}

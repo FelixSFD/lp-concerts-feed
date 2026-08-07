@@ -70,6 +70,13 @@ export class AuthService {
   }
 
   /**
+   * Returns the current access token
+   */
+  get accessToken() {
+    return this.accessTokenSubject.value;
+  }
+
+  /**
    * Returns an Observable that returns the list of groups of the current user
    */
   get currentUserGroups() {

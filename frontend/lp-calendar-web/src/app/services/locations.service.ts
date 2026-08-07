@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {first, map, Observable} from 'rxjs';
+import {map, Observable} from 'rxjs';
 import {OsmCity} from '../data/osm/osm-city';
 import {Coordinates} from '../data/location/coordinates';
 import {environment} from '../../environments/environment';
 import {TimeZoneResponseDto, TimezoneService} from '../modules/lpshows-api';
-import { CountriesApi, CountryDto } from '../modules/lpshows-api/v3';
+import { CountriesApi, CountryDto, CreateCountryRequestDto } from '../modules/lpshows-api/v3';
+import { addAuthentication } from '../auth/auth.config';
 
 /**
  * Service to retrieve location data like coordinates and timezones
@@ -19,6 +20,7 @@ export class LocationsService {
   constructor(private httpClient: HttpClient, private timezoneApiClient: TimezoneService, private countriesApi: CountriesApi) {
     // Override base URL as CountriesApi uses v3
     countriesApi.configuration.basePath = environment.apiBaseUrl;
+    addAuthentication(countriesApi);
   }
 
   /**
@@ -26,6 +28,14 @@ export class LocationsService {
    */
   getCountries(): Observable<CountryDto[]> {
     return this.countriesApi.getCountries();
+  }
+
+  /**
+   * Creates a new country
+   * @param country
+   */
+  createCountry(country: CreateCountryRequestDto): Observable<CountryDto> {
+    return this.countriesApi.createCountry(country);
   }
 
   getCoordinatesFor(city: string, state: string | null, country: string): Observable<Coordinates | undefined> {
