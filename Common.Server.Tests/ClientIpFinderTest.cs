@@ -1,5 +1,7 @@
-﻿using Common.Server.ClientIp;
+﻿using System.Net;
+using Common.Server.ClientIp;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 
@@ -20,10 +22,11 @@ public class ClientIpFinderTest
     [InlineData("192.168.1.1", "192.168.1.1", null)]
     [InlineData("192.168.1.1", "192.168.1.1", null, "192.168.2.1", "192.168.2.2", "192.168.2.3")]
     [InlineData("192.168.2.1", null, null, "192.168.2.1", "192.168.2.2", "192.168.2.3")]
-    [InlineData(null, null, null)]
+    [InlineData("10.10.1.1", null, null)]
     public void GetIp(string? expectedIp, string? realIp, string? warpTrustedIp, params string[] forwardedFor)
     {
         var httpContext = new DefaultHttpContext();
+        httpContext.Connection.RemoteIpAddress = new IPAddress([10, 10, 1, 1]);
         var request = httpContext.Request;
         
         if (realIp != null)
