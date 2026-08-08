@@ -39,7 +39,7 @@ export class ManageCitiesPageComponent {
 
   cities$: CityWithCountryDto[] = [];
 
-  isDeletingCountry$ = false;
+  isDeletingCity$ = false;
 
   // true while data is being loaded
   isLoading$ = false;
@@ -77,26 +77,26 @@ export class ManageCitiesPageComponent {
 
 
   onDeleteCityConfirm(city: CityWithCountryDto) {
-    this.isDeletingCountry$ = true;
+    this.isDeletingCity$ = true;
 
-    /*if (city) {
-      this.locationsService.deleteCountry(city.isoCode!)
+    if (city) {
+      this.locationsService.deleteCity(city.countryCode, Number(city.id))
         .subscribe({
           next: () => {
             this.reloadList(false);
-            this.isDeletingCountry$ = false;
+            this.isDeletingCity$ = false;
           },
           error: err => {
             let errorResponse: ErrorResponseDto = err.error;
             this.messageService.add({
               severity: "danger",
-              summary: "Could not load delete country!",
+              summary: "Could not load delete city!",
               text: errorResponse.message,
             });
-            this.isDeletingCountry$ = false;
+            this.isDeletingCity$ = false;
           }
         });
-    }*/
+    }
   }
 
 

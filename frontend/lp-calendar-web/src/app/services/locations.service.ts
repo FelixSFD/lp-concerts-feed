@@ -117,6 +117,10 @@ export class LocationsService {
     return this.countriesApi.updateCity(countryCode, id, city);
   }
 
+  deleteCity(countryCode: string, id: number): Observable<void> {
+    return this.countriesApi.deleteCity(countryCode, id.toString());
+  }
+
   getCity(countryCode: string, cityId: number): Observable<CityWithCountryDto> {
     return this.countriesApi.getCity(countryCode, cityId.toString());
   }
