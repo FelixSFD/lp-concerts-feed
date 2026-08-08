@@ -3,21 +3,6 @@
     <div class="grid gap-2">
       <div class="col-12">
         <p-floatlabel variant="on">
-          <p-select
-            inputId="countryCode"
-            formControlName="countryCode"
-            [options]="countries$"
-            optionLabel="name"
-            optionValue="isoCode"
-            fluid
-            [invalid]="stateForm.controls.countryCode.invalid"
-          />
-          <label for="countryCode">Country</label>
-        </p-floatlabel>
-      </div>
-
-      <div class="col-12">
-        <p-floatlabel variant="on">
           <input
             pInputText
             id="code"
@@ -40,7 +25,21 @@
             fluid
             [invalid]="stateForm.controls.name.invalid"
           />
-          <label for="name">Name</label>
+          <label for="name">Name (English)</label>
+        </p-floatlabel>
+      </div>
+
+      <div class="col-12">
+        <p-floatlabel variant="on">
+          <input
+            pInputText
+            id="nativeName"
+            formControlName="nativeName"
+            autocomplete="off"
+            fluid
+            [invalid]="stateForm.controls.nativeName.invalid"
+          />
+          <label for="nativeName">Name (in local language)</label>
         </p-floatlabel>
       </div>
     </div>

@@ -4,7 +4,11 @@ import { MessageService } from 'primeng/api';
 import { ErrorResponseDto } from '../../../../../modules/lpshows-api';
 import { LocationsService } from '../../../../../services/locations.service';
 import { CountryFormComponent, CountryFormContent } from '../country-form/country-form.component';
-import { StateWithCountryDto, UpdateCountryRequestDto } from '../../../../../modules/lpshows-api/v3';
+import {
+  CreateStateRequestDto,
+  StateWithCountryDto,
+  UpdateCountryRequestDto
+} from '../../../../../modules/lpshows-api/v3';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { SongFormComponent } from '../../setlists/song-form/song-form.component';
@@ -14,6 +18,10 @@ import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { InputText } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
+import { AddSetlistEntryFormComponent } from '../../setlists/add-setlist-entry-form/add-setlist-entry-form.component';
+import { Dialog } from 'primeng/dialog';
+import { Divider } from 'primeng/divider';
+import { StateFormComponent } from '../state-form/state-form.component';
 
 @Component({
   selector: 'app-edit-country-page',
@@ -27,7 +35,11 @@ import { TableModule } from 'primeng/table';
     IconField,
     InputIcon,
     InputText,
-    TableModule
+    TableModule,
+    AddSetlistEntryFormComponent,
+    Dialog,
+    Divider,
+    StateFormComponent
   ],
   templateUrl: './edit-country-page.component.html',
   styleUrl: './edit-country-page.component.css',
@@ -38,6 +50,7 @@ export class EditCountryPageComponent {
   private locationsService = inject(LocationsService);
 
   private countryFormComponent = viewChild(CountryFormComponent);
+  private addStateFormComponent = viewChild(StateFormComponent);
 
   currentCountryId: string = "";
 
@@ -45,6 +58,9 @@ export class EditCountryPageComponent {
 
   statesInCountry$: StateWithCountryDto[] = [];
   isLoadingStates$ = false;
+
+  isShowingAddStateDialog$ = false;
+  isAddingState$ = false;
 
 
   ngOnInit() {
@@ -99,5 +115,42 @@ export class EditCountryPageComponent {
         this.messageService.add({severity: "error", summary: "Failed to load states in country", detail: errorResponse.message});
       }
     });
+  }
+
+  dismissAddStateModal() {
+    this.isShowingAddStateDialog$ = false;
+  }
+
+  onAddStateClicked() {
+    this.isShowingAddStateDialog$ = true;
+  }
+
+  onAddStateConfirm() {
+    this.isAddingState$ = true;
+
+    let formContent = this.addStateFormComponent()?.readFromForm();
+
+    if (formContent?.code == null || formContent?.name == null || formContent?.nativeName == null) {
+      this.messageService.add({severity: "error", summary: "Failed to create state", detail: "Please fill in all fields"});
+      return;
+    }
+
+    let createRequest: CreateStateRequestDto = {
+      code: formContent?.code,
+      name: formContent?.name,
+      nativeName: formContent?.nativeName
+    }
+    this.locationsService.createState(this.currentCountryId, createRequest)
+      .subscribe({
+        next: state => {
+          this.isAddingState$ = false;
+          this.loadStatesInCountry();
+        },
+        error: err => {
+          this.isAddingState$ = false;
+          let errorResponse: ErrorResponseDto = err.error;
+          this.messageService.add({severity: "error", summary: "Failed to create state", detail: errorResponse.message});
+        }
+      })
   }
 }

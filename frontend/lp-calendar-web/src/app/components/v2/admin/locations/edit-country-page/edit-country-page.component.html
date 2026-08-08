@@ -1,3 +1,16 @@
+<!-- add state modal -->
+<p-dialog header="Add a new state" [(visible)]="isShowingAddStateDialog$" [modal]="true" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [style]="{ width: '50vw' }" [draggable]="false">
+  <app-state-form [standalone]="false" />
+  <p-divider />
+
+  <ng-template #footer>
+    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="dismissAddStateModal()" />
+    <p-button [label]="isAddingState$ ? 'Adding...' : 'Add'" (onClick)="onAddStateConfirm()" [loading]="isAddingState$" [disabled]="isAddingState$" />
+  </ng-template>
+</p-dialog>
+
+
+
 <p-card>
   <ng-template #title>
     Edit country
@@ -26,7 +39,7 @@
     >
       <ng-template #caption>
         <div class="flex">
-          <p-button variant="outlined" label="Add state" [routerLink]="['add']" disabled />
+          <p-button variant="outlined" label="Add state" (onClick)="onAddStateClicked()" />
         </div>
       </ng-template>
       <ng-template #header>

@@ -8,7 +8,6 @@ import { Divider } from 'primeng/divider';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputText } from 'primeng/inputtext';
 import { NgTemplateOutlet } from '@angular/common';
-import { Select } from 'primeng/select';
 
 @Component({
   selector: 'app-state-form',
@@ -19,8 +18,7 @@ import { Select } from 'primeng/select';
     FloatLabel,
     InputText,
     NgTemplateOutlet,
-    ReactiveFormsModule,
-    Select
+    ReactiveFormsModule
   ],
   templateUrl: './state-form.component.html',
   styleUrl: './state-form.component.css',
@@ -45,9 +43,9 @@ export class StateFormComponent {
   saveClicked = new EventEmitter<StateFormContent>();
 
   stateForm = this.formBuilder.group({
-    countryCode: new FormControl<string>('', [Validators.required]),
     code: new FormControl<string>('', [Validators.required]),
     name: new FormControl<string>('', [Validators.required]),
+    nativeName: new FormControl<string>('', [Validators.required]),
   });
 
   onSaveClicked() {
@@ -58,17 +56,9 @@ export class StateFormComponent {
   }
 
   public readFromForm(): StateFormContent | null {
-    const countryCode = this.stateForm.value.countryCode?.valueOf();
     const code = this.stateForm.value.code?.valueOf();
     const name = this.stateForm.value.name?.valueOf();
-
-    if (countryCode == undefined || countryCode.length === 0) {
-      this.messageService.add({
-        severity: "error",
-        summary: "Country is required",
-      });
-      return null;
-    }
+    const nativeName = this.stateForm.value.nativeName?.valueOf();
 
     if (code == undefined || code.length === 0) {
       this.messageService.add({
@@ -86,29 +76,30 @@ export class StateFormComponent {
       return null;
     }
 
+    if (nativeName == undefined || nativeName.length === 0) {
+      this.messageService.add({
+        severity: "error",
+        summary: "Native name is required",
+      });
+      return null;
+    }
+
     return {
-      countryCode,
       code,
-      name
+      name,
+      nativeName
     };
   }
 
   public fillFormWith(state: StateDto) {
     console.debug("Fill form with data:", state);
-
-    this.stateForm.controls.countryCode.setValue(state.countryCode ?? null);
     this.stateForm.controls.code.setValue(state.code ?? null);
     this.stateForm.controls.name.setValue(state.name ?? null);
-  }
-
-  public disableIdentityFields() {
-    this.stateForm.controls.countryCode.disable();
-    this.stateForm.controls.code.disable();
   }
 }
 
 export class StateFormContent {
-  countryCode!: string;
   code!: string;
   name!: string;
+  nativeName!: string;
 }
