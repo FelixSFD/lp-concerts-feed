@@ -857,13 +857,19 @@ paths:
           content:
             text/plain:
               schema:
-                $ref: "#/components/schemas/CityWithCountry"
+                type: array
+                items:
+                  $ref: "#/components/schemas/CityWithCountry"
             application/json:
               schema:
-                $ref: "#/components/schemas/CityWithCountry"
+                type: array
+                items:
+                  $ref: "#/components/schemas/CityWithCountry"
             text/json:
               schema:
-                $ref: "#/components/schemas/CityWithCountry"
+                type: array
+                items:
+                  $ref: "#/components/schemas/CityWithCountry"
       x-amazon-apigateway-integration:
         type: HTTP_PROXY
         httpMethod: GET
@@ -1005,6 +1011,62 @@ paths:
           integration.request.path.cityId: method.request.path.cityId
       security:
         - Bearer: []
+  
+  /v3/Cities:
+    get:
+      tags:
+        - Cities
+      summary: Returns a list of all cities
+      operationId: GetCities
+      parameters:
+        - name: CountryCode
+          in: query
+          schema:
+            type: string
+        - name: Limit
+          in: query
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: string
+            format: uint32
+        - name: Skip
+          in: query
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: string
+            format: uint32
+        - name: OrderBy
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CityWithCountry"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CityWithCountry"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CityWithCountry"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/cities
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
+  
   /v3/Tours:
     post:
       tags:
@@ -2293,5 +2355,6 @@ tags:
   - name: Concerts
   - name: ConcertTypes
   - name: Countries
+  - name: Cities
   - name: Tours
   - name: Venues

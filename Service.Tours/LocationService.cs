@@ -1,7 +1,10 @@
+using Common.Database;
+using Common.Database.Repositories;
 using Database.Tours.Repositories;
 using LPCalendar.DataStructure.Tours.Locations;
 using Microsoft.Extensions.Logging;
 using Service.Tours.Exceptions;
+using Service.Tours.Filters;
 
 namespace Service.Tours;
 
@@ -309,6 +312,22 @@ public class LocationService(
             .QueryAsync(cancellationToken)
             .Where(s => s.CountryCode == countryCode)
             .Select(DtoMapper.ToDto);
+    }
+    
+    /// <summary>
+    /// Returns a list of all cities
+    /// </summary>
+    /// <param name="filter">Filter for the list of cities</param>
+    /// <param name="cancellationToken">token to cancel the query</param>
+    /// <returns>async enumerable of the cities that were found</returns>
+    public IAsyncEnumerable<CityWithCountryDto> GetCitiesAsync(CitiesFilter filter, CancellationToken cancellationToken)
+    {
+        logger.LogDebug("Requesting list of cities...");
+        var paginationParams = new PaginationParams(filter.Skip, filter.Limit);
+        
+        return cityRepository
+            .GetCities(cancellationToken, null, filter.OrderBy.Select(SortDescriptor.FromString), paginationParams)
+            .Select(DtoMapper.ToDtoWithCountry);
     }
     
     /// <summary>
