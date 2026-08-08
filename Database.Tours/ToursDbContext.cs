@@ -30,19 +30,22 @@ public class ToursDbContext(DbContextOptions<ToursDbContext> options) : DbContex
             .WithMany()
             .HasForeignKey(c => new { c.CountryCode, c.StateCode })
             .HasPrincipalKey(s => new { s.CountryCode, s.Code })
-            .IsRequired(false);
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<VenueDo>()
             .HasOne(v => v.City)
             .WithMany()
             .HasForeignKey(v => new { v.CountryCode, v.CityId })
-            .HasPrincipalKey(c => new { c.CountryCode, c.Id });
+            .HasPrincipalKey(c => new { c.CountryCode, c.Id })
+            .OnDelete(DeleteBehavior.Restrict);
         
         modelBuilder.Entity<VenueDo>()
             .HasOne(v => v.State)
             .WithMany()
             .HasForeignKey(v => new { v.CountryCode, v.StateCode })
-            .HasPrincipalKey(s => new { s.CountryCode, s.Code });
+            .HasPrincipalKey(s => new { s.CountryCode, s.Code })
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<VenueDo>()
             .HasMany(v => v.PreviousNames)
@@ -60,7 +63,8 @@ public class ToursDbContext(DbContextOptions<ToursDbContext> options) : DbContex
             .HasOne(c => c.TourLeg)
             .WithMany()
             .HasForeignKey(c => new { c.TourLegId })
-            .HasPrincipalKey(tl => new { tl.Id });
+            .HasPrincipalKey(tl => new { tl.Id })
+            .OnDelete(DeleteBehavior.Restrict);
         
         modelBuilder.Entity<TourDo>()
             .Navigation(t => t.Legs)
