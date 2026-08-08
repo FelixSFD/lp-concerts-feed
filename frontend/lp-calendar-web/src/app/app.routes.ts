@@ -353,6 +353,13 @@ export const routes: Routes = [
           country: countryResolver,
         },
       },
+      {
+        path: 'cities',
+        loadComponent: () =>
+          import("./components/v2/admin/locations/manage-cities-page/manage-cities-page.component").then(m => m.ManageCitiesPageComponent),
+        title: baseTitle + 'Manage cities',
+        canActivate: [authGuard, manageLocationsGuard],
+      },
     ]
   },
   {

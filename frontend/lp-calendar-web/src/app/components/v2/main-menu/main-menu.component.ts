@@ -121,6 +121,7 @@ export class MainMenuComponent implements OnInit, OnChanges {
         label: 'Locations',
         items: [
           { label: 'Countries', icon: 'pi pi-globe', routerLink: '/admin/countries' },
+          { label: 'Cities', icon: 'pi pi-map-marker', routerLink: '/admin/cities' },
         ],
       });
     }

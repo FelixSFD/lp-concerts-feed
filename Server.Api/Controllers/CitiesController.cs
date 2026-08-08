@@ -12,6 +12,12 @@ namespace Server.Api.Controllers;
 [Route("v3/[controller]")]
 public class CitiesController(LocationService locationService, ILogger<CitiesController> logger) : ControllerBase
 {
+    /// <summary>
+    /// Returns a (filtered) list of cities
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <param name="filter">filter and sorting</param>
+    /// <returns></returns>
     public async Task<ActionResult<CityWithCountryDto>> GetCities(CancellationToken cancellationToken, [FromQuery] CitiesFilter filter)
     {
         var cities = await locationService.GetCitiesAsync(filter, cancellationToken).ToArrayAsync(cancellationToken);

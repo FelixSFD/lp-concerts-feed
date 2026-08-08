@@ -6,6 +6,8 @@ import {Coordinates} from '../data/location/coordinates';
 import {environment} from '../../environments/environment';
 import {TimeZoneResponseDto, TimezoneService} from '../modules/lpshows-api';
 import {
+  CitiesApi,
+  CityWithCountryDto,
   CountriesApi,
   CountryDto,
   CreateCountryRequestDto, CreateStateRequestDto,
@@ -23,9 +25,10 @@ import { addAuthentication } from '../auth/auth.config';
 export class LocationsService {
   private osmApiBaseUrl = "https://nominatim.openstreetmap.org";
 
-  constructor(private httpClient: HttpClient, private timezoneApiClient: TimezoneService, private countriesApi: CountriesApi) {
+  constructor(private httpClient: HttpClient, private timezoneApiClient: TimezoneService, private countriesApi: CountriesApi, private citiesApi: CitiesApi) {
     // Override base URL as CountriesApi uses v3
     countriesApi.configuration.basePath = environment.apiBaseUrl;
+    citiesApi.configuration.basePath = environment.apiBaseUrl;
     addAuthentication(countriesApi);
   }
 
@@ -100,6 +103,10 @@ export class LocationsService {
    */
   deleteState(countryCode: string, stateCode: string): Observable<any> {
     return this.countriesApi.deleteState(countryCode, stateCode);
+  }
+
+  getCities(): Observable<CityWithCountryDto[]> {
+    return this.citiesApi.getCities(undefined, "1000"); // TODO: filter and sorting?
   }
 
   getCoordinatesFor(city: string, state: string | null, country: string): Observable<Coordinates | undefined> {
