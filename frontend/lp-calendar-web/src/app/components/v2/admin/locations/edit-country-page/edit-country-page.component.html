@@ -1,3 +1,5 @@
+<p-confirmDialog />
+
 <!-- add state modal -->
 <p-dialog header="Add a new state" [(visible)]="isShowingAddStateDialog$" [modal]="true" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [style]="{ width: '50vw' }" [draggable]="false">
   <app-state-form [standalone]="false" />
@@ -75,7 +77,7 @@
           <td>
             <p-button-group>
               <p-button label="Edit" icon="pi pi-pencil" variant="outlined" size="small" (onClick)="onEditStateClicked(editStateForm, state)" />
-              <!--<p-button label="Delete" icon="pi pi-trash" variant="outlined" size="small" severity="danger" (click)="onDeleteCountryClicked($event, country)" [disabled]="isDeletingCountry$" />-->
+              <p-button label="Delete" icon="pi pi-trash" variant="outlined" size="small" severity="danger" (click)="onDeleteStateClicked($event, state)" [disabled]="isDeletingState$" />
             </p-button-group>
           </td>
         </tr>

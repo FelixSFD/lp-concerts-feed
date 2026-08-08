@@ -1,10 +1,11 @@
 import { Component, inject, viewChild } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ErrorResponseDto } from '../../../../../modules/lpshows-api';
 import { LocationsService } from '../../../../../services/locations.service';
 import { CountryFormComponent, CountryFormContent } from '../country-form/country-form.component';
 import {
+  CountryDto,
   CreateStateRequestDto, StateDto,
   StateWithCountryDto,
   UpdateCountryRequestDto, UpdateStateRequestDto
@@ -17,6 +18,7 @@ import { Dialog } from 'primeng/dialog';
 import { Divider } from 'primeng/divider';
 import { StateFormComponent } from '../state-form/state-form.component';
 import { ButtonGroup } from 'primeng/buttongroup';
+import { ConfirmDialog } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'app-edit-country-page',
@@ -30,7 +32,8 @@ import { ButtonGroup } from 'primeng/buttongroup';
     Dialog,
     Divider,
     StateFormComponent,
-    ButtonGroup
+    ButtonGroup,
+    ConfirmDialog
   ],
   templateUrl: './edit-country-page.component.html',
   styleUrl: './edit-country-page.component.css',
@@ -39,6 +42,7 @@ export class EditCountryPageComponent {
   private activeRoute = inject(ActivatedRoute);
   private messageService = inject(MessageService);
   private locationsService = inject(LocationsService);
+  private confirmationService = inject(ConfirmationService);
 
   private countryFormComponent = viewChild(CountryFormComponent);
   private addStateFormComponent = viewChild(StateFormComponent);
@@ -55,6 +59,8 @@ export class EditCountryPageComponent {
 
   isShowingEditStateDialog$ = false;
   isEditingState$ = false;
+
+  isDeletingState$ = false;
 
 
   ngOnInit() {
@@ -186,5 +192,52 @@ export class EditCountryPageComponent {
           this.messageService.add({severity: "error", summary: "Failed to save state", detail: errorResponse.message});
         }
       })
+  }
+
+  onDeleteStateClicked(event: Event, state: StateDto) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: `Do you want to delete the state "${state.name}"?`,
+      header: 'Delete state',
+      icon: 'pi pi-info-circle',
+      rejectLabel: 'Cancel',
+      rejectButtonProps: {
+        label: 'Cancel',
+        severity: 'secondary',
+        outlined: true
+      },
+      acceptButtonProps: {
+        label: 'Delete',
+        severity: 'danger'
+      },
+
+      accept: () => {
+        this.onDeleteStateConfirm(state);
+      }
+    });
+  }
+
+
+  onDeleteStateConfirm(state: StateDto) {
+    this.isDeletingState$ = true;
+
+    if (state) {
+      this.locationsService.deleteState(state.countryCode, state.code)
+        .subscribe({
+          next: () => {
+            this.loadStatesInCountry();
+            this.isDeletingState$ = false;
+          },
+          error: err => {
+            let errorResponse: ErrorResponseDto = err.error;
+            this.messageService.add({
+              severity: "error",
+              summary: "Could not load delete state!",
+              text: errorResponse.message,
+            });
+            this.isDeletingState$ = false;
+          }
+        });
+    }
   }
 }
