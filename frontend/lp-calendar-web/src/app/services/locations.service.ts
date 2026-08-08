@@ -109,7 +109,7 @@ export class LocationsService {
     return this.citiesApi.getCities(undefined, "1000", undefined, ["country.name", "name"]); // TODO: filter and sorting?
   }
 
-  createCity(countryCode: string, city: CreateCityRequestDto): Observable<CountryDto> {
+  createCity(countryCode: string, city: CreateCityRequestDto): Observable<CityWithCountryDto> {
     return this.countriesApi.createCity(countryCode, city);
   }
 

@@ -2,8 +2,8 @@ import { Component, inject, OnInit } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { LocationsService } from '../../../../../services/locations.service';
 import { Router, RouterLink } from '@angular/router';
-import { CountryFormComponent, CountryFormContent } from '../country-form/country-form.component';
-import { CountryDto, CreateCityRequestDto, CreateCountryRequestDto } from '../../../../../modules/lpshows-api/v3';
+import { CountryFormComponent } from '../country-form/country-form.component';
+import { CountryDto, CreateCityRequestDto } from '../../../../../modules/lpshows-api/v3';
 import { ErrorResponseDto } from '../../../../../modules/lpshows-api';
 import { CityFormComponent, CityFormContent } from '../city-form/city-form.component';
 import { Button } from 'primeng/button';
@@ -53,7 +53,7 @@ export class AddCityPageComponent implements OnInit {
       next: createdCity => {
         console.debug('Created new city', createdCity);
         this.isAdding$ = false;
-        this.router.navigate(["/", "admin", "cities", createdCity.isoCode]).catch(err => {
+        this.router.navigate(["/", "admin", "countries", createdCity.countryCode, "cities", createdCity.id]).catch(err => {
           this.messageService.add({severity: "error", summary: "Failed to navigate to the new city"});
         });
       },
