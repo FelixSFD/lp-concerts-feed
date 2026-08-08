@@ -2,7 +2,6 @@ import { Component, inject, OnInit } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { LocationsService } from '../../../../../services/locations.service';
 import { Router, RouterLink } from '@angular/router';
-import { CountryFormComponent } from '../country-form/country-form.component';
 import { CountryDto, CreateCityRequestDto } from '../../../../../modules/lpshows-api/v3';
 import { ErrorResponseDto } from '../../../../../modules/lpshows-api';
 import { CityFormComponent, CityFormContent } from '../city-form/city-form.component';
@@ -14,7 +13,6 @@ import { Card } from 'primeng/card';
   imports: [
     Button,
     Card,
-    CountryFormComponent,
     RouterLink,
     CityFormComponent
   ],
