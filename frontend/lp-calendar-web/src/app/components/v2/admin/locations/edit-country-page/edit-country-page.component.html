@@ -9,6 +9,17 @@
   </ng-template>
 </p-dialog>
 
+<!-- edit state modal -->
+<p-dialog header="Edit state" [(visible)]="isShowingEditStateDialog$" [modal]="true" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [style]="{ width: '50vw' }" [draggable]="false">
+  <app-state-form #editStateForm [standalone]="false" />
+  <p-divider />
+
+  <ng-template #footer>
+    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="dismissEditStateModal()" />
+    <p-button [label]="isEditingState$ ? 'Saving...' : 'Save'" (onClick)="onEditStateConfirm(editStateForm)" [loading]="isEditingState$" [disabled]="isEditingState$" />
+  </ng-template>
+</p-dialog>
+
 
 
 <p-card>
@@ -62,10 +73,10 @@
             {{ state.code }}
           </td>
           <td>
-            <!--<p-button-group>
-              <p-button label="Edit" icon="pi pi-pencil" variant="outlined" size="small" [routerLink]="[country.isoCode]" [disabled]="isDeletingCountry$" />
-              <p-button label="Delete" icon="pi pi-trash" variant="outlined" size="small" severity="danger" (click)="onDeleteCountryClicked($event, country)" [disabled]="isDeletingCountry$" />
-            </p-button-group>-->
+            <p-button-group>
+              <p-button label="Edit" icon="pi pi-pencil" variant="outlined" size="small" (onClick)="onEditStateClicked(editStateForm, state)" />
+              <!--<p-button label="Delete" icon="pi pi-trash" variant="outlined" size="small" severity="danger" (click)="onDeleteCountryClicked($event, country)" [disabled]="isDeletingCountry$" />-->
+            </p-button-group>
           </td>
         </tr>
       </ng-template>

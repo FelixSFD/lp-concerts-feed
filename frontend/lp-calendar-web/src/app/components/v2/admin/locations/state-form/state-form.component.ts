@@ -56,7 +56,7 @@ export class StateFormComponent {
   }
 
   public readFromForm(): StateFormContent | null {
-    const code = this.stateForm.value.code?.valueOf();
+    const code = this.stateForm.controls.code.value;
     const name = this.stateForm.value.name?.valueOf();
     const nativeName = this.stateForm.value.nativeName?.valueOf();
 
@@ -93,8 +93,10 @@ export class StateFormComponent {
 
   public fillFormWith(state: StateDto) {
     console.debug("Fill form with data:", state);
+    this.stateForm.controls.code.disable();
     this.stateForm.controls.code.setValue(state.code ?? null);
     this.stateForm.controls.name.setValue(state.name ?? null);
+    this.stateForm.controls.nativeName.setValue(state.nativeName ?? null);
   }
 }
 

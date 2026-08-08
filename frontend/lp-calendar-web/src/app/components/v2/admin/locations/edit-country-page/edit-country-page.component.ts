@@ -5,23 +5,18 @@ import { ErrorResponseDto } from '../../../../../modules/lpshows-api';
 import { LocationsService } from '../../../../../services/locations.service';
 import { CountryFormComponent, CountryFormContent } from '../country-form/country-form.component';
 import {
-  CreateStateRequestDto,
+  CreateStateRequestDto, StateDto,
   StateWithCountryDto,
-  UpdateCountryRequestDto
+  UpdateCountryRequestDto, UpdateStateRequestDto
 } from '../../../../../modules/lpshows-api/v3';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
-import { SongFormComponent } from '../../setlists/song-form/song-form.component';
-import { ButtonGroup } from 'primeng/buttongroup';
 import { FormsModule } from '@angular/forms';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { InputText } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
-import { AddSetlistEntryFormComponent } from '../../setlists/add-setlist-entry-form/add-setlist-entry-form.component';
 import { Dialog } from 'primeng/dialog';
 import { Divider } from 'primeng/divider';
 import { StateFormComponent } from '../state-form/state-form.component';
+import { ButtonGroup } from 'primeng/buttongroup';
 
 @Component({
   selector: 'app-edit-country-page',
@@ -30,16 +25,12 @@ import { StateFormComponent } from '../state-form/state-form.component';
     Card,
     CountryFormComponent,
     RouterLink,
-    ButtonGroup,
     FormsModule,
-    IconField,
-    InputIcon,
-    InputText,
     TableModule,
-    AddSetlistEntryFormComponent,
     Dialog,
     Divider,
-    StateFormComponent
+    StateFormComponent,
+    ButtonGroup
   ],
   templateUrl: './edit-country-page.component.html',
   styleUrl: './edit-country-page.component.css',
@@ -61,6 +52,9 @@ export class EditCountryPageComponent {
 
   isShowingAddStateDialog$ = false;
   isAddingState$ = false;
+
+  isShowingEditStateDialog$ = false;
+  isEditingState$ = false;
 
 
   ngOnInit() {
@@ -132,6 +126,7 @@ export class EditCountryPageComponent {
 
     if (formContent?.code == null || formContent?.name == null || formContent?.nativeName == null) {
       this.messageService.add({severity: "error", summary: "Failed to create state", detail: "Please fill in all fields"});
+      this.isAddingState$ = false;
       return;
     }
 
@@ -150,6 +145,45 @@ export class EditCountryPageComponent {
           this.isAddingState$ = false;
           let errorResponse: ErrorResponseDto = err.error;
           this.messageService.add({severity: "error", summary: "Failed to create state", detail: errorResponse.message});
+        }
+      })
+  }
+
+  dismissEditStateModal() {
+    this.isShowingEditStateDialog$ = false;
+  }
+
+  onEditStateClicked(content: StateFormComponent, state: StateDto) {
+    content.fillFormWith(state);
+    this.isShowingEditStateDialog$ = true;
+  }
+
+  onEditStateConfirm(content: StateFormComponent) {
+    this.isEditingState$ = true;
+
+    let formContent = content.readFromForm();
+    console.debug("Form content:", formContent);
+
+    if (formContent?.code == null || formContent?.name == null || formContent?.nativeName == null) {
+      this.messageService.add({severity: "error", summary: "Failed to save state", detail: "Please fill in all fields"});
+      this.isEditingState$ = false;
+      return;
+    }
+
+    let updateRequest: UpdateStateRequestDto = {
+      name: formContent?.name,
+      nativeName: formContent?.nativeName
+    }
+    this.locationsService.updateState(this.currentCountryId, formContent.code, updateRequest)
+      .subscribe({
+        next: state => {
+          this.isEditingState$ = false;
+          this.loadStatesInCountry();
+        },
+        error: err => {
+          this.isEditingState$ = false;
+          let errorResponse: ErrorResponseDto = err.error;
+          this.messageService.add({severity: "error", summary: "Failed to save state", detail: errorResponse.message});
         }
       })
   }
