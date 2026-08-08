@@ -5,7 +5,13 @@ import {OsmCity} from '../data/osm/osm-city';
 import {Coordinates} from '../data/location/coordinates';
 import {environment} from '../../environments/environment';
 import {TimeZoneResponseDto, TimezoneService} from '../modules/lpshows-api';
-import { CountriesApi, CountryDto, CreateCountryRequestDto, UpdateCountryRequestDto } from '../modules/lpshows-api/v3';
+import {
+  CountriesApi,
+  CountryDto,
+  CreateCountryRequestDto, CreateStateRequestDto,
+  StateDto, StateWithCountryDto,
+  UpdateCountryRequestDto, UpdateStateRequestDto
+} from '../modules/lpshows-api/v3';
 import { addAuthentication } from '../auth/auth.config';
 
 /**
@@ -59,6 +65,41 @@ export class LocationsService {
    */
   deleteCountry(countryCode: string): Observable<any> {
     return this.countriesApi.deleteCountryByIsoCode(countryCode);
+  }
+
+  /**
+   * Returns a list of all states
+   */
+  getStatesIn(countryCode: string): Observable<StateWithCountryDto[]> {
+    return this.countriesApi.getStatesInCountry(countryCode);
+  }
+
+  /**
+   * Returns a single state
+   */
+  getState(countryCode: string, stateCode: string): Observable<StateWithCountryDto> {
+    return this.countriesApi.getState(countryCode, stateCode);
+  }
+
+  /**
+   * Creates a new state
+   */
+  createState(countryCode: string, state: CreateStateRequestDto): Observable<StateDto> {
+    return this.countriesApi.createState(countryCode, state);
+  }
+
+  /**
+   * Updates a state
+   */
+  updateState(countryCode: string, stateCode: string, state: UpdateStateRequestDto): Observable<StateDto> {
+    return this.countriesApi.updateState(countryCode, stateCode, state);
+  }
+
+  /**
+   * Deletes a state
+   */
+  deleteState(countryCode: string, stateCode: string): Observable<any> {
+    return this.countriesApi.deleteState(countryCode, stateCode);
   }
 
   getCoordinatesFor(city: string, state: string | null, country: string): Observable<Coordinates | undefined> {

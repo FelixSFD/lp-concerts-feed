@@ -144,7 +144,7 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     [HttpGet("{countryCode}/states/{stateCode}")]
     [OutputCache(PolicyName = CachePolicyNames.Default)]
     [CustomResponseCache(Duration = CacheExpiration.Default)]
-    public async Task<ActionResult<CountryBo>> GetState(string countryCode, string stateCode)
+    public async Task<ActionResult<StateWithCountryDto>> GetState(string countryCode, string stateCode)
     {
         logger.LogDebug("Requested state '{stateCode}' in country '{countryCode}'", stateCode, countryCode);
         var stateWithCountry = await locationService.GetStateInCountryAsync(countryCode, stateCode);

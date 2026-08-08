@@ -4,10 +4,16 @@ import { MessageService } from 'primeng/api';
 import { ErrorResponseDto } from '../../../../../modules/lpshows-api';
 import { LocationsService } from '../../../../../services/locations.service';
 import { CountryFormComponent, CountryFormContent } from '../country-form/country-form.component';
-import { UpdateCountryRequestDto } from '../../../../../modules/lpshows-api/v3';
+import { StateWithCountryDto, UpdateCountryRequestDto } from '../../../../../modules/lpshows-api/v3';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { SongFormComponent } from '../../setlists/song-form/song-form.component';
+import { ButtonGroup } from 'primeng/buttongroup';
+import { FormsModule } from '@angular/forms';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { InputText } from 'primeng/inputtext';
+import { TableModule } from 'primeng/table';
 
 @Component({
   selector: 'app-edit-country-page',
@@ -15,7 +21,13 @@ import { SongFormComponent } from '../../setlists/song-form/song-form.component'
     Button,
     Card,
     CountryFormComponent,
-    RouterLink
+    RouterLink,
+    ButtonGroup,
+    FormsModule,
+    IconField,
+    InputIcon,
+    InputText,
+    TableModule
   ],
   templateUrl: './edit-country-page.component.html',
   styleUrl: './edit-country-page.component.css',
@@ -31,6 +43,9 @@ export class EditCountryPageComponent {
 
   isSaving$ = false;
 
+  statesInCountry$: StateWithCountryDto[] = [];
+  isLoadingStates$ = false;
+
 
   ngOnInit() {
     this.activeRoute.data.subscribe(data => {
@@ -43,6 +58,7 @@ export class EditCountryPageComponent {
       }
 
       this.currentCountryId = data['country'].isoCode;
+      this.loadStatesInCountry();
       this.countryFormComponent()?.fillFormWith(data['country']);
     });
   }
@@ -66,6 +82,21 @@ export class EditCountryPageComponent {
         let errorResponse: ErrorResponseDto = err.error;
         this.messageService.add({severity: "error", summary: "Failed to save country", detail: errorResponse.message});
         this.isSaving$ = false;
+      }
+    });
+  }
+
+  private loadStatesInCountry() {
+    this.isLoadingStates$ = true;
+    this.locationsService.getStatesIn(this.currentCountryId).subscribe({
+      next: states => {
+        this.statesInCountry$ = states;
+        this.isLoadingStates$ = false;
+      },
+      error: err => {
+        this.isLoadingStates$ = false;
+        let errorResponse: ErrorResponseDto = err.error;
+        this.messageService.add({severity: "error", summary: "Failed to load states in country", detail: errorResponse.message});
       }
     });
   }

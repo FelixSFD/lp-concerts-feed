@@ -645,13 +645,19 @@ paths:
           content:
             text/plain:
               schema:
-                $ref: "#/components/schemas/StateWithCountry"
+                type: array
+                items:
+                  $ref: "#/components/schemas/StateWithCountry"
             application/json:
               schema:
-                $ref: "#/components/schemas/StateWithCountry"
+                type: array
+                items:
+                  $ref: "#/components/schemas/StateWithCountry"
             text/json:
               schema:
-                $ref: "#/components/schemas/StateWithCountry"
+                type: array
+                items:
+                  $ref: "#/components/schemas/StateWithCountry"
       x-amazon-apigateway-integration:
         type: HTTP_PROXY
         httpMethod: GET
@@ -741,13 +747,13 @@ paths:
           content:
             text/plain:
               schema:
-                $ref: "#/components/schemas/Country"
+                $ref: "#/components/schemas/StateWithCountry"
             application/json:
               schema:
-                $ref: "#/components/schemas/Country"
+                $ref: "#/components/schemas/StateWithCountry"
             text/json:
               schema:
-                $ref: "#/components/schemas/Country"
+                $ref: "#/components/schemas/StateWithCountry"
       x-amazon-apigateway-integration:
         type: HTTP_PROXY
         httpMethod: GET
