@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Common.Database;
 using Common.Database.MySql.Repositories;
 using Common.Database.Repositories;
@@ -8,6 +9,17 @@ namespace Database.Tours.Repositories;
 
 public class SqlCityRepository(ToursDbContext dbContext) : SqlRepositoryBase<CityDo>(dbContext, dbContext.Cities), ICityRepository
 {
+    protected override IReadOnlyDictionary<string, LambdaExpression> SortExpressions { get; } = new Dictionary<string, LambdaExpression>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["name"] = (Expression<Func<CityDo, string>>)(c => c.Name),
+        ["nativeName"] = (Expression<Func<CityDo, string>>)(c => c.NativeName),
+        ["countryCode"] = (Expression<Func<CityDo, string>>)(c => c.CountryCode),
+        ["country.name"] = (Expression<Func<CityDo, string>>)(c => c.Country.Name),
+        ["country.nativeName"] = (Expression<Func<CityDo, string>>)(c => c.Country.NativeName),
+        ["state.name"] = (Expression<Func<CityDo, string>>)(c => c.State!.Name),
+        ["state.nativeName"] = (Expression<Func<CityDo, string>>)(c => c.State!.NativeName),
+    };
+    
     protected override async Task<CityDo> LoadReferences(CityDo dataObject)
     {
         await Context.Entry(dataObject)
