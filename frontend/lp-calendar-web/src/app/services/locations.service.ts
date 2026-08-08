@@ -9,7 +9,7 @@ import {
   CitiesApi,
   CityWithCountryDto,
   CountriesApi,
-  CountryDto,
+  CountryDto, CreateCityRequestDto,
   CreateCountryRequestDto, CreateStateRequestDto,
   StateDto, StateWithCountryDto,
   UpdateCountryRequestDto, UpdateStateRequestDto
@@ -107,6 +107,10 @@ export class LocationsService {
 
   getCities(): Observable<CityWithCountryDto[]> {
     return this.citiesApi.getCities(undefined, "1000"); // TODO: filter and sorting?
+  }
+
+  createCity(countryCode: string, city: CreateCityRequestDto): Observable<CountryDto> {
+    return this.countriesApi.createCity(countryCode, city);
   }
 
   getCoordinatesFor(city: string, state: string | null, country: string): Observable<Coordinates | undefined> {

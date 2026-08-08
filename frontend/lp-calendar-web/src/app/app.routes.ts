@@ -360,6 +360,13 @@ export const routes: Routes = [
         title: baseTitle + 'Manage cities',
         canActivate: [authGuard, manageLocationsGuard],
       },
+      {
+        path: 'cities/add',
+        loadComponent: () =>
+          import("./components/v2/admin/locations/add-city-page/add-city-page.component").then(m => m.AddCityPageComponent),
+        title: baseTitle + 'Create city',
+        canActivate: [authGuard, manageLocationsGuard],
+      },
     ]
   },
   {
