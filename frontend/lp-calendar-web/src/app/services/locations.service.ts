@@ -11,7 +11,7 @@ import {
   CountriesApi,
   CountryDto, CreateCityRequestDto,
   CreateCountryRequestDto, CreateStateRequestDto,
-  StateDto, StateWithCountryDto,
+  StateDto, StateWithCountryDto, UpdateCityRequestDto,
   UpdateCountryRequestDto, UpdateStateRequestDto
 } from '../modules/lpshows-api/v3';
 import { addAuthentication } from '../auth/auth.config';
@@ -111,6 +111,14 @@ export class LocationsService {
 
   createCity(countryCode: string, city: CreateCityRequestDto): Observable<CountryDto> {
     return this.countriesApi.createCity(countryCode, city);
+  }
+
+  updateCity(countryCode: string, id: number, city: UpdateCityRequestDto): Observable<CityWithCountryDto> {
+    return this.countriesApi.updateCity(countryCode, id, city);
+  }
+
+  getCity(countryCode: string, cityId: number): Observable<CityWithCountryDto> {
+    return this.countriesApi.getCity(countryCode, cityId.toString());
   }
 
   getCoordinatesFor(city: string, state: string | null, country: string): Observable<Coordinates | undefined> {

@@ -7,6 +7,7 @@ import {userResolver} from './resolvers/user-resolver';
 import {albumResolver} from './resolvers/album-resolver';
 import {songResolver} from './resolvers/song-resolver';
 import { countryResolver } from './resolvers/country-resolver';
+import { cityResolver } from './resolvers/city-resolver';
 
 let baseTitle = "LP Concerts - ";
 
@@ -366,6 +367,17 @@ export const routes: Routes = [
           import("./components/v2/admin/locations/add-city-page/add-city-page.component").then(m => m.AddCityPageComponent),
         title: baseTitle + 'Create city',
         canActivate: [authGuard, manageLocationsGuard],
+      },
+      {
+        path: 'countries/:countryCode/cities/:cityId',
+        loadComponent: () =>
+          import("./components/v2/admin/locations/edit-city-page/edit-city-page.component").then(m => m.EditCityPageComponent),
+        title: baseTitle + 'Create city',
+        canActivate: [authGuard, manageLocationsGuard],
+        resolve: {
+          country: countryResolver,
+          city: cityResolver
+        },
       },
     ]
   },

@@ -99,6 +99,7 @@ export class CityFormComponent {
 
   public fillFormWith(city: CityWithCountryDto) {
     console.debug("Fill form with data:", city);
+    this.cityForm.controls.countryCode.setValue(city.countryCode ?? null);
     this.cityForm.controls.name.setValue(city.name ?? null);
     this.cityForm.controls.nativeName.setValue(city.nativeName ?? null);
   }

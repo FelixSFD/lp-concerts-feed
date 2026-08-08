@@ -1,0 +1,11 @@
+<p-confirmDialog />
+
+<p-card>
+  <ng-template #title>
+    Edit city
+  </ng-template>
+
+  <p-button severity="secondary" variant="outlined" icon="pi pi-arrow-left" label="City list" [routerLink]="['../../../../cities']" />
+
+  <app-city-form (saveClicked)="onSaveClicked($event)" [is-saving]="isSaving$" [available-countries]="availableCountries$" />
+</p-card>
