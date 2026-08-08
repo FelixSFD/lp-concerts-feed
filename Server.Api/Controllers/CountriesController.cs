@@ -25,6 +25,7 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     /// <param name="request">Data of the new country</param>
     /// <returns></returns>
     [HttpPost]
+    [ClearCache(Tags = [CacheTags.CountriesAll])]
     [AuthorizeRoles]
     public async Task<CreatedAtActionResult> CreateCountry([FromBody] CreateCountryRequest request)
     {
@@ -41,6 +42,7 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     /// <param name="countryCode">ISO-code of the country</param>
     /// <returns>the updated data</returns>
     [HttpPut("{countryCode}")]
+    [ClearCache(Tags = [CacheTags.CountriesAll])]
     [AuthorizeRoles]
     public async Task<ActionResult<CountryBo>> UpdateCountry([FromBody] UpdateCountryRequestDto request, [FromRoute] string countryCode)
     {
@@ -56,7 +58,7 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpGet]
-    [OutputCache(PolicyName = CachePolicyNames.Long)]
+    [OutputCache(PolicyName = CachePolicyNames.Long, Tags = [CacheTags.CountriesAll])]
     [CustomResponseCache(Duration = CacheExpiration.Long)]
     public async Task<ActionResult<CountryBo>> GetCountries(CancellationToken cancellationToken)
     {
@@ -74,7 +76,7 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     /// <param name="countryCode">3-letter ISO-code of the country</param>
     /// <returns></returns>
     [HttpGet("{countryCode}")]
-    [OutputCache(PolicyName = CachePolicyNames.Default)]
+    [OutputCache(PolicyName = CachePolicyNames.Default, Tags = [CacheTags.CountriesAll])]
     [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<CountryBo>> GetCountryByIsoCode(string countryCode)
     {
@@ -90,6 +92,7 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     /// <param name="countryCode">3-letter ISO-code of the country</param>
     /// <returns>no content</returns>
     [HttpDelete("{countryCode}")]
+    [ClearCache(Tags = [CacheTags.CountriesAll])]
     [AuthorizeRoles]
     public async Task<NoContentResult> DeleteCountryByIsoCode(string countryCode)
     {
@@ -110,6 +113,7 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     /// <param name="request">Data of the new country</param>
     /// <returns></returns>
     [HttpPost("{countryCode}/states")]
+    [ClearCache(Tags = [CacheTags.StatesAll])]
     [AuthorizeRoles]
     public async Task<CreatedAtActionResult> CreateState([FromRoute(Name = "countryCode")] string countryCode, [FromBody] CreateStateRequestDto request)
     {
@@ -126,6 +130,7 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     /// <param name="request">Data of the updated state</param>
     /// <returns></returns>
     [HttpPut("{countryCode}/states/{stateCode}")]
+    [ClearCache(Tags = [CacheTags.StatesAll])]
     [AuthorizeRoles]
     public async Task<ActionResult<StateWithCountryDto>> UpdateState([FromRoute(Name = "countryCode")] string countryCode, [FromRoute] string stateCode, [FromBody] UpdateStateRequestDto request)
     {
@@ -142,7 +147,7 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     /// <param name="stateCode">Code of the state</param>
     /// <returns>The state including the information about the country</returns>
     [HttpGet("{countryCode}/states/{stateCode}")]
-    [OutputCache(PolicyName = CachePolicyNames.Default)]
+    [OutputCache(PolicyName = CachePolicyNames.Default, Tags = [CacheTags.StatesAll])]
     [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<StateWithCountryDto>> GetState(string countryCode, string stateCode)
     {
@@ -159,7 +164,7 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpGet("{countryCode}/states")]
-    [OutputCache(PolicyName = CachePolicyNames.Default)]
+    [OutputCache(PolicyName = CachePolicyNames.Default, Tags = [CacheTags.StatesAll])]
     [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<StateWithCountryDto>> GetStatesInCountry(string countryCode, CancellationToken cancellationToken)
     {
@@ -178,6 +183,7 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     /// <param name="stateCode">Code of the state</param>
     /// <returns>no content</returns>
     [HttpDelete("{countryCode}/states/{stateCode}")]
+    [ClearCache(Tags = [CacheTags.StatesAll])]
     [AuthorizeRoles]
     public async Task<NoContentResult> DeleteState(string countryCode, string stateCode)
     {
