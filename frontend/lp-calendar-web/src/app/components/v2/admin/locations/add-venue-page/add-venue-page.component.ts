@@ -37,7 +37,7 @@ export class AddVenuePageComponent implements OnInit {
         let errorResponse: ErrorResponseDto = err.error;
         this.messageService.add({
           severity: "error",
-          summary: "Could not load venues!",
+          summary: "Could not load countries!",
           text: errorResponse.message,
         });
       }

@@ -31,7 +31,7 @@ import timezones from 'timezones-list';
   templateUrl: './venue-form.component.html',
   styleUrl: './venue-form.component.css',
 })
-export class VenueFormComponent implements OnInit {
+export class VenueFormComponent {
   private messageService = inject(MessageService);
   private formBuilder = inject(FormBuilder);
   private locationsService = inject(LocationsService);
@@ -62,10 +62,11 @@ export class VenueFormComponent implements OnInit {
     timezone: new FormControl('', [Validators.required]),
   });
 
-  ngOnInit() {
+  constructor() {
     this.venueForm.controls.countryCode.valueChanges.subscribe((countryCode) => {
       if (countryCode == null) {
         this.citiesInCountry$ = [];
+        console.debug("Country code is null, clearing cities in country");
         return;
       }
 
@@ -73,6 +74,7 @@ export class VenueFormComponent implements OnInit {
         .subscribe({
           next: (cities) => {
             this.citiesInCountry$ = cities;
+            console.debug("Cities in selected country:", cities);
           },
           error: (error) => {
             console.error(error);
@@ -137,6 +139,9 @@ export class VenueFormComponent implements OnInit {
 
   public fillFormWith(venue: VenueDto) {
     console.debug("Fill form with data:", venue);
+    this.venueForm.controls.cityId.setValue(Number(venue.cityId));
+    this.venueForm.controls.countryCode.setValue(venue.countryCode ?? null);
+    this.venueForm.controls.timezone.setValue(venue.timeZone ?? null);
     this.venueForm.controls.currentName.setValue(venue.currentName ?? null);
   }
 

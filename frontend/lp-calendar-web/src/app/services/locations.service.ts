@@ -12,7 +12,7 @@ import {
   CountryDto, CreateCityRequestDto,
   CreateCountryRequestDto, CreateStateRequestDto, CreateVenueRequestDto,
   StateDto, StateWithCountryDto, UpdateCityRequestDto,
-  UpdateCountryRequestDto, UpdateStateRequestDto, VenueDto, VenuesApi
+  UpdateCountryRequestDto, UpdateStateRequestDto, UpdateVenueRequestDto, VenueDto, VenuesApi, VenueWithDetailsDto
 } from '../modules/lpshows-api/v3';
 import { addAuthentication } from '../auth/auth.config';
 
@@ -139,12 +139,23 @@ export class LocationsService {
     return this.venuesApi.getAllVenues();
   }
 
+  getVenue(venueId: number): Observable<VenueDto> {
+    return this.venuesApi.getVenueById(venueId);
+  }
+
   /**
    * Creates a new venue
    * @param venue
    */
   createVenue(venue: CreateVenueRequestDto): Observable<VenueDto> {
     return this.venuesApi.createVenue(venue);
+  }
+
+  /**
+   * Updates a venue
+   */
+  updateVenue(id: number, venue: UpdateVenueRequestDto): Observable<VenueWithDetailsDto> {
+    return this.venuesApi.updateVenue(id, venue);
   }
 
   getCoordinatesFor(city: string, state: string | null, country: string): Observable<Coordinates | undefined> {

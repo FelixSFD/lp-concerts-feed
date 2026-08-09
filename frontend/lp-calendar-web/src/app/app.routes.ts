@@ -8,6 +8,7 @@ import {albumResolver} from './resolvers/album-resolver';
 import {songResolver} from './resolvers/song-resolver';
 import { countryResolver } from './resolvers/country-resolver';
 import { cityResolver } from './resolvers/city-resolver';
+import { venueResolver } from './resolvers/venue-resolver';
 
 let baseTitle = "LP Concerts - ";
 
@@ -372,7 +373,7 @@ export const routes: Routes = [
         path: 'countries/:countryCode/cities/:cityId',
         loadComponent: () =>
           import("./components/v2/admin/locations/edit-city-page/edit-city-page.component").then(m => m.EditCityPageComponent),
-        title: baseTitle + 'Create city',
+        title: baseTitle + 'Edit city',
         canActivate: [authGuard, manageLocationsGuard],
         resolve: {
           country: countryResolver,
@@ -392,6 +393,16 @@ export const routes: Routes = [
           import("./components/v2/admin/locations/add-venue-page/add-venue-page.component").then(m => m.AddVenuePageComponent),
         title: baseTitle + 'Create venue',
         canActivate: [authGuard, manageLocationsGuard],
+      },
+      {
+        path: 'venues/:venueId',
+        loadComponent: () =>
+          import("./components/v2/admin/locations/edit-venue-page/edit-venue-page.component").then(m => m.EditVenuePageComponent),
+        title: baseTitle + 'Edit city',
+        canActivate: [authGuard, manageLocationsGuard],
+        resolve: {
+          venue: venueResolver
+        },
       },
     ]
   },

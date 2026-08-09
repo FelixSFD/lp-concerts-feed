@@ -63,7 +63,7 @@
         </td>
         <td>
           <p-button-group>
-            <p-button label="Edit" icon="pi pi-pencil" variant="outlined" size="small" [routerLink]="[venue.countryCode]" [disabled]="isDeletingVenue$" />
+            <p-button label="Edit" icon="pi pi-pencil" variant="outlined" size="small" [routerLink]="[venue.id]" [disabled]="isDeletingVenue$" />
             <p-button label="Delete" icon="pi pi-trash" variant="outlined" size="small" severity="danger" (click)="onDeleteVenueClicked($event, venue)" [disabled]="isDeletingVenue$" />
           </p-button-group>
         </td>
