@@ -51,6 +51,7 @@ jobs:
 
   build-server-image:
     uses: felixsfd/lp-concerts-feed/.github/workflows/build-and-publish-docker-server.yaml@feature/api-server-deployment
+    secrets: inherit
     
   build-lambdas:
     runs-on: ubuntu-24.04-arm
