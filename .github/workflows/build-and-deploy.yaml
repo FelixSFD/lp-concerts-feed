@@ -49,6 +49,9 @@ jobs:
           # output variable
           echo "regions=$JSON" >> "$GITHUB_OUTPUT"
 
+  build-server-image:
+    uses: felixsfd/lp-concerts-feed/.github/workflows/build-and-publish-docker-server.yaml@main
+    
   build-lambdas:
     runs-on: ubuntu-24.04-arm
     needs: define-matrix
