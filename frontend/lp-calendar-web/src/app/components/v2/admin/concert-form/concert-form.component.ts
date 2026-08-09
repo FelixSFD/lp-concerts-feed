@@ -512,7 +512,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
                 );
 
                 console.log('Progress:', progress);
-                fileUploadForm.progress = progress;
+                fileUploadForm.progress.set(progress);
                 fileUploadForm.onProgress.emit({
                   progress: progress,
                   originalEvent: httpEvent,
@@ -525,7 +525,7 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
                   files: fileUploadForm.files,
                   originalEvent: httpEvent,
                 });
-                fileUploadForm.uploadedFiles.push(...fileUploadForm.files);
+                fileUploadForm.uploadedFiles.set([...fileUploadForm.files]);
                 fileUploadForm.files = [];
                 fileUploadForm.clear();
               }

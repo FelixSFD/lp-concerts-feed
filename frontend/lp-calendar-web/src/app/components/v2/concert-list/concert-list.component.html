@@ -24,7 +24,7 @@
   </div>
 </div>
 
-<p-confirmDialog />
+<p-confirm-dialog />
 
 <div class="mb-3">
   <app-concert-filter (applyClicked)="onFilterChanged($event)" />
@@ -94,7 +94,7 @@
           </div>
           <div class="flex flex-row-reverse flex-wrap">
             @if (concert?.id != null) {
-              <p-buttonGroup>
+              <p-button-group>
                 @if (canDeleteConcerts$) {
                   <p-button variant="outlined" icon="pi pi-trash" size="small" severity="danger" (click)="onDeleteConcertClicked($event, concert.id ?? null)" />
                 }
@@ -104,7 +104,7 @@
 
                 <!--<p-button variant="outlined" icon="pi pi-share-alt" label="Share" severity="info" size="small" />-->
                 <p-button variant="outlined" label="Details" icon="pi pi-info-circle" [routerLink]="['/concerts', concert.id]" size="small" />
-              </p-buttonGroup>
+              </p-button-group>
             } @else if (isLoading$) {
               <p-skeleton borderRadius="2" width="5rem" height="2.2rem" />
             }

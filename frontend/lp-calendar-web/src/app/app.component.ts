@@ -1,4 +1,4 @@
-import { Component, HostListener, inject, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, inject, OnDestroy, OnInit } from '@angular/core';
 import { EventType, Router, RouterOutlet } from '@angular/router';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { DateTime } from 'luxon';
@@ -26,7 +26,8 @@ import { ClockService } from './services/clock.service';
   selector: 'app-root',
   imports: [RouterOutlet, MainMenuComponent, FooterComponent, ScrollTop, AutoBreadcrumbsComponent, ProgressBar, Toast],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrl: './app.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'lp-calendar-web';

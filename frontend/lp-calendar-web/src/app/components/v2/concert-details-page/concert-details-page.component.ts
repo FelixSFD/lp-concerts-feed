@@ -1,4 +1,4 @@
-import {Component, ElementRef, inject, OnInit, ViewChild} from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import {AuthService} from '../../../auth/auth.service';
 import {MatomoTracker} from 'ngx-matomo-client';
 import {
@@ -55,6 +55,7 @@ import { Image } from 'primeng/image';
   ],
   templateUrl: './concert-details-page.component.html',
   styleUrl: './concert-details-page.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class ConcertDetailsPageComponent implements OnInit {
   private readonly authService = inject(AuthService);
