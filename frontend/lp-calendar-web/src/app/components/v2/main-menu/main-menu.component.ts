@@ -33,6 +33,7 @@ export class MainMenuComponent implements OnInit, OnChanges {
   private username: string | null = null;
   private canManageUsers: boolean = false;
   private canManageSetlists: boolean = false;
+  private canManageLocations: boolean = false;
 
   @Input("clock")
   currentDateTime$: DateTime = DateTime.now();
@@ -66,6 +67,12 @@ export class MainMenuComponent implements OnInit, OnChanges {
 
     this.authStateService.canManageSetlists.subscribe(hasPermission => {
       this.canManageSetlists = hasPermission;
+
+      this.loadLoggedInMenuItems();
+    });
+
+    this.authStateService.canManageLocations.subscribe(hasPermission => {
+      this.canManageLocations = hasPermission;
 
       this.loadLoggedInMenuItems();
     });
@@ -105,6 +112,17 @@ export class MainMenuComponent implements OnInit, OnChanges {
           { label: 'Albums', icon: 'pi pi-images', routerLink: '/admin/albums' },
           { label: 'Songs', icon: 'pi pi-headphones', routerLink: '/admin/songs' },
           { label: 'Mashups', icon: 'pi pi-sliders-v', routerLink: '/admin/mashups' },
+        ],
+      });
+    }
+
+    if (this.canManageLocations) {
+      items.push({
+        label: 'Locations',
+        items: [
+          { label: 'Countries', icon: 'pi pi-globe', routerLink: '/admin/countries' },
+          { label: 'Cities', icon: 'pi pi-map-marker', routerLink: '/admin/cities' },
+          { label: 'Venues', icon: 'pi pi-warehouse', routerLink: '/admin/venues' },
         ],
       });
     }

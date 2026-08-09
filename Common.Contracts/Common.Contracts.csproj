@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="openapi_v3.yaml">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>openapi_v3.yaml</Link>
+        </None>
+    </ItemGroup>
+
+    <!-- Run the OpenAPI generator before build -->
+    <Target Name="GenerateApi" BeforeTargets="BeforeBuild" Condition="'$(SkipGeneratingModelClasses)' != 'true'">
+        <Exec Command="./generate-dotnet-api.sh" />
+    </Target>
+</Project>

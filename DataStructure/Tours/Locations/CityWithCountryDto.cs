@@ -8,7 +8,7 @@ public class CityWithCountryDto : CityDto
     /// <summary>
     /// Information about the country
     /// </summary>
-    public required CountryDto Country { get; set; }
+    public required CountryBo Country { get; set; }
     
     /// <summary>
     /// Information about the state, if <see cref="CityDto.StateCode"/> is set.

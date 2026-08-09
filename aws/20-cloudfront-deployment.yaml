@@ -11,6 +11,9 @@ Parameters:
     Type: String
   RootDomain:
     Type: String
+  ApiOriginDomain:
+    Description: Domain name of the V3 API server. Any requests to /v3/* will be routed to that server
+    Type: String
   CorsOrigin:
     Description: Value of the CORS origin header (without slashes and protocol!)
     Type: String
@@ -24,6 +27,9 @@ Parameters:
     Type: String
   SignS3MrapLambdaArn:
     Description: ARN of the Lambda@Edge function to sign requests to S3 MRAPs (must be passed like this because the function is in a different region)
+    Type: String
+  ApiV3OriginHeaderSecret:
+    Description: A secret string that can be verified by the origin server to make sure it only accepts requests form CloudFront
     Type: String
 
 
@@ -97,6 +103,8 @@ Resources:
             - Origin
             - Access-Control-Request-Headers
             - Access-Control-Request-Method
+            - User-Agent
+            - X-Forwarded-For
         QueryStringsConfig:
           QueryStringBehavior: all
         CookiesConfig:
@@ -207,6 +215,15 @@ Resources:
               OriginProtocolPolicy: https-only
               OriginSSLProtocols:
                 - TLSv1.2
+          - Id: V3ApiOrigin
+            DomainName: !Ref ApiOriginDomain
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:
+                - TLSv1.2
+            OriginCustomHeaders:
+              - HeaderName: X-CloudFront-Secret
+                HeaderValue: !Ref ApiV3OriginHeaderSecret
           - Id: StaticFilesOrigin
             DomainName: !GetAtt StaticFilesBucket.RegionalDomainName
             OriginPath: /api_distribution
@@ -227,6 +244,24 @@ Resources:
               - HEAD
               - OPTIONS
             CachePolicyId: !Ref DefaultCachePolicy
+          - PathPattern: /v3/*
+            TargetOriginId: V3ApiOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - POST
+              - PATCH
+              - DELETE
+            CachedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachePolicyId: !Ref DefaultCachePolicy
+            OriginRequestPolicyId: !Ref CORSOriginRequestPolicy
+            ResponseHeadersPolicyId: !Ref CORSResponseHeadersPolicy
         ViewerCertificate:
           AcmCertificateArn: !Ref CertificateArn
           SslSupportMethod: sni-only

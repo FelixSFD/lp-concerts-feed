@@ -1,0 +1,9 @@
+<p-card>
+  <ng-template #title>
+    Edit venue
+  </ng-template>
+
+  <p-button severity="secondary" variant="outlined" icon="pi pi-arrow-left" label="Venue list" [routerLink]="['../']" />
+
+  <app-venue-form (saveClicked)="onSaveClicked($event)" [is-saving]="isSaving$" [available-countries]="availableCountries$" />
+</p-card>

@@ -16,6 +16,5 @@
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\..\..\Database.Setlists\Database.Setlists.csproj" />
-      <ProjectReference Include="..\Database.Setlists\Database.Setlists.csproj" />
     </ItemGroup>
 </Project>

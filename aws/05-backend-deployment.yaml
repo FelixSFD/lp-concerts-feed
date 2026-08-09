@@ -1232,6 +1232,14 @@ Resources:
       GroupName: DeleteSongs
       Precedence: 3
       UserPoolId: !Ref CognitoAuthorizerUserPoolV3
+      
+  ManageLocationsUserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      Description: People in this group can manage locations like countries or venues
+      GroupName: ManageLocations
+      Precedence: 3
+      UserPoolId: !Ref CognitoAuthorizerUserPoolV3
   
   EditSetlistsDashboardUserGroup:
     Type: AWS::Cognito::UserPoolGroup

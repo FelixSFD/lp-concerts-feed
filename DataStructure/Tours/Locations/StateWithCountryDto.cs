@@ -10,5 +10,5 @@ public class StateWithCountryDto : StateDto
     /// <summary>
     /// Country the state is in
     /// </summary>
-    public required CountryDto Country { get; set; }
+    public required CountryBo Country { get; set; }
 }

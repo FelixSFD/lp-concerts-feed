@@ -29,7 +29,7 @@ public class LocationServiceTest
     [InlineData("AUT", "Austria", "Österreich")]
     public async Task CreateCountry(string isoCode, string name, string nativeName)
     {
-        var request = new CreateCountryRequestDto
+        var request = new CreateCountryRequest
         {
             IsoCode = isoCode,
             Name = name,

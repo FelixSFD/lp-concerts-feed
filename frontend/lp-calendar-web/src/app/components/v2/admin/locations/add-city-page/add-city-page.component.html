@@ -1,0 +1,9 @@
+<p-card>
+  <ng-template #title>
+    Add a new city
+  </ng-template>
+
+  <p-button severity="secondary" variant="outlined" icon="pi pi-arrow-left" label="City list" [routerLink]="['../']" />
+
+  <app-city-form (saveClicked)="onSaveClicked($event)" [is-saving]="isAdding$" [available-countries]="availableCountries$" />
+</p-card>

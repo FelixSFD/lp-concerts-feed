@@ -15,7 +15,7 @@ public class TourService(ITourRepository tourRepository, ILogger<TourService> lo
     /// </summary>
     /// <param name="request"></param>
     /// <returns>the newly created tour</returns>
-    public async Task<TourDto> CreateTourAsync(CreateTourRequestDto request)
+    public async Task<TourBo> CreateTourAsync(CreateTourRequest request)
     {
         logger.LogDebug("Creating tour: {tourName}", request.Name);
         var tour = request.ToDo();
@@ -31,7 +31,7 @@ public class TourService(ITourRepository tourRepository, ILogger<TourService> lo
     /// <param name="cancellationToken">Token to cancel the request</param>
     /// <returns>Information about the tours</returns>
     /// <exception cref="TourNotFoundException">if the tour does not exist</exception>
-    public IAsyncEnumerable<TourDto> GetToursAsync(CancellationToken cancellationToken)
+    public IAsyncEnumerable<TourBo> GetToursAsync(CancellationToken cancellationToken)
     {
         logger.LogDebug("Loading a list of all tours...");
         return tourRepository
@@ -45,7 +45,7 @@ public class TourService(ITourRepository tourRepository, ILogger<TourService> lo
     /// <param name="id">ID of the tour</param>
     /// <returns>Information about the tour</returns>
     /// <exception cref="TourNotFoundException">if the tour does not exist</exception>
-    public async Task<TourDto> GetTourByIdAsync(string id)
+    public async Task<TourBo> GetTourByIdAsync(string id)
     {
         logger.LogDebug("Searching for tour with ID: {tourId}", id);
         var tour = await tourRepository.GetByPrimaryKeyAsync(id) ?? throw new TourNotFoundException(id);
@@ -75,7 +75,7 @@ public class TourService(ITourRepository tourRepository, ILogger<TourService> lo
     /// <param name="request"></param>
     /// <param name="tourId">ID of the tour</param>
     /// <returns>the newly created leg</returns>
-    public async Task<TourLegDto> AddTourLegAsync(AddTourLegRequestDto request, string tourId)
+    public async Task<TourLegBo> AddTourLegAsync(AddTourLegRequest request, string tourId)
     {
         logger.LogDebug("Creating tour leg '{tourLegName}' in tour: {tourId}", request.Name, tourId);
         var tour = await tourRepository.GetByPrimaryKeyAsync(tourId) ?? throw new TourNotFoundException(tourId);
@@ -95,7 +95,7 @@ public class TourService(ITourRepository tourRepository, ILogger<TourService> lo
     /// <returns>Information about the tour leg</returns>
     /// <exception cref="TourNotFoundException">if the tour does not exist</exception>
     /// <exception cref="TourLegNotFoundException">if the tour leg does not exist, but the tour itself does exist</exception>
-    public async Task<TourLegDto> GetTourLegByIdAsync(string tourId, string legId)
+    public async Task<TourLegBo> GetTourLegByIdAsync(string tourId, string legId)
     {
         logger.LogDebug("Searching for leg '{tourLegId}' in tour with ID: {tourId}", legId, tourId);
         var tour = await tourRepository.GetByPrimaryKeyAsync(tourId) ?? throw new TourNotFoundException(tourId);

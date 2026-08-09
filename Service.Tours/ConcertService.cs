@@ -24,7 +24,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    public async Task<ConcertTypeDto> CreateConcertTypeAsync(CreateConcertTypeRequestDto request)
+    public async Task<ConcertTypeBo> CreateConcertTypeAsync(CreateConcertTypeRequest request)
     {
         logger.LogDebug("Creating concert type with name: {typeName}", request.Name);
         var typeDo = request.ToDo();
@@ -40,7 +40,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
     /// <param name="request"></param>
     /// <param name="id">ID of the concert type</param>
     /// <returns></returns>
-    public async Task<ConcertTypeDto> UpdateConcertTypeAsync(UpdateConcertTypeRequestDto request, uint id)
+    public async Task<ConcertTypeBo> UpdateConcertTypeAsync(UpdateConcertTypeRequest request, uint id)
     {
         logger.LogDebug("Updating concert type with ID: {id}", id);
         var typeDo = await concertTypeRepository.GetByPrimaryKeyWithoutReferencesAsync(id) ?? throw new ConcertTypeNotFoundException(id);
@@ -52,12 +52,12 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
     }
 
     /// <summary>
-    /// Returns the <see cref="ConcertTypeDto"/> for a given ID
+    /// Returns the <see cref="ConcertTypeBo"/> for a given ID
     /// </summary>
     /// <param name="id">ID of the concert type</param>
     /// <returns>Information about the concert type</returns>
     /// <exception cref="ConcertTypeNotFoundException">if the type does not exist</exception>
-    public async Task<ConcertTypeDto> GetConcertTypeAsync(uint id)
+    public async Task<ConcertTypeBo> GetConcertTypeAsync(uint id)
     {
         logger.LogDebug("Read concert type with ID: {id}", id);
         var type = await concertTypeRepository.GetByPrimaryKeyAsync(id) ?? throw new ConcertTypeNotFoundException(id);
@@ -66,11 +66,11 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
     }
     
     /// <summary>
-    /// Returns all <see cref="ConcertTypeDto"/>s
+    /// Returns all <see cref="ConcertTypeBo"/>s
     /// </summary>
     /// <param name="cancellationToken">Token to cancel the request</param>
     /// <returns>Information about all concert types</returns>
-    public IAsyncEnumerable<ConcertTypeDto> GetConcertTypesAsync(CancellationToken cancellationToken)
+    public IAsyncEnumerable<ConcertTypeBo> GetConcertTypesAsync(CancellationToken cancellationToken)
     {
         logger.LogDebug("Read all concert types");
         return concertTypeRepository

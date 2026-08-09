@@ -4,7 +4,10 @@ namespace Common.Utils.Cache;
 
 public static class CacheControlHeaderFactory
 {
-    private const CacheFlags DefaultCacheFlags = CacheFlags.Public | CacheFlags.MustRevalidate | CacheFlags.UseMaxAgeForServerOnly;
+    /// <summary>
+    /// Default flags for cache configuration
+    /// </summary>
+    public const CacheFlags DefaultCacheFlags = CacheFlags.Public | CacheFlags.MustRevalidate | CacheFlags.UseMaxAgeForServerOnly;
     
     public static CacheControlHeaderValue GetCacheHeaderValueFor(int seconds, CacheFlags flags = DefaultCacheFlags) 
         => GetCacheHeaderValueFor(TimeSpan.FromSeconds(seconds), flags);

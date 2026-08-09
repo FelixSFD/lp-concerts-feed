@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "generate": "openapi-generator-cli generate -i ../../openapi.yaml -g typescript-angular -o src/app/modules/lpshows-api --additional-properties fileNaming=kebab-case,withInterfaces=true,modelSuffix=Dto --generate-alias-as-model",
+    "generate": "npm run generate-v2 && npm run generate-v3",
+    "generate-v2": "openapi-generator-cli generate -i ../../openapi.yaml -g typescript-angular -o src/app/modules/lpshows-api --additional-properties fileNaming=kebab-case,withInterfaces=true,modelSuffix=Dto --generate-alias-as-model",
+    "generate-v3": "openapi-generator-cli generate -i ../../Common.Contracts/openapi_v3.yaml -g typescript-angular -o src/app/modules/lpshows-api/v3 --additional-properties fileNaming=kebab-case,withInterfaces=true,modelSuffix=Dto,serviceSuffix=Api,serviceFileSuffix=.api --generate-alias-as-model",
     "start": "npm run generate && ng serve",
     "build": "npm run generate && ng build",
     "watch": "ng build --watch --configuration development",

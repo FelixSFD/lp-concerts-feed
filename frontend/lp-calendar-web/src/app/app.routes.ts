@@ -6,6 +6,9 @@ import {concertResolver} from './resolvers/concert-resolver';
 import {userResolver} from './resolvers/user-resolver';
 import {albumResolver} from './resolvers/album-resolver';
 import {songResolver} from './resolvers/song-resolver';
+import { countryResolver } from './resolvers/country-resolver';
+import { cityResolver } from './resolvers/city-resolver';
+import { venueResolver } from './resolvers/venue-resolver';
 
 let baseTitle = "LP Concerts - ";
 
@@ -55,6 +58,14 @@ export const manageSetlistsGuard: CanActivateFn = (
 ) => {
   const authService = inject(AuthService);
   return authService.canManageSetlists;
+};
+
+export const manageLocationsGuard: CanActivateFn = (
+  route: ActivatedRouteSnapshot,
+  state: RouterStateSnapshot,
+) => {
+  const authService = inject(AuthService);
+  return authService.canManageLocations;
 };
 
 export const routes: Routes = [
@@ -318,6 +329,79 @@ export const routes: Routes = [
         canActivate: [authGuard, manageSetlistsGuard],
         resolve: {
           album: albumResolver,
+        },
+      },
+      {
+        path: 'countries',
+        loadComponent: () =>
+          import("./components/v2/admin/locations/manage-countries-page/manage-countries-page.component").then(m => m.ManageCountriesPageComponent),
+        title: baseTitle + 'Manage countries',
+        canActivate: [authGuard, manageLocationsGuard],
+      },
+      {
+        path: 'countries/add',
+        loadComponent: () =>
+          import("./components/v2/admin/locations/add-country-page/add-country-page.component").then(m => m.AddCountryPageComponent),
+        title: baseTitle + 'Create country',
+        canActivate: [authGuard, manageLocationsGuard],
+      },
+      {
+        path: 'countries/:countryCode',
+        loadComponent: () =>
+          import("./components/v2/admin/locations/edit-country-page/edit-country-page.component").then(m => m.EditCountryPageComponent),
+        title: baseTitle + 'Edit country',
+        canActivate: [authGuard, manageSetlistsGuard],
+        resolve: {
+          country: countryResolver,
+        },
+      },
+      {
+        path: 'cities',
+        loadComponent: () =>
+          import("./components/v2/admin/locations/manage-cities-page/manage-cities-page.component").then(m => m.ManageCitiesPageComponent),
+        title: baseTitle + 'Manage cities',
+        canActivate: [authGuard, manageLocationsGuard],
+      },
+      {
+        path: 'cities/add',
+        loadComponent: () =>
+          import("./components/v2/admin/locations/add-city-page/add-city-page.component").then(m => m.AddCityPageComponent),
+        title: baseTitle + 'Create city',
+        canActivate: [authGuard, manageLocationsGuard],
+      },
+      {
+        path: 'countries/:countryCode/cities/:cityId',
+        loadComponent: () =>
+          import("./components/v2/admin/locations/edit-city-page/edit-city-page.component").then(m => m.EditCityPageComponent),
+        title: baseTitle + 'Edit city',
+        canActivate: [authGuard, manageLocationsGuard],
+        resolve: {
+          country: countryResolver,
+          city: cityResolver
+        },
+      },
+      {
+        path: 'venues',
+        loadComponent: () =>
+          import("./components/v2/admin/locations/manage-venues-page/manage-venues-page.component").then(m => m.ManageVenuesPageComponent),
+        title: baseTitle + 'Manage venues',
+        canActivate: [authGuard, manageLocationsGuard],
+      },
+      {
+        path: 'venues/add',
+        loadComponent: () =>
+          import("./components/v2/admin/locations/add-venue-page/add-venue-page.component").then(m => m.AddVenuePageComponent),
+        title: baseTitle + 'Create venue',
+        canActivate: [authGuard, manageLocationsGuard],
+      },
+      {
+        path: 'venues/:venueId',
+        loadComponent: () =>
+          import("./components/v2/admin/locations/edit-venue-page/edit-venue-page.component").then(m => m.EditVenuePageComponent),
+        title: baseTitle + 'Edit city',
+        canActivate: [authGuard, manageLocationsGuard],
+        resolve: {
+          venue: venueResolver
         },
       },
     ]

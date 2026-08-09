@@ -339,7 +339,8 @@ namespace Database.Tours.Migrations
 
                     b.HasOne("Database.Tours.DataObjects.StateDo", "State")
                         .WithMany()
-                        .HasForeignKey("CountryCode", "StateCode");
+                        .HasForeignKey("CountryCode", "StateCode")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Country");
 
@@ -361,7 +362,8 @@ namespace Database.Tours.Migrations
                     b.HasOne("Database.Tours.DataObjects.TourLegDo", "TourLeg")
                         .WithMany()
                         .HasForeignKey("TourLegId")
-                        .HasPrincipalKey("Id");
+                        .HasPrincipalKey("Id")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Database.Tours.DataObjects.VenueDo", "Venue")
                         .WithMany()
@@ -423,12 +425,13 @@ namespace Database.Tours.Migrations
                         .WithMany()
                         .HasForeignKey("CountryCode", "CityId")
                         .HasPrincipalKey("CountryCode", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Database.Tours.DataObjects.StateDo", "State")
                         .WithMany()
-                        .HasForeignKey("CountryCode", "StateCode");
+                        .HasForeignKey("CountryCode", "StateCode")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("City");
 

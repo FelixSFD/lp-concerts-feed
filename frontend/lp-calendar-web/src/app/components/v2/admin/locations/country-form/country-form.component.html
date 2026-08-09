@@ -1,0 +1,42 @@
+<form #form="ngForm" [formGroup]="countryForm" class="form">
+  <ng-template #formInputsGeneral>
+    <div class="grid gap-2">
+      <div class="col-12">
+        <p-floatlabel variant="on">
+          <input pInputText id="isoCode" formControlName="isoCode" autocomplete="off" pInputMask="aaa" fluid [invalid]="countryForm.controls.isoCode.invalid" />
+          <label for="isoCode">ISO-alpha-3 code</label>
+        </p-floatlabel>
+      </div>
+
+      <div class="col-12">
+        <p-floatlabel variant="on">
+          <input pInputText id="name" formControlName="name" autocomplete="off" fluid [invalid]="countryForm.controls.name.invalid" />
+          <label for="name">Name (English)</label>
+        </p-floatlabel>
+      </div>
+
+      <div class="col-12">
+        <p-floatlabel variant="on">
+          <input pInputText id="nativeName" formControlName="nativeName" autocomplete="off" fluid [invalid]="countryForm.controls.nativeName.invalid" />
+          <label for="nativeName">Name (in the country's language)</label>
+        </p-floatlabel>
+      </div>
+    </div>
+  </ng-template>
+
+  @if (standalone$) {
+    <p-card class="mt-3">
+      <ng-container *ngTemplateOutlet="formInputsGeneral" />
+
+      <ng-template #footer>
+        <p-divider />
+        <div class="flex gap-4 mt-1 align-content-end justify-content-end">
+          <p-button [label]="isSaving$ ? 'Saving...' : 'Save'" [loading]="isSaving$" (onClick)="onSaveClicked()" [disabled]="isSaving$ || !countryForm.valid" />
+        </div>
+      </ng-template>
+    </p-card>
+  } @else {
+    <ng-container *ngTemplateOutlet="formInputsGeneral" />
+  }
+
+</form>

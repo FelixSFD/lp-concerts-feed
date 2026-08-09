@@ -1,5 +1,9 @@
+using Common.Utils.Cache;
 using LPCalendar.DataStructure.Tours;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
+using Server.Api.Auth;
+using Server.Api.Cache;
 using Service.Tours;
 
 namespace Server.Api.Controllers;
@@ -11,7 +15,7 @@ namespace Server.Api.Controllers;
 /// <param name="logger"></param>
 [ApiController]
 [Route("v3/[controller]")]
-public class ConcertsController(ConcertService concertService, ILogger<ConcertsController> logger) : ControllerBase
+public class ConcertsController(ConcertService concertService, IOutputCacheStore outputCacheStore, ILogger<ConcertsController> logger) : ControllerBase
 {
     /// <summary>
     /// Creates a new concert in the database
@@ -19,11 +23,13 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
     /// <param name="request"></param>
     /// <returns>the created concert</returns>
     [HttpPost]
+    [AuthorizeRoles]
     public async Task<CreatedAtActionResult> CreateConcert([FromBody] CreateConcertRequestDto request)
     {
         logger.LogDebug("Requested to create a new concert...");
         var concert = await concertService.CreateConcertAsync(request);
         logger.LogDebug("Created concert with id: {id}", concert.Id);
+        await EvictConcertCacheAsync();
         return CreatedAtAction(nameof(GetRawConcertById), new { concertId = concert.Id }, concert);
     }
     
@@ -34,11 +40,13 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
     /// <param name="request"></param>
     /// <returns>no content</returns>
     [HttpPut("{concertId}")]
+    [AuthorizeRoles]
     public async Task<NoContentResult> UpdateConcert([FromBody] UpdateConcertRequestDto request, [FromRoute] string concertId)
     {
         logger.LogDebug("Requested to update the concert with id: {concertId}", concertId);
         var concert = await concertService.UpdateConcertAsync(concertId, request);
         logger.LogDebug("Updated concert with id: {id}", concert.Id);
+        await EvictConcertCacheAsync();
         return NoContent();
     }
 
@@ -48,6 +56,8 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
     /// <param name="concertId"></param>
     /// <returns></returns>
     [HttpGet("{concertId}")]
+    [AuthorizeRoles]
+    [OutputCache(PolicyName = CachePolicyNames.Short, Tags = [CacheTags.ConcertsAll])]
     public async Task<ActionResult<RawConcertDto>> GetRawConcertById([FromRoute] string concertId)
     {
         var concert = await concertService.GetConcertWithoutDetailsByIdAsync(concertId);
@@ -60,6 +70,8 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
     /// <param name="concertId"></param>
     /// <returns></returns>
     [HttpGet("{concertId}/details")]
+    [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
+    [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<ConcertDetailsDto>> GetConcertById([FromRoute] string concertId)
     {
         var concert = await concertService.GetConcertByIdAsync(concertId);
@@ -73,6 +85,8 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
     /// <param name="filter">Filter for the query</param>
     /// <returns>List of concerts including referenced objects</returns>
     [HttpGet]
+    [CustomResponseCache(Duration = CacheExpiration.Default)]
+    [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
     public async Task<ActionResult<ConcertDetailsDto[]>> GetConcertsAsync(CancellationToken cancellationToken, [FromQuery] GetConcertsFilterDto filter)
     {
         var concerts = await concertService.GetConcertsWithDetailsAsync(cancellationToken, filter).ToArrayAsync(cancellationToken);
@@ -86,9 +100,24 @@ public class ConcertsController(ConcertService concertService, ILogger<ConcertsC
     /// <param name="concertId">ID of the concert to delete</param>
     /// <returns>no content</returns>
     [HttpDelete("{concertId}")]
+    [AuthorizeRoles]
     public async Task<NoContentResult> DeleteConcertById([FromRoute] string concertId)
     {
         await concertService.DeleteConcertAsync(concertId);
+        await EvictConcertCacheAsync();
         return NoContent();
+    }
+
+    private async Task EvictConcertCacheAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await outputCacheStore.EvictByTagAsync(CacheTags.ConcertsAll, cancellationToken);
+            logger.LogDebug("Evicted concerts cache.");
+        }
+        catch (Exception e)
+        {
+            logger.LogWarning(e, "Failed to evict concerts cache!");
+        }
     }
 }

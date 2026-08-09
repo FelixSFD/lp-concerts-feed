@@ -1,5 +1,10 @@
-using LPCalendar.DataStructure.Tours;
+using Common.Contracts.Generated.Models;
+using Common.Utils.Cache;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
+using Server.Api.Auth;
+using Server.Api.Cache;
+using Server.Api.ExceptionHandling;
 using Service.Tours;
 
 namespace Server.Api.Controllers;
@@ -16,12 +21,13 @@ public class ConcertTypesController(ConcertService concertService, ILogger<Conce
     /// <summary>
     /// Creates a new type of concert
     /// </summary>
-    /// <param name="request"></param>
+    /// <param name="createConcertTypeRequestDto"></param>
     /// <returns></returns>
     [HttpPost]
-    public async Task<CreatedAtActionResult> CreateConcertType([FromBody] CreateConcertTypeRequestDto request)
+    [AuthorizeRoles]
+    public async Task<CreatedAtActionResult> CreateConcertType([FromBody] CreateConcertTypeRequestDto createConcertTypeRequestDto)
     {
-        var createdType = await concertService.CreateConcertTypeAsync(request);
+        var createdType = await concertService.CreateConcertTypeAsync(createConcertTypeRequestDto.ToBo());
         return CreatedAtAction(nameof(GetTypeById), new { concertTypeId = createdType.Id }, createdType);
     }
     
@@ -30,10 +36,14 @@ public class ConcertTypesController(ConcertService concertService, ILogger<Conce
     /// </summary>
     /// <returns>information about the concert types</returns>
     [HttpGet]
+    [AuthorizeRoles]
+    [OutputCache(PolicyName = CachePolicyNames.VeryLong)]
+    [CustomResponseCache(Duration = CacheExpiration.VeryLong)]
     public async Task<ActionResult<ConcertTypeDto>> GetConcertTypes(CancellationToken cancellationToken)
     {
         var types = await concertService
             .GetConcertTypesAsync(cancellationToken)
+            .Select(DtoMapper.ToDto)
             .ToArrayAsync(cancellationToken);
         return Ok(types);
     }
@@ -44,21 +54,24 @@ public class ConcertTypesController(ConcertService concertService, ILogger<Conce
     /// <param name="concertTypeId">ID of the concert type</param>
     /// <returns>information about the concert type</returns>
     [HttpGet("{concertTypeId:int}")]
-    public async Task<ActionResult<ConcertTypeDto>> GetTypeById([FromRoute] uint concertTypeId)
+    [OutputCache(PolicyName = CachePolicyNames.VeryLong)]
+    [CustomResponseCache(Duration = CacheExpiration.VeryLong)]
+    public async Task<ActionResult<ConcertTypeDto>> GetTypeById(int concertTypeId)
     {
-        var type = await concertService.GetConcertTypeAsync(concertTypeId);
+        var type = await concertService.GetConcertTypeAsync(concertTypeId.ConvertToUnsigned());
         return Ok(type);
     }
-    
+
     /// <summary>
     /// Updates information of a concert type
     /// </summary>
     /// <param name="concertTypeId">ID of the concert type</param>
+    /// <param name="request">new data for the type</param>
     /// <returns>updated information about the concert type</returns>
     [HttpPut("{concertTypeId:int}")]
-    public async Task<ActionResult<ConcertTypeDto>> GetTypeById([FromRoute] uint concertTypeId, [FromBody] UpdateConcertTypeRequestDto request)
+    public async Task<ActionResult<ConcertTypeDto>> UpdateType([FromRoute] int concertTypeId, [FromBody] UpdateConcertTypeRequestDto request)
     {
-        var type = await concertService.UpdateConcertTypeAsync(request, concertTypeId);
-        return Ok(type);
+        var type = await concertService.UpdateConcertTypeAsync(request.ToBo(), concertTypeId.ConvertToUnsigned());
+        return Ok(type.ToDto());
     }
 }

@@ -70,6 +70,13 @@ export class AuthService {
   }
 
   /**
+   * Returns the current access token
+   */
+  get accessToken() {
+    return this.accessTokenSubject.value;
+  }
+
+  /**
    * Returns an Observable that returns the list of groups of the current user
    */
   get currentUserGroups() {
@@ -119,6 +126,13 @@ export class AuthService {
    */
   get canManageUsers() {
     return this.isMemberOfOrAdmin("ManageUsers");
+  }
+
+  /**
+   * true if the user can manage locations like countries, cities or venues
+   */
+  get canManageLocations() {
+    return this.isMemberOfOrAdmin("ManageLocations");
   }
 }
 

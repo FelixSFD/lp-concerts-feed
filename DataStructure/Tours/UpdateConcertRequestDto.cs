@@ -6,17 +6,17 @@ namespace LPCalendar.DataStructure.Tours;
 public class UpdateConcertRequestDto
 {
     /// <summary>
-    /// ID of the <see cref="ConcertTypeDto"/>
+    /// ID of the <see cref="ConcertTypeBo"/>
     /// </summary>
     public uint ConcertTypeId { get; set; }
     
     /// <summary>
-    /// ID of the <see cref="TourDto"/>
+    /// ID of the <see cref="TourBo"/>
     /// </summary>
     public string? TourId { get; set; }
     
     /// <summary>
-    /// ID of the <see cref="TourLegDto"/>
+    /// ID of the <see cref="TourLegBo"/>
     /// </summary>
     public string? TourLegId { get; set; }
 

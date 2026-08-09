@@ -1,0 +1,2360 @@
+openapi: 3.0.4
+info:
+  title: LPshows.live API v3
+  description: This is the API for the Linkin Park Concert Calendar fan project
+  version: 3.0.0
+servers:
+  - url: /
+  - url: http://localhost:5133
+paths:
+  /v3/Concerts:
+    post:
+      tags:
+        - Concerts
+      summary: Creates a new concert in the database
+      operationId: CreateConcert
+      requestBody:
+        description: ""
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateConcertRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateConcertRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateConcertRequest"
+        required: true
+      responses:
+        "200":
+          description: the created concert
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Concerts
+      security:
+        - Bearer: []
+    get:
+      tags:
+        - Concerts
+      summary: Returns a list of concerts that can be filtered
+      operationId: GetConcerts
+      parameters:
+        - name: CountryCode
+          in: query
+          schema:
+            type: string
+        - name: Limit
+          in: query
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: string
+            format: uint32
+        - name: Skip
+          in: query
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: string
+            format: uint32
+        - name: OrderBy
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        "200":
+          description: List of concerts including referenced objects
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConcertDetails"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConcertDetails"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConcertDetails"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Concerts
+  
+  /v3/Concerts/{concertId}:
+    put:
+      tags:
+        - Concerts
+      summary: Updates a concert in the database
+      operationId: UpdateConcert
+      parameters:
+        - name: concertId
+          in: path
+          description: ID of the concert to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: ""
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateConcertRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/UpdateConcertRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/UpdateConcertRequest"
+        required: true
+      responses:
+        "200":
+          description: no content
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: PUT
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Concerts/{concertId}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.concertId
+      security:
+        - Bearer: []
+    get:
+      tags:
+        - Concerts
+      summary: Returns a concert without loading the referenced objects like the venue
+        details
+      operationId: GetRawConcertById
+      parameters:
+        - name: concertId
+          in: path
+          description: ""
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/RawConcert"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RawConcert"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/RawConcert"
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Concerts/{concertId}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.concertId
+      security:
+        - Bearer: []
+    delete:
+      tags:
+        - Concerts
+      summary: Deletes a concert. Note that the data will not be fully removed from
+        the database. Admins will still be able to see deleted concerts.
+      operationId: DeleteConcertById
+      parameters:
+        - name: concertId
+          in: path
+          description: ID of the concert to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: no content
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: DELETE
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Concerts/{concertId}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.concertId
+      security:
+        - Bearer: []
+  /v3/Concerts/{concertId}/details:
+    get:
+      tags:
+        - Concerts
+      summary: Returns all details about a concert. This includes information about
+        the venue and general location.
+      operationId: GetConcertById
+      parameters:
+        - name: concertId
+          in: path
+          description: ""
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/ConcertDetails"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConcertDetails"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/ConcertDetails"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Concerts/{concertId}/details
+        requestParameters:
+          integration.request.path.concertId: method.request.path.concertId
+  
+  /v2/concerts/{id}/bookmarks/count:
+    get:
+      operationId: GetBookmarkCountForConcert
+      summary: Checks how many bookmarks there are for a concert. Use GetBookmarkStatusForConcert if you want to check the status for the current user
+      tags:
+        - concerts
+      parameters:
+        - in: path
+          name: id
+          description: ID of the concert
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Found the number of bookmarks
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetConcertBookmarkCountsResponse"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-concert-bookmarks-read-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  
+  /v3/ConcertTypes:
+    post:
+      tags:
+        - ConcertTypes
+      summary: Creates a new type of concert
+      operationId: CreateConcertType
+      requestBody:
+        description: ""
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateConcertTypeRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateConcertTypeRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateConcertTypeRequest"
+        required: true
+      responses:
+        "200":
+          description: ""
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/ConcertTypes
+      security:
+        - Bearer: []
+    get:
+      tags:
+        - ConcertTypes
+      summary: Returns all available concert types
+      operationId: GetConcertTypes
+      responses:
+        "200":
+          description: information about the concert types
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/ConcertType"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConcertType"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/ConcertType"
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/ConcertTypes
+      security:
+        - Bearer: []
+  
+  /v3/ConcertTypes/{concertTypeId}:
+    get:
+      tags:
+        - ConcertTypes
+      summary: Returns information about a concert type
+      operationId: GetTypeById
+      parameters:
+        - name: concertTypeId
+          in: path
+          description: ID of the concert type
+          required: true
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: information about the concert type
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/ConcertType"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConcertType"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/ConcertType"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/ConcertTypes/{concertTypeId}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.concertTypeId
+    put:
+      tags:
+        - ConcertTypes
+      summary: Updates information of a concert type
+      operationId: UpdateType
+      parameters:
+        - name: concertTypeId
+          in: path
+          description: ID of the concert type
+          required: true
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: integer
+            format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateConcertTypeRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/UpdateConcertTypeRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/UpdateConcertTypeRequest"
+        required: true
+      responses:
+        "200":
+          description: updated information about the concert type
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/ConcertType"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConcertType"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/ConcertType"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: PUT
+        uri: https://api.dev.lpshows.felixsfd.de/v3/ConcertTypes/{concertTypeId}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.concertTypeId
+  /v3/countries:
+    post:
+      tags:
+        - Countries
+      summary: Creates a new country
+      operationId: CreateCountry
+      requestBody:
+        description: Data of the new country
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCountryRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateCountryRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateCountryRequest"
+        required: true
+      responses:
+        "200":
+          description: ""
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries
+      security:
+        - Bearer: []
+    get:
+      tags:
+        - Countries
+      summary: Returns a list of all countries
+      operationId: GetCountries
+      responses:
+        "200":
+          description: List of all countries
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Country"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Country"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Country"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries
+  /v3/countries/{countryCode}:
+    put:
+      tags:
+        - Countries
+      summary: Updates an existing country
+      operationId: UpdateCountry
+      parameters:
+        - name: countryCode
+          in: path
+          description: ISO-code of the country
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: new data of the country
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCountryRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCountryRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/UpdateCountryRequest"
+        required: true
+      responses:
+        "200":
+          description: the updated data
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/Country"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Country"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/Country"
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: PUT
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/{countryCode}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
+      security:
+        - Bearer: []
+    get:
+      tags:
+        - Countries
+      summary: Returns a country by its ISO code
+      operationId: GetCountryByIsoCode
+      parameters:
+        - name: countryCode
+          in: path
+          description: 3-letter ISO-code of the country
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/Country"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Country"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/Country"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/{countryCode}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
+    delete:
+      tags:
+        - Countries
+      summary: Deletes a country
+      operationId: DeleteCountryByIsoCode
+      parameters:
+        - name: countryCode
+          in: path
+          description: 3-letter ISO-code of the country
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: no content
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: DELETE
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/{countryCode}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
+      security:
+        - Bearer: []
+  /v3/countries/{countryCode}/states:
+    post:
+      tags:
+        - Countries
+      summary: Creates a new state in a country
+      operationId: CreateState
+      parameters:
+        - name: countryCode
+          in: path
+          description: ISO code of the country where this state is located in
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Data of the new country
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStateRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateStateRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateStateRequest"
+        required: true
+      responses:
+        "200":
+          description: ""
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/{countryCode}/states
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
+      security:
+        - Bearer: []
+    get:
+      tags:
+        - Countries
+      summary: Returns a list of all states in a country
+      operationId: GetStatesInCountry
+      parameters:
+        - name: countryCode
+          in: path
+          description: 3-letter ISO-code of the country
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StateWithCountry"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StateWithCountry"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StateWithCountry"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/{countryCode}/states
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
+  
+  /v3/countries/{countryCode}/states/{stateCode}:
+    put:
+      tags:
+        - Countries
+      summary: Updates a state in a country
+      operationId: UpdateState
+      parameters:
+        - name: countryCode
+          in: path
+          description: ISO code of the country where this state is located in
+          required: true
+          schema:
+            type: string
+        - name: stateCode
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Data of the updated state
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateStateRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/UpdateStateRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/UpdateStateRequest"
+        required: true
+      responses:
+        "200":
+          description: ""
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/StateWithCountry"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StateWithCountry"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/StateWithCountry"
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: PUT
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/{countryCode}/states/{stateCode}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
+          integration.request.path.stateCode: method.request.path.stateCode
+      security:
+        - Bearer: []
+    get:
+      tags:
+        - Countries
+      summary: Returns a state in a country
+      operationId: GetState
+      parameters:
+        - name: countryCode
+          in: path
+          description: 3-letter ISO-code of the country
+          required: true
+          schema:
+            type: string
+        - name: stateCode
+          in: path
+          description: Code of the state
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The state including the information about the country
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/StateWithCountry"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StateWithCountry"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/StateWithCountry"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/{countryCode}/states/{stateCode}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
+          integration.request.path.stateCode: method.request.path.stateCode
+    delete:
+      tags:
+        - Countries
+      summary: Deletes a state
+      operationId: DeleteState
+      parameters:
+        - name: countryCode
+          in: path
+          description: 3-letter ISO-code of the country
+          required: true
+          schema:
+            type: string
+        - name: stateCode
+          in: path
+          description: Code of the state
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: no content
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: DELETE
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/{countryCode}/states/{stateCode}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
+          integration.request.path.stateCode: method.request.path.stateCode
+      security:
+        - Bearer: []
+  
+  /v3/countries/{countryCode}/cities:
+    post:
+      tags:
+        - Countries
+      summary: Creates a new city in a country
+      operationId: CreateCity
+      parameters:
+        - name: countryCode
+          in: path
+          description: ISO code of the country where this city is located in
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Data of the new city
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCityRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateCityRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateCityRequest"
+        required: true
+      responses:
+        "200":
+          description: ""
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/{countryCode}/cities
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
+      security:
+        - Bearer: []
+    get:
+      tags:
+        - Countries
+      summary: Returns a list of all cities in a country
+      operationId: GetCitiesInCountry
+      parameters:
+        - name: countryCode
+          in: path
+          description: 3-letter ISO-code of the country
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CityWithCountry"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CityWithCountry"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CityWithCountry"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/{countryCode}/cities
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
+  
+  /v3/countries/{countryCode}/cities/{cityId}:
+    put:
+      tags:
+        - Countries
+      summary: Updates a city in a country
+      operationId: UpdateCity
+      parameters:
+        - name: countryCode
+          in: path
+          description: ISO code of the country where this state is located in
+          required: true
+          schema:
+            type: string
+        - name: cityId
+          in: path
+          required: true
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: integer
+            format: int32
+      requestBody:
+        description: Data of the updated city
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCityRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCityRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/UpdateCityRequest"
+        required: true
+      responses:
+        "200":
+          description: ""
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/StateWithCountry"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StateWithCountry"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/StateWithCountry"
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: PUT
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/{countryCode}/cities/{cityId}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
+          integration.request.path.cityId: method.request.path.cityId
+      security:
+        - Bearer: []
+    get:
+      tags:
+        - Countries
+      summary: Returns a state in a country
+      operationId: GetCity
+      parameters:
+        - name: countryCode
+          in: path
+          description: 3-letter ISO-code of the country
+          required: true
+          schema:
+            type: string
+        - name: cityId
+          in: path
+          description: ID of the city
+          required: true
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: string
+            format: uint32
+      responses:
+        "200":
+          description: The city including the information about the country
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/CityWithCountry"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CityWithCountry"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/CityWithCountry"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/{countryCode}/cities/{cityId}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
+          integration.request.path.cityId: method.request.path.cityId
+    delete:
+      tags:
+        - Countries
+      summary: Deletes a city
+      operationId: DeleteCity
+      parameters:
+        - name: countryCode
+          in: path
+          description: 3-letter ISO-code of the country where the city is located in
+          required: true
+          schema:
+            type: string
+        - name: cityId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: no content
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: DELETE
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/{countryCode}/cities/{cityId}
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
+          integration.request.path.cityId: method.request.path.cityId
+      security:
+        - Bearer: []
+  
+  /v3/Cities:
+    get:
+      tags:
+        - Cities
+      summary: Returns a list of all cities
+      operationId: GetCities
+      parameters:
+        - name: CountryCode
+          in: query
+          schema:
+            type: string
+        - name: Limit
+          in: query
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: string
+            format: uint32
+        - name: Skip
+          in: query
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: string
+            format: uint32
+        - name: OrderBy
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CityWithCountry"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CityWithCountry"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CityWithCountry"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/cities
+        requestParameters:
+          integration.request.path.concertId: method.request.path.countryCode
+  
+  /v3/Tours:
+    post:
+      tags:
+        - Tours
+      summary: Creates a new tour
+      operationId: CreateTour
+      requestBody:
+        description: ""
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTourRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateTourRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateTourRequest"
+        required: true
+      responses:
+        "200":
+          description: ""
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Tours
+      security:
+        - Bearer: []
+    get:
+      tags:
+        - Tours
+      summary: Returns a list of all tours
+      operationId: GetTours
+      responses:
+        "200":
+          description: List of all tours
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tour"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tour"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tour"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Tours
+  
+  /v3/Tours/{tourId}:
+    get:
+      tags:
+        - Tours
+      summary: Returns information about a tour
+      operationId: GetTour
+      parameters:
+        - name: tourId
+          in: path
+          description: ID of the tour
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/Tour"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tour"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/Tour"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/tours/{tourId}
+        requestParameters:
+          integration.request.path.tourId: method.request.path.tourId
+    delete:
+      tags:
+        - Tours
+      summary: Deletes a tour
+      operationId: DeleteTour
+      parameters:
+        - name: tourId
+          in: path
+          description: ID of the tour
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: no content
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: DELETE
+        uri: https://api.dev.lpshows.felixsfd.de/v3/tours/{tourId}
+        requestParameters:
+          integration.request.path.tourId: method.request.path.tourId
+      security:
+        - Bearer: []
+  /v3/Tours/{tourId}/legs:
+    post:
+      tags:
+        - Tours
+      summary: Creates a new leg of a tour
+      operationId: CreateTourLeg
+      parameters:
+        - name: tourId
+          in: path
+          description: ID of the tour
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: ""
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddTourLegRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/AddTourLegRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/AddTourLegRequest"
+        required: true
+      responses:
+        "200":
+          description: ""
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/tours/{tourId}/legs
+        requestParameters:
+          integration.request.path.tourId: method.request.path.tourId
+      security:
+        - Bearer: []
+  /v3/Tours/{tourId}/legs/{legId}:
+    get:
+      tags:
+        - Tours
+      summary: Returns information about a tour leg
+      operationId: GetTourLeg
+      parameters:
+        - name: tourId
+          in: path
+          description: ID of the tour
+          required: true
+          schema:
+            type: string
+        - name: legId
+          in: path
+          description: ID of the tour leg
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: information about the leg
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/TourLeg"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TourLeg"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/TourLeg"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/tours/{tourId}/legs/{legId}
+        requestParameters:
+          integration.request.path.tourId: method.request.path.tourId
+          integration.request.path.legId: method.request.path.legId
+    delete:
+      tags:
+        - Tours
+      summary: Deletes a leg of a tour
+      operationId: DeleteTourLeg
+      parameters:
+        - name: tourId
+          in: path
+          description: ID of the tour
+          required: true
+          schema:
+            type: string
+        - name: legId
+          in: path
+          description: ID of the tour leg
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: no content
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: DELETE
+        uri: https://api.dev.lpshows.felixsfd.de/v3/tours/{tourId}/legs/{legId}
+        requestParameters:
+          integration.request.path.tourId: method.request.path.tourId
+          integration.request.path.legId: method.request.path.legId
+      security:
+        - Bearer: []
+  /v3/Venues:
+    post:
+      tags:
+        - Venues
+      summary: Creates a new venue
+      operationId: CreateVenue
+      requestBody:
+        description: data of the new venue
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateVenueRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateVenueRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateVenueRequest"
+        required: true
+      responses:
+        "200":
+          description: ""
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/venues
+      security:
+        - Bearer: []
+    get:
+      tags:
+        - Venues
+      summary: Returns an unfiltered list of all venues
+      operationId: GetAllVenues
+      responses:
+        "200":
+          description: list of all venues
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Venue"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Venue"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Venue"
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/venues
+      security:
+        - Bearer: []
+  /v3/Venues/{venueId}:
+    put:
+      tags:
+        - Venues
+      summary: Updates the information about a venue. Please note that updates of the
+        name have to be made through special routes.
+      operationId: UpdateVenue
+      parameters:
+        - name: venueId
+          in: path
+          description: ID of the venue
+          required: true
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: integer
+            format: int32
+      requestBody:
+        description: New information of the venue. Partial updates are not possible.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateVenueRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/UpdateVenueRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/UpdateVenueRequest"
+        required: true
+      responses:
+        "200":
+          description: all information about the venue
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/VenueWithDetails"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VenueWithDetails"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/VenueWithDetails"
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: PUT
+        uri: https://api.dev.lpshows.felixsfd.de/v3/venues/{venueId}
+        requestParameters:
+          integration.request.path.venueId: method.request.path.venueId
+      security:
+        - Bearer: []
+    get:
+      tags:
+        - Venues
+      summary: Returns the basic information about a venue by its ID
+      operationId: GetVenueById
+      parameters:
+        - name: venueId
+          in: path
+          description: ID of the venue
+          required: true
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: basic information about the venue
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/Venue"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Venue"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/Venue"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/venues/{venueId}
+        requestParameters:
+          integration.request.path.venueId: method.request.path.venueId
+    delete:
+      tags:
+        - Venues
+      summary: Deletes a venue
+      operationId: DeleteVenueById
+      parameters:
+        - name: venueId
+          in: path
+          description: ID of the venue
+          required: true
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: no content
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: DELETE
+        uri: https://api.dev.lpshows.felixsfd.de/v3/venues/{venueId}
+        requestParameters:
+          integration.request.path.venueId: method.request.path.venueId
+      security:
+        - Bearer: []
+  /v3/Venues/{venueId}/details:
+    get:
+      tags:
+        - Venues
+      summary: Returns the detailed information about a venue by its ID including
+        information about the city and country
+      operationId: GetVenueWithCityById
+      parameters:
+        - name: venueId
+          in: path
+          description: ID of the venue
+          required: true
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: detailed information about the venue
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/VenueWithCity"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VenueWithCity"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/VenueWithCity"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/venues/{venueId}/details
+        requestParameters:
+          integration.request.path.venueId: method.request.path.venueId
+  /v3/Venues/{venueId}/names:
+    post:
+      tags:
+        - Venues
+      summary: Adds a new name to a venue for a given time range
+      operationId: AddNewVenueName
+      parameters:
+        - name: venueId
+          in: path
+          description: ID of the venue
+          required: true
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: integer
+            format: int32
+      requestBody:
+        description: ""
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddVenueNameRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/AddVenueNameRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/AddVenueNameRequest"
+        required: true
+      responses:
+        "200":
+          description: Venue information with details
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/VenueWithDetails"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VenueWithDetails"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/VenueWithDetails"
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/venues/{venueId}/names
+        requestParameters:
+          integration.request.path.venueId: method.request.path.venueId
+      security:
+        - Bearer: []
+  
+  /v3/Venues/{venueId}/names/{venueNameId}:
+    put:
+      tags:
+        - Venues
+      summary: Changes an existing name of a venue
+      operationId: UpdateVenueName
+      parameters:
+        - name: venueId
+          in: path
+          description: ID of the venue
+          required: true
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: integer
+            format: int32
+        - name: venueNameId
+          in: path
+          description: ID of the venue name
+          required: true
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: integer
+            format: int32
+      requestBody:
+        description: ""
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateVenueNameRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/UpdateVenueNameRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/UpdateVenueNameRequest"
+        required: true
+      responses:
+        "200":
+          description: no content
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: PUT
+        uri: https://api.dev.lpshows.felixsfd.de/v3/venues/{venueId}/names/{venueNameId}
+        requestParameters:
+          integration.request.path.venueId: method.request.path.venueId
+          integration.request.path.venueNameId: method.request.path.venueNameId
+      security:
+        - Bearer: []
+    delete:
+      tags:
+        - Venues
+      summary: Deletes a previous name of a venue
+      operationId: DeleteVenueName
+      parameters:
+        - name: venueId
+          in: path
+          description: ID of the venue
+          required: true
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: integer
+            format: int32
+        - name: venueNameId
+          in: path
+          description: ID of the venue name
+          required: true
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: no content
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: DELETE
+        uri: https://api.dev.lpshows.felixsfd.de/v3/venues/{venueId}/names/{venueNameId}
+        requestParameters:
+          integration.request.path.venueId: method.request.path.venueId
+          integration.request.path.venueNameId: method.request.path.venueNameId
+      security:
+        - Bearer: []
+components:
+  schemas:
+    AddTourLegRequest:
+      required:
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    AddVenueNameRequest:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+    CityWithCountry:
+      required:
+        - country
+        - countryCode
+        - name
+        - nativeName
+      type: object
+      properties:
+        country:
+          $ref: "#/components/schemas/Country"
+        state:
+          oneOf:
+            - type: "null"
+            - $ref: "#/components/schemas/State"
+        countryCode:
+          type: string
+        id:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type: string
+          format: uint32
+        stateCode:
+          type: string
+        name:
+          type: string
+        nativeName:
+          type: string
+    ConcertDetails:
+      required:
+        - id
+        - concertType
+        - venue
+      type: object
+      properties:
+        id:
+          type: string
+        concertType:
+          $ref: "#/components/schemas/ConcertType"
+        tour:
+          oneOf:
+            - type: "null"
+            - $ref: "#/components/schemas/Tour"
+        tourLeg:
+          oneOf:
+            - type: "null"
+            - $ref: "#/components/schemas/TourLeg"
+        customTitle:
+          type: string
+        venue:
+          $ref: "#/components/schemas/VenueWithDetails"
+        postedStartTime:
+          type: string
+          format: date-time
+        mainStageTime:
+          type: string
+          format: date-time
+        doorsTime:
+          type: string
+          format: date-time
+        lpuEarlyEntryTime:
+          type: string
+          format: date-time
+        lpuEarlyEntryConfirmed:
+          type: boolean
+        expectedSetDurationMinutes:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type: string
+          format: uint32
+        scheduleImageFile:
+          type: string
+        deletedAt:
+          type: string
+          format: date-time
+        status:
+          $ref: "#/components/schemas/ConcertStatusValue"
+    ConcertStatusValue:
+      type: integer
+    ConcertType:
+      required:
+        - name
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    Country:
+      required:
+        - isoCode
+        - name
+        - nativeName
+      type: object
+      properties:
+        isoCode:
+          maxLength: 3
+          minLength: 3
+          type: string
+        name:
+          type: string
+        nativeName:
+          type: string
+    CreateCityRequest:
+      required:
+        - name
+        - nativeName
+      type: object
+      properties:
+        stateCode:
+          type: string
+        name:
+          type: string
+        nativeName:
+          type: string
+    CreateConcertRequest:
+      type: object
+      properties:
+        concertTypeId:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type: string
+          format: uint32
+        tourId:
+          type: string
+        tourLegId:
+          type: string
+        customTitle:
+          type: string
+        venueId:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type: string
+          format: uint32
+        postedStartTime:
+          type: string
+          format: date-time
+        mainStageTime:
+          type: string
+          format: date-time
+        doorsTime:
+          type: string
+          format: date-time
+        lpuEarlyEntryTime:
+          type: string
+          format: date-time
+        lpuEarlyEntryConfirmed:
+          type: boolean
+        expectedSetDurationMinutes:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type: string
+          format: uint32
+        scheduleImageFile:
+          type: string
+        status:
+          $ref: "#/components/schemas/ConcertStatusValue"
+    CreateConcertTypeRequest:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+    CreateCountryRequest:
+      required:
+        - isoCode
+        - name
+        - nativeName
+      type: object
+      properties:
+        isoCode:
+          maxLength: 3
+          minLength: 3
+          type: string
+        name:
+          type: string
+        nativeName:
+          type: string
+    CreateStateRequest:
+      required:
+        - code
+        - name
+        - nativeName
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        nativeName:
+          type: string
+    CreateTourRequest:
+      required:
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    CreateVenueRequest:
+      required:
+        - countryCode
+        - currentName
+        - timeZone
+      type: object
+      properties:
+        countryCode:
+          maxLength: 3
+          minLength: 3
+          type: string
+        stateCode:
+          maxLength: 3
+          type: string
+        cityId:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type: string
+          format: uint32
+        currentName:
+          type: string
+        timeZone:
+          type: string
+        latitude:
+          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
+          type: string
+          format: double
+        longitude:
+          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
+          type: string
+          format: double
+    PreviousVenueName:
+      required:
+        - venueId
+        - id
+        - name
+        - usedFrom
+      type: object
+      properties:
+        venueId:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type: string
+          format: uint32
+        id:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type: string
+          format: uint32
+        name:
+          type: string
+        usedFrom:
+          type: string
+          format: date
+        usedUntil:
+          type: string
+          format: date
+    RawConcert:
+      required:
+        - id
+      type: object
+      properties:
+        id:
+          type: string
+        concertTypeId:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type: string
+          format: uint32
+        tourId:
+          type: string
+        tourLegId:
+          type: string
+        customTitle:
+          type: string
+        venueId:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type: string
+          format: uint32
+        postedStartTime:
+          type: string
+          format: date-time
+        mainStageTime:
+          type: string
+          format: date-time
+        doorsTime:
+          type: string
+          format: date-time
+        lpuEarlyEntryTime:
+          type: string
+          format: date-time
+        lpuEarlyEntryConfirmed:
+          type: boolean
+        expectedSetDurationMinutes:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type: string
+          format: uint32
+        scheduleImageFile:
+          type: string
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          $ref: "#/components/schemas/ConcertStatusValue"
+    State:
+      required:
+        - countryCode
+        - code
+        - name
+        - nativeName
+      type: object
+      properties:
+        countryCode:
+          type: string
+        code:
+          type: string
+        name:
+          type: string
+        nativeName:
+          type: string
+    StateWithCountry:
+      required:
+        - country
+        - countryCode
+        - code
+        - name
+        - nativeName
+      type: object
+      properties:
+        country:
+          $ref: "#/components/schemas/Country"
+        countryCode:
+          type: string
+        code:
+          type: string
+        name:
+          type: string
+        nativeName:
+          type: string
+    Tour:
+      required:
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        legs:
+          type: array
+          items:
+            $ref: "#/components/schemas/TourLeg"
+    TourLeg:
+      required:
+        - tourId
+        - id
+        - name
+      type: object
+      properties:
+        tourId:
+          type: string
+        id:
+          type: string
+        name:
+          type: string
+    UpdateCityRequest:
+      required:
+        - name
+        - nativeName
+      type: object
+      properties:
+        stateCode:
+          type: string
+          nullable: true
+        name:
+          type: string
+        nativeName:
+          type: string
+    UpdateConcertRequest:
+      type: object
+      properties:
+        concertTypeId:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type: string
+          format: uint32
+        tourId:
+          type: string
+          nullable: true
+        tourLegId:
+          type: string
+          nullable: true
+        customTitle:
+          type: string
+          nullable: true
+        venueId:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type: string
+          format: uint32
+        postedStartTime:
+          type: string
+          format: date-time
+        mainStageTime:
+          type: string
+          nullable: true
+          format: date-time
+        doorsTime:
+          type: string
+          nullable: true
+          format: date-time
+        lpuEarlyEntryTime:
+          type: string
+          nullable: true
+          format: date-time
+        lpuEarlyEntryConfirmed:
+          type: boolean
+        expectedSetDurationMinutes:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type: string
+          format: uint32
+        scheduleImageFile:
+          type: string
+          nullable: true
+        deletedAt:
+          type: string
+          nullable: true
+          format: date-time
+        status:
+          $ref: "#/components/schemas/ConcertStatusValue"
+    UpdateConcertTypeRequest:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+    UpdateCountryRequest:
+      required:
+        - name
+        - nativeName
+      type: object
+      properties:
+        name:
+          type: string
+        nativeName:
+          type: string
+    UpdateStateRequest:
+      required:
+        - name
+        - nativeName
+      type: object
+      properties:
+        name:
+          type: string
+        nativeName:
+          type: string
+    UpdateVenueNameRequest:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          nullable: true
+          format: date
+    UpdateVenueRequest:
+      required:
+        - countryCode
+        - timeZone
+      type: object
+      properties:
+        countryCode:
+          maxLength: 3
+          minLength: 3
+          type: string
+        stateCode:
+          maxLength: 3
+          type: string
+          nullable: true
+        cityId:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type: string
+          format: uint32
+        timeZone:
+          type: string
+        latitude:
+          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
+          type: string
+          nullable: true
+          format: double
+        longitude:
+          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
+          type: string
+          nullable: true
+          format: double
+    Venue:
+      required:
+        - countryCode
+        - currentName
+        - timeZone
+      type: object
+      properties:
+        id:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type: string
+          format: uint32
+        countryCode:
+          maxLength: 3
+          minLength: 3
+          type: string
+        stateCode:
+          maxLength: 3
+          type: string
+        cityId:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type: string
+          format: uint32
+        currentName:
+          type: string
+        timeZone:
+          type: string
+        latitude:
+          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
+          type: string
+          nullable: true
+          format: double
+        longitude:
+          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
+          type: string
+          nullable: true
+          format: double
+    VenueWithCity:
+      required:
+        - city
+        - countryCode
+        - currentName
+        - timeZone
+      type: object
+      properties:
+        city:
+          $ref: "#/components/schemas/CityWithCountry"
+        id:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type: string
+          format: uint32
+        countryCode:
+          maxLength: 3
+          minLength: 3
+          type: string
+        stateCode:
+          maxLength: 3
+          type: string
+          nullable: true
+        cityId:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type: string
+          format: uint32
+        currentName:
+          type: string
+        timeZone:
+          type: string
+        latitude:
+          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
+          type: string
+          nullable: true
+          format: double
+        longitude:
+          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
+          type: string
+          nullable: true
+          format: double
+    VenueWithDetails:
+      required:
+        - venueNames
+        - city
+        - countryCode
+        - currentName
+        - timeZone
+      type: object
+      properties:
+        venueNames:
+          type: array
+          items:
+            $ref: "#/components/schemas/PreviousVenueName"
+        city:
+          $ref: "#/components/schemas/CityWithCountry"
+        id:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type: string
+          format: uint32
+        countryCode:
+          maxLength: 3
+          minLength: 3
+          type: string
+        stateCode:
+          maxLength: 3
+          type: string
+          nullable: true
+        cityId:
+          pattern: ^-?(?:0|[1-9]\d*)$
+          type: string
+          format: uint32
+        currentName:
+          type: string
+        timeZone:
+          type: string
+        latitude:
+          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
+          type: string
+          nullable: true
+          format: double
+        longitude:
+          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
+          type: string
+          nullable: true
+          format: double
+    
+    # Schemas from v2
+    GetConcertBookmarkCountsResponse:
+      type: object
+      description: Response from server to tell the number of people who bookmarked or attended a show
+      properties:
+        bookmarked:
+          type: number
+          description: Number of users who bookmarked the concert
+        attending:
+          type: number
+          description: Number of users who are attending the concert
+        currentUserStatus:
+          type: string
+          description: Bookmark status. Of the current user
+          enum:
+            - None
+            - Bookmarked
+            - Attending
+          default: None
+          nullable: false
+
+  securitySchemes:
+    Bearer:
+      type: http
+      description: JWT Bearer authentication
+      scheme: Bearer
+    ConcertsCognitoAuthorizer:
+      type: apiKey
+      name: Authorization
+      in: header
+      x-amazon-apigateway-authtype: cognito_user_pools
+      x-amazon-apigateway-authorizer:
+        type: cognito_user_pools
+        providerARNs:
+          - Fn::ImportValue:
+              Fn::Sub: '${BaseProductName}-cognito-authorizer-user-pool'
+
+tags:
+  - name: concerts
+  - name: Concerts
+  - name: ConcertTypes
+  - name: Countries
+  - name: Cities
+  - name: Tours
+  - name: Venues

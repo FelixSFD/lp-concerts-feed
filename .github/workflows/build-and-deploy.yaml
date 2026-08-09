@@ -1,7 +1,7 @@
 # This workflow will build a .NET project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
 
-name: Deploy to AWS
+name: Build & Deploy
 
 on:
   push:
@@ -49,6 +49,21 @@ jobs:
           # output variable
           echo "regions=$JSON" >> "$GITHUB_OUTPUT"
 
+  build-server-image:
+    uses: felixsfd/lp-concerts-feed/.github/workflows/build-and-publish-docker-server.yaml@main
+    secrets: inherit
+    permissions:
+      contents: read
+      packages: write
+      # This is used to complete the identity challenge
+      # with sigstore/fulcio when running outside of PRs.
+      id-token: write
+
+  deploy-backend-server:
+    needs: [build-server-image]
+    uses: felixsfd/lp-concerts-feed/.github/workflows/deploy-backend-server.yaml@main
+    secrets: inherit
+  
   build-lambdas:
     runs-on: ubuntu-24.04-arm
     needs: define-matrix
@@ -83,7 +98,7 @@ jobs:
             lambda_packages/Lambda.${{ matrix.lambda_names }}.zip
   
   deploy-backend:
-    needs: build-lambdas
+    needs: [build-lambdas, build-server-image]
     environment: 
       name: ${{ inputs.environment || 'test' }}
     runs-on: ubuntu-24.04-arm
@@ -290,7 +305,7 @@ jobs:
       working-directory: aws
         
   deploy-frontend:
-    needs: [deploy-backend, build-frontend, create-frontend-replication-buckets]
+    needs: [deploy-backend, build-frontend, create-frontend-replication-buckets, deploy-backend-server]
     environment: 
       name: ${{ inputs.environment || 'test' }}
     runs-on: ubuntu-latest

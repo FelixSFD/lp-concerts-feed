@@ -1,5 +1,6 @@
-using LPCalendar.DataStructure.Tours;
+using Common.Contracts.Generated.Models;
 using Microsoft.AspNetCore.Mvc;
+using Server.Api.Auth;
 using Service.Tours;
 
 namespace Server.Api.Controllers;
@@ -16,14 +17,16 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
     /// <summary>
     /// Creates a new tour
     /// </summary>
-    /// <param name="request"></param>
+    /// <param name="createTourRequestDto"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpPost]
-    public async Task<CreatedAtActionResult> CreateTour([FromBody] CreateTourRequestDto request)
+    [AuthorizeRoles]
+    public async Task<ActionResult<TourDto>> CreateTour([FromBody] CreateTourRequestDto createTourRequestDto, CancellationToken cancellationToken)
     {
-        var createdTour = await tourService.CreateTourAsync(request);
+        var createdTour = await tourService.CreateTourAsync(createTourRequestDto.ToBo());
         logger.LogDebug("Successfully created tour: {tourName} (ID: {tourId})", createdTour.Name, createdTour.Id);
-        return CreatedAtAction(nameof(GetTour), new { tourId = request.Id }, request);
+        return CreatedAtAction(nameof(GetTour), new { tourId = createTourRequestDto.Id }, createdTour);
     }
     
     /// <summary>
@@ -35,6 +38,7 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
     {
         var tours = await tourService
             .GetToursAsync(cancellationToken)
+            .Select(DtoMapper.ToDto)
             .ToArrayAsync(cancellationToken);
         return Ok(tours);
     }
@@ -48,7 +52,7 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
     public async Task<ActionResult<TourDto>> GetTour([FromRoute] string tourId)
     {
         var tour = await tourService.GetTourByIdAsync(tourId);
-        return Ok(tour);
+        return Ok(tour.ToDto());
     }
     
     /// <summary>
@@ -57,6 +61,7 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
     /// <param name="tourId">ID of the tour</param>
     /// <returns>no content</returns>
     [HttpDelete("{tourId}")]
+    [AuthorizeRoles]
     public async Task<NoContentResult> DeleteTour([FromRoute] string tourId)
     {
         await tourService.DeleteTourAsync(tourId);
@@ -70,11 +75,12 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
     /// <param name="tourId">ID of the tour</param>
     /// <returns></returns>
     [HttpPost("{tourId}/legs")]
+    [AuthorizeRoles]
     public async Task<CreatedAtActionResult> CreateTourLeg([FromBody] AddTourLegRequestDto request, [FromRoute] string tourId)
     {
-        var createdTourLeg = await tourService.AddTourLegAsync(request, tourId);
+        var createdTourLeg = await tourService.AddTourLegAsync(request.ToBo(), tourId);
         logger.LogDebug("Successfully created tour leg: {tourName} (ID: {tourId})", createdTourLeg.Name, createdTourLeg.Id);
-        return CreatedAtAction(nameof(GetTourLeg), new { tourId = createdTourLeg.TourId, legId = createdTourLeg.Id }, request);
+        return CreatedAtAction(nameof(GetTourLeg), new { tourId = createdTourLeg.TourId, legId = createdTourLeg.Id }, createdTourLeg.ToDto());
     }
     
     /// <summary>
@@ -88,7 +94,7 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
     {
         var leg = await tourService.GetTourLegByIdAsync(tourId, legId);
         logger.LogDebug("Found tour leg: {legName} (Tour: {tourId})", leg.Name, leg.TourId);
-        return Ok(leg);
+        return Ok(leg.ToDto());
     }
     
     /// <summary>
@@ -98,7 +104,8 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
     /// <param name="legId">ID of the tour leg</param>
     /// <returns>no content</returns>
     [HttpDelete("{tourId}/legs/{legId}")]
-    public async Task<NoContentResult> DeleteTour([FromRoute] string tourId, [FromRoute] string legId)
+    [AuthorizeRoles]
+    public async Task<NoContentResult> DeleteTourLeg([FromRoute] string tourId, [FromRoute] string legId)
     {
         await tourService.DeleteTourLegAsync(tourId, legId);
         return NoContent();
