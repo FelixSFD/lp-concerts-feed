@@ -34,6 +34,7 @@
       <tr>
         <th scope="col">Current Name</th>
         <th scope="col">Country</th>
+        <th scope="col">Timezone</th>
         <th scope="col"></th>
       </tr>
       <tr>
@@ -42,6 +43,9 @@
         </th>
         <th>
           <p-column-filter type="text" field="countryCode" placeholder="Country Code" ariaLabel="Filter ISO Codes" filterOn="input"></p-column-filter>
+        </th>
+        <th>
+          <p-column-filter type="text" field="timeZone" placeholder="Timezone" ariaLabel="Filter timezones" filterOn="input"></p-column-filter>
         </th>
         <th></th>
       </tr>
@@ -53,6 +57,9 @@
         </td>
         <td>
           {{ venue.countryCode }}
+        </td>
+        <td>
+          {{ venue.timeZone }}
         </td>
         <td>
           <p-button-group>
