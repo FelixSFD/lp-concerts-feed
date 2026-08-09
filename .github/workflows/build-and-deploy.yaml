@@ -193,6 +193,12 @@ jobs:
         files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
         search-text: 'APPLE_MAPS_TOKEN'
         replacement-text: ${{ secrets.APPLE_MAPS_TOKEN }}
+    - name: Replace PRIMENG_LICENSE
+      uses: richardrigutins/replace-in-files@v3
+      with:
+        files: 'frontend/lp-calendar-web/src/environments/environment.github.ts'
+        search-text: 'PRIMENG_LICENSE'
+        replacement-text: ${{ secrets.PRIMENG_LICENSE }}
     - name: Replace IMAGE_BASE_URL
       uses: richardrigutins/replace-in-files@v3
       with:
