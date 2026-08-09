@@ -10,7 +10,7 @@ import {
   CityWithCountryDto,
   CountriesApi,
   CountryDto, CreateCityRequestDto,
-  CreateCountryRequestDto, CreateStateRequestDto,
+  CreateCountryRequestDto, CreateStateRequestDto, CreateVenueRequestDto,
   StateDto, StateWithCountryDto, UpdateCityRequestDto,
   UpdateCountryRequestDto, UpdateStateRequestDto, VenueDto, VenuesApi
 } from '../modules/lpshows-api/v3';
@@ -31,6 +31,8 @@ export class LocationsService {
     citiesApi.configuration.basePath = environment.apiBaseUrl;
     venuesApi.configuration.basePath = environment.apiBaseUrl;
     addAuthentication(countriesApi);
+    addAuthentication(citiesApi);
+    addAuthentication(venuesApi);
   }
 
   /**
@@ -110,6 +112,10 @@ export class LocationsService {
     return this.citiesApi.getCities(undefined, "1000", undefined, ["country.name", "name"]); // TODO: filter and sorting?
   }
 
+  getCitiesIn(countryCode: string): Observable<CityWithCountryDto[]> {
+    return this.countriesApi.getCitiesInCountry(countryCode);
+  }
+
   createCity(countryCode: string, city: CreateCityRequestDto): Observable<CityWithCountryDto> {
     return this.countriesApi.createCity(countryCode, city);
   }
@@ -131,6 +137,14 @@ export class LocationsService {
    */
   getVenues(): Observable<VenueDto[]> {
     return this.venuesApi.getAllVenues();
+  }
+
+  /**
+   * Creates a new venue
+   * @param venue
+   */
+  createVenue(venue: CreateVenueRequestDto): Observable<VenueDto> {
+    return this.venuesApi.createVenue(venue);
   }
 
   getCoordinatesFor(city: string, state: string | null, country: string): Observable<Coordinates | undefined> {

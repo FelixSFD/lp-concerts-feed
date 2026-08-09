@@ -386,6 +386,13 @@ export const routes: Routes = [
         title: baseTitle + 'Manage venues',
         canActivate: [authGuard, manageLocationsGuard],
       },
+      {
+        path: 'venues/add',
+        loadComponent: () =>
+          import("./components/v2/admin/locations/add-venue-page/add-venue-page.component").then(m => m.AddVenuePageComponent),
+        title: baseTitle + 'Create venue',
+        canActivate: [authGuard, manageLocationsGuard],
+      },
     ]
   },
   {
