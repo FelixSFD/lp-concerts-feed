@@ -104,14 +104,8 @@ export class MainMenuComponent implements OnInit, OnChanges {
 
 
   loadLoggedInMenuItems(): void {
-    const items: MenuItem[] = [
-      {
-        label: 'TEST',
-        routerLink: '/test'
-      }
-    ];
+    const items: MenuItem[] = [];
 
-    /*
     if (this.canManageSetlists) {
       items.push({
         id: 'songs-and-setlists',
@@ -145,9 +139,9 @@ export class MainMenuComponent implements OnInit, OnChanges {
           { id: 'users', label: 'Users', icon: 'pi pi-users', routerLink: '/users' },
         ],
       });
-    }*/
+    }
 
-    /*items.push({
+    items.push({
       id: 'account',
       label: this.username ?? 'Account',
       items: [
@@ -162,7 +156,7 @@ export class MainMenuComponent implements OnInit, OnChanges {
           }),
         },
       ],
-    });*/
+    });
 
     this.loggedInMenuItems = items;
   }
