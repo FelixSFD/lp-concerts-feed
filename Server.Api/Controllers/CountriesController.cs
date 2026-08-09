@@ -59,7 +59,6 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     /// <returns></returns>
     [HttpGet]
     [OutputCache(PolicyName = CachePolicyNames.Long, Tags = [CacheTags.CountriesAll])]
-    [CustomResponseCache(Duration = CacheExpiration.Long)]
     public async Task<ActionResult<CountryBo>> GetCountries(CancellationToken cancellationToken)
     {
         logger.LogDebug("Getting all countries");
@@ -77,7 +76,6 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     /// <returns></returns>
     [HttpGet("{countryCode}")]
     [OutputCache(PolicyName = CachePolicyNames.Default, Tags = [CacheTags.CountriesAll])]
-    [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<CountryBo>> GetCountryByIsoCode(string countryCode)
     {
         logger.LogDebug("Requested country by ISO code: {countryCode}", countryCode);
@@ -148,7 +146,6 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     /// <returns>The state including the information about the country</returns>
     [HttpGet("{countryCode}/states/{stateCode}")]
     [OutputCache(PolicyName = CachePolicyNames.Default, Tags = [CacheTags.StatesAll])]
-    [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<StateWithCountryDto>> GetState(string countryCode, string stateCode)
     {
         logger.LogDebug("Requested state '{stateCode}' in country '{countryCode}'", stateCode, countryCode);
@@ -165,7 +162,6 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     /// <returns></returns>
     [HttpGet("{countryCode}/states")]
     [OutputCache(PolicyName = CachePolicyNames.Default, Tags = [CacheTags.StatesAll])]
-    [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<StateWithCountryDto>> GetStatesInCountry(string countryCode, CancellationToken cancellationToken)
     {
         logger.LogDebug("Getting all states in '{countryCode}'", countryCode);
@@ -237,7 +233,6 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     /// <returns>The city including the information about the country</returns>
     [HttpGet("{countryCode}/cities/{cityId}")]
     [OutputCache(PolicyName = CachePolicyNames.Default)]
-    [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<CityWithCountryDto>> GetCity(string countryCode, uint cityId)
     {
         logger.LogDebug("Requested city with ID '{cityId}' in country '{countryCode}'", cityId, countryCode);
@@ -254,7 +249,6 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     /// <returns></returns>
     [HttpGet("{countryCode}/cities")]
     [OutputCache(PolicyName = CachePolicyNames.Default)]
-    [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<CityWithCountryDto>> GetCitiesInCountry(string countryCode, CancellationToken cancellationToken)
     {
         logger.LogDebug("Getting all cities in '{countryCode}'", countryCode);
