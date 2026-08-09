@@ -1,0 +1,31 @@
+name: Deploy backend server
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'The environment to deploy to'
+        default: "test"
+        type: environment
+        required: true
+  workflow_call:
+
+jobs:
+  deploy-docker-stack:
+    runs-on: ubuntu-latest
+    environment: 
+      name: ${{ inputs.environment || 'test' }}
+    steps:
+      - name: Execute remote SSH commands using password
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.BACKEND_SSH_HOST }}
+          username: ${{ secrets.BACKEND_SSH_USERNAME }}
+          password: ${{ secrets.BACKEND_SSH_PASSWORD }}
+          port: ${{ secrets.BACKEND_SSH_PORT }}
+          script: |
+            cd /opt/containers/lpshows-dev
+            docker compose pull
+            docker compose up -d
