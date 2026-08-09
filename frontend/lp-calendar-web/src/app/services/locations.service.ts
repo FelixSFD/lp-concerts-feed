@@ -12,7 +12,7 @@ import {
   CountryDto, CreateCityRequestDto,
   CreateCountryRequestDto, CreateStateRequestDto,
   StateDto, StateWithCountryDto, UpdateCityRequestDto,
-  UpdateCountryRequestDto, UpdateStateRequestDto
+  UpdateCountryRequestDto, UpdateStateRequestDto, VenueDto, VenuesApi
 } from '../modules/lpshows-api/v3';
 import { addAuthentication } from '../auth/auth.config';
 
@@ -25,10 +25,11 @@ import { addAuthentication } from '../auth/auth.config';
 export class LocationsService {
   private osmApiBaseUrl = "https://nominatim.openstreetmap.org";
 
-  constructor(private httpClient: HttpClient, private timezoneApiClient: TimezoneService, private countriesApi: CountriesApi, private citiesApi: CitiesApi) {
+  constructor(private httpClient: HttpClient, private timezoneApiClient: TimezoneService, private countriesApi: CountriesApi, private citiesApi: CitiesApi, private venuesApi: VenuesApi) {
     // Override base URL as CountriesApi uses v3
     countriesApi.configuration.basePath = environment.apiBaseUrl;
     citiesApi.configuration.basePath = environment.apiBaseUrl;
+    venuesApi.configuration.basePath = environment.apiBaseUrl;
     addAuthentication(countriesApi);
   }
 
@@ -123,6 +124,13 @@ export class LocationsService {
 
   getCity(countryCode: string, cityId: number): Observable<CityWithCountryDto> {
     return this.countriesApi.getCity(countryCode, cityId.toString());
+  }
+
+  /**
+   * Returns a list of all venues
+   */
+  getVenues(): Observable<VenueDto[]> {
+    return this.venuesApi.getAllVenues();
   }
 
   getCoordinatesFor(city: string, state: string | null, country: string): Observable<Coordinates | undefined> {

@@ -379,6 +379,13 @@ export const routes: Routes = [
           city: cityResolver
         },
       },
+      {
+        path: 'venues',
+        loadComponent: () =>
+          import("./components/v2/admin/locations/manage-venues-page/manage-venues-page.component").then(m => m.ManageVenuesPageComponent),
+        title: baseTitle + 'Manage venues',
+        canActivate: [authGuard, manageLocationsGuard],
+      },
     ]
   },
   {
