@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import {MenuItem} from 'primeng/api';
 import { Router, RouterLink } from '@angular/router';
 import {Menubar} from 'primeng/menubar';
@@ -21,6 +21,7 @@ import {environment} from '../../../../environments/environment';
   ],
   templateUrl: './main-menu.component.html',
   styleUrl: './main-menu.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class MainMenuComponent implements OnInit, OnChanges {
   private router = inject(Router);
@@ -81,15 +82,16 @@ export class MainMenuComponent implements OnInit, OnChanges {
 
   loadMainMenuItems(): void {
     const items: MenuItem[] = [
-      { label: 'Home', routerLink: '/home' },
-      { label: 'Concerts', routerLink: '/concerts' },
-      { label: 'Map', routerLink: '/map' },
-      { label: 'About', routerLink: '/about' },
+      { id: 'home', label: 'Home', routerLink: '/home' },
+      { id: 'concerts', label: 'Concerts', routerLink: '/concerts' },
+      { id: 'map', label: 'Map', routerLink: '/map' },
+      { id: 'about', label: 'About', routerLink: '/about' },
     ];
 
     // On mobile the "Get the app" CTA moves into the hamburger menu
     if (!this.isLoggedIn$) {
       items.push({
+        id: 'get-app',
         label: 'Get the app',
         icon: 'pi pi-download',
         styleClass: 'menu-getapp-item',
@@ -102,45 +104,56 @@ export class MainMenuComponent implements OnInit, OnChanges {
 
 
   loadLoggedInMenuItems(): void {
-    const items: MenuItem[] = [];
+    const items: MenuItem[] = [
+      {
+        label: 'TEST',
+        routerLink: '/test'
+      }
+    ];
 
+    /*
     if (this.canManageSetlists) {
       items.push({
+        id: 'songs-and-setlists',
         label: 'Songs & Setlists',
         items: [
-          { label: 'Setlists', icon: 'pi pi-list', routerLink: '/admin/setlists' },
-          { label: 'Albums', icon: 'pi pi-images', routerLink: '/admin/albums' },
-          { label: 'Songs', icon: 'pi pi-headphones', routerLink: '/admin/songs' },
-          { label: 'Mashups', icon: 'pi pi-sliders-v', routerLink: '/admin/mashups' },
+          { id: 'setlists', label: 'Setlists', icon: 'pi pi-list', routerLink: '/admin/setlists' },
+          { id: 'albums', label: 'Albums', icon: 'pi pi-images', routerLink: '/admin/albums' },
+          { id: 'songs', label: 'Songs', icon: 'pi pi-headphones', routerLink: '/admin/songs' },
+          { id: 'mashups', label: 'Mashups', icon: 'pi pi-sliders-v', routerLink: '/admin/mashups' },
         ],
       });
     }
 
     if (this.canManageLocations) {
       items.push({
+        id: 'locations',
         label: 'Locations',
         items: [
-          { label: 'Countries', icon: 'pi pi-globe', routerLink: '/admin/countries' },
-          { label: 'Cities', icon: 'pi pi-map-marker', routerLink: '/admin/cities' },
-          { label: 'Venues', icon: 'pi pi-warehouse', routerLink: '/admin/venues' },
+          { id: 'countries', label: 'Countries', icon: 'pi pi-globe', routerLink: '/admin/countries' },
+          { id: 'cities', label: 'Cities', icon: 'pi pi-map-marker', routerLink: '/admin/cities' },
+          { id: 'venues', label: 'Venues', icon: 'pi pi-warehouse', routerLink: '/admin/venues' },
         ],
       });
     }
 
     if (this.canManageUsers) {
       items.push({
+        id: 'administration',
         label: 'Administration',
         items: [
-          { label: 'Users', icon: 'pi pi-users', routerLink: '/users' },
+          { id: 'users', label: 'Users', icon: 'pi pi-users', routerLink: '/users' },
         ],
       });
-    }
+    }*/
 
-    items.push({
+    /*items.push({
+      id: 'account',
       label: this.username ?? 'Account',
       items: [
-        { label: 'Your Profile', icon: 'pi pi-user', routerLink: '/profile' },
+        { id: 'your-profile', label: 'Your Profile', icon: 'pi pi-user', routerLink: '/profile' },
         {
+          id: 'logout',
           label: 'Logout',
           icon: 'pi pi-sign-out',
           linkClass: '!text-red-500 dark:!text-red-400',
@@ -149,7 +162,7 @@ export class MainMenuComponent implements OnInit, OnChanges {
           }),
         },
       ],
-    });
+    });*/
 
     this.loggedInMenuItems = items;
   }
