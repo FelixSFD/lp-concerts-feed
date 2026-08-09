@@ -58,7 +58,11 @@ jobs:
       # This is used to complete the identity challenge
       # with sigstore/fulcio when running outside of PRs.
       id-token: write
-    
+
+  deploy-backend-server:
+    uses: felixsfd/lp-concerts-feed/.github/workflows/deploy-backend-server.yaml@feature/api-server-deployment
+    secrets: inherit
+  
   build-lambdas:
     runs-on: ubuntu-24.04-arm
     needs: define-matrix
