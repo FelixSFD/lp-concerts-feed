@@ -211,6 +211,8 @@ builder.Services
 
                 return validAudience == clientId;
             },
+            ValidIssuer = validIssuer,
+            ValidateIssuer = true,
             RoleClaimType = "cognito:groups"
         };
     });
