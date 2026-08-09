@@ -10,6 +10,7 @@ import {DatePipe} from '@angular/common';
 import {DateTime} from 'luxon';
 import {Tooltip} from 'primeng/tooltip';
 import {Message} from 'primeng/message';
+import { MessageSeverity } from 'primeng/types/message';
 
 @Component({
   selector: 'app-concert-card',
@@ -40,7 +41,7 @@ export class ConcertCardComponent implements OnInit {
   isLoading$: boolean = true;
 
   @Input("notFoundAlertClass")
-  notFoundAlertClass: "info" | "error" | "success" | "warn" | "secondary" | "contrast" | null | undefined = "info"
+  notFoundAlertClass: MessageSeverity = "info"
 
   @Input("notFoundAlertText")
   notFoundAlertText: string = "Concert was not found";

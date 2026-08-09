@@ -74,6 +74,7 @@ export const appConfig: ApplicationConfig = {
     ),
     provideNgcCookieConsent(cookieConfig),
     providePrimeNG({
+      license: environment.primeNgLicense,
       theme: {
         preset: definePreset(Aura, lpshowsPreset)
       },
