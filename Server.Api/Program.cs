@@ -27,9 +27,9 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy
-                .WithOrigins(builder.Configuration.GetValue<string[]>("CORS:AllowedOrigins") ?? ["http://localhost:4200"])
+                .WithOrigins(builder.Configuration.GetSection("CORS:AllowedOrigins").Get<string[]>() ?? ["http://localhost:4200"])
                 .WithHeaders("*")
-                .WithMethods(builder.Configuration.GetValue<string[]>("CORS:AllowedMethods") ?? ["*"]);
+                .WithMethods(builder.Configuration.GetSection("CORS:AllowedMethods").Get<string[]>() ?? ["*"]);
         });
 });
 
@@ -54,6 +54,11 @@ builder.Services.AddHttpLogging(opt =>
     opt.RequestHeaders.Add("X-Warp-Trusted");
     
     opt.ResponseHeaders.Add("Cache-Control");
+    opt.ResponseHeaders.Add("Authorization");
+
+    var additionalHeaders = builder.Configuration.GetSection("Logging:AdditionalHttpHeaders").Get<string[]>() ?? [];
+    foreach (var header in additionalHeaders)
+        opt.ResponseHeaders.Add(header);
 });
 
 // configure extension to read the client's IP from a request
