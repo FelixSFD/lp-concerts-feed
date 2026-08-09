@@ -1,3 +1,4 @@
+using System.Configuration;
 using Common.Server.ClientIp;
 using Common.Utils.Cache;
 using Database.Tours;
@@ -168,9 +169,9 @@ var connectionString = builder.Configuration.GetConnectionString("lpdb") ??
                           throw new Exception("Connection string 'lpdb' missing!");
 
 // read AWS Cognito configurations
-var cognitoAppClientId = builder.Configuration["Cognito:AppClientId"];
-var cognitoUserPoolId = builder.Configuration["Cognito:UserPoolId"];
-var cognitoAWSRegion = builder.Configuration["Cognito:AWSRegion"];
+var cognitoAppClientId = builder.Configuration["Cognito:AppClientId"] ?? throw new ConfigurationErrorsException("Cognito:AppClientId is missing!");
+var cognitoUserPoolId = builder.Configuration["Cognito:UserPoolId"] ?? throw new ConfigurationErrorsException("Cognito:UserPoolId is missing!");
+var cognitoAWSRegion = builder.Configuration["Cognito:AWSRegion"] ?? throw new ConfigurationErrorsException("Cognito:AWSRegion is missing!");
 
 var validIssuer = $"https://cognito-idp.{cognitoAWSRegion}.amazonaws.com/{cognitoUserPoolId}";
 var validAudience = cognitoAppClientId;
