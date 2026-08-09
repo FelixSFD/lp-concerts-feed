@@ -26,6 +26,6 @@ jobs:
           password: ${{ secrets.BACKEND_SSH_PASSWORD }}
           port: ${{ secrets.BACKEND_SSH_PORT }}
           script: |
-            cd /opt/containers/lpshows-dev
+            cd ${{ secrets.BACKEND_SERVER_STACK_PATH }}
             docker compose pull
             docker compose up -d
