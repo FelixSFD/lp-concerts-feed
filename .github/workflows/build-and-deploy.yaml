@@ -98,7 +98,7 @@ jobs:
             lambda_packages/Lambda.${{ matrix.lambda_names }}.zip
   
   deploy-backend:
-    needs: build-lambdas
+    needs: [build-lambdas, build-server-image]
     environment: 
       name: ${{ inputs.environment || 'test' }}
     runs-on: ubuntu-24.04-arm
