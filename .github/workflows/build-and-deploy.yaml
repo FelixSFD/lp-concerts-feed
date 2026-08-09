@@ -60,6 +60,7 @@ jobs:
       id-token: write
 
   deploy-backend-server:
+    needs: [build-server-image]
     uses: felixsfd/lp-concerts-feed/.github/workflows/deploy-backend-server.yaml@feature/api-server-deployment
     secrets: inherit
   
