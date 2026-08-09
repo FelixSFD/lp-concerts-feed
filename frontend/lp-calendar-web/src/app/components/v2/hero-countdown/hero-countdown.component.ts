@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, Input, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, inject, Input, OnInit } from '@angular/core';
 import { ClockService } from '../../../services/clock.service';
 import { DecimalPipe } from '@angular/common';
 import { DiscordShareService } from '../../../services/discord-share.service';
@@ -19,7 +19,8 @@ import { Button } from 'primeng/button';
     Button
   ],
   templateUrl: './hero-countdown.component.html',
-  styleUrl: './hero-countdown.component.css'
+  styleUrl: './hero-countdown.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 
 export class HeroCountdownComponent implements OnInit, AfterViewInit {

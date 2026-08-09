@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {ConcertDto, ConcertStatusValueDto, ErrorResponseDto} from '../../../modules/lpshows-api';
 import {AuthService} from '../../../auth/auth.service';
 import {ConcertFilter} from '../../../data/concert-filter';
@@ -35,6 +35,7 @@ import {ConcertFilterComponent} from '../concert-filter/concert-filter.component
   ],
   templateUrl: './concert-list.component.html',
   styleUrl: './concert-list.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class ConcertListComponent {
   private confirmationService = inject(ConfirmationService);

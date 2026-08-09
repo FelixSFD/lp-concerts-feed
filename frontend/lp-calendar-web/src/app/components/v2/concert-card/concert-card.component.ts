@@ -1,4 +1,4 @@
-import {Component, inject, Input, OnInit} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Input, OnInit } from '@angular/core';
 import {Button} from 'primeng/button';
 import {Card} from 'primeng/card';
 import {AuthService} from '../../../auth/auth.service';
@@ -27,6 +27,7 @@ import { MessageSeverity } from 'primeng/types/message';
   ],
   templateUrl: './concert-card.component.html',
   styleUrl: './concert-card.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class ConcertCardComponent implements OnInit {
   private authService = inject(AuthService);
@@ -38,7 +39,7 @@ export class ConcertCardComponent implements OnInit {
   concert$: ConcertDto | null = null;
 
   @Input("isLoading")
-  isLoading$: boolean = true;
+  isLoading$: boolean = false;
 
   @Input("notFoundAlertClass")
   notFoundAlertClass: MessageSeverity = "info"

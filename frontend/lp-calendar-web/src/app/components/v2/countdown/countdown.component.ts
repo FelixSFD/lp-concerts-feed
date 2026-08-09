@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, inject, Input, OnInit} from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, inject, Input, OnInit } from '@angular/core';
 
 import {MatomoTrackClickDirective} from 'ngx-matomo-client';
 import {NgTemplateOutlet} from '@angular/common';
@@ -22,7 +22,8 @@ import {MessageService} from 'primeng/api';
     InputText
   ],
   templateUrl: './countdown.component.html',
-  styleUrl: './countdown.component.css'
+  styleUrl: './countdown.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class CountdownComponent implements OnInit, AfterViewInit {
   private messageService = inject(MessageService);

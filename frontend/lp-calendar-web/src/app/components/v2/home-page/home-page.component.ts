@@ -1,4 +1,4 @@
-import {Component, inject, OnInit} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import {MatomoTracker} from 'ngx-matomo-client';
 import {AuthService} from '../../../auth/auth.service';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
@@ -32,6 +32,7 @@ import {ConcertCardComponent} from '../concert-card/concert-card.component';
   ],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class HomePageComponent implements OnInit {
   protected readonly environment = environment;
@@ -113,6 +114,7 @@ export class HomePageComponent implements OnInit {
       next: result => {
         this.nextConcert = result;
         this.isLoadingNextConcert = false;
+        console.debug("Next concert:", this.nextConcert);
       },
       error: err => {
         // If the request times out, an error will have been emitted.
