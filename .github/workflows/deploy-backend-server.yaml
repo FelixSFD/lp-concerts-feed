@@ -21,7 +21,7 @@ jobs:
       - name: Execute remote SSH commands using password
         uses: appleboy/ssh-action@v1
         with:
-          host: ${{ secrets.BACKEND_SSH_HOST }}
+          host: ${{ vars.BACKEND_SSH_HOST }}
           username: ${{ secrets.BACKEND_SSH_USERNAME }}
           password: ${{ secrets.BACKEND_SSH_PASSWORD }}
           port: ${{ secrets.BACKEND_SSH_PORT }}
