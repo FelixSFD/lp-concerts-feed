@@ -10,6 +10,9 @@ import { FloatLabel } from 'primeng/floatlabel';
 import { InputText } from 'primeng/inputtext';
 import { NgTemplateOutlet } from '@angular/common';
 import { Select } from 'primeng/select';
+import { InputGroup } from 'primeng/inputgroup';
+import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import timezones from 'timezones-list';
 
 @Component({
   selector: 'app-venue-form',
@@ -21,7 +24,9 @@ import { Select } from 'primeng/select';
     InputText,
     NgTemplateOutlet,
     ReactiveFormsModule,
-    Select
+    Select,
+    InputGroup,
+    InputGroupAddon
   ],
   templateUrl: './venue-form.component.html',
   styleUrl: './venue-form.component.css',
@@ -39,6 +44,8 @@ export class VenueFormComponent implements OnInit {
 
   citiesInCountry$: CityWithCountryDto[] = [];
 
+  timeZoneIsLoading$ = false;
+
   /*
    * true, if the form is "standalone", meaning it manages its own layout and has a save-button
    */
@@ -52,6 +59,7 @@ export class VenueFormComponent implements OnInit {
     countryCode: new FormControl<string>('', [Validators.required]),
     cityId: new FormControl<number>(0, [Validators.required]),
     currentName: new FormControl<string>('', [Validators.required]),
+    timezone: new FormControl('', [Validators.required]),
   });
 
   ngOnInit() {
@@ -84,6 +92,7 @@ export class VenueFormComponent implements OnInit {
     const countryCode = this.venueForm.controls.countryCode.value;
     const cityId = this.venueForm.value.cityId?.valueOf();
     const currentName = this.venueForm.value.currentName?.valueOf();
+    const timezone = this.venueForm.value.timezone?.valueOf();
 
     if (countryCode == undefined || countryCode.length === 0) {
       this.messageService.add({
@@ -109,11 +118,20 @@ export class VenueFormComponent implements OnInit {
       return null;
     }
 
+    if (timezone == undefined || timezone.length === 0) {
+      this.messageService.add({
+        severity: "error",
+        summary: "Timezone is required",
+      });
+      return null;
+    }
+
     return {
       countryCode: countryCode,
       stateCode: null,
       cityId: cityId,
       currentName: currentName,
+      timeZone: timezone,
     };
   }
 
@@ -121,6 +139,46 @@ export class VenueFormComponent implements OnInit {
     console.debug("Fill form with data:", venue);
     this.venueForm.controls.currentName.setValue(venue.currentName ?? null);
   }
+
+
+  onUpdateTimeZoneClicked() {
+    this.timeZoneIsLoading$ = true;
+
+    let cityId = this.venueForm.value.cityId;
+    let countryCode = this.venueForm.value.countryCode;
+
+    if (cityId == null || countryCode == null) {
+      return;
+    }
+
+    let cityName = this.citiesInCountry$.find(c => c.id == cityId.toString())?.name;
+    let countryName = this.countries$.find(c => c.isoCode == countryCode)?.name;
+
+    this.locationsService.getCoordinatesFor(cityName!, null, countryName!)
+      .subscribe(coordinates => {
+        console.log("Found coordinates: ", coordinates);
+        this.locationsService.getTimeZoneForCoordinates(coordinates?.latitude ?? 0, coordinates?.longitude ?? 0)
+          .subscribe(tzObj => {
+            console.log("Found timezone: ", tzObj);
+            let tz = tzObj.timeZoneId!;
+            this.timeZoneIsLoading$ = false;
+
+            if (timezones.map(t => t.tzCode).indexOf(tz, 0) >= 0) {
+              this.venueForm.controls.timezone.setValue(tz);
+            } else {
+              console.error("Invalid timezone returned: ", tz);
+              this.messageService.add({
+                severity: "error",
+                summary: "Could not load timezone",
+                text: `Timezone '${tz}' found, but it is invalid.`,
+              });
+            }
+          });
+      });
+  }
+
+
+  protected readonly timezones = timezones;
 }
 
 
@@ -129,4 +187,5 @@ export class VenueFormContent {
   stateCode: string | null = null;
   cityId!: number;
   currentName!: string;
+  timeZone!: string;
 }
