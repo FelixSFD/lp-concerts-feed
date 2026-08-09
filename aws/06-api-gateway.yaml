@@ -52,28 +52,6 @@ Resources:
               Fn::ImportValue:
                 Fn::Sub: "${BaseProductName}-cognito-authorizer-user-pool"
             IdentitySource: method.request.header.Authorization
-  
-  ConcertsApiV3:
-    Type: AWS::Serverless::Api
-    Properties:
-      Name: !Sub ${BaseProductName}-api-v3
-      StageName: v3
-      Cors:
-        AllowMethods: "'POST, GET, PUT, DELETE'"
-        AllowOrigin: !Sub "'${CorsOrigin}'"
-        AllowHeaders: "'*'"
-      DefinitionBody:
-        Fn::Transform:
-          Name: AWS::Include
-          Parameters:
-            Location: !Sub "s3://${BaseProductName}-openapi/v3.yaml"
-      Auth:
-        Authorizers:
-          ConcertsCognitoAuthorizer:
-            UserPoolArn:
-              Fn::ImportValue:
-                Fn::Sub: "${BaseProductName}-cognito-authorizer-user-pool"
-            IdentitySource: method.request.header.Authorization
 
   # Lambda permissions
   GetTimeZoneLambdaPermission:
@@ -273,8 +251,3 @@ Outputs:
     Value: !Sub "${ConcertsApiV2}.execute-api.${AWS::Region}.amazonaws.com"
     Export:
       Name: !Sub '${BaseProductName}-api-gateway-domain'
-  ConcertsApiGatewayDomainV3Export:
-    Description: Domain of API Gateway V3
-    Value: !Sub "${ConcertsApiV3}.execute-api.${AWS::Region}.amazonaws.com"
-    Export:
-      Name: !Sub '${BaseProductName}-api-gateway-domain-v3'
