@@ -81,22 +81,22 @@ export class ManageVenuesPageComponent {
     this.isDeletingVenue$ = true;
 
     if (venue) {
-      /*this.locationsService.deleteCountry(country.isoCode!)
+      this.locationsService.deleteVenue(Number(venue.id))
         .subscribe({
           next: () => {
             this.reloadList(false);
-            this.isDeletingCountry$ = false;
+            this.isDeletingVenue$ = false;
           },
           error: err => {
             let errorResponse: ErrorResponseDto = err.error;
             this.messageService.add({
               severity: "danger",
-              summary: "Could not load delete country!",
+              summary: "Could not load delete venue!",
               text: errorResponse.message,
             });
-            this.isDeletingCountry$ = false;
+            this.isDeletingVenue$ = false;
           }
-        });*/
+        });
     }
   }
 

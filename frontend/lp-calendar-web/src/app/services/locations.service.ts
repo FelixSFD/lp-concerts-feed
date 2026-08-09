@@ -158,6 +158,10 @@ export class LocationsService {
     return this.venuesApi.updateVenue(id, venue);
   }
 
+  deleteVenue(id: number): Observable<void> {
+    return this.venuesApi.deleteVenueById(id);
+  }
+
   getCoordinatesFor(city: string, state: string | null, country: string): Observable<Coordinates | undefined> {
     let osmUrl = this.osmApiBaseUrl + "/search.php?format=jsonv2&city=" + encodeURIComponent(city) + "&country=" + encodeURIComponent(country);
     if (state != null) {
