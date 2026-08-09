@@ -50,7 +50,7 @@ jobs:
           echo "regions=$JSON" >> "$GITHUB_OUTPUT"
 
   build-server-image:
-    uses: felixsfd/lp-concerts-feed/.github/workflows/build-and-publish-docker-server.yaml@feature/api-server-deployment
+    uses: felixsfd/lp-concerts-feed/.github/workflows/build-and-publish-docker-server.yaml@main
     secrets: inherit
     permissions:
       contents: read
@@ -61,7 +61,7 @@ jobs:
 
   deploy-backend-server:
     needs: [build-server-image]
-    uses: felixsfd/lp-concerts-feed/.github/workflows/deploy-backend-server.yaml@feature/api-server-deployment
+    uses: felixsfd/lp-concerts-feed/.github/workflows/deploy-backend-server.yaml@main
     secrets: inherit
   
   build-lambdas:
