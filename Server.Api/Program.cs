@@ -178,7 +178,11 @@ var validAudience = cognitoAppClientId;
 
 builder.Services.AddDbContextPool<ToursDbContext>(options =>
 {
-    options.UseMySQL(connectionString, dbContextBuilder => dbContextBuilder.MigrationsAssembly(typeof(ToursDbContext).Assembly.FullName));
+    options.UseMySQL(connectionString, dbContextBuilder =>
+    {
+        dbContextBuilder.EnableRetryOnFailure(10, TimeSpan.FromSeconds(30), null);
+        dbContextBuilder.MigrationsAssembly(typeof(ToursDbContext).Assembly.FullName);
+    });
 });
 builder.Services.AddScoped<ICountryRepository, SqlCountryRepository>();
 builder.Services.AddScoped<IStateRepository, SqlStateRepository>();
