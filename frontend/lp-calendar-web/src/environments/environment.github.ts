@@ -21,5 +21,6 @@ export const environment = {
     city: "IMPRINT_CITY",
     country: "IMPRINT_COUNTRY",
     email: "IMPRINT_EMAIL",
-  }
+  },
+  primeNgLicense: "PRIMENG_LICENSE"
 };
