@@ -37,7 +37,7 @@ export class ManageConcertsPageComponent implements OnInit {
   private readonly concertsService = inject(ConcertsService);
   private readonly messageService = inject(MessageService);
 
-  concerts$ = signal<ConcertDto[]>([]);
+  concertsOld$ = signal<ConcertDto[]>([]);
   isLoading$ = false;
   globalSearchText$ = '';
 
@@ -60,7 +60,7 @@ export class ManageConcertsPageComponent implements OnInit {
     this.concertsService.getFilteredConcerts(allConcertsFilter, false).subscribe({
       next: concerts => {
         console.debug('Loaded concerts:', concerts);
-        this.concerts$.set(concerts);
+        this.concertsOld$.set(concerts);
         this.isLoading$ = false;
       },
       error: err => {

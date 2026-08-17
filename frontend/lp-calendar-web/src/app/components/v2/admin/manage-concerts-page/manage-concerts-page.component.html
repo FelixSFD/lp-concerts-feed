@@ -3,9 +3,10 @@
     Manage concerts
   </ng-template>
 
+  <h3>Concerts in old database</h3>
   <p-table
     #dt2
-    [value]="concerts$()"
+    [value]="concertsOld$()"
     dataKey="id"
     stripedRows
     rowHover
