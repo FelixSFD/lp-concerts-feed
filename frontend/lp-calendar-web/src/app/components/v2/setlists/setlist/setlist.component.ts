@@ -14,9 +14,10 @@ import {
 } from '../setlist-entry-song-extra-list/setlist-entry-song-extra-list.component';
 import {Tooltip} from 'primeng/tooltip';
 import {Button} from 'primeng/button';
-import {MessageService} from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import {SetlistAct} from '../../../../data/setlists/setlist-act';
 import {SetlistEntry} from '../../../../data/setlists/setlist-entry';
+import { ConfirmDialog } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'app-setlist',
@@ -26,7 +27,8 @@ import {SetlistEntry} from '../../../../data/setlists/setlist-entry';
     AppleMusicArtworkComponent,
     SetlistEntrySongExtraListComponent,
     Tooltip,
-    Button
+    Button,
+    ConfirmDialog
   ],
   templateUrl: './setlist.component.html',
   styleUrl: './setlist.component.css',
@@ -37,6 +39,7 @@ export class SetlistComponent implements OnInit {
   private readonly scroller = inject(ViewportScroller);
   private readonly appleMusicService = inject(AppleMusicService);
   private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
 
   @Input({ required: false })
   setlistId: number | undefined;
@@ -131,6 +134,33 @@ export class SetlistComponent implements OnInit {
     this.isCreatingPlaylist$ = true;
     const playlistName = `LINKIN PARK - ${this.setlist?.concertTitle ?? this.setlist?.setName}`;
 
+    this.confirmationService.confirm({
+      message: `Do you want to create a playlist named "${playlistName}" in your Apple Music library?`,
+      header: 'Create a new playlist in your library?',
+      icon: 'pi pi-info-circle',
+      rejectLabel: 'Cancel',
+      rejectButtonProps: {
+        label: 'Cancel',
+        severity: 'secondary',
+        outlined: true
+      },
+      acceptButtonProps: {
+        label: 'Add playlist',
+        icon: 'pi pi-apple',
+        severity: 'primary'
+      },
+
+      accept: () => {
+        this.createPlaylist(playlistName, songIds);
+        this.isCreatingPlaylist$ = false;
+      },
+      reject: () => {
+        this.isCreatingPlaylist$ = false;
+      }
+    });
+  }
+
+  private async createPlaylist(playlistName: string, songIds: string[]) {
     try {
       await this.appleMusicService.createPlaylist(
         playlistName,
@@ -149,9 +179,6 @@ export class SetlistComponent implements OnInit {
         summary: 'Could not create playlist',
         detail: error instanceof Error ? error.message : 'Please try again.'
       });
-      this.isCreatingPlaylist$ = false;
-    } finally {
-      this.isCreatingPlaylist$ = false;
     }
   }
 
