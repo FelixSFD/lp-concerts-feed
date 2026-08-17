@@ -35,6 +35,7 @@ export class MainMenuComponent implements OnInit, OnChanges {
   private canManageUsers: boolean = false;
   private canManageSetlists: boolean = false;
   private canManageLocations: boolean = false;
+  private canUpdateConcerts: boolean = false;
 
   @Input("clock")
   currentDateTime$: DateTime = DateTime.now();
@@ -74,6 +75,12 @@ export class MainMenuComponent implements OnInit, OnChanges {
 
     this.authStateService.canManageLocations.subscribe(hasPermission => {
       this.canManageLocations = hasPermission;
+
+      this.loadLoggedInMenuItems();
+    });
+
+    this.authStateService.canUpdateConcerts.subscribe(hasPermission => {
+      this.canUpdateConcerts = hasPermission;
 
       this.loadLoggedInMenuItems();
     });
@@ -127,6 +134,16 @@ export class MainMenuComponent implements OnInit, OnChanges {
           { id: 'countries', label: 'Countries', icon: 'pi pi-globe', routerLink: '/admin/countries' },
           { id: 'cities', label: 'Cities', icon: 'pi pi-map-marker', routerLink: '/admin/cities' },
           { id: 'venues', label: 'Venues', icon: 'pi pi-warehouse', routerLink: '/admin/venues' },
+        ],
+      });
+    }
+
+    if (this.canUpdateConcerts) {
+      items.push({
+        id: 'concert-administration',
+        label: 'Concerts',
+        items: [
+          { id: 'manage-concerts', label: 'Manage concerts', icon: 'pi pi-calendar', routerLink: '/concerts/manage' },
         ],
       });
     }

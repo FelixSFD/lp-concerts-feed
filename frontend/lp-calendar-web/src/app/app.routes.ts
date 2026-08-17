@@ -123,6 +123,16 @@ export const routes: Routes = [
         },
       },
       {
+        path: 'manage',
+        loadComponent: () =>
+          import("./components/v2/admin/manage-concerts-page/manage-concerts-page.component").then(m => m.ManageConcertsPageComponent),
+        title: baseTitle + 'Manage concerts',
+        canActivate: [authGuard, updateConcertsGuard],
+        data: {
+          breadcrumb: 'Manage concerts',
+        },
+      },
+      {
         path: 'import',
         loadComponent: () =>
           import("./components/v2/admin/setlists/linkinpedia-concert-importer-page/linkinpedia-concert-importer-page.component").then(m => m.LinkinpediaConcertImporterPageComponent),

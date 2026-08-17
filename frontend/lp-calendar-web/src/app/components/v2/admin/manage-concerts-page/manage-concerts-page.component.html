@@ -1,0 +1,85 @@
+<p-card>
+  <ng-template #title>
+    Manage concerts
+  </ng-template>
+
+  <p-table
+    #dt2
+    [value]="concerts$()"
+    dataKey="id"
+    stripedRows
+    rowHover
+    [rows]="25"
+    [rowsPerPageOptions]="[10, 25, 50, 100, 200]"
+    [loading]="isLoading$"
+    [paginator]="true"
+    [globalFilterFields]="['customTitle', 'tourName', 'city', 'country', 'venue', 'postedStartTime']"
+    [tableStyle]="{ 'min-width': '75rem' }"
+  >
+    <ng-template #caption>
+      <div class="flex">
+        <p-button variant="outlined" label="Add concert" [routerLink]="['/concerts/add']" />
+
+        <p-iconfield iconPosition="left" class="ml-auto">
+          <p-inputicon>
+            <i class="pi pi-search"></i>
+          </p-inputicon>
+          <input pInputText type="text" [(ngModel)]="globalSearchText$" (input)="dt2.filterGlobal(globalSearchText$, 'contains')" placeholder="Search keyword" />
+        </p-iconfield>
+      </div>
+    </ng-template>
+    <ng-template #header>
+      <tr>
+        <th scope="col">Date</th>
+        <th scope="col">Concert</th>
+        <th scope="col">Location</th>
+        <th scope="col">Status</th>
+        <th scope="col"></th>
+      </tr>
+      <tr>
+        <th>
+          <p-column-filter type="text" field="postedStartTime" placeholder="Date" ariaLabel="Filter dates" filterOn="input" />
+        </th>
+        <th>
+          <p-column-filter type="text" field="customTitle" placeholder="Title" ariaLabel="Filter concert titles" filterOn="input" />
+        </th>
+        <th>
+          <p-column-filter type="text" field="city" placeholder="City" ariaLabel="Filter cities" filterOn="input" />
+        </th>
+        <th>
+          <p-column-filter type="text" field="status" placeholder="Status" ariaLabel="Filter statuses" filterOn="input" />
+        </th>
+        <th></th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-concert>
+      <tr>
+        <td>{{ concert.postedStartTime | date: 'dd.MM.yyyy, HH:mm' }}</td>
+        <td>
+          {{ getTitle(concert) }}
+          @if (concert.tourName) {
+            <div class="text-500 font-italic">{{ concert.tourName }}</div>
+          }
+        </td>
+        <td>
+          {{ concert.locationMedium || concert.city }}
+          @if (concert.venue) {
+            <div class="text-500 font-italic">{{ concert.venue }}</div>
+          }
+        </td>
+        <td>{{ concert.status }}</td>
+        <td>
+          <p-button-group>
+            <p-button label="View" icon="pi pi-eye" variant="outlined" size="small" [routerLink]="['/concerts', concert.id]" />
+            <p-button label="Edit" icon="pi pi-pencil" variant="outlined" size="small" [routerLink]="['/concerts', concert.id, 'edit']" />
+          </p-button-group>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="5">No concerts found.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
