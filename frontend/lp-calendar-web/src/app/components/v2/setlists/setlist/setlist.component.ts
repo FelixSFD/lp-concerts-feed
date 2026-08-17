@@ -17,6 +17,7 @@ import {Button} from 'primeng/button';
 import {MessageService} from 'primeng/api';
 import {SetlistAct} from '../../../../data/setlists/setlist-act';
 import {SetlistEntry} from '../../../../data/setlists/setlist-entry';
+import {DateTime} from 'luxon';
 
 @Component({
   selector: 'app-setlist',
@@ -49,6 +50,7 @@ export class SetlistComponent implements OnInit {
   setlistTitle$: string = "Setlist";
 
   isExpanded$ = false;
+  isCreatingPlaylist$ = false;
 
   private isLoadingThumbnails = false;
 
@@ -115,6 +117,46 @@ export class SetlistComponent implements OnInit {
     if (this.isExpanded$) {
       this.tracker.trackEvent("setlist", "expand_view", this.setlistTitle$);
     }
+  }
+
+  async onCreateAppleMusicPlaylistClicked() {
+    const songIds = this.setlist?.entries
+      .map(entry => entry.appleMusicId)
+      .filter((id): id is string => id != null && id.length > 0) ?? [];
+
+    if (songIds.length === 0 || this.isCreatingPlaylist$) {
+      return;
+    }
+
+    this.isCreatingPlaylist$ = true;
+    const playlistName = `LINKIN PARK - ${this.setlist?.concertTitle ?? this.setlist?.setName}`;
+
+    try {
+      await this.appleMusicService.createPlaylist(
+        playlistName,
+        songIds,
+        `Setlist from ${this.setlist?.concertTitle ?? 'concert'}`
+      );
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Playlist created',
+        detail: `“${playlistName}” was added to your Apple Music library.`
+      });
+    } catch (error) {
+      console.error('Could not create Apple Music playlist', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Could not create playlist',
+        detail: error instanceof Error ? error.message : 'Please try again.'
+      });
+      this.isCreatingPlaylist$ = false;
+    } finally {
+      this.isCreatingPlaylist$ = false;
+    }
+  }
+
+  hasAppleMusicSongs(): boolean {
+    return this.setlist?.entries.some(entry => entry.appleMusicId != null && entry.appleMusicId.length > 0) ?? false;
   }
 
   getActForEntry(setlist: Setlist | undefined | null, firstEntry: SetlistEntry): SetlistAct | null {

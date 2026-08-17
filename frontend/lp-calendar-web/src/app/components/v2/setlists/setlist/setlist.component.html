@@ -76,6 +76,18 @@
 </div>
 
 <div class="text-center mt-2">
+  @if (hasAppleMusicSongs()) {
+    <p-button
+      class="me-2"
+      size="small"
+      variant="outlined"
+      icon="pi pi-music"
+      label="Create Apple Music playlist"
+      [loading]="isCreatingPlaylist$"
+      [disabled]="isCreatingPlaylist$"
+      (onClick)="onCreateAppleMusicPlaylistClicked()"
+    />
+  }
   <p-button
     size="small"
     variant="outlined"
