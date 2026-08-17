@@ -120,9 +120,15 @@ export class TourMapPageComponent {
           }).filter(m => m != null);
 
           this.appleMap?.annotations.forEach(annotation => {
+            console.debug("Removing annotation", annotation);
             this.appleMap?.removeAnnotation(annotation);
-          })
+            console.debug("Removed annotation");
+          });
+
+          console.debug("Showing the new annotations", annotations.length, annotations);
           this.appleMap?.showItems(annotations);
+
+          this.isLoadingPins$ = false;
         },
         error: err => {
           this.isLoadingPins$ = false;
