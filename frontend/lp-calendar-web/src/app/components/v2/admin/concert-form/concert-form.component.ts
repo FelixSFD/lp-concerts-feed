@@ -17,7 +17,7 @@ import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {environment} from "../../../../../environments/environment";
 import {LocationsService} from '../../../../services/locations.service';
 import {ConcertDto, ConcertStatusValueDto, ConcertWithSetlistsDto, ErrorResponseDto} from '../../../../modules/lpshows-api';
-import {load, MapKit, Map as AppleMap, MapKitEvent, AnnotationDragEvent} from '@apple/mapkit-loader';
+import { load, MapKit, Map as AppleMap, MapEvent, AnnotationDragEvent, Annotation } from '@apple/mapkit-loader';
 import {Card} from 'primeng/card';
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
 import {ConcertStatus} from '../../../../data/concert-status';
@@ -126,6 +126,9 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
   scheduleIsUploading$ = false;
   timeZoneIsLoading$ = false;
 
+  // The marker on the map
+  private mapMarker: Annotation | null = null;
+
   constructor() {
     this.oidcSecurityService.checkAuth().subscribe(({ isAuthenticated }) => {
       this.hasWriteAccess$ = isAuthenticated;
@@ -225,21 +228,32 @@ export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
     if (!this.appleMap || !this.mapKit) {
       return;
     }
-    const annotation = new this.mapKit!.MarkerAnnotation(new this.mapKit!.Coordinate(lat, lon), {
+
+    let newCoordinate = new this.mapKit!.Coordinate(lat, lon);
+
+    let annotation: Annotation | null = this.mapMarker ?? null;
+    if (annotation) {
+      console.debug("Marker already exists")
+      annotation.coordinate = newCoordinate;
+      return;
+    }
+
+    console.debug("Creating new marker");
+    annotation = new this.mapKit!.MarkerAnnotation(newCoordinate, {
       color: "#c969e0",
       map: this.appleMap,
       draggable: true
     });
 
-    annotation.addEventListener("dragging", this.didDragPin, this);
+    annotation.addEventListener("dragging", (evt) => this.didDragPin(evt as AnnotationDragEvent));
     this.appleMap?.showItems([annotation]);
+    this.mapMarker = annotation;
 
     this.zoomToCoordinates(lon, lat);
   }
 
 
-  private didDragPin(evt: MapKitEvent) {
-    let dragEvent = evt as AnnotationDragEvent;
+  private didDragPin(dragEvent: AnnotationDragEvent) {
     this.concertForm.controls.venueLat.setValue(dragEvent.coordinate.latitude)
     this.concertForm.controls.venueLong.setValue(dragEvent.coordinate.longitude);
   }

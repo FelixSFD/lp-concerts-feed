@@ -3,7 +3,7 @@ import {TourConfig} from './tour-config';
 
 export class ConcertFilter {
   // Name of the tour to filter by
-  tour: string | undefined | null;
+  tour: TourConfig | undefined | null;
 
   // if true, only future concerts will be returned
   onlyFuture: boolean = false;

@@ -35,7 +35,7 @@ export class TourMapPageComponent {
   // default filter that is used when loading the list
   defaultFilter: ConcertFilter = {
     onlyFuture: false,
-    tour: "FROM ZERO WORLD TOUR 2026",
+    tour: tourConfigs.find(t => t.value == "FROM ZERO WORLD TOUR 2026"),
     dateFrom: DateTime.fromISO("0000-01-01T00:00:00.000Z"),
     dateTo: DateTime.fromISO("3000-12-31T23:59:59.999Z"),
   };
@@ -120,9 +120,15 @@ export class TourMapPageComponent {
           }).filter(m => m != null);
 
           this.appleMap?.annotations.forEach(annotation => {
+            console.debug("Removing annotation", annotation);
             this.appleMap?.removeAnnotation(annotation);
-          })
+            console.debug("Removed annotation");
+          });
+
+          console.debug("Showing the new annotations", annotations.length, annotations);
           this.appleMap?.showItems(annotations);
+
+          this.isLoadingPins$ = false;
         },
         error: err => {
           this.isLoadingPins$ = false;
