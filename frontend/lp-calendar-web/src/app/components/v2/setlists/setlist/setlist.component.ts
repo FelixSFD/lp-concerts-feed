@@ -1,4 +1,4 @@
-import {Component, inject, Input, OnInit} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Input, OnInit, signal } from '@angular/core';
 import {SetlistsService} from '../../../../services/setlists.service';
 import {ErrorResponseDto} from '../../../../modules/lpshows-api';
 import {Setlist} from '../../../../data/setlists/setlist';
@@ -17,7 +17,6 @@ import {Button} from 'primeng/button';
 import {MessageService} from 'primeng/api';
 import {SetlistAct} from '../../../../data/setlists/setlist-act';
 import {SetlistEntry} from '../../../../data/setlists/setlist-entry';
-import {DateTime} from 'luxon';
 
 @Component({
   selector: 'app-setlist',
@@ -49,8 +48,8 @@ export class SetlistComponent implements OnInit {
 
   setlistTitle$: string = "Setlist";
 
-  isExpanded$ = false;
-  isCreatingPlaylist$ = false;
+  isExpanded$ = signal<boolean>(false);
+  isCreatingPlaylist$ = signal<boolean>(false);
 
   private isLoadingThumbnails = false;
 
