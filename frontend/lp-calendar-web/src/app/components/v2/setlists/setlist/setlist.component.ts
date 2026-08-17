@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, Input, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Input, OnInit } from '@angular/core';
 import {SetlistsService} from '../../../../services/setlists.service';
 import {ErrorResponseDto} from '../../../../modules/lpshows-api';
 import {Setlist} from '../../../../data/setlists/setlist';
@@ -30,6 +30,7 @@ import {SetlistEntry} from '../../../../data/setlists/setlist-entry';
   ],
   templateUrl: './setlist.component.html',
   styleUrl: './setlist.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager
 })
 export class SetlistComponent implements OnInit {
   private readonly tracker = inject(MatomoTracker);
@@ -48,8 +49,8 @@ export class SetlistComponent implements OnInit {
 
   setlistTitle$: string = "Setlist";
 
-  isExpanded$ = signal<boolean>(false);
-  isCreatingPlaylist$ = signal<boolean>(false);
+  isExpanded$ = false;
+  isCreatingPlaylist$ = false;
 
   private isLoadingThumbnails = false;
 
