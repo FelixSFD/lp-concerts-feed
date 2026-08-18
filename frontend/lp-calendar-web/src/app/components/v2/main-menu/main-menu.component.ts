@@ -144,6 +144,7 @@ export class MainMenuComponent implements OnInit, OnChanges {
         label: 'Concerts',
         items: [
           { id: 'manage-concerts', label: 'Manage concerts', icon: 'pi pi-calendar', routerLink: '/admin/concerts' },
+          { id: 'manage-tours', label: 'Manage tours', icon: 'pi pi-compass', routerLink: '/admin/tours' },
         ],
       });
     }

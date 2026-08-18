@@ -9,6 +9,7 @@ import {songResolver} from './resolvers/song-resolver';
 import { countryResolver } from './resolvers/country-resolver';
 import { cityResolver } from './resolvers/city-resolver';
 import { venueResolver } from './resolvers/venue-resolver';
+import { tourResolver } from './resolvers/tour-resolver';
 
 let baseTitle = "LP Concerts - ";
 
@@ -412,6 +413,39 @@ export const routes: Routes = [
         canActivate: [authGuard, updateConcertsGuard],
         data: {
           breadcrumb: 'Manage concerts',
+        },
+      },
+      {
+        path: 'tours',
+        loadComponent: () =>
+          import("./components/v2/admin/tours/manage-tours-page/manage-tours-page.component").then(m => m.ManageToursPageComponent),
+        title: baseTitle + 'Manage tours',
+        canActivate: [authGuard, updateConcertsGuard],
+        data: {
+          breadcrumb: 'Manage tours',
+        },
+      },
+      {
+        path: 'tours/add',
+        loadComponent: () =>
+          import("./components/v2/admin/tours/add-tour-page/add-tour-page.component").then(m => m.AddTourPageComponent),
+        title: baseTitle + 'Create tour',
+        canActivate: [authGuard, updateConcertsGuard],
+        data: {
+          breadcrumb: 'Create tour',
+        },
+      },
+      {
+        path: 'tours/:tourId',
+        loadComponent: () =>
+          import("./components/v2/admin/tours/edit-tour-page/edit-tour-page.component").then(m => m.EditTourPageComponent),
+        title: baseTitle + 'Edit tour',
+        canActivate: [authGuard, updateConcertsGuard],
+        resolve: {
+          tour: tourResolver
+        },
+        data: {
+          breadcrumb: 'Edit tour',
         },
       },
     ]

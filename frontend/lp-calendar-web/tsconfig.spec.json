@@ -6,7 +6,8 @@
     "outDir": "./out-tsc/spec",
     "types": [
       "jasmine",
-      "@angular/localize"
+      "@angular/localize",
+      "musickit-js"
     ]
   },
   "include": [
