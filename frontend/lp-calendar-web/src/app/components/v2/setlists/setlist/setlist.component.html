@@ -1,3 +1,5 @@
+<p-confirm-dialog />
+
 <div class="table-wrapper position-relative" [class.expanded]="isExpanded$" id="setlist-container-{{ setlist?.id }}">
   <div class="collapsible-table">
     <div class="tracklist">
@@ -79,10 +81,28 @@
   <p-button
     size="small"
     variant="outlined"
+    severity="secondary"
     [icon]="isExpanded$ ? 'pi pi-minus-circle' : 'pi pi-plus-circle'"
     [label]="isExpanded$ ? 'Hide setlist' : 'Show full setlist'"
     (onClick)="onToggleExpendedClicked()"
   />
 </div>
+
+
+
+@if (hasAppleMusicSongs()) {
+  <div class="text-center mt-2">
+    <p-button
+      class="me-2"
+      size="small"
+      variant="outlined"
+      icon="pi pi-apple"
+      label="Create Apple Music playlist"
+      [loading]="isCreatingPlaylist$"
+      [disabled]="isCreatingPlaylist$"
+      (onClick)="onCreateAppleMusicPlaylistClicked()"
+    />
+  </div>
+}
 
 <small>Data provided by <a href="https://lplive.net/about.php/" target="_blank" class="link">LPlive</a>.</small>

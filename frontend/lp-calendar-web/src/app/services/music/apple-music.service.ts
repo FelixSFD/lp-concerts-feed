@@ -85,4 +85,51 @@ export class AppleMusicService {
 
     return response.data.data as Songs[];
   }
+
+  /**
+   * Creates a playlist in the current user's Apple Music library.
+   * MusicKit handles obtaining and storing the user's music token after
+   * authorization; the catalog song IDs can then be used directly as tracks.
+   */
+  public async createPlaylist(name: string, songIds: string[], description?: string): Promise<void> {
+    await this.init();
+
+    if (!this.music!.isAuthorized) {
+      await this.music!.authorize();
+    }
+
+    const response = await fetch('https://api.music.apple.com/v1/me/library/playlists', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${this.music!.developerToken}`,
+        'Music-User-Token': this.music!.musicUserToken,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        attributes: {
+          name,
+          ...(description ? {description} : {})
+        },
+        relationships: {
+          tracks: {
+            data: songIds.map(id => ({
+              id,
+              type: 'songs'
+            }))
+          }
+        }
+      })
+    });
+
+    if (!response.ok) {
+      let detail = `Apple Music returned HTTP ${response.status}.`;
+      try {
+        const errorResponse = await response.json() as { errors?: Array<{ detail?: string }> };
+        detail = errorResponse.errors?.[0]?.detail ?? detail;
+      } catch {
+        // Keep the HTTP status when Apple Music does not return JSON.
+      }
+      throw new Error(detail);
+    }
+  }
 }

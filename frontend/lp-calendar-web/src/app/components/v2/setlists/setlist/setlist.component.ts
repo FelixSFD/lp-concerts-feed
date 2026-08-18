@@ -1,4 +1,4 @@
-import {Component, inject, Input, OnInit} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Input, OnInit } from '@angular/core';
 import {SetlistsService} from '../../../../services/setlists.service';
 import {ErrorResponseDto} from '../../../../modules/lpshows-api';
 import {Setlist} from '../../../../data/setlists/setlist';
@@ -14,9 +14,10 @@ import {
 } from '../setlist-entry-song-extra-list/setlist-entry-song-extra-list.component';
 import {Tooltip} from 'primeng/tooltip';
 import {Button} from 'primeng/button';
-import {MessageService} from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import {SetlistAct} from '../../../../data/setlists/setlist-act';
 import {SetlistEntry} from '../../../../data/setlists/setlist-entry';
+import { ConfirmDialog } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'app-setlist',
@@ -26,16 +27,19 @@ import {SetlistEntry} from '../../../../data/setlists/setlist-entry';
     AppleMusicArtworkComponent,
     SetlistEntrySongExtraListComponent,
     Tooltip,
-    Button
+    Button,
+    ConfirmDialog
   ],
   templateUrl: './setlist.component.html',
   styleUrl: './setlist.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager
 })
 export class SetlistComponent implements OnInit {
   private readonly tracker = inject(MatomoTracker);
   private readonly scroller = inject(ViewportScroller);
   private readonly appleMusicService = inject(AppleMusicService);
   private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
 
   @Input({ required: false })
   setlistId: number | undefined;
@@ -49,6 +53,7 @@ export class SetlistComponent implements OnInit {
   setlistTitle$: string = "Setlist";
 
   isExpanded$ = false;
+  isCreatingPlaylist$ = false;
 
   private isLoadingThumbnails = false;
 
@@ -115,6 +120,70 @@ export class SetlistComponent implements OnInit {
     if (this.isExpanded$) {
       this.tracker.trackEvent("setlist", "expand_view", this.setlistTitle$);
     }
+  }
+
+  async onCreateAppleMusicPlaylistClicked() {
+    const songIds = this.setlist?.entries
+      .map(entry => entry.appleMusicId)
+      .filter((id): id is string => id != null && id.length > 0) ?? [];
+
+    if (songIds.length === 0 || this.isCreatingPlaylist$) {
+      return;
+    }
+
+    this.isCreatingPlaylist$ = true;
+    const playlistName = `LINKIN PARK - ${this.setlist?.concertTitle ?? this.setlist?.setName}`;
+
+    this.confirmationService.confirm({
+      message: `Do you want to create a playlist named "${playlistName}" in your Apple Music library?`,
+      header: 'Create a new playlist in your library?',
+      icon: 'pi pi-info-circle',
+      rejectLabel: 'Cancel',
+      rejectButtonProps: {
+        label: 'Cancel',
+        severity: 'secondary',
+        outlined: true
+      },
+      acceptButtonProps: {
+        label: 'Add playlist',
+        icon: 'pi pi-apple',
+        severity: 'primary'
+      },
+
+      accept: () => {
+        this.createPlaylist(playlistName, songIds);
+        this.isCreatingPlaylist$ = false;
+      },
+      reject: () => {
+        this.isCreatingPlaylist$ = false;
+      }
+    });
+  }
+
+  private async createPlaylist(playlistName: string, songIds: string[]) {
+    try {
+      await this.appleMusicService.createPlaylist(
+        playlistName,
+        songIds,
+        `Setlist from ${this.setlist?.concertTitle ?? 'concert'}`
+      );
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Playlist created',
+        detail: `“${playlistName}” was added to your Apple Music library.`
+      });
+    } catch (error) {
+      console.error('Could not create Apple Music playlist', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Could not create playlist',
+        detail: error instanceof Error ? error.message : 'Please try again.'
+      });
+    }
+  }
+
+  hasAppleMusicSongs(): boolean {
+    return this.setlist?.entries.some(entry => entry.appleMusicId != null && entry.appleMusicId.length > 0) ?? false;
   }
 
   getActForEntry(setlist: Setlist | undefined | null, firstEntry: SetlistEntry): SetlistAct | null {
