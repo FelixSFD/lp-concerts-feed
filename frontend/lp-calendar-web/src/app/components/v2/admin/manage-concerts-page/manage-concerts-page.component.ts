@@ -15,6 +15,9 @@ import {ConcertTitleGenerator} from '../../../../data/concert-title-generator';
 import {ConcertsService} from '../../../../services/concerts.service';
 import { DateTime } from 'luxon';
 import { ConcertFilter } from '../../../../data/concert-filter';
+import { ConcertDetailsDto } from '../../../../modules/lpshows-api/v3';
+import { ToursService } from '../../../../services/tours.service';
+import { Divider } from 'primeng/divider';
 
 @Component({
   selector: 'app-manage-concerts-page',
@@ -29,16 +32,21 @@ import { ConcertFilter } from '../../../../data/concert-filter';
     InputText,
     RouterLink,
     TableModule,
+    Divider,
   ],
   templateUrl: './manage-concerts-page.component.html',
   styleUrl: './manage-concerts-page.component.css',
 })
 export class ManageConcertsPageComponent implements OnInit {
   private readonly concertsService = inject(ConcertsService);
+  private readonly toursService = inject(ToursService);
   private readonly messageService = inject(MessageService);
 
   concertsOld$ = signal<ConcertDto[]>([]);
+  concerts$ = signal<ConcertDetailsDto[]>([]);
+  isLoadingOld$ = false;
   isLoading$ = false;
+  globalSearchTextOld$ = '';
   globalSearchText$ = '';
 
   ngOnInit() {
@@ -50,6 +58,7 @@ export class ManageConcertsPageComponent implements OnInit {
   }
 
   private reloadList() {
+    this.isLoadingOld$ = true;
     this.isLoading$ = true;
     let allConcertsFilter: ConcertFilter = {
       dateFrom: DateTime.fromMillis(0, {zone: 'UTC'}),
@@ -59,8 +68,25 @@ export class ManageConcertsPageComponent implements OnInit {
     };
     this.concertsService.getFilteredConcerts(allConcertsFilter, false).subscribe({
       next: concerts => {
-        console.debug('Loaded concerts:', concerts);
+        console.debug('Loaded OLD concerts:', concerts);
         this.concertsOld$.set(concerts);
+        this.isLoadingOld$ = false;
+      },
+      error: err => {
+        const errorResponse: ErrorResponseDto = err.error;
+        this.isLoadingOld$ = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Could not load concerts in old database!',
+          text: errorResponse?.message,
+        });
+      },
+    });
+
+    this.toursService.getFilteredConcerts(allConcertsFilter, false).subscribe({
+      next: concerts => {
+        console.debug('Loaded concerts:', concerts);
+        this.concerts$.set(concerts);
         this.isLoading$ = false;
       },
       error: err => {

@@ -2,7 +2,16 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { addAuthentication } from '../auth/auth.config';
-import { AddTourLegRequestDto, CreateTourRequestDto, TourDto, TourLegDto, ToursApi } from '../modules/lpshows-api/v3';
+import {
+  AddTourLegRequestDto, ConcertDetailsDto,
+  ConcertsApi,
+  CreateTourRequestDto, RawConcertDto,
+  TourDto,
+  TourLegDto,
+  ToursApi
+} from '../modules/lpshows-api/v3';
+import { ConcertFilter } from '../data/concert-filter';
+import { ConcertDto } from '../modules/lpshows-api';
 
 /**
  * Service to manage tours and tour legs
@@ -11,9 +20,11 @@ import { AddTourLegRequestDto, CreateTourRequestDto, TourDto, TourLegDto, ToursA
   providedIn: 'root'
 })
 export class ToursService {
-  constructor(private toursApi: ToursApi) {
+  constructor(private toursApi: ToursApi, private concertsApi: ConcertsApi) {
     toursApi.configuration.basePath = environment.apiBaseUrl;
+    concertsApi.configuration.basePath = environment.apiBaseUrl;
     addAuthentication(toursApi);
+    addAuthentication(concertsApi);
   }
 
   /**
@@ -72,5 +83,10 @@ export class ToursService {
    */
   deleteTourLeg(tourId: string, legId: string): Observable<any> {
     return this.toursApi.deleteTourLeg(tourId, legId);
+  }
+
+  getFilteredConcerts(filter: ConcertFilter, cached: boolean = true): Observable<ConcertDetailsDto[]> {
+    // TODO: implement cache parameter
+    return this.concertsApi.getConcerts();
   }
 }
