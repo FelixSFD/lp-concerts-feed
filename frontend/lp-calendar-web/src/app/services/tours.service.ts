@@ -89,4 +89,9 @@ export class ToursService {
     // TODO: implement cache parameter
     return this.concertsApi.getConcerts();
   }
+
+  getConcertById(concertId: string, cached: boolean = true): Observable<ConcertDetailsDto> {
+    // TODO: implement cache parameter
+    return this.concertsApi.getConcertById(concertId);
+  }
 }

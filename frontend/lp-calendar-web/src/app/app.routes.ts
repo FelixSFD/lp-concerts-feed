@@ -2,7 +2,7 @@ import {ActivatedRouteSnapshot, CanActivateFn, RouterStateSnapshot, Routes} from
 import {inject} from '@angular/core';
 import {AuthService} from './auth/auth.service';
 import {map} from 'rxjs';
-import {concertResolver} from './resolvers/concert-resolver';
+import {legacyConcertResolver} from './resolvers/legacy-concert-resolver';
 import {userResolver} from './resolvers/user-resolver';
 import {albumResolver} from './resolvers/album-resolver';
 import {songResolver} from './resolvers/song-resolver';
@@ -139,7 +139,7 @@ export const routes: Routes = [
           breadcrumb: 'Concert Details',
         },
         resolve: {
-          concert: concertResolver,
+          concert: legacyConcertResolver,
         },
         children: [
           {
