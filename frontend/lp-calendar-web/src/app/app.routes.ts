@@ -416,6 +416,16 @@ export const routes: Routes = [
         },
       },
       {
+        path: 'concerts/add',
+        loadComponent: () =>
+          import("./components/v2/admin/concerts/add-concert-page/add-concert-page.component").then(m => m.AddConcertPageComponent),
+        title: baseTitle + 'Add concert',
+        canActivate: [authGuard, addConcertsGuard],
+        data: {
+          breadcrumb: 'Add concert',
+        },
+      },
+      {
         path: 'tours',
         loadComponent: () =>
           import("./components/v2/admin/tours/manage-tours-page/manage-tours-page.component").then(m => m.ManageToursPageComponent),
