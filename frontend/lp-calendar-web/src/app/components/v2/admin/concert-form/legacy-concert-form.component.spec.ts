@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ConcertFormComponent } from './concert-form.component';
+import { LegacyConcertFormComponent } from './legacy-concert-form.component';
 
 describe('ConcertFormComponent', () => {
-  let component: ConcertFormComponent;
-  let fixture: ComponentFixture<ConcertFormComponent>;
+  let component: LegacyConcertFormComponent;
+  let fixture: ComponentFixture<LegacyConcertFormComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ConcertFormComponent]
+      imports: [LegacyConcertFormComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ConcertFormComponent);
+    fixture = TestBed.createComponent(LegacyConcertFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

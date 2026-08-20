@@ -1,5 +1,5 @@
 import {Component, inject} from '@angular/core';
-import {ConcertFormComponent} from '../concert-form/concert-form.component';
+import {LegacyConcertFormComponent} from '../concert-form/legacy-concert-form.component';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {ConcertsService} from '../../../../services/concerts.service';
 import {HttpErrorResponse} from "@angular/common/http";
@@ -12,16 +12,16 @@ import {MessageService} from 'primeng/api';
 @Component({
   selector: 'app-edit-concert-page',
   imports: [
-    ConcertFormComponent,
+    LegacyConcertFormComponent,
     RouterLink,
     Card,
     Button,
     ButtonGroup
   ],
-  templateUrl: './edit-concert-page.component.html',
-  styleUrl: './edit-concert-page.component.css'
+  templateUrl: './edit-legacy-concert-page.component.html',
+  styleUrl: './edit-legacy-concert-page.component.css'
 })
-export class EditConcertPageComponent {
+export class EditLegacyConcertPageComponent {
   private messageService = inject(MessageService);
 
   concertId: string | null;

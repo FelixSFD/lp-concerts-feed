@@ -1,5 +1,5 @@
 import {Component, inject} from '@angular/core';
-import {ConcertFormComponent} from '../concert-form/concert-form.component';
+import {LegacyConcertFormComponent} from '../concert-form/legacy-concert-form.component';
 import {ConcertsService} from '../../../../services/concerts.service';
 import {ConcertDto} from '../../../../modules/lpshows-api';
 import {Button} from 'primeng/button';
@@ -10,13 +10,13 @@ import {MessageService} from 'primeng/api';
 @Component({
   selector: 'app-add-concert-page',
   imports: [
-    ConcertFormComponent,
+    LegacyConcertFormComponent,
     Card
   ],
-  templateUrl: './add-concert-page.component.html',
-  styleUrl: './add-concert-page.component.css'
+  templateUrl: './add-legacy-concert-page.component.html',
+  styleUrl: './add-legacy-concert-page.component.css'
 })
-export class AddConcertPageComponent {
+export class AddLegacyConcertPageComponent {
   private messageService = inject(MessageService);
 
   isSaving$: boolean = false;

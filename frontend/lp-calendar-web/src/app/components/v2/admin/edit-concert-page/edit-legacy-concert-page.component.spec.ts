@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EditConcertPageComponent } from './edit-concert-page.component';
+import { EditLegacyConcertPageComponent } from './edit-legacy-concert-page.component';
 
 describe('EditConcertPageComponent', () => {
-  let component: EditConcertPageComponent;
-  let fixture: ComponentFixture<EditConcertPageComponent>;
+  let component: EditLegacyConcertPageComponent;
+  let fixture: ComponentFixture<EditLegacyConcertPageComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EditConcertPageComponent]
+      imports: [EditLegacyConcertPageComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(EditConcertPageComponent);
+    fixture = TestBed.createComponent(EditLegacyConcertPageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

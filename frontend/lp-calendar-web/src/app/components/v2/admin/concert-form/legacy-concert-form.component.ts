@@ -61,10 +61,10 @@ import {MessageService} from 'primeng/api';
     InputNumber,
     Divider
   ],
-  templateUrl: './concert-form.component.html',
-  styleUrl: './concert-form.component.css'
+  templateUrl: './legacy-concert-form.component.html',
+  styleUrl: './legacy-concert-form.component.css'
 })
-export class ConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
+export class LegacyConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
   private formBuilder = inject(FormBuilder);
   private concertsService = inject(ConcertsService);
   private locationsService = inject(LocationsService);

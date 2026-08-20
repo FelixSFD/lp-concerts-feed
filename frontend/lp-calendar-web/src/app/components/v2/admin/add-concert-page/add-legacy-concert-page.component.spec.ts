@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AddConcertPageComponent } from './add-concert-page.component';
+import { AddLegacyConcertPageComponent } from './add-legacy-concert-page.component';
 
 describe('AddConcertPageComponent', () => {
-  let component: AddConcertPageComponent;
-  let fixture: ComponentFixture<AddConcertPageComponent>;
+  let component: AddLegacyConcertPageComponent;
+  let fixture: ComponentFixture<AddLegacyConcertPageComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AddConcertPageComponent]
+      imports: [AddLegacyConcertPageComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(AddConcertPageComponent);
+    fixture = TestBed.createComponent(AddLegacyConcertPageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
