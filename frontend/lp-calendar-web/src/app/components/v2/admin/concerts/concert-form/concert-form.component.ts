@@ -8,6 +8,7 @@ import { Divider } from 'primeng/divider';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputText } from 'primeng/inputtext';
 import { NgTemplateOutlet } from '@angular/common';
+import { SelectConcertTypeComponent } from '../select-concert-type/select-concert-type.component';
 
 @Component({
   selector: 'app-concert-form',
@@ -18,7 +19,8 @@ import { NgTemplateOutlet } from '@angular/common';
     FloatLabel,
     InputText,
     NgTemplateOutlet,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    SelectConcertTypeComponent,
   ],
   templateUrl: './concert-form.component.html',
   styleUrl: './concert-form.component.css',
@@ -44,6 +46,7 @@ export class ConcertFormComponent {
 
   concertForm = this.formBuilder.group({
     customTitle: new FormControl<string>(''),
+    concertTypeId: new FormControl<number | null>(null, [Validators.required]),
   });
 
   onSaveClicked() {
@@ -55,23 +58,36 @@ export class ConcertFormComponent {
 
   public readFromForm(): ConcertFormContent | null {
     let customTitle = this.concertForm.controls.customTitle.value?.valueOf()?.trim();
+    let concertTypeId = this.concertForm.controls.concertTypeId.value;
+
+    if (concertTypeId == null) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Concert type is required',
+      });
+      return null;
+    }
 
     return {
-      customTitle: customTitle
+      customTitle: customTitle,
+      concertTypeId: concertTypeId,
     };
   }
 
   public fillFormWith(concert: ConcertDetailsDto) {
     this.concertForm.controls.customTitle.setValue(concert.customTitle ?? null);
+    this.concertForm.controls.concertTypeId.setValue(concert.concertType?.id ?? null);
   }
 
   public reset() {
     this.concertForm.reset({
-      customTitle: ''
+      customTitle: '',
+      concertTypeId: null,
     });
   }
 }
 
 export class ConcertFormContent {
   customTitle?: string | null;
+  concertTypeId?: number | null;
 }

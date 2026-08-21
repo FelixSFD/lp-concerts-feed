@@ -30,6 +30,7 @@ export class AddConcertPageComponent {
 
     const request: CreateConcertRequestDto = {
       customTitle: formContent.customTitle ?? undefined,
+      concertTypeId: formContent.concertTypeId != null ? String(formContent.concertTypeId) : undefined,
     };
 
     this.concertsApi.createConcert(request).subscribe({

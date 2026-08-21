@@ -7,6 +7,17 @@
       <div class="grid gap-2">
         <div class="col-12">
           <p-floatlabel variant="on">
+            <app-select-concert-type
+              formControlName="concertTypeId"
+              inputId="concertTypeId"
+              fluid
+            />
+            <label for="concertTypeId">Concert Type</label>
+          </p-floatlabel>
+        </div>
+
+        <div class="col-12">
+          <p-floatlabel variant="on">
             <input pInputText id="customTitle" formControlName="customTitle" autocomplete="off" fluid [invalid]="concertForm.controls.customTitle.invalid" />
             <label for="customTitle">Custom Title</label>
           </p-floatlabel>
