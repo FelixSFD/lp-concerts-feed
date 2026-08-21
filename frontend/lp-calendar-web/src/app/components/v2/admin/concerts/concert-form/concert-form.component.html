@@ -4,7 +4,7 @@
       <ng-template #subtitle>
         General
       </ng-template>
-      <div class="grid gap-2">
+      <div class="grid row-gap-2">
         <div class="col-12">
           <p-floatlabel variant="on">
             <app-select-concert-type
@@ -16,7 +16,7 @@
           </p-floatlabel>
         </div>
 
-        <div class="col-12">
+        <div class="col-12 xl:col-6">
           <p-floatlabel variant="on">
             <app-select-tour
               formControlName="tour"
@@ -28,7 +28,7 @@
           </p-floatlabel>
         </div>
 
-        <div class="col-12">
+        <div class="col-12 xl:col-6">
           <p-floatlabel variant="on">
             <app-select-tour-leg
               formControlName="tourLegId"
