@@ -9,6 +9,7 @@ import { FloatLabel } from 'primeng/floatlabel';
 import { InputText } from 'primeng/inputtext';
 import { NgTemplateOutlet } from '@angular/common';
 import { SelectConcertTypeComponent } from '../select-concert-type/select-concert-type.component';
+import { SelectTourComponent } from '../select-tour/select-tour.component';
 
 @Component({
   selector: 'app-concert-form',
@@ -21,6 +22,7 @@ import { SelectConcertTypeComponent } from '../select-concert-type/select-concer
     NgTemplateOutlet,
     ReactiveFormsModule,
     SelectConcertTypeComponent,
+    SelectTourComponent,
   ],
   templateUrl: './concert-form.component.html',
   styleUrl: './concert-form.component.css',
@@ -47,6 +49,7 @@ export class ConcertFormComponent {
   concertForm = this.formBuilder.group({
     customTitle: new FormControl<string>(''),
     concertTypeId: new FormControl<number | null>(null, [Validators.required]),
+    tourId: new FormControl<string | null>(null),
   });
 
   onSaveClicked() {
@@ -59,6 +62,7 @@ export class ConcertFormComponent {
   public readFromForm(): ConcertFormContent | null {
     let customTitle = this.concertForm.controls.customTitle.value?.valueOf()?.trim();
     let concertTypeId = this.concertForm.controls.concertTypeId.value;
+    let tourId = this.concertForm.controls.tourId.value;
 
     if (concertTypeId == null) {
       this.messageService.add({
@@ -71,18 +75,21 @@ export class ConcertFormComponent {
     return {
       customTitle: customTitle,
       concertTypeId: concertTypeId,
+      tourId: tourId ?? null,
     };
   }
 
   public fillFormWith(concert: ConcertDetailsDto) {
     this.concertForm.controls.customTitle.setValue(concert.customTitle ?? null);
     this.concertForm.controls.concertTypeId.setValue(concert.concertType?.id ?? null);
+    this.concertForm.controls.tourId.setValue(concert.tour?.id ?? null);
   }
 
   public reset() {
     this.concertForm.reset({
       customTitle: '',
       concertTypeId: null,
+      tourId: null,
     });
   }
 }
@@ -90,4 +97,5 @@ export class ConcertFormComponent {
 export class ConcertFormContent {
   customTitle?: string | null;
   concertTypeId?: number | null;
+  tourId?: string | null;
 }
