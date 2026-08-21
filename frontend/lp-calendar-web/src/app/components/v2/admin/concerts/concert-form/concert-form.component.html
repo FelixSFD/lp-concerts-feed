@@ -19,12 +19,25 @@
         <div class="col-12">
           <p-floatlabel variant="on">
             <app-select-tour
-              formControlName="tourId"
+              formControlName="tour"
               inputId="tourId"
               showClear
               fluid
             />
             <label for="tourId">Tour</label>
+          </p-floatlabel>
+        </div>
+
+        <div class="col-12">
+          <p-floatlabel variant="on">
+            <app-select-tour-leg
+              formControlName="tourLegId"
+              inputId="tourLegId"
+              [tour]="concertForm.controls.tour.value"
+              showClear
+              fluid
+            />
+            <label for="tourLegId">Tour Leg</label>
           </p-floatlabel>
         </div>
 

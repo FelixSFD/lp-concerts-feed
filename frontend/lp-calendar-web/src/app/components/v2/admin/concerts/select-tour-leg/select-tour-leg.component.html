@@ -1,6 +1,7 @@
 <p-select
-  [options]="tours"
+  [options]="tourLegs"
   optionLabel="name"
+  optionValue="id"
   [(ngModel)]="value"
   (ngModelChange)="onValueChange($event)"
   (onBlur)="onBlur()"
