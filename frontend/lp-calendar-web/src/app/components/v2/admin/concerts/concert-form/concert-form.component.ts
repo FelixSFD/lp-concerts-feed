@@ -11,6 +11,12 @@ import { NgTemplateOutlet } from '@angular/common';
 import { SelectConcertTypeComponent } from '../select-concert-type/select-concert-type.component';
 import { SelectTourComponent } from '../select-tour/select-tour.component';
 import { SelectTourLegComponent } from '../select-tour-leg/select-tour-leg.component';
+import { DatePicker } from 'primeng/datepicker';
+import { InputGroup } from 'primeng/inputgroup';
+import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import { Select } from 'primeng/select';
+import timezones from 'timezones-list';
+import { DateTime } from 'luxon';
 
 @Component({
   selector: 'app-concert-form',
@@ -25,6 +31,10 @@ import { SelectTourLegComponent } from '../select-tour-leg/select-tour-leg.compo
     SelectConcertTypeComponent,
     SelectTourComponent,
     SelectTourLegComponent,
+    DatePicker,
+    InputGroup,
+    InputGroupAddon,
+    Select,
   ],
   templateUrl: './concert-form.component.html',
   styleUrl: './concert-form.component.css',
@@ -53,8 +63,10 @@ export class ConcertFormComponent implements OnInit {
   concertForm = this.formBuilder.group({
     customTitle: new FormControl<string>(''),
     concertTypeId: new FormControl<number | null>(null, [Validators.required]),
-    tour: new FormControl<TourDto | null>(null),
+    tour: new FormControl<TourDto | null>(null, [Validators.required]),
     tourLegId: new FormControl<string | null>(null),
+    postedStartTime: new FormControl<Date | null>(null, [Validators.required]),
+    timezone: new FormControl('', [Validators.required]),
   });
 
   ngOnInit() {
@@ -76,6 +88,7 @@ export class ConcertFormComponent implements OnInit {
     let concertTypeId = this.concertForm.controls.concertTypeId.value;
     let tourId = this.concertForm.controls.tour.value?.id;
     let tourLegId = this.concertForm.controls.tourLegId.value;
+    let timezone = this.concertForm.controls.timezone.value;
 
     if (concertTypeId == null) {
       this.messageService.add({
@@ -85,11 +98,21 @@ export class ConcertFormComponent implements OnInit {
       return null;
     }
 
+    if (timezone == null) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Timezone is required',
+      });
+      return null;
+    }
+
     return {
       customTitle: customTitle,
       concertTypeId: concertTypeId,
       tourId: tourId ?? null,
       tourLegId: tourLegId ?? null,
+      postedStartTime: DateTime.now(), // TODO: use actual value
+      timezone: this.concertForm.controls.timezone.value!,
     };
   }
 
@@ -108,6 +131,8 @@ export class ConcertFormComponent implements OnInit {
       tourLegId: null,
     });
   }
+
+  protected readonly timezones = timezones;
 }
 
 export class ConcertFormContent {
@@ -115,4 +140,6 @@ export class ConcertFormContent {
   concertTypeId?: number | null;
   tourId?: string | null;
   tourLegId?: string | null;
+  timezone!: string;
+  postedStartTime!: DateTime;
 }

@@ -49,6 +49,38 @@
         </div>
       </div>
     </p-card>
+
+    <p-card>
+      <ng-template #subtitle>
+        Timing information
+      </ng-template>
+
+      <!-- Posted start time -->
+      <div class="col-12">
+        <div class="flex flex-wrap gap-3">
+          <div>
+            <p-floatlabel variant="on">
+              <p-date-picker formControlName="postedStartTime" inputId="postedStartTime" showIcon iconDisplay="input" [showTime]="true" />
+              <label for="postedStartTime">Start time</label>
+            </p-floatlabel>
+            <small>(according to ticket vendor)</small>
+          </div>
+
+          <div>
+            <p-inputgroup>
+              <p-floatlabel variant="on">
+                <p-select [options]="timezones" optionValue="tzCode" optionLabel="label" formControlName="timezone" id="timezone" [fluid]="false" filter />
+                <label for="timezone">Venue's timezone</label>
+              </p-floatlabel>
+              <p-inputgroup-addon class="w-full">
+                <!--<p-button class="md:hidden" icon="pi pi-sync" variant="outlined" (onClick)="onUpdateTimeZoneClicked()" [disabled]="timeZoneIsLoading$" [loading]="timeZoneIsLoading$" />
+                <p-button class="hidden md:inline" label="Load timezone" icon="pi pi-sync" variant="outlined" (onClick)="onUpdateTimeZoneClicked()" [disabled]="timeZoneIsLoading$" [loading]="timeZoneIsLoading$" />-->
+              </p-inputgroup-addon>
+            </p-inputgroup>
+          </div>
+        </div>
+      </div>
+    </p-card>
   </ng-template>
 
   @if (standalone$) {
