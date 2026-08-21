@@ -13,8 +13,11 @@
     [routerLink]="['../']"
   />
 
-  <app-concert-form
-    (saveClicked)="onSaveClicked($event)"
-    [is-saving]="isSaving$"
-  />
+  <div class="mt-3">
+    <app-concert-form
+      (saveClicked)="onSaveClicked($event)"
+      [is-saving]="isSaving$"
+      [standalone]="false"
+    />
+  </div>
 </p-card>

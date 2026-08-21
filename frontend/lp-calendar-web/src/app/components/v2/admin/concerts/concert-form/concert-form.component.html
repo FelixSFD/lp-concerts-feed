@@ -1,13 +1,18 @@
 <form #form="ngForm" [formGroup]="concertForm" class="form">
   <ng-template #formInputsGeneral>
-    <div class="grid gap-2">
-      <div class="col-12">
-        <p-floatlabel variant="on">
-          <input pInputText id="customTitle" formControlName="customTitle" autocomplete="off" fluid [invalid]="concertForm.controls.customTitle.invalid" />
-          <label for="customTitle">Custom Title</label>
-        </p-floatlabel>
+    <p-card>
+      <ng-template #subtitle>
+        General
+      </ng-template>
+      <div class="grid gap-2">
+        <div class="col-12">
+          <p-floatlabel variant="on">
+            <input pInputText id="customTitle" formControlName="customTitle" autocomplete="off" fluid [invalid]="concertForm.controls.customTitle.invalid" />
+            <label for="customTitle">Custom Title</label>
+          </p-floatlabel>
+        </div>
       </div>
-    </div>
+    </p-card>
   </ng-template>
 
   @if (standalone$) {
