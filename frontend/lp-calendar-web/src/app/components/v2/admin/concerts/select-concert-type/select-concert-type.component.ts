@@ -1,4 +1,14 @@
-import { booleanAttribute, Component, EventEmitter, forwardRef, inject, Input, OnInit, Output } from '@angular/core';
+import {
+  booleanAttribute,
+  Component,
+  EventEmitter,
+  forwardRef,
+  inject,
+  Input,
+  OnInit,
+  Output,
+  signal
+} from '@angular/core';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Select } from 'primeng/select';
 import { ConcertTypesService } from '../../../../../services/concert-types.service';
@@ -33,9 +43,9 @@ export class SelectConcertTypeComponent implements ControlValueAccessor, OnInit 
 
   @Output() concertTypeChange = new EventEmitter<number | null>();
 
-  concertTypes: ConcertTypeDto[] = [];
-  loading: boolean = false;
-  value: number | null = null;
+  concertTypes = signal<ConcertTypeDto[]>([]);
+  loading = signal(false);
+  value = signal<number | null>(null);
 
   private onChange: (value: number | null) => void = () => {};
   private onTouched: () => void = () => {};
@@ -45,24 +55,24 @@ export class SelectConcertTypeComponent implements ControlValueAccessor, OnInit 
   }
 
   loadConcertTypes() {
-    this.loading = true;
+    this.loading();
     this.concertTypesService.getConcertTypes().subscribe({
       next: (types: any) => {
-        this.concertTypes = Array.isArray(types) ? types : types ? [types] : [];
-        this.loading = false;
+        this.concertTypes.set(Array.isArray(types) ? types : types ? [types] : []);
+        this.loading.set(false);
       },
       error: (err) => {
         console.error('Failed to load concert types', err);
-        this.loading = false;
+        this.loading.set(false);
       },
     });
   }
 
   writeValue(value: any): void {
     if (value === null || value === undefined || value === '') {
-      this.value = null;
+      this.value.set(null);
     } else {
-      this.value = Number(value);
+      this.value.set(Number(value));
     }
   }
 
@@ -80,13 +90,13 @@ export class SelectConcertTypeComponent implements ControlValueAccessor, OnInit 
 
   onValueChange(newValue: any) {
     if (newValue === null || newValue === undefined || newValue === '') {
-      this.value = null;
+      this.value.set(null);
     } else {
-      this.value = Number(newValue);
+      this.value.set(Number(newValue));
     }
-    this.onChange(this.value);
+    this.onChange(this.value());
     this.onTouched();
-    this.concertTypeChange.emit(this.value);
+    this.concertTypeChange.emit(this.value());
   }
 
   onBlur() {

@@ -1,5 +1,5 @@
 <p-select
-  [options]="tourLegs"
+  [options]="tourLegs()"
   optionLabel="name"
   optionValue="id"
   [(ngModel)]="value"
@@ -12,5 +12,5 @@
   [filter]="filter"
   [disabled]="disabled"
   [invalid]="invalid"
-  [loading]="loading"
+  [loading]="loading()"
 />

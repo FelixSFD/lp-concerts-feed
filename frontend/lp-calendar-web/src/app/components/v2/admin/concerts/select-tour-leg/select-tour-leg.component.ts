@@ -3,16 +3,14 @@ import {
   Component,
   EventEmitter,
   forwardRef,
-  inject,
   Input,
   OnChanges,
   OnInit,
-  Output,
+  Output, signal,
   SimpleChanges,
 } from '@angular/core';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Select } from 'primeng/select';
-import { ToursService } from '../../../../../services/tours.service';
 import { TourDto, TourLegDto } from '../../../../../modules/lpshows-api/v3';
 
 @Component({
@@ -44,9 +42,9 @@ export class SelectTourLegComponent implements ControlValueAccessor, OnInit, OnC
 
   @Output() legChange = new EventEmitter<string | null>();
 
-  tourLegs: TourLegDto[] = [];
-  loading: boolean = false;
-  value: string | null = null;
+  tourLegs = signal<TourLegDto[]>([]);
+  loading = signal(false);
+  value = signal<string | null>(null);
 
   private onChange: (value: string | null) => void = () => {};
   private onTouched: () => void = () => {};
@@ -64,14 +62,14 @@ export class SelectTourLegComponent implements ControlValueAccessor, OnInit, OnC
   }
 
   private updateTourLegs() {
-    this.tourLegs = this.tour?.legs ?? [];
+    this.tourLegs.set(this.tour?.legs ?? []);
   }
 
   writeValue(value: any): void {
     if (value === null || value === undefined || value === '') {
-      this.value = null;
+      this.value.set(null);
     } else {
-      this.value = String(value);
+      this.value.set(String(value));
     }
   }
 
@@ -89,13 +87,13 @@ export class SelectTourLegComponent implements ControlValueAccessor, OnInit, OnC
 
   onValueChange(newValue: any) {
     if (newValue === null || newValue === undefined || newValue === '') {
-      this.value = null;
+      this.value.set(null);
     } else {
-      this.value = String(newValue);
+      this.value.set(String(newValue));
     }
-    this.onChange(this.value);
+    this.onChange(this.value());
     this.onTouched();
-    this.legChange.emit(this.value);
+    this.legChange.emit(this.value());
   }
 
   onBlur() {

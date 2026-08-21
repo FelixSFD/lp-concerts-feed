@@ -1,4 +1,14 @@
-import { booleanAttribute, Component, EventEmitter, forwardRef, inject, Input, OnInit, Output } from '@angular/core';
+import {
+  booleanAttribute,
+  Component,
+  EventEmitter,
+  forwardRef,
+  inject,
+  Input,
+  OnInit,
+  Output,
+  signal
+} from '@angular/core';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Select } from 'primeng/select';
 import { ToursService } from '../../../../../services/tours.service';
@@ -33,9 +43,9 @@ export class SelectTourComponent implements ControlValueAccessor, OnInit {
 
   @Output() tourChange = new EventEmitter<TourDto | null>();
 
-  tours: TourDto[] = [];
-  loading: boolean = false;
-  value: TourDto | null = null;
+  tours = signal<TourDto[]>([]);
+  loading = signal(false);
+  value = signal<TourDto | null>(null);
 
   private onChange: (value: TourDto | null) => void = () => {};
   private onTouched: () => void = () => {};
@@ -45,24 +55,24 @@ export class SelectTourComponent implements ControlValueAccessor, OnInit {
   }
 
   loadTours() {
-    this.loading = true;
+    this.loading.set(true);
     this.toursService.getTours().subscribe({
       next: (tours: any) => {
-        this.tours = Array.isArray(tours) ? tours : tours ? [tours] : [];
-        this.loading = false;
+        this.tours.set(Array.isArray(tours) ? tours : tours ? [tours] : []);
+        this.loading.set(false);
       },
       error: (err) => {
         console.error('Failed to load tours', err);
-        this.loading = false;
+        this.loading.set(false);
       },
     });
   }
 
   writeValue(value: any): void {
     if (value === null || value === undefined || value === '') {
-      this.value = null;
+      this.value.set(null);
     } else {
-      this.value = value;
+      this.value.set(value);
     }
   }
 
@@ -80,13 +90,13 @@ export class SelectTourComponent implements ControlValueAccessor, OnInit {
 
   onValueChange(newValue: any) {
     if (newValue === null || newValue === undefined || newValue === '') {
-      this.value = null;
+      this.value.set(null);
     } else {
-      this.value = newValue;
+      this.value.set(newValue);
     }
-    this.onChange(this.value);
+    this.onChange(this.value());
     this.onTouched();
-    this.tourChange.emit(this.value);
+    this.tourChange.emit(this.value());
   }
 
   onBlur() {

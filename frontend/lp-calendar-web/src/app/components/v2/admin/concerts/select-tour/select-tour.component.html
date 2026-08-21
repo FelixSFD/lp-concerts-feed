@@ -1,5 +1,5 @@
 <p-select
-  [options]="tours"
+  [options]="tours()"
   optionLabel="name"
   [(ngModel)]="value"
   (ngModelChange)="onValueChange($event)"
@@ -11,5 +11,5 @@
   [filter]="filter"
   [disabled]="disabled"
   [invalid]="invalid"
-  [loading]="loading"
+  [loading]="loading()"
 />
