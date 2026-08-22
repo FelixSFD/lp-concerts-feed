@@ -66,18 +66,14 @@
             <small>(according to ticket vendor)</small>
           </div>
 
-          <div>
-            <p-inputgroup>
-              <p-floatlabel variant="on">
-                <p-select [options]="timezones" optionValue="tzCode" optionLabel="label" formControlName="timezone" id="timezone" [fluid]="false" filter />
-                <label for="timezone">Venue's timezone</label>
-              </p-floatlabel>
-              <p-inputgroup-addon class="w-full">
-                <!--<p-button class="md:hidden" icon="pi pi-sync" variant="outlined" (onClick)="onUpdateTimeZoneClicked()" [disabled]="timeZoneIsLoading$" [loading]="timeZoneIsLoading$" />
-                <p-button class="hidden md:inline" label="Load timezone" icon="pi pi-sync" variant="outlined" (onClick)="onUpdateTimeZoneClicked()" [disabled]="timeZoneIsLoading$" [loading]="timeZoneIsLoading$" />-->
-              </p-inputgroup-addon>
-            </p-inputgroup>
+          <div class="w-5 lg:w-3">
+            <p-floatlabel variant="on">
+              <p-select [options]="timezones" optionValue="tzCode" optionLabel="label" formControlName="timezone" id="timezone" fluid filter />
+              <label for="timezone">Venue's timezone</label>
+            </p-floatlabel>
           </div>
+
+          <p-button class="hidden md:inline" label="Load timezone" icon="pi pi-sync" variant="outlined" disabled />
         </div>
       </div>
     </p-card>
