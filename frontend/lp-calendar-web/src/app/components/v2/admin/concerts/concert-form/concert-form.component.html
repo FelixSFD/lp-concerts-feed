@@ -50,30 +50,69 @@
       </div>
     </p-card>
 
-    <p-card>
+    <p-card class="mt-3">
       <ng-template #subtitle>
         Timing information
       </ng-template>
 
-      <!-- Posted start time -->
-      <div class="col-12">
-        <div class="flex flex-wrap gap-3">
-          <div>
-            <p-floatlabel variant="on">
-              <p-date-picker formControlName="postedStartTime" inputId="postedStartTime" showIcon iconDisplay="input" [showTime]="true" />
-              <label for="postedStartTime">Start time</label>
-            </p-floatlabel>
-            <small>(according to ticket vendor)</small>
-          </div>
+      <div class="grid">
+        <!-- Posted start time -->
+        <div class="col-12">
+          <div class="flex flex-wrap gap-3">
+            <div>
+              <p-floatlabel variant="on">
+                <p-date-picker formControlName="postedStartTime" inputId="postedStartTime" showIcon iconDisplay="input" [showTime]="true" />
+                <label for="postedStartTime">Start time</label>
+              </p-floatlabel>
+              <small>(according to ticket vendor)</small>
+            </div>
 
-          <div class="w-5 lg:w-3">
-            <p-floatlabel variant="on">
-              <p-select [options]="timezones" optionValue="tzCode" optionLabel="label" formControlName="timezone" id="timezone" fluid filter />
-              <label for="timezone">Venue's timezone</label>
-            </p-floatlabel>
-          </div>
+            <div class="w-5 lg:w-3">
+              <p-floatlabel variant="on">
+                <p-select [options]="timezones" optionValue="tzCode" optionLabel="label" formControlName="timezone" id="timezone" fluid filter />
+                <label for="timezone">Venue's timezone</label>
+              </p-floatlabel>
+            </div>
 
-          <p-button class="hidden md:inline" label="Load timezone" icon="pi pi-sync" variant="outlined" disabled />
+            <p-button class="hidden md:inline" label="Load timezone" icon="pi pi-sync" variant="outlined" disabled />
+          </div>
+        </div>
+
+        <!-- Official Doors Time -->
+        <div class="col-12 sm:col-12 md:col-6 xl:col-3">
+          <p-floatlabel variant="on">
+            <input pInputText id="doorsTime" formControlName="doorsTime" autocomplete="off" type="time" fluid />
+            <label for="doorsTime">Doors time</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- LP stage Time -->
+        <div class="col-12 sm:col-12 md:col-6 xl:col-3">
+          <p-floatlabel variant="on">
+            <input pInputText id="lpStageTime" formControlName="lpStageTime" autocomplete="off" type="time" fluid />
+            <label for="lpStageTime">Confirmed Linkin Park stage time</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- Expected set duration -->
+        <div class="col-12 sm:col-12 md:col-6 xl:col-3">
+          <p-floatlabel variant="on">
+            <p-date-picker formControlName="expectedSetDuration" inputId="expectedSetDuration" showIcon [showButtonBar]="true" iconDisplay="input" [timeOnly]="true" fluid>
+              <ng-template #buttonbar let-todayCallback="todayCallback" let-clearCallback="clearCallback">
+                <div class="flex justify-between w-full">
+                  <div class="flex gap-2">
+                    <p-button size="small" label="2h" severity="primary" variant="outlined" (onClick)="setExpectedSetDuration(120)" />
+                    <p-button size="small" label="90 min" severity="secondary" variant="outlined" (onClick)="setExpectedSetDuration(90)" />
+                    <p-button size="small" label="1h" severity="secondary" variant="outlined" (onClick)="setExpectedSetDuration(60)" />
+                  </div>
+                  <div class="flex gap-2">
+                    <p-button size="small" icon="pi pi-times" severity="danger" variant="text" (click)="clearCallback($event)" />
+                  </div>
+                </div>
+              </ng-template>
+            </p-date-picker>
+            <label for="expectedSetDuration">Expected set duration</label>
+          </p-floatlabel>
         </div>
       </div>
     </p-card>

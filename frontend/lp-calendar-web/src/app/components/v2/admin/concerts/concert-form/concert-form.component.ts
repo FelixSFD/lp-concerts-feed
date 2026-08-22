@@ -12,8 +12,6 @@ import { SelectConcertTypeComponent } from '../select-concert-type/select-concer
 import { SelectTourComponent } from '../select-tour/select-tour.component';
 import { SelectTourLegComponent } from '../select-tour-leg/select-tour-leg.component';
 import { DatePicker } from 'primeng/datepicker';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { Select } from 'primeng/select';
 import timezones from 'timezones-list';
 import { DateTime } from 'luxon';
@@ -32,8 +30,6 @@ import { DateTime } from 'luxon';
     SelectTourComponent,
     SelectTourLegComponent,
     DatePicker,
-    InputGroup,
-    InputGroupAddon,
     Select,
   ],
   templateUrl: './concert-form.component.html',
@@ -67,6 +63,11 @@ export class ConcertFormComponent implements OnInit {
     tourLegId: new FormControl<string | null>(null),
     postedStartTime: new FormControl<Date | null>(null, [Validators.required]),
     timezone: new FormControl('', [Validators.required]),
+    lpuEarlyEntryConfirmed: new FormControl(false, []),
+    lpuEarlyEntryTime: new FormControl('', []),
+    doorsTime: new FormControl('', []),
+    lpStageTime: new FormControl('', []),
+    expectedSetDuration: new FormControl('', []),
   });
 
   ngOnInit() {
@@ -89,6 +90,12 @@ export class ConcertFormComponent implements OnInit {
     let tourId = this.concertForm.controls.tour.value?.id;
     let tourLegId = this.concertForm.controls.tourLegId.value;
     let timezone = this.concertForm.controls.timezone.value;
+    const postedStartTime = this.concertForm.value.postedStartTime!;
+    const doorTime = this.concertForm.value.doorsTime;
+    const mainStageTime = this.concertForm.value.lpStageTime;
+
+    // Expected set duration
+    let expectedSetDuration = this.convertH2M(this.concertForm.value.expectedSetDuration?.valueOf() ?? "00:00");
 
     if (concertTypeId == null) {
       this.messageService.add({
@@ -106,6 +113,32 @@ export class ConcertFormComponent implements OnInit {
       return null;
     }
 
+    // Convert to the selected timezone
+    const localDateTime = DateTime.fromJSDate(postedStartTime); // Interpret as local datetime
+    const zonedDateTime = localDateTime.setZone(timezone!, {keepLocalTime: true});
+
+    console.log('Original datetime-local value:', postedStartTime);
+    console.log('Converted datetime in selected timezone:', zonedDateTime.toString());
+
+    // Normal Doors Time
+    let doorsTime = this.concertForm.value.doorsTime?.valueOf();
+    let doorsDateTime: DateTime | null = null;
+    if (doorsTime != null && doorsTime.length > 0) {
+      doorsDateTime = zonedDateTime.set(DateTime.fromFormat(doorsTime, 'hh:mm').toObject());
+      // weird timezone issues can cause the LPU time to be on the next day. That's why we need to fix the date just to be sure
+      doorsDateTime = doorsDateTime.set({day: localDateTime.day, month: localDateTime.month, year: localDateTime.year});
+    }
+
+    // LP stage time
+    let lpStageTime = this.concertForm.value.lpStageTime?.valueOf();
+    let lpStageDateTime: DateTime | null = null;
+    console.debug("lpStageTime:", lpStageTime);
+    if (lpStageTime != null && lpStageTime.length > 0) {
+      lpStageDateTime = zonedDateTime.set(DateTime.fromFormat(lpStageTime, 'hh:mm').toObject());
+      // weird timezone issues can cause the LPU time to be on the next day. That's why we need to fix the date just to be sure
+      lpStageDateTime = lpStageDateTime.set({day: localDateTime.day, month: localDateTime.month, year: localDateTime.year});
+    }
+
     return {
       customTitle: customTitle,
       concertTypeId: concertTypeId,
@@ -113,6 +146,9 @@ export class ConcertFormComponent implements OnInit {
       tourLegId: tourLegId ?? null,
       postedStartTime: DateTime.now(), // TODO: use actual value
       timezone: this.concertForm.controls.timezone.value!,
+      mainStageTime: lpStageDateTime,
+      doorsTime: doorsDateTime,
+      expectedSetDuration: expectedSetDuration,
     };
   }
 
@@ -132,6 +168,30 @@ export class ConcertFormComponent implements OnInit {
     });
   }
 
+  /**
+   * Sets the field expectedSetDuration based on minutes
+   * @param minutes
+   */
+  setExpectedSetDuration(minutes: number) {
+    let str = this.convertMinutesToString(minutes);
+    this.concertForm.controls.expectedSetDuration.setValue(str ?? null);
+  }
+
+  private convertMinutesToString(minutes: number | undefined){
+    if (minutes != undefined) {
+      let setDurationMinutes = minutes % 60;
+      let setDurationHours = (minutes - setDurationMinutes) / 60;
+      return (setDurationHours < 10 ? "0" : "") + setDurationHours.toString() + ":" + (setDurationMinutes < 10 ? "0" : "") + setDurationMinutes.toString();
+    }
+
+    return undefined;
+  }
+
+  private convertH2M(timeInHour: string){
+    let timeParts = timeInHour.split(":");
+    return Number(timeParts[0]) * 60 + Number(timeParts[1]);
+  }
+
   protected readonly timezones = timezones;
 }
 
@@ -142,4 +202,7 @@ export class ConcertFormContent {
   tourLegId?: string | null;
   timezone!: string;
   postedStartTime!: DateTime;
+  doorsTime?: DateTime | null;
+  mainStageTime?: DateTime | null;
+  expectedSetDuration?: number | null;
 }
