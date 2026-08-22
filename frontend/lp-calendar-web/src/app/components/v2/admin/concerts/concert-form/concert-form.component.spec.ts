@@ -7,9 +7,8 @@ import { ConcertFormComponent } from './concert-form.component';
 import { ConcertTypesService } from '../../../../../services/concert-types.service';
 import { ToursService } from '../../../../../services/tours.service';
 import { LocationsService } from '../../../../../services/locations.service';
-import { ConcertDetailsDto } from '../../../../../modules/lpshows-api/v3';
+import { ConcertDetailsDto, VenueDto } from '../../../../../modules/lpshows-api/v3';
 import { ConcertStatusValueDto } from '../../../../../modules/lpshows-api';
-import { DateTime } from 'luxon';
 
 describe('ConcertFormComponent', () => {
   let component: ConcertFormComponent;
@@ -142,7 +141,7 @@ describe('ConcertFormComponent', () => {
     component.concertForm.controls.concertTypeId.setValue(1);
     component.concertForm.controls.tour.setValue({ id: 'tour-123', name: 'From Zero World Tour' });
     component.concertForm.controls.tourLegId.setValue('leg-123');
-    component.concertForm.controls.venue.setValue('10');
+    component.concertForm.controls.venue.setValue(mockConcertDetails.venue as VenueDto);
     component.concertForm.controls.postedStartTime.setValue(new Date());
     component.concertForm.controls.timezone.setValue('Europe/Berlin');
     component.concertForm.controls.customTitle.setValue('Test Title');
@@ -156,7 +155,7 @@ describe('ConcertFormComponent', () => {
     expect(component.concertForm.controls.concertTypeId.value).toBe(1);
     expect(component.concertForm.controls.tour.value).toEqual(mockConcertDetails.tour!);
     expect(component.concertForm.controls.tourLegId.value).toBe('leg-123');
-    expect(component.concertForm.controls.venue.value).toBe('10');
+    expect(component.concertForm.controls.venue.value).toEqual(mockConcertDetails.venue as VenueDto);
   });
 
   it('should read from form properly', () => {

@@ -70,7 +70,7 @@ export class SelectVenueComponent implements ControlValueAccessor, OnInit {
         return false;
       }
       if (selectedCity != null) {
-        if (venue.cityId == null || String(venue.cityId) !== String(selectedCity)) {
+        if (venue.cityId == null || String(venue.cityId) !== String(selectedCity.id)) {
           return false;
         }
       }
@@ -93,6 +93,10 @@ export class SelectVenueComponent implements ControlValueAccessor, OnInit {
       next: (countries) => {
         this.countries.set(countries ?? []);
         this.loadingCountries.set(false);
+        const currentValue = this.value();
+        if (currentValue) {
+          this.syncCountryAndCityFromVenue(currentValue);
+        }
       },
       error: (err) => {
         console.error('Failed to load countries', err);
@@ -124,39 +128,30 @@ export class SelectVenueComponent implements ControlValueAccessor, OnInit {
   loadCities() {
     this.loadingCities.set(true);
     const countryCode = this.selectedCountry()?.isoCode;
-    if (countryCode) {
-      this.locationsService.getCitiesIn(countryCode).subscribe({
-        next: (cities) => {
-          this.cities.set(cities ?? []);
-          this.loadingCities.set(false);
-          const currentCityId = this.selectedCity();
-          if (currentCityId && !this.cities().some((c) => String(c.id) === String(currentCityId))) {
-            this.selectedCity.set(null);
-          }
-        },
-        error: (err) => {
-          console.error('Failed to load cities in country', err);
-          this.cities.set([]);
-          this.loadingCities.set(false);
-        },
-      });
-    } else {
-      this.locationsService.getCities().subscribe({
-        next: (cities) => {
-          this.cities.set(cities ?? []);
-          this.loadingCities.set(false);
-          const currentCityId = this.selectedCity();
-          if (currentCityId && !this.cities().some((c) => String(c.id) === String(currentCityId))) {
-            this.selectedCity.set(null);
-          }
-        },
-        error: (err) => {
-          console.error('Failed to load cities', err);
-          this.cities.set([]);
-          this.loadingCities.set(false);
-        },
-      });
-    }
+    const request$ = countryCode
+      ? this.locationsService.getCitiesIn(countryCode)
+      : this.locationsService.getCities();
+
+    request$.subscribe({
+      next: (cities) => {
+        this.cities.set(cities ?? []);
+        this.loadingCities.set(false);
+
+        const venue = this.value();
+        const currentCity = this.selectedCity();
+
+        if (venue?.cityId != null) {
+          this.selectedCity.set(this.cities().find((c) => String(c.id) === String(venue.cityId)) ?? null);
+        } else if (currentCity && !this.cities().some((c) => String(c.id) === String(currentCity.id))) {
+          this.selectedCity.set(null);
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load cities', err);
+        this.cities.set([]);
+        this.loadingCities.set(false);
+      },
+    });
   }
 
   onCountryChange(country: CountryDto | null) {
@@ -166,7 +161,7 @@ export class SelectVenueComponent implements ControlValueAccessor, OnInit {
     const currentVenue = this.value();
     if (currentVenue) {
       const selectedCountry = this.selectedCountry();
-      if (currentVenue && selectedCountry && currentVenue.countryCode !== selectedCountry.isoCode) {
+      if (selectedCountry && currentVenue.countryCode !== selectedCountry.isoCode) {
         this.value.set(null);
         this.onChange(null);
         this.venueChange.emit(null);
@@ -180,8 +175,8 @@ export class SelectVenueComponent implements ControlValueAccessor, OnInit {
     const currentVenue = this.value();
     if (currentVenue) {
       const selectedCity = this.selectedCity();
-      if (currentVenue && selectedCity != null) {
-        if (currentVenue.cityId == null || String(currentVenue.cityId) !== selectedCity.id) {
+      if (selectedCity != null) {
+        if (currentVenue.cityId == null || String(currentVenue.cityId) !== String(selectedCity.id)) {
           this.value.set(null);
           this.onChange(null);
           this.venueChange.emit(null);
@@ -215,8 +210,14 @@ export class SelectVenueComponent implements ControlValueAccessor, OnInit {
       this.value.set(value);
       this.syncCountryAndCityFromVenue(this.value()!);
     } else {
-      this.value.set(value);
-      this.syncCountryAndCityFromVenue(this.value()!);
+      const foundVenue = this.venues().find((v) => String(v.id) === String(value));
+      if (foundVenue) {
+        this.value.set(foundVenue);
+        this.syncCountryAndCityFromVenue(foundVenue);
+      } else {
+        this.value.set(value);
+        this.syncCountryAndCityFromVenue(this.value()!);
+      }
     }
   }
 
@@ -237,9 +238,8 @@ export class SelectVenueComponent implements ControlValueAccessor, OnInit {
       if (venue.countryCode && this.selectedCountry()?.isoCode !== venue.countryCode) {
         this.selectedCountry.set(this.countries().find((c) => c.isoCode === venue.countryCode) ?? null);
         this.loadCities();
-      }
-      if (venue.cityId != null) {
-        this.selectedCity.set(this.cities().find((c) => c.id === venue.cityId) ?? null);
+      } else if (venue.cityId != null) {
+        this.selectedCity.set(this.cities().find((c) => String(c.id) === String(venue.cityId)) ?? null);
       }
     }
   }

@@ -84,13 +84,13 @@ describe('SelectVenueComponent', () => {
   });
 
   it('should return all venues when neither country nor city is selected', () => {
-    component.selectedCountryCode.set(null);
-    component.selectedCityId.set(null);
+    component.selectedCountry.set(null);
+    component.selectedCity.set(null);
     expect(component.filteredVenues().length).toBe(3);
   });
 
   it('should filter venues by country when country is selected and populate cities in that country', () => {
-    component.onCountryChange('DE');
+    component.onCountryChange(mockCountries[0]);
 
     expect(locationsService.getCitiesIn).toHaveBeenCalledWith('DE');
     expect(component.cities()).toEqual(mockGermanCities);
@@ -98,14 +98,14 @@ describe('SelectVenueComponent', () => {
   });
 
   it('should filter venues by city when city is selected', () => {
-    component.onCityChange('1');
+    component.onCityChange(mockAllCities[0]);
 
     expect(component.filteredVenues().map((v) => v.id)).toEqual(['10']);
   });
 
   it('should filter venues by both country and city when both are selected', () => {
-    component.onCountryChange('DE');
-    component.onCityChange('2');
+    component.onCountryChange(mockCountries[0]);
+    component.onCityChange(mockGermanCities[1]);
 
     expect(component.filteredVenues().map((v) => v.id)).toEqual(['20']);
   });
@@ -115,9 +115,9 @@ describe('SelectVenueComponent', () => {
     const venueChangeSpy = spyOn(component.venueChange, 'emit');
     component.registerOnChange(onChangeSpy);
 
-    component.value.set('30'); // US venue
+    component.value.set(mockVenues[2]); // US venue
 
-    component.onCountryChange('DE');
+    component.onCountryChange(mockCountries[0]); // Germany
 
     expect(component.value()).toBeNull();
     expect(onChangeSpy).toHaveBeenCalledWith(null);
@@ -129,21 +129,21 @@ describe('SelectVenueComponent', () => {
     const venueChangeSpy = spyOn(component.venueChange, 'emit');
     component.registerOnChange(onChangeSpy);
 
-    component.value.set('10'); // Berlin venue (cityId: '1')
+    component.value.set(mockVenues[0]); // Berlin venue (cityId: '1')
 
-    component.onCityChange('2'); // Hamburg
+    component.onCityChange(mockGermanCities[1]); // Hamburg
 
     expect(component.value()).toBeNull();
     expect(onChangeSpy).toHaveBeenCalledWith(null);
     expect(venueChangeSpy).toHaveBeenCalledWith(null);
   });
 
-  it('should handle ControlValueAccessor writeValue with venue ID and sync country and city', () => {
-    component.writeValue('10');
+  it('should handle ControlValueAccessor writeValue with venue object and sync country and city', () => {
+    component.writeValue(mockVenues[0]);
 
-    expect(component.value()).toBe('10');
-    expect(component.selectedCountryCode()).toBe('DE');
-    expect(component.selectedCityId()).toBe('1');
+    expect(component.value()).toEqual(mockVenues[0]);
+    expect(component.selectedCountry()).toEqual(mockCountries[0]);
+    expect(component.selectedCity()).toEqual(mockGermanCities[0]);
     expect(locationsService.getCitiesIn).toHaveBeenCalledWith('DE');
   });
 
@@ -151,11 +151,11 @@ describe('SelectVenueComponent', () => {
     component.writeValue(null);
 
     expect(component.value()).toBeNull();
-    expect(component.selectedCountryCode()).toBeNull();
-    expect(component.selectedCityId()).toBeNull();
+    expect(component.selectedCountry()).toBeNull();
+    expect(component.selectedCity()).toBeNull();
   });
 
-  it('should emit value changes and sync country and city when onValueChange is called', () => {
+  it('should emit value changes and sync country and city when onVenueChange is called', () => {
     const onChangeSpy = jasmine.createSpy('onChange');
     const onTouchedSpy = jasmine.createSpy('onTouched');
     const venueChangeSpy = spyOn(component.venueChange, 'emit');
@@ -163,14 +163,14 @@ describe('SelectVenueComponent', () => {
     component.registerOnChange(onChangeSpy);
     component.registerOnTouched(onTouchedSpy);
 
-    component.onVenueChange('30');
+    component.onVenueChange(mockVenues[2]);
 
-    expect(component.value()).toBe('30');
-    expect(component.selectedCountryCode()).toBe('US');
-    expect(component.selectedCityId()).toBe('3');
-    expect(onChangeSpy).toHaveBeenCalledWith('30');
+    expect(component.value()).toEqual(mockVenues[2]);
+    expect(component.selectedCountry()).toEqual(mockCountries[1]);
+    expect(component.selectedCity()).toEqual(mockUsCities[0]);
+    expect(onChangeSpy).toHaveBeenCalledWith(mockVenues[2]);
     expect(onTouchedSpy).toHaveBeenCalled();
-    expect(venueChangeSpy).toHaveBeenCalledWith('30');
+    expect(venueChangeSpy).toHaveBeenCalledWith(mockVenues[2]);
   });
 
   it('should handle setDisabledState', () => {

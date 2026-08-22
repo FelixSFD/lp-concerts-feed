@@ -4,7 +4,8 @@
       <p-select
         [options]="countries()"
         optionLabel="name"
-        [(ngModel)]="selectedCountry"
+        dataKey="isoCode"
+        [ngModel]="selectedCountry()"
         (ngModelChange)="onCountryChange($event)"
         inputId="countryCode"
         [fluid]="fluid"
@@ -22,8 +23,8 @@
       <p-select
         [options]="cities()"
         optionLabel="name"
-        optionValue="id"
-        [(ngModel)]="selectedCity"
+        dataKey="id"
+        [ngModel]="selectedCity()"
         (ngModelChange)="onCityChange($event)"
         inputId="cityId"
         [fluid]="fluid"
@@ -41,7 +42,8 @@
       <p-select
         [options]="filteredVenues()"
         optionLabel="currentName"
-        [(ngModel)]="value"
+        dataKey="id"
+        [ngModel]="value()"
         (ngModelChange)="onVenueChange($event)"
         (onBlur)="onBlur()"
         [inputId]="inputId"
