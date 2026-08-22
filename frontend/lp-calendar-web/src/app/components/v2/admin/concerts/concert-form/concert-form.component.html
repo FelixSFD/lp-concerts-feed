@@ -60,6 +60,22 @@
 
     <p-card class="mt-3">
       <ng-template #subtitle>
+        Location information
+      </ng-template>
+      <div class="grid row-gap-2 mt-2">
+        <div class="col-12">
+          <app-select-venue
+            formControlName="venueId"
+            inputId="venueId"
+            showClear
+            fluid
+          />
+        </div>
+      </div>
+    </p-card>
+
+    <p-card class="mt-3">
+      <ng-template #subtitle>
         Timing information
       </ng-template>
 

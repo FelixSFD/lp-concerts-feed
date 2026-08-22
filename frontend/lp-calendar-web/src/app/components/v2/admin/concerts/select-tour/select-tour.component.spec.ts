@@ -41,15 +41,15 @@ describe('SelectTourComponent', () => {
 
   it('should load tours on init', () => {
     expect(toursService.getTours).toHaveBeenCalled();
-    expect(component.tours).toEqual(mockTours);
+    expect(component.tours()).toEqual(mockTours);
   });
 
   it('should implement ControlValueAccessor writeValue', () => {
-    component.writeValue('tour-1');
-    expect(component.value).toBe('tour-1');
+    component.writeValue(mockTours[0]);
+    expect(component.value()).toEqual(mockTours[0]);
 
     component.writeValue(null);
-    expect(component.value).toBeNull();
+    expect(component.value()).toBeNull();
   });
 
   it('should propagate changes through onChange and onTouched', () => {
@@ -60,12 +60,12 @@ describe('SelectTourComponent', () => {
     component.registerOnChange(onChangeSpy);
     component.registerOnTouched(onTouchedSpy);
 
-    component.onValueChange('tour-2');
+    component.onValueChange(mockTours[1]);
 
-    expect(component.value).toBe('tour-2');
-    expect(onChangeSpy).toHaveBeenCalledWith('tour-2');
+    expect(component.value()).toEqual(mockTours[1]);
+    expect(onChangeSpy).toHaveBeenCalledWith(mockTours[1]);
     expect(onTouchedSpy).toHaveBeenCalled();
-    expect(eventEmitterSpy).toHaveBeenCalledWith('tour-2');
+    expect(eventEmitterSpy).toHaveBeenCalledWith(mockTours[1]);
   });
 
   it('should handle setDisabledState', () => {

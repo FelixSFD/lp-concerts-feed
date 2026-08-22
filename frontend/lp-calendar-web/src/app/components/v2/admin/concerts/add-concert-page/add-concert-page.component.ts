@@ -33,6 +33,7 @@ export class AddConcertPageComponent {
       concertTypeId: formContent.concertTypeId != null ? String(formContent.concertTypeId) : undefined,
       tourId: formContent.tourId ?? undefined,
       tourLegId: formContent.tourLegId ?? undefined,
+      venueId: formContent.venueId ?? undefined,
     };
 
     this.concertsApi.createConcert(request).subscribe({

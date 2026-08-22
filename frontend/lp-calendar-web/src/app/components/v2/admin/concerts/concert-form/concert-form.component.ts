@@ -11,6 +11,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { SelectConcertTypeComponent } from '../select-concert-type/select-concert-type.component';
 import { SelectTourComponent } from '../select-tour/select-tour.component';
 import { SelectTourLegComponent } from '../select-tour-leg/select-tour-leg.component';
+import { SelectVenueComponent } from '../select-venue/select-venue.component';
 import { DatePicker } from 'primeng/datepicker';
 import { Select } from 'primeng/select';
 import timezones from 'timezones-list';
@@ -31,6 +32,7 @@ import { ConcertStatusValueDto } from '../../../../../modules/lpshows-api';
     SelectConcertTypeComponent,
     SelectTourComponent,
     SelectTourLegComponent,
+    SelectVenueComponent,
     DatePicker,
     Select,
   ],
@@ -64,6 +66,7 @@ export class ConcertFormComponent implements OnInit {
     concertTypeId: new FormControl<number | null>(null, [Validators.required]),
     tour: new FormControl<TourDto | null>(null, [Validators.required]),
     tourLegId: new FormControl<string | null>(null),
+    venueId: new FormControl<string | null>(null, [Validators.required]),
     postedStartTime: new FormControl<Date | null>(null, [Validators.required]),
     timezone: new FormControl('', [Validators.required]),
     lpuEarlyEntryConfirmed: new FormControl(false, []),
@@ -95,6 +98,7 @@ export class ConcertFormComponent implements OnInit {
     let concertTypeId = this.concertForm.controls.concertTypeId.value;
     let tourId = this.concertForm.controls.tour.value?.id;
     let tourLegId = this.concertForm.controls.tourLegId.value;
+    let venueId = this.concertForm.controls.venueId.value;
     let timezone = this.concertForm.controls.timezone.value;
     const postedStartTime = this.concertForm.value.postedStartTime!;
     const doorTime = this.concertForm.value.doorsTime;
@@ -115,6 +119,14 @@ export class ConcertFormComponent implements OnInit {
       this.messageService.add({
         severity: 'error',
         summary: 'Concert type is required',
+      });
+      return null;
+    }
+
+    if (venueId == null) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Venue is required',
       });
       return null;
     }
@@ -159,6 +171,7 @@ export class ConcertFormComponent implements OnInit {
       concertTypeId: concertTypeId,
       tourId: tourId ?? null,
       tourLegId: tourLegId ?? null,
+      venueId: venueId ?? null,
       postedStartTime: DateTime.now(), // TODO: use actual value
       timezone: this.concertForm.controls.timezone.value!,
       mainStageTime: lpStageDateTime,
@@ -172,6 +185,7 @@ export class ConcertFormComponent implements OnInit {
     this.concertForm.controls.concertTypeId.setValue(concert.concertType?.id ?? null);
     this.concertForm.controls.tour.setValue(concert.tour ?? null);
     this.concertForm.controls.tourLegId.setValue(concert.tourLeg?.id ?? null);
+    this.concertForm.controls.venueId.setValue(concert.venue?.id ?? null);
   }
 
   public reset() {
@@ -181,6 +195,7 @@ export class ConcertFormComponent implements OnInit {
       concertTypeId: null,
       tour: null,
       tourLegId: null,
+      venueId: null,
     });
   }
 
@@ -217,6 +232,7 @@ export class ConcertFormContent {
   concertTypeId?: number | null;
   tourId?: string | null;
   tourLegId?: string | null;
+  venueId?: string | null;
   timezone!: string;
   postedStartTime!: DateTime;
   doorsTime?: DateTime | null;

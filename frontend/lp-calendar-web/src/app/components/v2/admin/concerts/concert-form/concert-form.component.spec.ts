@@ -6,13 +6,17 @@ import { of } from 'rxjs';
 import { ConcertFormComponent } from './concert-form.component';
 import { ConcertTypesService } from '../../../../../services/concert-types.service';
 import { ToursService } from '../../../../../services/tours.service';
+import { LocationsService } from '../../../../../services/locations.service';
 import { ConcertDetailsDto } from '../../../../../modules/lpshows-api/v3';
+import { ConcertStatusValueDto } from '../../../../../modules/lpshows-api';
+import { DateTime } from 'luxon';
 
 describe('ConcertFormComponent', () => {
   let component: ConcertFormComponent;
   let fixture: ComponentFixture<ConcertFormComponent>;
   let concertTypesService: jasmine.SpyObj<ConcertTypesService>;
   let toursService: jasmine.SpyObj<ToursService>;
+  let locationsService: jasmine.SpyObj<LocationsService>;
 
   const mockConcertDetails: ConcertDetailsDto = {
     id: 'concert-123',
@@ -25,10 +29,30 @@ describe('ConcertFormComponent', () => {
       id: 'tour-123',
       name: 'From Zero World Tour',
     },
+    tourLeg: {
+      id: 'leg-123',
+      name: 'Europe Leg',
+      tourId: 'tour-123',
+    },
     venue: {
-      id: 10,
-      name: 'Uber Arena',
-    } as any,
+      id: '10',
+      currentName: 'Uber Arena',
+      countryCode: 'DE',
+      cityId: '1',
+      timeZone: 'Europe/Berlin',
+      venueNames: [],
+      city: {
+        id: '1',
+        name: 'Berlin',
+        countryCode: 'DE',
+        nativeName: 'Berlin',
+        country: {
+          isoCode: 'DE',
+          name: 'Germany',
+          nativeName: 'Deutschland',
+        },
+      },
+    },
   };
 
   beforeEach(async () => {
@@ -40,10 +64,44 @@ describe('ConcertFormComponent', () => {
       ])
     );
 
-    const toursSpy = jasmine.createSpyObj('ToursService', ['getTours']);
+    const toursSpy = jasmine.createSpyObj('ToursService', ['getTours', 'getTour']);
     toursSpy.getTours.and.returnValue(
       of([
         { id: 'tour-123', name: 'From Zero World Tour' },
+      ])
+    );
+    toursSpy.getTour.and.returnValue(
+      of({
+        id: 'tour-123',
+        name: 'From Zero World Tour',
+        legs: [
+          { id: 'leg-123', name: 'Europe Leg', tourId: 'tour-123' },
+        ],
+      })
+    );
+
+    const locationsSpy = jasmine.createSpyObj('LocationsService', [
+      'getCountries',
+      'getVenues',
+      'getCities',
+      'getCitiesIn',
+    ]);
+    locationsSpy.getCountries.and.returnValue(
+      of([{ isoCode: 'DE', name: 'Germany', nativeName: 'Deutschland' }])
+    );
+    locationsSpy.getVenues.and.returnValue(
+      of([
+        { id: '10', currentName: 'Uber Arena', countryCode: 'DE', cityId: '1', timeZone: 'Europe/Berlin' },
+      ])
+    );
+    locationsSpy.getCities.and.returnValue(
+      of([
+        { id: '1', name: 'Berlin', countryCode: 'DE', nativeName: 'Berlin', country: { isoCode: 'DE', name: 'Germany', nativeName: 'Deutschland' } },
+      ])
+    );
+    locationsSpy.getCitiesIn.and.returnValue(
+      of([
+        { id: '1', name: 'Berlin', countryCode: 'DE', nativeName: 'Berlin', country: { isoCode: 'DE', name: 'Germany', nativeName: 'Deutschland' } },
       ])
     );
 
@@ -55,11 +113,13 @@ describe('ConcertFormComponent', () => {
         MessageService,
         { provide: ConcertTypesService, useValue: concertTypesSpy },
         { provide: ToursService, useValue: toursSpy },
+        { provide: LocationsService, useValue: locationsSpy },
       ],
     }).compileComponents();
 
     concertTypesService = TestBed.inject(ConcertTypesService) as jasmine.SpyObj<ConcertTypesService>;
     toursService = TestBed.inject(ToursService) as jasmine.SpyObj<ToursService>;
+    locationsService = TestBed.inject(LocationsService) as jasmine.SpyObj<LocationsService>;
     fixture = TestBed.createComponent(ConcertFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -69,15 +129,22 @@ describe('ConcertFormComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should initialize form with invalid status before concertTypeId is selected', () => {
+  it('should initialize form with invalid status before required fields are selected', () => {
     expect(component.concertForm.valid).toBeFalse();
     expect(component.concertForm.controls.concertTypeId.value).toBeNull();
-    expect(component.concertForm.controls.tourId.value).toBeNull();
+    expect(component.concertForm.controls.tour.value).toBeNull();
+    expect(component.concertForm.controls.tourLegId.value).toBeNull();
+    expect(component.concertForm.controls.venueId.value).toBeNull();
   });
 
-  it('should be valid when concertTypeId is selected', () => {
+  it('should be valid when all required fields are selected', () => {
+    component.concertForm.controls.concertStatus.setValue(ConcertStatusValueDto.Planned);
     component.concertForm.controls.concertTypeId.setValue(1);
-    component.concertForm.controls.tourId.setValue('tour-123');
+    component.concertForm.controls.tour.setValue({ id: 'tour-123', name: 'From Zero World Tour' });
+    component.concertForm.controls.tourLegId.setValue('leg-123');
+    component.concertForm.controls.venueId.setValue('10');
+    component.concertForm.controls.postedStartTime.setValue(new Date());
+    component.concertForm.controls.timezone.setValue('Europe/Berlin');
     component.concertForm.controls.customTitle.setValue('Test Title');
     expect(component.concertForm.valid).toBeTrue();
   });
@@ -87,18 +154,24 @@ describe('ConcertFormComponent', () => {
 
     expect(component.concertForm.controls.customTitle.value).toBe('Special Show in Berlin');
     expect(component.concertForm.controls.concertTypeId.value).toBe(1);
-    expect(component.concertForm.controls.tourId.value).toBe('tour-123');
+    expect(component.concertForm.controls.tour.value).toEqual(mockConcertDetails.tour!);
+    expect(component.concertForm.controls.tourLegId.value).toBe('leg-123');
+    expect(component.concertForm.controls.venueId.value).toBe('10');
   });
 
   it('should read from form properly', () => {
     component.fillFormWith(mockConcertDetails);
+    component.concertForm.controls.timezone.setValue('Europe/Berlin');
+    component.concertForm.controls.postedStartTime.setValue(new Date('2026-06-15T20:00:00Z'));
     const result = component.readFromForm();
 
-    expect(result).toEqual({
-      customTitle: 'Special Show in Berlin',
-      concertTypeId: 1,
-      tourId: 'tour-123',
-    });
+    expect(result).not.toBeNull();
+    expect(result?.customTitle).toBe('Special Show in Berlin');
+    expect(result?.concertTypeId).toBe(1);
+    expect(result?.tourId).toBe('tour-123');
+    expect(result?.tourLegId).toBe('leg-123');
+    expect(result?.venueId).toBe('10');
+    expect(result?.timezone).toBe('Europe/Berlin');
   });
 
   it('should reset form properly', () => {
@@ -107,19 +180,25 @@ describe('ConcertFormComponent', () => {
 
     expect(component.concertForm.controls.customTitle.value).toBe('');
     expect(component.concertForm.controls.concertTypeId.value).toBeNull();
-    expect(component.concertForm.controls.tourId.value).toBeNull();
+    expect(component.concertForm.controls.tour.value).toBeNull();
+    expect(component.concertForm.controls.tourLegId.value).toBeNull();
+    expect(component.concertForm.controls.venueId.value).toBeNull();
   });
 
   it('should emit saveClicked when onSaveClicked is triggered with valid form', () => {
     spyOn(component.saveClicked, 'emit');
     component.fillFormWith(mockConcertDetails);
+    component.concertForm.controls.timezone.setValue('Europe/Berlin');
+    component.concertForm.controls.postedStartTime.setValue(new Date('2026-06-15T20:00:00Z'));
 
     component.onSaveClicked();
 
-    expect(component.saveClicked.emit).toHaveBeenCalledWith({
-      customTitle: 'Special Show in Berlin',
-      concertTypeId: 1,
-      tourId: 'tour-123',
-    });
+    expect(component.saveClicked.emit).toHaveBeenCalled();
+    const emitted = (component.saveClicked.emit as jasmine.Spy).calls.mostRecent().args[0];
+    expect(emitted.customTitle).toBe('Special Show in Berlin');
+    expect(emitted.concertTypeId).toBe(1);
+    expect(emitted.tourId).toBe('tour-123');
+    expect(emitted.tourLegId).toBe('leg-123');
+    expect(emitted.venueId).toBe('10');
   });
 });

@@ -1,0 +1,60 @@
+<div class="grid row-gap-2">
+  <div class="col-12 md:col-4">
+    <p-floatlabel variant="on">
+      <p-select
+        [options]="countries()"
+        optionLabel="name"
+        optionValue="isoCode"
+        [(ngModel)]="selectedCountry"
+        (ngModelChange)="onCountryChange($event)"
+        inputId="countryCode"
+        [fluid]="fluid"
+        [showClear]="true"
+        [filter]="true"
+        [disabled]="disabled || loadingCountries()"
+        [loading]="loadingCountries()"
+      />
+      <label for="countryCode">Country</label>
+    </p-floatlabel>
+  </div>
+
+  <div class="col-12 md:col-4">
+    <p-floatlabel variant="on">
+      <p-select
+        [options]="cities()"
+        optionLabel="name"
+        optionValue="id"
+        [(ngModel)]="selectedCityId"
+        (ngModelChange)="onCityChange($event)"
+        inputId="cityId"
+        [fluid]="fluid"
+        [showClear]="true"
+        [filter]="true"
+        [disabled]="disabled || loadingCities()"
+        [loading]="loadingCities()"
+      />
+      <label for="cityId">City</label>
+    </p-floatlabel>
+  </div>
+
+  <div class="col-12 md:col-4">
+    <p-floatlabel variant="on">
+      <p-select
+        [options]="filteredVenues()"
+        optionLabel="currentName"
+        [(ngModel)]="value"
+        (ngModelChange)="onVenueChange($event)"
+        (onBlur)="onBlur()"
+        [inputId]="inputId"
+        [fluid]="fluid"
+        [showClear]="true"
+        [filter]="filter"
+        [disabled]="disabled || loadingVenues()"
+        [invalid]="invalid"
+        [loading]="loadingVenues()"
+        [placeholder]="placeholder"
+      />
+      <label [for]="inputId">Venue</label>
+    </p-floatlabel>
+  </div>
+</div>

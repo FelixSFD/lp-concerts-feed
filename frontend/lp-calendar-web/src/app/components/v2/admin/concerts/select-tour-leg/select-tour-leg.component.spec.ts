@@ -66,9 +66,9 @@ describe('SelectTourLegComponent', () => {
   });
 
   it('should load tour legs when tour input is provided', () => {
-    component.tour = 'tour-1';
+    component.tour = mockTour1;
     component.ngOnChanges({
-      tour: new SimpleChange(null, 'tour-1', false),
+      tour: new SimpleChange(null, mockTour1, false),
     });
 
     expect(toursService.getTour).toHaveBeenCalledWith('tour-1');
@@ -76,18 +76,18 @@ describe('SelectTourLegComponent', () => {
   });
 
   it('should reload tour legs when tour changes and clear value if not in new legs', () => {
-    component.tour = 'tour-1';
+    component.tour = mockTour1;
     component.ngOnChanges({
-      tour: new SimpleChange(null, 'tour-1', false),
+      tour: new SimpleChange(null, mockTour1, false),
     });
     component.writeValue('leg-1');
 
     const onChangeSpy = jasmine.createSpy('onChange');
     component.registerOnChange(onChangeSpy);
 
-    component.tour = 'tour-2';
+    component.tour = mockTour2;
     component.ngOnChanges({
-      tour: new SimpleChange('tour-1', 'tour-2', false),
+      tour: new SimpleChange(mockTour1, mockTour2, false),
     });
 
     expect(toursService.getTour).toHaveBeenCalledWith('tour-2');
@@ -97,9 +97,9 @@ describe('SelectTourLegComponent', () => {
   });
 
   it('should clear tour legs and value when tour is set to null', () => {
-    component.tour = 'tour-1';
+    component.tour = mockTour1;
     component.ngOnChanges({
-      tour: new SimpleChange(null, 'tour-1', false),
+      tour: new SimpleChange(null, mockTour1, false),
     });
     component.writeValue('leg-1');
 
@@ -108,7 +108,7 @@ describe('SelectTourLegComponent', () => {
 
     component.tour = null;
     component.ngOnChanges({
-      tour: new SimpleChange('tour-1', null, false),
+      tour: new SimpleChange(mockTour1, null, false),
     });
 
     expect(component.tourLegs).toEqual([]);
