@@ -11,7 +11,7 @@
         [fluid]="fluid"
         [showClear]="true"
         [filter]="true"
-        [disabled]="disabled || loadingCountries()"
+        [disabled]="disabled || loadingCountries() || value() != null"
         [loading]="loadingCountries()"
       />
       <label for="countryCode">Country</label>
@@ -30,7 +30,7 @@
         [fluid]="fluid"
         [showClear]="true"
         [filter]="true"
-        [disabled]="disabled || loadingCities()"
+        [disabled]="disabled || loadingCities() || value() != null"
         [loading]="loadingCities()"
       />
       <label for="cityId">City</label>
