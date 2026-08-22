@@ -18,6 +18,14 @@
       (saveClicked)="onSaveClicked($event)"
       [is-saving]="isSaving$"
       [standalone]="false"
+      #concertForm
     />
   </div>
+
+  <ng-template #footer>
+    <p-divider />
+    <div class="flex gap-4 mt-1 align-content-end justify-content-end">
+      <p-button [label]="isSaving$ ? 'Adding...' : 'Add'" [loading]="isSaving$" (onClick)="concertForm.onSaveClicked()" [disabled]="isSaving$ || concertForm.concertForm.invalid" />
+    </div>
+  </ng-template>
 </p-card>

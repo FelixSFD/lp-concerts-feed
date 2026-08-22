@@ -6,6 +6,7 @@ import { ErrorResponseDto } from '../../../../../modules/lpshows-api';
 import { ConcertFormComponent, ConcertFormContent } from '../concert-form/concert-form.component';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
+import { Divider } from 'primeng/divider';
 
 @Component({
   selector: 'app-add-concert-page',
@@ -13,7 +14,8 @@ import { Card } from 'primeng/card';
     Button,
     Card,
     RouterLink,
-    ConcertFormComponent
+    ConcertFormComponent,
+    Divider
   ],
   templateUrl: './add-concert-page.component.html',
   styleUrl: './add-concert-page.component.css',
@@ -34,6 +36,11 @@ export class AddConcertPageComponent {
       tourId: formContent.tourId ?? undefined,
       tourLegId: formContent.tourLegId ?? undefined,
       venueId: formContent.venueId ?? undefined,
+      postedStartTime: formContent.postedStartTime.toISO()!,
+      //timezone: formContent.timezone!,
+      doorsTime: formContent.doorsTime?.toISO() ?? undefined,
+      mainStageTime: formContent.mainStageTime?.toISO() ?? undefined,
+      expectedSetDurationMinutes: String(formContent.expectedSetDuration) ?? undefined,
     };
 
     this.concertsApi.createConcert(request).subscribe({
