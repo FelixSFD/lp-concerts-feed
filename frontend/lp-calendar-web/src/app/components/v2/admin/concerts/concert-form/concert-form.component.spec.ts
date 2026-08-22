@@ -134,7 +134,7 @@ describe('ConcertFormComponent', () => {
     expect(component.concertForm.controls.concertTypeId.value).toBeNull();
     expect(component.concertForm.controls.tour.value).toBeNull();
     expect(component.concertForm.controls.tourLegId.value).toBeNull();
-    expect(component.concertForm.controls.venueId.value).toBeNull();
+    expect(component.concertForm.controls.venue.value).toBeNull();
   });
 
   it('should be valid when all required fields are selected', () => {
@@ -142,7 +142,7 @@ describe('ConcertFormComponent', () => {
     component.concertForm.controls.concertTypeId.setValue(1);
     component.concertForm.controls.tour.setValue({ id: 'tour-123', name: 'From Zero World Tour' });
     component.concertForm.controls.tourLegId.setValue('leg-123');
-    component.concertForm.controls.venueId.setValue('10');
+    component.concertForm.controls.venue.setValue('10');
     component.concertForm.controls.postedStartTime.setValue(new Date());
     component.concertForm.controls.timezone.setValue('Europe/Berlin');
     component.concertForm.controls.customTitle.setValue('Test Title');
@@ -156,7 +156,7 @@ describe('ConcertFormComponent', () => {
     expect(component.concertForm.controls.concertTypeId.value).toBe(1);
     expect(component.concertForm.controls.tour.value).toEqual(mockConcertDetails.tour!);
     expect(component.concertForm.controls.tourLegId.value).toBe('leg-123');
-    expect(component.concertForm.controls.venueId.value).toBe('10');
+    expect(component.concertForm.controls.venue.value).toBe('10');
   });
 
   it('should read from form properly', () => {
@@ -182,7 +182,7 @@ describe('ConcertFormComponent', () => {
     expect(component.concertForm.controls.concertTypeId.value).toBeNull();
     expect(component.concertForm.controls.tour.value).toBeNull();
     expect(component.concertForm.controls.tourLegId.value).toBeNull();
-    expect(component.concertForm.controls.venueId.value).toBeNull();
+    expect(component.concertForm.controls.venue.value).toBeNull();
   });
 
   it('should emit saveClicked when onSaveClicked is triggered with valid form', () => {

@@ -1,7 +1,7 @@
 import { Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ConcertDetailsDto, TourDto } from '../../../../../modules/lpshows-api/v3';
+import { ConcertDetailsDto, TourDto, VenueDto } from '../../../../../modules/lpshows-api/v3';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { Divider } from 'primeng/divider';
@@ -66,7 +66,7 @@ export class ConcertFormComponent implements OnInit {
     concertTypeId: new FormControl<number | null>(null, [Validators.required]),
     tour: new FormControl<TourDto | null>(null, [Validators.required]),
     tourLegId: new FormControl<string | null>(null),
-    venueId: new FormControl<string | null>(null, [Validators.required]),
+    venue: new FormControl<VenueDto | null>(null, [Validators.required]),
     postedStartTime: new FormControl<Date | null>(null, [Validators.required]),
     timezone: new FormControl('', [Validators.required]),
     lpuEarlyEntryConfirmed: new FormControl(false, []),
@@ -98,7 +98,7 @@ export class ConcertFormComponent implements OnInit {
     let concertTypeId = this.concertForm.controls.concertTypeId.value;
     let tourId = this.concertForm.controls.tour.value?.id;
     let tourLegId = this.concertForm.controls.tourLegId.value;
-    let venueId = this.concertForm.controls.venueId.value;
+    let venueId = this.concertForm.controls.venue.value?.id;
     let timezone = this.concertForm.controls.timezone.value;
     const postedStartTime = this.concertForm.value.postedStartTime!;
     const doorTime = this.concertForm.value.doorsTime;
@@ -185,7 +185,7 @@ export class ConcertFormComponent implements OnInit {
     this.concertForm.controls.concertTypeId.setValue(concert.concertType?.id ?? null);
     this.concertForm.controls.tour.setValue(concert.tour ?? null);
     this.concertForm.controls.tourLegId.setValue(concert.tourLeg?.id ?? null);
-    this.concertForm.controls.venueId.setValue(concert.venue?.id ?? null);
+    this.concertForm.controls.venue.setValue(concert.venue as VenueDto);
   }
 
   public reset() {
@@ -195,7 +195,7 @@ export class ConcertFormComponent implements OnInit {
       concertTypeId: null,
       tour: null,
       tourLegId: null,
-      venueId: null,
+      venue: null,
     });
   }
 
