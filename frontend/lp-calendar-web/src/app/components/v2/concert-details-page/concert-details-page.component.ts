@@ -106,13 +106,13 @@ export class ConcertDetailsPageComponent implements OnInit {
     this.route.data.subscribe(data => {
       console.debug("Resolved data:", data);
 
-      if (data['concert'].type === 'ErrorResponseDto') {
-        this.resolverError$ = data['concert'];
+      let concert = data['concert'] as ConcertWithSetlistsDto | null;
+      if (concert == null || !concert.id) {
+        this.resolverError$ = data['concert'] as ErrorResponseDto;
 
         return;
       }
 
-      let concert = data['concert'] as ConcertWithSetlistsDto;
       this.concert$ = concert;
 
       this.loadAdjacentConcerts();
