@@ -15,6 +15,8 @@ import { DatePicker } from 'primeng/datepicker';
 import { Select } from 'primeng/select';
 import timezones from 'timezones-list';
 import { DateTime } from 'luxon';
+import { ConcertStatus } from '../../../../../data/concert-status';
+import { ConcertStatusValueDto } from '../../../../../modules/lpshows-api';
 
 @Component({
   selector: 'app-concert-form',
@@ -57,6 +59,7 @@ export class ConcertFormComponent implements OnInit {
   selectedTour = signal<TourDto | null>(null);
 
   concertForm = this.formBuilder.group({
+    concertStatus: new FormControl<ConcertStatusValueDto>(ConcertStatusValueDto.Planned, [Validators.required]),
     customTitle: new FormControl<string>(''),
     concertTypeId: new FormControl<number | null>(null, [Validators.required]),
     tour: new FormControl<TourDto | null>(null, [Validators.required]),
@@ -69,6 +72,8 @@ export class ConcertFormComponent implements OnInit {
     lpStageTime: new FormControl('', []),
     expectedSetDuration: new FormControl('', []),
   });
+
+  protected concertStatusValues: ConcertStatus[] = ConcertStatus.allValues;
 
   ngOnInit() {
     this.concertForm.controls.tour.valueChanges.subscribe((tour) => {
@@ -85,6 +90,7 @@ export class ConcertFormComponent implements OnInit {
   }
 
   public readFromForm(): ConcertFormContent | null {
+    const status = this.concertForm.controls.concertStatus.value;
     let customTitle = this.concertForm.controls.customTitle.value?.valueOf()?.trim();
     let concertTypeId = this.concertForm.controls.concertTypeId.value;
     let tourId = this.concertForm.controls.tour.value?.id;
@@ -96,6 +102,14 @@ export class ConcertFormComponent implements OnInit {
 
     // Expected set duration
     let expectedSetDuration = this.convertH2M(this.concertForm.value.expectedSetDuration?.valueOf() ?? "00:00");
+
+    if (status == null) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Concert status is required',
+      });
+      return null;
+    }
 
     if (concertTypeId == null) {
       this.messageService.add({
@@ -125,7 +139,7 @@ export class ConcertFormComponent implements OnInit {
     let doorsDateTime: DateTime | null = null;
     if (doorsTime != null && doorsTime.length > 0) {
       doorsDateTime = zonedDateTime.set(DateTime.fromFormat(doorsTime, 'hh:mm').toObject());
-      // weird timezone issues can cause the LPU time to be on the next day. That's why we need to fix the date just to be sure
+      // weird timezone issues can cause the doors time to be on the next day. That's why we need to fix the date just to be sure
       doorsDateTime = doorsDateTime.set({day: localDateTime.day, month: localDateTime.month, year: localDateTime.year});
     }
 
@@ -140,6 +154,7 @@ export class ConcertFormComponent implements OnInit {
     }
 
     return {
+      status: status,
       customTitle: customTitle,
       concertTypeId: concertTypeId,
       tourId: tourId ?? null,
@@ -161,6 +176,7 @@ export class ConcertFormComponent implements OnInit {
 
   public reset() {
     this.concertForm.reset({
+      concertStatus: ConcertStatusValueDto.Planned,
       customTitle: '',
       concertTypeId: null,
       tour: null,
@@ -196,6 +212,7 @@ export class ConcertFormComponent implements OnInit {
 }
 
 export class ConcertFormContent {
+  status!: ConcertStatusValueDto;
   customTitle?: string | null;
   concertTypeId?: number | null;
   tourId?: string | null;

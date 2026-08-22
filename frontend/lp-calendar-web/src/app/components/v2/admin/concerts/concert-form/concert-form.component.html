@@ -4,7 +4,15 @@
       <ng-template #subtitle>
         General
       </ng-template>
-      <div class="grid row-gap-2">
+      <div class="grid row-gap-2 mt-2">
+        <!-- Concert Status -->
+        <div class="col-12">
+          <p-floatlabel variant="on">
+            <p-select [options]="concertStatusValues" optionLabel="label" formControlName="concertStatus" id="concertStatus" fluid />
+            <label for="concertStatus">Status</label>
+          </p-floatlabel>
+        </div>
+
         <div class="col-12">
           <p-floatlabel variant="on">
             <app-select-concert-type
