@@ -67,7 +67,7 @@ public class VenueDo : BaseDo
     /// <summary>
     /// State where this venue is located in
     /// </summary>
-    public virtual StateDo State { get; set; }
+    public virtual StateDo? State { get; set; }
     
     /// <summary>
     /// City where this venue is located in

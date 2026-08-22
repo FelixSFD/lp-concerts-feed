@@ -49,9 +49,14 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
         await Context.Entry(dataObject.Venue.City)
             .Reference(vc => vc.State)
             .LoadAsync();
-        await Context.Entry(dataObject.Venue.State)
-            .Reference(vs => vs.Country)
-            .LoadAsync();
+
+        var venueState = dataObject.Venue.State;
+        if (venueState is not null)
+        {
+            await Context.Entry(venueState)
+                .Reference(vs => vs.Country)
+                .LoadAsync();
+        }
         
         return dataObject;
     }
