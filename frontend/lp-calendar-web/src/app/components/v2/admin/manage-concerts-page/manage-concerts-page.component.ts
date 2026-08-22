@@ -10,7 +10,7 @@ import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
 import {InputText} from 'primeng/inputtext';
 import {TableModule} from 'primeng/table';
-import {ConcertDto, ErrorResponseDto} from '../../../../modules/lpshows-api';
+import { ConcertDto, ConcertStatusValueDto, ErrorResponseDto } from '../../../../modules/lpshows-api';
 import {ConcertTitleGenerator} from '../../../../data/concert-title-generator';
 import {ConcertsService} from '../../../../services/concerts.service';
 import { DateTime } from 'luxon';
@@ -18,6 +18,7 @@ import { ConcertFilter } from '../../../../data/concert-filter';
 import { ConcertDetailsDto } from '../../../../modules/lpshows-api/v3';
 import { ToursService } from '../../../../services/tours.service';
 import { Divider } from 'primeng/divider';
+import { ConcertStatus } from '../../../../data/concert-status';
 
 @Component({
   selector: 'app-manage-concerts-page',
@@ -100,4 +101,7 @@ export class ManageConcertsPageComponent implements OnInit {
       },
     });
   }
+
+  protected readonly ConcertStatusValueDto = ConcertStatusValueDto;
+  protected readonly ConcertStatus = ConcertStatus;
 }
