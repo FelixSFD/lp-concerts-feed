@@ -3,7 +3,7 @@ namespace LPCalendar.DataStructure.Tours.Locations;
 /// <summary>
 /// City with the information about the country and state the city is located in
 /// </summary>
-public class CityWithCountryDto : CityDto
+public class CityWithCountryBo : CityBo
 {
     /// <summary>
     /// Information about the country
@@ -11,7 +11,7 @@ public class CityWithCountryDto : CityDto
     public required CountryBo Country { get; set; }
     
     /// <summary>
-    /// Information about the state, if <see cref="CityDto.StateCode"/> is set.
+    /// Information about the state, if <see cref="CityBo.StateCode"/> is set.
     /// </summary>
-    public StateDto? State { get; set; }
+    public StateBo? State { get; set; }
 }

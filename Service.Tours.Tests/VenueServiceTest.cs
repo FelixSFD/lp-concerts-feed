@@ -495,7 +495,7 @@ public class VenueServiceTest
 
     #endregion
 
-    private void AssertVenueDtoAgainstDo(VenueDo expected, VenueDto actual)
+    private void AssertVenueDtoAgainstDo(VenueDo expected, VenueBo actual)
     {
         Assert.Equal(expected.Id, actual.Id);
         Assert.Equal(expected.CurrentName, actual.CurrentName);

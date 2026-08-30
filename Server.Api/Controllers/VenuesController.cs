@@ -1,7 +1,11 @@
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Common.Utils.Cache;
 using LPCalendar.DataStructure.Tours.Locations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.Extensions.Logging;
 using Server.Api.Auth;
 using Server.Api.Cache;
 using Service.Tours;
@@ -40,7 +44,7 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <returns>all information about the venue</returns>
     [HttpPut("{venueId:int}")]
     [AuthorizeRoles]
-    public async Task<ActionResult<VenueWithDetailsDto>> UpdateVenue([FromBody] UpdateVenueRequestDto request, [FromRoute] uint venueId)
+    public async Task<ActionResult<VenueWithDetailsBo>> UpdateVenue([FromBody] UpdateVenueRequestDto request, [FromRoute] uint venueId)
     {
         logger.LogDebug("Update venue with ID: {venueId}", venueId);
         await service.UpdateVenueAsync(request, venueId);
@@ -56,7 +60,7 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     [HttpGet("{venueId:int}")]
     [OutputCache(PolicyName = CachePolicyNames.Long)]
     [CustomResponseCache(Duration = CacheExpiration.Medium)]
-    public async Task<ActionResult<VenueDto>> GetVenueById(uint venueId)
+    public async Task<ActionResult<VenueBo>> GetVenueById(uint venueId)
     {
         logger.LogDebug("Requested venue with ID: {venueId}", venueId);
         var venue = await service.GetVenueByIdAsync(venueId);
@@ -72,7 +76,7 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     [AuthorizeRoles]
     [OutputCache(PolicyName = CachePolicyNames.Medium)]
     [CustomResponseCache(Duration = CacheExpiration.Default)]
-    public async Task<ActionResult<VenueDto[]>> GetAllVenues(CancellationToken cancellationToken)
+    public async Task<ActionResult<VenueBo[]>> GetAllVenues(CancellationToken cancellationToken)
     {
         logger.LogDebug("Requested to get all venues.");
         var venues = await service
@@ -90,7 +94,7 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     [HttpGet("{venueId:int}/details")]
     [OutputCache(PolicyName = CachePolicyNames.Long)]
     [CustomResponseCache(Duration = CacheExpiration.Long)]
-    public async Task<ActionResult<VenueWithCityDto>> GetVenueWithCityById(uint venueId)
+    public async Task<ActionResult<VenueWithCityBo>> GetVenueWithCityById(uint venueId)
     {
         logger.LogDebug("Requested venue including details with ID: {venueId}", venueId);
         var venue = await service.GetVenueWithDetailsByIdAsync(venueId);
@@ -123,7 +127,7 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <response code="404">If the venue was not found</response>
     [HttpPost("{venueId:int}/names")]
     [AuthorizeRoles]
-    public async Task<VenueWithDetailsDto> AddNewVenueName([FromBody] AddVenueNameRequestDto request, [FromRoute] uint venueId)
+    public async Task<VenueWithDetailsBo> AddNewVenueName([FromBody] AddVenueNameRequestDto request, [FromRoute] uint venueId)
     {
         await service.AddVenueNameAsync(request, venueId);
         var venue = await service.GetVenueWithDetailsByIdAsync(venueId);

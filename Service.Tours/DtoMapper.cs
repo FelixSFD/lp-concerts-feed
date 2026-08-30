@@ -1,4 +1,5 @@
 using Database.Tours.DataObjects;
+using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Tours;
 using LPCalendar.DataStructure.Tours.Locations;
 
@@ -112,13 +113,13 @@ internal static class DtoMapper
     }
     
     /// <summary>
-    /// Converts a <see cref="StateDo"/> to the <see cref="StateDto"/>
+    /// Converts a <see cref="StateDo"/> to the <see cref="StateBo"/>
     /// </summary>
     /// <param name="dataObject">DataObject to convert to the DTO</param>
     /// <returns>the mapped DTO</returns>
-    public static StateDto ToDto(this StateDo dataObject)
+    public static StateBo ToDto(this StateDo dataObject)
     {
-        return new StateDto
+        return new StateBo
         {
             CountryCode = dataObject.CountryCode,
             Code = dataObject.Code,
@@ -159,13 +160,13 @@ internal static class DtoMapper
     }
     
     /// <summary>
-    /// Converts a <see cref="CityDo"/> to the <see cref="CityWithCountryDto"/>
+    /// Converts a <see cref="CityDo"/> to the <see cref="CityWithCountryBo"/>
     /// </summary>
     /// <param name="dataObject">DataObject to convert to the DTO</param>
     /// <returns>the mapped DTO</returns>
-    public static CityWithCountryDto ToDtoWithCountry(this CityDo dataObject)
+    public static CityWithCountryBo ToDtoWithCountry(this CityDo dataObject)
     {
-        return new CityWithCountryDto
+        return new CityWithCountryBo
         {
             Id = dataObject.Id,
             CountryCode = dataObject.CountryCode,
@@ -178,13 +179,13 @@ internal static class DtoMapper
     }
     
     /// <summary>
-    /// Converts a <see cref="CityDo"/> to the <see cref="CityDto"/>
+    /// Converts a <see cref="CityDo"/> to the <see cref="CityBo"/>
     /// </summary>
     /// <param name="dataObject">DataObject to convert to the DTO</param>
     /// <returns>the mapped DTO</returns>
-    public static CityDto ToDto(this CityDo dataObject)
+    public static CityBo ToDto(this CityDo dataObject)
     {
-        return new CityDto
+        return new CityBo
         {
             Id = dataObject.Id,
             CountryCode = dataObject.CountryCode,
@@ -214,13 +215,13 @@ internal static class DtoMapper
     }
     
     /// <summary>
-    /// Converts a <see cref="VenueDo"/> to the <see cref="VenueDto"/>
+    /// Converts a <see cref="VenueDo"/> to the <see cref="VenueBo"/>
     /// </summary>
     /// <param name="dataObject">DataObject to convert to the DTO</param>
     /// <returns>the mapped DTO</returns>
-    public static VenueDto ToDto(this VenueDo dataObject)
+    public static VenueBo ToDto(this VenueDo dataObject)
     {
-        return new VenueDto
+        return new VenueBo
         {
             Id = dataObject.Id,
             CountryCode = dataObject.CountryCode,
@@ -234,13 +235,13 @@ internal static class DtoMapper
     }
     
     /// <summary>
-    /// Converts a <see cref="VenueDo"/> to the <see cref="VenueWithCityDto"/>
+    /// Converts a <see cref="VenueDo"/> to the <see cref="VenueWithCityBo"/>
     /// </summary>
     /// <param name="dataObject">DataObject to convert to the DTO</param>
     /// <returns>the mapped DTO</returns>
-    public static VenueWithCityDto ToDtoWithCityDetails(this VenueDo dataObject)
+    public static VenueWithCityBo ToDtoWithCityDetails(this VenueDo dataObject)
     {
-        return new VenueWithCityDto
+        return new VenueWithCityBo
         {
             Id = dataObject.Id,
             CountryCode = dataObject.CountryCode,
@@ -255,13 +256,13 @@ internal static class DtoMapper
     }
     
     /// <summary>
-    /// Converts a <see cref="VenueDo"/> to the <see cref="VenueWithDetailsDto"/>
+    /// Converts a <see cref="VenueDo"/> to the <see cref="VenueWithDetailsBo"/>
     /// </summary>
     /// <param name="dataObject">DataObject to convert to the DTO</param>
     /// <returns>the mapped DTO</returns>
-    public static VenueWithDetailsDto ToDtoWithAllDetails(this VenueDo dataObject)
+    public static VenueWithDetailsBo ToDtoWithAllDetails(this VenueDo dataObject)
     {
-        return new VenueWithDetailsDto
+        return new VenueWithDetailsBo
         {
             Id = dataObject.Id,
             CountryCode = dataObject.CountryCode,
@@ -294,13 +295,13 @@ internal static class DtoMapper
     }
     
     /// <summary>
-    /// Converts a <see cref="PreviousVenueNameDo"/> to the <see cref="PreviousVenueNameDto"/>
+    /// Converts a <see cref="PreviousVenueNameDo"/> to the <see cref="PreviousVenueNameBo"/>
     /// </summary>
     /// <param name="dataObject">DataObject to convert to the DTO</param>
     /// <returns>the mapped DTO</returns>
-    public static PreviousVenueNameDto ToDto(this PreviousVenueNameDo dataObject)
+    public static PreviousVenueNameBo ToDto(this PreviousVenueNameDo dataObject)
     {
-        return new PreviousVenueNameDto
+        return new PreviousVenueNameBo
         {
             Id = dataObject.Id,
             VenueId = dataObject.VenueId,
@@ -505,13 +506,13 @@ internal static class DtoMapper
     }
     
     /// <summary>
-    /// Creates a <see cref="ConcertDetailsDto"/> from the <see cref="ConcertDo"/> including all references.
+    /// Creates a <see cref="ConcertDetailsBo"/> from the <see cref="ConcertDo"/> including all references.
     /// </summary>
     /// <param name="dataObject"></param>
     /// <returns>the new DTO</returns>
-    public static ConcertDetailsDto ToDtoWithDetails(this ConcertDo dataObject)
+    public static ConcertDetailsBo ToDtoWithDetails(this ConcertDo dataObject)
     {
-        return new ConcertDetailsDto
+        return new ConcertDetailsBo
         {
             Id = dataObject.Id,
             ConcertType = dataObject.Type.ToDto(),
@@ -527,7 +528,19 @@ internal static class DtoMapper
             ExpectedSetDurationMinutes = dataObject.ExpectedSetDurationMinutes,
             ScheduleImageFile = dataObject.ScheduleImageFile,
             DeletedAt = dataObject.DeletedAt,
-            //Status = dto.Status,
+            Status = dataObject.Status.ToDto(),
+        };
+    }
+
+    public static ConcertDto.ConcertStatusValue ToDto(this ConcertDo.ConcertStatus data)
+    {
+        return data switch
+        {
+            ConcertDo.ConcertStatus.Planned => ConcertDto.ConcertStatusValue.Planned,
+            ConcertDo.ConcertStatus.LiveRightNow => ConcertDto.ConcertStatusValue.Running,
+            ConcertDo.ConcertStatus.Past => ConcertDto.ConcertStatusValue.Past,
+            ConcertDo.ConcertStatus.Cancelled => ConcertDto.ConcertStatusValue.Cancelled,
+            _ => ConcertDto.ConcertStatusValue.Past
         };
     }
 }

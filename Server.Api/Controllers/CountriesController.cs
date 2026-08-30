@@ -1,7 +1,12 @@
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Common.Utils.Cache;
 using LPCalendar.DataStructure.Tours.Locations;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.Extensions.Logging;
 using Server.Api.Auth;
 using Server.Api.Cache;
 using Service.Tours;
@@ -233,7 +238,7 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     /// <returns>The city including the information about the country</returns>
     [HttpGet("{countryCode}/cities/{cityId}")]
     [OutputCache(PolicyName = CachePolicyNames.Default)]
-    public async Task<ActionResult<CityWithCountryDto>> GetCity(string countryCode, uint cityId)
+    public async Task<ActionResult<CityWithCountryBo>> GetCity(string countryCode, uint cityId)
     {
         logger.LogDebug("Requested city with ID '{cityId}' in country '{countryCode}'", cityId, countryCode);
         var cityInCountry = await locationService.GetCityInCountryAsync(cityId, countryCode);
@@ -249,7 +254,7 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     /// <returns></returns>
     [HttpGet("{countryCode}/cities")]
     [OutputCache(PolicyName = CachePolicyNames.Default)]
-    public async Task<ActionResult<CityWithCountryDto>> GetCitiesInCountry(string countryCode, CancellationToken cancellationToken)
+    public async Task<ActionResult<CityWithCountryBo>> GetCitiesInCountry(string countryCode, CancellationToken cancellationToken)
     {
         logger.LogDebug("Getting all cities in '{countryCode}'", countryCode);
         var cities = await locationService

@@ -39,7 +39,7 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
     /// <param name="venueId">ID of the venue</param>
     /// <returns></returns>
     /// <exception cref="VenueNotFoundException">if the venue was not found</exception>
-    public async Task<VenueDto> GetVenueByIdAsync(uint venueId)
+    public async Task<VenueBo> GetVenueByIdAsync(uint venueId)
     {
         logger.LogDebug("Searching for venue with ID: {venueId}", venueId);
         var venue = await venueRepository.GetByPrimaryKeyWithoutReferencesAsync(venueId) ?? throw new VenueNotFoundException(venueId);
@@ -53,7 +53,7 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
     /// <param name="venueId">ID of the venue</param>
     /// <returns></returns>
     /// <exception cref="VenueNotFoundException">if the venue was not found</exception>
-    public async Task<VenueWithDetailsDto> GetVenueWithDetailsByIdAsync(uint venueId)
+    public async Task<VenueWithDetailsBo> GetVenueWithDetailsByIdAsync(uint venueId)
     {
         logger.LogDebug("Searching for venue details with ID: {venueId}", venueId);
         var venue = await venueRepository.GetByPrimaryKeyAsync(venueId) ?? throw new VenueNotFoundException(venueId);
@@ -66,7 +66,7 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
     /// </summary>
     /// <param name="cancellationToken">Token to cancel the search</param>
     /// <returns>List of all venues</returns>
-    public IAsyncEnumerable<VenueDto> GetAllVenuesAsync(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<VenueBo> GetAllVenuesAsync(CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Searching for all venues...");
         return venueRepository

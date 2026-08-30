@@ -3,7 +3,7 @@ namespace LPCalendar.DataStructure.Tours.Locations;
 /// <summary>
 /// Information about a name of a venue including the time range for which this name is/was valid
 /// </summary>
-public class PreviousVenueNameDto
+public class PreviousVenueNameBo
 {
     /// <summary>
     /// ID of the venue

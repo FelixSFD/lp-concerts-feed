@@ -5,7 +5,7 @@ namespace LPCalendar.DataStructure.Tours;
 /// <summary>
 /// Detailed information about a concert
 /// </summary>
-public class ConcertDetailsDto
+public class ConcertDetailsBo
 {
     /// <summary>
     /// Unique ID of the concert
@@ -36,7 +36,7 @@ public class ConcertDetailsDto
     /// Information about the venue where this concert was played.
     /// This also contains the city and country.
     /// </summary>
-    public required VenueWithDetailsDto Venue { get; set; }
+    public required VenueWithDetailsBo Venue { get; set; }
 
     /// <summary>
     /// Start time as published on the ticket. This might not be the actual time when Linkin Park will be on stage.

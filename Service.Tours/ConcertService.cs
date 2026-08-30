@@ -2,7 +2,6 @@ using Common.Database;
 using Common.Database.Repositories;
 using Database.Tours.DataObjects;
 using Database.Tours.Repositories;
-using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Tours;
 using Microsoft.Extensions.Logging;
 using Service.Tours.Exceptions;
@@ -136,7 +135,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
     /// <param name="includeDeleted">true, if deleted concerts are allowed to be returned. (Default: false)</param>
     /// <returns></returns>
     /// <exception cref="ConcertNotFoundException">if the concert does not exist</exception>
-    public async Task<ConcertDetailsDto> GetConcertByIdAsync(string id, bool includeDeleted = false)
+    public async Task<ConcertDetailsBo> GetConcertByIdAsync(string id, bool includeDeleted = false)
     {
         logger.LogDebug("Requested concert including references to other objects. ID: {id}", id);
         var concert = await concertRepository.GetByPrimaryKeyAsync(id) ?? throw new ConcertNotFoundException(id);
@@ -163,7 +162,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
     /// <param name="cancellationToken"></param>
     /// <param name="filter">Filter and sorting</param>
     /// <returns>Details about the concerts matching the filter</returns>
-    public IAsyncEnumerable<ConcertDetailsDto> GetConcertsWithDetailsAsync(CancellationToken cancellationToken, GetConcertsFilterDto filter)
+    public IAsyncEnumerable<ConcertDetailsBo> GetConcertsWithDetailsAsync(CancellationToken cancellationToken, GetConcertsFilterDto filter)
     {
         var paginationParams = new PaginationParams(filter.Skip, filter.Limit);
         return concertRepository

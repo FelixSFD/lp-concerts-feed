@@ -6,7 +6,7 @@ namespace LPCalendar.DataStructure.Tours.Locations;
 /// <summary>
 /// Information about a venue
 /// </summary>
-public class VenueDto
+public class VenueBo
 {
     /// <summary>
     /// Unique ID of this venue

@@ -1773,7 +1773,12 @@ components:
         status:
           $ref: "#/components/schemas/ConcertStatusValue"
     ConcertStatusValue:
-      type: integer
+      type: string
+      enum: 
+        - Planned
+        - Running
+        - Past
+        - Cancelled
     ConcertType:
       required:
         - name

@@ -1,10 +1,19 @@
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Common.Contracts.Generated.Models;
 using Common.Utils.Cache;
 using LPCalendar.DataStructure.Tours;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.Extensions.Logging;
 using Server.Api.Auth;
 using Server.Api.Cache;
 using Service.Tours;
+using CreateConcertRequestDto = LPCalendar.DataStructure.Tours.CreateConcertRequestDto;
+using RawConcertDto = LPCalendar.DataStructure.Tours.RawConcertDto;
+using UpdateConcertRequestDto = LPCalendar.DataStructure.Tours.UpdateConcertRequestDto;
 
 namespace Server.Api.Controllers;
 
@@ -75,7 +84,7 @@ public class ConcertsController(ConcertService concertService, IOutputCacheStore
     public async Task<ActionResult<ConcertDetailsDto>> GetConcertById([FromRoute] string concertId)
     {
         var concert = await concertService.GetConcertByIdAsync(concertId);
-        return Ok(concert);
+        return Ok(concert.ToDto());
     }
 
     /// <summary>
@@ -89,7 +98,9 @@ public class ConcertsController(ConcertService concertService, IOutputCacheStore
     [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
     public async Task<ActionResult<ConcertDetailsDto[]>> GetConcertsAsync(CancellationToken cancellationToken, [FromQuery] GetConcertsFilterDto filter)
     {
-        var concerts = await concertService.GetConcertsWithDetailsAsync(cancellationToken, filter).ToArrayAsync(cancellationToken);
+        var concerts = await concertService.GetConcertsWithDetailsAsync(cancellationToken, filter)
+            .Select(DtoMapper.ToDto)
+            .ToArrayAsync(cancellationToken);
         logger.LogDebug("Retrieved {count} concert details.", concerts.Length);
         return Ok(concerts);
     }

@@ -1,6 +1,6 @@
 namespace LPCalendar.DataStructure.Tours.Locations;
 
-public class StateDto
+public class StateBo
 {
     public required string CountryCode { get; set; }
     public required string Code { get; set; }

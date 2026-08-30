@@ -3,7 +3,7 @@ namespace LPCalendar.DataStructure.Tours.Locations;
 /// <summary>
 /// Information about a city
 /// </summary>
-public class CityDto
+public class CityBo
 {
     /// <summary>
     /// Country code
