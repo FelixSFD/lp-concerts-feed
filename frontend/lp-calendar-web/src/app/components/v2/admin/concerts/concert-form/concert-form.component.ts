@@ -1,7 +1,7 @@
 import { Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ConcertDetailsDto, TourDto, VenueDto } from '../../../../../modules/lpshows-api/v3';
+import { ConcertDetailsDto, ConcertStatusValueDto, TourDto, VenueDto } from '../../../../../modules/lpshows-api/v3';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { Divider } from 'primeng/divider';
@@ -17,7 +17,6 @@ import { Select } from 'primeng/select';
 import timezones from 'timezones-list';
 import { DateTime } from 'luxon';
 import { ConcertStatus } from '../../../../../data/concert-status';
-import { ConcertStatusValueDto } from '../../../../../modules/lpshows-api';
 
 @Component({
   selector: 'app-concert-form',
@@ -181,11 +180,40 @@ export class ConcertFormComponent implements OnInit {
   }
 
   public fillFormWith(concert: ConcertDetailsDto) {
+    console.debug("Filling form with concert: ", concert);
+    let postedStartDateTimeUtc = concert.postedStartTime == undefined ? null : DateTime.fromISO(concert.postedStartTime);
+    let postedStartDateTime = postedStartDateTimeUtc?.setZone(concert.venue.timeZone!, {keepLocalTime: false})
+    console.debug("Posted start time: " + postedStartDateTime);
+
+    let lpuEarlyEntryDateTimeUtc = concert.lpuEarlyEntryTime == undefined ? null : DateTime.fromISO(concert.lpuEarlyEntryTime);
+    let lpuEarlyEntryDateTime = lpuEarlyEntryDateTimeUtc?.setZone(concert.venue.timeZone!, {keepLocalTime: false})
+    let lpuEarlyEntryDateTimeIsoStr = lpuEarlyEntryDateTime?.toISOTime();
+    console.log("LPU EE: " + lpuEarlyEntryDateTimeIsoStr);
+
+    let doorsDateTimeUtc = concert.doorsTime == undefined ? null : DateTime.fromISO(concert.doorsTime);
+    let doorsDateTime = doorsDateTimeUtc?.setZone(concert.venue.timeZone!, {keepLocalTime: false})
+    let doorsDateTimeIsoStr = doorsDateTime?.toISOTime();
+    console.log("Doors at: " + doorsDateTimeIsoStr);
+
+    let lpStageDateTimeUtc = concert.mainStageTime == undefined ? null : DateTime.fromISO(concert.mainStageTime);
+    let lpStageDateTime = lpStageDateTimeUtc?.setZone(concert.venue.timeZone!, {keepLocalTime: false})
+    let lpStageDateTimeIsoStr = lpStageDateTime?.toISOTime();
+    console.log("LP on stage at: " + lpStageDateTimeIsoStr);
+
+    let setDurationStr = this.convertMinutesToString(Number(concert.expectedSetDurationMinutes));
+
+    console.debug("Has concert status: ", concert.status);
+    this.concertForm.controls.concertStatus.setValue(ConcertStatus.allValues.find(s => s.value == concert.status)?.value ?? null);
     this.concertForm.controls.customTitle.setValue(concert.customTitle ?? null);
     this.concertForm.controls.concertTypeId.setValue(concert.concertType?.id ?? null);
     this.concertForm.controls.tour.setValue(concert.tour ?? null);
     this.concertForm.controls.tourLegId.setValue(concert.tourLeg?.id ?? null);
     this.concertForm.controls.venue.setValue(concert.venue as VenueDto);
+
+    this.concertForm.controls.postedStartTime.setValue(postedStartDateTime?.toJSDate() ?? null);
+    this.concertForm.controls.lpStageTime.setValue(doorsDateTimeIsoStr?.substring(0, 5) ?? null);
+    this.concertForm.controls.doorsTime.setValue(doorsDateTimeIsoStr?.substring(0, 5) ?? null);
+    this.concertForm.controls.expectedSetDuration.setValue(setDurationStr ?? null);
   }
 
   public reset() {

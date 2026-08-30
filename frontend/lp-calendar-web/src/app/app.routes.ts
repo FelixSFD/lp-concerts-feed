@@ -2,7 +2,7 @@ import {ActivatedRouteSnapshot, CanActivateFn, RouterStateSnapshot, Routes} from
 import {inject} from '@angular/core';
 import {AuthService} from './auth/auth.service';
 import {map} from 'rxjs';
-import {legacyConcertResolver} from './resolvers/legacy-concert-resolver';
+import { concertResolver, legacyConcertResolver } from './resolvers/legacy-concert-resolver';
 import {userResolver} from './resolvers/user-resolver';
 import {albumResolver} from './resolvers/album-resolver';
 import {songResolver} from './resolvers/song-resolver';
@@ -423,6 +423,19 @@ export const routes: Routes = [
         canActivate: [authGuard, addConcertsGuard],
         data: {
           breadcrumb: 'Add concert',
+        },
+      },
+      {
+        path: 'concerts/:id',
+        loadComponent: () =>
+          import("./components/v2/admin/concerts/edit-concert-page/edit-concert-page.component").then(m => m.EditConcertPageComponent),
+        title: baseTitle + 'Edit concert',
+        canActivate: [authGuard, updateConcertsGuard],
+        data: {
+          breadcrumb: 'Edit concert',
+        },
+        resolve: {
+          concert: concertResolver,
         },
       },
       {

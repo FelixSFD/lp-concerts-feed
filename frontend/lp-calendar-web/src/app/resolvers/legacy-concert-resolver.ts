@@ -1,6 +1,6 @@
 import {ResolveFn} from '@angular/router';
 import {inject} from '@angular/core';
-import { ConcertDto, ConcertsService, ConcertWithSetlistsDto, ErrorResponseDto } from '../modules/lpshows-api';
+import { ConcertsService, ConcertWithSetlistsDto, ErrorResponseDto } from '../modules/lpshows-api';
 import {catchError, of} from 'rxjs';
 import { ConcertDetailsDto } from '../modules/lpshows-api/v3';
 import { ToursService } from '../services/tours.service';
