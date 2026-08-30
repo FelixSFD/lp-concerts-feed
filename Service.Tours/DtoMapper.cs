@@ -96,13 +96,13 @@ internal static class DtoMapper
     }
     
     /// <summary>
-    /// Converts a <see cref="StateDo"/> to the <see cref="StateWithCountryDto"/>
+    /// Converts a <see cref="StateDo"/> to the <see cref="StateWithCountryBo"/>
     /// </summary>
     /// <param name="dataObject">DataObject to convert to the DTO</param>
     /// <returns>the mapped DTO</returns>
-    public static StateWithCountryDto ToDtoWithCountry(this StateDo dataObject)
+    public static StateWithCountryBo ToDtoWithCountry(this StateDo dataObject)
     {
-        return new StateWithCountryDto
+        return new StateWithCountryBo
         {
             CountryCode = dataObject.CountryCode,
             Code = dataObject.Code,

@@ -30,7 +30,7 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
     {
         var createdTour = await tourService.CreateTourAsync(createTourRequestDto.ToBo());
         logger.LogDebug("Successfully created tour: {tourName} (ID: {tourId})", createdTour.Name, createdTour.Id);
-        return CreatedAtAction(nameof(GetTour), new { tourId = createTourRequestDto.Id }, createdTour);
+        return CreatedAtAction(nameof(GetTour), new { tourId = createTourRequestDto.Id }, createdTour.ToDto());
     }
     
     /// <summary>

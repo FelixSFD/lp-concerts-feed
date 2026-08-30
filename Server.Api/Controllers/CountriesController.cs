@@ -135,7 +135,7 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     [HttpPut("{countryCode}/states/{stateCode}")]
     [ClearCache(Tags = [CacheTags.StatesAll])]
     [AuthorizeRoles]
-    public async Task<ActionResult<StateWithCountryDto>> UpdateState([FromRoute(Name = "countryCode")] string countryCode, [FromRoute] string stateCode, [FromBody] UpdateStateRequestDto request)
+    public async Task<ActionResult<StateWithCountryBo>> UpdateState([FromRoute(Name = "countryCode")] string countryCode, [FromRoute] string stateCode, [FromBody] UpdateStateRequestDto request)
     {
         logger.LogDebug("Requested to update state: {stateCode}", stateCode);
         var stateWithCountryDto = await locationService.UpdateStateAsync(request, countryCode, stateCode);
@@ -151,7 +151,7 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     /// <returns>The state including the information about the country</returns>
     [HttpGet("{countryCode}/states/{stateCode}")]
     [OutputCache(PolicyName = CachePolicyNames.Default, Tags = [CacheTags.StatesAll])]
-    public async Task<ActionResult<StateWithCountryDto>> GetState(string countryCode, string stateCode)
+    public async Task<ActionResult<StateWithCountryBo>> GetState(string countryCode, string stateCode)
     {
         logger.LogDebug("Requested state '{stateCode}' in country '{countryCode}'", stateCode, countryCode);
         var stateWithCountry = await locationService.GetStateInCountryAsync(countryCode, stateCode);
@@ -167,7 +167,7 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     /// <returns></returns>
     [HttpGet("{countryCode}/states")]
     [OutputCache(PolicyName = CachePolicyNames.Default, Tags = [CacheTags.StatesAll])]
-    public async Task<ActionResult<StateWithCountryDto>> GetStatesInCountry(string countryCode, CancellationToken cancellationToken)
+    public async Task<ActionResult<StateWithCountryBo>> GetStatesInCountry(string countryCode, CancellationToken cancellationToken)
     {
         logger.LogDebug("Getting all states in '{countryCode}'", countryCode);
         var states = await locationService
@@ -222,7 +222,7 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     /// <returns></returns>
     [HttpPut("{countryCode}/cities/{cityId:int}")]
     [AuthorizeRoles]
-    public async Task<ActionResult<StateWithCountryDto>> UpdateCity([FromRoute(Name = "countryCode")] string countryCode, [FromRoute] uint cityId, [FromBody] UpdateCityRequestDto request)
+    public async Task<ActionResult<StateWithCountryBo>> UpdateCity([FromRoute(Name = "countryCode")] string countryCode, [FromRoute] uint cityId, [FromBody] UpdateCityRequestDto request)
     {
         logger.LogDebug("Requested to update city: {cityId}", cityId);
         var updatedCity = await locationService.UpdateCityAsync(request, countryCode, cityId);

@@ -32,7 +32,7 @@ public class ConcertTypesController(ConcertService concertService, ILogger<Conce
     public async Task<CreatedAtActionResult> CreateConcertType([FromBody] CreateConcertTypeRequestDto createConcertTypeRequestDto)
     {
         var createdType = await concertService.CreateConcertTypeAsync(createConcertTypeRequestDto.ToBo());
-        return CreatedAtAction(nameof(GetTypeById), new { concertTypeId = createdType.Id }, createdType);
+        return CreatedAtAction(nameof(GetTypeById), new { concertTypeId = createdType.Id }, createdType.ToDto());
     }
     
     /// <summary>
@@ -43,7 +43,7 @@ public class ConcertTypesController(ConcertService concertService, ILogger<Conce
     [AuthorizeRoles]
     [OutputCache(PolicyName = CachePolicyNames.VeryLong)]
     [CustomResponseCache(Duration = CacheExpiration.VeryLong)]
-    public async Task<ActionResult<ConcertTypeDto>> GetConcertTypes(CancellationToken cancellationToken)
+    public async Task<ActionResult<ConcertTypeDto[]>> GetConcertTypes(CancellationToken cancellationToken)
     {
         var types = await concertService
             .GetConcertTypesAsync(cancellationToken)
@@ -63,7 +63,7 @@ public class ConcertTypesController(ConcertService concertService, ILogger<Conce
     public async Task<ActionResult<ConcertTypeDto>> GetTypeById(int concertTypeId)
     {
         var type = await concertService.GetConcertTypeAsync(concertTypeId.ConvertToUnsigned());
-        return Ok(type);
+        return Ok(type.ToDto());
     }
 
     /// <summary>

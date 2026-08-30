@@ -153,6 +153,23 @@ internal static class DtoMapper
     /// </summary>
     /// <param name="bo">BusinessObject to map</param>
     /// <returns>the mapped DTO</returns>
+    public static StateWithCountryDto ToDto(this StateWithCountryBo bo)
+    {
+        return new StateWithCountryDto
+        {
+            CountryCode = bo.CountryCode,
+            Code = bo.Code,
+            Name = bo.Name,
+            NativeName = bo.NativeName,
+            Country = bo.Country.ToDto(),
+        };
+    }
+
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bo">BusinessObject to map</param>
+    /// <returns>the mapped DTO</returns>
     public static CityWithCountryDto ToDto(this CityWithCountryBo bo)
     {
         return new CityWithCountryDto

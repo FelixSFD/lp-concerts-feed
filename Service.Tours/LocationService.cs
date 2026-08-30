@@ -113,7 +113,7 @@ public class LocationService(
     /// <param name="request"></param>
     /// <param name="countryCode">ISO code of the country where the state is located in</param>
     /// <returns>the created state</returns>
-    public async Task<StateWithCountryDto> CreateState(CreateStateRequestDto request, string countryCode)
+    public async Task<StateWithCountryBo> CreateState(CreateStateRequestDto request, string countryCode)
     {
         logger.LogDebug("Creating state '{stateName}' in country '{isoCode}'", request.Name, countryCode);
         
@@ -143,7 +143,7 @@ public class LocationService(
     /// <param name="countryCode">ISO code of the country where the state is located in</param>
     /// <param name="stateCode">code of the state to update</param>
     /// <returns>The updated state</returns>
-    public async Task<StateWithCountryDto> UpdateStateAsync(UpdateStateRequestDto request, string countryCode, string stateCode)
+    public async Task<StateWithCountryBo> UpdateStateAsync(UpdateStateRequestDto request, string countryCode, string stateCode)
     {
         logger.LogDebug("Updating state {isoCode} - {stateCode}", countryCode, stateCode);
         var state = await stateRepository.GetByPrimaryKeyAsync(countryCode, stateCode) ?? throw new StateNotFoundException(countryCode, stateCode);
@@ -162,7 +162,7 @@ public class LocationService(
     /// <param name="stateCode">code of the state</param>
     /// <returns></returns>
     /// <exception cref="StateNotFoundException">if the state does not exist</exception>
-    public async Task<StateWithCountryDto> GetStateInCountryAsync(string countryCode, string stateCode)
+    public async Task<StateWithCountryBo> GetStateInCountryAsync(string countryCode, string stateCode)
     {
         logger.LogDebug("Fetching state: {countryCode} - {stateCode}", countryCode, stateCode);
         var state = await stateRepository.GetByPrimaryKeyAsync(countryCode, stateCode);
