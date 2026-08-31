@@ -73,7 +73,7 @@ export class EditVenuePageComponent {
     let request: UpdateVenueRequestDto = {
       countryCode: formContent.countryCode,
       cityId: formContent.cityId.toString(),
-      timeZone: formContent.timeZone
+      timeZoneId: formContent.timeZoneId
     };
 
     this.locationsService.updateVenue(this.currentVenueId, request).subscribe({

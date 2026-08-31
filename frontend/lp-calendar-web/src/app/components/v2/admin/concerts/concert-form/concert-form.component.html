@@ -1,4 +1,4 @@
-<form #form="ngForm" [formGroup]="concertForm" class="form">
+<form #form="ngForm" [formGroup]="concertForm" class="form mt-3">
   <ng-template #formInputsGeneral>
     <p-card>
       <ng-template #subtitle>
@@ -83,7 +83,7 @@
         Timing information
       </ng-template>
 
-      <div class="grid">
+      <div class="grid mt-2">
         <!-- Posted start time -->
         <div class="col-12">
           <div class="flex flex-wrap gap-3">
@@ -95,14 +95,9 @@
               <small>(according to ticket vendor)</small>
             </div>
 
-            <div class="w-5 lg:w-3">
-              <p-floatlabel variant="on">
-                <p-select [options]="timezones" optionValue="tzCode" optionLabel="label" formControlName="timezone" id="timezone" [invalid]="concertForm.controls.timezone.invalid" fluid filter />
-                <label for="timezone">Venue's timezone</label>
-              </p-floatlabel>
+            <div class="align-content-center pb-3">
+              Timezone: {{ venueTimezone()?.label }}
             </div>
-
-            <p-button class="hidden md:inline" label="Load timezone" icon="pi pi-sync" variant="outlined" disabled />
           </div>
         </div>
 

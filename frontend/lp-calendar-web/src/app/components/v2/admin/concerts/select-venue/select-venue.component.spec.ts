@@ -32,9 +32,9 @@ describe('SelectVenueComponent', () => {
   ];
 
   const mockVenues: VenueDto[] = [
-    { id: '10', currentName: 'Uber Arena', countryCode: 'DE', cityId: '1', timeZone: 'Europe/Berlin' },
-    { id: '20', currentName: 'Barclays Arena', countryCode: 'DE', cityId: '2', timeZone: 'Europe/Berlin' },
-    { id: '30', currentName: 'Madison Square Garden', countryCode: 'US', cityId: '3', timeZone: 'America/New_York' },
+    { id: '10', currentName: 'Uber Arena', countryCode: 'DE', cityId: '1', timeZoneId: 'Europe/Berlin' },
+    { id: '20', currentName: 'Barclays Arena', countryCode: 'DE', cityId: '2', timeZoneId: 'Europe/Berlin' },
+    { id: '30', currentName: 'Madison Square Garden', countryCode: 'US', cityId: '3', timeZoneId: 'America/New_York' },
   ];
 
   beforeEach(async () => {

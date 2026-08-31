@@ -1903,7 +1903,7 @@ components:
       required:
         - countryCode
         - currentName
-        - timeZone
+        - timeZoneId
       type: object
       properties:
         countryCode:
@@ -1919,7 +1919,7 @@ components:
           format: uint32
         currentName:
           type: string
-        timeZone:
+        timeZoneId:
           type: string
         latitude:
           pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
@@ -2169,7 +2169,7 @@ components:
     UpdateVenueRequest:
       required:
         - countryCode
-        - timeZone
+        - timeZoneId
       type: object
       properties:
         countryCode:
@@ -2184,7 +2184,7 @@ components:
           pattern: ^-?(?:0|[1-9]\d*)$
           type: string
           format: uint32
-        timeZone:
+        timeZoneId:
           type: string
         latitude:
           pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
@@ -2200,7 +2200,7 @@ components:
       required:
         - countryCode
         - currentName
-        - timeZone
+        - timeZoneId
       type: object
       properties:
         id:
@@ -2220,7 +2220,7 @@ components:
           format: uint32
         currentName:
           type: string
-        timeZone:
+        timeZoneId:
           type: string
         latitude:
           pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
@@ -2237,7 +2237,7 @@ components:
         - city
         - countryCode
         - currentName
-        - timeZone
+        - timeZoneId
       type: object
       properties:
         city:
@@ -2260,7 +2260,7 @@ components:
           format: uint32
         currentName:
           type: string
-        timeZone:
+        timeZoneId:
           type: string
         latitude:
           pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
@@ -2278,7 +2278,7 @@ components:
         - city
         - countryCode
         - currentName
-        - timeZone
+        - timeZoneId
       type: object
       properties:
         venueNames:
@@ -2305,7 +2305,7 @@ components:
           format: uint32
         currentName:
           type: string
-        timeZone:
+        timeZoneId:
           type: string
         latitude:
           pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$

@@ -52,7 +52,7 @@ export class AddVenuePageComponent implements OnInit {
       stateCode: formContent.stateCode ?? undefined,
       cityId: formContent.cityId.toString(),
       currentName: formContent.currentName,
-      timeZone: formContent.timeZone,
+      timeZoneId: formContent.timeZoneId,
     };
 
     this.locationsService.createVenue(request).subscribe({

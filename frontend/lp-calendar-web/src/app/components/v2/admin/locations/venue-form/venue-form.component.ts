@@ -133,7 +133,7 @@ export class VenueFormComponent {
       stateCode: null,
       cityId: cityId,
       currentName: currentName,
-      timeZone: timezone,
+      timeZoneId: timezone,
     };
   }
 
@@ -141,7 +141,7 @@ export class VenueFormComponent {
     console.debug("Fill form with data:", venue);
     this.venueForm.controls.cityId.setValue(Number(venue.cityId));
     this.venueForm.controls.countryCode.setValue(venue.countryCode ?? null);
-    this.venueForm.controls.timezone.setValue(venue.timeZone ?? null);
+    this.venueForm.controls.timezone.setValue(venue.timeZoneId ?? null);
     this.venueForm.controls.currentName.setValue(venue.currentName ?? null);
   }
 
@@ -192,5 +192,5 @@ export class VenueFormContent {
   stateCode: string | null = null;
   cityId!: number;
   currentName!: string;
-  timeZone!: string;
+  timeZoneId!: string;
 }

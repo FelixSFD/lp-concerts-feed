@@ -38,7 +38,7 @@ describe('ConcertFormComponent', () => {
       currentName: 'Uber Arena',
       countryCode: 'DE',
       cityId: '1',
-      timeZone: 'Europe/Berlin',
+      timeZoneId: 'Europe/Berlin',
       venueNames: [],
       city: {
         id: '1',
@@ -90,7 +90,7 @@ describe('ConcertFormComponent', () => {
     );
     locationsSpy.getVenues.and.returnValue(
       of([
-        { id: '10', currentName: 'Uber Arena', countryCode: 'DE', cityId: '1', timeZone: 'Europe/Berlin' },
+        { id: '10', currentName: 'Uber Arena', countryCode: 'DE', cityId: '1', timeZoneId: 'Europe/Berlin' },
       ])
     );
     locationsSpy.getCities.and.returnValue(
@@ -143,7 +143,6 @@ describe('ConcertFormComponent', () => {
     component.concertForm.controls.tourLegId.setValue('leg-123');
     component.concertForm.controls.venue.setValue(mockConcertDetails.venue as VenueDto);
     component.concertForm.controls.postedStartTime.setValue(new Date());
-    component.concertForm.controls.timezone.setValue('Europe/Berlin');
     component.concertForm.controls.customTitle.setValue('Test Title');
     expect(component.concertForm.valid).toBeTrue();
   });
@@ -160,7 +159,6 @@ describe('ConcertFormComponent', () => {
 
   it('should read from form properly', () => {
     component.fillFormWith(mockConcertDetails);
-    component.concertForm.controls.timezone.setValue('Europe/Berlin');
     component.concertForm.controls.postedStartTime.setValue(new Date('2026-06-15T20:00:00Z'));
     const result = component.readFromForm();
 
@@ -187,7 +185,6 @@ describe('ConcertFormComponent', () => {
   it('should emit saveClicked when onSaveClicked is triggered with valid form', () => {
     spyOn(component.saveClicked, 'emit');
     component.fillFormWith(mockConcertDetails);
-    component.concertForm.controls.timezone.setValue('Europe/Berlin');
     component.concertForm.controls.postedStartTime.setValue(new Date('2026-06-15T20:00:00Z'));
 
     component.onSaveClicked();
