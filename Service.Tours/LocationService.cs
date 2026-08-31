@@ -47,7 +47,7 @@ public class LocationService(
         countryRepository.Update(country);
         await countryRepository.SaveChangesAsync();
         logger.LogDebug("Successfully updated country with ISO-code: {isoCode}", country.IsoCode);
-        return country.ToDto();
+        return country.ToBo();
     }
     
     /// <summary>
@@ -60,7 +60,7 @@ public class LocationService(
         logger.LogDebug("Requesting list of countries...");
         return countryRepository
             .QueryAsync(cancellationToken)
-            .Select(DtoMapper.ToDto);
+            .Select(DoMapper.ToBo);
     }
     
     /// <summary>
@@ -80,7 +80,7 @@ public class LocationService(
         }
         
         logger.LogDebug("Country '{countryName}' ({isoCode}) found.", country.Name, isoCode);
-        return country.ToDto();
+        return country.ToBo();
     }
     
     /// <summary>
@@ -188,7 +188,7 @@ public class LocationService(
         return stateRepository
             .QueryAsync(cancellationToken)
             .Where(s => s.CountryCode == countryCode)
-            .Select(DtoMapper.ToDto);
+            .Select(DoMapper.ToBo);
     }
     
     /// <summary>
@@ -311,7 +311,7 @@ public class LocationService(
         return cityRepository
             .QueryAsync(cancellationToken)
             .Where(s => s.CountryCode == countryCode)
-            .Select(DtoMapper.ToDto);
+            .Select(DoMapper.ToBo);
     }
     
     /// <summary>
@@ -327,7 +327,7 @@ public class LocationService(
         
         return cityRepository
             .GetCities(cancellationToken, null, filter.OrderBy.Select(SortDescriptor.FromString), paginationParams)
-            .Select(DtoMapper.ToDtoWithCountry);
+            .Select(DoMapper.ToDtoWithCountry);
     }
     
     /// <summary>

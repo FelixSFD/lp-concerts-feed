@@ -30,7 +30,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         concertTypeRepository.Add(typeDo);
         await concertTypeRepository.SaveChangesAsync();
         logger.LogDebug("Successfully created concert type with name: {typeName} (ID: {id})", request.Name, typeDo.Id);
-        return typeDo.ToDto();
+        return typeDo.ToBo();
     }
     
     /// <summary>
@@ -47,7 +47,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         concertTypeRepository.Update(typeDo);
         await concertTypeRepository.SaveChangesAsync();
         logger.LogDebug("Successfully updated concert type with name: {typeName} (ID: {id})", request.Name, typeDo.Id);
-        return typeDo.ToDto();
+        return typeDo.ToBo();
     }
 
     /// <summary>
@@ -61,7 +61,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         logger.LogDebug("Read concert type with ID: {id}", id);
         var type = await concertTypeRepository.GetByPrimaryKeyAsync(id) ?? throw new ConcertTypeNotFoundException(id);
         logger.LogDebug("Found concert type: {name}", type.Name);
-        return type.ToDto();
+        return type.ToBo();
     }
     
     /// <summary>
@@ -74,7 +74,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         logger.LogDebug("Read all concert types");
         return concertTypeRepository
             .QueryAsync(cancellationToken)
-            .Select(DtoMapper.ToDto);
+            .Select(DoMapper.ToBo);
     }
     
     #endregion
@@ -144,7 +144,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
             ThrowNotFoundExceptionIfConcertDeleted(concert);
         }
         logger.LogDebug("Found concert.");
-        return concert.ToDtoWithDetails();
+        return concert.ToBoWithDetails();
     }
 
     private void ThrowNotFoundExceptionIfConcertDeleted(ConcertDo concert)
@@ -167,7 +167,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         var paginationParams = new PaginationParams(filter.Skip, filter.Limit);
         return concertRepository
             .GetConcerts(cancellationToken, filter.CountryCode, orderBy: filter.OrderBy.Select(SortDescriptor.FromString), paginationParams)
-            .Select(DtoMapper.ToDtoWithDetails);
+            .Select(DoMapper.ToBoWithDetails);
     }
 
     /// <summary>

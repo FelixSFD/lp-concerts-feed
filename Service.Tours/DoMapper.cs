@@ -5,14 +5,14 @@ using LPCalendar.DataStructure.Tours.Locations;
 
 namespace Service.Tours;
 
-internal static class DtoMapper
+internal static class DoMapper
 {
     /// <summary>
     /// Converts a <see cref="CountryDo"/> to the <see cref="CountryBo"/>
     /// </summary>
     /// <param name="dataObject">DataObject to convert to the DTO</param>
     /// <returns>the mapped DTO</returns>
-    public static CountryBo ToDto(this CountryDo dataObject)
+    public static CountryBo ToBo(this CountryDo dataObject)
     {
         return new CountryBo
         {
@@ -27,7 +27,7 @@ internal static class DtoMapper
     /// </summary>
     /// <param name="bo">DTO to convert to the DataObject</param>
     /// <returns>the mapped DTO</returns>
-    public static CountryDo ToDto(this CountryBo bo)
+    public static CountryDo ToDo(this CountryBo bo)
     {
         return new CountryDo
         {
@@ -108,7 +108,7 @@ internal static class DtoMapper
             Code = dataObject.Code,
             Name = dataObject.Name,
             NativeName = dataObject.NativeName,
-            Country = dataObject.Country.ToDto()
+            Country = dataObject.Country.ToBo()
         };
     }
     
@@ -117,7 +117,7 @@ internal static class DtoMapper
     /// </summary>
     /// <param name="dataObject">DataObject to convert to the DTO</param>
     /// <returns>the mapped DTO</returns>
-    public static StateBo ToDto(this StateDo dataObject)
+    public static StateBo ToBo(this StateDo dataObject)
     {
         return new StateBo
         {
@@ -173,8 +173,8 @@ internal static class DtoMapper
             StateCode = dataObject.StateCode,
             Name = dataObject.Name,
             NativeName = dataObject.NativeName,
-            Country = dataObject.Country.ToDto(),
-            State = dataObject.State?.ToDto()
+            Country = dataObject.Country.ToBo(),
+            State = dataObject.State?.ToBo()
         };
     }
     
@@ -183,7 +183,7 @@ internal static class DtoMapper
     /// </summary>
     /// <param name="dataObject">DataObject to convert to the DTO</param>
     /// <returns>the mapped DTO</returns>
-    public static CityBo ToDto(this CityDo dataObject)
+    public static CityBo ToBo(this CityDo dataObject)
     {
         return new CityBo
         {
@@ -219,7 +219,7 @@ internal static class DtoMapper
     /// </summary>
     /// <param name="dataObject">DataObject to convert to the DTO</param>
     /// <returns>the mapped DTO</returns>
-    public static VenueBo ToDto(this VenueDo dataObject)
+    public static VenueBo ToBo(this VenueDo dataObject)
     {
         return new VenueBo
         {
@@ -239,7 +239,7 @@ internal static class DtoMapper
     /// </summary>
     /// <param name="dataObject">DataObject to convert to the DTO</param>
     /// <returns>the mapped DTO</returns>
-    public static VenueWithCityBo ToDtoWithCityDetails(this VenueDo dataObject)
+    public static VenueWithCityBo ToBoWithCityDetails(this VenueDo dataObject)
     {
         return new VenueWithCityBo
         {
@@ -260,7 +260,7 @@ internal static class DtoMapper
     /// </summary>
     /// <param name="dataObject">DataObject to convert to the DTO</param>
     /// <returns>the mapped DTO</returns>
-    public static VenueWithDetailsBo ToDtoWithAllDetails(this VenueDo dataObject)
+    public static VenueWithDetailsBo ToBoWithAllDetails(this VenueDo dataObject)
     {
         return new VenueWithDetailsBo
         {
@@ -273,7 +273,7 @@ internal static class DtoMapper
             Latitude = dataObject.Latitude,
             Longitude = dataObject.Longitude,
             City = dataObject.City.ToDtoWithCountry(),
-            VenueNames = dataObject.PreviousNames.Select(ToDto).ToArray(),
+            VenueNames = dataObject.PreviousNames.Select(ToBo).ToArray(),
         };
     }
 
@@ -299,7 +299,7 @@ internal static class DtoMapper
     /// </summary>
     /// <param name="dataObject">DataObject to convert to the DTO</param>
     /// <returns>the mapped DTO</returns>
-    public static PreviousVenueNameBo ToDto(this PreviousVenueNameDo dataObject)
+    public static PreviousVenueNameBo ToBo(this PreviousVenueNameDo dataObject)
     {
         return new PreviousVenueNameBo
         {
@@ -347,13 +347,13 @@ internal static class DtoMapper
     /// </summary>
     /// <param name="dataObject"></param>
     /// <returns>the new DTO</returns>
-    public static TourBo ToDto(this TourDo dataObject)
+    public static TourBo ToBo(this TourDo dataObject)
     {
         return new TourBo
         {
             Id = dataObject.Id,
             Name = dataObject.Name,
-            Legs = [.. dataObject.Legs.Select(ToDto)],
+            Legs = [.. dataObject.Legs.Select(ToBo)],
         };
     }
     
@@ -378,7 +378,7 @@ internal static class DtoMapper
     /// </summary>
     /// <param name="dataObject"></param>
     /// <returns>the new DTO</returns>
-    public static TourLegBo ToDto(this TourLegDo dataObject)
+    public static TourLegBo ToBo(this TourLegDo dataObject)
     {
         return new TourLegBo
         {
@@ -418,7 +418,7 @@ internal static class DtoMapper
     /// </summary>
     /// <param name="dataObject"></param>
     /// <returns>the new DTO</returns>
-    public static ConcertTypeBo ToDto(this ConcertTypeDo dataObject)
+    public static ConcertTypeBo ToBo(this ConcertTypeDo dataObject)
     {
         return new ConcertTypeBo
         {
@@ -510,16 +510,16 @@ internal static class DtoMapper
     /// </summary>
     /// <param name="dataObject"></param>
     /// <returns>the new DTO</returns>
-    public static ConcertDetailsBo ToDtoWithDetails(this ConcertDo dataObject)
+    public static ConcertDetailsBo ToBoWithDetails(this ConcertDo dataObject)
     {
         return new ConcertDetailsBo
         {
             Id = dataObject.Id,
-            ConcertType = dataObject.Type.ToDto(),
-            Tour = dataObject.Tour?.ToDto(),
-            TourLeg = dataObject.TourLeg?.ToDto(),
+            ConcertType = dataObject.Type.ToBo(),
+            Tour = dataObject.Tour?.ToBo(),
+            TourLeg = dataObject.TourLeg?.ToBo(),
             CustomTitle = dataObject.CustomTitle,
-            Venue = dataObject.Venue.ToDtoWithAllDetails(),
+            Venue = dataObject.Venue.ToBoWithAllDetails(),
             PostedStartTime = dataObject.PostedStartTime,
             MainStageTime = dataObject.MainStageTime,
             DoorsTime = dataObject.DoorsTime,

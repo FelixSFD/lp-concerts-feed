@@ -44,7 +44,7 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
         logger.LogDebug("Searching for venue with ID: {venueId}", venueId);
         var venue = await venueRepository.GetByPrimaryKeyWithoutReferencesAsync(venueId) ?? throw new VenueNotFoundException(venueId);
         logger.LogDebug("Found venue: {name}", venue.CurrentName);
-        return venue.ToDto();
+        return venue.ToBo();
     }
     
     /// <summary>
@@ -58,7 +58,7 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
         logger.LogDebug("Searching for venue details with ID: {venueId}", venueId);
         var venue = await venueRepository.GetByPrimaryKeyAsync(venueId) ?? throw new VenueNotFoundException(venueId);
         logger.LogDebug("Found venue: {name}", venue.CurrentName);
-        return venue.ToDtoWithAllDetails();
+        return venue.ToBoWithAllDetails();
     }
 
     /// <summary>
@@ -71,7 +71,7 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
         logger.LogDebug("Searching for all venues...");
         return venueRepository
             .QueryAsync(cancellationToken)
-            .Select(DtoMapper.ToDto);
+            .Select(DoMapper.ToBo);
     }
 
     /// <summary>
