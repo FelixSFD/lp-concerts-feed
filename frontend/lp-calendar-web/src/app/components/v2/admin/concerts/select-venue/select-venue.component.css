@@ -1,0 +1,5 @@
+.open-details-link, .open-details-link i {
+  font-size: 0.8rem;
+  color: var(--p-primary-color);
+  margin-left: 0.2rem;
+}

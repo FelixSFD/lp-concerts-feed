@@ -57,5 +57,9 @@
       />
       <label [for]="inputId">Venue</label>
     </p-floatlabel>
+
+    @if (openVenueButton && value()) {
+      <a [routerLink]="['/admin/venues', value()?.id]" target="_blank" class="open-details-link">Venue details <i class="pi pi-external-link"></i></a>
+    }
   </div>
 </div>

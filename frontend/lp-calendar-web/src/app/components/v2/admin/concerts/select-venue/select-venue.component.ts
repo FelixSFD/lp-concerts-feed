@@ -16,6 +16,8 @@ import { FloatLabel } from 'primeng/floatlabel';
 import { Select } from 'primeng/select';
 import { LocationsService } from '../../../../../services/locations.service';
 import { CityWithCountryDto, CountryDto, VenueDto } from '../../../../../modules/lpshows-api/v3';
+import { ButtonDirective } from 'primeng/button';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-select-venue',
@@ -23,6 +25,8 @@ import { CityWithCountryDto, CountryDto, VenueDto } from '../../../../../modules
     FormsModule,
     FloatLabel,
     Select,
+    ButtonDirective,
+    RouterLink,
   ],
   providers: [
     {
@@ -45,6 +49,11 @@ export class SelectVenueComponent implements ControlValueAccessor, OnInit {
   @Input({ transform: booleanAttribute }) filter: boolean = true;
   @Input({ transform: booleanAttribute }) disabled: boolean = false;
   @Input({ transform: booleanAttribute }) invalid: boolean = false;
+
+  /**
+   * true, if a button to open the venue details should be shown
+   */
+  @Input({ transform: booleanAttribute }) openVenueButton: boolean = false;
 
   @Output() venueChange = new EventEmitter<VenueDto | null>();
 
