@@ -19,6 +19,7 @@ docker run --rm \
   -g aspnetcore \
   -o /local/tmp/generated_code \
   --additional-properties=packageName=Common.Contracts.Generated,modelNameSuffix=Dto \
+  --additional-properties=enumValueSuffix= \
   --additional-properties=operationModifier=abstract,classModifier=abstract,operationResultTask=true,operationIsAsync=false,useNewtonsoft=false,useSwashbuckle=false,useDateTimeOffset=true \
   --additional-properties=nullableReferenceTypes=true,useDataAnnotations=false \
     --global-property=models,supportingFiles \

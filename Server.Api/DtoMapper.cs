@@ -294,11 +294,11 @@ internal static class DtoMapper
     {
         return data switch
         {
-            ConcertDto.ConcertStatusValue.Planned => ConcertStatusValueDto.PlannedEnum,
-            ConcertDto.ConcertStatusValue.Running => ConcertStatusValueDto.RunningEnum,
-            ConcertDto.ConcertStatusValue.Past => ConcertStatusValueDto.PastEnum,
-            ConcertDto.ConcertStatusValue.Cancelled => ConcertStatusValueDto.CancelledEnum,
-            _ => ConcertStatusValueDto.PastEnum
+            ConcertDto.ConcertStatusValue.Planned => ConcertStatusValueDto.Planned,
+            ConcertDto.ConcertStatusValue.Running => ConcertStatusValueDto.Running,
+            ConcertDto.ConcertStatusValue.Past => ConcertStatusValueDto.Past,
+            ConcertDto.ConcertStatusValue.Cancelled => ConcertStatusValueDto.Cancelled,
+            _ => ConcertStatusValueDto.Past
         };
     }
 
