@@ -17,6 +17,7 @@ import {HttpErrorResponse} from '@angular/common/http';
 import {DateTime} from 'luxon';
 import {MenuItem, MessageService} from 'primeng/api';
 import {ConcertDetailsComponent} from '../concert-details/concert-details.component';
+import {ConcertDetailsViewModel} from '../concert-details/concert-details.view-model';
 
 @Component({
   selector: 'app-legacy-concert-details-page',
@@ -42,13 +43,13 @@ export class LegacyConcertDetailsPageComponent implements OnInit {
   adjacentConcertData$: AdjacentConcertsResponseDto | null = null;
   concertBookmarks$: GetConcertBookmarkCountsResponseDto | null = null;
   concertBookmarksLoading$: boolean = false;
+  setlists$: Setlist[] = [];
+  setlistsCacheUpdatedAt$: DateTime | null = null;
+  viewModel$: ConcertDetailsViewModel | null = null;
 
   isAuthenticated$ = false;
   canUpdateConcerts$ = false;
   canEditSetlists = false;
-
-  setlists$: Setlist[] = [];
-  setlistsCacheUpdatedAt$: DateTime | null = null;
 
   addSetlistButtonItems: MenuItem[] = [];
 
@@ -72,10 +73,14 @@ export class LegacyConcertDetailsPageComponent implements OnInit {
       let concert = data['concert'] as ConcertWithSetlistsDto | null;
       if (concert == null || !concert.id) {
         this.resolverError$ = data['concert'] as ErrorResponseDto;
+        this.viewModel$ = null;
         return;
       }
 
       this.concert$ = concert;
+      this.setlists$ = concert?.cachedSetlists?.map(s => Setlist.fromDto(s)) ?? [];
+      this.setlistsCacheUpdatedAt$ = concert?.cachedSetlistsAt != null ? this.getDateTime(concert?.cachedSetlistsAt) : null;
+      this.updateViewModel();
 
       this.loadAdjacentConcerts();
       this.loadBookmarkStatus();
@@ -83,9 +88,6 @@ export class LegacyConcertDetailsPageComponent implements OnInit {
       if (this.concert$ != null) {
         this.updateMetaInfo(this.concert$);
       }
-
-      this.setlists$ = concert?.cachedSetlists?.map(s => Setlist.fromDto(s)) ?? [];
-      this.setlistsCacheUpdatedAt$ = concert?.cachedSetlistsAt != null ? this.getDateTime(concert?.cachedSetlistsAt) : null;
     });
 
     this.authService.canUpdateConcerts.subscribe(hasPermission => {
@@ -120,6 +122,7 @@ export class LegacyConcertDetailsPageComponent implements OnInit {
   private onBookmarkOrAttendingClicked(status: GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum) {
     console.log("Clicked button for: ", status);
     this.concertBookmarksLoading$ = true;
+    this.updateViewModel();
 
     this.authService.isAuthenticated$.subscribe((isAuthenticated) => {
       if (this.concert$?.id == undefined || this.concertBookmarks$ == null) {
@@ -128,6 +131,7 @@ export class LegacyConcertDetailsPageComponent implements OnInit {
           summary: "Concert not loaded",
         });
         this.concertBookmarksLoading$ = false;
+        this.updateViewModel();
         return;
       }
 
@@ -148,6 +152,8 @@ export class LegacyConcertDetailsPageComponent implements OnInit {
                 summary: "Failed to remove bookmark!",
                 text: errorResponse.message,
               });
+              this.concertBookmarksLoading$ = false;
+              this.updateViewModel();
             }
           });
         } else {
@@ -167,6 +173,7 @@ export class LegacyConcertDetailsPageComponent implements OnInit {
                 text: errorResponse.message,
               });
               this.concertBookmarksLoading$ = false;
+              this.updateViewModel();
             }
           });
         }
@@ -176,6 +183,7 @@ export class LegacyConcertDetailsPageComponent implements OnInit {
           summary: "You are not logged in!",
         });
         this.concertBookmarksLoading$ = false;
+        this.updateViewModel();
       }
     });
   }
@@ -188,6 +196,7 @@ export class LegacyConcertDetailsPageComponent implements OnInit {
           if (bookmarkStatus != undefined) {
             this.concertBookmarksLoading$ = false;
             this.concertBookmarks$ = bookmarkStatus;
+            this.updateViewModel();
           }
         });
     }
@@ -200,9 +209,25 @@ export class LegacyConcertDetailsPageComponent implements OnInit {
         .subscribe(adjacentConcerts => {
           if (adjacentConcerts != undefined) {
             this.adjacentConcertData$ = adjacentConcerts;
+            this.updateViewModel();
           }
         });
     }
+  }
+
+  private updateViewModel() {
+    if (!this.concert$) {
+      this.viewModel$ = null;
+      return;
+    }
+    this.viewModel$ = ConcertDetailsViewModel.fromLegacyDto(
+      this.concert$,
+      this.adjacentConcertData$,
+      this.concertBookmarks$,
+      this.concertBookmarksLoading$,
+      this.setlists$,
+      this.setlistsCacheUpdatedAt$
+    );
   }
 
   private updateMetaInfo(concert: ConcertDto) {

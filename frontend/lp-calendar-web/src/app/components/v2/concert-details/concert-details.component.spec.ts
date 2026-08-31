@@ -1,13 +1,21 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ConcertDetailsComponent } from './concert-details.component';
+import { MessageService } from 'primeng/api';
+import { MatomoTracker } from 'ngx-matomo-client';
+import { provideRouter } from '@angular/router';
 
-describe('LegacyConcertDetailsComponent', () => {
+describe('ConcertDetailsComponent', () => {
   let component: ConcertDetailsComponent;
   let fixture: ComponentFixture<ConcertDetailsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ConcertDetailsComponent]
+      imports: [ConcertDetailsComponent],
+      providers: [
+        MessageService,
+        provideRouter([]),
+        { provide: MatomoTracker, useValue: { trackLink: jasmine.createSpy('trackLink') } }
+      ]
     })
     .compileComponents();
 

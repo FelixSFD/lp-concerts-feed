@@ -11,32 +11,25 @@ import {
   ViewChild
 } from '@angular/core';
 import {MatomoTracker} from 'ngx-matomo-client';
-import {
-  AdjacentConcertsResponseDto,
-  ConcertDto,
-  ErrorResponseDto,
-  GetConcertBookmarkCountsResponseDto
-} from '../../../modules/lpshows-api';
+import {ErrorResponseDto} from '../../../modules/lpshows-api';
 import {load, MapKit} from '@apple/mapkit-loader';
 import {Map as AppleMap} from 'apple-mapkit/mapkit';
-import {Setlist} from '../../../data/setlists/setlist';
 import {RouterLink} from '@angular/router';
 import {DiscordShareService} from '../../../services/discord-share.service';
 import {DateTime} from 'luxon';
 import {environment} from '../../../../environments/environment';
-import {ConcertTitleGenerator} from '../../../data/concert-title-generator';
 import {ConcertBadgesComponent} from '../concert-badges/concert-badges.component';
 import {Card} from 'primeng/card';
 import {SplitButton} from 'primeng/splitbutton';
 import {Button} from 'primeng/button';
 import {MenuItem, MessageService} from 'primeng/api';
-import {FormsModule} from '@angular/forms';
 import {Tooltip} from 'primeng/tooltip';
 import {TimeSpanPipe} from '../../../data/time-span-pipe';
 import {HeroCountdownComponent} from '../hero-countdown/hero-countdown.component';
 import {SetlistComponent} from '../setlists/setlist/setlist.component';
 import {Tag} from 'primeng/tag';
 import {Image} from 'primeng/image';
+import {ConcertDetailsViewModel} from './concert-details.view-model';
 
 @Component({
   selector: 'app-concert-details',
@@ -46,7 +39,6 @@ import {Image} from 'primeng/image';
     SplitButton,
     Button,
     RouterLink,
-    FormsModule,
     Tooltip,
     TimeSpanPipe,
     HeroCountdownComponent,
@@ -63,16 +55,11 @@ export class ConcertDetailsComponent implements OnChanges {
   protected readonly tracker = inject(MatomoTracker);
   protected readonly discordShare = inject(DiscordShareService);
 
-  @Input() concert: ConcertDto | null = null;
-  @Input() adjacentConcertData: AdjacentConcertsResponseDto | null = null;
-  @Input() concertBookmarks: GetConcertBookmarkCountsResponseDto | null = null;
-  @Input() concertBookmarksLoading: boolean = false;
+  @Input() viewModel: ConcertDetailsViewModel | null = null;
   @Input() resolverError: ErrorResponseDto | null = null;
   @Input() isAuthenticated: boolean = false;
   @Input() canUpdateConcerts: boolean = false;
   @Input() canEditSetlists: boolean = false;
-  @Input() setlists: Setlist[] = [];
-  @Input() setlistsCacheUpdatedAt: DateTime | null = null;
   @Input() addSetlistButtonItems: MenuItem[] = [];
 
   @Output() bookmarkClicked = new EventEmitter<void>();
@@ -85,7 +72,7 @@ export class ConcertDetailsComponent implements OnChanges {
   private mapElementRef: ElementRef<HTMLDivElement> | undefined;
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['concert'] && this.appleMap && this.mapKit) {
+    if (changes['viewModel'] && this.appleMap && this.mapKit) {
       this.fillMapData();
     }
   }
@@ -135,7 +122,9 @@ export class ConcertDetailsComponent implements OnChanges {
   }
 
   private fillMapData() {
-    this.addOrMoveMarker(this.concert?.venueLongitude ?? 0, this.concert?.venueLatitude ?? 0);
+    if (this.viewModel?.venueCoordinates) {
+      this.addOrMoveMarker(this.viewModel.venueCoordinates.longitude, this.viewModel.venueCoordinates.latitude);
+    }
   }
 
   private zoomToCoordinates(lon: number, lat: number) {
@@ -147,19 +136,6 @@ export class ConcertDetailsComponent implements OnChanges {
     }
   }
 
-  private getVenuePinTitle() {
-    let venue = this.concert?.venue ?? undefined;
-    let city = this.concert?.city ?? undefined;
-
-    if (venue == undefined) {
-      return city ?? undefined;
-    } else if (city != undefined) {
-      return venue + ", " + city;
-    } else {
-      return undefined;
-    }
-  }
-
   private addOrMoveMarker(lon: number, lat: number) {
     if (!this.appleMap || !this.mapKit) {
       return;
@@ -167,7 +143,7 @@ export class ConcertDetailsComponent implements OnChanges {
     const annotation = new this.mapKit!.MarkerAnnotation(new this.mapKit!.Coordinate(lat, lon), {
       color: "#c969e0",
       map: this.appleMap,
-      title: this.getVenuePinTitle()
+      title: this.viewModel?.venuePinTitle ?? undefined
     });
     this.appleMap?.showItems([annotation]);
 
@@ -175,35 +151,17 @@ export class ConcertDetailsComponent implements OnChanges {
   }
 
   openLinkinpediaClicked() {
-    if (this.concert == undefined) {
+    if (!this.viewModel?.wikiUrl) {
       return;
     }
 
-    let dt = this.getDateTimeInTimezone(this.concert!.postedStartTime!, this.concert.timeZoneId!);
-    let wikiLink = "https://linkinpedia.com/wiki/Live:" + dt.toFormat("yyyyMMdd");
-
-    this.tracker.trackLink(wikiLink, "link");
-    window.open(wikiLink, "_blank");
-  }
-
-  public getDateTime(inputDate: string) {
-    return DateTime.fromISO(inputDate, {setZone: false});
-  }
-
-  public getDateTimeInTimezone(inputDate: string, timeZoneId: string) {
-    return DateTime.fromISO(inputDate, {zone: timeZoneId});
-  }
-
-  public zoneCityLabel(timeZoneId: string | null | undefined): string {
-    if (!timeZoneId) {
-      return "";
-    }
-    const parts = timeZoneId.split("/");
-    return parts[parts.length - 1].replace(/_/g, " ");
+    this.tracker.trackLink(this.viewModel.wikiUrl, "link");
+    window.open(this.viewModel.wikiUrl, "_blank");
   }
 
   onShareClicked() {
-    const link = window.location.protocol + "//" + window.location.host + "/concerts/" + this.concert?.id;
+    if (!this.viewModel?.id) return;
+    const link = window.location.protocol + "//" + window.location.host + "/concerts/" + this.viewModel.id;
     if (navigator.share) {
       navigator.share({title: document.title, url: link}).catch(() => {});
     } else {
@@ -213,9 +171,5 @@ export class ConcertDetailsComponent implements OnChanges {
     }
   }
 
-  protected readonly ConcertTitleGenerator = ConcertTitleGenerator;
   protected readonly DateTime = DateTime;
-  protected readonly String = String;
-  protected readonly GetConcertBookmarkCountsResponseDto = GetConcertBookmarkCountsResponseDto;
-  protected readonly environment = environment;
 }

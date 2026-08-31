@@ -13,12 +13,13 @@ export class DiscordShareService {
   private readonly messageService = inject(MessageService);
   private readonly tracker = inject(MatomoTracker);
 
-  timestamp(inputDate: string, style: DiscordTimestampStyle = 'F'): string {
-    const seconds = Math.floor(DateTime.fromISO(inputDate).toSeconds());
+  timestamp(inputDate: string | DateTime, style: DiscordTimestampStyle = 'F'): string {
+    const dt = inputDate instanceof DateTime ? inputDate : DateTime.fromISO(inputDate);
+    const seconds = Math.floor(dt.toSeconds());
     return `<t:${seconds}:${style}>`;
   }
 
-  copyTimestamp(inputDate: string | undefined | null, style: DiscordTimestampStyle = 'F', label = "timestamp"): void {
+  copyTimestamp(inputDate: string | DateTime | undefined | null, style: DiscordTimestampStyle = 'F', label = "timestamp"): void {
     if (!inputDate) {
       return;
     }
