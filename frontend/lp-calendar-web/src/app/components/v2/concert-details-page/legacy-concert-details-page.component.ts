@@ -38,7 +38,7 @@ import {Tag} from 'primeng/tag';
 import { Image } from 'primeng/image';
 
 @Component({
-  selector: 'app-concert-details-page',
+  selector: 'app-legacy-concert-details-page',
   imports: [
     ConcertBadgesComponent,
     Card,
@@ -53,11 +53,11 @@ import { Image } from 'primeng/image';
     Tag,
     Image
   ],
-  templateUrl: './concert-details-page.component.html',
-  styleUrl: './concert-details-page.component.css',
+  templateUrl: './legacy-concert-details-page.component.html',
+  styleUrl: './legacy-concert-details-page.component.css',
   changeDetection: ChangeDetectionStrategy.Eager,
 })
-export class ConcertDetailsPageComponent implements OnInit {
+export class LegacyConcertDetailsPageComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);

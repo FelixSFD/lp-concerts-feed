@@ -145,7 +145,7 @@ export const routes: Routes = [
           {
             path: '',
             loadComponent: () =>
-              import("./components/v2/concert-details-page/concert-details-page.component").then(m => m.ConcertDetailsPageComponent),
+              import("./components/v2/concert-details-page/legacy-concert-details-page.component").then(m => m.LegacyConcertDetailsPageComponent),
             title: baseTitle + 'Details',
             data: {
               breadcrumb: 'Concert Details',
