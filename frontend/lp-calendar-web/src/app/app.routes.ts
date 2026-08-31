@@ -134,6 +134,26 @@ export const routes: Routes = [
         },
       },
       {
+        path: 'beta/:id',
+        data: {
+          breadcrumb: 'Concert Details BETA',
+        },
+        resolve: {
+          concert: concertResolver,
+        },
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import("./components/v2/concert-details-page/concert-details-page.component").then(m => m.ConcertDetailsPageComponent),
+            title: baseTitle + 'Details BETA',
+            data: {
+              breadcrumb: 'Concert Details BETA',
+            },
+          },
+        ],
+      },
+      {
         path: ':id',
         data: {
           breadcrumb: 'Concert Details',

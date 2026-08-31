@@ -1,1 +1,11 @@
-<p>concert-details-page works!</p>
+<app-concert-details
+  [viewModel]="detailsViewModel()"
+  [resolverError]="resolverError()"
+  [isAuthenticated]="isAuthenticated()"
+  [canUpdateConcerts]="canUpdateConcerts()"
+  [canEditSetlists]="canEditSetlists()"
+  [addSetlistButtonItems]="addSetlistButtonItems()"
+  (bookmarkClicked)="onBookmarkClicked()"
+  (attendingClicked)="onAttendingClicked()"
+  (addSetlistClicked)="onAddSetlistBtnClicked()"
+/>

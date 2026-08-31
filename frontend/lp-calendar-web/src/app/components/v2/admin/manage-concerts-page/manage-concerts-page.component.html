@@ -70,7 +70,7 @@
         <td>{{ ConcertStatus.allValues.find(s => s.value == concert.status)?.label ?? "unknown" }}</td>
         <td>
           <p-button-group>
-            <p-button label="View" icon="pi pi-eye" variant="outlined" size="small" [routerLink]="['/concerts', concert.id]" disabled />
+            <p-button label="View" icon="pi pi-eye" variant="outlined" size="small" [routerLink]="['/concerts', 'beta', concert.id]" />
             <p-button label="Edit" icon="pi pi-pencil" variant="outlined" size="small" [routerLink]="[concert.id]" />
           </p-button-group>
         </td>
