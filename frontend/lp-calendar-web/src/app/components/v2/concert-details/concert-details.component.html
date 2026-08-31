@@ -1,0 +1,290 @@
+@if (resolverError != null) {
+  <div class="page-state">
+    <i class="pi pi-exclamation-circle"></i>
+    <h2>{{ resolverError.message }}</h2>
+    <p>This show may have been removed, or the link isn't quite right.</p>
+    <p-button label="Back to concerts" icon="pi pi-arrow-left" [routerLink]="['/concerts']" variant="outlined" />
+  </div>
+} @else if (concert == null) {
+  <div class="loading-skeleton" aria-busy="true">
+    <div class="sk sk-hero"></div>
+    <div class="sk-actions">
+      <div class="sk sk-pill"></div>
+      <div class="sk-pill"></div>
+      <div class="sk sk-pill"></div>
+    </div>
+    <div class="sk sk-timeline"></div>
+  </div>
+} @else {
+  <div class="page-nav">
+    <div class="nav-pager">
+      <p-button
+        label="Previous show"
+        icon="pi pi-arrow-left"
+        variant="text"
+        severity="secondary"
+        [disabled]="adjacentConcertData?.previous == null"
+        [routerLink]="adjacentConcertData?.previous ? ['../', adjacentConcertData?.previous] : null"
+        ariaLabel="Previous show"
+      />
+      <p-button
+        label="Next show" icon="pi pi-arrow-right" iconPos="right" variant="text" severity="secondary"
+        [disabled]="adjacentConcertData?.next == null"
+        [routerLink]="adjacentConcertData?.next ? ['../', adjacentConcertData?.next] : null" ariaLabel="Next show"
+      />
+    </div>
+    <p-button
+      label="See this show on Linkinpedia"
+      icon="pi pi-external-link"
+      variant="text"
+      (onClick)="openLinkinpediaClicked()"
+    />
+  </div>
+
+  <p-card class="hero-card">
+    <div class="hero">
+      <div class="hero-main">
+        @if (concert.tourName) {
+          <p class="eyebrow">{{ concert.tourName }}</p>
+        }
+        <h1 class="hero-title">{{ ConcertTitleGenerator.getVenueTitleFor(concert) }}</h1>
+        <p class="hero-meta">
+          <i class="pi pi-map-marker"></i>
+          {{ concert.city }}{{ (concert.state?.length ?? 0) > 0 ? ", " + concert.state : "" }}
+          , {{ concert.country }}
+          · {{ getDateTimeInTimezone(concert.postedStartTime!, concert.timeZoneId!).toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY) }}
+        </p>
+      </div>
+
+      @if (!concert.isPast) {
+        <div class="hero-countdown">
+          <app-hero-countdown [countdownToDate]="concert.mainStageTime ?? concert.postedStartTime!" />
+        </div>
+      } @else {
+        <div class="hero-ended">
+          <i class="pi pi-check-circle"></i>
+          <span>This show has ended</span>
+        </div>
+      }
+    </div>
+  </p-card>
+
+  <div class="hero-badges">
+    <app-concert-badges [concert]="concert"></app-concert-badges>
+  </div>
+
+  <div class="action-strip">
+    <div class="action-strip-main">
+      <p-button
+        class="action-btn"
+        [icon]="concertBookmarks?.currentUserStatus == 'Bookmarked' ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'"
+        [label]="'Bookmark · ' + (concertBookmarks?.bookmarked ?? 0)"
+        (onClick)="onBookmarkClicked()"
+        [disabled]="concertBookmarks == null || concertBookmarksLoading || !isAuthenticated"
+        variant="outlined" severity="secondary"
+        [pTooltip]="concertBookmarks?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Bookmarked ? 'Remove bookmark' : 'Bookmark this show'"
+        tooltipPosition="bottom"
+      />
+      <p-button
+        class="action-btn action-btn-accent"
+        icon="pi pi-ticket"
+        [label]="'Attending · ' + (concertBookmarks?.attending ?? 0)"
+        (onClick)="onAttendingClicked()"
+        [disabled]="concertBookmarks == null || concertBookmarksLoading || !isAuthenticated"
+        variant="outlined" severity="secondary"
+        [pTooltip]="concertBookmarks?.currentUserStatus == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Attending ? 'Remove me from the show' : 'I will attend this show'"
+        tooltipPosition="bottom"
+      />
+      <p-button
+        class="action-btn action-btn-accent"
+        icon="pi pi-calendar-plus"
+        label="Add to calendar"
+        variant="outlined" severity="secondary"
+        pTooltip="Coming soon" tooltipPosition="bottom" disabled
+      />
+    </div>
+    <p-button
+      class="action-share" icon="pi pi-share-alt"
+      variant="outlined" severity="secondary"
+      (onClick)="onShareClicked()"
+      ariaLabel="Share" pTooltip="Share this show" tooltipPosition="bottom"
+    />
+  </div>
+
+  <p-card class="timeline-card">
+    <div class="timeline" [class.timeline--past]="concert.isPast">
+      <div class="timeline-step" [class.timeline-step--empty]="concert.lpuEarlyEntryTime == undefined">
+        <div class="timeline-marker"><i class="pi pi-star"></i></div>
+        @if (concert.lpuEarlyEntryTime != undefined) {
+          <div class="timeline-time">{{ getDateTimeInTimezone(concert.lpuEarlyEntryTime!, concert.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE) }}</div>
+          <div class="timeline-yours">{{ getDateTime(concert.lpuEarlyEntryTime!).toLocaleString(DateTime.TIME_SIMPLE) }}
+            your time
+          </div>
+        } @else {
+          <div class="timeline-time timeline-placeholder">—</div>
+        }
+        <div class="timeline-label">LPU early entry</div>
+        @if (concert.lpuEarlyEntryTime != undefined) {
+          <p-button
+            type="button"
+            class="timeline-copy"
+            (click)="discordShare.copyTimestamp(concert.lpuEarlyEntryTime, 'F', 'LPU early entry')"
+            pTooltip="Copy for Discord"
+            tooltipPosition="bottom"
+            aria-label="Copy Discord timestamp"
+          >
+            <i class="pi pi-discord"></i>
+          </p-button>
+        }
+      </div>
+
+      <i class="pi pi-chevron-right timeline-arrow" aria-hidden="true"></i>
+
+      <div class="timeline-step" [class.timeline-step--empty]="concert.doorsTime == undefined">
+        <div class="timeline-marker"><i class="pi pi-sign-in"></i></div>
+        @if (concert.doorsTime != undefined) {
+          <div class="timeline-time">{{ getDateTimeInTimezone(concert.doorsTime!, concert.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE) }}</div>
+          <div class="timeline-yours">{{ getDateTime(concert.doorsTime!).toLocaleString(DateTime.TIME_SIMPLE) }} your
+                                                                                                                   time
+          </div>
+        } @else {
+          <div class="timeline-time timeline-placeholder">—</div>
+        }
+        <div class="timeline-label">Doors open</div>
+        @if (concert.doorsTime != undefined) {
+          <p-button
+            type="button"
+            class="timeline-copy"
+            (click)="discordShare.copyTimestamp(concert.doorsTime, 'F', 'Doors open')"
+            pTooltip="Copy for Discord"
+            tooltipPosition="bottom"
+            aria-label="Copy Discord timestamp"
+          >
+            <i class="pi pi-discord"></i>
+          </p-button>
+        }
+      </div>
+
+      <i class="pi pi-chevron-right timeline-arrow" aria-hidden="true"></i>
+
+      @if (concert.mainStageTime != undefined) {
+        <div class="timeline-step timeline-step--lead">
+          <div class="timeline-marker"><i class="pi pi-microphone"></i></div>
+          <div class="timeline-time">{{ getDateTimeInTimezone(concert.mainStageTime!, concert.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE) }}</div>
+          <div class="timeline-yours">{{ getDateTime(concert.mainStageTime!).toLocaleString(DateTime.TIME_SIMPLE) }}
+            your time
+          </div>
+          <div class="timeline-label">LP stage time</div>
+          <p-button
+            type="button"
+            class="timeline-copy"
+            (click)="discordShare.copyTimestamp(concert.mainStageTime, 'F', 'LP stage time')"
+            pTooltip="Copy for Discord"
+            tooltipPosition="bottom"
+            aria-label="Copy Discord timestamp"
+          >
+            <i class="pi pi-discord"></i>
+          </p-button>
+        </div>
+      } @else {
+        <div class="timeline-step timeline-step--lead">
+          <div class="timeline-marker"><i class="pi pi-microphone"></i></div>
+          <div class="timeline-time">{{ getDateTimeInTimezone(concert.postedStartTime!, concert.timeZoneId!).toLocaleString(DateTime.TIME_SIMPLE) }}</div>
+          <div class="timeline-yours">{{ getDateTime(concert.postedStartTime!).toLocaleString(DateTime.TIME_SIMPLE) }}
+            your time
+          </div>
+          <div class="timeline-label">Show starts</div>
+          <p-button
+            type="button"
+            class="timeline-copy"
+            (click)="discordShare.copyTimestamp(concert.postedStartTime, 'F', 'Show starts')"
+            pTooltip="Copy for Discord"
+            tooltipPosition="bottom"
+            aria-label="Copy Discord timestamp"
+          >
+            <i class="pi pi-discord"></i>
+          </p-button>
+        </div>
+      }
+    </div>
+  </p-card>
+
+  @if ((concert.expectedSetDuration ?? 0) > 0) {
+    <p class="set-duration"><i class="pi pi-clock"></i> Expected set duration
+                                                        · {{ concert.expectedSetDuration ?? 0 | timeSpan }}</p>
+  }
+
+  @if (setlists?.length ?? 0 > 0) {
+    @for (setlist of setlists; track setlist) {
+      <p-card class="section-card">
+        <p class="section-head">
+          <i class="pi pi-list"></i> Setlist: {{ setlist.setName }}
+          <p-tag
+            value="BETA"
+            severity="secondary"
+            pTooltip="This is an early version of this feature and might not work perfectly"
+            tooltipPosition="top"
+          />
+        </p>
+
+        <app-setlist [setlist]="setlist" />
+
+        @if (setlistsCacheUpdatedAt != null) {
+          <small class="section-note">Last
+                                      updated: {{ setlistsCacheUpdatedAt?.toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS) }}</small>
+        }
+      </p-card>
+    }
+  }
+
+  @if (concert.scheduleImageFile != undefined || (concert.venueLatitude != 0 && concert.venueLongitude != 0)) {
+    <div class="panel-row">
+      @if (concert.venueLatitude != 0 && concert.venueLongitude != 0) {
+        <p-card class="panel-half">
+          <p class="section-head"><i class="pi pi-map-marker"></i> Venue location</p>
+          <ng-container #mapContainer>
+            <div #appleMaps class="map"></div>
+          </ng-container>
+        </p-card>
+      }
+      @if (concert.scheduleImageFile != undefined) {
+        <p-card class="panel-half">
+          <p class="section-head"><i class="pi pi-calendar"></i> Official schedule</p>
+          <div class="schedule-img">
+            <p-image
+              src="{{ environment.imageBaseUrl + '/' + concert.scheduleImageFile! }}"
+              alt="Official schedule announcement"
+              [preview]="true"
+            />
+          </div>
+        </p-card>
+      }
+    </div>
+  }
+
+  @if (canUpdateConcerts || canEditSetlists) {
+    <div class="page-footer">
+      <div class="footer-admin">
+        <p-button
+          [hidden]="!canUpdateConcerts"
+          label="Edit"
+          icon="pi pi-pencil"
+          variant="text"
+          severity="secondary"
+          size="small"
+          [routerLink]="['./edit']"
+        />
+        @if (canEditSetlists) {
+          <p-split-button
+            (onClick)="onAddSetlistBtnClicked()"
+            [model]="addSetlistButtonItems"
+            icon="pi pi-list"
+            label="Add setlist"
+            text
+            size="small"
+          />
+        }
+      </div>
+    </div>
+  }
+}

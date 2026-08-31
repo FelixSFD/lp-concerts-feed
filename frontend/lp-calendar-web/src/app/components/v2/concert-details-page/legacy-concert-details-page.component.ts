@@ -1,57 +1,27 @@
-import { ChangeDetectionStrategy, Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
 import {AuthService} from '../../../auth/auth.service';
 import {MatomoTracker} from 'ngx-matomo-client';
 import {
   AdjacentConcertsResponseDto,
   ConcertBookmarkUpdateRequestDto,
-  ConcertDto, ConcertWithSetlistsDto,
+  ConcertDto,
+  ConcertWithSetlistsDto,
   ErrorResponseDto,
   GetConcertBookmarkCountsResponseDto
 } from '../../../modules/lpshows-api';
-import {load, MapKit} from '@apple/mapkit-loader';
-import {Map as AppleMap} from 'apple-mapkit/mapkit';
-import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {Setlist} from '../../../data/setlists/setlist';
-import {ActivatedRoute, Router, RouterLink} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {ConcertsService} from '../../../services/concerts.service';
-import {SetlistsService} from '../../../services/setlists.service';
-import { DiscordShareService } from '../../../services/discord-share.service';
 import {Meta} from '@angular/platform-browser';
 import {HttpErrorResponse} from '@angular/common/http';
 import {DateTime} from 'luxon';
-import {environment} from '../../../../environments/environment';
-import {ConcertTitleGenerator} from '../../../data/concert-title-generator';
-import {ConcertBadgesComponent} from '../concert-badges/concert-badges.component';
-import {ProgressSpinner} from 'primeng/progressspinner';
-import {Card} from 'primeng/card';
-import {SplitButton} from 'primeng/splitbutton';
-import {NgTemplateOutlet} from '@angular/common';
-import {Button} from 'primeng/button';
-import {ButtonGroup} from 'primeng/buttongroup';
 import {MenuItem, MessageService} from 'primeng/api';
-import {FormsModule} from '@angular/forms';
-import {Tooltip} from 'primeng/tooltip';
-import {TimeSpanPipe} from '../../../data/time-span-pipe';
-import { HeroCountdownComponent } from '../hero-countdown/hero-countdown.component';
-import {SetlistComponent} from '../setlists/setlist/setlist.component';
-import {Tag} from 'primeng/tag';
-import { Image } from 'primeng/image';
+import {ConcertDetailsComponent} from '../concert-details/concert-details.component';
 
 @Component({
   selector: 'app-legacy-concert-details-page',
   imports: [
-    ConcertBadgesComponent,
-    Card,
-    SplitButton,
-    Button,
-    RouterLink,
-    FormsModule,
-    Tooltip,
-    TimeSpanPipe,
-    HeroCountdownComponent,
-    SetlistComponent,
-    Tag,
-    Image
+    ConcertDetailsComponent
   ],
   templateUrl: './legacy-concert-details-page.component.html',
   styleUrl: './legacy-concert-details-page.component.css',
@@ -61,20 +31,17 @@ export class LegacyConcertDetailsPageComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
+  private readonly concertsService = inject(ConcertsService);
+  private readonly metaService = inject(Meta);
+  private readonly route = inject(ActivatedRoute);
 
   tracker = inject(MatomoTracker);
-  protected readonly discordShare = inject(DiscordShareService);
 
   resolverError$: ErrorResponseDto | null = null;
-  concert$: ConcertDto | null = null;
+  concert$: ConcertWithSetlistsDto | null = null;
   adjacentConcertData$: AdjacentConcertsResponseDto | null = null;
   concertBookmarks$: GetConcertBookmarkCountsResponseDto | null = null;
   concertBookmarksLoading$: boolean = false;
-  concertId: string | undefined;
-
-  // Apple Maps
-  private mapKit: MapKit | undefined;
-  private appleMap: AppleMap | undefined;
 
   isAuthenticated$ = false;
   canUpdateConcerts$ = false;
@@ -84,10 +51,6 @@ export class LegacyConcertDetailsPageComponent implements OnInit {
   setlistsCacheUpdatedAt$: DateTime | null = null;
 
   addSetlistButtonItems: MenuItem[] = [];
-
-  constructor(private route: ActivatedRoute, private concertsService: ConcertsService, private setlistService: SetlistsService, private metaService: Meta) {
-  }
-
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -109,7 +72,6 @@ export class LegacyConcertDetailsPageComponent implements OnInit {
       let concert = data['concert'] as ConcertWithSetlistsDto | null;
       if (concert == null || !concert.id) {
         this.resolverError$ = data['concert'] as ErrorResponseDto;
-
         return;
       }
 
@@ -141,7 +103,6 @@ export class LegacyConcertDetailsPageComponent implements OnInit {
     this.onBookmarkOrAttendingClicked(ConcertBookmarkUpdateRequestDto.StatusEnum.Bookmarked);
   }
 
-
   onAttendingClicked() {
     this.onBookmarkOrAttendingClicked(ConcertBookmarkUpdateRequestDto.StatusEnum.Attending);
   }
@@ -155,46 +116,6 @@ export class LegacyConcertDetailsPageComponent implements OnInit {
       });
     });
   }
-
-
-  private async initAppleMaps() {
-    this.mapKit = await load({
-      token: environment.appleMapsToken,
-      language: "en-US",
-      libraries: ["map", "annotations"],
-    });
-  }
-
-
-  @ViewChild('appleMaps')
-  set appleMaps(mapElement: ElementRef<HTMLDivElement> | undefined) {
-    if (!mapElement) return;
-    if (!this.appleMaps) {
-      console.debug('MapKit not initialized yet!');
-      this.initAppleMaps().then(() => {
-        this.appleMap = this.makeMap(mapElement.nativeElement);
-        this.fillMapData();
-      });
-      return;
-    }
-
-    console.log("Will set map element: ", mapElement);
-    this.appleMap = this.makeMap(mapElement.nativeElement);
-    this.fillMapData();
-  }
-
-
-  private makeMap(mapElement: HTMLDivElement) {
-    let map = new this.mapKit!.Map(mapElement);
-    map.colorScheme = "adaptive";
-    return map;
-  }
-
-
-  private fillMapData() {
-    this.addOrMoveMarker(this.concert$?.venueLongitude ?? 0, this.concert$?.venueLatitude ?? 0);
-  }
-
 
   private onBookmarkOrAttendingClicked(status: GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum) {
     console.log("Clicked button for: ", status);
@@ -216,7 +137,6 @@ export class LegacyConcertDetailsPageComponent implements OnInit {
           this.tracker.trackEvent("concert_bookmark", "remove", status);
           this.concertsService.setBookmarksForConcert(this.concert$?.id, ConcertBookmarkUpdateRequestDto.StatusEnum.None).subscribe({
             next: () => {
-              //this.toastr.success("Removed bookmark!");
               this.concertBookmarks$!.currentUserStatus = GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.None;
               this.loadBookmarkStatus();
             },
@@ -235,9 +155,8 @@ export class LegacyConcertDetailsPageComponent implements OnInit {
           this.tracker.trackEvent("concert_bookmark", "set", status);
           this.concertsService.setBookmarksForConcert(this.concert$?.id, status).subscribe({
             next: () => {
-              //this.toastr.success("Added bookmark!");
               this.concertBookmarks$!.currentUserStatus = status;
-              this.loadBookmarkStatus(); // will set the loading status to false when done
+              this.loadBookmarkStatus();
             },
             error: (err: HttpErrorResponse) => {
               console.log(err);
@@ -261,7 +180,6 @@ export class LegacyConcertDetailsPageComponent implements OnInit {
     });
   }
 
-
   private loadBookmarkStatus() {
     let id = this.concert$?.id;
     if (id) {
@@ -275,7 +193,6 @@ export class LegacyConcertDetailsPageComponent implements OnInit {
     }
   }
 
-
   private loadAdjacentConcerts() {
     let id = this.concert$?.id;
     if (id) {
@@ -287,46 +204,6 @@ export class LegacyConcertDetailsPageComponent implements OnInit {
         });
     }
   }
-
-
-  private zoomToCoordinates(lon: number, lat: number) {
-    if (this.appleMap && this.mapKit) {
-      this.appleMap.region = new this.mapKit.CoordinateRegion(
-        new this.mapKit.Coordinate(lat, lon),
-        new this.mapKit.CoordinateSpan(0.06, 0.2)
-      );
-    }
-  }
-
-
-  private getVenuePinTitle() {
-    let venue = this.concert$?.venue ?? undefined;
-    let city = this.concert$?.city ?? undefined;
-
-    if (venue == undefined) {
-      return city ?? undefined;
-    } else if (city != undefined) {
-      return venue + ", " + city;
-    } else {
-      return undefined;
-    }
-  }
-
-
-  private addOrMoveMarker(lon: number, lat: number) {
-    if (!this.appleMap || !this.mapKit) {
-      return;
-    }
-    const annotation = new this.mapKit!.MarkerAnnotation(new this.mapKit!.Coordinate(lat, lon), {
-      color: "#c969e0",
-      map: this.appleMap,
-      title: this.getVenuePinTitle()
-    });
-    this.appleMap?.showItems([annotation]);
-
-    this.zoomToCoordinates(lon, lat);
-  }
-
 
   private updateMetaInfo(concert: ConcertDto) {
     let concertDateTitleExtension = "";
@@ -349,10 +226,10 @@ export class LegacyConcertDetailsPageComponent implements OnInit {
 
     if (concert.tourName != undefined) {
       pageTitle = concert.tourName + ": " + concert.city;
-      description = concertDateDescriptionExtension + "Linkin Park show of the " + concert.tourName + " in " + concert.city + ", " + concert.country
+      description = concertDateDescriptionExtension + "Linkin Park show of the " + concert.tourName + " in " + concert.city + ", " + concert.country;
     } else {
       pageTitle = "Linkin Park at " + concert.venue;
-      description = concertDateDescriptionExtension + "Linkin Park show at " + concert.venue + " in " + concert.city + ", " + concert.country
+      description = concertDateDescriptionExtension + "Linkin Park show at " + concert.venue + " in " + concert.city + ", " + concert.country;
     }
 
     this.metaService.updateTag({
@@ -373,52 +250,7 @@ export class LegacyConcertDetailsPageComponent implements OnInit {
     });
   }
 
-
-  openLinkinpediaClicked() {
-    if (this.concert$ == undefined) {
-      return;
-    }
-
-    let dt = this.getDateTimeInTimezone(this.concert$!.postedStartTime!, this.concert$.timeZoneId!);
-    let wikiLink = "https://linkinpedia.com/wiki/Live:" + dt.toFormat("yyyyMMdd");
-
-    this.tracker.trackLink(wikiLink, "link");
-    window.open(wikiLink, "_blank");
-  }
-
-
   public getDateTime(inputDate: string) {
     return DateTime.fromISO(inputDate, {setZone: false});
   }
-
-
-  public getDateTimeInTimezone(inputDate: string, timeZoneId: string) {
-    return DateTime.fromISO(inputDate, {zone: timeZoneId});
-  }
-
-  public zoneCityLabel(timeZoneId: string | null | undefined): string {
-    if (!timeZoneId) {
-      return "";
-    }
-    const parts = timeZoneId.split("/");
-    return parts[parts.length - 1].replace(/_/g, " ");
-  }
-
-
-  onShareClicked() {
-    const link = window.location.protocol + "//" + window.location.host + "/concerts/" + this.concert$?.id;
-    if (navigator.share) {
-      navigator.share({title: document.title, url: link}).catch(() => {});
-    } else {
-      navigator.clipboard.writeText(link).then(() => {
-        this.messageService.add({severity: "success", summary: "Copied link to clipboard!"});
-      });
-    }
-  }
-
-  protected readonly ConcertTitleGenerator = ConcertTitleGenerator;
-  protected readonly DateTime = DateTime;
-  protected readonly String = String;
-  protected readonly GetConcertBookmarkCountsResponseDto = GetConcertBookmarkCountsResponseDto;
-  protected readonly environment = environment;
 }
