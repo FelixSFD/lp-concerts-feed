@@ -236,6 +236,33 @@ paths:
         requestParameters:
           integration.request.path.concertId: method.request.path.concertId
   
+  /v3/Concerts/{concertId}/adjacent:
+    get:
+      operationId: GetAdjacentConcertsForId
+      summary: Returns information about the previous and next concerts
+      tags:
+        - concerts
+      parameters:
+        - in: path
+          name: concertId
+          description: ID of the concert
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A JSON object with the information of the adjacent concerts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdjacentConcertsResponse"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Concerts/{concertId}/adjacent
+        requestParameters:
+          integration.request.path.concertId: method.request.path.concertId
+  
   /v2/concerts/{id}/bookmarks/count:
     get:
       operationId: GetBookmarkCountForConcert
@@ -2317,6 +2344,20 @@ components:
           type: string
           nullable: true
           format: double
+    
+    AdjacentConcertsResponse:
+      type: object
+      description: Response to get the IDs of the previous and next concerts
+      properties:
+        current:
+          type: string
+          description: ID of the requested concert
+        previous:
+          type: string
+          description: ID of the previous concert
+        next:
+          type: string
+          description: ID of the next concert
     
     # Schemas from v2
     GetConcertBookmarkCountsResponse:
