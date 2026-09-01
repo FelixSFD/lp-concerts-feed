@@ -118,6 +118,28 @@ public class ConcertsController(ConcertService concertService, IOutputCacheStore
         await EvictConcertCacheAsync();
         return NoContent();
     }
+    
+    /// <summary>
+    /// Returns information about the previous and next concerts to a given concert.
+    /// </summary>
+    /// <param name="concertId">ID of the concert where the search starts</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("{concertId}/adjacent")]
+    [CustomResponseCache(Duration = CacheExpiration.Default)]
+    [OutputCache(PolicyName = CachePolicyNames.Long, Tags = [CacheTags.ConcertsAll])]
+    public async Task<ActionResult<AdjacentConcertsResponseDto>> GetAdjacentConcerts([FromRoute] string concertId, CancellationToken cancellationToken)
+    {
+        var bo = await concertService.GetAdjacentConcerts(concertId, cancellationToken);
+        var response = new AdjacentConcertsResponseDto
+        {
+            Current = concertId,
+            Previous = bo.Previous?.Id,
+            Next = bo.Next?.Id
+        };
+        
+        return Ok(response);
+    }
 
     private async Task EvictConcertCacheAsync(CancellationToken cancellationToken = default)
     {

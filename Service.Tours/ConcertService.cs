@@ -195,4 +195,44 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         
         await concertRepository.SaveChangesAsync();
     }
+
+    /// <summary>
+    /// Returns information about adjacent concerts to the specified concert. Like the one before and after the specified concert.
+    /// </summary>
+    /// <param name="concertId">ID of the concert to start the search at</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="ConcertNotFoundException">if the concert with ID <paramref name="concertId"/> was not found</exception>
+    public async Task<AdjacentConcertsBo> GetAdjacentConcerts(string concertId, CancellationToken cancellationToken)
+    {
+        logger.LogDebug("Load adjacent concerts to: {currentId}", concertId);
+        var currentConcert = await concertRepository.GetByPrimaryKeyWithoutReferencesAsync(concertId) ?? throw new ConcertNotFoundException(concertId);
+        logger.LogDebug("Found current concert.");
+        var paging = new PaginationParams(0, 1);
+        var getPreviousFilter = new ConcertFilter
+        {
+            Before = currentConcert.PostedStartTime
+        };
+        var getNextFilter = new ConcertFilter
+        {
+            After = currentConcert.PostedStartTime
+        };
+        var getPreviousTask = concertRepository
+            .GetConcerts(cancellationToken, getPreviousFilter, [], paging)
+            .FirstOrDefaultAsync(cancellationToken);
+        var getNextTask = concertRepository
+            .GetConcerts(cancellationToken, getNextFilter, [], paging).
+            FirstOrDefaultAsync(cancellationToken);
+
+        var previousConcert = await getPreviousTask;
+        var nextConcert = await getNextTask;
+        
+        logger.LogDebug("Loaded adjacent concerts. Before: {before}, After: {after}", previousConcert?.Id, nextConcert?.Id);
+        
+        return new AdjacentConcertsBo
+        {
+            Previous = previousConcert?.ToBoWithDetails(),
+            Next = nextConcert?.ToBoWithDetails()
+        };
+    }
 }
