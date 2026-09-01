@@ -32,6 +32,7 @@ import {
   MarkerAnnotation
 } from '@apple/mapkit-loader';
 import { environment } from '../../../../../../environments/environment';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-venue-form',
@@ -284,19 +285,28 @@ export class VenueFormComponent {
     return map;
   }
 
-  onGoToCityClicked() {
-    /*let city = this.venueForm.value.city;
-    let state = this.venueForm.value.state;
-    let country = this.venueForm.value.country;
-
-    if (city == null || country == null) {
+  async onGoToCityClicked() {
+    let cityId = this.venueForm.value.cityId;
+    if (cityId == null) {
+      this.messageService.add({ severity: 'warn', summary: 'No city selected', detail: 'Please select a city first' });
       return;
     }
 
-    this.locationsService.getCoordinatesFor(city, state ? state : null, country)
+    let city = await firstValueFrom(this.locationsService.getCity(this.venueForm.value.countryCode!, cityId));
+    if (city == null) {
+      this.messageService.add({ severity: 'error', summary: 'City not found', detail: 'The list of cities was not loaded correctly' });
+      return;
+    }
+
+    console.log("Will zoom to city: ", city);
+
+    let state = city.state;
+    let country = city.country;
+
+    this.locationsService.getCoordinatesFor(city.name, state ? state.name : null, country.name)
       .subscribe(coordinates => {
         this.zoomToCoordinates(coordinates?.longitude ?? 0, coordinates?.latitude ?? 0);
-      });*/
+      });
   }
 
 
