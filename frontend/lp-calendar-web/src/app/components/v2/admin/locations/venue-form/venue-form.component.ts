@@ -285,6 +285,15 @@ export class VenueFormComponent {
     return map;
   }
 
+  private async getCityDetails(cityId: number) {
+    let city = await firstValueFrom(this.locationsService.getCity(this.venueForm.value.countryCode!, cityId));
+    if (city == null) {
+      return null;
+    }
+
+    return city;
+  }
+
   async onGoToCityClicked() {
     let cityId = this.venueForm.value.cityId;
     if (cityId == null) {
@@ -292,7 +301,7 @@ export class VenueFormComponent {
       return;
     }
 
-    let city = await firstValueFrom(this.locationsService.getCity(this.venueForm.value.countryCode!, cityId));
+    let city = await this.getCityDetails(cityId);
     if (city == null) {
       this.messageService.add({ severity: 'error', summary: 'City not found', detail: 'The list of cities was not loaded correctly' });
       return;
@@ -300,7 +309,7 @@ export class VenueFormComponent {
 
     console.log("Will zoom to city: ", city);
 
-    let state = city.state;
+    let state = city.state ?? null;
     let country = city.country;
 
     this.locationsService.getCoordinatesFor(city.name, state ? state.name : null, country.name)
@@ -316,26 +325,37 @@ export class VenueFormComponent {
   }
 
 
-  tryAutoSetVenuePin() {
-    /*let venue = this.venueForm.value.venue;
-    let city = this.venueForm.value.city;
-    let state = this.venueForm.value.state;
-    let country = this.venueForm.value.country;
+  async tryAutoSetVenuePin() {
+    let venueName = this.venueForm.value.currentName;
 
-    if (city == null || country == null || venue == null) {
+    let cityId = this.venueForm.value.cityId;
+    if (cityId == null) {
+      this.messageService.add({ severity: 'warn', summary: 'No city selected', detail: 'Please select a city first' });
       return;
     }
 
-    this.locationsService.getCoordinatesForVenue(venue, city, state ? state : null, country)
+    let city = await this.getCityDetails(cityId);
+    if (city == null) {
+      this.messageService.add({ severity: 'error', summary: 'City not found', detail: 'The list of cities was not loaded correctly' });
+      return;
+    }
+
+    let state = city.state ?? null;
+    let country = city.country;
+
+    if (country == null || venueName == null) {
+      return;
+    }
+
+    this.locationsService.getCoordinatesForVenue(venueName, city.name, state ? state.name : null, country.name)
       .subscribe(coordinates => {
         let lat = coordinates?.latitude ?? 0;
         let lon = coordinates?.longitude ?? 0;
 
-        //this.zoomToCoordinates(lon, lat, 8);
         this.addOrMoveMarker(lon, lat);
         this.venueForm.controls.longitude.setValue(lon);
         this.venueForm.controls.latitude.setValue(lat);
-      });*/
+      });
   }
 
 

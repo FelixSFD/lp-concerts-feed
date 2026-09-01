@@ -173,7 +173,7 @@ export class LocationsService {
 
 
   getCoordinatesForVenue(venue: string, city: string, state: string | null, country: string): Observable<Coordinates | undefined> {
-    let stateQueryComponent = state ? "," + encodeURIComponent(state) : undefined;
+    let stateQueryComponent = state ? "," + encodeURIComponent(state) : "";
     let osmUrl = this.osmApiBaseUrl + "/search.php?format=jsonv2&q=" + encodeURIComponent(venue) + stateQueryComponent + "," + encodeURIComponent(city) + "," + encodeURIComponent(country);
     return this.getFirstCoordinateFromUrl(osmUrl);
   }
