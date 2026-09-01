@@ -41,6 +41,27 @@
           <label for="name">Current Name</label>
         </p-floatlabel>
       </div>
+
+      <p-divider />
+
+      <!-- Map with the location of the venue -->
+      <!-- Coordinates -->
+      <div class="col-12">
+        <p-floatlabel variant="on">
+          <p-input-number formControlName="latitude" inputId="venueLat" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="25" fluid />
+          <label for="venueLat">Venue latitude</label>
+        </p-floatlabel>
+      </div>
+      <div class="col-12">
+        <p-floatlabel variant="on">
+          <p-input-number formControlName="longitude" inputId="venueLong" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="25" fluid />
+          <label for="venueLong">Venue longitude</label>
+        </p-floatlabel>
+      </div>
+      <!-- Apple Maps -->
+      <div class="col-12">
+        <div #appleMaps class="venue-map"></div>
+      </div>
     </div>
   </ng-template>
 

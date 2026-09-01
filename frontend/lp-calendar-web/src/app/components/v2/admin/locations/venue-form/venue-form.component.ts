@@ -1,4 +1,13 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component, ElementRef,
+  EventEmitter,
+  inject,
+  Input,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CityWithCountryDto, CountryDto, VenueDto } from '../../../../../modules/lpshows-api/v3';
@@ -13,6 +22,9 @@ import { Select } from 'primeng/select';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import timezones from 'timezones-list';
+import { InputNumber } from 'primeng/inputnumber';
+import { load, MapKit, Map as AppleMap, MapKitEvent, AnnotationDragEvent } from '@apple/mapkit-loader';
+import { environment } from '../../../../../../environments/environment';
 
 @Component({
   selector: 'app-venue-form',
@@ -26,15 +38,21 @@ import timezones from 'timezones-list';
     ReactiveFormsModule,
     Select,
     InputGroup,
-    InputGroupAddon
+    InputGroupAddon,
+    InputNumber
   ],
   templateUrl: './venue-form.component.html',
   styleUrl: './venue-form.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class VenueFormComponent {
   private messageService = inject(MessageService);
   private formBuilder = inject(FormBuilder);
   private locationsService = inject(LocationsService);
+
+  // Apple Maps
+  private mapKit: MapKit | undefined;
+  private appleMap: AppleMap | undefined;
 
   @Input("is-saving")
   isSaving$: boolean = false;
@@ -60,6 +78,8 @@ export class VenueFormComponent {
     cityId: new FormControl<number>(0, [Validators.required]),
     currentName: new FormControl<string>('', [Validators.required]),
     timezone: new FormControl('', [Validators.required]),
+    latitude: new FormControl<number>(0, []),
+    longitude: new FormControl<number>(0, []),
   });
 
   constructor() {
@@ -81,6 +101,47 @@ export class VenueFormComponent {
           }
         });
     });
+  }
+
+  private async initAppleMaps() {
+    this.mapKit = await load({
+      token: environment.appleMapsToken,
+      language: "en-US",
+      libraries: ["map", "annotations"],
+    });
+  }
+
+  private addOrMoveMarker(lon: number, lat: number) {
+    if (!this.appleMap || !this.mapKit) {
+      return;
+    }
+    const annotation = new this.mapKit!.MarkerAnnotation(new this.mapKit!.Coordinate(lat, lon), {
+      color: "#c969e0",
+      map: this.appleMap,
+      draggable: true
+    });
+
+    annotation.addEventListener("dragging", this.didDragPin, this);
+    this.appleMap?.showItems([annotation]);
+
+    this.zoomToCoordinates(lon, lat);
+  }
+
+
+  private didDragPin(evt: MapKitEvent) {
+    let dragEvent = evt as AnnotationDragEvent;
+    this.venueForm.controls.latitude.setValue(dragEvent.coordinate.latitude)
+    this.venueForm.controls.longitude.setValue(dragEvent.coordinate.longitude);
+  }
+
+
+  private zoomToCoordinates(lon: number, lat: number, zoomLevel: number = 11) {
+    if (this.appleMap && this.mapKit) {
+      this.appleMap.region = new this.mapKit.CoordinateRegion(
+        new this.mapKit.Coordinate(lat, lon),
+        new this.mapKit.CoordinateSpan(0.06, 0.2)
+      );
+    }
   }
 
   onSaveClicked() {
@@ -180,6 +241,30 @@ export class VenueFormComponent {
             }
           });
       });
+  }
+
+  @ViewChild('appleMaps')
+  set appleMaps(mapElement: ElementRef<HTMLDivElement> | undefined) {
+    console.log('appleMaps will be displayed', mapElement);
+    if (!mapElement) return;
+    if (!this.appleMaps) {
+      console.debug('MapKit not initialized yet!');
+      this.initAppleMaps().then(() => {
+        this.appleMap = this.makeMap(mapElement.nativeElement);
+        this.addOrMoveMarker(this.venueForm.controls.longitude.value ?? 0, this.venueForm.controls.latitude.value ?? 0);
+      });
+      return;
+    }
+
+    console.log("Will set map element: ", mapElement);
+    this.appleMap = this.makeMap(mapElement.nativeElement);
+    this.addOrMoveMarker(this.venueForm.controls.longitude.value ?? 0, this.venueForm.controls.latitude.value ?? 0);
+  }
+
+  private makeMap(mapElement: HTMLDivElement) {
+    let map = new this.mapKit!.Map(mapElement);
+    map.colorScheme = "adaptive";
+    return map;
   }
 
 

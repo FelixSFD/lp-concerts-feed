@@ -1,4 +1,4 @@
-import { Component, inject, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, viewChild } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { LocationsService } from '../../../../../services/locations.service';
@@ -23,6 +23,7 @@ import { TableModule } from 'primeng/table';
   ],
   templateUrl: './edit-venue-page.component.html',
   styleUrl: './edit-venue-page.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class EditVenuePageComponent {
   private activeRoute = inject(ActivatedRoute);
