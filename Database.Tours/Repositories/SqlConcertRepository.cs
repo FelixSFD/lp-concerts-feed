@@ -73,6 +73,22 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
     public IAsyncEnumerable<ConcertDo> GetConcerts(CancellationToken token, string? countryCode = null, IEnumerable<SortDescriptor>? orderBy = null, IPaginationParams? paginationParams = null, bool includeDeleted = false)
     {
         paginationParams ??= new PaginationParams(0, 100);
-        return FindDeletableAsync(c => countryCode == null || c.Venue.CountryCode == countryCode, IncludeAllReferences, orderBy, paginationParams, includeDeleted);
+        
+        var filter = new ConcertFilter
+        {
+            CountryCode = countryCode,
+        };
+        return GetConcerts(token, filter, orderBy, paginationParams, includeDeleted);
+    }
+    
+    public IAsyncEnumerable<ConcertDo> GetConcerts(CancellationToken token, ConcertFilter? filter = null, IEnumerable<SortDescriptor>? orderBy = null, IPaginationParams? paginationParams = null, bool includeDeleted = false)
+    {
+        paginationParams ??= new PaginationParams(0, 100);
+        return FindDeletableAsync(
+            c => filter == null || 
+                 (filter.CountryCode == null || c.Venue.CountryCode == filter.CountryCode) &&
+                 (filter.Before == null || c.PostedStartTime < filter.Before) &&
+                 (filter.After == null || c.PostedStartTime > filter.After),
+            IncludeAllReferences, orderBy, paginationParams, includeDeleted);
     }
 }
