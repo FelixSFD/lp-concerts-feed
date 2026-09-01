@@ -1,10 +1,10 @@
 import {
   ChangeDetectionStrategy,
-  Component, ElementRef,
+  Component,
+  ElementRef,
   EventEmitter,
   inject,
   Input,
-  OnInit,
   Output,
   ViewChild
 } from '@angular/core';
@@ -12,7 +12,7 @@ import { MessageService } from 'primeng/api';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CityWithCountryDto, CountryDto, VenueDto } from '../../../../../modules/lpshows-api/v3';
 import { LocationsService } from '../../../../../services/locations.service';
-import { ButtonModule, ButtonDirective, Button } from 'primeng/button';
+import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { Divider } from 'primeng/divider';
 import { FloatLabel } from 'primeng/floatlabel';
@@ -23,7 +23,14 @@ import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import timezones from 'timezones-list';
 import { InputNumber } from 'primeng/inputnumber';
-import { load, MapKit, Map as AppleMap, MapKitEvent, AnnotationDragEvent } from '@apple/mapkit-loader';
+import {
+  AnnotationDragEvent,
+  load,
+  Map as AppleMap, MapAnnotationDragEvent,
+  MapKit,
+  MapKitEvent,
+  MarkerAnnotation
+} from '@apple/mapkit-loader';
 import { environment } from '../../../../../../environments/environment';
 
 @Component({
@@ -39,8 +46,7 @@ import { environment } from '../../../../../../environments/environment';
     Select,
     InputGroup,
     InputGroupAddon,
-    InputNumber,
-    ButtonDirective
+    InputNumber
   ],
   templateUrl: './venue-form.component.html',
   styleUrl: './venue-form.component.css',
@@ -54,6 +60,7 @@ export class VenueFormComponent {
   // Apple Maps
   private mapKit: MapKit | undefined;
   private appleMap: AppleMap | undefined;
+  private locationMarker: MarkerAnnotation | null = null;
 
   @Input("is-saving")
   isSaving$: boolean = false;
@@ -116,14 +123,23 @@ export class VenueFormComponent {
     if (!this.appleMap || !this.mapKit) {
       return;
     }
-    const annotation = new this.mapKit!.MarkerAnnotation(new this.mapKit!.Coordinate(lat, lon), {
-      color: "#c969e0",
-      map: this.appleMap,
-      draggable: true
-    });
 
-    annotation.addEventListener("dragging", this.didDragPin, this);
-    this.appleMap?.showItems([annotation]);
+    if (this.locationMarker) {
+      console.debug("Pin already exists. Will just move it.");
+      this.locationMarker.coordinate = new this.mapKit!.Coordinate(lat, lon);
+      this.venueForm.controls.latitude.setValue(lat);
+      this.venueForm.controls.longitude.setValue(lon);
+    } else {
+      console.debug("Creating new pin on the map...");
+      this.locationMarker = new this.mapKit!.MarkerAnnotation(new this.mapKit!.Coordinate(lat, lon), {
+        color: "#c969e0",
+        map: this.appleMap,
+        draggable: true
+      });
+      this.locationMarker.addEventListener("dragging", this.didDragPin, this);
+      console.debug("Pin created.", this.locationMarker);
+      this.appleMap?.showItems([this.locationMarker]);
+    }
 
     this.zoomToCoordinates(lon, lat);
   }
