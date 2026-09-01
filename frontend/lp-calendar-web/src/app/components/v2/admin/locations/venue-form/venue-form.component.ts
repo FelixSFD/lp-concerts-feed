@@ -12,7 +12,7 @@ import { MessageService } from 'primeng/api';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CityWithCountryDto, CountryDto, VenueDto } from '../../../../../modules/lpshows-api/v3';
 import { LocationsService } from '../../../../../services/locations.service';
-import { Button } from 'primeng/button';
+import { ButtonModule, ButtonDirective, Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { Divider } from 'primeng/divider';
 import { FloatLabel } from 'primeng/floatlabel';
@@ -39,7 +39,8 @@ import { environment } from '../../../../../../environments/environment';
     Select,
     InputGroup,
     InputGroupAddon,
-    InputNumber
+    InputNumber,
+    ButtonDirective
   ],
   templateUrl: './venue-form.component.html',
   styleUrl: './venue-form.component.css',
@@ -265,6 +266,50 @@ export class VenueFormComponent {
     let map = new this.mapKit!.Map(mapElement);
     map.colorScheme = "adaptive";
     return map;
+  }
+
+  onGoToCityClicked() {
+    /*let city = this.venueForm.value.city;
+    let state = this.venueForm.value.state;
+    let country = this.venueForm.value.country;
+
+    if (city == null || country == null) {
+      return;
+    }
+
+    this.locationsService.getCoordinatesFor(city, state ? state : null, country)
+      .subscribe(coordinates => {
+        this.zoomToCoordinates(coordinates?.longitude ?? 0, coordinates?.latitude ?? 0);
+      });*/
+  }
+
+
+  onSetPinClicked() {
+    let center = this.appleMap?.center;
+    this.addOrMoveMarker(center?.longitude ?? 0, center?.latitude ?? 0);
+  }
+
+
+  tryAutoSetVenuePin() {
+    /*let venue = this.venueForm.value.venue;
+    let city = this.venueForm.value.city;
+    let state = this.venueForm.value.state;
+    let country = this.venueForm.value.country;
+
+    if (city == null || country == null || venue == null) {
+      return;
+    }
+
+    this.locationsService.getCoordinatesForVenue(venue, city, state ? state : null, country)
+      .subscribe(coordinates => {
+        let lat = coordinates?.latitude ?? 0;
+        let lon = coordinates?.longitude ?? 0;
+
+        //this.zoomToCoordinates(lon, lat, 8);
+        this.addOrMoveMarker(lon, lat);
+        this.venueForm.controls.longitude.setValue(lon);
+        this.venueForm.controls.latitude.setValue(lat);
+      });*/
   }
 
 
