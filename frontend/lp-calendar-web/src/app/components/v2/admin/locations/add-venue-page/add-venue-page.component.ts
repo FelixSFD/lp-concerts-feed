@@ -50,7 +50,7 @@ export class AddVenuePageComponent implements OnInit {
     let request: CreateVenueRequestDto = {
       countryCode: formContent.countryCode,
       stateCode: formContent.stateCode ?? undefined,
-      cityId: formContent.cityId.toString(),
+      cityId: formContent.cityId,
       currentName: formContent.currentName,
       timeZoneId: formContent.timeZoneId,
     };

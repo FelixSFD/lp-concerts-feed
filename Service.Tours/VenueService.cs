@@ -84,12 +84,12 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
     /// <param name="request">New data of the venue. Partial updates are not possible!</param>
     /// <param name="venueId">ID of the venue to update</param>
     /// <exception cref="VenueNotFoundException">if the venue does not exist</exception>
-    public async Task UpdateVenueAsync(UpdateVenueRequestDto request, uint venueId)
+    public async Task UpdateVenueAsync(UpdateVenueRequestBo request, uint venueId)
     {
         logger.LogDebug("Updating venue with ID: {venueId}", venueId);
         var venue = await venueRepository.GetByPrimaryKeyWithoutReferencesAsync(venueId) ?? throw new VenueNotFoundException(venueId);
         logger.LogDebug("Found venue: {name}", venue.CurrentName);
-        venue.UpdateFromRequestDto(request);
+        venue.UpdateFromRequestBo(request);
         venueRepository.Update(venue);
         await venueRepository.SaveChangesAsync();
         logger.LogDebug("Successfully updated the venue.");

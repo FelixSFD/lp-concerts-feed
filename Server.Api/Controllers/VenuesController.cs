@@ -13,7 +13,6 @@ using Service.Tours;
 using AddVenueNameRequestDto = LPCalendar.DataStructure.Tours.Locations.AddVenueNameRequestDto;
 using CreateVenueRequestDto = LPCalendar.DataStructure.Tours.Locations.CreateVenueRequestDto;
 using UpdateVenueNameRequestDto = LPCalendar.DataStructure.Tours.Locations.UpdateVenueNameRequestDto;
-using UpdateVenueRequestDto = LPCalendar.DataStructure.Tours.Locations.UpdateVenueRequestDto;
 
 namespace Server.Api.Controllers;
 
@@ -52,7 +51,7 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     public async Task<ActionResult<VenueWithDetailsDto>> UpdateVenue([FromBody] UpdateVenueRequestDto request, [FromRoute] uint venueId)
     {
         logger.LogDebug("Update venue with ID: {venueId}", venueId);
-        await service.UpdateVenueAsync(request, venueId);
+        await service.UpdateVenueAsync(request.ToBo(), venueId);
         var venue = await service.GetVenueWithDetailsByIdAsync(venueId);
         return Ok(venue.ToDto());
     }

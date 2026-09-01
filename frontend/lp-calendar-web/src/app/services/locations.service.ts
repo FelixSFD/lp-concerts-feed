@@ -125,11 +125,11 @@ export class LocationsService {
   }
 
   deleteCity(countryCode: string, id: number): Observable<void> {
-    return this.countriesApi.deleteCity(countryCode, id.toString());
+    return this.countriesApi.deleteCity(countryCode, id);
   }
 
   getCity(countryCode: string, cityId: number): Observable<CityWithCountryDto> {
-    return this.countriesApi.getCity(countryCode, cityId.toString());
+    return this.countriesApi.getCity(countryCode, cityId);
   }
 
   /**

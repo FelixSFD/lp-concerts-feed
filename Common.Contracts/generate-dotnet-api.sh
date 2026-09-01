@@ -22,6 +22,8 @@ docker run --rm \
   --additional-properties=enumValueSuffix= \
   --additional-properties=operationModifier=abstract,classModifier=abstract,operationResultTask=true,operationIsAsync=false,useNewtonsoft=false,useSwashbuckle=false,useDateTimeOffset=true \
   --additional-properties=nullableReferenceTypes=true,useDataAnnotations=false \
+    --type-mappings double=decimal \
+    --type-mappings int64=uint \
     --global-property=models,supportingFiles \
     --enable-post-process-file
 

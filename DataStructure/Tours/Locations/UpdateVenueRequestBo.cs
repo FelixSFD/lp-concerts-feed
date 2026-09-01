@@ -6,7 +6,7 @@ namespace LPCalendar.DataStructure.Tours.Locations;
 /// <summary>
 /// Request to update a venue. Note that changing the name cannot be done using this request as names require more information.
 /// </summary>
-public class UpdateVenueRequestDto
+public class UpdateVenueRequestBo
 {
     /// <summary>
     /// ISO code of the country where the venue is located in

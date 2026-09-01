@@ -304,7 +304,7 @@ public class VenueServiceTest
             .Do(c => savedVenueDo = c.Arg<VenueDo>());
         
         // call the service
-        var updateRequest = new UpdateVenueRequestDto
+        var updateRequest = new UpdateVenueRequestBo
         {
             CountryCode = "GBR",
             StateCode = null,

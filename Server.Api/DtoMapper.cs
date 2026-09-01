@@ -196,11 +196,11 @@ internal static class DtoMapper
             Id = bo.Id.ToString(),
             CountryCode = bo.CountryCode,
             StateCode = bo.StateCode,
-            CityId = bo.CityId.ToString(),
+            CityId = bo.CityId,
             CurrentName = bo.CurrentName,
             TimeZoneId = bo.TimeZone,
-            Latitude = (double?)bo.Latitude,
-            Longitude = (double?)bo.Longitude,
+            Latitude = bo.Latitude,
+            Longitude = bo.Longitude,
         };
     }
 
@@ -216,11 +216,11 @@ internal static class DtoMapper
             Id = bo.Id.ToString(),
             CountryCode = bo.CountryCode,
             StateCode = bo.StateCode,
-            CityId = bo.CityId.ToString(),
+            CityId = bo.CityId,
             CurrentName = bo.CurrentName,
             TimeZoneId = bo.TimeZone,
-            Latitude = (double?)bo.Latitude,
-            Longitude = (double?)bo.Longitude,
+            Latitude = bo.Latitude,
+            Longitude = bo.Longitude,
             City = bo.City.ToDto(),
         };
     }
@@ -237,13 +237,26 @@ internal static class DtoMapper
             Id = bo.Id.ToString(),
             CountryCode = bo.CountryCode,
             StateCode = bo.StateCode,
-            CityId = bo.CityId.ToString(),
+            CityId = bo.CityId,
             CurrentName = bo.CurrentName,
             TimeZoneId = bo.TimeZone,
-            Latitude = (double?)bo.Latitude,
-            Longitude = (double?)bo.Longitude,
+            Latitude = bo.Latitude,
+            Longitude = bo.Longitude,
             City = bo.City.ToDto(),
             VenueNames = [.. bo.VenueNames.Select(ToDto)],
+        };
+    }
+
+    public static UpdateVenueRequestBo ToBo(this UpdateVenueRequestDto dto)
+    {
+        return new UpdateVenueRequestBo
+        {
+            CountryCode = dto.CountryCode,
+            StateCode = dto.StateCode,
+            CityId = (uint)dto.CityId,
+            TimeZone = dto.TimeZoneId,
+            Latitude = dto.Latitude,
+            Longitude = dto.Longitude,
         };
     }
 

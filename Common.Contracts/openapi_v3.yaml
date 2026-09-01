@@ -921,9 +921,10 @@ paths:
           in: path
           required: true
           schema:
-            pattern: ^-?(?:0|[1-9]\d*)$
             type: integer
-            format: int32
+            format: int64
+            minimum: 0
+            maximum: 4294967295
       requestBody:
         description: Data of the updated city
         content:
@@ -981,9 +982,10 @@ paths:
           description: ID of the city
           required: true
           schema:
-            pattern: ^-?(?:0|[1-9]\d*)$
-            type: string
-            format: uint32
+            type: integer
+            format: int64
+            minimum: 0
+            maximum: 4294967295
       responses:
         "200":
           description: The city including the information about the country
@@ -1020,7 +1022,10 @@ paths:
           in: path
           required: true
           schema:
-            type: string
+            type: integer
+            format: int64
+            minimum: 0
+            maximum: 4294967295
       responses:
         "200":
           description: no content
@@ -1941,9 +1946,10 @@ components:
           maxLength: 3
           type: string
         cityId:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         currentName:
           type: string
         timeZoneId:
@@ -2196,6 +2202,7 @@ components:
     UpdateVenueRequest:
       required:
         - countryCode
+        - cityId
         - timeZoneId
       type: object
       properties:
@@ -2208,9 +2215,10 @@ components:
           type: string
           nullable: true
         cityId:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         timeZoneId:
           type: string
         latitude:
@@ -2242,9 +2250,10 @@ components:
           maxLength: 3
           type: string
         cityId:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         currentName:
           type: string
         timeZoneId:
@@ -2282,9 +2291,10 @@ components:
           type: string
           nullable: true
         cityId:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         currentName:
           type: string
         timeZoneId:
@@ -2327,9 +2337,10 @@ components:
           type: string
           nullable: true
         cityId:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         currentName:
           type: string
         timeZoneId:

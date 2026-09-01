@@ -283,7 +283,7 @@ internal static class DoMapper
     /// <param name="dataObject"></param>
     /// <param name="updateRequest">Information to update the DataObject</param>
     /// <returns>the updated object</returns>
-    public static VenueDo UpdateFromRequestDto(this VenueDo dataObject, UpdateVenueRequestDto updateRequest)
+    public static VenueDo UpdateFromRequestBo(this VenueDo dataObject, UpdateVenueRequestBo updateRequest)
     {
         dataObject.CountryCode = updateRequest.CountryCode;
         dataObject.StateCode = updateRequest.StateCode;
