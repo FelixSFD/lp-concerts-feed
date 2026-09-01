@@ -11,6 +11,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ConcertDetailsDto } from '../../../modules/lpshows-api/v3';
 import { AuthService } from '../../../auth/auth.service';
 import { Meta } from '@angular/platform-browser';
+import { ToursService } from '../../../services/tours.service';
 
 @Component({
   selector: 'app-concert-details-page',
@@ -26,6 +27,7 @@ export class ConcertDetailsPageComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly metaService = inject(Meta);
   private readonly messageService = inject(MessageService);
+  private readonly toursService = inject(ToursService);
 
   detailsViewModel = signal<ConcertDetailsViewModel | null>(null);
   resolverError = signal<ErrorResponseDto | null>(null);
@@ -70,7 +72,8 @@ export class ConcertDetailsPageComponent implements OnInit {
       //this.setlistsCacheUpdatedAt$ = concert?.cachedSetlistsAt != null ? this.getDateTime(concert?.cachedSetlistsAt) : null;
       this.updateViewModel();
 
-      //this.loadAdjacentConcerts();
+      this.loadAdjacentConcerts()
+        .then(() => this.updateViewModel());
       //this.loadBookmarkStatus();
 
       if (this.concert != null) {
@@ -167,5 +170,14 @@ export class ConcertDetailsPageComponent implements OnInit {
         text: err.message,
       });
     });
+  }
+
+  private async loadAdjacentConcerts() {
+    if (!this.concert) {
+      return;
+    }
+
+    console.debug("Loading adjacent concerts...");
+    this.adjacentConcertData = await this.toursService.getAdjacentConcerts(this.concert!.id);
   }
 }

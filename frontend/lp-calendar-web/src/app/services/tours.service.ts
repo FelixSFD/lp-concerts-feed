@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { addAuthentication } from '../auth/auth.config';
 import {
@@ -11,7 +11,7 @@ import {
   ToursApi
 } from '../modules/lpshows-api/v3';
 import { ConcertFilter } from '../data/concert-filter';
-import { ConcertDto } from '../modules/lpshows-api';
+import { AdjacentConcertsResponseDto, ConcertDto } from '../modules/lpshows-api';
 
 /**
  * Service to manage tours and tour legs
@@ -93,5 +93,10 @@ export class ToursService {
   getConcertById(concertId: string, cached: boolean = true): Observable<ConcertDetailsDto> {
     // TODO: implement cache parameter
     return this.concertsApi.getConcertById(concertId);
+  }
+
+  getAdjacentConcerts(concertId: string): Promise<AdjacentConcertsResponseDto> {
+    let result = this.concertsApi.getAdjacentConcertsForId(concertId);
+    return firstValueFrom(result);
   }
 }
