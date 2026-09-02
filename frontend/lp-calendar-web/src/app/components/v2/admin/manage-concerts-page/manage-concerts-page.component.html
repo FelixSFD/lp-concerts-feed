@@ -15,6 +15,7 @@
     [paginator]="true"
     [globalFilterFields]="['customTitle', 'tour.name', 'tourLeg.name', 'venue.currentName', 'venue.city.country.name', 'venue.city.country.nativeName', 'venue.city.name', 'venue.city.nativeName', 'postedStartTime']"
     [tableStyle]="{ 'min-width': '75rem' }"
+    [scrollable]="true"
   >
     <ng-template #caption>
       <div class="flex">
@@ -30,19 +31,19 @@
     </ng-template>
     <ng-template #header>
       <tr>
-        <th scope="col">Date</th>
+        <th scope="col" pFrozenColumn>Date</th>
         <th scope="col">Tour</th>
         <th scope="col">Country</th>
         <th scope="col">City</th>
         <th scope="col">Venue</th>
         <th scope="col">Custom Title</th>
         <th scope="col">Status</th>
-        <th scope="col"></th>
+        <th scope="col" alignFrozen="right" pFrozenColumn></th>
       </tr>
     </ng-template>
     <ng-template #body let-concert>
       <tr>
-        <td>{{ concert.postedStartTime | date: "dd.MM.yyyy" }}</td>
+        <td pFrozenColumn>{{ concert.postedStartTime | date: "dd.MM.yyyy" }}</td>
         <td>
           {{ concert.tour?.name ?? "Not part of a tour" }}
           @if (concert.tourLeg) {
@@ -68,7 +69,7 @@
           }
         </td>
         <td>{{ ConcertStatus.allValues.find(s => s.value == concert.status)?.label ?? "unknown" }}</td>
-        <td>
+        <td alignFrozen="right" pFrozenColumn>
           <p-button-group>
             <p-button label="View" icon="pi pi-eye" variant="outlined" size="small" [routerLink]="['/concerts', 'beta', concert.id]" />
             <p-button label="Edit" icon="pi pi-pencil" variant="outlined" size="small" [routerLink]="[concert.id]" />
