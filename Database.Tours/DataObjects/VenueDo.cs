@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Common.Database.DataObjects;
+using Microsoft.EntityFrameworkCore;
 
 namespace Database.Tours.DataObjects;
 
@@ -50,12 +51,14 @@ public class VenueDo : BaseDo
     /// Latitude of the venue
     /// </summary>
     [Column("Latitude")]
+    [Precision(12, 9)]
     public decimal Latitude { get; set; }
     
     /// <summary>
     /// Longitude of the venue
     /// </summary>
     [Column("Longitude")]
+    [Precision(12, 9)]
     public decimal Longitude { get; set; }
     
     /// <summary>
