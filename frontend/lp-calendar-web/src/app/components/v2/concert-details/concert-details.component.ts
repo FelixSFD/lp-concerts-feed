@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import {MatomoTracker} from 'ngx-matomo-client';
 import {ErrorResponseDto} from '../../../modules/lpshows-api';
-import {load, MapKit} from '@apple/mapkit-loader';
+import { load, MapKit, MarkerAnnotation } from '@apple/mapkit-loader';
 import {Map as AppleMap} from 'apple-mapkit/mapkit';
 import {RouterLink} from '@angular/router';
 import {DiscordShareService} from '../../../services/discord-share.service';
@@ -69,6 +69,7 @@ export class ConcertDetailsComponent implements OnChanges {
   // Apple Maps
   private mapKit: MapKit | undefined;
   private appleMap: AppleMap | undefined;
+  private locationMarker: MarkerAnnotation | null = null;
   private mapElementRef: ElementRef<HTMLDivElement> | undefined;
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -140,12 +141,20 @@ export class ConcertDetailsComponent implements OnChanges {
     if (!this.appleMap || !this.mapKit) {
       return;
     }
-    const annotation = new this.mapKit!.MarkerAnnotation(new this.mapKit!.Coordinate(lat, lon), {
-      color: "#c969e0",
-      map: this.appleMap,
-      title: this.viewModel?.venuePinTitle ?? undefined
-    });
-    this.appleMap?.showItems([annotation]);
+
+    if (this.locationMarker) {
+      console.debug("Pin already exists. Will just move it.");
+      this.locationMarker.coordinate = new this.mapKit!.Coordinate(lat, lon);
+    } else {
+      console.debug("Creating new pin on the map...");
+      this.locationMarker = new this.mapKit!.MarkerAnnotation(new this.mapKit!.Coordinate(lat, lon), {
+        color: "#c969e0",
+        map: this.appleMap,
+        draggable: true
+      });
+      console.debug("Pin created.", this.locationMarker);
+      this.appleMap?.showItems([this.locationMarker]);
+    }
 
     this.zoomToCoordinates(lon, lat);
   }
