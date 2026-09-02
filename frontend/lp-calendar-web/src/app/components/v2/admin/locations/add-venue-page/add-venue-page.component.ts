@@ -53,6 +53,8 @@ export class AddVenuePageComponent implements OnInit {
       cityId: formContent.cityId,
       currentName: formContent.currentName,
       timeZoneId: formContent.timeZoneId,
+      latitude: formContent.latitude ?? null,
+      longitude: formContent.longitude ?? null,
     };
 
     this.locationsService.createVenue(request).subscribe({
