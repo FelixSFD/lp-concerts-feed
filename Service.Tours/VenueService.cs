@@ -17,7 +17,7 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
     /// </summary>
     /// <param name="request"></param>
     /// <returns>ID of the created venue</returns>
-    public async Task<uint> CreateVenueAsync(CreateVenueRequestDto request)
+    public async Task<uint> CreateVenueAsync(CreateVenueRequestBo request)
     {
         logger.LogDebug("Requested to create a new venue: {name}", request.CurrentName);
         var venue = request.ToDo();

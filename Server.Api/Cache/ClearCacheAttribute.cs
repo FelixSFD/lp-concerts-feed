@@ -18,6 +18,8 @@ public class ClearCacheAttribute : ResultFilterAttribute
     /// <inheritdoc />
     public override async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
     {
+        _ = await next();
+        
         var statusCode = (HttpStatusCode) context.HttpContext.Response.StatusCode;
         if (statusCode.IsSuccessStatusCode() && Tags.Length > 0)
         {

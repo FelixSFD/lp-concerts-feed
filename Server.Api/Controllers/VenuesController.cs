@@ -11,7 +11,6 @@ using Server.Api.Auth;
 using Server.Api.Cache;
 using Service.Tours;
 using AddVenueNameRequestDto = LPCalendar.DataStructure.Tours.Locations.AddVenueNameRequestDto;
-using CreateVenueRequestDto = LPCalendar.DataStructure.Tours.Locations.CreateVenueRequestDto;
 using UpdateVenueNameRequestDto = LPCalendar.DataStructure.Tours.Locations.UpdateVenueNameRequestDto;
 
 namespace Server.Api.Controllers;
@@ -33,12 +32,13 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     [HttpPost]
     [AuthorizeRoles]
     [ClearCache(Tags = [CacheTags.VenuesAll])]
-    public async Task<CreatedAtActionResult> CreateVenue([FromBody] CreateVenueRequestDto request)
+    public async Task<ActionResult<VenueDto>> CreateVenue([FromBody] CreateVenueRequestDto request)
     {
         logger.LogDebug("Requested to create venue");
-        var newId = await service.CreateVenueAsync(request);
+        var newId = await service.CreateVenueAsync(request.ToBo());
         logger.LogDebug("created venue with id {id}", newId);
-        return CreatedAtAction(nameof(GetVenueById), new { venueId = newId }, null);
+        var createdVenue = await service.GetVenueByIdAsync(newId);
+        return CreatedAtAction(nameof(GetVenueById), new { venueId = newId }, createdVenue.ToDto());
     }
     
     /// <summary>

@@ -1357,8 +1357,18 @@ paths:
               $ref: "#/components/schemas/CreateVenueRequest"
         required: true
       responses:
-        "200":
-          description: ""
+        "201":
+          description: "Venue created successfully"
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Venue"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/Venue"
+            application/*+json:
+              schema:
+                $ref: "#/components/schemas/Venue"
         "401":
           description: "Unauthorized: Credentials are missing or not valid"
         "403":
@@ -1934,6 +1944,7 @@ components:
     CreateVenueRequest:
       required:
         - countryCode
+        - cityId
         - currentName
         - timeZoneId
       type: object

@@ -6,7 +6,7 @@ namespace LPCalendar.DataStructure.Tours.Locations;
 /// <summary>
 /// Request to create a new venue
 /// </summary>
-public class CreateVenueRequestDto
+public class CreateVenueRequestBo
 {
     /// <summary>
     /// ISO code of the country where the venue is located in

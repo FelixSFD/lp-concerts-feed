@@ -246,6 +246,20 @@ internal static class DtoMapper
             VenueNames = [.. bo.VenueNames.Select(ToDto)],
         };
     }
+    
+    public static CreateVenueRequestBo ToBo(this CreateVenueRequestDto dto)
+    {
+        return new CreateVenueRequestBo
+        {
+            CountryCode = dto.CountryCode,
+            StateCode = dto.StateCode,
+            CityId = (uint)dto.CityId,
+            CurrentName = dto.CurrentName,
+            TimeZone = dto.TimeZoneId,
+            Latitude = dto.Latitude,
+            Longitude = dto.Longitude,
+        };
+    }
 
     public static UpdateVenueRequestBo ToBo(this UpdateVenueRequestDto dto)
     {

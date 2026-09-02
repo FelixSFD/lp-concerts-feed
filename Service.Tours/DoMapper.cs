@@ -196,21 +196,21 @@ internal static class DoMapper
     }
     
     /// <summary>
-    /// Converts a <see cref="CreateVenueRequestDto"/> to the <see cref="VenueDo"/>
+    /// Converts a <see cref="CreateVenueRequestBo"/> to the <see cref="VenueDo"/>
     /// </summary>
-    /// <param name="dto">DTO to convert to the DataObject</param>
+    /// <param name="bo">DTO to convert to the DataObject</param>
     /// <returns>the mapped DataObject</returns>
-    public static VenueDo ToDo(this CreateVenueRequestDto dto)
+    public static VenueDo ToDo(this CreateVenueRequestBo bo)
     {
         return new VenueDo
         {
-            CountryCode = dto.CountryCode,
-            StateCode = dto.StateCode,
-            CityId = dto.CityId,
-            CurrentName = dto.CurrentName,
-            TimeZone = dto.TimeZone,
-            Latitude = dto.Latitude ?? 0,
-            Longitude = dto.Longitude ?? 0
+            CountryCode = bo.CountryCode,
+            StateCode = bo.StateCode,
+            CityId = bo.CityId,
+            CurrentName = bo.CurrentName,
+            TimeZone = bo.TimeZone,
+            Latitude = bo.Latitude ?? 0,
+            Longitude = bo.Longitude ?? 0
         };
     }
     

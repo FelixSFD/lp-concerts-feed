@@ -33,7 +33,7 @@ public class VenueServiceTest
     {
         var dateTime = DateTime.Today;
         
-        var request = new CreateVenueRequestDto
+        var request = new CreateVenueRequestBo
         {
             CountryCode = countryCode,
             CityId = cityId,
