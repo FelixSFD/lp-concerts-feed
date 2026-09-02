@@ -65,7 +65,7 @@ export class ConcertFormComponent implements OnInit {
     concertStatus: new FormControl<ConcertStatusValueDto>(ConcertStatusValueDto.Planned, [Validators.required]),
     customTitle: new FormControl<string>(''),
     concertTypeId: new FormControl<number | null>(null, [Validators.required]),
-    tour: new FormControl<TourDto | null>(null, [Validators.required]),
+    tour: new FormControl<TourDto | null>(null, []),
     tourLegId: new FormControl<string | null>(null),
     venue: new FormControl<VenueDto | null>(null, [Validators.required]),
     postedStartTime: new FormControl<Date | null>(null, [Validators.required]),
