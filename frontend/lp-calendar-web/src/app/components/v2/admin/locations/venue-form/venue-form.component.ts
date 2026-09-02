@@ -213,6 +213,8 @@ export class VenueFormComponent {
       cityId: cityId,
       currentName: currentName,
       timeZoneId: timezone,
+      latitude: this.venueForm.value.latitude?? null,
+      longitude: this.venueForm.value.longitude ?? null
     };
   }
 
@@ -222,6 +224,8 @@ export class VenueFormComponent {
     this.venueForm.controls.countryCode.setValue(venue.countryCode ?? null);
     this.venueForm.controls.timezone.setValue(venue.timeZoneId ?? null);
     this.venueForm.controls.currentName.setValue(venue.currentName ?? null);
+    this.venueForm.controls.latitude.setValue(venue.latitude ?? null);
+    this.venueForm.controls.longitude.setValue(venue.longitude ?? null);
   }
 
 
@@ -369,4 +373,6 @@ export class VenueFormContent {
   cityId!: number;
   currentName!: string;
   timeZoneId!: string;
+  latitude: number | null = null;
+  longitude: number | null = null;
 }

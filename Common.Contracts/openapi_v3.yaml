@@ -1955,13 +1955,13 @@ components:
         timeZoneId:
           type: string
         latitude:
-          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type: string
+          type: number
           format: double
+          nullable: true
         longitude:
-          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type: string
+          type: number
           format: double
+          nullable: true
     PreviousVenueName:
       required:
         - venueId
@@ -2222,13 +2222,11 @@ components:
         timeZoneId:
           type: string
         latitude:
-          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type: string
+          type: number
           nullable: true
           format: double
         longitude:
-          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type: string
+          type: number
           nullable: true
           format: double
     Venue:
@@ -2259,13 +2257,11 @@ components:
         timeZoneId:
           type: string
         latitude:
-          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type: string
+          type: number
           nullable: true
           format: double
         longitude:
-          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type: string
+          type: number
           nullable: true
           format: double
     VenueWithCity:
@@ -2300,13 +2296,11 @@ components:
         timeZoneId:
           type: string
         latitude:
-          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type: string
+          type: number
           nullable: true
           format: double
         longitude:
-          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type: string
+          type: number
           nullable: true
           format: double
     VenueWithDetails:
@@ -2346,13 +2340,11 @@ components:
         timeZoneId:
           type: string
         latitude:
-          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type: string
+          type: number
           nullable: true
           format: double
         longitude:
-          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type: string
+          type: number
           nullable: true
           format: double
     

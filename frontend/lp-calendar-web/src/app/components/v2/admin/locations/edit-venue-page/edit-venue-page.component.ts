@@ -74,7 +74,9 @@ export class EditVenuePageComponent {
     let request: UpdateVenueRequestDto = {
       countryCode: formContent.countryCode,
       cityId: formContent.cityId,
-      timeZoneId: formContent.timeZoneId
+      timeZoneId: formContent.timeZoneId,
+      latitude: formContent.latitude,
+      longitude: formContent.longitude
     };
 
     this.locationsService.updateVenue(this.currentVenueId, request).subscribe({
