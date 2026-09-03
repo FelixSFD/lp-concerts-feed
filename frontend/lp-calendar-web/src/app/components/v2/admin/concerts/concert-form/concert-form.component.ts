@@ -15,7 +15,7 @@ import { SelectVenueComponent } from '../select-venue/select-venue.component';
 import { DatePicker } from 'primeng/datepicker';
 import { Select } from 'primeng/select';
 import timezones, { TimeZone } from 'timezones-list';
-import { DateTime } from 'luxon';
+import { DateTime, Zone } from 'luxon';
 import { ConcertStatus } from '../../../../../data/concert-status';
 
 @Component({
@@ -188,9 +188,13 @@ export class ConcertFormComponent implements OnInit {
 
   public fillFormWith(concert: ConcertDetailsDto) {
     console.debug("Filling form with concert: ", concert);
-    let postedStartDateTimeUtc = concert.postedStartTime == undefined ? null : DateTime.fromISO(concert.postedStartTime);
-    let postedStartDateTime = postedStartDateTimeUtc?.setZone(concert.venue.timeZoneId!, {keepLocalTime: false})
-    console.debug("Posted start time: " + postedStartDateTime);
+    let postedStartDateTimeVenueLocal = concert.postedStartTime == undefined ? null : DateTime.fromISO(concert.postedStartTime, {zone: concert.venue.timeZoneId});
+    let postedStartDateTimeClientLocal = postedStartDateTimeVenueLocal?.setZone(DateTime.local().zone, {keepLocalTime: false})
+    let postedStartDateTimeJs = postedStartDateTimeVenueLocal == null ? null : new Date(postedStartDateTimeVenueLocal!.year, postedStartDateTimeVenueLocal!.month - 1, postedStartDateTimeVenueLocal?.day, postedStartDateTimeVenueLocal?.hour, postedStartDateTimeVenueLocal?.minute, postedStartDateTimeVenueLocal?.second);
+    console.debug("Posted start time raw string: ", concert.postedStartTime);
+    console.debug("Posted start time JS Date: ", postedStartDateTimeJs);
+    console.debug("Posted start time: ", postedStartDateTimeVenueLocal?.toISO(), postedStartDateTimeClientLocal?.toISO());
+    console.debug("Venue time zone: ", concert.venue.timeZoneId);
 
     let lpuEarlyEntryDateTimeUtc = concert.lpuEarlyEntryTime == undefined ? null : DateTime.fromISO(concert.lpuEarlyEntryTime);
     let lpuEarlyEntryDateTime = lpuEarlyEntryDateTimeUtc?.setZone(concert.venue.timeZoneId!, {keepLocalTime: false})
@@ -217,8 +221,8 @@ export class ConcertFormComponent implements OnInit {
     this.concertForm.controls.tourLegId.setValue(concert.tourLeg?.id ?? null);
     this.concertForm.controls.venue.setValue(concert.venue as VenueDto);
 
-    this.concertForm.controls.postedStartTime.setValue(postedStartDateTime?.toJSDate() ?? null);
-    this.concertForm.controls.lpStageTime.setValue(doorsDateTimeIsoStr?.substring(0, 5) ?? null);
+    this.concertForm.controls.postedStartTime.setValue(postedStartDateTimeJs ?? null);
+    this.concertForm.controls.lpStageTime.setValue(lpStageDateTimeIsoStr?.substring(0, 5) ?? null);
     this.concertForm.controls.doorsTime.setValue(doorsDateTimeIsoStr?.substring(0, 5) ?? null);
     this.concertForm.controls.expectedSetDuration.setValue(setDurationStr ?? null);
 
