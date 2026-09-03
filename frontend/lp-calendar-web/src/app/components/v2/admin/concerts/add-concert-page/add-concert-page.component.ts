@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { ConcertsApi, CreateConcertRequestDto } from '../../../../../modules/lpshows-api/v3';
@@ -25,10 +25,10 @@ export class AddConcertPageComponent {
   private messageService = inject(MessageService);
   private concertsApi = inject(ConcertsApi);
 
-  isSaving$ = false;
+  isSaving = signal(false);
 
   onSaveClicked(formContent: ConcertFormContent) {
-    this.isSaving$ = true;
+    this.isSaving.set(true);
 
     const request: CreateConcertRequestDto = {
       customTitle: formContent.customTitle ?? undefined,
@@ -37,7 +37,6 @@ export class AddConcertPageComponent {
       tourLegId: formContent.tourLegId ?? undefined,
       venueId: formContent.venueId ?? undefined,
       postedStartTime: formContent.postedStartTime.toISO()!,
-      //timezone: formContent.timezone!,
       doorsTime: formContent.doorsTime?.toISO() ?? undefined,
       mainStageTime: formContent.mainStageTime?.toISO() ?? undefined,
       expectedSetDurationMinutes: String(formContent.expectedSetDuration) ?? undefined,
@@ -58,7 +57,7 @@ export class AddConcertPageComponent {
           summary: 'Failed to create concert',
           detail: errorResponse?.message ?? err?.message,
         });
-        this.isSaving$ = false;
+        this.isSaving.set(false);
       },
     });
   }
