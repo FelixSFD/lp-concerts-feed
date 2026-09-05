@@ -133,5 +133,36 @@ public class ToursDbContext(DbContextOptions<ToursDbContext> options) : DbContex
                     .HasDefaultValueSql("NOW()");
             }
         }
+        
+        // define static data for ConcertTypes
+        modelBuilder.Entity<ConcertTypeDo>()
+            .HasData(
+                new ConcertTypeDo { Id = 1, Name = "Linkin Park Show" },
+                new ConcertTypeDo { Id = 2, Name = "Festival" },
+                new ConcertTypeDo { Id = 3, Name = "Other" }
+                );
+    }
+
+
+    /// <summary>
+    /// Makes sure some ConcertTypes exist
+    /// </summary>
+    public async Task SeedConcertTypes()
+    {
+        var minimumRequiredTypes = new List<ConcertTypeDo>
+        {
+            new() { Id = 1, Name = "Linkin Park Show" },
+            new() { Id = 2, Name = "Festival" },
+            new() { Id = 3, Name = "Other" }
+        };
+
+        var existingTypes = await Set<ConcertTypeDo>().ToListAsync();
+        var typesToSeed = minimumRequiredTypes.Except(existingTypes).ToList();
+
+        if (typesToSeed.Count != 0)
+        {
+            await Set<ConcertTypeDo>().AddRangeAsync(typesToSeed);
+            await SaveChangesAsync();
+        }
     }
 }

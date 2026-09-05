@@ -254,6 +254,9 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ToursDbContext>();
     await db.Database.MigrateAsync();
+    
+    // Make sure some ConcertTypes exist
+    await db.SeedConcertTypes();
 }
 
 // Configure the HTTP request pipeline.
