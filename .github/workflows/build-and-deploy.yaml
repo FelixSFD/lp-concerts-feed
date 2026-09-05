@@ -50,7 +50,7 @@ jobs:
           echo "regions=$JSON" >> "$GITHUB_OUTPUT"
 
   build-server-image:
-    uses: felixsfd/lp-concerts-feed/.github/workflows/build-and-publish-docker-server.yaml@main
+    uses: ./.github/workflows/build-and-publish-docker-server.yaml
     secrets: inherit
     with:
       image-tag: ${{ vars.SERVER_IMAGE_TAG }}
@@ -63,7 +63,7 @@ jobs:
 
   deploy-backend-server:
     needs: [build-server-image]
-    uses: felixsfd/lp-concerts-feed/.github/workflows/deploy-backend-server.yaml@main
+    uses: ./.github/workflows/deploy-backend-server.yaml
     secrets: inherit
   
   build-lambdas:
