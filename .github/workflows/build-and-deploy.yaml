@@ -52,7 +52,7 @@ jobs:
   build-server-image:
     uses: ./.github/workflows/build-and-publish-docker-server.yaml
     with:
-      image_tag: ${{ vars.SERVER_IMAGE_TAG }}
+      image_tag: latest-debug
     secrets: inherit
     permissions:
       contents: read
