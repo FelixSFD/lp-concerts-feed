@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { SongsService } from '../../../../../services/songs.service';
 import { ErrorResponseDto, SongDto } from '../../../../../modules/lpshows-api';
@@ -39,14 +39,14 @@ export class ManageCountriesPageComponent {
   private locationsService = inject(LocationsService);
 
 
-  countries$: CountryDto[] = [];
+  countries$ = signal<CountryDto[]>([]);
 
-  isDeletingCountry$ = false;
+  isDeletingCountry$ = signal(false);
 
   // true while data is being loaded
-  isLoading$ = false;
+  isLoading$ = signal(false);
 
-  globalSearchText$: string = "";
+  globalSearchText$ = signal('');
 
 
   ngOnInit() {
@@ -79,14 +79,14 @@ export class ManageCountriesPageComponent {
 
 
   onDeleteCountryConfirm(country: CountryDto) {
-    this.isDeletingCountry$ = true;
+    this.isDeletingCountry$.set(true);
 
     if (country) {
       this.locationsService.deleteCountry(country.isoCode!)
         .subscribe({
           next: () => {
             this.reloadList(false);
-            this.isDeletingCountry$ = false;
+            this.isDeletingCountry$.set(false);
           },
           error: err => {
             let errorResponse: ErrorResponseDto = err.error;
@@ -95,7 +95,7 @@ export class ManageCountriesPageComponent {
               summary: "Could not load delete country!",
               text: errorResponse.message,
             });
-            this.isDeletingCountry$ = false;
+            this.isDeletingCountry$.set(false);
           }
         });
     }
@@ -105,7 +105,7 @@ export class ManageCountriesPageComponent {
   private reloadList(cache: boolean) {
     this.locationsService.getCountries().subscribe({
       next: countries => {
-        this.countries$ = countries;
+        this.countries$.set(countries);
       },
       error: err => {
         let errorResponse: ErrorResponseDto = err.error;

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { LocationsService } from '../../../../../services/locations.service';
 import { CityWithCountryDto, CountryDto } from '../../../../../modules/lpshows-api/v3';
@@ -38,15 +38,14 @@ export class ManageCitiesPageComponent {
   private locationsService = inject(LocationsService);
 
 
-  cities$: CityWithCountryDto[] = [];
+  cities$ = signal<CityWithCountryDto[]>([]);
 
-  isDeletingCity$ = false;
+  isDeletingCity$ = signal(false);
 
   // true while data is being loaded
-  isLoading$ = false;
+  isLoading$ = signal(false);
 
-  globalSearchText$: string = "";
-
+  globalSearchText$ = signal("");
 
   ngOnInit() {
     this.reloadList(false);
@@ -78,14 +77,14 @@ export class ManageCitiesPageComponent {
 
 
   onDeleteCityConfirm(city: CityWithCountryDto) {
-    this.isDeletingCity$ = true;
+    this.isDeletingCity$.set(true);
 
     if (city) {
       this.locationsService.deleteCity(city.countryCode, Number(city.id))
         .subscribe({
           next: () => {
             this.reloadList(false);
-            this.isDeletingCity$ = false;
+            this.isDeletingCity$.set(false);
           },
           error: err => {
             let errorResponse: ErrorResponseDto = err.error;
@@ -94,7 +93,7 @@ export class ManageCitiesPageComponent {
               summary: "Could not load delete city!",
               text: errorResponse.message,
             });
-            this.isDeletingCity$ = false;
+            this.isDeletingCity$.set(false);
           }
         });
     }
@@ -104,7 +103,7 @@ export class ManageCitiesPageComponent {
   private reloadList(cache: boolean) {
     this.locationsService.getCities().subscribe({
       next: cities => {
-        this.cities$ = cities;
+        this.cities$.set(cities);
       },
       error: err => {
         let errorResponse: ErrorResponseDto = err.error;
