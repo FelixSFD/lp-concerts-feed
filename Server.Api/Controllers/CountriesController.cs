@@ -1,7 +1,12 @@
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Common.Utils.Cache;
 using LPCalendar.DataStructure.Tours.Locations;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.Extensions.Logging;
 using Server.Api.Auth;
 using Server.Api.Cache;
 using Service.Tours;
@@ -130,7 +135,7 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     [HttpPut("{countryCode}/states/{stateCode}")]
     [ClearCache(Tags = [CacheTags.StatesAll])]
     [AuthorizeRoles]
-    public async Task<ActionResult<StateWithCountryDto>> UpdateState([FromRoute(Name = "countryCode")] string countryCode, [FromRoute] string stateCode, [FromBody] UpdateStateRequestDto request)
+    public async Task<ActionResult<StateWithCountryBo>> UpdateState([FromRoute(Name = "countryCode")] string countryCode, [FromRoute] string stateCode, [FromBody] UpdateStateRequestDto request)
     {
         logger.LogDebug("Requested to update state: {stateCode}", stateCode);
         var stateWithCountryDto = await locationService.UpdateStateAsync(request, countryCode, stateCode);
@@ -146,7 +151,7 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     /// <returns>The state including the information about the country</returns>
     [HttpGet("{countryCode}/states/{stateCode}")]
     [OutputCache(PolicyName = CachePolicyNames.Default, Tags = [CacheTags.StatesAll])]
-    public async Task<ActionResult<StateWithCountryDto>> GetState(string countryCode, string stateCode)
+    public async Task<ActionResult<StateWithCountryBo>> GetState(string countryCode, string stateCode)
     {
         logger.LogDebug("Requested state '{stateCode}' in country '{countryCode}'", stateCode, countryCode);
         var stateWithCountry = await locationService.GetStateInCountryAsync(countryCode, stateCode);
@@ -162,7 +167,7 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     /// <returns></returns>
     [HttpGet("{countryCode}/states")]
     [OutputCache(PolicyName = CachePolicyNames.Default, Tags = [CacheTags.StatesAll])]
-    public async Task<ActionResult<StateWithCountryDto>> GetStatesInCountry(string countryCode, CancellationToken cancellationToken)
+    public async Task<ActionResult<StateWithCountryBo>> GetStatesInCountry(string countryCode, CancellationToken cancellationToken)
     {
         logger.LogDebug("Getting all states in '{countryCode}'", countryCode);
         var states = await locationService
@@ -217,7 +222,7 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     /// <returns></returns>
     [HttpPut("{countryCode}/cities/{cityId:int}")]
     [AuthorizeRoles]
-    public async Task<ActionResult<StateWithCountryDto>> UpdateCity([FromRoute(Name = "countryCode")] string countryCode, [FromRoute] uint cityId, [FromBody] UpdateCityRequestDto request)
+    public async Task<ActionResult<StateWithCountryBo>> UpdateCity([FromRoute(Name = "countryCode")] string countryCode, [FromRoute] uint cityId, [FromBody] UpdateCityRequestDto request)
     {
         logger.LogDebug("Requested to update city: {cityId}", cityId);
         var updatedCity = await locationService.UpdateCityAsync(request, countryCode, cityId);
@@ -233,7 +238,7 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     /// <returns>The city including the information about the country</returns>
     [HttpGet("{countryCode}/cities/{cityId}")]
     [OutputCache(PolicyName = CachePolicyNames.Default)]
-    public async Task<ActionResult<CityWithCountryDto>> GetCity(string countryCode, uint cityId)
+    public async Task<ActionResult<CityWithCountryBo>> GetCity(string countryCode, uint cityId)
     {
         logger.LogDebug("Requested city with ID '{cityId}' in country '{countryCode}'", cityId, countryCode);
         var cityInCountry = await locationService.GetCityInCountryAsync(cityId, countryCode);
@@ -249,7 +254,7 @@ public class CountriesController(LocationService locationService, IHttpContextAc
     /// <returns></returns>
     [HttpGet("{countryCode}/cities")]
     [OutputCache(PolicyName = CachePolicyNames.Default)]
-    public async Task<ActionResult<CityWithCountryDto>> GetCitiesInCountry(string countryCode, CancellationToken cancellationToken)
+    public async Task<ActionResult<CityWithCountryBo>> GetCitiesInCountry(string countryCode, CancellationToken cancellationToken)
     {
         logger.LogDebug("Getting all cities in '{countryCode}'", countryCode);
         var cities = await locationService

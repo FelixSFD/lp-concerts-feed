@@ -1,4 +1,4 @@
-import { Component, inject, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, viewChild } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { LocationsService } from '../../../../../services/locations.service';
@@ -23,6 +23,7 @@ import { TableModule } from 'primeng/table';
   ],
   templateUrl: './edit-venue-page.component.html',
   styleUrl: './edit-venue-page.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class EditVenuePageComponent {
   private activeRoute = inject(ActivatedRoute);
@@ -72,8 +73,10 @@ export class EditVenuePageComponent {
 
     let request: UpdateVenueRequestDto = {
       countryCode: formContent.countryCode,
-      cityId: formContent.cityId.toString(),
-      timeZone: formContent.timeZone
+      cityId: formContent.cityId,
+      timeZoneId: formContent.timeZoneId,
+      latitude: formContent.latitude,
+      longitude: formContent.longitude
     };
 
     this.locationsService.updateVenue(this.currentVenueId, request).subscribe({

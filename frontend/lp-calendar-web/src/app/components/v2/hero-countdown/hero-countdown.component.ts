@@ -7,6 +7,7 @@ import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { InputText } from 'primeng/inputtext';
 import { Button } from 'primeng/button';
+import { DateTime } from 'luxon';
 
 @Component({
   selector: 'app-hero-countdown',
@@ -37,7 +38,7 @@ export class HeroCountdownComponent implements OnInit, AfterViewInit {
   discordRelative = '';
 
   @Input()
-  countdownToDate!: string;
+  countdownToDate!: string | DateTime;
 
   ngOnInit() {
     this.updateView();
@@ -51,7 +52,9 @@ export class HeroCountdownComponent implements OnInit, AfterViewInit {
 
   private updateView(): void {
     const now = new Date();
-    const target = new Date(this.countdownToDate);
+    const target = this.countdownToDate instanceof DateTime
+      ? this.countdownToDate.toJSDate()
+      : new Date(this.countdownToDate);
     const difference = target.getTime() - now.getTime();
     this.differenceMillis$ = difference;
 

@@ -21,4 +21,9 @@ public static class CacheTags
     /// Tag for all states
     /// </summary>
     public const string StatesAll = "states-all";
+    
+    /// <summary>
+    /// Tag for all venues
+    /// </summary>
+    public const string VenuesAll = "venues-all";
 }

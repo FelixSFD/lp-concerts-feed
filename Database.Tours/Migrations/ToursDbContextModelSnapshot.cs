@@ -302,11 +302,13 @@ namespace Database.Tours.Migrations
                         .HasColumnName("CurrentName");
 
                     b.Property<decimal>("Latitude")
-                        .HasColumnType("decimal(18,2)")
+                        .HasPrecision(12, 9)
+                        .HasColumnType("decimal(12,9)")
                         .HasColumnName("Latitude");
 
                     b.Property<decimal>("Longitude")
-                        .HasColumnType("decimal(18,2)")
+                        .HasPrecision(12, 9)
+                        .HasColumnType("decimal(12,9)")
                         .HasColumnName("Longitude");
 
                     b.Property<string>("StateCode")

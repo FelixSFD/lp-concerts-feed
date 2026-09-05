@@ -1,4 +1,5 @@
 using System.Configuration;
+using System.Text.Json.Serialization;
 using Common.Server.ClientIp;
 using Common.Utils.Cache;
 using Database.Tours;
@@ -222,7 +223,11 @@ builder.Services
     });
 
 // register API controllers
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
 //Register Problem Details Service for API Errors
 builder.Services.AddProblemDetails();

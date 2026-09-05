@@ -49,9 +49,14 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
         await Context.Entry(dataObject.Venue.City)
             .Reference(vc => vc.State)
             .LoadAsync();
-        await Context.Entry(dataObject.Venue.State)
-            .Reference(vs => vs.Country)
-            .LoadAsync();
+
+        var venueState = dataObject.Venue.State;
+        if (venueState is not null)
+        {
+            await Context.Entry(venueState)
+                .Reference(vs => vs.Country)
+                .LoadAsync();
+        }
         
         return dataObject;
     }
@@ -68,6 +73,22 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
     public IAsyncEnumerable<ConcertDo> GetConcerts(CancellationToken token, string? countryCode = null, IEnumerable<SortDescriptor>? orderBy = null, IPaginationParams? paginationParams = null, bool includeDeleted = false)
     {
         paginationParams ??= new PaginationParams(0, 100);
-        return FindDeletableAsync(c => countryCode == null || c.Venue.CountryCode == countryCode, IncludeAllReferences, orderBy, paginationParams, includeDeleted);
+        
+        var filter = new ConcertFilter
+        {
+            CountryCode = countryCode,
+        };
+        return GetConcerts(token, filter, orderBy, paginationParams, includeDeleted);
+    }
+    
+    public IAsyncEnumerable<ConcertDo> GetConcerts(CancellationToken token, ConcertFilter? filter = null, IEnumerable<SortDescriptor>? orderBy = null, IPaginationParams? paginationParams = null, bool includeDeleted = false)
+    {
+        paginationParams ??= new PaginationParams(0, 100);
+        return FindDeletableAsync(
+            c => filter == null || 
+                 (filter.CountryCode == null || c.Venue.CountryCode == filter.CountryCode) &&
+                 (filter.Before == null || c.PostedStartTime < filter.Before) &&
+                 (filter.After == null || c.PostedStartTime > filter.After),
+            IncludeAllReferences, orderBy, paginationParams, includeDeleted);
     }
 }

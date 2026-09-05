@@ -1,10 +1,17 @@
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Common.Contracts.Generated.Models;
 using Common.Utils.Cache;
 using LPCalendar.DataStructure.Tours.Locations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.Extensions.Logging;
 using Server.Api.Auth;
 using Server.Api.Cache;
 using Service.Tours;
+using AddVenueNameRequestDto = LPCalendar.DataStructure.Tours.Locations.AddVenueNameRequestDto;
+using UpdateVenueNameRequestDto = LPCalendar.DataStructure.Tours.Locations.UpdateVenueNameRequestDto;
 
 namespace Server.Api.Controllers;
 
@@ -24,12 +31,14 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <returns></returns>
     [HttpPost]
     [AuthorizeRoles]
-    public async Task<CreatedAtActionResult> CreateVenue([FromBody] CreateVenueRequestDto request)
+    [ClearCache(Tags = [CacheTags.VenuesAll])]
+    public async Task<ActionResult<VenueDto>> CreateVenue([FromBody] CreateVenueRequestDto request)
     {
         logger.LogDebug("Requested to create venue");
-        var newId = await service.CreateVenueAsync(request);
+        var newId = await service.CreateVenueAsync(request.ToBo());
         logger.LogDebug("created venue with id {id}", newId);
-        return CreatedAtAction(nameof(GetVenueById), new { venueId = newId }, null);
+        var createdVenue = await service.GetVenueByIdAsync(newId);
+        return CreatedAtAction(nameof(GetVenueById), new { venueId = newId }, createdVenue.ToDto());
     }
     
     /// <summary>
@@ -40,12 +49,13 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <returns>all information about the venue</returns>
     [HttpPut("{venueId:int}")]
     [AuthorizeRoles]
+    [ClearCache(Tags = [CacheTags.VenuesAll])]
     public async Task<ActionResult<VenueWithDetailsDto>> UpdateVenue([FromBody] UpdateVenueRequestDto request, [FromRoute] uint venueId)
     {
         logger.LogDebug("Update venue with ID: {venueId}", venueId);
-        await service.UpdateVenueAsync(request, venueId);
+        await service.UpdateVenueAsync(request.ToBo(), venueId);
         var venue = await service.GetVenueWithDetailsByIdAsync(venueId);
-        return Ok(venue);
+        return Ok(venue.ToDto());
     }
 
     /// <summary>
@@ -54,13 +64,13 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <param name="venueId">ID of the venue</param>
     /// <returns>basic information about the venue</returns>
     [HttpGet("{venueId:int}")]
-    [OutputCache(PolicyName = CachePolicyNames.Long)]
+    [OutputCache(PolicyName = CachePolicyNames.Long, Tags = [CacheTags.VenuesAll])]
     [CustomResponseCache(Duration = CacheExpiration.Medium)]
     public async Task<ActionResult<VenueDto>> GetVenueById(uint venueId)
     {
         logger.LogDebug("Requested venue with ID: {venueId}", venueId);
         var venue = await service.GetVenueByIdAsync(venueId);
-        return Ok(venue);
+        return Ok(venue.ToDto());
     }
 
     /// <summary>
@@ -70,13 +80,14 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <returns>list of all venues</returns>
     [HttpGet]
     [AuthorizeRoles]
-    [OutputCache(PolicyName = CachePolicyNames.Medium)]
+    [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.VenuesAll])]
     [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<VenueDto[]>> GetAllVenues(CancellationToken cancellationToken)
     {
         logger.LogDebug("Requested to get all venues.");
         var venues = await service
             .GetAllVenuesAsync(cancellationToken)
+            .Select(DtoMapper.ToDto)
             .ToArrayAsync(cancellationToken);
         logger.LogDebug("Found {count} venues", venues.Length);
         return Ok(venues);
@@ -88,13 +99,13 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <param name="venueId">ID of the venue</param>
     /// <returns>detailed information about the venue</returns>
     [HttpGet("{venueId:int}/details")]
-    [OutputCache(PolicyName = CachePolicyNames.Long)]
+    [OutputCache(PolicyName = CachePolicyNames.Long, Tags = [CacheTags.VenuesAll])]
     [CustomResponseCache(Duration = CacheExpiration.Long)]
     public async Task<ActionResult<VenueWithCityDto>> GetVenueWithCityById(uint venueId)
     {
         logger.LogDebug("Requested venue including details with ID: {venueId}", venueId);
         var venue = await service.GetVenueWithDetailsByIdAsync(venueId);
-        return Ok(venue);
+        return Ok(((VenueWithCityBo)venue).ToDto());
     }
     
     /// <summary>
@@ -106,6 +117,7 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <response code="404">If the venue was not found</response>
     [HttpDelete("{venueId:int}")]
     [AuthorizeRoles]
+    [ClearCache(Tags = [CacheTags.VenuesAll])]
     public async Task<NoContentResult> DeleteVenueById(uint venueId)
     {
         logger.LogInformation("Requested to delete venue with ID: {venueId}", venueId);
@@ -123,11 +135,12 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <response code="404">If the venue was not found</response>
     [HttpPost("{venueId:int}/names")]
     [AuthorizeRoles]
+    [ClearCache(Tags = [CacheTags.VenuesAll])]
     public async Task<VenueWithDetailsDto> AddNewVenueName([FromBody] AddVenueNameRequestDto request, [FromRoute] uint venueId)
     {
         await service.AddVenueNameAsync(request, venueId);
         var venue = await service.GetVenueWithDetailsByIdAsync(venueId);
-        return venue;
+        return venue.ToDto();
     }
     
     /// <summary>
@@ -141,6 +154,7 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <response code="404">If the venue or name was not found</response>
     [HttpPut("{venueId:int}/names/{venueNameId:int}")]
     [AuthorizeRoles]
+    [ClearCache(Tags = [CacheTags.VenuesAll])]
     public async Task<NoContentResult> UpdateVenueName([FromBody] UpdateVenueNameRequestDto request, [FromRoute] uint venueId, [FromRoute] uint venueNameId)
     {
         await service.UpdateVenueNameAsync(request, venueId, venueNameId);
@@ -157,6 +171,7 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <response code="404">If the venue was not found</response>
     [HttpDelete("{venueId:int}/names/{venueNameId:int}")]
     [AuthorizeRoles]
+    [ClearCache(Tags = [CacheTags.VenuesAll])]
     public async Task<NoContentResult> DeleteVenueName([FromRoute] uint venueId, [FromRoute] uint venueNameId)
     {
         await service.DeleteVenueNameAsync(venueId, venueNameId);

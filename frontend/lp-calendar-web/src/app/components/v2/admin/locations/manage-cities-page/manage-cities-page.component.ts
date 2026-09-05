@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { LocationsService } from '../../../../../services/locations.service';
 import { CityWithCountryDto, CountryDto } from '../../../../../modules/lpshows-api/v3';
@@ -30,6 +30,7 @@ import { RouterLink } from '@angular/router';
   ],
   templateUrl: './manage-cities-page.component.html',
   styleUrl: './manage-cities-page.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class ManageCitiesPageComponent {
   private messageService = inject(MessageService);

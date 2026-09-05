@@ -236,6 +236,33 @@ paths:
         requestParameters:
           integration.request.path.concertId: method.request.path.concertId
   
+  /v3/Concerts/{concertId}/adjacent:
+    get:
+      operationId: GetAdjacentConcertsForId
+      summary: Returns information about the previous and next concerts
+      tags:
+        - Concerts
+      parameters:
+        - in: path
+          name: concertId
+          description: ID of the concert
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A JSON object with the information of the adjacent concerts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdjacentConcertsResponse"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Concerts/{concertId}/adjacent
+        requestParameters:
+          integration.request.path.concertId: method.request.path.concertId
+  
   /v2/concerts/{id}/bookmarks/count:
     get:
       operationId: GetBookmarkCountForConcert
@@ -894,9 +921,10 @@ paths:
           in: path
           required: true
           schema:
-            pattern: ^-?(?:0|[1-9]\d*)$
             type: integer
-            format: int32
+            format: int64
+            minimum: 0
+            maximum: 4294967295
       requestBody:
         description: Data of the updated city
         content:
@@ -954,9 +982,10 @@ paths:
           description: ID of the city
           required: true
           schema:
-            pattern: ^-?(?:0|[1-9]\d*)$
-            type: string
-            format: uint32
+            type: integer
+            format: int64
+            minimum: 0
+            maximum: 4294967295
       responses:
         "200":
           description: The city including the information about the country
@@ -993,7 +1022,10 @@ paths:
           in: path
           required: true
           schema:
-            type: string
+            type: integer
+            format: int64
+            minimum: 0
+            maximum: 4294967295
       responses:
         "200":
           description: no content
@@ -1325,8 +1357,18 @@ paths:
               $ref: "#/components/schemas/CreateVenueRequest"
         required: true
       responses:
-        "200":
-          description: ""
+        "201":
+          description: "Venue created successfully"
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Venue"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/Venue"
+            application/*+json:
+              schema:
+                $ref: "#/components/schemas/Venue"
         "401":
           description: "Unauthorized: Credentials are missing or not valid"
         "403":
@@ -1773,7 +1815,12 @@ components:
         status:
           $ref: "#/components/schemas/ConcertStatusValue"
     ConcertStatusValue:
-      type: integer
+      type: string
+      enum: 
+        - Planned
+        - Running
+        - Past
+        - Cancelled
     ConcertType:
       required:
         - name
@@ -1897,8 +1944,9 @@ components:
     CreateVenueRequest:
       required:
         - countryCode
+        - cityId
         - currentName
-        - timeZone
+        - timeZoneId
       type: object
       properties:
         countryCode:
@@ -1909,21 +1957,22 @@ components:
           maxLength: 3
           type: string
         cityId:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         currentName:
           type: string
-        timeZone:
+        timeZoneId:
           type: string
         latitude:
-          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type: string
+          type: number
           format: double
+          nullable: true
         longitude:
-          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type: string
+          type: number
           format: double
+          nullable: true
     PreviousVenueName:
       required:
         - venueId
@@ -2164,7 +2213,8 @@ components:
     UpdateVenueRequest:
       required:
         - countryCode
-        - timeZone
+        - cityId
+        - timeZoneId
       type: object
       properties:
         countryCode:
@@ -2176,26 +2226,25 @@ components:
           type: string
           nullable: true
         cityId:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
-        timeZone:
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
+        timeZoneId:
           type: string
         latitude:
-          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type: string
+          type: number
           nullable: true
           format: double
         longitude:
-          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type: string
+          type: number
           nullable: true
           format: double
     Venue:
       required:
         - countryCode
         - currentName
-        - timeZone
+        - timeZoneId
       type: object
       properties:
         id:
@@ -2210,21 +2259,20 @@ components:
           maxLength: 3
           type: string
         cityId:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         currentName:
           type: string
-        timeZone:
+        timeZoneId:
           type: string
         latitude:
-          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type: string
+          type: number
           nullable: true
           format: double
         longitude:
-          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type: string
+          type: number
           nullable: true
           format: double
     VenueWithCity:
@@ -2232,7 +2280,7 @@ components:
         - city
         - countryCode
         - currentName
-        - timeZone
+        - timeZoneId
       type: object
       properties:
         city:
@@ -2250,21 +2298,20 @@ components:
           type: string
           nullable: true
         cityId:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         currentName:
           type: string
-        timeZone:
+        timeZoneId:
           type: string
         latitude:
-          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type: string
+          type: number
           nullable: true
           format: double
         longitude:
-          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type: string
+          type: number
           nullable: true
           format: double
     VenueWithDetails:
@@ -2273,7 +2320,7 @@ components:
         - city
         - countryCode
         - currentName
-        - timeZone
+        - timeZoneId
       type: object
       properties:
         venueNames:
@@ -2295,23 +2342,36 @@ components:
           type: string
           nullable: true
         cityId:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         currentName:
           type: string
-        timeZone:
+        timeZoneId:
           type: string
         latitude:
-          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type: string
+          type: number
           nullable: true
           format: double
         longitude:
-          pattern: ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-          type: string
+          type: number
           nullable: true
           format: double
+    
+    AdjacentConcertsResponse:
+      type: object
+      description: Response to get the IDs of the previous and next concerts
+      properties:
+        current:
+          type: string
+          description: ID of the requested concert
+        previous:
+          type: string
+          description: ID of the previous concert
+        next:
+          type: string
+          description: ID of the next concert
     
     # Schemas from v2
     GetConcertBookmarkCountsResponse:
