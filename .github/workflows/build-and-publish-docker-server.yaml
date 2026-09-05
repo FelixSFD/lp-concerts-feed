@@ -39,6 +39,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: DEBUG input
+        run: echo ${{ inputs.image-tag }}
+
       - name: Generate models from OpenAPI
         working-directory: ./Common.Contracts
         run: ./generate-dotnet-api.sh
