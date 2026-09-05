@@ -28,7 +28,7 @@ import {
   load,
   Map as AppleMap, MapAnnotationDragEvent,
   MapKit,
-  MapKitEvent,
+  MapEvent,
   MarkerAnnotation
 } from '@apple/mapkit-loader';
 import { environment } from '../../../../../../environments/environment';
@@ -137,7 +137,7 @@ export class VenueFormComponent {
         map: this.appleMap,
         draggable: true
       });
-      this.locationMarker.addEventListener("dragging", this.didDragPin, this);
+      this.appleMap.addEventListener("dragging", this.didDragPin);
       console.debug("Pin created.", this.locationMarker);
       this.appleMap?.showItems([this.locationMarker]);
     }
@@ -146,11 +146,11 @@ export class VenueFormComponent {
   }
 
 
-  private didDragPin(evt: MapKitEvent) {
-    let dragEvent = evt as AnnotationDragEvent;
-    this.venueForm.controls.latitude.setValue(dragEvent.coordinate.latitude)
-    this.venueForm.controls.longitude.setValue(dragEvent.coordinate.longitude);
-  }
+  private didDragPin = (evt: Event) => {
+    let dragEvent = evt as MapAnnotationDragEvent;
+    this.venueForm.controls.latitude.setValue(dragEvent.coordinate?.latitude ?? null);
+    this.venueForm.controls.longitude.setValue(dragEvent.coordinate?.longitude ?? null);
+  };
 
 
   private zoomToCoordinates(lon: number, lat: number, zoomLevel: number = 11) {

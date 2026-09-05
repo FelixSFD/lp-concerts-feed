@@ -150,7 +150,7 @@ export class ConcertDetailsComponent implements OnChanges {
       this.locationMarker = new this.mapKit!.MarkerAnnotation(new this.mapKit!.Coordinate(lat, lon), {
         color: "#c969e0",
         map: this.appleMap,
-        draggable: true
+        draggable: false
       });
       console.debug("Pin created.", this.locationMarker);
       this.appleMap?.showItems([this.locationMarker]);
