@@ -52,6 +52,8 @@ jobs:
   build-server-image:
     uses: felixsfd/lp-concerts-feed/.github/workflows/build-and-publish-docker-server.yaml@main
     secrets: inherit
+    with:
+      image-tag: ${{ vars.SERVER_IMAGE_TAG }}
     permissions:
       contents: read
       packages: write
