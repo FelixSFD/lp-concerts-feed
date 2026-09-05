@@ -3,6 +3,7 @@ using System;
 using Database.Tours;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Tours.Migrations
 {
     [DbContext(typeof(ToursDbContext))]
-    partial class ToursDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260905125823_TimestampedDataObjects")]
+    partial class TimestampedDataObjects
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

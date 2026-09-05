@@ -122,5 +122,16 @@ public class ToursDbContext(DbContextOptions<ToursDbContext> options) : DbContex
                 d => d.HasValue
                     ? DateOnly.FromDateTime(d.Value)
                     : null);
+        
+        // Set default value for CreatedAt property of ITimestampedDataObject
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (typeof(ITimestampedDataObject).IsAssignableFrom(entityType.ClrType))
+            {
+                modelBuilder.Entity(entityType.ClrType)
+                    .Property(nameof(ITimestampedDataObject.CreatedAt))
+                    .HasDefaultValueSql("NOW()");
+            }
+        }
     }
 }
