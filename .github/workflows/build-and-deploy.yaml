@@ -28,10 +28,6 @@ jobs:
       - name: Define Lambda Projects
         id: lambda_names
         run: ./.github/workflows/generateGitHubJobMatrix.sh
-      - name: Define Docker image tag
-        id: docker_image_tag
-        run: |
-          echo "tag='${{ vars.SERVER_IMAGE_TAG }}'" >> "$GITHUB_OUTPUT"
       - name: Define Frontend Replication Regions
         id: frontend_replication_regions
         run: |
@@ -55,10 +51,9 @@ jobs:
 
   build-server-image:
     uses: ./.github/workflows/build-and-publish-docker-server.yaml
-    secrets: inherit
-    needs: define-matrix
     with:
-      image-tag: ${{ needs.define-matrix.outputs.docker_image_tag.tag }}
+      image-tag: ${{ vars.SERVER_IMAGE_TAG }}
+    secrets: inherit
     permissions:
       contents: read
       packages: write
