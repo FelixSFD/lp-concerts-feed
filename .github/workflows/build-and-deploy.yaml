@@ -30,7 +30,8 @@ jobs:
         run: ./.github/workflows/generateGitHubJobMatrix.sh
       - name: Define Docker image tag
         id: docker_image_tag
-        run: echo "SERVER_IMAGE_TAG='${{ vars.SERVER_IMAGE_TAG }}'"
+        run: |
+          echo "tag='${{ vars.SERVER_IMAGE_TAG }}'" >> "$GITHUB_OUTPUT"
       - name: Define Frontend Replication Regions
         id: frontend_replication_regions
         run: |
@@ -57,7 +58,7 @@ jobs:
     secrets: inherit
     needs: define-matrix
     with:
-      image-tag: ${{ needs.define-matrix.outputs.docker_image_tag.SERVER_IMAGE_TAG }}
+      image-tag: ${{ needs.define-matrix.outputs.docker_image_tag.tag }}
     permissions:
       contents: read
       packages: write
