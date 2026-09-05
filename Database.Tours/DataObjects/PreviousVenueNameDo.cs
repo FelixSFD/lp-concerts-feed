@@ -9,7 +9,7 @@ namespace Database.Tours.DataObjects;
 /// If a venue was renamed, this table stores the previous names
 /// </summary>
 [Table("PreviousVenueName")]
-public class PreviousVenueNameDo : BaseDo
+public class PreviousVenueNameDo : BaseDo, ITimestampedDataObject
 {
     /// <summary>
     /// ID of this historic name
@@ -47,6 +47,14 @@ public class PreviousVenueNameDo : BaseDo
     /// </summary>
     [Column("To")]
     public DateOnly? To { get; set; }
+
+    /// <inheritdoc/>
+    [Column("CreatedAt")]
+    public DateTimeOffset CreatedAt { get; set; }
+    
+    /// <inheritdoc/>
+    [Column("UpdatedAt")]
+    public DateTimeOffset? UpdatedAt { get; set; }
 
     /// <inheritdoc/>
     public override string ToString()

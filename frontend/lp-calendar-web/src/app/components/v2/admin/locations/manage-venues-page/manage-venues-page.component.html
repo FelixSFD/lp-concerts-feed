@@ -7,13 +7,13 @@
 
   <p-table
     #dt2
-    [value]="venues$"
+    [value]="venues$()"
     dataKey="id"
     stripedRows
     rowHover
     [rows]="25"
     [rowsPerPageOptions]="[10, 25, 50, 100]"
-    [loading]="isLoading$"
+    [loading]="isLoading$()"
     [paginator]="true"
     [globalFilterFields]="['currentName', 'countryCode']"
     [tableStyle]="{ 'min-width': '75rem' }"
@@ -27,7 +27,7 @@
           <p-inputicon>
             <i class="pi pi-search"></i>
           </p-inputicon>
-          <input pInputText type="text" [(ngModel)]="globalSearchText$" (input)="dt2.filterGlobal(globalSearchText$, 'contains')" placeholder="Search keyword" />
+          <input pInputText type="text" [(ngModel)]="globalSearchText$" (input)="dt2.filterGlobal(globalSearchText$(), 'contains')" placeholder="Search keyword" />
         </p-iconfield>
       </div>
     </ng-template>
@@ -64,8 +64,8 @@
         </td>
         <td alignFrozen="right" pFrozenColumn>
           <p-button-group>
-            <p-button label="Edit" icon="pi pi-pencil" variant="outlined" size="small" [routerLink]="[venue.id]" [disabled]="isDeletingVenue$" />
-            <p-button label="Delete" icon="pi pi-trash" variant="outlined" size="small" severity="danger" (click)="onDeleteVenueClicked($event, venue)" [disabled]="isDeletingVenue$" />
+            <p-button label="Edit" icon="pi pi-pencil" variant="outlined" size="small" [routerLink]="[venue.id]" [disabled]="isDeletingVenue$()" />
+            <p-button label="Delete" icon="pi pi-trash" variant="outlined" size="small" severity="danger" (click)="onDeleteVenueClicked($event, venue)" [disabled]="isDeletingVenue$()" />
           </p-button-group>
         </td>
       </tr>

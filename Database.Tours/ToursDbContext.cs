@@ -1,3 +1,4 @@
+using Common.Database.DataObjects;
 using Database.Tours.DataObjects;
 using Microsoft.EntityFrameworkCore;
 using MySql.EntityFrameworkCore.Extensions;
@@ -21,6 +22,39 @@ public class ToursDbContext(DbContextOptions<ToursDbContext> options) : DbContex
     
     public DbSet<TourDo> Tours { get; set; }
     public DbSet<TourLegDo> TourLegs { get; set; }
+
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        UpdateTimestamps();
+        return base.SaveChanges(acceptAllChangesOnSuccess);
+    }
+
+    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    {
+        UpdateTimestamps();
+        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    private void UpdateTimestamps()
+    {
+        var entries = ChangeTracker.Entries<ITimestampedDataObject>();
+        var now = DateTimeOffset.UtcNow;
+
+        foreach (var entry in entries)
+        {
+            if (entry.State == EntityState.Added)
+            {
+                if (entry.Entity.CreatedAt == default)
+                {
+                    entry.Entity.CreatedAt = now;
+                }
+            }
+            else if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.UpdatedAt = now;
+            }
+        }
+    }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -88,5 +122,47 @@ public class ToursDbContext(DbContextOptions<ToursDbContext> options) : DbContex
                 d => d.HasValue
                     ? DateOnly.FromDateTime(d.Value)
                     : null);
+        
+        // Set default value for CreatedAt property of ITimestampedDataObject
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (typeof(ITimestampedDataObject).IsAssignableFrom(entityType.ClrType))
+            {
+                modelBuilder.Entity(entityType.ClrType)
+                    .Property(nameof(ITimestampedDataObject.CreatedAt))
+                    .HasDefaultValueSql("NOW()");
+            }
+        }
+        
+        // define static data for ConcertTypes
+        modelBuilder.Entity<ConcertTypeDo>()
+            .HasData(
+                new ConcertTypeDo { Id = 1, Name = "Linkin Park Show" },
+                new ConcertTypeDo { Id = 2, Name = "Festival" },
+                new ConcertTypeDo { Id = 3, Name = "Other" }
+                );
+    }
+
+
+    /// <summary>
+    /// Makes sure some ConcertTypes exist
+    /// </summary>
+    public async Task SeedConcertTypes()
+    {
+        var minimumRequiredTypes = new List<ConcertTypeDo>
+        {
+            new() { Id = 1, Name = "Linkin Park Show" },
+            new() { Id = 2, Name = "Festival" },
+            new() { Id = 3, Name = "Other" }
+        };
+
+        var existingTypes = await Set<ConcertTypeDo>().ToListAsync();
+        var typesToSeed = minimumRequiredTypes.Except(existingTypes).ToList();
+
+        if (typesToSeed.Count != 0)
+        {
+            await Set<ConcertTypeDo>().AddRangeAsync(typesToSeed);
+            await SaveChangesAsync();
+        }
     }
 }
