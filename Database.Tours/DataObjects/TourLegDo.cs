@@ -10,7 +10,7 @@ namespace Database.Tours.DataObjects;
 /// </summary>
 [Table("TourLeg")]
 [PrimaryKey(nameof(TourId), nameof(Id))]
-public class TourLegDo : BaseDo
+public class TourLegDo : BaseDo, ITimestampedDataObject
 {
     /// <summary>
     /// ID of the <see cref="TourDo"/>
@@ -38,4 +38,12 @@ public class TourLegDo : BaseDo
     /// </summary>
     [ForeignKey(nameof(TourId))]
     public virtual TourDo Tour { get; set; }
+    
+    /// <inheritdoc/>
+    [Column("CreatedAt")]
+    public DateTimeOffset CreatedAt { get; set; }
+    
+    /// <inheritdoc/>
+    [Column("UpdatedAt")]
+    public DateTimeOffset? UpdatedAt { get; set; }
 }

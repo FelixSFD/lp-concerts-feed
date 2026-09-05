@@ -1,3 +1,4 @@
+using Common.Database.DataObjects;
 using Database.Tours.DataObjects;
 using Microsoft.EntityFrameworkCore;
 using MySql.EntityFrameworkCore.Extensions;
@@ -21,6 +22,39 @@ public class ToursDbContext(DbContextOptions<ToursDbContext> options) : DbContex
     
     public DbSet<TourDo> Tours { get; set; }
     public DbSet<TourLegDo> TourLegs { get; set; }
+
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        UpdateTimestamps();
+        return base.SaveChanges(acceptAllChangesOnSuccess);
+    }
+
+    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    {
+        UpdateTimestamps();
+        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    private void UpdateTimestamps()
+    {
+        var entries = ChangeTracker.Entries<ITimestampedDataObject>();
+        var now = DateTimeOffset.UtcNow;
+
+        foreach (var entry in entries)
+        {
+            if (entry.State == EntityState.Added)
+            {
+                if (entry.Entity.CreatedAt == default)
+                {
+                    entry.Entity.CreatedAt = now;
+                }
+            }
+            else if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.UpdatedAt = now;
+            }
+        }
+    }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

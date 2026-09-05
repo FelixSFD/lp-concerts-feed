@@ -5,7 +5,7 @@ using Common.Database.DataObjects;
 namespace Database.Tours.DataObjects;
 
 [Table("Tour")]
-public class TourDo : BaseDo
+public class TourDo : BaseDo, ITimestampedDataObject
 {
     /// <summary>
     /// Unique ID
@@ -26,4 +26,12 @@ public class TourDo : BaseDo
     /// All legs of this tour
     /// </summary>
     public ICollection<TourLegDo> Legs { get; set; } = [];
+    
+    /// <inheritdoc/>
+    [Column("CreatedAt")]
+    public DateTimeOffset CreatedAt { get; set; }
+    
+    /// <inheritdoc/>
+    [Column("UpdatedAt")]
+    public DateTimeOffset? UpdatedAt { get; set; }
 }

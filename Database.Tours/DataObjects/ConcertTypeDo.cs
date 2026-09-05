@@ -5,7 +5,7 @@ using Common.Database.DataObjects;
 namespace Database.Tours.DataObjects;
 
 [Table("ConcertType")]
-public class ConcertTypeDo : BaseDo
+public class ConcertTypeDo : BaseDo, ITimestampedDataObject
 {
     [Key]
     [Column("Id")]
@@ -14,4 +14,12 @@ public class ConcertTypeDo : BaseDo
     [Column("Name")]
     [MaxLength(DataConstants.ConcertTypeNameLength)]
     public required string Name { get; set; }
+    
+    /// <inheritdoc/>
+    [Column("CreatedAt")]
+    public DateTimeOffset CreatedAt { get; set; }
+    
+    /// <inheritdoc/>
+    [Column("UpdatedAt")]
+    public DateTimeOffset? UpdatedAt { get; set; }
 }

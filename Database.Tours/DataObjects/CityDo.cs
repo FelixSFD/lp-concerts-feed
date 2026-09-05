@@ -7,7 +7,7 @@ namespace Database.Tours.DataObjects;
 
 [Table("City")]
 [PrimaryKey(nameof(Id), nameof(CountryCode))]
-public class CityDo : BaseDo
+public class CityDo : BaseDo, ITimestampedDataObject
 {
     /// <summary>
     /// City-ID. This is part of the composite key
@@ -54,4 +54,12 @@ public class CityDo : BaseDo
     /// State where this state is located in (if applicable)
     /// </summary>
     public virtual StateDo? State { get; set; }
+    
+    /// <inheritdoc/>
+    [Column("CreatedAt")]
+    public DateTimeOffset CreatedAt { get; set; }
+    
+    /// <inheritdoc/>
+    [Column("UpdatedAt")]
+    public DateTimeOffset? UpdatedAt { get; set; }
 }
