@@ -1,0 +1,275 @@
+@if (resolverError != null) {
+  <div class="page-state">
+    <i class="pi pi-exclamation-circle"></i>
+    <h2>{{ resolverError.message }}</h2>
+    <p>This show may have been removed, or the link isn't quite right.</p>
+    <p-button label="Back to concerts" icon="pi pi-arrow-left" [routerLink]="['/concerts']" variant="outlined" />
+  </div>
+} @else if (viewModel == null) {
+  <div class="loading-skeleton" aria-busy="true">
+    <div class="sk sk-hero"></div>
+    <div class="sk-actions">
+      <div class="sk sk-pill"></div>
+      <div class="sk-pill"></div>
+      <div class="sk-pill"></div>
+    </div>
+    <div class="sk sk-timeline"></div>
+  </div>
+} @else {
+  <div class="page-nav">
+    <div class="nav-pager">
+      <p-button
+        label="Previous show"
+        icon="pi pi-arrow-left"
+        variant="text"
+        severity="secondary"
+        [disabled]="viewModel.previousConcertId == null"
+        [routerLink]="viewModel.previousConcertId ? ['../', viewModel.previousConcertId] : null"
+        ariaLabel="Previous show"
+      />
+      <p-button
+        label="Next show"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        variant="text"
+        severity="secondary"
+        [disabled]="viewModel.nextConcertId == null"
+        [routerLink]="viewModel.nextConcertId ? ['../', viewModel.nextConcertId] : null"
+        ariaLabel="Next show"
+      />
+    </div>
+    @if (viewModel.wikiUrl) {
+      <p-button
+        label="See this show on Linkinpedia"
+        icon="pi pi-external-link"
+        variant="text"
+        (onClick)="openLinkinpediaClicked()"
+      />
+    }
+  </div>
+
+  <p-card class="hero-card">
+    <div class="hero">
+      <div class="hero-main">
+        @if (viewModel.tourName) {
+          <p class="eyebrow">{{ viewModel.tourName }}</p>
+        }
+        <h1 class="hero-title">{{ viewModel.title }}</h1>
+        <p class="hero-meta">
+          <i class="pi pi-map-marker"></i>
+          {{ viewModel.locationLabel }}
+          @if (viewModel.postedStartTime) {
+            · {{ viewModel.postedStartTime.toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY) }}
+          }
+        </p>
+      </div>
+
+      @if (!viewModel.isPast && viewModel.countdownTargetTime) {
+        <div class="hero-countdown">
+          <app-hero-countdown [countdownToDate]="viewModel.countdownTargetTime" />
+        </div>
+      } @else if (viewModel.isPast) {
+        <div class="hero-ended">
+          <i class="pi pi-check-circle"></i>
+          <span>This show has ended</span>
+        </div>
+      }
+    </div>
+  </p-card>
+
+  @if (viewModel.badges) {
+    <div class="hero-badges">
+      <app-concert-badges [concert]="viewModel.badges"></app-concert-badges>
+    </div>
+  }
+
+  <div class="action-strip">
+    <div class="action-strip-main">
+      <p-button
+        class="action-btn"
+        [icon]="viewModel.bookmarks?.currentUserStatus === 'Bookmarked' ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'"
+        [label]="'Bookmark · ' + (viewModel.bookmarks?.bookmarkedCount ?? 0)"
+        (onClick)="onBookmarkClicked()"
+        [disabled]="viewModel.bookmarks == null || viewModel.bookmarks.loading || !isAuthenticated"
+        variant="outlined" severity="secondary"
+        [pTooltip]="viewModel.bookmarks?.currentUserStatus === 'Bookmarked' ? 'Remove bookmark' : 'Bookmark this show'"
+        tooltipPosition="bottom"
+      />
+      <p-button
+        class="action-btn action-btn-accent"
+        icon="pi pi-ticket"
+        [label]="'Attending · ' + (viewModel.bookmarks?.attendingCount ?? 0)"
+        (onClick)="onAttendingClicked()"
+        [disabled]="viewModel.bookmarks == null || viewModel.bookmarks.loading || !isAuthenticated"
+        variant="outlined" severity="secondary"
+        [pTooltip]="viewModel.bookmarks?.currentUserStatus === 'Attending' ? 'Remove me from the show' : 'I will attend this show'"
+        tooltipPosition="bottom"
+      />
+      <p-button
+        class="action-btn action-btn-accent"
+        icon="pi pi-calendar-plus"
+        label="Add to calendar"
+        variant="outlined" severity="secondary"
+        pTooltip="Coming soon" tooltipPosition="bottom" disabled
+      />
+    </div>
+    <p-button
+      class="action-share" icon="pi pi-share-alt"
+      variant="outlined" severity="secondary"
+      (onClick)="onShareClicked()"
+      ariaLabel="Share" pTooltip="Share this show" tooltipPosition="bottom"
+    />
+  </div>
+
+  <p-card class="timeline-card">
+    <div class="timeline" [class.timeline--past]="viewModel.timeline.isPast">
+      <div class="timeline-step" [class.timeline-step--empty]="!viewModel.timeline.earlyEntry.hasTime">
+        <div class="timeline-marker"><i class="{{ viewModel.timeline.earlyEntry.markerIcon }}"></i></div>
+        @if (viewModel.timeline.earlyEntry.hasTime && viewModel.timeline.earlyEntry.time) {
+          <div class="timeline-time">{{ viewModel.timeline.earlyEntry.time.toLocaleString(DateTime.TIME_SIMPLE) }}</div>
+          <div class="timeline-yours">{{ viewModel.timeline.earlyEntry.time.toLocal().toLocaleString(DateTime.TIME_SIMPLE) }} your time</div>
+        } @else {
+          <div class="timeline-time timeline-placeholder">—</div>
+        }
+        <div class="timeline-label">{{ viewModel.timeline.earlyEntry.label }}</div>
+        @if (viewModel.timeline.earlyEntry.hasTime && viewModel.timeline.earlyEntry.time) {
+          <p-button
+            type="button"
+            class="timeline-copy"
+            (click)="discordShare.copyTimestamp(viewModel.timeline.earlyEntry.time, 'F', viewModel.timeline.earlyEntry.label)"
+            pTooltip="Copy for Discord"
+            tooltipPosition="bottom"
+            aria-label="Copy Discord timestamp"
+          >
+            <i class="pi pi-discord"></i>
+          </p-button>
+        }
+      </div>
+
+      <i class="pi pi-chevron-right timeline-arrow" aria-hidden="true"></i>
+
+      <div class="timeline-step" [class.timeline-step--empty]="!viewModel.timeline.doors.hasTime">
+        <div class="timeline-marker"><i class="{{ viewModel.timeline.doors.markerIcon }}"></i></div>
+        @if (viewModel.timeline.doors.hasTime && viewModel.timeline.doors.time) {
+          <div class="timeline-time">{{ viewModel.timeline.doors.time.toLocaleString(DateTime.TIME_SIMPLE) }}</div>
+          <div class="timeline-yours">{{ viewModel.timeline.doors.time.toLocal().toLocaleString(DateTime.TIME_SIMPLE) }} your time</div>
+        } @else {
+          <div class="timeline-time timeline-placeholder">—</div>
+        }
+        <div class="timeline-label">{{ viewModel.timeline.doors.label }}</div>
+        @if (viewModel.timeline.doors.hasTime && viewModel.timeline.doors.time) {
+          <p-button
+            type="button"
+            class="timeline-copy"
+            (click)="discordShare.copyTimestamp(viewModel.timeline.doors.time, 'F', viewModel.timeline.doors.label)"
+            pTooltip="Copy for Discord"
+            tooltipPosition="bottom"
+            aria-label="Copy Discord timestamp"
+          >
+            <i class="pi pi-discord"></i>
+          </p-button>
+        }
+      </div>
+
+      <i class="pi pi-chevron-right timeline-arrow" aria-hidden="true"></i>
+
+      <div class="timeline-step timeline-step--lead">
+        <div class="timeline-marker"><i class="{{ viewModel.timeline.stage.markerIcon }}"></i></div>
+        @if (viewModel.timeline.stage.time) {
+          <div class="timeline-time">{{ viewModel.timeline.stage.time.toLocaleString(DateTime.TIME_SIMPLE) }}</div>
+          <div class="timeline-yours">{{ viewModel.timeline.stage.time.toLocal().toLocaleString(DateTime.TIME_SIMPLE) }} your time</div>
+        }
+        <div class="timeline-label">{{ viewModel.timeline.stage.label }}</div>
+        @if (viewModel.timeline.stage.time) {
+          <p-button
+            type="button"
+            class="timeline-copy"
+            (click)="discordShare.copyTimestamp(viewModel.timeline.stage.time, 'F', viewModel.timeline.stage.label)"
+            pTooltip="Copy for Discord"
+            tooltipPosition="bottom"
+            aria-label="Copy Discord timestamp"
+          >
+            <i class="pi pi-discord"></i>
+          </p-button>
+        }
+      </div>
+    </div>
+  </p-card>
+
+  @if (viewModel.expectedSetDuration && viewModel.expectedSetDuration > 0) {
+    <p class="set-duration"><i class="pi pi-clock"></i> Expected set duration · {{ viewModel.expectedSetDuration | timeSpan }}</p>
+  }
+
+  @if (viewModel.setlists && viewModel.setlists.length > 0) {
+    @for (setlist of viewModel.setlists; track setlist) {
+      <p-card class="section-card">
+        <p class="section-head">
+          <i class="pi pi-list"></i> Setlist: {{ setlist.setName }}
+          <p-tag
+            value="BETA"
+            severity="secondary"
+            pTooltip="This is an early version of this feature and might not work perfectly"
+            tooltipPosition="top"
+          />
+        </p>
+
+        <app-setlist [setlist]="setlist" />
+
+        @if (viewModel.setlistsCacheUpdatedAt != null) {
+          <small class="section-note">Last updated: {{ viewModel.setlistsCacheUpdatedAt?.toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS) }}</small>
+        }
+      </p-card>
+    }
+  }
+
+  @if (viewModel.scheduleImageUrl != null || viewModel.venueCoordinates != null) {
+    <div class="panel-row">
+      @if (viewModel.venueCoordinates != null) {
+        <p-card class="panel-half">
+          <p class="section-head"><i class="pi pi-map-marker"></i> Venue location</p>
+          <ng-container #mapContainer>
+            <div #appleMaps class="map"></div>
+          </ng-container>
+        </p-card>
+      }
+      @if (viewModel.scheduleImageUrl != null) {
+        <p-card class="panel-half">
+          <p class="section-head"><i class="pi pi-calendar"></i> Official schedule</p>
+          <div class="schedule-img">
+            <p-image
+              [src]="viewModel.scheduleImageUrl"
+              alt="Official schedule announcement"
+              [preview]="true"
+            />
+          </div>
+        </p-card>
+      }
+    </div>
+  }
+
+  @if (canUpdateConcerts || canEditSetlists) {
+    <div class="page-footer">
+      <div class="footer-admin">
+        <p-button
+          [hidden]="!canUpdateConcerts"
+          label="Edit"
+          icon="pi pi-pencil"
+          variant="text"
+          severity="secondary"
+          size="small"
+          [routerLink]="['./edit']"
+        />
+        @if (canEditSetlists) {
+          <p-split-button
+            (onClick)="onAddSetlistBtnClicked()"
+            [model]="addSetlistButtonItems"
+            icon="pi pi-list"
+            label="Add setlist"
+            text
+            size="small"
+          />
+        }
+      </div>
+    </div>
+  }
+}

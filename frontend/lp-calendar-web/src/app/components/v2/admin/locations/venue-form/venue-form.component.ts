@@ -1,4 +1,13 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  EventEmitter,
+  inject,
+  Input,
+  Output,
+  ViewChild
+} from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CityWithCountryDto, CountryDto, VenueDto } from '../../../../../modules/lpshows-api/v3';
@@ -13,6 +22,17 @@ import { Select } from 'primeng/select';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import timezones from 'timezones-list';
+import { InputNumber } from 'primeng/inputnumber';
+import {
+  AnnotationDragEvent,
+  load,
+  Map as AppleMap, MapAnnotationDragEvent,
+  MapKit,
+  MapEvent,
+  MarkerAnnotation
+} from '@apple/mapkit-loader';
+import { environment } from '../../../../../../environments/environment';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-venue-form',
@@ -26,15 +46,22 @@ import timezones from 'timezones-list';
     ReactiveFormsModule,
     Select,
     InputGroup,
-    InputGroupAddon
+    InputGroupAddon,
+    InputNumber
   ],
   templateUrl: './venue-form.component.html',
   styleUrl: './venue-form.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class VenueFormComponent {
   private messageService = inject(MessageService);
   private formBuilder = inject(FormBuilder);
   private locationsService = inject(LocationsService);
+
+  // Apple Maps
+  private mapKit: MapKit | undefined;
+  private appleMap: AppleMap | undefined;
+  private locationMarker: MarkerAnnotation | null = null;
 
   @Input("is-saving")
   isSaving$: boolean = false;
@@ -60,6 +87,8 @@ export class VenueFormComponent {
     cityId: new FormControl<number>(0, [Validators.required]),
     currentName: new FormControl<string>('', [Validators.required]),
     timezone: new FormControl('', [Validators.required]),
+    latitude: new FormControl<number>(0, []),
+    longitude: new FormControl<number>(0, []),
   });
 
   constructor() {
@@ -81,6 +110,56 @@ export class VenueFormComponent {
           }
         });
     });
+  }
+
+  private async initAppleMaps() {
+    this.mapKit = await load({
+      token: environment.appleMapsToken,
+      language: "en-US",
+      libraries: ["map", "annotations"],
+    });
+  }
+
+  private addOrMoveMarker(lon: number, lat: number) {
+    if (!this.appleMap || !this.mapKit) {
+      return;
+    }
+
+    if (this.locationMarker) {
+      console.debug("Pin already exists. Will just move it.");
+      this.locationMarker.coordinate = new this.mapKit!.Coordinate(lat, lon);
+      this.venueForm.controls.latitude.setValue(lat);
+      this.venueForm.controls.longitude.setValue(lon);
+    } else {
+      console.debug("Creating new pin on the map...");
+      this.locationMarker = new this.mapKit!.MarkerAnnotation(new this.mapKit!.Coordinate(lat, lon), {
+        color: "#c969e0",
+        map: this.appleMap,
+        draggable: true
+      });
+      this.appleMap.addEventListener("dragging", this.didDragPin);
+      console.debug("Pin created.", this.locationMarker);
+      this.appleMap?.showItems([this.locationMarker]);
+    }
+
+    this.zoomToCoordinates(lon, lat);
+  }
+
+
+  private didDragPin = (evt: Event) => {
+    let dragEvent = evt as MapAnnotationDragEvent;
+    this.venueForm.controls.latitude.setValue(dragEvent.coordinate?.latitude ?? null);
+    this.venueForm.controls.longitude.setValue(dragEvent.coordinate?.longitude ?? null);
+  };
+
+
+  private zoomToCoordinates(lon: number, lat: number, zoomLevel: number = 11) {
+    if (this.appleMap && this.mapKit) {
+      this.appleMap.region = new this.mapKit.CoordinateRegion(
+        new this.mapKit.Coordinate(lat, lon),
+        new this.mapKit.CoordinateSpan(0.06, 0.2)
+      );
+    }
   }
 
   onSaveClicked() {
@@ -133,7 +212,9 @@ export class VenueFormComponent {
       stateCode: null,
       cityId: cityId,
       currentName: currentName,
-      timeZone: timezone,
+      timeZoneId: timezone,
+      latitude: this.venueForm.value.latitude?? null,
+      longitude: this.venueForm.value.longitude ?? null
     };
   }
 
@@ -141,8 +222,10 @@ export class VenueFormComponent {
     console.debug("Fill form with data:", venue);
     this.venueForm.controls.cityId.setValue(Number(venue.cityId));
     this.venueForm.controls.countryCode.setValue(venue.countryCode ?? null);
-    this.venueForm.controls.timezone.setValue(venue.timeZone ?? null);
+    this.venueForm.controls.timezone.setValue(venue.timeZoneId ?? null);
     this.venueForm.controls.currentName.setValue(venue.currentName ?? null);
+    this.venueForm.controls.latitude.setValue(venue.latitude ?? null);
+    this.venueForm.controls.longitude.setValue(venue.longitude ?? null);
   }
 
 
@@ -182,6 +265,103 @@ export class VenueFormComponent {
       });
   }
 
+  @ViewChild('appleMaps')
+  set appleMaps(mapElement: ElementRef<HTMLDivElement> | undefined) {
+    console.log('appleMaps will be displayed', mapElement);
+    if (!mapElement) return;
+    if (!this.appleMaps) {
+      console.debug('MapKit not initialized yet!');
+      this.initAppleMaps().then(() => {
+        this.appleMap = this.makeMap(mapElement.nativeElement);
+        this.addOrMoveMarker(this.venueForm.controls.longitude.value ?? 0, this.venueForm.controls.latitude.value ?? 0);
+      });
+      return;
+    }
+
+    console.log("Will set map element: ", mapElement);
+    this.appleMap = this.makeMap(mapElement.nativeElement);
+    this.addOrMoveMarker(this.venueForm.controls.longitude.value ?? 0, this.venueForm.controls.latitude.value ?? 0);
+  }
+
+  private makeMap(mapElement: HTMLDivElement) {
+    let map = new this.mapKit!.Map(mapElement);
+    map.colorScheme = "adaptive";
+    return map;
+  }
+
+  private async getCityDetails(cityId: number) {
+    let city = await firstValueFrom(this.locationsService.getCity(this.venueForm.value.countryCode!, cityId));
+    if (city == null) {
+      return null;
+    }
+
+    return city;
+  }
+
+  async onGoToCityClicked() {
+    let cityId = this.venueForm.value.cityId;
+    if (cityId == null) {
+      this.messageService.add({ severity: 'warn', summary: 'No city selected', detail: 'Please select a city first' });
+      return;
+    }
+
+    let city = await this.getCityDetails(cityId);
+    if (city == null) {
+      this.messageService.add({ severity: 'error', summary: 'City not found', detail: 'The list of cities was not loaded correctly' });
+      return;
+    }
+
+    console.log("Will zoom to city: ", city);
+
+    let state = city.state ?? null;
+    let country = city.country;
+
+    this.locationsService.getCoordinatesFor(city.name, state ? state.name : null, country.name)
+      .subscribe(coordinates => {
+        this.zoomToCoordinates(coordinates?.longitude ?? 0, coordinates?.latitude ?? 0);
+      });
+  }
+
+
+  onSetPinClicked() {
+    let center = this.appleMap?.center;
+    this.addOrMoveMarker(center?.longitude ?? 0, center?.latitude ?? 0);
+  }
+
+
+  async tryAutoSetVenuePin() {
+    let venueName = this.venueForm.value.currentName;
+
+    let cityId = this.venueForm.value.cityId;
+    if (cityId == null) {
+      this.messageService.add({ severity: 'warn', summary: 'No city selected', detail: 'Please select a city first' });
+      return;
+    }
+
+    let city = await this.getCityDetails(cityId);
+    if (city == null) {
+      this.messageService.add({ severity: 'error', summary: 'City not found', detail: 'The list of cities was not loaded correctly' });
+      return;
+    }
+
+    let state = city.state ?? null;
+    let country = city.country;
+
+    if (country == null || venueName == null) {
+      return;
+    }
+
+    this.locationsService.getCoordinatesForVenue(venueName, city.name, state ? state.name : null, country.name)
+      .subscribe(coordinates => {
+        let lat = coordinates?.latitude ?? 0;
+        let lon = coordinates?.longitude ?? 0;
+
+        this.addOrMoveMarker(lon, lat);
+        this.venueForm.controls.longitude.setValue(lon);
+        this.venueForm.controls.latitude.setValue(lat);
+      });
+  }
+
 
   protected readonly timezones = timezones;
 }
@@ -192,5 +372,7 @@ export class VenueFormContent {
   stateCode: string | null = null;
   cityId!: number;
   currentName!: string;
-  timeZone!: string;
+  timeZoneId!: string;
+  latitude: number | null = null;
+  longitude: number | null = null;
 }

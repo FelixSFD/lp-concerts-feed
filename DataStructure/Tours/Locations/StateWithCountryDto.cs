@@ -5,7 +5,7 @@ namespace LPCalendar.DataStructure.Tours.Locations;
 /// <summary>
 /// A state within a country including the data of the country
 /// </summary>
-public class StateWithCountryDto : StateDto
+public class StateWithCountryBo : StateBo
 {
     /// <summary>
     /// Country the state is in

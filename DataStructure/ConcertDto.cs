@@ -8,6 +8,7 @@ namespace LPCalendar.DataStructure;
 /// </summary>
 public class ConcertDto
 {
+    [JsonConverter(typeof(JsonStringEnumConverter<ConcertStatusValue>))]
     public enum ConcertStatusValue
     {
         Planned,

@@ -7,13 +7,13 @@
 
   <p-table
     #dt2
-    [value]="cities$"
+    [value]="cities$()"
     dataKey="id"
     stripedRows
     rowHover
     [rows]="25"
     [rowsPerPageOptions]="[10, 25, 50, 100, 200]"
-    [loading]="isLoading$"
+    [loading]="isLoading$()"
     [paginator]="true"
     [globalFilterFields]="['name', 'nativeName', 'countryCode', 'country.name', 'country.nativeName']"
     [tableStyle]="{ 'min-width': '75rem' }"
@@ -26,7 +26,7 @@
           <p-inputicon>
             <i class="pi pi-search"></i>
           </p-inputicon>
-          <input pInputText type="text" [(ngModel)]="globalSearchText$" (input)="dt2.filterGlobal(globalSearchText$, 'contains')" placeholder="Search keyword" />
+          <input pInputText type="text" [(ngModel)]="globalSearchText$" (input)="dt2.filterGlobal(globalSearchText$(), 'contains')" placeholder="Search keyword" />
         </p-iconfield>
       </div>
     </ng-template>
@@ -66,8 +66,8 @@
         </td>
         <td>
           <p-button-group>
-            <p-button label="Edit" icon="pi pi-pencil" variant="outlined" size="small" [routerLink]="['..', 'countries', city.countryCode, 'cities', city.id]" [disabled]="isDeletingCity$" />
-            <p-button label="Delete" icon="pi pi-trash" variant="outlined" size="small" severity="danger" (click)="onDeleteCityClicked($event, city)" [disabled]="isDeletingCity$" />
+            <p-button label="Edit" icon="pi pi-pencil" variant="outlined" size="small" [routerLink]="['..', 'countries', city.countryCode, 'cities', city.id]" [disabled]="isDeletingCity$()" />
+            <p-button label="Delete" icon="pi pi-trash" variant="outlined" size="small" severity="danger" (click)="onDeleteCityClicked($event, city)" [disabled]="isDeletingCity$()" />
           </p-button-group>
         </td>
       </tr>

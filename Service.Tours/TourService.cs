@@ -22,7 +22,7 @@ public class TourService(ITourRepository tourRepository, ILogger<TourService> lo
         tourRepository.Add(tour);
         await tourRepository.SaveChangesAsync();
         logger.LogDebug("Successfully created tour: {tourName}", request.Name);
-        return tour.ToDto();
+        return tour.ToBo();
     }
     
     /// <summary>
@@ -36,7 +36,7 @@ public class TourService(ITourRepository tourRepository, ILogger<TourService> lo
         logger.LogDebug("Loading a list of all tours...");
         return tourRepository
             .QueryAsync(cancellationToken)
-            .Select(DtoMapper.ToDto);
+            .Select(DoMapper.ToBo);
     }
 
     /// <summary>
@@ -50,7 +50,7 @@ public class TourService(ITourRepository tourRepository, ILogger<TourService> lo
         logger.LogDebug("Searching for tour with ID: {tourId}", id);
         var tour = await tourRepository.GetByPrimaryKeyAsync(id) ?? throw new TourNotFoundException(id);
         logger.LogDebug("Found tour: {tourName}", tour.Name);
-        return tour.ToDto();
+        return tour.ToBo();
     }
     
     /// <summary>
@@ -84,7 +84,7 @@ public class TourService(ITourRepository tourRepository, ILogger<TourService> lo
         tourRepository.Update(tour);
         await tourRepository.SaveChangesAsync();
         logger.LogDebug("Successfully created tour leg: {tourLegName}", request.Name);
-        return tourLeg.ToDto();
+        return tourLeg.ToBo();
     }
     
     /// <summary>
@@ -100,7 +100,7 @@ public class TourService(ITourRepository tourRepository, ILogger<TourService> lo
         logger.LogDebug("Searching for leg '{tourLegId}' in tour with ID: {tourId}", legId, tourId);
         var tour = await tourRepository.GetByPrimaryKeyAsync(tourId) ?? throw new TourNotFoundException(tourId);
         logger.LogDebug("Found tour: {tourName}", tour.Name);
-        return tour.Legs.FirstOrDefault(l => l.Id == legId)?.ToDto() ?? throw new TourLegNotFoundException(tourId, legId);
+        return tour.Legs.FirstOrDefault(l => l.Id == legId)?.ToBo() ?? throw new TourLegNotFoundException(tourId, legId);
     }
     
     /// <summary>

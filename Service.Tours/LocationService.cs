@@ -47,7 +47,7 @@ public class LocationService(
         countryRepository.Update(country);
         await countryRepository.SaveChangesAsync();
         logger.LogDebug("Successfully updated country with ISO-code: {isoCode}", country.IsoCode);
-        return country.ToDto();
+        return country.ToBo();
     }
     
     /// <summary>
@@ -60,7 +60,7 @@ public class LocationService(
         logger.LogDebug("Requesting list of countries...");
         return countryRepository
             .QueryAsync(cancellationToken)
-            .Select(DtoMapper.ToDto);
+            .Select(DoMapper.ToBo);
     }
     
     /// <summary>
@@ -80,7 +80,7 @@ public class LocationService(
         }
         
         logger.LogDebug("Country '{countryName}' ({isoCode}) found.", country.Name, isoCode);
-        return country.ToDto();
+        return country.ToBo();
     }
     
     /// <summary>
@@ -113,7 +113,7 @@ public class LocationService(
     /// <param name="request"></param>
     /// <param name="countryCode">ISO code of the country where the state is located in</param>
     /// <returns>the created state</returns>
-    public async Task<StateWithCountryDto> CreateState(CreateStateRequestDto request, string countryCode)
+    public async Task<StateWithCountryBo> CreateState(CreateStateRequestDto request, string countryCode)
     {
         logger.LogDebug("Creating state '{stateName}' in country '{isoCode}'", request.Name, countryCode);
         
@@ -143,7 +143,7 @@ public class LocationService(
     /// <param name="countryCode">ISO code of the country where the state is located in</param>
     /// <param name="stateCode">code of the state to update</param>
     /// <returns>The updated state</returns>
-    public async Task<StateWithCountryDto> UpdateStateAsync(UpdateStateRequestDto request, string countryCode, string stateCode)
+    public async Task<StateWithCountryBo> UpdateStateAsync(UpdateStateRequestDto request, string countryCode, string stateCode)
     {
         logger.LogDebug("Updating state {isoCode} - {stateCode}", countryCode, stateCode);
         var state = await stateRepository.GetByPrimaryKeyAsync(countryCode, stateCode) ?? throw new StateNotFoundException(countryCode, stateCode);
@@ -162,7 +162,7 @@ public class LocationService(
     /// <param name="stateCode">code of the state</param>
     /// <returns></returns>
     /// <exception cref="StateNotFoundException">if the state does not exist</exception>
-    public async Task<StateWithCountryDto> GetStateInCountryAsync(string countryCode, string stateCode)
+    public async Task<StateWithCountryBo> GetStateInCountryAsync(string countryCode, string stateCode)
     {
         logger.LogDebug("Fetching state: {countryCode} - {stateCode}", countryCode, stateCode);
         var state = await stateRepository.GetByPrimaryKeyAsync(countryCode, stateCode);
@@ -182,13 +182,13 @@ public class LocationService(
     /// <param name="countryCode">ISO code of the country</param>
     /// <param name="cancellationToken">token to cancel the query</param>
     /// <returns>async enumerable of the states that were found</returns>
-    public IAsyncEnumerable<StateDto> GetStatesInCountryAsync(string countryCode, CancellationToken cancellationToken)
+    public IAsyncEnumerable<StateBo> GetStatesInCountryAsync(string countryCode, CancellationToken cancellationToken)
     {
         logger.LogDebug("Requesting list of states in '{countryCode}'...", countryCode);
         return stateRepository
             .QueryAsync(cancellationToken)
             .Where(s => s.CountryCode == countryCode)
-            .Select(DtoMapper.ToDto);
+            .Select(DoMapper.ToBo);
     }
     
     /// <summary>
@@ -222,7 +222,7 @@ public class LocationService(
     /// <param name="request"></param>
     /// <param name="countryCode">ISO code of the country where the city is located in</param>
     /// <returns>the created city</returns>
-    public async Task<CityWithCountryDto> CreateCity(CreateCityRequestDto request, string countryCode)
+    public async Task<CityWithCountryBo> CreateCity(CreateCityRequestDto request, string countryCode)
     {
         logger.LogDebug("Creating city '{cityName}' in country '{isoCode}'", request.Name, countryCode);
         
@@ -266,7 +266,7 @@ public class LocationService(
     /// <param name="countryCode">ISO code of the country where the city is located in</param>
     /// <param name="cityId">ID of the city to update</param>
     /// <returns>The updated state</returns>
-    public async Task<CityWithCountryDto> UpdateCityAsync(UpdateCityRequestDto request, string countryCode, uint cityId)
+    public async Task<CityWithCountryBo> UpdateCityAsync(UpdateCityRequestDto request, string countryCode, uint cityId)
     {
         logger.LogDebug("Updating city {isoCode} - {cityId}", countryCode, cityId);
         var city = await cityRepository.GetByPrimaryKeyAsync(countryCode, cityId) ?? throw new CityNotFoundException(cityId);
@@ -285,7 +285,7 @@ public class LocationService(
     /// <param name="cityId">ID of the city</param>
     /// <returns></returns>
     /// <exception cref="StateNotFoundException">if the state does not exist</exception>
-    public async Task<CityWithCountryDto> GetCityInCountryAsync(uint cityId, string countryCode)
+    public async Task<CityWithCountryBo> GetCityInCountryAsync(uint cityId, string countryCode)
     {
         logger.LogDebug("Fetching city: {countryCode} - {id}", countryCode, cityId);
         var city = await cityRepository.GetByPrimaryKeyAsync(countryCode, cityId);
@@ -305,13 +305,13 @@ public class LocationService(
     /// <param name="countryCode">ISO code of the country</param>
     /// <param name="cancellationToken">token to cancel the query</param>
     /// <returns>async enumerable of the cities that were found</returns>
-    public IAsyncEnumerable<CityDto> GetCitiesInCountryAsync(string countryCode, CancellationToken cancellationToken)
+    public IAsyncEnumerable<CityBo> GetCitiesInCountryAsync(string countryCode, CancellationToken cancellationToken)
     {
         logger.LogDebug("Requesting list of cities in '{countryCode}'...", countryCode);
         return cityRepository
             .QueryAsync(cancellationToken)
             .Where(s => s.CountryCode == countryCode)
-            .Select(DtoMapper.ToDto);
+            .Select(DoMapper.ToBo);
     }
     
     /// <summary>
@@ -320,14 +320,14 @@ public class LocationService(
     /// <param name="filter">Filter for the list of cities</param>
     /// <param name="cancellationToken">token to cancel the query</param>
     /// <returns>async enumerable of the cities that were found</returns>
-    public IAsyncEnumerable<CityWithCountryDto> GetCitiesAsync(CitiesFilter filter, CancellationToken cancellationToken)
+    public IAsyncEnumerable<CityWithCountryBo> GetCitiesAsync(CitiesFilter filter, CancellationToken cancellationToken)
     {
         logger.LogDebug("Requesting list of cities...");
         var paginationParams = new PaginationParams(filter.Skip, filter.Limit);
         
         return cityRepository
             .GetCities(cancellationToken, null, filter.OrderBy.Select(SortDescriptor.FromString), paginationParams)
-            .Select(DtoMapper.ToDtoWithCountry);
+            .Select(DoMapper.ToDtoWithCountry);
     }
     
     /// <summary>

@@ -1,4 +1,5 @@
 using System.Configuration;
+using System.Text.Json.Serialization;
 using Common.Server.ClientIp;
 using Common.Utils.Cache;
 using Database.Tours;
@@ -222,7 +223,11 @@ builder.Services
     });
 
 // register API controllers
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
 //Register Problem Details Service for API Errors
 builder.Services.AddProblemDetails();
@@ -249,6 +254,9 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ToursDbContext>();
     await db.Database.MigrateAsync();
+    
+    // Make sure some ConcertTypes exist
+    await db.SeedConcertTypes();
 }
 
 // Configure the HTTP request pipeline.

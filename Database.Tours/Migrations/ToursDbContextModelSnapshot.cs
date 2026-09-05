@@ -31,6 +31,12 @@ namespace Database.Tours.Migrations
                         .HasColumnType("varchar(3)")
                         .HasColumnName("CountryCode");
 
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasColumnName("CreatedAt")
+                        .HasDefaultValueSql("NOW()");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(63)
@@ -47,6 +53,10 @@ namespace Database.Tours.Migrations
                         .HasMaxLength(3)
                         .HasColumnType("varchar(3)")
                         .HasColumnName("StateCode");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("UpdatedAt");
 
                     b.HasKey("Id", "CountryCode");
 
@@ -65,6 +75,12 @@ namespace Database.Tours.Migrations
                     b.Property<uint>("ConcertTypeId")
                         .HasColumnType("int unsigned")
                         .HasColumnName("ConcertTypeId");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasColumnName("CreatedAt")
+                        .HasDefaultValueSql("NOW()");
 
                     b.Property<string>("CustomTitle")
                         .HasMaxLength(127)
@@ -118,6 +134,10 @@ namespace Database.Tours.Migrations
                         .HasColumnType("varchar(31)")
                         .HasColumnName("TourLegId");
 
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("UpdatedAt");
+
                     b.Property<uint>("VenueId")
                         .HasColumnType("int unsigned")
                         .HasColumnName("VenueId");
@@ -142,11 +162,21 @@ namespace Database.Tours.Migrations
                         .HasColumnType("int unsigned")
                         .HasColumnName("Id");
 
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasColumnName("CreatedAt")
+                        .HasDefaultValueSql("NOW()");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(31)
                         .HasColumnType("varchar(31)")
                         .HasColumnName("Name");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("UpdatedAt");
 
                     b.HasKey("Id");
 
@@ -160,6 +190,12 @@ namespace Database.Tours.Migrations
                         .HasColumnType("varchar(3)")
                         .HasColumnName("IsoCode");
 
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasColumnName("CreatedAt")
+                        .HasDefaultValueSql("NOW()");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(63)
@@ -172,6 +208,10 @@ namespace Database.Tours.Migrations
                         .HasColumnType("varchar(63)")
                         .HasColumnName("NativeName");
 
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("UpdatedAt");
+
                     b.HasKey("IsoCode");
 
                     b.ToTable("Country");
@@ -183,6 +223,12 @@ namespace Database.Tours.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int unsigned")
                         .HasColumnName("Id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasColumnName("CreatedAt")
+                        .HasDefaultValueSql("NOW()");
 
                     b.Property<DateTime>("From")
                         .HasColumnType("datetime(6)")
@@ -197,6 +243,10 @@ namespace Database.Tours.Migrations
                     b.Property<DateTime?>("To")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("To");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("UpdatedAt");
 
                     b.Property<uint>("VenueId")
                         .HasColumnType("int unsigned")
@@ -221,6 +271,12 @@ namespace Database.Tours.Migrations
                         .HasColumnType("varchar(3)")
                         .HasColumnName("Code");
 
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasColumnName("CreatedAt")
+                        .HasDefaultValueSql("NOW()");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(63)
@@ -232,6 +288,10 @@ namespace Database.Tours.Migrations
                         .HasMaxLength(63)
                         .HasColumnType("varchar(63)")
                         .HasColumnName("NativeName");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("UpdatedAt");
 
                     b.HasKey("CountryCode", "Code");
 
@@ -245,11 +305,21 @@ namespace Database.Tours.Migrations
                         .HasColumnType("varchar(31)")
                         .HasColumnName("Id");
 
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasColumnName("CreatedAt")
+                        .HasDefaultValueSql("NOW()");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(127)
                         .HasColumnType("varchar(127)")
                         .HasColumnName("Name");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("UpdatedAt");
 
                     b.HasKey("Id");
 
@@ -268,11 +338,21 @@ namespace Database.Tours.Migrations
                         .HasColumnType("varchar(31)")
                         .HasColumnName("Id");
 
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasColumnName("CreatedAt")
+                        .HasDefaultValueSql("NOW()");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(127)
                         .HasColumnType("varchar(127)")
                         .HasColumnName("Name");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("UpdatedAt");
 
                     b.HasKey("TourId", "Id");
 
@@ -295,6 +375,12 @@ namespace Database.Tours.Migrations
                         .HasColumnType("varchar(3)")
                         .HasColumnName("CountryCode");
 
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasColumnName("CreatedAt")
+                        .HasDefaultValueSql("NOW()");
+
                     b.Property<string>("CurrentName")
                         .IsRequired()
                         .HasMaxLength(127)
@@ -302,11 +388,13 @@ namespace Database.Tours.Migrations
                         .HasColumnName("CurrentName");
 
                     b.Property<decimal>("Latitude")
-                        .HasColumnType("decimal(18,2)")
+                        .HasPrecision(12, 9)
+                        .HasColumnType("decimal(12,9)")
                         .HasColumnName("Latitude");
 
                     b.Property<decimal>("Longitude")
-                        .HasColumnType("decimal(18,2)")
+                        .HasPrecision(12, 9)
+                        .HasColumnType("decimal(12,9)")
                         .HasColumnName("Longitude");
 
                     b.Property<string>("StateCode")
@@ -319,6 +407,10 @@ namespace Database.Tours.Migrations
                         .HasMaxLength(31)
                         .HasColumnType("varchar(31)")
                         .HasColumnName("TimeZone");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("UpdatedAt");
 
                     b.HasKey("Id");
 

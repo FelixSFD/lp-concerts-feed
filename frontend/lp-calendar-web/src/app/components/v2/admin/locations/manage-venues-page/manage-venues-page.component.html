@@ -7,16 +7,17 @@
 
   <p-table
     #dt2
-    [value]="venues$"
+    [value]="venues$()"
     dataKey="id"
     stripedRows
     rowHover
     [rows]="25"
     [rowsPerPageOptions]="[10, 25, 50, 100]"
-    [loading]="isLoading$"
+    [loading]="isLoading$()"
     [paginator]="true"
     [globalFilterFields]="['currentName', 'countryCode']"
     [tableStyle]="{ 'min-width': '75rem' }"
+    [scrollable]="true"
   >
     <ng-template #caption>
       <div class="flex">
@@ -26,45 +27,45 @@
           <p-inputicon>
             <i class="pi pi-search"></i>
           </p-inputicon>
-          <input pInputText type="text" [(ngModel)]="globalSearchText$" (input)="dt2.filterGlobal(globalSearchText$, 'contains')" placeholder="Search keyword" />
+          <input pInputText type="text" [(ngModel)]="globalSearchText$" (input)="dt2.filterGlobal(globalSearchText$(), 'contains')" placeholder="Search keyword" />
         </p-iconfield>
       </div>
     </ng-template>
     <ng-template #header>
       <tr>
-        <th scope="col">Current Name</th>
+        <th scope="col" pFrozenColumn>Current Name</th>
         <th scope="col">Country</th>
         <th scope="col">Timezone</th>
-        <th scope="col"></th>
+        <th scope="col" alignFrozen="right" pFrozenColumn></th>
       </tr>
       <tr>
-        <th>
+        <th pFrozenColumn>
           <p-column-filter type="text" field="currentName" placeholder="Name" ariaLabel="Filter Venue Names" filterOn="input"></p-column-filter>
         </th>
         <th>
           <p-column-filter type="text" field="countryCode" placeholder="Country Code" ariaLabel="Filter ISO Codes" filterOn="input"></p-column-filter>
         </th>
         <th>
-          <p-column-filter type="text" field="timeZone" placeholder="Timezone" ariaLabel="Filter timezones" filterOn="input"></p-column-filter>
+          <p-column-filter type="text" field="timeZoneId" placeholder="Timezone" ariaLabel="Filter timezones" filterOn="input"></p-column-filter>
         </th>
-        <th></th>
+        <th alignFrozen="right" pFrozenColumn></th>
       </tr>
     </ng-template>
     <ng-template #body let-venue>
       <tr>
-        <td>
+        <td pFrozenColumn>
           {{ venue.currentName }}
         </td>
         <td>
           {{ venue.countryCode }}
         </td>
         <td>
-          {{ venue.timeZone }}
+          {{ venue.timeZoneId }}
         </td>
-        <td>
+        <td alignFrozen="right" pFrozenColumn>
           <p-button-group>
-            <p-button label="Edit" icon="pi pi-pencil" variant="outlined" size="small" [routerLink]="[venue.id]" [disabled]="isDeletingVenue$" />
-            <p-button label="Delete" icon="pi pi-trash" variant="outlined" size="small" severity="danger" (click)="onDeleteVenueClicked($event, venue)" [disabled]="isDeletingVenue$" />
+            <p-button label="Edit" icon="pi pi-pencil" variant="outlined" size="small" [routerLink]="[venue.id]" [disabled]="isDeletingVenue$()" />
+            <p-button label="Delete" icon="pi pi-trash" variant="outlined" size="small" severity="danger" (click)="onDeleteVenueClicked($event, venue)" [disabled]="isDeletingVenue$()" />
           </p-button-group>
         </td>
       </tr>

@@ -33,7 +33,7 @@ public class VenueServiceTest
     {
         var dateTime = DateTime.Today;
         
-        var request = new CreateVenueRequestDto
+        var request = new CreateVenueRequestBo
         {
             CountryCode = countryCode,
             CityId = cityId,
@@ -304,7 +304,7 @@ public class VenueServiceTest
             .Do(c => savedVenueDo = c.Arg<VenueDo>());
         
         // call the service
-        var updateRequest = new UpdateVenueRequestDto
+        var updateRequest = new UpdateVenueRequestBo
         {
             CountryCode = "GBR",
             StateCode = null,
@@ -495,7 +495,7 @@ public class VenueServiceTest
 
     #endregion
 
-    private void AssertVenueDtoAgainstDo(VenueDo expected, VenueDto actual)
+    private void AssertVenueDtoAgainstDo(VenueDo expected, VenueBo actual)
     {
         Assert.Equal(expected.Id, actual.Id);
         Assert.Equal(expected.CurrentName, actual.CurrentName);

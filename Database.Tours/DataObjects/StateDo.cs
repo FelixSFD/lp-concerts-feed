@@ -10,7 +10,7 @@ namespace Database.Tours.DataObjects;
 /// </summary>
 [Table("State")]
 [PrimaryKey(nameof(CountryCode), nameof(Code))]
-public class StateDo : BaseDo
+public class StateDo : BaseDo, ITimestampedDataObject
 {
     [Column("CountryCode")]
     [MaxLength(DataConstants.CountryCodeLength)]
@@ -39,4 +39,12 @@ public class StateDo : BaseDo
     [Column("NativeName")]
     [MaxLength(DataConstants.CountryNameLength)]
     public required string NativeName { get; set; }
+    
+    /// <inheritdoc/>
+    [Column("CreatedAt")]
+    public DateTimeOffset CreatedAt { get; set; }
+    
+    /// <inheritdoc/>
+    [Column("UpdatedAt")]
+    public DateTimeOffset? UpdatedAt { get; set; }
 }

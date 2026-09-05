@@ -4,6 +4,7 @@ import {ConcertDto, ConcertStatusValueDto} from '../../../modules/lpshows-api';
 import {defaultShowType} from '../../../app.config';
 import {Tag} from 'primeng/tag';
 import {Tooltip} from 'primeng/tooltip';
+import {ConcertBadgesData} from '../concert-details/concert-details.view-model';
 
 @Component({
   selector: 'app-concert-badges',
@@ -16,7 +17,7 @@ import {Tooltip} from 'primeng/tooltip';
 })
 export class ConcertBadgesComponent {
   @Input("concert")
-  concert$: ConcertDto | null = null;
+  concert$: ConcertBadgesData | ConcertDto | null = null;
 
   protected readonly ConcertStatusValueDto = ConcertStatusValueDto;
   protected readonly defaultShowType = defaultShowType;

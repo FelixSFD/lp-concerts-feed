@@ -1,0 +1,32 @@
+<p-confirmdialog />
+
+<p-card>
+  <ng-template #title>
+    <div class="flex flex-row justify-content-between align-items-center">
+      <span>{{ currentConcertTitle ? 'Edit ' + currentConcertTitle : 'Edit concert' }}</span>
+    </div>
+  </ng-template>
+
+  <p-button
+    severity="secondary"
+    variant="outlined"
+    icon="pi pi-arrow-left"
+    label="Concert list"
+    [routerLink]="['../']"
+  />
+
+  <app-concert-form
+    [is-saving]="isSaving()"
+    (saveClicked)="onSaveClicked($event)"
+    [is-edit]="true"
+    [standalone]="false"
+    #concertForm
+  />
+
+  <ng-template #footer>
+    <p-divider />
+    <div class="flex gap-4 mt-1 align-content-end justify-content-end">
+      <p-button [label]="isSaving() ? 'Saving...' : 'Save'" [loading]="isSaving()" (onClick)="concertForm.onSaveClicked()" [disabled]="isSaving() || concertForm.concertForm.invalid" />
+    </div>
+  </ng-template>
+</p-card>

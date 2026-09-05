@@ -17,7 +17,7 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
     /// </summary>
     /// <param name="request"></param>
     /// <returns>ID of the created venue</returns>
-    public async Task<uint> CreateVenueAsync(CreateVenueRequestDto request)
+    public async Task<uint> CreateVenueAsync(CreateVenueRequestBo request)
     {
         logger.LogDebug("Requested to create a new venue: {name}", request.CurrentName);
         var venue = request.ToDo();
@@ -39,12 +39,12 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
     /// <param name="venueId">ID of the venue</param>
     /// <returns></returns>
     /// <exception cref="VenueNotFoundException">if the venue was not found</exception>
-    public async Task<VenueDto> GetVenueByIdAsync(uint venueId)
+    public async Task<VenueBo> GetVenueByIdAsync(uint venueId)
     {
         logger.LogDebug("Searching for venue with ID: {venueId}", venueId);
         var venue = await venueRepository.GetByPrimaryKeyWithoutReferencesAsync(venueId) ?? throw new VenueNotFoundException(venueId);
         logger.LogDebug("Found venue: {name}", venue.CurrentName);
-        return venue.ToDto();
+        return venue.ToBo();
     }
     
     /// <summary>
@@ -53,12 +53,12 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
     /// <param name="venueId">ID of the venue</param>
     /// <returns></returns>
     /// <exception cref="VenueNotFoundException">if the venue was not found</exception>
-    public async Task<VenueWithDetailsDto> GetVenueWithDetailsByIdAsync(uint venueId)
+    public async Task<VenueWithDetailsBo> GetVenueWithDetailsByIdAsync(uint venueId)
     {
         logger.LogDebug("Searching for venue details with ID: {venueId}", venueId);
         var venue = await venueRepository.GetByPrimaryKeyAsync(venueId) ?? throw new VenueNotFoundException(venueId);
         logger.LogDebug("Found venue: {name}", venue.CurrentName);
-        return venue.ToDtoWithAllDetails();
+        return venue.ToBoWithAllDetails();
     }
 
     /// <summary>
@@ -66,12 +66,12 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
     /// </summary>
     /// <param name="cancellationToken">Token to cancel the search</param>
     /// <returns>List of all venues</returns>
-    public IAsyncEnumerable<VenueDto> GetAllVenuesAsync(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<VenueBo> GetAllVenuesAsync(CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Searching for all venues...");
         return venueRepository
             .QueryAsync(cancellationToken)
-            .Select(DtoMapper.ToDto);
+            .Select(DoMapper.ToBo);
     }
 
     /// <summary>
@@ -84,12 +84,12 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
     /// <param name="request">New data of the venue. Partial updates are not possible!</param>
     /// <param name="venueId">ID of the venue to update</param>
     /// <exception cref="VenueNotFoundException">if the venue does not exist</exception>
-    public async Task UpdateVenueAsync(UpdateVenueRequestDto request, uint venueId)
+    public async Task UpdateVenueAsync(UpdateVenueRequestBo request, uint venueId)
     {
         logger.LogDebug("Updating venue with ID: {venueId}", venueId);
         var venue = await venueRepository.GetByPrimaryKeyWithoutReferencesAsync(venueId) ?? throw new VenueNotFoundException(venueId);
         logger.LogDebug("Found venue: {name}", venue.CurrentName);
-        venue.UpdateFromRequestDto(request);
+        venue.UpdateFromRequestBo(request);
         venueRepository.Update(venue);
         await venueRepository.SaveChangesAsync();
         logger.LogDebug("Successfully updated the venue.");

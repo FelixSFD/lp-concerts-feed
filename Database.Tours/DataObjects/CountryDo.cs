@@ -5,7 +5,7 @@ using Common.Database.DataObjects;
 namespace Database.Tours.DataObjects;
 
 [Table("Country")]
-public class CountryDo : BaseDo
+public class CountryDo : BaseDo, ITimestampedDataObject
 {
     /// <summary>
     /// The 3-letter ISO code for this country
@@ -29,4 +29,12 @@ public class CountryDo : BaseDo
     [Column("NativeName")]
     [MaxLength(DataConstants.CountryNameLength)]
     public required string NativeName { get; set; }
+    
+    /// <inheritdoc/>
+    [Column("CreatedAt")]
+    public DateTimeOffset CreatedAt { get; set; }
+    
+    /// <inheritdoc/>
+    [Column("UpdatedAt")]
+    public DateTimeOffset? UpdatedAt { get; set; }
 }

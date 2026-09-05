@@ -8,7 +8,7 @@ namespace Database.Tours.DataObjects;
 /// All information about a concert
 /// </summary>
 [Table("Concert")]
-public class ConcertDo : BaseDo, IDeletableDataObject
+public class ConcertDo : BaseDo, IDeletableDataObject, ITimestampedDataObject
 {
     /// <summary>
     /// Status of a concert
@@ -140,4 +140,12 @@ public class ConcertDo : BaseDo, IDeletableDataObject
     /// </summary>
     [ForeignKey(nameof(VenueId))]
     public virtual VenueDo Venue { get; set; }
+    
+    /// <inheritdoc/>
+    [Column("CreatedAt")]
+    public DateTimeOffset CreatedAt { get; set; }
+    
+    /// <inheritdoc/>
+    [Column("UpdatedAt")]
+    public DateTimeOffset? UpdatedAt { get; set; }
 }

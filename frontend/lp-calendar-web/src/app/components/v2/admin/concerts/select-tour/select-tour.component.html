@@ -1,0 +1,15 @@
+<p-select
+  [options]="tours()"
+  optionLabel="name"
+  [(ngModel)]="value"
+  (ngModelChange)="onValueChange($event)"
+  (onBlur)="onBlur()"
+  [placeholder]="placeholder"
+  [inputId]="inputId"
+  [fluid]="fluid"
+  [showClear]="showClear"
+  [filter]="filter"
+  [disabled]="disabled"
+  [invalid]="invalid"
+  [loading]="loading()"
+/>

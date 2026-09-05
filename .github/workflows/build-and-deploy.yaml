@@ -23,11 +23,16 @@ jobs:
       lambda_names: ${{ steps.lambda_names.outputs.lambda_names }}
       frontend_replication_regions: ${{ steps.frontend_replication_regions.outputs.regions }}
       frontend_regions: ${{ steps.frontend_regions.outputs.regions }}
+      image_tag: ${{ steps.image_tag.outputs.tag }}
     steps:
       - uses: actions/checkout@v6
       - name: Define Lambda Projects
         id: lambda_names
         run: ./.github/workflows/generateGitHubJobMatrix.sh
+      - name: Define Image Tag
+        id: image_tag
+        run: |
+          echo "tag=${{ vars.SERVER_IMAGE_TAG }}" >> "$GITHUB_OUTPUT"
       - name: Define Frontend Replication Regions
         id: frontend_replication_regions
         run: |
@@ -50,7 +55,10 @@ jobs:
           echo "regions=$JSON" >> "$GITHUB_OUTPUT"
 
   build-server-image:
-    uses: felixsfd/lp-concerts-feed/.github/workflows/build-and-publish-docker-server.yaml@main
+    uses: ./.github/workflows/build-and-publish-docker-server.yaml
+    needs: define-matrix
+    with:
+      image_tag: ${{ needs.define-matrix.outputs.image_tag }}
     secrets: inherit
     permissions:
       contents: read
@@ -61,7 +69,7 @@ jobs:
 
   deploy-backend-server:
     needs: [build-server-image]
-    uses: felixsfd/lp-concerts-feed/.github/workflows/deploy-backend-server.yaml@main
+    uses: ./.github/workflows/deploy-backend-server.yaml
     secrets: inherit
   
   build-lambdas:

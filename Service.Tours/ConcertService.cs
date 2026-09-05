@@ -2,7 +2,6 @@ using Common.Database;
 using Common.Database.Repositories;
 using Database.Tours.DataObjects;
 using Database.Tours.Repositories;
-using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Tours;
 using Microsoft.Extensions.Logging;
 using Service.Tours.Exceptions;
@@ -31,7 +30,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         concertTypeRepository.Add(typeDo);
         await concertTypeRepository.SaveChangesAsync();
         logger.LogDebug("Successfully created concert type with name: {typeName} (ID: {id})", request.Name, typeDo.Id);
-        return typeDo.ToDto();
+        return typeDo.ToBo();
     }
     
     /// <summary>
@@ -48,7 +47,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         concertTypeRepository.Update(typeDo);
         await concertTypeRepository.SaveChangesAsync();
         logger.LogDebug("Successfully updated concert type with name: {typeName} (ID: {id})", request.Name, typeDo.Id);
-        return typeDo.ToDto();
+        return typeDo.ToBo();
     }
 
     /// <summary>
@@ -62,7 +61,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         logger.LogDebug("Read concert type with ID: {id}", id);
         var type = await concertTypeRepository.GetByPrimaryKeyAsync(id) ?? throw new ConcertTypeNotFoundException(id);
         logger.LogDebug("Found concert type: {name}", type.Name);
-        return type.ToDto();
+        return type.ToBo();
     }
     
     /// <summary>
@@ -75,7 +74,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         logger.LogDebug("Read all concert types");
         return concertTypeRepository
             .QueryAsync(cancellationToken)
-            .Select(DtoMapper.ToDto);
+            .Select(DoMapper.ToBo);
     }
     
     #endregion
@@ -136,7 +135,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
     /// <param name="includeDeleted">true, if deleted concerts are allowed to be returned. (Default: false)</param>
     /// <returns></returns>
     /// <exception cref="ConcertNotFoundException">if the concert does not exist</exception>
-    public async Task<ConcertDetailsDto> GetConcertByIdAsync(string id, bool includeDeleted = false)
+    public async Task<ConcertDetailsBo> GetConcertByIdAsync(string id, bool includeDeleted = false)
     {
         logger.LogDebug("Requested concert including references to other objects. ID: {id}", id);
         var concert = await concertRepository.GetByPrimaryKeyAsync(id) ?? throw new ConcertNotFoundException(id);
@@ -145,7 +144,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
             ThrowNotFoundExceptionIfConcertDeleted(concert);
         }
         logger.LogDebug("Found concert.");
-        return concert.ToDtoWithDetails();
+        return concert.ToBoWithDetails();
     }
 
     private void ThrowNotFoundExceptionIfConcertDeleted(ConcertDo concert)
@@ -163,12 +162,12 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
     /// <param name="cancellationToken"></param>
     /// <param name="filter">Filter and sorting</param>
     /// <returns>Details about the concerts matching the filter</returns>
-    public IAsyncEnumerable<ConcertDetailsDto> GetConcertsWithDetailsAsync(CancellationToken cancellationToken, GetConcertsFilterDto filter)
+    public IAsyncEnumerable<ConcertDetailsBo> GetConcertsWithDetailsAsync(CancellationToken cancellationToken, GetConcertsFilterDto filter)
     {
         var paginationParams = new PaginationParams(filter.Skip, filter.Limit);
         return concertRepository
             .GetConcerts(cancellationToken, filter.CountryCode, orderBy: filter.OrderBy.Select(SortDescriptor.FromString), paginationParams)
-            .Select(DtoMapper.ToDtoWithDetails);
+            .Select(DoMapper.ToBoWithDetails);
     }
 
     /// <summary>
@@ -195,5 +194,45 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         }
         
         await concertRepository.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Returns information about adjacent concerts to the specified concert. Like the one before and after the specified concert.
+    /// </summary>
+    /// <param name="concertId">ID of the concert to start the search at</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="ConcertNotFoundException">if the concert with ID <paramref name="concertId"/> was not found</exception>
+    public async Task<AdjacentConcertsBo> GetAdjacentConcerts(string concertId, CancellationToken cancellationToken)
+    {
+        logger.LogDebug("Load adjacent concerts to: {currentId}", concertId);
+        var currentConcert = await concertRepository.GetByPrimaryKeyWithoutReferencesAsync(concertId) ?? throw new ConcertNotFoundException(concertId);
+        logger.LogDebug("Found current concert.");
+        var paging = new PaginationParams(0, 1);
+        var getPreviousFilter = new ConcertFilter
+        {
+            Before = currentConcert.PostedStartTime
+        };
+        var getNextFilter = new ConcertFilter
+        {
+            After = currentConcert.PostedStartTime
+        };
+        var getPreviousTask = concertRepository
+            .GetConcerts(cancellationToken, getPreviousFilter, [], paging)
+            .FirstOrDefaultAsync(cancellationToken);
+        var getNextTask = concertRepository
+            .GetConcerts(cancellationToken, getNextFilter, [], paging).
+            FirstOrDefaultAsync(cancellationToken);
+
+        var previousConcert = await getPreviousTask;
+        var nextConcert = await getNextTask;
+        
+        logger.LogDebug("Loaded adjacent concerts. Before: {before}, After: {after}", previousConcert?.Id, nextConcert?.Id);
+        
+        return new AdjacentConcertsBo
+        {
+            Previous = previousConcert?.ToBoWithDetails(),
+            Next = nextConcert?.ToBoWithDetails()
+        };
     }
 }

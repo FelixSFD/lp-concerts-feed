@@ -1,5 +1,9 @@
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Common.Contracts.Generated.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Service.Tours;
 using Service.Tours.Filters;
 
@@ -18,9 +22,11 @@ public class CitiesController(LocationService locationService, ILogger<CitiesCon
     /// <param name="cancellationToken"></param>
     /// <param name="filter">filter and sorting</param>
     /// <returns></returns>
-    public async Task<ActionResult<CityWithCountryDto>> GetCities(CancellationToken cancellationToken, [FromQuery] CitiesFilter filter)
+    public async Task<ActionResult<CityWithCountryDto[]>> GetCities(CancellationToken cancellationToken, [FromQuery] CitiesFilter filter)
     {
-        var cities = await locationService.GetCitiesAsync(filter, cancellationToken).ToArrayAsync(cancellationToken);
+        var cities = await locationService.GetCitiesAsync(filter, cancellationToken)
+            .Select(DtoMapper.ToDto)
+            .ToArrayAsync(cancellationToken);
         logger.LogDebug("Retrieved {count} city details.", cities.Length);
         return Ok(cities);
     }

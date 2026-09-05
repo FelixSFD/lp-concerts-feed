@@ -1,5 +1,9 @@
+using System.Linq;
 using Common.Contracts.Generated.Models;
+using Database.Tours.DataObjects;
+using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Tours;
+using LPCalendar.DataStructure.Tours.Locations;
 
 namespace Server.Api;
 
@@ -106,6 +110,222 @@ internal static class DtoMapper
             TourId = bo.TourId,
             Id = bo.Id,
             Name = bo.Name,
+        };
+    }
+
+    #endregion
+
+    #region Locations
+
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bo">BusinessObject to map</param>
+    /// <returns>the mapped DTO</returns>
+    public static CountryDto ToDto(this CountryBo bo)
+    {
+        return new CountryDto
+        {
+            IsoCode = bo.IsoCode,
+            Name = bo.Name,
+            NativeName = bo.NativeName,
+        };
+    }
+
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bo">BusinessObject to map</param>
+    /// <returns>the mapped DTO</returns>
+    public static StateDto ToDto(this StateBo bo)
+    {
+        return new StateDto
+        {
+            CountryCode = bo.CountryCode,
+            Code = bo.Code,
+            Name = bo.Name,
+            NativeName = bo.NativeName,
+        };
+    }
+
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bo">BusinessObject to map</param>
+    /// <returns>the mapped DTO</returns>
+    public static StateWithCountryDto ToDto(this StateWithCountryBo bo)
+    {
+        return new StateWithCountryDto
+        {
+            CountryCode = bo.CountryCode,
+            Code = bo.Code,
+            Name = bo.Name,
+            NativeName = bo.NativeName,
+            Country = bo.Country.ToDto(),
+        };
+    }
+
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bo">BusinessObject to map</param>
+    /// <returns>the mapped DTO</returns>
+    public static CityWithCountryDto ToDto(this CityWithCountryBo bo)
+    {
+        return new CityWithCountryDto
+        {
+            Id = bo.Id.ToString(),
+            CountryCode = bo.CountryCode,
+            StateCode = bo.StateCode,
+            Name = bo.Name,
+            NativeName = bo.NativeName,
+            Country = bo.Country.ToDto(),
+            State = bo.State?.ToDto(),
+        };
+    }
+
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bo">BusinessObject to map</param>
+    /// <returns>the mapped DTO</returns>
+    public static VenueDto ToDto(this VenueBo bo)
+    {
+        return new VenueDto
+        {
+            Id = bo.Id.ToString(),
+            CountryCode = bo.CountryCode,
+            StateCode = bo.StateCode,
+            CityId = bo.CityId,
+            CurrentName = bo.CurrentName,
+            TimeZoneId = bo.TimeZone,
+            Latitude = bo.Latitude,
+            Longitude = bo.Longitude,
+        };
+    }
+
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bo">BusinessObject to map</param>
+    /// <returns>the mapped DTO</returns>
+    public static VenueWithCityDto ToDto(this VenueWithCityBo bo)
+    {
+        return new VenueWithCityDto
+        {
+            Id = bo.Id.ToString(),
+            CountryCode = bo.CountryCode,
+            StateCode = bo.StateCode,
+            CityId = bo.CityId,
+            CurrentName = bo.CurrentName,
+            TimeZoneId = bo.TimeZone,
+            Latitude = bo.Latitude,
+            Longitude = bo.Longitude,
+            City = bo.City.ToDto(),
+        };
+    }
+
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bo">BusinessObject to map</param>
+    /// <returns>the mapped DTO</returns>
+    public static VenueWithDetailsDto ToDto(this VenueWithDetailsBo bo)
+    {
+        return new VenueWithDetailsDto
+        {
+            Id = bo.Id.ToString(),
+            CountryCode = bo.CountryCode,
+            StateCode = bo.StateCode,
+            CityId = bo.CityId,
+            CurrentName = bo.CurrentName,
+            TimeZoneId = bo.TimeZone,
+            Latitude = bo.Latitude,
+            Longitude = bo.Longitude,
+            City = bo.City.ToDto(),
+            VenueNames = [.. bo.VenueNames.Select(ToDto)],
+        };
+    }
+    
+    public static CreateVenueRequestBo ToBo(this CreateVenueRequestDto dto)
+    {
+        return new CreateVenueRequestBo
+        {
+            CountryCode = dto.CountryCode,
+            StateCode = dto.StateCode,
+            CityId = (uint)dto.CityId,
+            CurrentName = dto.CurrentName,
+            TimeZone = dto.TimeZoneId,
+            Latitude = dto.Latitude,
+            Longitude = dto.Longitude,
+        };
+    }
+
+    public static UpdateVenueRequestBo ToBo(this UpdateVenueRequestDto dto)
+    {
+        return new UpdateVenueRequestBo
+        {
+            CountryCode = dto.CountryCode,
+            StateCode = dto.StateCode,
+            CityId = (uint)dto.CityId,
+            TimeZone = dto.TimeZoneId,
+            Latitude = dto.Latitude,
+            Longitude = dto.Longitude,
+        };
+    }
+
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bo">BusinessObject to map</param>
+    /// <returns>the mapped DTO</returns>
+    public static PreviousVenueNameDto ToDto(this PreviousVenueNameBo bo)
+    {
+        return new PreviousVenueNameDto
+        {
+            Id = bo.Id.ToString(),
+            VenueId = bo.VenueId.ToString(),
+            Name = bo.Name,
+            UsedFrom = bo.UsedFrom,
+            UsedUntil = bo.UsedUntil,
+        };
+    }
+
+    #endregion
+
+    #region Concerts
+
+    public static ConcertDetailsDto ToDto(this ConcertDetailsBo bo)
+    {
+        return new ConcertDetailsDto
+        {
+            Id = bo.Id,
+            ConcertType = bo.ConcertType.ToDto(),
+            Tour = bo.Tour?.ToDto(),
+            TourLeg = bo.TourLeg?.ToDto(),
+            CustomTitle = bo.CustomTitle,
+            Venue = bo.Venue.ToDto(),
+            PostedStartTime = bo.PostedStartTime,
+            MainStageTime = bo.MainStageTime,
+            DoorsTime = bo.DoorsTime,
+            LpuEarlyEntryTime = bo.LpuEarlyEntryTime,
+            LpuEarlyEntryConfirmed = bo.LpuEarlyEntryConfirmed,
+            ExpectedSetDurationMinutes = bo.ExpectedSetDurationMinutes.ToString(),
+            ScheduleImageFile = bo.ScheduleImageFile,
+            DeletedAt = bo.DeletedAt,
+            Status = bo.Status.ToDto(),
+        };
+    }
+    
+    public static ConcertStatusValueDto ToDto(this ConcertDto.ConcertStatusValue data)
+    {
+        return data switch
+        {
+            ConcertDto.ConcertStatusValue.Planned => ConcertStatusValueDto.Planned,
+            ConcertDto.ConcertStatusValue.Running => ConcertStatusValueDto.Running,
+            ConcertDto.ConcertStatusValue.Past => ConcertStatusValueDto.Past,
+            ConcertDto.ConcertStatusValue.Cancelled => ConcertStatusValueDto.Cancelled,
+            _ => ConcertStatusValueDto.Past
         };
     }
 
