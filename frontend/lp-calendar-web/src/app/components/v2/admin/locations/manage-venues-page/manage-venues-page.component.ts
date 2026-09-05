@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { LocationsService } from '../../../../../services/locations.service';
 import { CountryDto, VenueDto, VenueWithCityDto } from '../../../../../modules/lpshows-api/v3';
@@ -31,7 +31,6 @@ import { RouterLink } from '@angular/router';
   ],
   templateUrl: './manage-venues-page.component.html',
   styleUrl: './manage-venues-page.component.css',
-  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class ManageVenuesPageComponent {
   private messageService = inject(MessageService);
@@ -39,15 +38,14 @@ export class ManageVenuesPageComponent {
   private locationsService = inject(LocationsService);
 
 
-  venues$: VenueDto[] = [];
+  venues$ = signal<VenueDto[]>([]);
 
-  isDeletingVenue$ = false;
+  isDeletingVenue$ = signal(false);
 
   // true while data is being loaded
-  isLoading$ = false;
+  isLoading$ = signal(false);
 
-  globalSearchText$: string = "";
-
+  globalSearchText$ = signal("");
 
   ngOnInit() {
     this.reloadList(false);
@@ -79,14 +77,14 @@ export class ManageVenuesPageComponent {
 
 
   onDeleteVenueConfirm(venue: VenueDto) {
-    this.isDeletingVenue$ = true;
+    this.isDeletingVenue$.set(true);
 
     if (venue) {
       this.locationsService.deleteVenue(Number(venue.id))
         .subscribe({
           next: () => {
             this.reloadList(false);
-            this.isDeletingVenue$ = false;
+            this.isDeletingVenue$.set(false);
           },
           error: err => {
             let errorResponse: ErrorResponseDto = err.error;
@@ -95,7 +93,7 @@ export class ManageVenuesPageComponent {
               summary: "Could not load delete venue!",
               text: errorResponse.message,
             });
-            this.isDeletingVenue$ = false;
+            this.isDeletingVenue$.set(false);
           }
         });
     }
@@ -105,7 +103,7 @@ export class ManageVenuesPageComponent {
   private reloadList(cache: boolean) {
     this.locationsService.getVenues().subscribe({
       next: venues => {
-        this.venues$ = venues;
+        this.venues$.set(venues);
       },
       error: err => {
         let errorResponse: ErrorResponseDto = err.error;
