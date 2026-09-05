@@ -28,6 +28,8 @@ jobs:
       - name: Define Lambda Projects
         id: lambda_names
         run: ./.github/workflows/generateGitHubJobMatrix.sh
+      - name: DEBUG input
+        run: echo ${{ vars.SERVER_IMAGE_TAG }}
       - name: Define Frontend Replication Regions
         id: frontend_replication_regions
         run: |
