@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Common.Database.DataObjects;
+using Common.Database.DataObjects.Types;
 
 namespace Database.Setlists.DataObjects;
 
@@ -63,7 +64,7 @@ public class SetlistDo : BaseDo, ILinkinpediaLinkable
     /// <inheritdoc/>
     [MaxLength(DataConstants.LinkinpediaUrlLength)]
     [Column("LinkinpediaUrl")]
-    public string? LinkinpediaUrl { get; set; }
+    public LinkinpediaUrl? LinkinpediaUrl { get; set; }
     
     /// <summary>
     /// Setlist entries for this act

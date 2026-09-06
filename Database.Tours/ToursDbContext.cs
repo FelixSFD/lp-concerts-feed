@@ -1,4 +1,5 @@
 using Common.Database.DataObjects;
+using Common.Database.DataObjects.Types;
 using Database.Tours.DataObjects;
 using Microsoft.EntityFrameworkCore;
 using MySql.EntityFrameworkCore.Extensions;
@@ -141,6 +142,15 @@ public class ToursDbContext(DbContextOptions<ToursDbContext> options) : DbContex
                 new ConcertTypeDo { Id = 2, Name = "Festival" },
                 new ConcertTypeDo { Id = 3, Name = "Other" }
                 );
+    }
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        base.ConfigureConventions(configurationBuilder);
+        
+        configurationBuilder.Properties<LinkinpediaUrl>()
+            .HaveMaxLength(DataConstants.LinkinpediaUrlLength)
+            .HaveConversion<LinkinpediaUrlValueConverter>();
     }
 
 

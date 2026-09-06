@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Common.Database.DataObjects;
+using Common.Database.DataObjects.Types;
 
 namespace Database.Tours.DataObjects;
 
@@ -8,7 +9,7 @@ namespace Database.Tours.DataObjects;
 /// All information about a concert
 /// </summary>
 [Table("Concert")]
-public class ConcertDo : BaseDo, IDeletableDataObject, ITimestampedDataObject
+public class ConcertDo : BaseDo, IDeletableDataObject, ITimestampedDataObject, ILinkinpediaLinkable
 {
     /// <summary>
     /// Status of a concert
@@ -148,4 +149,7 @@ public class ConcertDo : BaseDo, IDeletableDataObject, ITimestampedDataObject
     /// <inheritdoc/>
     [Column("UpdatedAt")]
     public DateTimeOffset? UpdatedAt { get; set; }
+
+    /// <inheritdoc/>
+    public LinkinpediaUrl? LinkinpediaUrl { get; set; }
 }
