@@ -11,4 +11,8 @@
       <ProjectReference Include="..\DataStructure\DataStructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Importer\" />
+    </ItemGroup>
+
 </Project>
