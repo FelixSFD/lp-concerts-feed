@@ -34,7 +34,7 @@ public partial class TourdataWikitextParser : IWikitextParser
     /// </summary>
     /// <param name="tourdateSource">Wikitext source of the Tourdate template or the whole wiki page</param>
     /// <returns>Parsed tourdate information or null if no valid tourdate was found</returns>
-    public WikiTourdateEntry? GetEntry(string tourdateSource)
+    public WikiTourdateEntry? GetTourdateInformation(string tourdateSource)
     {
         if (string.IsNullOrWhiteSpace(tourdateSource))
             return null;
@@ -116,7 +116,7 @@ public partial class TourdataWikitextParser : IWikitextParser
     /// </summary>
     /// <param name="tourdateSource">Wikitext source of the Tourdate template or the whole wiki page</param>
     /// <returns>Parsed tourdate information or null if no valid tourdate was found</returns>
-    public WikiTourdateEntry? GetTourdate(string tourdateSource) => GetEntry(tourdateSource);
+    public WikiTourdateEntry? GetTourdate(string tourdateSource) => GetTourdateInformation(tourdateSource);
 
     private static string? GetProperty(Dictionary<string, string> dict, params string[] keys)
     {

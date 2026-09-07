@@ -9,7 +9,7 @@ public interface IWikitextParser
     /// </summary>
     /// <param name="tourdateSource">Wikitext source of the Tourdate template or the whole wiki page</param>
     /// <returns>Parsed tourdate information or null if no valid tourdate was found</returns>
-    WikiTourdateEntry? GetEntry(string tourdateSource);
+    WikiTourdateEntry? GetTourdateInformation(string tourdateSource);
 
     /// <summary>
     /// Extract the part of the source that renders the tourdate

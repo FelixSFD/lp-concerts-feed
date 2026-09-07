@@ -91,7 +91,7 @@ public class TourdataWikitextParserTest
     public void GetEntry_ParsesSampleConcertCorrectly()
     {
         var parser = new TourdataWikitextParser();
-        var entry = parser.GetEntry(SampleTourdateSource);
+        var entry = parser.GetTourdateInformation(SampleTourdateSource);
 
         Assert.NotNull(entry);
         Assert.Equal("concert", entry.ShowType);
@@ -118,7 +118,7 @@ public class TourdataWikitextParserTest
     public void GetEntry_ParsesSupportActsAndSetlistCorrectly()
     {
         var parser = new TourdataWikitextParser();
-        var entry = parser.GetEntry(SampleBerlinTourdateSource);
+        var entry = parser.GetTourdateInformation(SampleBerlinTourdateSource);
 
         Assert.NotNull(entry);
         Assert.Equal("concert", entry.ShowType);
@@ -153,7 +153,7 @@ public class TourdataWikitextParserTest
         var parser = new TourdataWikitextParser();
         var source = $"{{\n| Year = 2024\n| Month = {monthStr}\n| Day = 05\n}}";
 
-        var entry = parser.GetEntry(source);
+        var entry = parser.GetTourdateInformation(source);
 
         Assert.NotNull(entry);
         Assert.Equal(new DateOnly(2024, expectedMonth, 5), entry.Date);
@@ -167,7 +167,7 @@ public class TourdataWikitextParserTest
     public void GetEntry_WhenInvalidOrEmpty_ReturnsNull(string? source)
     {
         var parser = new TourdataWikitextParser();
-        var entry = parser.GetEntry(source!);
+        var entry = parser.GetTourdateInformation(source!);
 
         Assert.Null(entry);
     }
