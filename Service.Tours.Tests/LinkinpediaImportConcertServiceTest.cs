@@ -95,17 +95,16 @@ public class LinkinpediaImportConcertServiceTest
     [Fact]
     public async Task GetConcertImportPlan_WhenUsConcert_ExtractsAndMatchesCorrectly()
     {
-        var pageUrl = "https://linkinpedia.com/wiki/Live:01.09.2004";
-        var pageTitle = "Live:01.09.2004";
+        var pageId = "Live:20040901";
 
         var mockWikiPage = new WikiPageDto
         {
             Id = 100,
-            Title = pageTitle,
+            Title = pageId,
             Source = SampleUsConcertWikitext
         };
 
-        _wikiMediaRepository.GetWikiPageAsync(pageTitle).Returns(mockWikiPage);
+        _wikiMediaRepository.GetWikiPageAsync(pageId).Returns(mockWikiPage);
 
         var countryUs = new CountryDo
         {
@@ -185,7 +184,7 @@ public class LinkinpediaImportConcertServiceTest
             .Returns(new[] { concertTypeLp, concertTypeFestival }.ToAsyncEnumerable());
 
         // Execute
-        var result = await _sut.GetConcertImportPlan(pageUrl);
+        var result = await _sut.GetConcertImportPlan(pageId);
 
         // Assert
         Assert.NotNull(result);
@@ -223,15 +222,15 @@ public class LinkinpediaImportConcertServiceTest
     [Fact]
     public async Task GetConcertImportPlan_WhenPageUrlIsArticleTitle_HandlesUrlDecoding()
     {
-        var pageUrl = "Live:18.06.2025";
+        var pageUrl = "Live:20250618";
         var mockWikiPage = new WikiPageDto
         {
             Id = 101,
-            Title = "Live:18.06.2025",
+            Title = "Live:20250618",
             Source = SampleBerlinConcertWikitext
         };
 
-        _wikiMediaRepository.GetWikiPageAsync("Live:18.06.2025").Returns(mockWikiPage);
+        _wikiMediaRepository.GetWikiPageAsync("Live:20250618").Returns(mockWikiPage);
 
         var countryGer = new CountryDo
         {
@@ -296,7 +295,7 @@ public class LinkinpediaImportConcertServiceTest
     [Fact]
     public async Task GetConcertImportPlan_WhenFestivalShowType_MatchesFestivalConcertType()
     {
-        var pageUrl = "Live:20.08.2011";
+        var pageUrl = "Live:20110820";
         var festivalWikitext = """
             {{Tourdate
             | ShowType = festival
@@ -316,11 +315,11 @@ public class LinkinpediaImportConcertServiceTest
         var mockWikiPage = new WikiPageDto
         {
             Id = 103,
-            Title = "Live:20.08.2011",
+            Title = "Live:20110820",
             Source = festivalWikitext
         };
 
-        _wikiMediaRepository.GetWikiPageAsync("Live:20.08.2011").Returns(mockWikiPage);
+        _wikiMediaRepository.GetWikiPageAsync("Live:20110820").Returns(mockWikiPage);
 
         var countryAut = new CountryDo
         {
