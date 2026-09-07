@@ -7,25 +7,37 @@ using Service.Tours.Importer;
 
 namespace Service.Tours;
 
+/// <summary>
+/// Service to import concert information from Linkinpedia
+/// </summary>
+/// <param name="wikiMediaRepository"></param>
+/// <param name="wikitextParser"></param>
+/// <param name="countryRepository"></param>
+/// <param name="stateRepository"></param>
+/// <param name="cityRepository"></param>
+/// <param name="venueRepository"></param>
+/// <param name="tourRepository"></param>
+/// <param name="concertTypeRepository"></param>
+/// <param name="logger"></param>
 public class LinkinpediaImportConcertService(
     IWikiMediaRepository wikiMediaRepository,
-    TourdataWikitextParser? wikitextParser,
+    TourdataWikitextParser wikitextParser,
     ICountryRepository countryRepository,
     IStateRepository stateRepository,
     ICityRepository cityRepository,
     IVenueRepository venueRepository,
     ITourRepository tourRepository,
     IConcertTypeRepository concertTypeRepository,
-    ILogger<LinkinpediaImportConcertService>? logger = null)
+    ILogger<LinkinpediaImportConcertService> logger)
 {
     public async Task<ImportConcertPreviewBo> GetConcertImportPlan(string wikiPageId, CancellationToken cancellationToken = default)
     {
-        logger?.LogDebug("Generating concert import plan for: {page}", wikiPageId);
+        logger.LogDebug("Generating concert import plan for concert: {page}", wikiPageId);
         
         var wikiPage = await wikiMediaRepository.GetWikiPageAsync(wikiPageId);
         if (wikiPage == null || string.IsNullOrWhiteSpace(wikiPage.Source))
         {
-            logger?.LogWarning("Wiki page '{pageTitle}' was not found or has empty source.", wikiPageId);
+            logger.LogWarning("Wiki page '{pageTitle}' was not found or has empty source.", wikiPageId);
             return new ImportConcertPreviewBo
             {
                 FoundCountries = [],
@@ -37,11 +49,11 @@ public class LinkinpediaImportConcertService(
             };
         }
 
-        var parser = wikitextParser ?? new TourdataWikitextParser();
+        var parser = wikitextParser;
         var tourdate = parser.GetTourdateInformation(wikiPage.Source);
         if (tourdate == null)
         {
-            logger?.LogWarning("Could not parse Tourdate information from wiki page '{pageTitle}'.", wikiPageId);
+            logger.LogWarning("Could not parse Tourdate information from wiki page '{pageTitle}'.", wikiPageId);
             return new ImportConcertPreviewBo
             {
                 FoundCountries = [],
@@ -138,6 +150,7 @@ public class LinkinpediaImportConcertService(
 
         var concertTypes = await concertTypeRepository.QueryAsync(cancellationToken).ToListAsync(cancellationToken);
         ConcertTypeBo? concertType = null;
+        logger.LogDebug("Found {concertTypes} concert types. Source uses {sourceConcertType}", concertTypes.Count, tourdate.ShowType);
         if (!string.IsNullOrWhiteSpace(tourdate.ShowType))
         {
             if (tourdate.ShowType.Contains("festival", StringComparison.OrdinalIgnoreCase))
