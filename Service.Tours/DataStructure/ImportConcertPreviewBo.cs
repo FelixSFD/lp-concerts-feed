@@ -16,7 +16,7 @@ public class ImportConcertPreviewBo
     /// <summary>
     /// If matching cities were found, they are listed here
     /// </summary>
-    public required CityWithCountryBo[] FoundCites { get; set; }
+    public required CityWithCountryBo[] FoundCities { get; set; }
     
     public required VenueBo[] FoundVenues { get; set; }
     public required CountryBo[] FoundCountries { get; set; }

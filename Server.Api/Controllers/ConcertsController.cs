@@ -24,7 +24,7 @@ namespace Server.Api.Controllers;
 /// <param name="logger"></param>
 [ApiController]
 [Route("v3/[controller]")]
-public class ConcertsController(ConcertService concertService, IOutputCacheStore outputCacheStore, ILogger<ConcertsController> logger) : ControllerBase
+public class ConcertsController(ConcertService concertService, LinkinpediaImportConcertService linkinpediaImportConcertService, IOutputCacheStore outputCacheStore, ILogger<ConcertsController> logger) : ControllerBase
 {
     /// <summary>
     /// Creates a new concert in the database
@@ -139,6 +139,22 @@ public class ConcertsController(ConcertService concertService, IOutputCacheStore
         };
         
         return Ok(response);
+    }
+
+    /// <summary>
+    /// Generates a preview of the concert import plan for a given concert.
+    /// This data can be used to call the correct APIs to create all the necessary data.
+    /// </summary>
+    /// <param name="wikiPageId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>plan for the import</returns>
+    [HttpGet("import/{wikiPageId}")]
+    public async Task<ActionResult<ImportConcertPreviewDto>> GetConcertImportPlan(string wikiPageId, CancellationToken cancellationToken)
+    {
+        logger.LogDebug("Generating concert import plan for concert: {page}", wikiPageId);
+        var importPlan = await linkinpediaImportConcertService.GetConcertImportPlan(wikiPageId, cancellationToken);
+        logger.LogDebug("Generated import plan for concert: {page}", wikiPageId);
+        return Ok(importPlan.ToDto());
     }
 
     private async Task EvictConcertCacheAsync(CancellationToken cancellationToken = default)

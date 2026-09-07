@@ -4,6 +4,7 @@ using Database.Tours.DataObjects;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Tours;
 using LPCalendar.DataStructure.Tours.Locations;
+using Service.Tours.DataStructure;
 
 namespace Server.Api;
 
@@ -326,6 +327,33 @@ internal static class DtoMapper
             ConcertDto.ConcertStatusValue.Past => ConcertStatusValueDto.Past,
             ConcertDto.ConcertStatusValue.Cancelled => ConcertStatusValueDto.Cancelled,
             _ => ConcertStatusValueDto.Past
+        };
+    }
+
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bo">BusinessObject to map</param>
+    /// <returns>the mapped DTO</returns>
+    public static ImportConcertPreviewDto ToDto(this ImportConcertPreviewBo bo)
+    {
+        return new ImportConcertPreviewDto
+        {
+            ConcertType = bo.ConcertType?.ToDto(),
+            PostedStartTime = bo.PostedStartTime,
+            FoundCities = [.. bo.FoundCities.Select(ToDto)],
+            FoundVenues = [.. bo.FoundVenues.Select(ToDto)],
+            FoundCountries = [.. bo.FoundCountries.Select(ToDto)],
+            FoundStates = [.. bo.FoundStates.Select(ToDto)],
+            CountryName = bo.CountryName,
+            StateName = bo.StateName,
+            CityName = bo.CityName,
+            VenueName = bo.VenueName,
+            FoundTours = [.. bo.FoundTours.Select(ToDto)],
+            FoundTourLegs = [.. bo.FoundTourLegs.Select(ToDto)],
+            TourName = bo.TourName,
+            TourLegName = bo.TourLegName,
+            ProposedCustomTitle = bo.ProposedCustomTitle,
         };
     }
 

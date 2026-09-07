@@ -18,36 +18,11 @@ namespace Database.Tours.Migrations
                 type: "varchar(127)",
                 maxLength: 127,
                 nullable: true);
-
-            migrationBuilder.InsertData(
-                table: "ConcertType",
-                columns: new[] { "Id", "Name", "UpdatedAt" },
-                values: new object[,]
-                {
-                    { 1u, "Linkin Park Show", null },
-                    { 2u, "Festival", null },
-                    { 3u, "Other", null }
-                });
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DeleteData(
-                table: "ConcertType",
-                keyColumn: "Id",
-                keyValue: 1u);
-
-            migrationBuilder.DeleteData(
-                table: "ConcertType",
-                keyColumn: "Id",
-                keyValue: 2u);
-
-            migrationBuilder.DeleteData(
-                table: "ConcertType",
-                keyColumn: "Id",
-                keyValue: 3u);
-
             migrationBuilder.DropColumn(
                 name: "LinkinpediaUrl",
                 table: "Concert");

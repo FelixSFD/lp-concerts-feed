@@ -2,6 +2,7 @@ using System.Configuration;
 using System.Text.Json.Serialization;
 using Common.Server.ClientIp;
 using Common.Utils.Cache;
+using Common.WikiMedia.Repositories;
 using Database.Tours;
 using Database.Tours.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -16,7 +17,9 @@ using Prometheus;
 using Server.Api.Cache;
 using Server.Api.ExceptionHandling;
 using Server.Api.HealthChecks;
+using Service.Setlists;
 using Service.Tours;
+using Service.Tours.Importer;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables("App_");
@@ -196,6 +199,11 @@ builder.Services.AddScoped<LocationService>();
 builder.Services.AddScoped<VenueService>();
 builder.Services.AddScoped<TourService>();
 builder.Services.AddScoped<ConcertService>();
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<IWikiMediaRepository, WikiMediaRepository>(b => new WikiMediaRepository(b.GetRequiredService<HttpClient>(),
+    LinkinpediaImportService.LinkinpediaRestApiBaseUrl));
+builder.Services.AddScoped<TourdataWikitextParser>();
+builder.Services.AddScoped<LinkinpediaImportConcertService>();
 
 // Register authentication schemes, and specify the default authentication scheme
 builder.Services

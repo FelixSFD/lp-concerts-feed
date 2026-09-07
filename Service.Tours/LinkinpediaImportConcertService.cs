@@ -42,7 +42,7 @@ public class LinkinpediaImportConcertService(
             {
                 FoundCountries = [],
                 FoundStates = [],
-                FoundCites = [],
+                FoundCities = [],
                 FoundVenues = [],
                 FoundTours = [],
                 FoundTourLegs = []
@@ -58,7 +58,7 @@ public class LinkinpediaImportConcertService(
             {
                 FoundCountries = [],
                 FoundStates = [],
-                FoundCites = [],
+                FoundCities = [],
                 FoundVenues = [],
                 FoundTours = [],
                 FoundTourLegs = []
@@ -180,7 +180,7 @@ public class LinkinpediaImportConcertService(
             PostedStartTime = postedStartTime,
             FoundCountries = foundCountries,
             FoundStates = foundStates,
-            FoundCites = foundCities,
+            FoundCities = foundCities,
             FoundVenues = foundVenues,
             FoundTours = foundTours,
             FoundTourLegs = foundTourLegs,

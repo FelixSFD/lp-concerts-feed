@@ -205,7 +205,7 @@ public class LinkinpediaImportConcertServiceTest
         var foundState = Assert.Single(result.FoundStates);
         Assert.Equal("AZ", foundState.Code);
 
-        var foundCity = Assert.Single(result.FoundCites);
+        var foundCity = Assert.Single(result.FoundCities);
         Assert.Equal((uint)10, foundCity.Id);
         Assert.Equal("Phoenix", foundCity.Name);
 
@@ -286,7 +286,7 @@ public class LinkinpediaImportConcertServiceTest
         Assert.NotNull(result);
         Assert.Empty(result.FoundCountries);
         Assert.Empty(result.FoundStates);
-        Assert.Empty(result.FoundCites);
+        Assert.Empty(result.FoundCities);
         Assert.Empty(result.FoundVenues);
         Assert.Empty(result.FoundTours);
         Assert.Empty(result.FoundTourLegs);
@@ -388,7 +388,7 @@ public class LinkinpediaImportConcertServiceTest
         Assert.Equal("St. Pölten", result.CityName);
         Assert.Equal("Green Park", result.VenueName);
         Assert.Single(result.FoundCountries);
-        Assert.Single(result.FoundCites);
+        Assert.Single(result.FoundCities);
         Assert.Single(result.FoundVenues);
         Assert.Single(result.FoundTours);
     }

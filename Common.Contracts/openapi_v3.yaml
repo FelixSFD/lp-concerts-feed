@@ -92,6 +92,29 @@ paths:
         httpMethod: GET
         uri: https://api.dev.lpshows.felixsfd.de/v3/Concerts
   
+  /v3/Concerts/import/{wikiPageId}:
+    get: 
+      operationId: GetConcertImportPlan
+      tags:
+        - Concerts
+      parameters:
+        - name: wikiPageId
+          in: path
+          required: true
+          schema: 
+            type: string
+      responses: 
+        200:
+          description: A JSON object with the information of the concert import plan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportConcertPreview"
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
   /v3/Concerts/{concertId}:
     put:
       tags:
@@ -2372,6 +2395,55 @@ components:
         next:
           type: string
           description: ID of the next concert
+    ImportConcertPreview:
+      type: object
+      description: Data of a concert to import from Linkinpedia
+      properties: 
+        concertType:
+          $ref: "#/components/schemas/ConcertType"
+        postedStartTime:
+          type: string
+          format: date-time
+          description: The start time and date of the concert. Time is most likely a placeholder.
+        foundCities:
+          type: array
+          description: If matching cities were found, they are listed here
+          items:
+            $ref: "#/components/schemas/CityWithCountry"
+        foundVenues:
+          type: array
+          items:
+            $ref: "#/components/schemas/Venue"
+        foundCountries:
+          type: array
+          items:
+            $ref: "#/components/schemas/Country"
+        foundStates:
+          type: array
+          items:
+            $ref: "#/components/schemas/State"
+        countryName:
+          type: string
+        stateName:
+          type: string
+        cityName:
+          type: string
+        venueName:
+          type: string
+        foundTours:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tour"
+        foundTourLegs:
+          type: array
+          items:
+            $ref: "#/components/schemas/TourLeg"
+        tourName:
+          type: string
+        tourLegName:
+          type: string
+        proposedCustomTitle:
+          type: string
     
     # Schemas from v2
     GetConcertBookmarkCountsResponse:
