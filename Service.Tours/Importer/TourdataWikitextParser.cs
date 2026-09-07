@@ -99,6 +99,7 @@ public partial class TourdataWikitextParser : IWikitextParser
             VenueType = GetProperty(properties, "Venue Type", "VenueType"),
             VenueWebsite = GetProperty(properties, "Venue Website", "VenueWebsite"),
             Tour = GetProperty(properties, "Tour"),
+            TourLeg = GetProperty(properties, "Tour leg", "TourLeg", "Tour Leg"),
             Stage = GetProperty(properties, "Stage"),
             OtherArtists = GetProperty(properties, "Other artists", "OtherArtists", "Other Artist"),
             Support = support1,

@@ -82,7 +82,7 @@ public class LinkinpediaImportConcertService(
 
         var venueName = tourdate.Venue;
         var tourName = tourdate.Tour;
-        string? tourLegName = null;
+        var tourLegName = tourdate.TourLeg;
         DateTimeOffset postedStartTime = default;
 
         if (tourdate.Date.HasValue)
@@ -145,6 +145,10 @@ public class LinkinpediaImportConcertService(
         var foundTours = matchingTours.Select(DoMapper.ToBo).ToArray();
         var foundTourLegs = matchingTours
             .SelectMany(t => t.Legs)
+            .Where(t =>
+                string.Equals(t.Name, tourLegName, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(t.Id, tourLegName, StringComparison.OrdinalIgnoreCase)
+            )
             .Select(DoMapper.ToBo)
             .ToArray();
 

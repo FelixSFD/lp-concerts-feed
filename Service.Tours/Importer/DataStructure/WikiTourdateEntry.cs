@@ -79,6 +79,11 @@ public class WikiTourdateEntry
     /// Name of the tour
     /// </summary>
     public string? Tour { get; set; }
+    
+    /// <summary>
+    /// Name of the tour leg
+    /// </summary>
+    public string? TourLeg { get; set; }
 
     /// <summary>
     /// Stage name, e.g. "Main Stage"
