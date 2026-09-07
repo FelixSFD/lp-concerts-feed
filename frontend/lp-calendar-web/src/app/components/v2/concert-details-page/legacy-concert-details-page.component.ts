@@ -11,7 +11,7 @@ import {
 } from '../../../modules/lpshows-api';
 import {Setlist} from '../../../data/setlists/setlist';
 import {ActivatedRoute, Router} from '@angular/router';
-import {ConcertsService} from '../../../services/concerts.service';
+import {LegacyConcertsService} from '../../../services/legacy-concerts.service';
 import {Meta} from '@angular/platform-browser';
 import {HttpErrorResponse} from '@angular/common/http';
 import {DateTime} from 'luxon';
@@ -32,7 +32,7 @@ export class LegacyConcertDetailsPageComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
-  private readonly concertsService = inject(ConcertsService);
+  private readonly concertsService = inject(LegacyConcertsService);
   private readonly metaService = inject(Meta);
   private readonly route = inject(ActivatedRoute);
 

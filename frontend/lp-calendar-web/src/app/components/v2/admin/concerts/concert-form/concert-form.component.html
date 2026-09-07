@@ -5,6 +5,27 @@
         General
       </ng-template>
       <div class="grid row-gap-2 mt-2">
+        <!-- Linkinpedia URL -->
+        <div class="col-12">
+          <div class="flex flex-nowrap gap-3">
+            <p-inputgroup>
+              <p-floatlabel variant="on">
+                <input pInputText id="linkinpediaUrl" fluid formControlName="linkinpediaUrl" [invalid]="concertForm.controls.linkinpediaUrl.invalid" />
+                <label for="linkinpediaUrl">Linkinpedia URL</label>
+              </p-floatlabel>
+              <p-inputgroup-addon>
+                <p-button icon="pi pi-external-link" label="Open" severity="info" variant="outlined" [disabled]="concertForm.controls.linkinpediaUrl.invalid" (onClick)="openLinkinpediaUrlClicked()" />
+              </p-inputgroup-addon>
+            </p-inputgroup>
+
+            <div class="w-10rem">
+              <p-button label="Import&nbsp;data" icon="pi pi-download" variant="outlined" (onClick)="importFromLinkinpediaUrlClicked()" />
+            </div>
+          </div>
+        </div>
+
+        <p-divider />
+
         <!-- Concert Status -->
         <div class="col-12">
           <p-floatlabel variant="on">

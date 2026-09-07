@@ -11,7 +11,7 @@ import {
 import timezones from 'timezones-list';
 import {listOfTours, listOfShowTypes, tourConfigs} from '../../../../app.config';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {ConcertsService} from '../../../../services/concerts.service';
+import {LegacyConcertsService} from '../../../../services/legacy-concerts.service';
 import {DateTime} from 'luxon';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {environment} from "../../../../../environments/environment";
@@ -66,7 +66,7 @@ import {MessageService} from 'primeng/api';
 })
 export class LegacyConcertFormComponent implements OnInit, AfterViewInit, OnChanges {
   private formBuilder = inject(FormBuilder);
-  private concertsService = inject(ConcertsService);
+  private concertsService = inject(LegacyConcertsService);
   private locationsService = inject(LocationsService);
   private messageService = inject(MessageService);
   private http = inject(HttpClient);

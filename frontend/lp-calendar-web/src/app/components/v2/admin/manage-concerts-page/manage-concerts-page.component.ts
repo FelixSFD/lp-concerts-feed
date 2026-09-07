@@ -12,7 +12,7 @@ import {InputText} from 'primeng/inputtext';
 import {TableModule} from 'primeng/table';
 import { ConcertDto, ConcertStatusValueDto, ErrorResponseDto } from '../../../../modules/lpshows-api';
 import {ConcertTitleGenerator} from '../../../../data/concert-title-generator';
-import {ConcertsService} from '../../../../services/concerts.service';
+import {LegacyConcertsService} from '../../../../services/legacy-concerts.service';
 import { DateTime } from 'luxon';
 import { ConcertFilter } from '../../../../data/concert-filter';
 import { ConcertDetailsDto } from '../../../../modules/lpshows-api/v3';
@@ -39,7 +39,7 @@ import { ConcertStatus } from '../../../../data/concert-status';
   styleUrl: './manage-concerts-page.component.css',
 })
 export class ManageConcertsPageComponent implements OnInit {
-  private readonly concertsService = inject(ConcertsService);
+  private readonly concertsService = inject(LegacyConcertsService);
   private readonly toursService = inject(ToursService);
   private readonly messageService = inject(MessageService);
 

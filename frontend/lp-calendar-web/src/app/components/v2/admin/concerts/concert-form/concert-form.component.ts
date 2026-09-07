@@ -17,6 +17,9 @@ import { Select } from 'primeng/select';
 import timezones, { TimeZone } from 'timezones-list';
 import { DateTime, Zone } from 'luxon';
 import { ConcertStatus } from '../../../../../data/concert-status';
+import { InputGroup } from 'primeng/inputgroup';
+import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import { ConcertsService } from '../../../../../services/concerts.service';
 
 @Component({
   selector: 'app-concert-form',
@@ -34,6 +37,8 @@ import { ConcertStatus } from '../../../../../data/concert-status';
     SelectVenueComponent,
     DatePicker,
     Select,
+    InputGroup,
+    InputGroupAddon,
   ],
   templateUrl: './concert-form.component.html',
   styleUrl: './concert-form.component.css',
@@ -41,6 +46,7 @@ import { ConcertStatus } from '../../../../../data/concert-status';
 export class ConcertFormComponent implements OnInit {
   private messageService = inject(MessageService);
   private formBuilder = inject(FormBuilder);
+  private concertsService = inject(ConcertsService);
 
   @Input("is-saving")
   isSaving$: boolean = false;
@@ -74,6 +80,7 @@ export class ConcertFormComponent implements OnInit {
     doorsTime: new FormControl('', []),
     lpStageTime: new FormControl('', []),
     expectedSetDuration: new FormControl('', []),
+    linkinpediaUrl: new FormControl<string | null>(null, []),
   });
 
   protected concertStatusValues: ConcertStatus[] = ConcertStatus.allValues;
@@ -262,6 +269,25 @@ export class ConcertFormComponent implements OnInit {
   private convertH2M(timeInHour: string){
     let timeParts = timeInHour.split(":");
     return Number(timeParts[0]) * 60 + Number(timeParts[1]);
+  }
+
+  openLinkinpediaUrlClicked() {
+    let url = this.concertForm.value.linkinpediaUrl?.valueOf();
+    if (url?.length == 0) {
+      return;
+    }
+
+    window.open(url, "_blank");
+  }
+
+  async importFromLinkinpediaUrlClicked() {
+    let url = this.concertForm.value.linkinpediaUrl?.valueOf() ?? null;
+    if (url == null || url?.length == 0) {
+      return;
+    }
+
+    let importPlan = await this.concertsService.getImportConcertPlanForConcert(url!);
+    console.debug("Import plan: ", importPlan);
   }
 
   protected readonly timezones = timezones;

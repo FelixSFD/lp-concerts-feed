@@ -3,7 +3,7 @@ import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} 
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {CreateSetlistRequestDto, ErrorResponseDto} from '../../../../../modules/lpshows-api';
 import {SetlistsService} from '../../../../../services/setlists.service';
-import {ConcertsService} from '../../../../../services/concerts.service';
+import {LegacyConcertsService} from '../../../../../services/legacy-concerts.service';
 import {DateTime} from 'luxon';
 import {Button} from 'primeng/button';
 import {Card} from 'primeng/card';
@@ -35,7 +35,7 @@ export class AddSetlistPageComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private concertsService = inject(ConcertsService);
+  private concertsService = inject(LegacyConcertsService);
   private messageService = inject(MessageService);
 
   setlistForm = this.formBuilder.group({
