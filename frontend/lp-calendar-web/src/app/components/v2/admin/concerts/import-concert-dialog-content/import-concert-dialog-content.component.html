@@ -1,0 +1,82 @@
+@if (importPlan()) {
+  <!-- Check if concert type is set -->
+  @if (importPlan()?.concertType == null) {
+    <p-message severity="warn">Concert Type can't be imported automatically.</p-message>
+  } @else {
+    <p-message severity="success" icon="pi pi-check-circle">Concert Type: {{ importPlan()?.concertType?.name }}</p-message>
+  }
+
+  <!-- Check if tour was found -->
+  @if (importPlan()?.foundTours?.length == 0) {
+    <p-message severity="warn">No matching tour found. Need to create one first or select existing.</p-message>
+  } @else if (importPlan()?.foundTours?.length == 1) {
+    <p-message severity="success">TODO: Show matching tour</p-message>
+  } @else {
+    <p-message severity="info">TODO: Found {{ importPlan()?.foundTours?.length }} possible tours</p-message>
+  }
+
+  <!-- Check if tour leg was found -->
+  @if (importPlan()?.foundTourLegs?.length == 0) {
+    <p-message severity="warn">No matching tour leg found. Need to create one first or select existing.</p-message>
+  } @else if (importPlan()?.foundTourLegs?.length == 1) {
+    <p-message severity="success">TODO: Show matching tour leg</p-message>
+  } @else {
+    <p-message severity="info">TODO: Found {{ importPlan()?.foundTourLegs?.length }} possible tour legs</p-message>
+  }
+
+  <form #form="ngForm" [formGroup]="importPlanForm" class="form mt-3">
+    <div class="grid row-gap-2 mt-2">
+      <!--<div class="col-12">
+        <p-floatlabel variant="on">
+          <app-select-concert-type
+            formControlName="concertTypeId"
+            inputId="concertTypeId"
+            [invalid]="importPlanForm.controls.concertTypeId.invalid"
+            fluid
+          />
+          <label for="concertTypeId">Concert Type</label>
+        </p-floatlabel>
+      </div>-->
+
+      <!-- Select Tour -->
+      @if (importPlan()?.foundTours?.length == 0) {
+        no matching tour found. Need to create one first.
+      } @else {
+        <div class="col-12 xl:col-6">
+          <p-floatlabel variant="on">
+            <app-select-tour
+              formControlName="tour"
+              inputId="tourId"
+              [available-tours]="importPlan()?.foundTours"
+              [invalid]="importPlanForm.controls.tour.invalid"
+              [disabled]="importPlan()?.foundTours?.length == 1"
+              showClear
+              fluid
+            />
+            <label for="tourId">Tour</label>
+          </p-floatlabel>
+        </div>
+        <div class="col-12 xl:col-6">
+          <p-floatlabel variant="on">
+            <app-select-tour-leg
+              formControlName="tourLegId"
+              inputId="tourLegId"
+              [tour]="importPlanForm.controls.tour.value"
+              [invalid]="importPlanForm.controls.tourLegId.invalid"
+              [disabled]="importPlan()?.foundTourLegs?.length == 1"
+              showClear
+              fluid
+            />
+            <label for="tourLegId">Tour Leg</label>
+          </p-floatlabel>
+        </div>
+      }
+    </div>
+
+    <p-divider />
+
+    <p-button label="Import" [disabled]="true" />
+  </form>
+} @else {
+  Loading...
+}

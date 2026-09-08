@@ -1,7 +1,13 @@
 import { Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ConcertDetailsDto, ConcertStatusValueDto, TourDto, VenueDto } from '../../../../../modules/lpshows-api/v3';
+import {
+  ConcertDetailsDto,
+  ConcertStatusValueDto,
+  ImportConcertPreviewDto,
+  TourDto,
+  VenueDto
+} from '../../../../../modules/lpshows-api/v3';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { Divider } from 'primeng/divider';
@@ -20,6 +26,10 @@ import { ConcertStatus } from '../../../../../data/concert-status';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { ConcertsService } from '../../../../../services/concerts.service';
+import { Dialog } from 'primeng/dialog';
+import {
+  ImportConcertDialogContentComponent
+} from '../import-concert-dialog-content/import-concert-dialog-content.component';
 
 @Component({
   selector: 'app-concert-form',
@@ -39,6 +49,8 @@ import { ConcertsService } from '../../../../../services/concerts.service';
     Select,
     InputGroup,
     InputGroupAddon,
+    Dialog,
+    ImportConcertDialogContentComponent,
   ],
   templateUrl: './concert-form.component.html',
   styleUrl: './concert-form.component.css',
@@ -67,6 +79,9 @@ export class ConcertFormComponent implements OnInit {
 
   selectedTour = signal<TourDto | null>(null);
 
+  isShowingImportDialog = signal(false);
+  importPlan = signal<ImportConcertPreviewDto | null>(null);
+
   concertForm = this.formBuilder.group({
     concertStatus: new FormControl<ConcertStatusValueDto>(ConcertStatusValueDto.Planned, [Validators.required]),
     customTitle: new FormControl<string>(''),
@@ -80,7 +95,7 @@ export class ConcertFormComponent implements OnInit {
     doorsTime: new FormControl('', []),
     lpStageTime: new FormControl('', []),
     expectedSetDuration: new FormControl('', []),
-    linkinpediaUrl: new FormControl<string | null>(null, []),
+    linkinpediaUrl: new FormControl<string | null>("Live:20250131", []),
   });
 
   protected concertStatusValues: ConcertStatus[] = ConcertStatus.allValues;
@@ -288,6 +303,8 @@ export class ConcertFormComponent implements OnInit {
 
     let importPlan = await this.concertsService.getImportConcertPlanForConcert(url!);
     console.debug("Import plan: ", importPlan);
+    this.isShowingImportDialog.set(true);
+    this.importPlan.set(importPlan);
   }
 
   protected readonly timezones = timezones;

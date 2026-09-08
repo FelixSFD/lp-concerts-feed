@@ -41,9 +41,14 @@ export class SelectTourComponent implements ControlValueAccessor, OnInit {
   @Input({ transform: booleanAttribute }) disabled: boolean = false;
   @Input({ transform: booleanAttribute }) invalid: boolean = false;
 
+  /**
+   * List of tours that are available for selection. If not provided, tours will be loaded from the server.
+   */
+  @Input("available-tours") availableTours: TourDto[] | null | undefined = null;
+
   @Output() tourChange = new EventEmitter<TourDto | null>();
 
-  tours = signal<TourDto[]>([]);
+  protected tours = signal<TourDto[]>([]);
   loading = signal(false);
   value = signal<TourDto | null>(null);
 
@@ -55,17 +60,23 @@ export class SelectTourComponent implements ControlValueAccessor, OnInit {
   }
 
   loadTours() {
-    this.loading.set(true);
-    this.toursService.getTours().subscribe({
-      next: (tours: any) => {
-        this.tours.set(Array.isArray(tours) ? tours : tours ? [tours] : []);
-        this.loading.set(false);
-      },
-      error: (err) => {
-        console.error('Failed to load tours', err);
-        this.loading.set(false);
-      },
-    });
+    if (this.availableTours) {
+      console.debug('Loading tours from availableTours input');
+      this.tours.set(this.availableTours);
+    } else {
+      console.debug('Loading tours from server');
+      this.loading.set(true);
+      this.toursService.getTours().subscribe({
+        next: (tours: any) => {
+          this.tours.set(Array.isArray(tours) ? tours : tours ? [tours] : []);
+          this.loading.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load tours', err);
+          this.loading.set(false);
+        },
+      });
+    }
   }
 
   writeValue(value: any): void {

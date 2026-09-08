@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, TemplateRef, viewChild} from '@angular/core';
+import { Component, inject, OnInit, TemplateRef, viewChild } from '@angular/core';
 import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgTemplateOutlet} from '@angular/common';
 import {SetlistsService} from '../../../../../services/setlists.service';
