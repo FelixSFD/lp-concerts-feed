@@ -14,6 +14,7 @@ import { SelectTourLegComponent } from '../select-tour-leg/select-tour-leg.compo
 import { Message } from 'primeng/message';
 import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from 'primeng/accordion';
 import { Card } from 'primeng/card';
+import { InputText } from 'primeng/inputtext';
 
 @Component({
   imports: [
@@ -30,7 +31,8 @@ import { Card } from 'primeng/card';
     AccordionPanel,
     AccordionHeader,
     AccordionContent,
-    Card
+    Card,
+    InputText
   ],
   selector: 'app-import-concert-dialog-content',
   styleUrl: './import-concert-dialog-content.component.css',
@@ -47,11 +49,11 @@ export class ImportConcertDialogContentComponent {
     console.debug("Import plan changed:", plan);
     if (plan) {
       //this.importPlanForm.controls.concertTypeId.setValue(plan.concertType?.id ?? null);
+      this.createTourLegForm.controls.legName.setValue(plan.tourLegName ?? null);
     }
   });
 
-  importPlanForm = this.formBuilder.group({
-    tour: new FormControl<TourDto | null>(null, []),
-    tourLegId: new FormControl<string | null>(null),
+  createTourLegForm = this.formBuilder.group({
+    legName: new FormControl<string | null>(null, [Validators.required]),
   });
 }

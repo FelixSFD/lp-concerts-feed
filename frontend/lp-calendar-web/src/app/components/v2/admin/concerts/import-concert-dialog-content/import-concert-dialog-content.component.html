@@ -15,7 +15,7 @@
             Found concert type: {{ importPlan()?.concertType?.name }}
           </p>
         } @else {
-          <p class="m-0 text-sm">
+          <p class="mt-2 text-sm">
             No concert type could be detected. You will have to enter it manually later.
           </p>
         }
@@ -38,7 +38,7 @@
           <p class="m-0 text-sm">
             No matching tour found. Need to create one first or select existing.
           </p>
-          <p class="m-0 text-sm">
+          <p class="mt-2 text-sm">
             In case the concert was not part of a tour, you can ignore this warning.
           </p>
         } @else if (importPlan()?.foundTours?.length == 1) {
@@ -57,11 +57,11 @@
     <p-accordion-panel value="tourLeg">
       <p-accordion-header>
         @if (importPlan()?.foundTourLegs?.length == 0) {
-          <span class="text-orange-400"><i class="pi pi-rectangle-xmark"></i> Tour Leg information</span>
+          <span class="text-red-400"><i class="pi pi-rectangle-xmark"></i> Tour Leg information</span>
         } @else if (importPlan()?.foundTourLegs?.length == 1) {
           <span class="text-color-success"><i class="pi pi-check-circle"></i> Tour Leg information</span>
         } @else {
-          <span class="text-red-400"><i class="pi pi-exclamation-triangle"></i> Tour Leg information</span>
+          <span class="text-orange-400"><i class="pi pi-exclamation-triangle"></i> Tour Leg information</span>
         }
       </p-accordion-header>
       <p-accordion-content>
@@ -69,7 +69,7 @@
           <p class="m-0 text-sm">
             No matching tour leg found. Need to create one first or select existing.
           </p>
-          <p class="m-0 text-sm">
+          <p class="mt-2 text-sm">
             In case the concert was not part of a leg, you can ignore this warning.
           </p>
         } @else if (importPlan()?.foundTourLegs?.length == 1) {
@@ -81,63 +81,29 @@
             TODO: Found {{ importPlan()?.foundTourLegs?.length }} possible tour legs
           </p>
         }
+
+        <!-- Depending on the found data, show a form to create a new tour leg -->
+        @if (importPlan()?.foundTourLegs?.length == 0) {
+          <form #form="ngForm" [formGroup]="createTourLegForm" class="form mt-3">
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <input pInputText id="legName" formControlName="legName" autocomplete="off" fluid [invalid]="createTourLegForm.controls.legName.invalid" />
+                <label for="legName">Leg Name</label>
+              </p-floatlabel>
+            </div>
+
+            <div class="col-12 align-content-end">
+              <p-button label="Create Tour Leg" variant="outlined" [disabled]="createTourLegForm.invalid" />
+            </div>
+          </form>
+        }
       </p-accordion-content>
     </p-accordion-panel>
   </p-accordion>
 
-  <form #form="ngForm" [formGroup]="importPlanForm" class="form mt-3">
-    <div class="grid row-gap-2 mt-2">
-      <!--<div class="col-12">
-        <p-floatlabel variant="on">
-          <app-select-concert-type
-            formControlName="concertTypeId"
-            inputId="concertTypeId"
-            [invalid]="importPlanForm.controls.concertTypeId.invalid"
-            fluid
-          />
-          <label for="concertTypeId">Concert Type</label>
-        </p-floatlabel>
-      </div>-->
+  <p-divider />
 
-      <!-- Select Tour -->
-      @if (importPlan()?.foundTours?.length == 0) {
-        no matching tour found. Need to create one first.
-      } @else {
-        <div class="col-12 xl:col-6">
-          <p-floatlabel variant="on">
-            <app-select-tour
-              formControlName="tour"
-              inputId="tourId"
-              [available-tours]="importPlan()?.foundTours"
-              [invalid]="importPlanForm.controls.tour.invalid"
-              [disabled]="importPlan()?.foundTours?.length == 1"
-              showClear
-              fluid
-            />
-            <label for="tourId">Tour</label>
-          </p-floatlabel>
-        </div>
-        <div class="col-12 xl:col-6">
-          <p-floatlabel variant="on">
-            <app-select-tour-leg
-              formControlName="tourLegId"
-              inputId="tourLegId"
-              [tour]="importPlanForm.controls.tour.value"
-              [invalid]="importPlanForm.controls.tourLegId.invalid"
-              [disabled]="importPlan()?.foundTourLegs?.length == 1"
-              showClear
-              fluid
-            />
-            <label for="tourLegId">Tour Leg</label>
-          </p-floatlabel>
-        </div>
-      }
-    </div>
-
-    <p-divider />
-
-    <p-button label="Import" [disabled]="true" />
-  </form>
+  <p-button label="Import" [disabled]="true" />
 } @else {
   Loading...
 }
