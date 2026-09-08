@@ -1,28 +1,89 @@
 @if (importPlan()) {
-  <!-- Check if concert type is set -->
-  @if (importPlan()?.concertType == null) {
-    <p-message severity="warn">Concert Type can't be imported automatically.</p-message>
-  } @else {
-    <p-message severity="success" icon="pi pi-check-circle">Concert Type: {{ importPlan()?.concertType?.name }}</p-message>
-  }
+  <p-accordion [multiple]="true">
+    <!-- Check if concert type is set -->
+    <p-accordion-panel value="concertType">
+      <p-accordion-header>
+        @if (importPlan()?.concertType != null) {
+          <span class="text-color-success"><i class="pi pi-check-circle"></i> Concert Type: {{ importPlan()?.concertType?.name }}</span>
+        } @else {
+          <span class="text-red-400"><i class="pi pi-exclamation-triangle"></i> Concert Type missing</span>
+        }
+      </p-accordion-header>
+      <p-accordion-content>
+        @if (importPlan()?.concertType != null) {
+          <p class="m-0 text-sm">
+            Found concert type: {{ importPlan()?.concertType?.name }}
+          </p>
+        } @else {
+          <p class="m-0 text-sm">
+            No concert type could be detected. You will have to enter it manually later.
+          </p>
+        }
+      </p-accordion-content>
+    </p-accordion-panel>
 
-  <!-- Check if tour was found -->
-  @if (importPlan()?.foundTours?.length == 0) {
-    <p-message severity="warn">No matching tour found. Need to create one first or select existing.</p-message>
-  } @else if (importPlan()?.foundTours?.length == 1) {
-    <p-message severity="success">TODO: Show matching tour</p-message>
-  } @else {
-    <p-message severity="info">TODO: Found {{ importPlan()?.foundTours?.length }} possible tours</p-message>
-  }
+    <!-- Check if tour was found -->
+    <p-accordion-panel value="tour">
+      <p-accordion-header>
+        @if (importPlan()?.foundTours?.length == 0) {
+          <span class="text-orange-400"><i class="pi pi-rectangle-xmark"></i> Tour information</span>
+        } @else if (importPlan()?.foundTours?.length == 1) {
+          <span class="text-color-success"><i class="pi pi-check-circle"></i> Tour information</span>
+        } @else {
+          <span class="text-red-400"><i class="pi pi-exclamation-triangle"></i> Tour information</span>
+        }
+      </p-accordion-header>
+      <p-accordion-content>
+        @if (importPlan()?.foundTours?.length == 0) {
+          <p class="m-0 text-sm">
+            No matching tour found. Need to create one first or select existing.
+          </p>
+          <p class="m-0 text-sm">
+            In case the concert was not part of a tour, you can ignore this warning.
+          </p>
+        } @else if (importPlan()?.foundTours?.length == 1) {
+          <p class="m-0 text-sm">
+            TODO: Show matching tour
+          </p>
+        } @else {
+          <p class="m-0 text-sm">
+            TODO: Found {{ importPlan()?.foundTours?.length }} possible tours
+          </p>
+        }
+      </p-accordion-content>
+    </p-accordion-panel>
 
-  <!-- Check if tour leg was found -->
-  @if (importPlan()?.foundTourLegs?.length == 0) {
-    <p-message severity="warn">No matching tour leg found. Need to create one first or select existing.</p-message>
-  } @else if (importPlan()?.foundTourLegs?.length == 1) {
-    <p-message severity="success">TODO: Show matching tour leg</p-message>
-  } @else {
-    <p-message severity="info">TODO: Found {{ importPlan()?.foundTourLegs?.length }} possible tour legs</p-message>
-  }
+    <!-- Check if tour leg was found -->
+    <p-accordion-panel value="tourLeg">
+      <p-accordion-header>
+        @if (importPlan()?.foundTourLegs?.length == 0) {
+          <span class="text-orange-400"><i class="pi pi-rectangle-xmark"></i> Tour Leg information</span>
+        } @else if (importPlan()?.foundTourLegs?.length == 1) {
+          <span class="text-color-success"><i class="pi pi-check-circle"></i> Tour Leg information</span>
+        } @else {
+          <span class="text-red-400"><i class="pi pi-exclamation-triangle"></i> Tour Leg information</span>
+        }
+      </p-accordion-header>
+      <p-accordion-content>
+        @if (importPlan()?.foundTourLegs?.length == 0) {
+          <p class="m-0 text-sm">
+            No matching tour leg found. Need to create one first or select existing.
+          </p>
+          <p class="m-0 text-sm">
+            In case the concert was not part of a leg, you can ignore this warning.
+          </p>
+        } @else if (importPlan()?.foundTourLegs?.length == 1) {
+          <p class="m-0 text-sm">
+            TODO: Show matching tour leg
+          </p>
+        } @else {
+          <p class="m-0 text-sm">
+            TODO: Found {{ importPlan()?.foundTourLegs?.length }} possible tour legs
+          </p>
+        }
+      </p-accordion-content>
+    </p-accordion-panel>
+  </p-accordion>
 
   <form #form="ngForm" [formGroup]="importPlanForm" class="form mt-3">
     <div class="grid row-gap-2 mt-2">

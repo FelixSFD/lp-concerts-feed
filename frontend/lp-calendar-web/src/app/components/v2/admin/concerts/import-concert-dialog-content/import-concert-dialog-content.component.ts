@@ -12,6 +12,8 @@ import { Divider } from 'primeng/divider';
 import { SelectTourComponent } from '../select-tour/select-tour.component';
 import { SelectTourLegComponent } from '../select-tour-leg/select-tour-leg.component';
 import { Message } from 'primeng/message';
+import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from 'primeng/accordion';
+import { Card } from 'primeng/card';
 
 @Component({
   imports: [
@@ -23,7 +25,12 @@ import { Message } from 'primeng/message';
     Divider,
     SelectTourComponent,
     SelectTourLegComponent,
-    Message
+    Message,
+    Accordion,
+    AccordionPanel,
+    AccordionHeader,
+    AccordionContent,
+    Card
   ],
   selector: 'app-import-concert-dialog-content',
   styleUrl: './import-concert-dialog-content.component.css',
