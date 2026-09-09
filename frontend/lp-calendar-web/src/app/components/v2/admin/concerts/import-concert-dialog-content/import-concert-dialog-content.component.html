@@ -1,5 +1,27 @@
 @if (importPlan()) {
   <p-accordion [multiple]="true">
+    <!-- Check if date is set -->
+    <p-accordion-panel value="timingInfo">
+      <p-accordion-header>
+        @if (importPlan()?.postedStartTime != null) {
+          <span class="text-color-success"><i class="pi pi-check-circle"></i> Date: {{ importPlan()?.postedStartTime | date: "yyyy-MM-dd" }}</span>
+        } @else {
+          <span class="text-red-400"><i class="pi pi-exclamation-triangle"></i> Concert date missing</span>
+        }
+      </p-accordion-header>
+      <p-accordion-content>
+        @if (importPlan()?.concertType != null) {
+          <p class="m-0 text-sm">
+            Found date: {{ importPlan()?.postedStartTime | date:'medium' }}
+          </p>
+        } @else {
+          <p class="mt-2 text-sm">
+            The date of the concert could not be detected! You will have to enter it manually later.
+          </p>
+        }
+      </p-accordion-content>
+    </p-accordion-panel>
+
     <!-- Check if concert type is set -->
     <p-accordion-panel value="concertType">
       <p-accordion-header>

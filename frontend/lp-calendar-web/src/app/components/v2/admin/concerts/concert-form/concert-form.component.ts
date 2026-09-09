@@ -312,10 +312,14 @@ export class ConcertFormComponent implements OnInit {
     console.debug("Applying import: ", evt);
     this.isShowingImportDialog.set(false);
 
+    let startTime = evt.postedStartTime;
     let concertType = evt.concertType;
     let importTour = evt.tour;
     let importTourLeg = evt.tourLeg;
 
+    if (startTime != null) {
+      this.concertForm.controls.postedStartTime.setValue(startTime);
+    }
     if (concertType != null) {
       this.concertForm.controls.concertTypeId.setValue(concertType.id ?? null);
     }

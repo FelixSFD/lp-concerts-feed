@@ -21,6 +21,8 @@ import { Toast } from 'primeng/toast';
 import { LocationsService } from '../../../../../services/locations.service';
 import { ToursService } from '../../../../../services/tours.service';
 import { Tooltip } from 'primeng/tooltip';
+import { DatePipe } from '@angular/common';
+import { DateTime } from 'luxon';
 
 @Component({
   imports: [
@@ -40,7 +42,8 @@ import { Tooltip } from 'primeng/tooltip';
     Card,
     InputText,
     Toast,
-    Tooltip
+    Tooltip,
+    DatePipe
   ],
   selector: 'app-import-concert-dialog-content',
   styleUrl: './import-concert-dialog-content.component.css',
@@ -163,15 +166,19 @@ export class ImportConcertDialogContentComponent {
       concertType: plan.concertType ?? null,
       tour: plan.foundTours?.at(0) ?? null,
       tourLeg: plan.foundTourLegs?.at(0) ?? null,
+      postedStartTime: DateTime.fromISO(plan.postedStartTime ?? "").toJSDate() ?? null,
     };
 
     console.debug("prepared ApplyClickedEvent:", applyEvent);
     this.applyClickedEvent.emit(applyEvent);
   }
+
+  protected readonly DatePipe = DatePipe;
 }
 
 export class ApplyClickedEvent {
   concertType: ConcertTypeDto | null = null;
   tour: TourDto | null = null;
   tourLeg: TourDto | null = null;
+  postedStartTime: Date | null = null;
 }
