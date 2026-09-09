@@ -74,7 +74,7 @@
           </p>
         } @else if (importPlan()?.foundTourLegs?.length == 1) {
           <p class="m-0 text-sm">
-            TODO: Show matching tour leg
+            Found tour leg: <span [pTooltip]="'ID: ' + importPlan()?.foundTourLegs?.at(0)?.id" class="font-bold">{{ importPlan()?.foundTourLegs?.at(0)?.name ?? "" }}</span>
           </p>
         } @else {
           <p class="m-0 text-sm">
@@ -93,7 +93,7 @@
             </div>
 
             <div class="col-12 align-content-end">
-              <p-button label="Create Tour Leg" variant="outlined" [disabled]="createTourLegForm.invalid" />
+              <p-button label="Create Tour Leg" variant="outlined" [disabled]="createTourLegForm.invalid" (onClick)="onCreateTourLegClicked()" />
             </div>
           </form>
         }

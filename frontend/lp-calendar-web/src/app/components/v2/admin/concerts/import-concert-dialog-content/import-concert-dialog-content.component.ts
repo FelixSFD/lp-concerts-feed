@@ -1,5 +1,6 @@
 import { Component, effect, inject, Input, signal } from '@angular/core';
 import {
+  AddTourLegRequestDto,
   ConcertStatusValueDto,
   ImportConcertPreviewDto,
   TourDto
@@ -15,6 +16,11 @@ import { Message } from 'primeng/message';
 import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from 'primeng/accordion';
 import { Card } from 'primeng/card';
 import { InputText } from 'primeng/inputtext';
+import { MessageService } from 'primeng/api';
+import { Toast } from 'primeng/toast';
+import { LocationsService } from '../../../../../services/locations.service';
+import { ToursService } from '../../../../../services/tours.service';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   imports: [
@@ -32,14 +38,19 @@ import { InputText } from 'primeng/inputtext';
     AccordionHeader,
     AccordionContent,
     Card,
-    InputText
+    InputText,
+    Toast,
+    Tooltip
   ],
   selector: 'app-import-concert-dialog-content',
   styleUrl: './import-concert-dialog-content.component.css',
   templateUrl: './import-concert-dialog-content.component.html',
 })
 export class ImportConcertDialogContentComponent {
+  private messageService = inject(MessageService);
   private formBuilder = inject(FormBuilder);
+  private toursService = inject(ToursService);
+  private locationsService = inject(LocationsService);
 
   @Input("import-plan")
   importPlan = signal<ImportConcertPreviewDto | null>(null);
@@ -56,4 +67,42 @@ export class ImportConcertDialogContentComponent {
   createTourLegForm = this.formBuilder.group({
     legName: new FormControl<string | null>(null, [Validators.required]),
   });
+
+
+  onCreateTourLegClicked() {
+    console.debug("Create tour leg clicked");
+
+    let tourLegName = this.createTourLegForm.controls.legName.value;
+    if (!tourLegName) {
+      console.error("Tour leg name is required");
+      this.messageService.add({severity: "error", summary: "Tour leg name is required", detail: "Please enter a tour leg name"});
+      return;
+    }
+
+    let createTourLegRequest: AddTourLegRequestDto = {
+      id: tourLegName.toLowerCase().replaceAll(" ", "-"),
+      name: tourLegName
+    };
+    this.toursService.createTourLeg(this.importPlan()?.foundTours?.at(0)?.id ?? "null", createTourLegRequest).subscribe({
+      next: (createdTourLeg) => {
+        console.debug("Created tour leg:", createdTourLeg);
+        this.importPlan.update(prev => {
+          if (prev) {
+            prev.foundTourLegs = [createdTourLeg];
+            console.debug("Updated tour legs:", prev.foundTourLegs);
+          }
+
+          console.debug("importPlan.update() will return:", prev);
+          return {
+            ...prev,
+            foundTourLegs: [createdTourLeg]
+          };
+        });
+        console.debug("Updated import plan:", this.importPlan());
+      },
+      error: (err) => {
+        console.error("Could not create tour leg:", err);
+      }
+    });
+  }
 }
