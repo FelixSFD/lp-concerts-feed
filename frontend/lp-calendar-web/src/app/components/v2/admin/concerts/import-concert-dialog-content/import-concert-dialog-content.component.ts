@@ -1,7 +1,7 @@
-import { Component, effect, inject, Input, signal } from '@angular/core';
+import { Component, effect, EventEmitter, inject, Input, Output, signal } from '@angular/core';
 import {
   AddTourLegRequestDto,
-  ConcertStatusValueDto, CreateTourRequestDto,
+  ConcertStatusValueDto, ConcertTypeDto, CreateTourRequestDto,
   ImportConcertPreviewDto,
   TourDto
 } from '../../../../../modules/lpshows-api/v3';
@@ -54,6 +54,9 @@ export class ImportConcertDialogContentComponent {
 
   @Input("import-plan")
   importPlan = signal<ImportConcertPreviewDto | null>(null);
+
+  @Output("applyClicked")
+  applyClickedEvent: EventEmitter<ApplyClickedEvent> = new EventEmitter<ApplyClickedEvent>();
 
   private importPlanChangedEffect = effect(() => {
     let plan = this.importPlan();
@@ -148,4 +151,27 @@ export class ImportConcertDialogContentComponent {
       }
     });
   }
+
+  protected onApplyClicked() {
+    let plan = this.importPlan();
+    if (!plan) {
+      console.error("No import plan available");
+      return;
+    }
+
+    let applyEvent: ApplyClickedEvent = {
+      concertType: plan.concertType ?? null,
+      tour: plan.foundTours?.at(0) ?? null,
+      tourLeg: plan.foundTourLegs?.at(0) ?? null,
+    };
+
+    console.debug("prepared ApplyClickedEvent:", applyEvent);
+    this.applyClickedEvent.emit(applyEvent);
+  }
+}
+
+export class ApplyClickedEvent {
+  concertType: ConcertTypeDto | null = null;
+  tour: TourDto | null = null;
+  tourLeg: TourDto | null = null;
 }

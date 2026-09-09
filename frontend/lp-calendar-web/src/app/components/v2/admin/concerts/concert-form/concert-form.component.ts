@@ -28,6 +28,7 @@ import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { ConcertsService } from '../../../../../services/concerts.service';
 import { Dialog } from 'primeng/dialog';
 import {
+  ApplyClickedEvent,
   ImportConcertDialogContentComponent
 } from '../import-concert-dialog-content/import-concert-dialog-content.component';
 
@@ -305,6 +306,25 @@ export class ConcertFormComponent implements OnInit {
     console.debug("Import plan: ", importPlan);
     this.isShowingImportDialog.set(true);
     this.importPlan.set(importPlan);
+  }
+
+  onApplyImportClicked(evt: ApplyClickedEvent) {
+    console.debug("Applying import: ", evt);
+    this.isShowingImportDialog.set(false);
+
+    let concertType = evt.concertType;
+    let importTour = evt.tour;
+    let importTourLeg = evt.tourLeg;
+
+    if (concertType != null) {
+      this.concertForm.controls.concertTypeId.setValue(concertType.id ?? null);
+    }
+    if (importTour != null) {
+      this.concertForm.controls.tour.setValue(importTour);
+    }
+    if (importTourLeg != null) {
+      this.concertForm.controls.tourLegId.setValue(importTourLeg.id);
+    }
   }
 
   protected readonly timezones = timezones;
