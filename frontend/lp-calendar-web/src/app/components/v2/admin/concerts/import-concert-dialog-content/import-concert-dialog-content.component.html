@@ -28,7 +28,7 @@
         @if (importPlan()?.foundTours?.length == 0) {
           <span class="text-orange-400"><i class="pi pi-rectangle-xmark"></i> Tour information</span>
         } @else if (importPlan()?.foundTours?.length == 1) {
-          <span class="text-color-success"><i class="pi pi-check-circle"></i> Tour information</span>
+          <span class="text-color-success"><i class="pi pi-check-circle"></i> Tour: {{ importPlan()?.foundTours?.at(0)?.name ?? "" }}</span>
         } @else {
           <span class="text-red-400"><i class="pi pi-exclamation-triangle"></i> Tour information</span>
         }
