@@ -70,51 +70,53 @@
     </p-accordion-panel>
 
     <!-- Check if tour leg was found -->
-    <p-accordion-panel value="tourLeg">
-      <p-accordion-header>
-        @if (importPlan()?.foundTourLegs?.length == 0) {
-          <span class="text-red-400"><i class="pi pi-rectangle-xmark"></i> Tour Leg information</span>
-        } @else if (importPlan()?.foundTourLegs?.length == 1) {
-          <span class="text-color-success"><i class="pi pi-check-circle"></i> Tour Leg information</span>
-        } @else {
-          <span class="text-orange-400"><i class="pi pi-exclamation-triangle"></i> Tour Leg information</span>
-        }
-      </p-accordion-header>
-      <p-accordion-content>
-        @if (importPlan()?.foundTourLegs?.length == 0) {
-          <p class="m-0 text-sm">
-            No matching tour leg found. Need to create one first or select existing.
-          </p>
-          <p class="mt-2 text-sm">
-            In case the concert was not part of a leg, you can ignore this warning.
-          </p>
-        } @else if (importPlan()?.foundTourLegs?.length == 1) {
-          <p class="m-0 text-sm">
-            Found tour leg: <span [pTooltip]="'ID: ' + importPlan()?.foundTourLegs?.at(0)?.id" class="font-bold">{{ importPlan()?.foundTourLegs?.at(0)?.name ?? "" }}</span>
-          </p>
-        } @else {
-          <p class="m-0 text-sm">
-            TODO: Found {{ importPlan()?.foundTourLegs?.length }} possible tour legs
-          </p>
-        }
+    @if (importPlan()?.tourLegName) {
+      <p-accordion-panel value="tourLeg">
+        <p-accordion-header>
+          @if (importPlan()?.foundTourLegs?.length == 0) {
+            <span class="text-red-400"><i class="pi pi-rectangle-xmark"></i> Tour Leg information</span>
+          } @else if (importPlan()?.foundTourLegs?.length == 1) {
+            <span class="text-color-success"><i class="pi pi-check-circle"></i> Tour Leg information</span>
+          } @else {
+            <span class="text-orange-400"><i class="pi pi-exclamation-triangle"></i> Tour Leg information</span>
+          }
+        </p-accordion-header>
+        <p-accordion-content>
+          @if (importPlan()?.foundTourLegs?.length == 0) {
+            <p class="m-0 text-sm">
+              No matching tour leg found. Need to create one first or select existing.
+            </p>
+            <p class="mt-2 text-sm">
+              In case the concert was not part of a leg, you can ignore this warning.
+            </p>
+          } @else if (importPlan()?.foundTourLegs?.length == 1) {
+            <p class="m-0 text-sm">
+              Found tour leg: <span [pTooltip]="'ID: ' + importPlan()?.foundTourLegs?.at(0)?.id" class="font-bold">{{ importPlan()?.foundTourLegs?.at(0)?.name ?? "" }}</span>
+            </p>
+          } @else {
+            <p class="m-0 text-sm">
+              TODO: Found {{ importPlan()?.foundTourLegs?.length }} possible tour legs
+            </p>
+          }
 
-        <!-- Depending on the found data, show a form to create a new tour leg -->
-        @if (importPlan()?.foundTourLegs?.length == 0) {
-          <form #form="ngForm" [formGroup]="createTourLegForm" class="form mt-3">
-            <div class="col-12">
-              <p-floatlabel variant="on">
-                <input pInputText id="legName" formControlName="legName" autocomplete="off" fluid [invalid]="createTourLegForm.controls.legName.invalid" />
-                <label for="legName">Leg Name</label>
-              </p-floatlabel>
-            </div>
+          <!-- Depending on the found data, show a form to create a new tour leg -->
+          @if (importPlan()?.foundTourLegs?.length == 0) {
+            <form #form="ngForm" [formGroup]="createTourLegForm" class="form mt-3">
+              <div class="col-12">
+                <p-floatlabel variant="on">
+                  <input pInputText id="legName" formControlName="legName" autocomplete="off" fluid [invalid]="createTourLegForm.controls.legName.invalid" />
+                  <label for="legName">Leg Name</label>
+                </p-floatlabel>
+              </div>
 
-            <div class="col-12 align-content-end">
-              <p-button label="Create Tour Leg" variant="outlined" [disabled]="createTourLegForm.invalid" (onClick)="onCreateTourLegClicked()" />
-            </div>
-          </form>
-        }
-      </p-accordion-content>
-    </p-accordion-panel>
+              <div class="col-12 align-content-end">
+                <p-button label="Create Tour Leg" variant="outlined" [disabled]="createTourLegForm.invalid" (onClick)="onCreateTourLegClicked()" />
+              </div>
+            </form>
+          }
+        </p-accordion-content>
+      </p-accordion-panel>
+    }
   </p-accordion>
 
   <p-divider />
