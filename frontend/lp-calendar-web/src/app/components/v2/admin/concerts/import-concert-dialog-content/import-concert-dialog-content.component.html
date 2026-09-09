@@ -43,12 +43,28 @@
           </p>
         } @else if (importPlan()?.foundTours?.length == 1) {
           <p class="m-0 text-sm">
-            TODO: Show matching tour
+            Found tour leg: <span [pTooltip]="'ID: ' + importPlan()?.foundTours?.at(0)?.id" class="font-bold">{{ importPlan()?.foundTours?.at(0)?.name ?? "" }}</span>
           </p>
         } @else {
           <p class="m-0 text-sm">
             TODO: Found {{ importPlan()?.foundTours?.length }} possible tours
           </p>
+        }
+
+        <!-- Depending on the found data, show a form to create a new tour leg -->
+        @if (importPlan()?.foundTours?.length == 0) {
+          <form #form="ngForm" [formGroup]="createTourForm" class="form mt-3">
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <input pInputText id="tourName" formControlName="tourName" autocomplete="off" fluid [invalid]="createTourForm.controls.tourName.invalid" />
+                <label for="tourName">Tour Name</label>
+              </p-floatlabel>
+            </div>
+
+            <div class="col-12 align-content-end">
+              <p-button label="Create Tour" variant="outlined" [disabled]="createTourForm.invalid" (onClick)="onCreateTourClicked()" />
+            </div>
+          </form>
         }
       </p-accordion-content>
     </p-accordion-panel>

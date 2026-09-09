@@ -1,7 +1,7 @@
 import { Component, effect, inject, Input, signal } from '@angular/core';
 import {
   AddTourLegRequestDto,
-  ConcertStatusValueDto,
+  ConcertStatusValueDto, CreateTourRequestDto,
   ImportConcertPreviewDto,
   TourDto
 } from '../../../../../modules/lpshows-api/v3';
@@ -60,13 +60,56 @@ export class ImportConcertDialogContentComponent {
     console.debug("Import plan changed:", plan);
     if (plan) {
       //this.importPlanForm.controls.concertTypeId.setValue(plan.concertType?.id ?? null);
+      this.createTourForm.controls.tourName.setValue(plan.tourName ?? null);
       this.createTourLegForm.controls.legName.setValue(plan.tourLegName ?? null);
     }
+  });
+
+  createTourForm = this.formBuilder.group({
+    tourName: new FormControl<string | null>(null, [Validators.required]),
   });
 
   createTourLegForm = this.formBuilder.group({
     legName: new FormControl<string | null>(null, [Validators.required]),
   });
+
+
+  onCreateTourClicked() {
+    console.debug("Create tour clicked");
+
+    let tourName = this.createTourForm.controls.tourName.value;
+    if (!tourName) {
+      console.error("Tour name is required");
+      this.messageService.add({severity: "error", summary: "Tour name is required", detail: "Please enter a tour name"});
+      return;
+    }
+
+    let createTourRequest: CreateTourRequestDto = {
+      id: tourName.toLowerCase().replaceAll(" ", "-"),
+      name: tourName
+    };
+    this.toursService.createTour(createTourRequest).subscribe({
+      next: (createdTour) => {
+        console.debug("Created tour:", createdTour);
+        this.importPlan.update(prev => {
+          if (prev) {
+            prev.foundTours = [createdTour];
+            console.debug("Updated tours:", prev.foundTours);
+          }
+
+          console.debug("importPlan.update() will return:", prev);
+          return {
+            ...prev,
+            foundTours: [createdTour]
+          };
+        });
+        console.debug("Updated import plan:", this.importPlan());
+      },
+      error: (err) => {
+        console.error("Could not create tour:", err);
+      }
+    });
+  }
 
 
   onCreateTourLegClicked() {
