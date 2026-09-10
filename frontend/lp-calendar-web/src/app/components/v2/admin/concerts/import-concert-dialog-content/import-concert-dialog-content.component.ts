@@ -23,6 +23,8 @@ import { ToursService } from '../../../../../services/tours.service';
 import { Tooltip } from 'primeng/tooltip';
 import { DatePipe } from '@angular/common';
 import { DateTime } from 'luxon';
+import { InputGroup } from 'primeng/inputgroup';
+import { InputGroupAddon } from 'primeng/inputgroupaddon';
 
 @Component({
   imports: [
@@ -43,7 +45,9 @@ import { DateTime } from 'luxon';
     InputText,
     Toast,
     Tooltip,
-    DatePipe
+    DatePipe,
+    InputGroup,
+    InputGroupAddon
   ],
   selector: 'app-import-concert-dialog-content',
   styleUrl: './import-concert-dialog-content.component.css',
@@ -72,10 +76,12 @@ export class ImportConcertDialogContentComponent {
   });
 
   createTourForm = this.formBuilder.group({
+    tourId: new FormControl<string | null>(null, [Validators.required]),
     tourName: new FormControl<string | null>(null, [Validators.required]),
   });
 
   createTourLegForm = this.formBuilder.group({
+    legId: new FormControl<string | null>(null, [Validators.required]),
     legName: new FormControl<string | null>(null, [Validators.required]),
   });
 
@@ -91,7 +97,7 @@ export class ImportConcertDialogContentComponent {
     }
 
     let createTourRequest: CreateTourRequestDto = {
-      id: tourName.toLowerCase().replaceAll(" ", "-"),
+      id: this.createTourForm.controls.tourId.value ?? tourName.toLowerCase().replaceAll(" ", "-"),
       name: tourName
     };
     this.toursService.createTour(createTourRequest).subscribe({
@@ -129,7 +135,7 @@ export class ImportConcertDialogContentComponent {
     }
 
     let createTourLegRequest: AddTourLegRequestDto = {
-      id: tourLegName.toLowerCase().replaceAll(" ", "-"),
+      id: this.createTourLegForm.controls.legId.value ?? tourLegName.toLowerCase().replaceAll(" ", "-"),
       name: tourLegName
     };
     this.toursService.createTourLeg(this.importPlan()?.foundTours?.at(0)?.id ?? "null", createTourLegRequest).subscribe({
@@ -153,6 +159,16 @@ export class ImportConcertDialogContentComponent {
         console.error("Could not create tour leg:", err);
       }
     });
+  }
+
+
+  protected generateId(nameControl: FormControl<string | null>, idControl: FormControl<string | null>) {
+    let name = nameControl.getRawValue();
+    let id = name?.toLowerCase().replaceAll(" ", "-") ?? null;
+    if (id) {
+      console.debug("Generated id:", id);
+      idControl.setValue(id);
+    }
   }
 
   protected onApplyClicked() {

@@ -77,6 +77,18 @@
         @if (importPlan()?.foundTours?.length == 0) {
           <form #form="ngForm" [formGroup]="createTourForm" class="form mt-3">
             <div class="col-12">
+              <p-inputgroup>
+                <p-floatlabel variant="on">
+                  <input pInputText id="tourId" fluid formControlName="tourId" [invalid]="createTourForm.controls.tourId.invalid" />
+                  <label for="tourId">Tour ID</label>
+                </p-floatlabel>
+                <p-inputgroup-addon>
+                  <p-button icon="pi pi-external-link" label="Open" severity="info" variant="outlined" (onClick)="generateId(createTourForm.controls.tourName, createTourForm.controls.tourId)" />
+                </p-inputgroup-addon>
+              </p-inputgroup>
+            </div>
+
+            <div class="col-12">
               <p-floatlabel variant="on">
                 <input pInputText id="tourName" formControlName="tourName" autocomplete="off" fluid [invalid]="createTourForm.controls.tourName.invalid" />
                 <label for="tourName">Tour Name</label>
@@ -124,6 +136,18 @@
           <!-- Depending on the found data, show a form to create a new tour leg -->
           @if (importPlan()?.foundTourLegs?.length == 0) {
             <form #form="ngForm" [formGroup]="createTourLegForm" class="form mt-3">
+              <div class="col-12">
+                <p-inputgroup>
+                  <p-floatlabel variant="on">
+                    <input pInputText id="legId" fluid formControlName="legId" [invalid]="createTourLegForm.controls.legId.invalid" />
+                    <label for="legId">Leg ID</label>
+                  </p-floatlabel>
+                  <p-inputgroup-addon>
+                    <p-button icon="pi pi-refresh" variant="outlined" (onClick)="generateId(createTourLegForm.controls.legName, createTourLegForm.controls.legId)" />
+                  </p-inputgroup-addon>
+                </p-inputgroup>
+              </div>
+
               <div class="col-12">
                 <p-floatlabel variant="on">
                   <input pInputText id="legName" formControlName="legName" autocomplete="off" fluid [invalid]="createTourLegForm.controls.legName.invalid" />
