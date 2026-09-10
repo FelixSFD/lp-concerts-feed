@@ -163,6 +163,64 @@
         </p-accordion-content>
       </p-accordion-panel>
     }
+
+    <!-- Check if venue was found -->
+    @if (importPlan()?.venueName) {
+      <p-accordion-panel value="venue">
+        <p-accordion-header>
+          @if (importPlan()?.foundVenues?.length == 0) {
+            <span class="text-red-400"><i class="pi pi-rectangle-xmark"></i> Venue information</span>
+          } @else if (importPlan()?.foundVenues?.length == 1) {
+            <span class="text-color-success"><i class="pi pi-check-circle"></i> Venue information</span>
+          } @else {
+            <span class="text-orange-400"><i class="pi pi-exclamation-triangle"></i> Venue information</span>
+          }
+        </p-accordion-header>
+        <p-accordion-content>
+          @if (importPlan()?.foundVenues?.length == 0) {
+            <p class="m-0 text-sm">
+              No matching venue found. Need to create one first or select existing.
+            </p>
+          } @else if (importPlan()?.foundVenues?.length == 1) {
+            <p class="m-0 text-sm">
+              Found venue: <span [pTooltip]="'ID: ' + importPlan()?.foundVenues?.at(0)?.id" class="font-bold">{{ importPlan()?.foundVenues?.at(0)?.currentName ?? "" }}, {{ importPlan()?.foundVenues?.at(0)?.countryCode ?? "" }}</span>
+            </p>
+          } @else {
+            <p class="m-0 text-sm">
+              TODO: Found {{ importPlan()?.foundVenues?.length }} possible venues
+            </p>
+          }
+
+          <!-- Depending on the found data, show a form to create a new tour leg -->
+          <!--@if (importPlan()?.foundVenues?.length == 0) {
+            <form #form="ngForm" [formGroup]="createTourLegForm" class="form mt-3">
+              <div class="col-12">
+                <p-inputgroup>
+                  <p-floatlabel variant="on">
+                    <input pInputText id="legId" fluid formControlName="legId" [invalid]="createTourLegForm.controls.legId.invalid" />
+                    <label for="legId">Leg ID</label>
+                  </p-floatlabel>
+                  <p-inputgroup-addon>
+                    <p-button icon="pi pi-refresh" variant="outlined" (onClick)="generateId(createTourLegForm.controls.legName, createTourLegForm.controls.legId)" />
+                  </p-inputgroup-addon>
+                </p-inputgroup>
+              </div>
+
+              <div class="col-12">
+                <p-floatlabel variant="on">
+                  <input pInputText id="legName" formControlName="legName" autocomplete="off" fluid [invalid]="createTourLegForm.controls.legName.invalid" />
+                  <label for="legName">Leg Name</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="col-12 align-content-end">
+                <p-button label="Create Tour Leg" variant="outlined" [disabled]="createTourLegForm.invalid" (onClick)="onCreateTourLegClicked()" />
+              </div>
+            </form>
+          }-->
+        </p-accordion-content>
+      </p-accordion-panel>
+    }
   </p-accordion>
 
   <p-divider />

@@ -1,23 +1,17 @@
 import { Component, effect, EventEmitter, inject, Input, Output, signal } from '@angular/core';
 import {
   AddTourLegRequestDto,
-  ConcertStatusValueDto, ConcertTypeDto, CreateTourRequestDto,
+  ConcertTypeDto, CreateTourRequestDto,
   ImportConcertPreviewDto,
-  TourDto
+  TourDto, VenueDto
 } from '../../../../../modules/lpshows-api/v3';
-import { SelectConcertTypeComponent } from '../select-concert-type/select-concert-type.component';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FloatLabel } from 'primeng/floatlabel';
 import { Button } from 'primeng/button';
 import { Divider } from 'primeng/divider';
-import { SelectTourComponent } from '../select-tour/select-tour.component';
-import { SelectTourLegComponent } from '../select-tour-leg/select-tour-leg.component';
-import { Message } from 'primeng/message';
 import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from 'primeng/accordion';
-import { Card } from 'primeng/card';
 import { InputText } from 'primeng/inputtext';
 import { MessageService } from 'primeng/api';
-import { Toast } from 'primeng/toast';
 import { LocationsService } from '../../../../../services/locations.service';
 import { ToursService } from '../../../../../services/tours.service';
 import { Tooltip } from 'primeng/tooltip';
@@ -28,22 +22,16 @@ import { InputGroupAddon } from 'primeng/inputgroupaddon';
 
 @Component({
   imports: [
-    SelectConcertTypeComponent,
     FormsModule,
     ReactiveFormsModule,
     FloatLabel,
     Button,
     Divider,
-    SelectTourComponent,
-    SelectTourLegComponent,
-    Message,
     Accordion,
     AccordionPanel,
     AccordionHeader,
     AccordionContent,
-    Card,
     InputText,
-    Toast,
     Tooltip,
     DatePipe,
     InputGroup,
@@ -183,6 +171,7 @@ export class ImportConcertDialogContentComponent {
       tour: plan.foundTours?.at(0) ?? null,
       tourLeg: plan.foundTourLegs?.at(0) ?? null,
       postedStartTime: DateTime.fromISO(plan.postedStartTime ?? "").toJSDate() ?? null,
+      venue: plan.foundVenues?.at(0) ?? null,
     };
 
     console.debug("prepared ApplyClickedEvent:", applyEvent);
@@ -197,4 +186,5 @@ export class ApplyClickedEvent {
   tour: TourDto | null = null;
   tourLeg: TourDto | null = null;
   postedStartTime: Date | null = null;
+  venue: VenueDto | null = null;
 }

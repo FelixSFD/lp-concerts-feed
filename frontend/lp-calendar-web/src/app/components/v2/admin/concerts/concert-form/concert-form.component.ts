@@ -316,6 +316,7 @@ export class ConcertFormComponent implements OnInit {
     let concertType = evt.concertType;
     let importTour = evt.tour;
     let importTourLeg = evt.tourLeg;
+    let importVenue = evt.venue;
 
     if (startTime != null) {
       this.concertForm.controls.postedStartTime.setValue(startTime);
@@ -328,6 +329,9 @@ export class ConcertFormComponent implements OnInit {
     }
     if (importTourLeg != null) {
       this.concertForm.controls.tourLegId.setValue(importTourLeg.id);
+    }
+    if (importVenue != null) {
+      this.concertForm.controls.venue.setValue(importVenue);
     }
   }
 
