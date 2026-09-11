@@ -96,7 +96,7 @@ export class ConcertFormComponent implements OnInit {
     doorsTime: new FormControl('', []),
     lpStageTime: new FormControl('', []),
     expectedSetDuration: new FormControl('', []),
-    linkinpediaUrl: new FormControl<string | null>("Live:20250131", []),
+    linkinpediaUrl: new FormControl<string | null>(null, []),
   });
 
   protected concertStatusValues: ConcertStatus[] = ConcertStatus.allValues;
@@ -302,7 +302,8 @@ export class ConcertFormComponent implements OnInit {
       return;
     }
 
-    let importPlan = await this.concertsService.getImportConcertPlanForConcert(url!);
+    let wikiPageId = url.split("/").pop();
+    let importPlan = await this.concertsService.getImportConcertPlanForConcert(wikiPageId!);
     console.debug("Import plan: ", importPlan);
     this.isShowingImportDialog.set(true);
     this.importPlan.set(importPlan);

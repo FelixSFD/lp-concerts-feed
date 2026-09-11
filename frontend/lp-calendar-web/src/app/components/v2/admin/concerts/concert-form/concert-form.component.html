@@ -20,7 +20,7 @@
                 <label for="linkinpediaUrl">Linkinpedia URL</label>
               </p-floatlabel>
               <p-inputgroup-addon>
-                <p-button icon="pi pi-external-link" label="Open" severity="info" variant="outlined" [disabled]="concertForm.controls.linkinpediaUrl.invalid" (onClick)="openLinkinpediaUrlClicked()" />
+                <p-button icon="pi pi-external-link" label="Open" severity="info" variant="outlined" [disabled]="concertForm.controls.linkinpediaUrl.invalid || concertForm.value.linkinpediaUrl == null" (onClick)="openLinkinpediaUrlClicked()" />
               </p-inputgroup-addon>
             </p-inputgroup>
 
