@@ -83,4 +83,9 @@ public class ConcertDetailsBo
     /// Status of this concert
     /// </summary>
     public ConcertDto.ConcertStatusValue Status { get; set; }
+    
+    /// <summary>
+    /// URL to the concert page on Linkinpedia.
+    /// </summary>
+    public string? LinkinpediaUrl { get; set; }
 }

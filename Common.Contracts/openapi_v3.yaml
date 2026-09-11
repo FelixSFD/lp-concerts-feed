@@ -1857,6 +1857,9 @@ components:
           format: date-time
         status:
           $ref: "#/components/schemas/ConcertStatusValue"
+        linkinpediaUrl:
+          type: string
+          description: URL to the concert page on Linkinpedia
     ConcertStatusValue:
       type: string
       enum: 
@@ -1905,7 +1908,7 @@ components:
       properties:
         concertTypeId:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
+          type: integer
           format: uint32
         tourId:
           type: string
@@ -1915,7 +1918,7 @@ components:
           type: string
         venueId:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
+          type: integer
           format: uint32
         postedStartTime:
           type: string
@@ -1933,12 +1936,15 @@ components:
           type: boolean
         expectedSetDurationMinutes:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
+          type: integer
           format: uint32
         scheduleImageFile:
           type: string
         status:
           $ref: "#/components/schemas/ConcertStatusValue"
+        linkinpediaUrl:
+          type: string
+          description: URL to the concert page on Linkinpedia
     CreateConcertTypeRequest:
       required:
         - name
@@ -2025,9 +2031,10 @@ components:
       type: object
       properties:
         venueId:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         id:
           pattern: ^-?(?:0|[1-9]\d*)$
           type: string
@@ -2058,9 +2065,10 @@ components:
         customTitle:
           type: string
         venueId:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         postedStartTime:
           type: string
           format: date-time
@@ -2087,6 +2095,9 @@ components:
           nullable: true
         status:
           $ref: "#/components/schemas/ConcertStatusValue"
+        linkinpediaUrl:
+          type: string
+          description: URL to the concert page on Linkinpedia
     State:
       required:
         - countryCode
@@ -2166,9 +2177,10 @@ components:
       type: object
       properties:
         concertTypeId:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         tourId:
           type: string
           nullable: true
@@ -2179,9 +2191,10 @@ components:
           type: string
           nullable: true
         venueId:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         postedStartTime:
           type: string
           format: date-time
@@ -2200,9 +2213,10 @@ components:
         lpuEarlyEntryConfirmed:
           type: boolean
         expectedSetDurationMinutes:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         scheduleImageFile:
           type: string
           nullable: true
@@ -2212,6 +2226,9 @@ components:
           format: date-time
         status:
           $ref: "#/components/schemas/ConcertStatusValue"
+        linkinpediaUrl:
+          type: string
+          description: URL to the concert page on Linkinpedia
     UpdateConcertTypeRequest:
       required:
         - name
@@ -2291,9 +2308,10 @@ components:
       type: object
       properties:
         id:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         countryCode:
           maxLength: 3
           minLength: 3
@@ -2329,9 +2347,10 @@ components:
         city:
           $ref: "#/components/schemas/CityWithCountry"
         id:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         countryCode:
           maxLength: 3
           minLength: 3
@@ -2373,9 +2392,10 @@ components:
         city:
           $ref: "#/components/schemas/CityWithCountry"
         id:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         countryCode:
           maxLength: 3
           minLength: 3

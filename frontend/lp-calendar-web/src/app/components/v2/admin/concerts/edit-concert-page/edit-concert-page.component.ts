@@ -74,6 +74,7 @@ export class EditConcertPageComponent implements OnInit {
       doorsTime: formContent.doorsTime?.toISO() ?? undefined,
       mainStageTime: formContent.mainStageTime?.toISO() ?? undefined,
       expectedSetDurationMinutes: String(formContent.expectedSetDuration) ?? undefined,
+      linkinpediaUrl: formContent.linkinpediaUrl ?? undefined,
     };
 
     this.concertsApi.updateConcert(this.currentConcertId, request).subscribe({

@@ -3,7 +3,7 @@ namespace LPCalendar.DataStructure.Tours;
 /// <summary>
 /// Request to create a new concert
 /// </summary>
-public class UpdateConcertRequestDto
+public class CreateConcertRequestBo
 {
     /// <summary>
     /// ID of the <see cref="ConcertTypeBo"/>
@@ -65,14 +65,14 @@ public class UpdateConcertRequestDto
     /// Name of the file in the S3 bucket that contains the official schedule for this concert
     /// </summary>
     public string? ScheduleImageFile { get; set; }
-    
-    /// <summary>
-    /// Time when this concert was deleted
-    /// </summary>
-    public DateTimeOffset? DeletedAt { get; set; }
 
     /// <summary>
     /// Status of this concert
     /// </summary>
     public ConcertDto.ConcertStatusValue Status { get; set; }
+
+    /// <summary>
+    /// URL to the concert page on Linkinpedia.
+    /// </summary>
+    public string? LinkinpediaUrl { get; set; }
 }

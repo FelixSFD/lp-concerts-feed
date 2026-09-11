@@ -1,19 +1,12 @@
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Common.Contracts.Generated.Models;
 using Common.Utils.Cache;
 using LPCalendar.DataStructure.Tours;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
-using Microsoft.Extensions.Logging;
 using Server.Api.Auth;
 using Server.Api.Cache;
 using Service.Tours;
-using CreateConcertRequestDto = LPCalendar.DataStructure.Tours.CreateConcertRequestDto;
 using RawConcertDto = LPCalendar.DataStructure.Tours.RawConcertDto;
-using UpdateConcertRequestDto = LPCalendar.DataStructure.Tours.UpdateConcertRequestDto;
 
 namespace Server.Api.Controllers;
 
@@ -33,12 +26,12 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     /// <returns>the created concert</returns>
     [HttpPost]
     [AuthorizeRoles]
+    [ClearCache(Tags = [CacheTags.ConcertsAll])]
     public async Task<CreatedAtActionResult> CreateConcert([FromBody] CreateConcertRequestDto request)
     {
         logger.LogDebug("Requested to create a new concert...");
-        var concert = await concertService.CreateConcertAsync(request);
+        var concert = await concertService.CreateConcertAsync(request.ToBo());
         logger.LogDebug("Created concert with id: {id}", concert.Id);
-        await EvictConcertCacheAsync();
         return CreatedAtAction(nameof(GetRawConcertById), new { concertId = concert.Id }, concert);
     }
     
@@ -50,12 +43,12 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     /// <returns>no content</returns>
     [HttpPut("{concertId}")]
     [AuthorizeRoles]
+    [ClearCache(Tags = [CacheTags.ConcertsAll])]
     public async Task<NoContentResult> UpdateConcert([FromBody] UpdateConcertRequestDto request, [FromRoute] string concertId)
     {
         logger.LogDebug("Requested to update the concert with id: {concertId}", concertId);
-        var concert = await concertService.UpdateConcertAsync(concertId, request);
+        var concert = await concertService.UpdateConcertAsync(concertId, request.ToBo());
         logger.LogDebug("Updated concert with id: {id}", concert.Id);
-        await EvictConcertCacheAsync();
         return NoContent();
     }
 

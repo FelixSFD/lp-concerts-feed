@@ -206,6 +206,7 @@ export class ConcertFormComponent implements OnInit {
       mainStageTime: lpStageDateTime,
       doorsTime: doorsDateTime,
       expectedSetDuration: expectedSetDuration,
+      linkinpediaUrl: this.concertForm.value.linkinpediaUrl?.valueOf() ?? null,
     };
   }
 
@@ -248,6 +249,8 @@ export class ConcertFormComponent implements OnInit {
     this.concertForm.controls.lpStageTime.setValue(lpStageDateTimeIsoStr?.substring(0, 5) ?? null);
     this.concertForm.controls.doorsTime.setValue(doorsDateTimeIsoStr?.substring(0, 5) ?? null);
     this.concertForm.controls.expectedSetDuration.setValue(setDurationStr ?? null);
+
+    this.concertForm.controls.linkinpediaUrl.setValue(concert.linkinpediaUrl ?? null);
 
     this.venueTimezone.set(timezones.find(t => t.tzCode == concert.venue?.timeZoneId) ?? null);
   }
@@ -346,10 +349,11 @@ export class ConcertFormContent {
   concertTypeId?: number | null;
   tourId?: string | null;
   tourLegId?: string | null;
-  venueId?: string | null;
+  venueId?: number | null;
   timezone!: string;
   postedStartTime!: DateTime;
   doorsTime?: DateTime | null;
   mainStageTime?: DateTime | null;
   expectedSetDuration?: number | null;
+  linkinpediaUrl?: string | null;
 }

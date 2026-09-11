@@ -184,7 +184,7 @@ public class ConcertServiceTest
             });
         
         // call the service
-        var request = new CreateConcertRequestDto
+        var request = new CreateConcertRequestBo
         {
             TourId = mockTour.Id,
             TourLegId = mockTourLegEu.Id,

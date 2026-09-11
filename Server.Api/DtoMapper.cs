@@ -194,7 +194,7 @@ internal static class DtoMapper
     {
         return new VenueDto
         {
-            Id = bo.Id.ToString(),
+            Id = bo.Id,
             CountryCode = bo.CountryCode,
             StateCode = bo.StateCode,
             CityId = bo.CityId,
@@ -214,7 +214,7 @@ internal static class DtoMapper
     {
         return new VenueWithCityDto
         {
-            Id = bo.Id.ToString(),
+            Id = bo.Id,
             CountryCode = bo.CountryCode,
             StateCode = bo.StateCode,
             CityId = bo.CityId,
@@ -235,7 +235,7 @@ internal static class DtoMapper
     {
         return new VenueWithDetailsDto
         {
-            Id = bo.Id.ToString(),
+            Id = bo.Id,
             CountryCode = bo.CountryCode,
             StateCode = bo.StateCode,
             CityId = bo.CityId,
@@ -285,7 +285,7 @@ internal static class DtoMapper
         return new PreviousVenueNameDto
         {
             Id = bo.Id.ToString(),
-            VenueId = bo.VenueId.ToString(),
+            VenueId = bo.VenueId,
             Name = bo.Name,
             UsedFrom = bo.UsedFrom,
             UsedUntil = bo.UsedUntil,
@@ -295,6 +295,48 @@ internal static class DtoMapper
     #endregion
 
     #region Concerts
+    
+    public static CreateConcertRequestBo ToBo(this CreateConcertRequestDto dto)
+    {
+        return new CreateConcertRequestBo
+        {
+            CustomTitle = dto.CustomTitle,
+            PostedStartTime = dto.PostedStartTime ?? throw new ArgumentNullException(nameof(dto.PostedStartTime)),
+            MainStageTime = dto.MainStageTime?.DateTime,
+            DoorsTime = dto.DoorsTime?.DateTime,
+            LpuEarlyEntryTime = dto.LpuEarlyEntryTime?.DateTime,
+            LpuEarlyEntryConfirmed = dto.LpuEarlyEntryConfirmed ?? false,
+            ExpectedSetDurationMinutes = (uint)(dto.ExpectedSetDurationMinutes ?? 0),
+            ScheduleImageFile = dto.ScheduleImageFile,
+            Status = dto.Status.ToBo(),
+            ConcertTypeId = (uint)(dto.ConcertTypeId ?? 0),
+            VenueId = (uint)(dto.VenueId ?? 0),
+            TourId = dto.TourId,
+            TourLegId = dto.TourLegId,
+            LinkinpediaUrl = dto.LinkinpediaUrl,
+        };
+    }
+    
+    public static UpdateConcertRequestBo ToBo(this UpdateConcertRequestDto dto)
+    {
+        return new UpdateConcertRequestBo
+        {
+            CustomTitle = dto.CustomTitle,
+            PostedStartTime = dto.PostedStartTime ?? throw new ArgumentNullException(nameof(dto.PostedStartTime)),
+            MainStageTime = dto.MainStageTime?.DateTime,
+            DoorsTime = dto.DoorsTime?.DateTime,
+            LpuEarlyEntryTime = dto.LpuEarlyEntryTime?.DateTime,
+            LpuEarlyEntryConfirmed = dto.LpuEarlyEntryConfirmed ?? false,
+            ExpectedSetDurationMinutes = (uint)(dto.ExpectedSetDurationMinutes ?? 0),
+            ScheduleImageFile = dto.ScheduleImageFile,
+            Status = dto.Status.ToBo(),
+            ConcertTypeId = (uint)(dto.ConcertTypeId ?? 0),
+            VenueId = (uint)(dto.VenueId ?? 0),
+            TourId = dto.TourId,
+            TourLegId = dto.TourLegId,
+            LinkinpediaUrl = dto.LinkinpediaUrl,
+        };
+    }
 
     public static ConcertDetailsDto ToDto(this ConcertDetailsBo bo)
     {
@@ -315,6 +357,7 @@ internal static class DtoMapper
             ScheduleImageFile = bo.ScheduleImageFile,
             DeletedAt = bo.DeletedAt,
             Status = bo.Status.ToDto(),
+            LinkinpediaUrl = bo.LinkinpediaUrl,
         };
     }
     
@@ -327,6 +370,18 @@ internal static class DtoMapper
             ConcertDto.ConcertStatusValue.Past => ConcertStatusValueDto.Past,
             ConcertDto.ConcertStatusValue.Cancelled => ConcertStatusValueDto.Cancelled,
             _ => ConcertStatusValueDto.Past
+        };
+    }
+    
+    public static ConcertDto.ConcertStatusValue ToBo(this ConcertStatusValueDto data)
+    {
+        return data switch
+        {
+            ConcertStatusValueDto.Planned => ConcertDto.ConcertStatusValue.Planned,
+            ConcertStatusValueDto.Running => ConcertDto.ConcertStatusValue.Running,
+            ConcertStatusValueDto.Past => ConcertDto.ConcertStatusValue.Past,
+            ConcertStatusValueDto.Cancelled => ConcertDto.ConcertStatusValue.Cancelled,
+            _ => ConcertDto.ConcertStatusValue.Past
         };
     }
 
