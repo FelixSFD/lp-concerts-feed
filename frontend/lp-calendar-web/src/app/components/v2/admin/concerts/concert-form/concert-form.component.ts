@@ -95,7 +95,7 @@ export class ConcertFormComponent implements OnInit {
     lpuEarlyEntryTime: new FormControl('', []),
     doorsTime: new FormControl('', []),
     lpStageTime: new FormControl('', []),
-    expectedSetDuration: new FormControl('', []),
+    expectedSetDuration: new FormControl<string | null>(null, []),
     linkinpediaUrl: new FormControl<string | null>(null, []),
   });
 
@@ -284,7 +284,8 @@ export class ConcertFormComponent implements OnInit {
 
   private convertH2M(timeInHour: string){
     let timeParts = timeInHour.split(":");
-    return Number(timeParts[0]) * 60 + Number(timeParts[1]);
+    let minutes = Number(timeParts[0]) * 60 + Number(timeParts[1]);
+    return isNaN(minutes) ? null : minutes;
   }
 
   openLinkinpediaUrlClicked() {
