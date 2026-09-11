@@ -1,7 +1,7 @@
-import { Component, effect, EventEmitter, inject, Input, Output, signal } from '@angular/core';
+import { Component, effect, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import {
   AddTourLegRequestDto,
-  ConcertTypeDto, CreateTourRequestDto,
+  ConcertTypeDto, CreateCountryRequestDto, CreateTourRequestDto,
   ImportConcertPreviewDto,
   TourDto, VenueDto
 } from '../../../../../modules/lpshows-api/v3';
@@ -19,6 +19,7 @@ import { DatePipe } from '@angular/common';
 import { DateTime } from 'luxon';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import { InputMaskDirective } from 'primeng/inputmask';
 
 @Component({
   imports: [
@@ -35,13 +36,14 @@ import { InputGroupAddon } from 'primeng/inputgroupaddon';
     Tooltip,
     DatePipe,
     InputGroup,
-    InputGroupAddon
+    InputGroupAddon,
+    InputMaskDirective
   ],
   selector: 'app-import-concert-dialog-content',
   styleUrl: './import-concert-dialog-content.component.css',
   templateUrl: './import-concert-dialog-content.component.html',
 })
-export class ImportConcertDialogContentComponent {
+export class ImportConcertDialogContentComponent implements OnInit {
   private messageService = inject(MessageService);
   private formBuilder = inject(FormBuilder);
   private toursService = inject(ToursService);
@@ -72,6 +74,23 @@ export class ImportConcertDialogContentComponent {
     legId: new FormControl<string | null>(null, [Validators.required]),
     legName: new FormControl<string | null>(null, [Validators.required]),
   });
+
+  createCountryForm = this.formBuilder.group({
+    isoCode: new FormControl<string | null>(null, [Validators.required, Validators.pattern('^[A-Z]{3}$')]),
+    name: new FormControl<string | null>(null, [Validators.required]),
+    nativeName: new FormControl<string | null>(null, [Validators.required]),
+  });
+
+
+  ngOnInit() {
+    // make sure to always convert the ISO code to uppercase
+    this.createCountryForm.controls.isoCode.valueChanges.subscribe(value => {
+      if (value?.match(/.*[a-z].*/)) {
+        console.debug("Converting ISO code to uppercase:", value);
+        this.createCountryForm.controls.isoCode.setValue(value.toUpperCase(), {emitEvent: false});
+      }
+    });
+  }
 
 
   onCreateTourClicked() {
@@ -145,6 +164,59 @@ export class ImportConcertDialogContentComponent {
       },
       error: (err) => {
         console.error("Could not create tour leg:", err);
+      }
+    });
+  }
+
+  onCreateCountryClicked() {
+    console.debug("Create country clicked");
+
+    let isoCode = this.createCountryForm.controls.isoCode.value;
+    let name = this.createCountryForm.controls.name.value;
+    let nativeName = this.createCountryForm.controls.nativeName.value;
+
+    if (!isoCode || isoCode.length != 3) {
+      console.error("ISO-code is required");
+      this.messageService.add({severity: "error", summary: "ISO-code is required", detail: "Please enter a valid ISO-code"});
+      return;
+    }
+
+    if (!name) {
+      console.error("Name is required");
+      this.messageService.add({severity: "error", summary: "Name is required", detail: "Please enter a valid name"});
+      return;
+    }
+
+    if (!nativeName) {
+      console.error("Native name is required");
+      this.messageService.add({severity: "error", summary: "Native name is required", detail: "Please enter a valid name"});
+      return;
+    }
+
+    let createCountryRequest: CreateCountryRequestDto = {
+      isoCode: isoCode,
+      name: name,
+      nativeName: nativeName,
+    };
+    this.locationsService.createCountry(createCountryRequest).subscribe({
+      next: (createdCountry) => {
+        console.debug("Created country:", createdCountry);
+        this.importPlan.update(prev => {
+          if (prev) {
+            prev.foundCountries = [createdCountry];
+            console.debug("Updated countries:", prev.foundCountries);
+          }
+
+          console.debug("importPlan.update() will return:", prev);
+          return {
+            ...prev,
+            foundCountries: [createdCountry]
+          };
+        });
+        console.debug("Updated import plan:", this.importPlan());
+      },
+      error: (err) => {
+        console.error("Could not create country:", err);
       }
     });
   }

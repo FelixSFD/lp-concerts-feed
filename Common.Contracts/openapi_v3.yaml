@@ -483,8 +483,18 @@ paths:
               $ref: "#/components/schemas/CreateCountryRequest"
         required: true
       responses:
-        "200":
-          description: ""
+        "201":
+          description: "Successfully created the country"
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/Country"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Country"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/Country"
         "401":
           description: "Unauthorized: Credentials are missing or not valid"
         "403":

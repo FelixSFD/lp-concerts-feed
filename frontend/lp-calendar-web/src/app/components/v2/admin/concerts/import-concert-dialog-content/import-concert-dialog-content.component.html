@@ -164,9 +164,69 @@
       </p-accordion-panel>
     }
 
+    <!-- Check if country was found -->
+    @if (importPlan()?.countryName) {
+      <p-accordion-panel value="country">
+        <p-accordion-header>
+          @if (importPlan()?.foundCountries?.length == 0) {
+            <span class="text-red-400"><i class="pi pi-rectangle-xmark"></i> Country information</span>
+          } @else if (importPlan()?.foundCountries?.length == 1) {
+            <span class="text-color-success"><i class="pi pi-check-circle"></i> Country: {{ importPlan()?.foundCountries?.at(0)?.name }}</span>
+          } @else {
+            <span class="text-orange-400"><i class="pi pi-exclamation-triangle"></i> Country information</span>
+          }
+        </p-accordion-header>
+        <p-accordion-content>
+          @if (importPlan()?.foundCountries?.length == 0) {
+            <p class="m-0 text-sm">
+              No matching country found. Need to create one first or select existing.
+            </p>
+          } @else if (importPlan()?.foundCountries?.length == 1) {
+            <p class="m-0 text-sm">
+              Found country: <span [pTooltip]="'Country Code: ' + importPlan()?.foundCountries?.at(0)?.isoCode" class="font-bold">{{ importPlan()?.foundCountries?.at(0)?.name ?? "" }} ({{ importPlan()?.foundCountries?.at(0)?.nativeName ?? "" }})</span>
+            </p>
+          } @else {
+            <p class="m-0 text-sm">
+              TODO: Found {{ importPlan()?.foundCountries?.length }} possible countries
+            </p>
+          }
+
+          <!-- Depending on the found data, show a form to create a new country -->
+          @if (importPlan()?.foundCountries?.length == 0) {
+            <form #form="ngForm" [formGroup]="createCountryForm" class="form mt-3">
+              <div class="col-12">
+                <p-floatlabel variant="on">
+                  <input pInputText id="isoCode" fluid formControlName="isoCode" [invalid]="createCountryForm.controls.isoCode.invalid" />
+                  <label for="isoCode">ISO Code</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="col-12">
+                <p-floatlabel variant="on">
+                  <input pInputText id="name" formControlName="name" autocomplete="off" fluid [invalid]="createCountryForm.controls.name.invalid" />
+                  <label for="name">Name (English)</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="col-12">
+                <p-floatlabel variant="on">
+                  <input pInputText id="nativeName" formControlName="nativeName" autocomplete="off" fluid [invalid]="createCountryForm.controls.nativeName.invalid" />
+                  <label for="nativeName">Name (in country's language)</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="col-12 align-content-end">
+                <p-button label="Create Country" variant="outlined" [disabled]="createCountryForm.invalid" (onClick)="onCreateCountryClicked()" />
+              </div>
+            </form>
+          }
+        </p-accordion-content>
+      </p-accordion-panel>
+    }
+
     <!-- Check if venue was found -->
     @if (importPlan()?.venueName) {
-      <p-accordion-panel value="venue">
+      <p-accordion-panel value="venue" [disabled]="importPlan()?.foundCountries?.length != 1">
         <p-accordion-header>
           @if (importPlan()?.foundVenues?.length == 0) {
             <span class="text-red-400"><i class="pi pi-rectangle-xmark"></i> Venue information</span>

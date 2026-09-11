@@ -37,7 +37,8 @@ public class CountriesController(LocationService locationService, IHttpContextAc
         logger.LogDebug("Requested to create country: {name}", request.Name);
         var isoCode = await locationService.CreateCountry(request);
         logger.LogDebug("Successfully created country: {isoCode}", isoCode);
-        return CreatedAtAction("GetCountryByIsoCode", new { countryCode = isoCode }, isoCode);
+        var createdCountry = await locationService.GetCountry(isoCode);
+        return CreatedAtAction("GetCountryByIsoCode", new { countryCode = isoCode }, createdCountry.ToDto());
     }
     
     /// <summary>
