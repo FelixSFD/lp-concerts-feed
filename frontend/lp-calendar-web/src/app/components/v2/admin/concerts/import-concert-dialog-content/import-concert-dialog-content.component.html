@@ -304,33 +304,34 @@
             </p>
           }
 
-          <!-- Depending on the found data, show a form to create a new tour leg -->
-          <!--@if (importPlan()?.foundVenues?.length == 0) {
-            <form #form="ngForm" [formGroup]="createTourLegForm" class="form mt-3">
+          <!-- Depending on the found data, show a form to create a new venue -->
+          @if (importPlan()?.foundVenues?.length == 0) {
+            <form #form="ngForm" [formGroup]="createVenueForm" class="form mt-3">
               <div class="col-12">
-                <p-inputgroup>
-                  <p-floatlabel variant="on">
-                    <input pInputText id="legId" fluid formControlName="legId" [invalid]="createTourLegForm.controls.legId.invalid" />
-                    <label for="legId">Leg ID</label>
-                  </p-floatlabel>
-                  <p-inputgroup-addon>
-                    <p-button icon="pi pi-refresh" variant="outlined" (onClick)="generateId(createTourLegForm.controls.legName, createTourLegForm.controls.legId)" />
-                  </p-inputgroup-addon>
-                </p-inputgroup>
+                <p-floatlabel variant="on">
+                  <app-select-timezone
+                    formControlName="timezone"
+                    inputId="timezone"
+                    [invalid]="createVenueForm.controls.timezone.invalid"
+                    fluid
+                    filter
+                  />
+                  <label for="timezone">Venue's timezone</label>
+                </p-floatlabel>
               </div>
 
               <div class="col-12">
                 <p-floatlabel variant="on">
-                  <input pInputText id="legName" formControlName="legName" autocomplete="off" fluid [invalid]="createTourLegForm.controls.legName.invalid" />
-                  <label for="legName">Leg Name</label>
+                  <input pInputText id="currentName" formControlName="currentName" autocomplete="off" fluid [invalid]="createVenueForm.controls.currentName.invalid" />
+                  <label for="currentName">Name</label>
                 </p-floatlabel>
               </div>
 
               <div class="col-12 align-content-end">
-                <p-button label="Create Tour Leg" variant="outlined" [disabled]="createTourLegForm.invalid" (onClick)="onCreateTourLegClicked()" />
+                <p-button label="Create venue" variant="outlined" [disabled]="createVenueForm.invalid" (onClick)="onCreateVenueClicked()" />
               </div>
             </form>
-          }-->
+          }
         </p-accordion-content>
       </p-accordion-panel>
     }

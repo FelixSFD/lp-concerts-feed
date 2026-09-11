@@ -19,6 +19,7 @@ import { DatePipe } from '@angular/common';
 import { DateTime } from 'luxon';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import { SelectTimezoneComponent } from '../../locations/select-timezone/select-timezone.component';
 
 @Component({
   imports: [
@@ -35,7 +36,8 @@ import { InputGroupAddon } from 'primeng/inputgroupaddon';
     Tooltip,
     DatePipe,
     InputGroup,
-    InputGroupAddon
+    InputGroupAddon,
+    SelectTimezoneComponent
   ],
   selector: 'app-import-concert-dialog-content',
   styleUrl: './import-concert-dialog-content.component.css',
@@ -89,6 +91,7 @@ export class ImportConcertDialogContentComponent implements OnInit {
 
   createVenueForm = this.formBuilder.group({
     currentName: new FormControl<string | null>(null, [Validators.required]),
+    timezone: new FormControl('', [Validators.required]),
   });
 
 
@@ -291,6 +294,7 @@ export class ImportConcertDialogContentComponent implements OnInit {
     let countryCode = this.importPlan()?.foundCountries?.at(0)?.isoCode ?? null;
     let cityId = this.importPlan()?.foundCities?.at(0)?.id ?? null;
     let currentName = this.createVenueForm.controls.currentName.value;
+    let timezone = this.createVenueForm.controls.timezone.value;
 
     if (!countryCode || countryCode.length != 3) {
       console.error("Country is required");
@@ -304,11 +308,17 @@ export class ImportConcertDialogContentComponent implements OnInit {
       return;
     }
 
+    if (!timezone) {
+      console.error("Timezone is required");
+      this.messageService.add({severity: "error", summary: "Timezone is required", detail: "Please select a timezone"});
+      return;
+    }
+
     let createVenueRequest: CreateVenueRequestDto = {
       countryCode: countryCode,
       cityId: cityId ?? 0,
       currentName: currentName,
-      timeZoneId: "", // TODO: get from user input
+      timeZoneId: timezone,
     };
     this.locationsService.createVenue(createVenueRequest).subscribe({
       next: (createdVenue) => {
