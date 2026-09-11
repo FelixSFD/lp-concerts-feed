@@ -224,9 +224,62 @@
       </p-accordion-panel>
     }
 
+    <!-- Check if city was found -->
+    @if (importPlan()?.cityName) {
+      <p-accordion-panel value="city" [disabled]="importPlan()?.foundCountries?.length != 1">
+        <p-accordion-header>
+          @if (importPlan()?.foundCities?.length == 0) {
+            <span class="text-red-400"><i class="pi pi-rectangle-xmark"></i> City information</span>
+          } @else if (importPlan()?.foundCities?.length == 1) {
+            <span class="text-color-success"><i class="pi pi-check-circle"></i> City: {{ importPlan()?.foundCities?.at(0)?.name }}</span>
+          } @else {
+            <span class="text-orange-400"><i class="pi pi-exclamation-triangle"></i> City information</span>
+          }
+        </p-accordion-header>
+        <p-accordion-content>
+          @if (importPlan()?.foundCities?.length == 0) {
+            <p class="m-0 text-sm">
+              No matching city found. Need to create one first or select existing.
+            </p>
+          } @else if (importPlan()?.foundCities?.length == 1) {
+            <p class="m-0 text-sm">
+              Found city: <span [pTooltip]="'ID: ' + importPlan()?.foundCities?.at(0)?.id" class="font-bold">{{ importPlan()?.foundCities?.at(0)?.name ?? "" }} ({{ importPlan()?.foundCities?.at(0)?.nativeName ?? "" }})</span>
+            </p>
+          } @else {
+            <p class="m-0 text-sm">
+              TODO: Found {{ importPlan()?.foundCities?.length }} possible cities
+            </p>
+          }
+
+          <!-- Depending on the found data, show a form to create a new country -->
+          @if (importPlan()?.foundCities?.length == 0) {
+            <form #form="ngForm" [formGroup]="createCityForm" class="form mt-3">
+              <div class="col-12">
+                <p-floatlabel variant="on">
+                  <input pInputText id="name" formControlName="name" autocomplete="off" fluid [invalid]="createCityForm.controls.name.invalid" />
+                  <label for="name">Name (English)</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="col-12">
+                <p-floatlabel variant="on">
+                  <input pInputText id="nativeName" formControlName="nativeName" autocomplete="off" fluid [invalid]="createCityForm.controls.nativeName.invalid" />
+                  <label for="nativeName">Name (in country's language)</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="col-12 align-content-end">
+                <p-button label="Create City" variant="outlined" [disabled]="createCityForm.invalid" (onClick)="onCreateCityClicked()" />
+              </div>
+            </form>
+          }
+        </p-accordion-content>
+      </p-accordion-panel>
+    }
+
     <!-- Check if venue was found -->
     @if (importPlan()?.venueName) {
-      <p-accordion-panel value="venue" [disabled]="importPlan()?.foundCountries?.length != 1">
+      <p-accordion-panel value="venue" [disabled]="importPlan()?.foundCountries?.length != 1 && importPlan()?.foundCities?.length != 1">
         <p-accordion-header>
           @if (importPlan()?.foundVenues?.length == 0) {
             <span class="text-red-400"><i class="pi pi-rectangle-xmark"></i> Venue information</span>

@@ -884,8 +884,18 @@ paths:
               $ref: "#/components/schemas/CreateCityRequest"
         required: true
       responses:
-        "200":
-          description: ""
+        "201":
+          description: "Successfully created the city"
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/CityWithCountry"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CityWithCountry"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/CityWithCountry"
         "401":
           description: "Unauthorized: Credentials are missing or not valid"
         "403":

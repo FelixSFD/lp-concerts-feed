@@ -1,7 +1,7 @@
 import { Component, effect, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import {
   AddTourLegRequestDto,
-  ConcertTypeDto, CreateCountryRequestDto, CreateTourRequestDto,
+  ConcertTypeDto, CreateCityRequestDto, CreateCountryRequestDto, CreateTourRequestDto,
   ImportConcertPreviewDto,
   TourDto, VenueDto
 } from '../../../../../modules/lpshows-api/v3';
@@ -19,7 +19,6 @@ import { DatePipe } from '@angular/common';
 import { DateTime } from 'luxon';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputMaskDirective } from 'primeng/inputmask';
 
 @Component({
   imports: [
@@ -36,8 +35,7 @@ import { InputMaskDirective } from 'primeng/inputmask';
     Tooltip,
     DatePipe,
     InputGroup,
-    InputGroupAddon,
-    InputMaskDirective
+    InputGroupAddon
   ],
   selector: 'app-import-concert-dialog-content',
   styleUrl: './import-concert-dialog-content.component.css',
@@ -62,6 +60,8 @@ export class ImportConcertDialogContentComponent implements OnInit {
       //this.importPlanForm.controls.concertTypeId.setValue(plan.concertType?.id ?? null);
       this.createTourForm.controls.tourName.setValue(plan.tourName ?? null);
       this.createTourLegForm.controls.legName.setValue(plan.tourLegName ?? null);
+      this.createCountryForm.controls.name.setValue(plan.countryName ?? null);
+      this.createCityForm.controls.name.setValue(plan.cityName ?? null);
     }
   });
 
@@ -79,6 +79,15 @@ export class ImportConcertDialogContentComponent implements OnInit {
     isoCode: new FormControl<string | null>(null, [Validators.required, Validators.pattern('^[A-Z]{3}$')]),
     name: new FormControl<string | null>(null, [Validators.required]),
     nativeName: new FormControl<string | null>(null, [Validators.required]),
+  });
+
+  createCityForm = this.formBuilder.group({
+    name: new FormControl<string | null>(null, [Validators.required]),
+    nativeName: new FormControl<string | null>(null, [Validators.required]),
+  });
+
+  createVenueForm = this.formBuilder.group({
+    name: new FormControl<string | null>(null, [Validators.required]),
   });
 
 
@@ -217,6 +226,59 @@ export class ImportConcertDialogContentComponent implements OnInit {
       },
       error: (err) => {
         console.error("Could not create country:", err);
+      }
+    });
+  }
+
+
+  onCreateCityClicked() {
+    console.debug("Create city clicked");
+
+    let countryCode = this.importPlan()?.foundCountries?.at(0)?.isoCode ?? null;
+    let name = this.createCityForm.controls.name.value;
+    let nativeName = this.createCityForm.controls.nativeName.value;
+
+    if (!countryCode || countryCode.length != 3) {
+      console.error("Country is required");
+      this.messageService.add({severity: "error", summary: "Country is required", detail: "Please create a country in the previous steps"});
+      return;
+    }
+
+    if (!name) {
+      console.error("Name is required");
+      this.messageService.add({severity: "error", summary: "Name is required", detail: "Please enter a valid name"});
+      return;
+    }
+
+    if (!nativeName) {
+      console.error("Native name is required");
+      this.messageService.add({severity: "error", summary: "Native name is required", detail: "Please enter a valid name"});
+      return;
+    }
+
+    let createCityRequest: CreateCityRequestDto = {
+      name: name,
+      nativeName: nativeName,
+    };
+    this.locationsService.createCity(countryCode, createCityRequest).subscribe({
+      next: (createdCity) => {
+        console.debug("Created city:", createdCity);
+        this.importPlan.update(prev => {
+          if (prev) {
+            prev.foundCities = [createdCity];
+            console.debug("Updated cities:", prev.foundCities);
+          }
+
+          console.debug("importPlan.update() will return:", prev);
+          return {
+            ...prev,
+            foundCities: [createdCity]
+          };
+        });
+        console.debug("Updated import plan:", this.importPlan());
+      },
+      error: (err) => {
+        console.error("Could not create city:", err);
       }
     });
   }
