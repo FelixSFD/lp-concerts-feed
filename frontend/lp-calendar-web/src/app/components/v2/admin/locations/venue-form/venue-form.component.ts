@@ -23,6 +23,7 @@ import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import timezones from 'timezones-list';
 import { InputNumber } from 'primeng/inputnumber';
+import { SelectTimezoneComponent } from '../select-timezone/select-timezone.component';
 import {
   AnnotationDragEvent,
   load,
@@ -47,7 +48,8 @@ import { firstValueFrom } from 'rxjs';
     Select,
     InputGroup,
     InputGroupAddon,
-    InputNumber
+    InputNumber,
+    SelectTimezoneComponent,
   ],
   templateUrl: './venue-form.component.html',
   styleUrl: './venue-form.component.css',
@@ -239,7 +241,7 @@ export class VenueFormComponent {
       return;
     }
 
-    let cityName = this.citiesInCountry$.find(c => c.id == cityId.toString())?.name;
+    let cityName = this.citiesInCountry$.find(c => c.id == cityId)?.name;
     let countryName = this.countries$.find(c => c.isoCode == countryCode)?.name;
 
     this.locationsService.getCoordinatesFor(cityName!, null, countryName!)
@@ -361,9 +363,6 @@ export class VenueFormComponent {
         this.venueForm.controls.latitude.setValue(lat);
       });
   }
-
-
-  protected readonly timezones = timezones;
 }
 
 

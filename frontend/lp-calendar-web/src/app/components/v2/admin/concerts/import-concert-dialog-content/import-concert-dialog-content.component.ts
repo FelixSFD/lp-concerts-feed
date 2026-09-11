@@ -1,7 +1,7 @@
 import { Component, effect, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import {
   AddTourLegRequestDto,
-  ConcertTypeDto, CreateCityRequestDto, CreateCountryRequestDto, CreateTourRequestDto,
+  ConcertTypeDto, CreateCityRequestDto, CreateCountryRequestDto, CreateTourRequestDto, CreateVenueRequestDto,
   ImportConcertPreviewDto,
   TourDto, VenueDto
 } from '../../../../../modules/lpshows-api/v3';
@@ -62,6 +62,7 @@ export class ImportConcertDialogContentComponent implements OnInit {
       this.createTourLegForm.controls.legName.setValue(plan.tourLegName ?? null);
       this.createCountryForm.controls.name.setValue(plan.countryName ?? null);
       this.createCityForm.controls.name.setValue(plan.cityName ?? null);
+      this.createVenueForm.controls.currentName.setValue(plan.venueName ?? null);
     }
   });
 
@@ -87,7 +88,7 @@ export class ImportConcertDialogContentComponent implements OnInit {
   });
 
   createVenueForm = this.formBuilder.group({
-    name: new FormControl<string | null>(null, [Validators.required]),
+    currentName: new FormControl<string | null>(null, [Validators.required]),
   });
 
 
@@ -279,6 +280,55 @@ export class ImportConcertDialogContentComponent implements OnInit {
       },
       error: (err) => {
         console.error("Could not create city:", err);
+      }
+    });
+  }
+
+
+  onCreateVenueClicked() {
+    console.debug("Create venue clicked");
+
+    let countryCode = this.importPlan()?.foundCountries?.at(0)?.isoCode ?? null;
+    let cityId = this.importPlan()?.foundCities?.at(0)?.id ?? null;
+    let currentName = this.createVenueForm.controls.currentName.value;
+
+    if (!countryCode || countryCode.length != 3) {
+      console.error("Country is required");
+      this.messageService.add({severity: "error", summary: "Country is required", detail: "Please create a country in the previous steps"});
+      return;
+    }
+
+    if (!currentName) {
+      console.error("Name is required");
+      this.messageService.add({severity: "error", summary: "Name is required", detail: "Please enter a valid name"});
+      return;
+    }
+
+    let createVenueRequest: CreateVenueRequestDto = {
+      countryCode: countryCode,
+      cityId: cityId ?? 0,
+      currentName: currentName,
+      timeZoneId: "", // TODO: get from user input
+    };
+    this.locationsService.createVenue(createVenueRequest).subscribe({
+      next: (createdVenue) => {
+        console.debug("Created venue:", createdVenue);
+        this.importPlan.update(prev => {
+          if (prev) {
+            prev.foundVenues = [createdVenue];
+            console.debug("Updated venues:", prev.foundCities);
+          }
+
+          console.debug("importPlan.update() will return:", prev);
+          return {
+            ...prev,
+            foundVenues: [createdVenue]
+          };
+        });
+        console.debug("Updated import plan:", this.importPlan());
+      },
+      error: (err) => {
+        console.error("Could not create venue:", err);
       }
     });
   }

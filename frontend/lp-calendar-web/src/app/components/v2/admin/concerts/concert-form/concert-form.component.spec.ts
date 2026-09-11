@@ -37,11 +37,11 @@ describe('ConcertFormComponent', () => {
       id: '10',
       currentName: 'Uber Arena',
       countryCode: 'DE',
-      cityId: '1',
+      cityId: 1,
       timeZoneId: 'Europe/Berlin',
       venueNames: [],
       city: {
-        id: '1',
+        id: 1,
         name: 'Berlin',
         countryCode: 'DE',
         nativeName: 'Berlin',
@@ -90,17 +90,17 @@ describe('ConcertFormComponent', () => {
     );
     locationsSpy.getVenues.and.returnValue(
       of([
-        { id: '10', currentName: 'Uber Arena', countryCode: 'DE', cityId: '1', timeZoneId: 'Europe/Berlin' },
+        { id: '10', currentName: 'Uber Arena', countryCode: 'DE', cityId: 1, timeZoneId: 'Europe/Berlin' },
       ])
     );
     locationsSpy.getCities.and.returnValue(
       of([
-        { id: '1', name: 'Berlin', countryCode: 'DE', nativeName: 'Berlin', country: { isoCode: 'DE', name: 'Germany', nativeName: 'Deutschland' } },
+        { id: 1, name: 'Berlin', countryCode: 'DE', nativeName: 'Berlin', country: { isoCode: 'DE', name: 'Germany', nativeName: 'Deutschland' } },
       ])
     );
     locationsSpy.getCitiesIn.and.returnValue(
       of([
-        { id: '1', name: 'Berlin', countryCode: 'DE', nativeName: 'Berlin', country: { isoCode: 'DE', name: 'Germany', nativeName: 'Deutschland' } },
+        { id: 1, name: 'Berlin', countryCode: 'DE', nativeName: 'Berlin', country: { isoCode: 'DE', name: 'Germany', nativeName: 'Deutschland' } },
       ])
     );
 

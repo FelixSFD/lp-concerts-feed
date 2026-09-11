@@ -1801,7 +1801,7 @@ components:
           type: string
         id:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
+          type: integer
           format: uint32
         stateCode:
           type: string

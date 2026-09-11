@@ -175,7 +175,7 @@ internal static class DtoMapper
     {
         return new CityWithCountryDto
         {
-            Id = bo.Id.ToString(),
+            Id = (int)bo.Id,
             CountryCode = bo.CountryCode,
             StateCode = bo.StateCode,
             Name = bo.Name,

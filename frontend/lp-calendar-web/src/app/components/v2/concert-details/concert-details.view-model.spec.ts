@@ -129,7 +129,7 @@ describe('ConcertDetailsViewModel', () => {
           longitude: 6.942,
           countryCode: 'DE',
           city: {
-            id: 'city-1',
+            id: 1,
             name: 'Nürburg',
             nativeName: 'Nürburg',
             countryCode: 'DE',

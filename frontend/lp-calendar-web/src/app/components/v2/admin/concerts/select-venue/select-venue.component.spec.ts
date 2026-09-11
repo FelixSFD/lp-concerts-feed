@@ -17,24 +17,24 @@ describe('SelectVenueComponent', () => {
   ];
 
   const mockAllCities: CityWithCountryDto[] = [
-    { id: '1', name: 'Berlin', countryCode: 'DE', nativeName: 'Berlin', country: mockCountries[0] },
-    { id: '2', name: 'Hamburg', countryCode: 'DE', nativeName: 'Hamburg', country: mockCountries[0] },
-    { id: '3', name: 'New York', countryCode: 'US', nativeName: 'New York', country: mockCountries[1] },
+    { id: 1, name: 'Berlin', countryCode: 'DE', nativeName: 'Berlin', country: mockCountries[0] },
+    { id: 2, name: 'Hamburg', countryCode: 'DE', nativeName: 'Hamburg', country: mockCountries[0] },
+    { id: 3, name: 'New York', countryCode: 'US', nativeName: 'New York', country: mockCountries[1] },
   ];
 
   const mockGermanCities: CityWithCountryDto[] = [
-    { id: '1', name: 'Berlin', countryCode: 'DE', nativeName: 'Berlin', country: mockCountries[0] },
-    { id: '2', name: 'Hamburg', countryCode: 'DE', nativeName: 'Hamburg', country: mockCountries[0] },
+    { id: 1, name: 'Berlin', countryCode: 'DE', nativeName: 'Berlin', country: mockCountries[0] },
+    { id: 2, name: 'Hamburg', countryCode: 'DE', nativeName: 'Hamburg', country: mockCountries[0] },
   ];
 
   const mockUsCities: CityWithCountryDto[] = [
-    { id: '3', name: 'New York', countryCode: 'US', nativeName: 'New York', country: mockCountries[1] },
+    { id: 3, name: 'New York', countryCode: 'US', nativeName: 'New York', country: mockCountries[1] },
   ];
 
   const mockVenues: VenueDto[] = [
-    { id: '10', currentName: 'Uber Arena', countryCode: 'DE', cityId: '1', timeZoneId: 'Europe/Berlin' },
-    { id: '20', currentName: 'Barclays Arena', countryCode: 'DE', cityId: '2', timeZoneId: 'Europe/Berlin' },
-    { id: '30', currentName: 'Madison Square Garden', countryCode: 'US', cityId: '3', timeZoneId: 'America/New_York' },
+    { id: '10', currentName: 'Uber Arena', countryCode: 'DE', cityId: 1, timeZoneId: 'Europe/Berlin' },
+    { id: '20', currentName: 'Barclays Arena', countryCode: 'DE', cityId: 2, timeZoneId: 'Europe/Berlin' },
+    { id: '30', currentName: 'Madison Square Garden', countryCode: 'US', cityId: 3, timeZoneId: 'America/New_York' },
   ];
 
   beforeEach(async () => {

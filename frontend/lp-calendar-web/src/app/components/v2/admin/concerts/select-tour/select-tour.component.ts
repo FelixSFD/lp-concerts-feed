@@ -48,7 +48,7 @@ export class SelectTourComponent implements ControlValueAccessor, OnInit {
 
   @Output() tourChange = new EventEmitter<TourDto | null>();
 
-  protected tours = signal<TourDto[]>([]);
+  tours = signal<TourDto[]>([]);
   loading = signal(false);
   value = signal<TourDto | null>(null);
 
