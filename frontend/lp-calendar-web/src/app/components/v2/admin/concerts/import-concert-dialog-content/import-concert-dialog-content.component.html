@@ -110,7 +110,7 @@
           @if (importPlan()?.foundTourLegs?.length == 0) {
             <span class="text-red-400"><i class="pi pi-rectangle-xmark"></i> Tour Leg information</span>
           } @else if (importPlan()?.foundTourLegs?.length == 1) {
-            <span class="text-color-success"><i class="pi pi-check-circle"></i> Tour Leg information</span>
+            <span class="text-color-success"><i class="pi pi-check-circle"></i> Tour Leg: {{ importPlan()?.foundTourLegs?.at(0)?.name }}</span>
           } @else {
             <span class="text-orange-400"><i class="pi pi-exclamation-triangle"></i> Tour Leg information</span>
           }
