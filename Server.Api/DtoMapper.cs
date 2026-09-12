@@ -437,9 +437,9 @@ internal static class DtoMapper
     {
         return bo switch
         {
-            ConcertImportStatusBo.Status.Imported => LinkinpediaImportConcertStatusDto.ImportStatusEnum.Imported,
+            ConcertImportStatusBo.Status.Imported => LinkinpediaImportConcertStatusDto.ImportStatusEnum.ImportedNoSetlist,
             ConcertImportStatusBo.Status.NotImported => LinkinpediaImportConcertStatusDto.ImportStatusEnum.NotImported,
-            ConcertImportStatusBo.Status.ImportedWithSetlists => LinkinpediaImportConcertStatusDto.ImportStatusEnum.ImportedNoSetlist,
+            ConcertImportStatusBo.Status.ImportedWithSetlists => LinkinpediaImportConcertStatusDto.ImportStatusEnum.Imported,
             _ => throw new ArgumentOutOfRangeException(nameof(bo), bo, null)
         };
     }
