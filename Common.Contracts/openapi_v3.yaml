@@ -2497,6 +2497,48 @@ components:
         proposedCustomTitle:
           type: string
     
+    LinkinpediaImportConcertStatus:
+      type: object
+      description: Information about the import status of a concert from Linkinpedia
+      required: 
+        - importStatus
+        - wikiPageId
+      properties: 
+        wikiPageId:
+          type: string
+          description: The ID of the Linkinpedia page of the concert
+        concert:
+          $ref: "#/components/schemas/ConcertDetails"
+        importStatus:
+          type: string
+          enum: 
+            - Imported
+            - ImportedNoSetlist
+            - NotImported
+    LinkinpediaImportStatus:
+      type: object
+      description: Statistics about the import of concerts from Linkinpedia
+      required: 
+        - concerts
+        - importedWithSetlistCount
+        - importedWithoutSetlistCount
+        - notImportedCount
+      properties: 
+        importedWithSetlistCount:
+          type: integer
+          description: Number of concerts that were imported with setlists
+        importedWithoutSetlistCount:
+          type: integer
+          description: Number of concerts that were imported without setlists
+        notImportedCount:
+          type: integer
+          description: Number of concerts that were not imported yet
+        concerts:
+          type: array
+          description: Concerts that were found on Linkinpedia and their import status
+          items:
+            $ref: "#/components/schemas/LinkinpediaImportConcertStatus"
+    
     # Schemas from v2
     GetConcertBookmarkCountsResponse:
       type: object
