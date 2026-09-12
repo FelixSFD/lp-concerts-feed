@@ -128,6 +128,7 @@ public class LinkinpediaImportConcertService(
         }
 
         var countryName = tourdate.Country;
+        var cityNativeName = tourdate.CityLocal;
         var cityNameRaw = tourdate.City;
         string? cityName = cityNameRaw;
         string? stateName = null;
@@ -255,6 +256,7 @@ public class LinkinpediaImportConcertService(
             CountryName = countryName,
             StateName = stateName,
             CityName = cityName,
+            CityNativeName = cityNativeName,
             VenueName = venueName,
             TourName = tourName,
             TourLegName = tourLegName,

@@ -2498,6 +2498,8 @@ components:
           type: string
         cityName:
           type: string
+        cityNativeName:
+          type: string
         venueName:
           type: string
         foundTours:

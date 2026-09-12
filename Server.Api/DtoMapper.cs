@@ -404,6 +404,7 @@ internal static class DtoMapper
             CountryName = bo.CountryName,
             StateName = bo.StateName,
             CityName = bo.CityName,
+            CityNativeName = bo.CityNativeName,
             VenueName = bo.VenueName,
             FoundTours = [.. bo.FoundTours.Select(ToDto)],
             FoundTourLegs = [.. bo.FoundTourLegs.Select(ToDto)],

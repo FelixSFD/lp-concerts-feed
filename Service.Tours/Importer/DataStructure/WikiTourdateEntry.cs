@@ -59,11 +59,21 @@ public class WikiTourdateEntry
     /// City where the concert took place (may also include state)
     /// </summary>
     public string? City { get; set; }
+    
+    /// <summary>
+    /// <see cref="City"/> in the local language of the country
+    /// </summary>
+    public string? CityLocal { get; set; }
 
     /// <summary>
     /// Venue name
     /// </summary>
     public string? Venue { get; set; }
+    
+    /// <summary>
+    /// Venue name as advertised
+    /// </summary>
+    public string? VenueAd { get; set; }
 
     /// <summary>
     /// Venue identifier on Linkinpedia

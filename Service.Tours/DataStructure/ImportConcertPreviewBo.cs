@@ -25,6 +25,7 @@ public class ImportConcertPreviewBo
     public string? CountryName { get; set; }
     public string? StateName { get; set; }
     public string? CityName { get; set; }
+    public string? CityNativeName { get; set; }
     public string? VenueName { get; set; }
     
     public required TourBo[] FoundTours { get; set; }

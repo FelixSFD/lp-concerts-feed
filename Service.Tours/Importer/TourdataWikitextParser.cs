@@ -95,6 +95,7 @@ public partial class TourdataWikitextParser : IWikitextParser
             Date = date,
             Country = GetProperty(properties, "Country"),
             City = GetProperty(properties, "City"),
+            CityLocal = GetProperty(properties, "City local", "CityLocal", "City Local"),
             Venue = GetProperty(properties, "Venue"),
             VenueId = GetProperty(properties, "VenueID", "VenueId", "Venue ID"),
             VenueType = GetProperty(properties, "Venue Type", "VenueType"),
