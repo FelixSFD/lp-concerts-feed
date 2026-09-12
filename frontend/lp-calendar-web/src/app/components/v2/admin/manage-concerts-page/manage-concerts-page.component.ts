@@ -74,6 +74,7 @@ export class ManageConcertsPageComponent implements OnInit {
   isLoading$ = false;
   globalSearchTextOld$ = '';
   globalSearchText$ = '';
+  globalSearchTextImportStatus$ = signal("");
 
   private updateImportStatsEffect = effect(() => {
     this.concertImportStatusMeterGroup$.update(stats => {

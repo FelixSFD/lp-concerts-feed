@@ -118,7 +118,7 @@
     <p-metergroup [value]="concertImportStatusMeterGroup$()" class="max-w-md mx-auto" />
 
     <p-table
-      #dt2
+      #tableImportStatus
       [value]="concertImportStats$()?.concerts ?? []"
       dataKey="id"
       stripedRows
@@ -141,7 +141,7 @@
             <p-inputicon>
               <i class="pi pi-search"></i>
             </p-inputicon>
-            <input pInputText type="text" [(ngModel)]="globalSearchText$" (input)="dt2.filterGlobal(globalSearchText$, 'contains')" placeholder="Search keyword" />
+            <input pInputText type="text" [(ngModel)]="globalSearchTextImportStatus$" (input)="tableImportStatus.filterGlobal(globalSearchTextImportStatus$(), 'contains')" placeholder="Search keyword" />
           </p-iconfield>
         </div>
       </ng-template>
