@@ -13,6 +13,7 @@ import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/f
 import { Select } from 'primeng/select';
 import { ToursService } from '../../../../../services/tours.service';
 import { TourDto } from '../../../../../modules/lpshows-api/v3';
+import { Observable, of, tap } from 'rxjs';
 
 @Component({
   selector: 'app-select-tour',
@@ -59,24 +60,26 @@ export class SelectTourComponent implements ControlValueAccessor, OnInit {
     this.loadTours();
   }
 
-  loadTours() {
+  loadTours(): Observable<TourDto[]> {
     if (this.availableTours) {
-      console.debug('Loading tours from availableTours input');
       this.tours.set(this.availableTours);
-    } else {
-      console.debug('Loading tours from server');
-      this.loading.set(true);
-      this.toursService.getTours().subscribe({
+      return of(this.availableTours);
+    }
+
+    this.loading.set(true);
+    return this.toursService.getTours().pipe(
+      tap({
         next: (tours: any) => {
-          this.tours.set(Array.isArray(tours) ? tours : tours ? [tours] : []);
+          const tourList = Array.isArray(tours) ? tours : tours ? [tours] : [];
+          this.tours.set(tourList);
           this.loading.set(false);
         },
         error: (err) => {
           console.error('Failed to load tours', err);
           this.loading.set(false);
-        },
-      });
-    }
+        }
+      })
+    );
   }
 
   writeValue(value: any): void {

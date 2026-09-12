@@ -18,6 +18,7 @@ import { LocationsService } from '../../../../../services/locations.service';
 import { CityWithCountryDto, CountryDto, VenueDto } from '../../../../../modules/lpshows-api/v3';
 import { ButtonDirective } from 'primeng/button';
 import { RouterLink } from '@angular/router';
+import { forkJoin, Observable, tap } from 'rxjs';
 
 @Component({
   selector: 'app-select-venue',
@@ -161,6 +162,35 @@ export class SelectVenueComponent implements ControlValueAccessor, OnInit {
         this.loadingCities.set(false);
       },
     });
+  }
+
+  reloadAvailableOptions(): Observable<any> {
+    this.loadingCountries.set(true);
+    this.loadingVenues.set(true);
+    this.loadingCities.set(true);
+
+    return forkJoin({
+      countries: this.locationsService.getCountries(),
+      venues: this.locationsService.getVenues(),
+      cities: this.locationsService.getCities()
+    }).pipe(
+      tap({
+        next: ({ countries, venues, cities }) => {
+          this.countries.set(countries ?? []);
+          this.venues.set(venues ?? []);
+          this.cities.set(cities ?? []);
+          this.loadingCountries.set(false);
+          this.loadingVenues.set(false);
+          this.loadingCities.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to reload locations', err);
+          this.loadingCountries.set(false);
+          this.loadingVenues.set(false);
+          this.loadingCities.set(false);
+        }
+      })
+    );
   }
 
   onCountryChange(country: CountryDto | null) {

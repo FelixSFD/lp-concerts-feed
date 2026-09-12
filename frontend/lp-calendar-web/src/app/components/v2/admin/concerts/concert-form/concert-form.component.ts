@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output, signal, ViewChild } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
@@ -31,6 +31,7 @@ import {
   ApplyClickedEvent,
   ImportConcertDialogContentComponent
 } from '../import-concert-dialog-content/import-concert-dialog-content.component';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-concert-form',
@@ -76,11 +77,15 @@ export class ConcertFormComponent implements OnInit {
   @Output("saveClicked")
   saveClicked = new EventEmitter<ConcertFormContent>();
 
+  @ViewChild(SelectTourComponent) selectTourComponent?: SelectTourComponent;
+  @ViewChild(SelectVenueComponent) selectVenueComponent?: SelectVenueComponent;
+
   venueTimezone = signal<TimeZone | null>(null);
 
   selectedTour = signal<TourDto | null>(null);
 
   isShowingImportDialog = signal(false);
+  isImporting = signal(false);
   importPlan = signal<ImportConcertPreviewDto | null>(null);
 
   concertForm = this.formBuilder.group({
@@ -313,30 +318,60 @@ export class ConcertFormComponent implements OnInit {
     this.importPlan.set(importPlan);
   }
 
-  onApplyImportClicked(evt: ApplyClickedEvent) {
-    console.debug("Applying import: ", evt);
+  async onApplyImportClicked(evt: ApplyClickedEvent) {
+    this.isImporting.set(true);
+    console.debug('Applying import: ', evt);
     this.isShowingImportDialog.set(false);
 
-    let startTime = evt.postedStartTime;
-    let concertType = evt.concertType;
-    let importTour = evt.tour;
-    let importTourLeg = evt.tourLeg;
-    let importVenue = evt.venue;
+    try {
+      // 1. Reload tours and venues in parallel before assigning values
+      const reloadTasks = [];
+      if (this.selectTourComponent) {
+        reloadTasks.push(firstValueFrom(this.selectTourComponent.loadTours()));
+      } else {
+        console.error("selectTourComponent could not be referenced");
+      }
+      if (this.selectVenueComponent) {
+        reloadTasks.push(firstValueFrom(this.selectVenueComponent.reloadAvailableOptions()));
+        console.error("selectVenueComponent could not be referenced");
+      }
+      await Promise.all(reloadTasks);
 
-    if (startTime != null) {
-      this.concertForm.controls.postedStartTime.setValue(startTime);
-    }
-    if (concertType != null) {
-      this.concertForm.controls.concertTypeId.setValue(concertType.id ?? null);
-    }
-    if (importTour != null) {
-      this.concertForm.controls.tour.setValue(importTour);
-    }
-    if (importTourLeg != null) {
-      this.concertForm.controls.tourLegId.setValue(importTourLeg.id);
-    }
-    if (importVenue != null) {
-      this.concertForm.controls.venue.setValue(importVenue);
+      const startTime = evt.postedStartTime;
+      const concertType = evt.concertType;
+      let importTour = evt.tour;
+      const importTourLeg = evt.tourLeg;
+      const importVenue = evt.venue;
+
+      if (startTime != null) {
+        this.concertForm.controls.postedStartTime.setValue(startTime);
+      }
+      if (concertType != null) {
+        this.concertForm.controls.concertTypeId.setValue(concertType.id ?? null);
+      }
+
+      // 2. Set tour with full updated legs list
+      if (importTour != null) {
+        // Find the freshly loaded tour so its `legs` array contains newly created tour legs
+        const freshTour = this.selectTourComponent?.tours().find(t => t.id === importTour?.id) ?? importTour;
+        this.concertForm.controls.tour.setValue(freshTour);
+      }
+
+      // 3. Set tour leg (SelectTourLegComponent updates automatically via [tour] binding)
+      if (importTourLeg != null) {
+        this.concertForm.controls.tourLegId.setValue(importTourLeg.id);
+      }
+
+      // 4. Set venue
+      if (importVenue != null) {
+        // Find the freshly loaded venue to match the options list
+        const freshVenue = this.selectVenueComponent?.venues().find(v => v.id === importVenue?.id) ?? importVenue;
+        this.concertForm.controls.venue.setValue(freshVenue);
+      }
+    } catch (error) {
+      console.error('Failed to reload data before applying import:', error);
+    } finally {
+      this.isImporting.set(false);
     }
   }
 
