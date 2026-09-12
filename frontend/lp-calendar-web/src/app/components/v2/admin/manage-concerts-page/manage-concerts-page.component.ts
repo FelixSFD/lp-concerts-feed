@@ -20,6 +20,7 @@ import { ToursService } from '../../../../services/tours.service';
 import { Divider } from 'primeng/divider';
 import { ConcertStatus } from '../../../../data/concert-status';
 import { ConfirmDialog } from 'primeng/confirmdialog';
+import { AuthService } from '../../../../auth/auth.service';
 
 @Component({
   selector: 'app-manage-concerts-page',
@@ -44,7 +45,8 @@ export class ManageConcertsPageComponent implements OnInit {
   private readonly concertsService = inject(LegacyConcertsService);
   private readonly toursService = inject(ToursService);
   private readonly messageService = inject(MessageService);
-  private confirmationService = inject(ConfirmationService);
+  private readonly confirmationService = inject(ConfirmationService);
+  protected readonly authService = inject(AuthService);
 
   concertsOld$ = signal<ConcertDto[]>([]);
   concerts$ = signal<ConcertDetailsDto[]>([]);
