@@ -87,7 +87,11 @@
             <div class="text-500 font-italic">{{ concert.venue.city.nativeName }}</div>
           }
         </td>
-        <td>{{ concert.venue.currentName }}</td>
+        <td>
+          <a [routerLink]="['..', 'venues', concert.venue.id]" target="_blank" class="link">
+            {{ concert.venue.currentName }}
+          </a>
+        </td>
         <td>
           @if (concert.customTitle) {
             {{ concert.customTitle }}
