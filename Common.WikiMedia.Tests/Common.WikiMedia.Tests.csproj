@@ -24,6 +24,9 @@
       <None Update="TestData\wiki_page_Live_20240905.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="TestData\wiki_cargo_shows_lp_10.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
     <ItemGroup>

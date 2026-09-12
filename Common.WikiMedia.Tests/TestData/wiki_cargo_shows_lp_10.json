@@ -1,0 +1,174 @@
+{
+  "cargoquery": [
+    {
+      "title": {
+        "Artist": "Linkin Park",
+        "ShowPage": "Live:20000525",
+        "Date": "2000-05-25",
+        "ShowType": "concert",
+        "Country": "United States",
+        "State": "California",
+        "Province": "",
+        "UKCountry": "",
+        "City": "West Hollywood, CA",
+        "Venue": "Coconut Teaszer",
+        "Tour": "",
+        "TourLeg": "",
+        "Date__precision": "1"
+      }
+    },
+    {
+      "title": {
+        "Artist": "Linkin Park",
+        "ShowPage": "Live:20000527",
+        "Date": "2000-05-27",
+        "ShowType": "concert",
+        "Country": "United States",
+        "State": "Arizona",
+        "Province": "",
+        "UKCountry": "",
+        "City": "Tempe, AZ",
+        "Venue": "Mill Avenue Sport Rock Cafe",
+        "Tour": "",
+        "TourLeg": "",
+        "Date__precision": "1"
+      }
+    },
+    {
+      "title": {
+        "Artist": "Linkin Park",
+        "ShowPage": "Live:20000609",
+        "Date": "2000-06-09",
+        "ShowType": "label",
+        "Country": "United States",
+        "State": "California",
+        "Province": "",
+        "UKCountry": "",
+        "City": "West Hollywood, CA",
+        "Venue": "Coconut Teaszer",
+        "Tour": "",
+        "TourLeg": "",
+        "Date__precision": "1"
+      }
+    },
+    {
+      "title": {
+        "Artist": "Linkin Park",
+        "ShowPage": "Live:20000610",
+        "Date": "2000-06-10",
+        "ShowType": "concert",
+        "Country": "United States",
+        "State": "California",
+        "Province": "",
+        "UKCountry": "",
+        "City": "Fullerton, CA",
+        "Venue": "Brea Dam Park",
+        "Tour": "",
+        "TourLeg": "",
+        "Date__precision": "1"
+      }
+    },
+    {
+      "title": {
+        "Artist": "Linkin Park",
+        "ShowPage": "Live:20000708",
+        "Date": "2000-07-08",
+        "ShowType": "concert",
+        "Country": "United States",
+        "State": "California",
+        "Province": "",
+        "UKCountry": "",
+        "City": "West Hollywood, CA",
+        "Venue": "Whisky a Go Go",
+        "Tour": "",
+        "TourLeg": "",
+        "Date__precision": "1"
+      }
+    },
+    {
+      "title": {
+        "Artist": "Linkin Park",
+        "ShowPage": "Live:20000722",
+        "Date": "2000-07-22",
+        "ShowType": "concert",
+        "Country": "United States",
+        "State": "Florida",
+        "Province": "",
+        "UKCountry": "",
+        "City": "St. Petersburg, FL",
+        "Venue": "State Theatre",
+        "Tour": "An Education In Rebellion Tour 2000",
+        "TourLeg": "",
+        "Date__precision": "1"
+      }
+    },
+    {
+      "title": {
+        "Artist": "Linkin Park",
+        "ShowPage": "Live:20000724",
+        "Date": "2000-07-24",
+        "ShowType": "concert",
+        "Country": "United States",
+        "State": "Florida",
+        "Province": "",
+        "UKCountry": "",
+        "City": "Orlando, FL",
+        "Venue": "The Sapphire",
+        "Tour": "An Education In Rebellion Tour 2000",
+        "TourLeg": "",
+        "Date__precision": "1"
+      }
+    },
+    {
+      "title": {
+        "Artist": "Linkin Park",
+        "ShowPage": "Live:20000726",
+        "Date": "2000-07-26",
+        "ShowType": "concert",
+        "Country": "United States",
+        "State": "Virginia",
+        "Province": "",
+        "UKCountry": "",
+        "City": "Richmond, VA",
+        "Venue": "Twisters",
+        "Tour": "An Education In Rebellion Tour 2000",
+        "TourLeg": "",
+        "Date__precision": "1"
+      }
+    },
+    {
+      "title": {
+        "Artist": "Linkin Park",
+        "ShowPage": "Live:20000727",
+        "Date": "2000-07-27",
+        "ShowType": "concert",
+        "Country": "United States",
+        "State": "Pennsylvania",
+        "Province": "",
+        "UKCountry": "",
+        "City": "Philadelphia, PA",
+        "Venue": "Theatre of the Living Arts",
+        "Tour": "An Education In Rebellion Tour 2000",
+        "TourLeg": "",
+        "Date__precision": "1"
+      }
+    },
+    {
+      "title": {
+        "Artist": "Linkin Park",
+        "ShowPage": "Live:20000728",
+        "Date": "2000-07-28",
+        "ShowType": "concert",
+        "Country": "United States",
+        "State": "Pennsylvania",
+        "Province": "",
+        "UKCountry": "",
+        "City": "Lancaster, PA",
+        "Venue": "The Chameleon",
+        "Tour": "An Education In Rebellion Tour 2000",
+        "TourLeg": "",
+        "Date__precision": "1"
+      }
+    }
+  ]
+}
