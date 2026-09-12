@@ -1,9 +1,11 @@
+using Common.WikiMedia;
 using Common.WikiMedia.DTOs;
 using Common.WikiMedia.Repositories;
 using Database.Tours.DataObjects;
 using Database.Tours.Repositories;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using Service.Tours.DataStructure;
 using Service.Tours.Importer;
 
 namespace Service.Tours.Tests;
@@ -393,5 +395,135 @@ public class LinkinpediaImportConcertServiceTest
         Assert.Single(result.FoundCities);
         Assert.Single(result.FoundVenues);
         Assert.Single(result.FoundTours);
+    }
+
+    [Fact]
+    public async Task GetImportStatusList_NoneImported()
+    {
+        // Set up mock data
+        var page1 = new LinkinpediaConcertListEntryBo
+        {
+            WikiPageId = "Live:20240905",
+            ShowType = "main",
+            Country = "USA",
+            City = "Los Angeles",
+            DateString = "2024-09-05",
+            State = "California",
+            Province = "",
+            UkCountry = "",
+            Venue = "",
+            Tour = "",
+            TourLeg = ""
+        };
+        
+        var page2 = new LinkinpediaConcertListEntryBo
+        {
+            WikiPageId = "Live:20240922",
+            ShowType = "main",
+            Country = "Germany",
+            City = "Hamburg",
+            DateString = "2024-09-22",
+            State = "",
+            Province = "",
+            UkCountry = "",
+            Venue = "Barclay's Arena",
+            Tour = "From Zero World Tour",
+            TourLeg = ""
+        };
+        
+        var mockQueryResult = new List<LinkinpediaConcertListEntryBo> { page1, page2 };
+
+        _wikiMediaRepository
+            .RunCargoQueryAsync<LinkinpediaConcertListEntryBo>(Arg.Any<string[]>(), Arg.Any<string[]>(), Arg.Any<CargoQueryWhereClause[]>(), Arg.Any<string[]>(), Arg.Is(100), Arg.Any<CancellationToken>())
+            .Returns(mockQueryResult.Select(r => new CargoQueryResponseItemDto<LinkinpediaConcertListEntryBo> { Value = r }).ToAsyncEnumerable());
+        
+        // run the test
+        var result = await _sut
+            .GetImportStatusList()
+            .ToArrayAsync();
+        Assert.Equal(2, result.Length);
+
+        var status1 = result.First(r => r.WikiPageId == page1.WikiPageId);
+        Assert.Equal(page1.WikiPageId, status1.WikiPageId);
+        Assert.Equal(ConcertImportStatusBo.Status.NotImported, status1.ImportStatus);
+        
+        var status2 = result.First(r => r.WikiPageId == page2.WikiPageId);
+        Assert.Equal(page2.WikiPageId, status2.WikiPageId);
+        Assert.Equal(ConcertImportStatusBo.Status.NotImported, status2.ImportStatus);
+        
+        // verify mock calls
+        _concertRepository.GetConcertsByWikiPageId(Arg.Is<string>(p => p == page1.WikiPageId)).Received(1);
+        _concertRepository.GetConcertsByWikiPageId(Arg.Is<string>(p => p == page2.WikiPageId)).Received(1);
+        _concertRepository.GetConcertsByWikiPageId(Arg.Any<string>()).DidNotReceive();
+    }
+    
+    [Fact]
+    public async Task GetImportStatusList_OneImportedWithoutSetlist()
+    {
+        // Set up mock data
+        var page1 = new LinkinpediaConcertListEntryBo
+        {
+            WikiPageId = "Live:20240905",
+            ShowType = "main",
+            Country = "USA",
+            City = "Los Angeles",
+            DateString = "2024-09-05",
+            State = "California",
+            Province = "",
+            UkCountry = "",
+            Venue = "",
+            Tour = "",
+            TourLeg = ""
+        };
+        
+        var page2 = new LinkinpediaConcertListEntryBo
+        {
+            WikiPageId = "Live:20240922",
+            ShowType = "main",
+            Country = "Germany",
+            City = "Hamburg",
+            DateString = "2024-09-22",
+            State = "",
+            Province = "",
+            UkCountry = "",
+            Venue = "Barclay's Arena",
+            Tour = "From Zero World Tour",
+            TourLeg = ""
+        };
+
+        var existingConcert2 = new ConcertDo
+        {
+            Id = "concert2",
+            LinkinpediaUrl = $"https://wiki/{page2.WikiPageId}",
+        };
+        
+        var mockQueryResult = new List<LinkinpediaConcertListEntryBo> { page1, page2 };
+
+        _wikiMediaRepository
+            .RunCargoQueryAsync<LinkinpediaConcertListEntryBo>(Arg.Any<string[]>(), Arg.Any<string[]>(), Arg.Any<CargoQueryWhereClause[]>(), Arg.Any<string[]>(), Arg.Is(100), Arg.Any<CancellationToken>())
+            .Returns(mockQueryResult.Select(r => new CargoQueryResponseItemDto<LinkinpediaConcertListEntryBo> { Value = r }).ToAsyncEnumerable());
+
+        var concertQueryResult = new List<ConcertDo> { existingConcert2 };
+        _concertRepository.GetConcertsByWikiPageId(Arg.Is<string>(id => id == page2.WikiPageId))
+            .Returns(concertQueryResult.ToAsyncEnumerable());
+        
+        // run the test
+        var result = await _sut
+            .GetImportStatusList()
+            .ToArrayAsync();
+        Assert.Equal(2, result.Length);
+
+        var status1 = result.First(r => r.WikiPageId == page1.WikiPageId);
+        Assert.Equal(page1.WikiPageId, status1.WikiPageId);
+        Assert.Equal(ConcertImportStatusBo.Status.NotImported, status1.ImportStatus);
+        
+        var status2 = result.First(r => r.WikiPageId == page2.WikiPageId);
+        Assert.Equal(page2.WikiPageId, status2.WikiPageId);
+        Assert.Equal(ConcertImportStatusBo.Status.Imported, status2.ImportStatus);
+        
+        // verify mock calls
+        _concertRepository.GetConcertsByWikiPageId(Arg.Is<string>(p => p == page1.WikiPageId)).Received(1);
+        _concertRepository.GetConcertsByWikiPageId(Arg.Is<string>(p => p == page2.WikiPageId)).Received(1);
+        _concertRepository.GetConcertsByWikiPageId(Arg.Any<string>()).DidNotReceive();
     }
 }

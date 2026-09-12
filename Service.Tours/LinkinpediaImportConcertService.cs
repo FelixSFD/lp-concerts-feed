@@ -32,6 +32,11 @@ public class LinkinpediaImportConcertService(
     IConcertRepository concertRepository,
     ILogger<LinkinpediaImportConcertService> logger)
 {
+    /// <summary>
+    /// Returns a list of concerts on Linkinpedia and information on whether they are already imported
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public IAsyncEnumerable<ConcertImportStatusBo> GetImportStatusList(
         CancellationToken cancellationToken = default)
     {
