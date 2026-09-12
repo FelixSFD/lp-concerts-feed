@@ -156,6 +156,7 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpGet("import")]
+    [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
     public async Task<ActionResult<LinkinpediaImportStatusDto>> GetImportStatus(CancellationToken cancellationToken)
     {
         logger.LogDebug("Getting Linkinpedia import status");
