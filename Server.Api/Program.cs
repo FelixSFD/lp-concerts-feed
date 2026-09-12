@@ -201,7 +201,7 @@ builder.Services.AddScoped<TourService>();
 builder.Services.AddScoped<ConcertService>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IWikiMediaRepository, WikiMediaRepository>(b => new WikiMediaRepository(b.GetRequiredService<HttpClient>(),
-    LinkinpediaImportService.LinkinpediaRestApiBaseUrl));
+    LinkinpediaImportService.LinkinpediaRestApiBaseUrl, b.GetRequiredService<ILogger<WikiMediaRepository>>()));
 builder.Services.AddScoped<TourdataWikitextParser>();
 builder.Services.AddScoped<LinkinpediaImportConcertService>();
 
