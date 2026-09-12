@@ -413,5 +413,36 @@ internal static class DtoMapper
         };
     }
 
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bo">BusinessObject to map</param>
+    /// <returns>the mapped DTO</returns>
+    public static LinkinpediaImportConcertStatusDto ToDto(this ConcertImportStatusBo bo)
+    {
+        return new LinkinpediaImportConcertStatusDto
+        {
+            WikiPageId = bo.WikiPageId,
+            ImportStatus = bo.ImportStatus.ToDto(),
+            Concert = bo.Concert?.ToDto()
+        };
+    }
+
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bo">BusinessObject to map</param>
+    /// <returns>the mapped DTO</returns>
+    public static LinkinpediaImportConcertStatusDto.ImportStatusEnum ToDto(this ConcertImportStatusBo.Status bo)
+    {
+        return bo switch
+        {
+            ConcertImportStatusBo.Status.Imported => LinkinpediaImportConcertStatusDto.ImportStatusEnum.Imported,
+            ConcertImportStatusBo.Status.NotImported => LinkinpediaImportConcertStatusDto.ImportStatusEnum.NotImported,
+            ConcertImportStatusBo.Status.ImportedWithSetlists => LinkinpediaImportConcertStatusDto.ImportStatusEnum.ImportedNoSetlist,
+            _ => throw new ArgumentOutOfRangeException(nameof(bo), bo, null)
+        };
+    }
+
     #endregion
 }

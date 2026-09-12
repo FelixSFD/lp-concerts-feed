@@ -92,6 +92,24 @@ paths:
         httpMethod: GET
         uri: https://api.dev.lpshows.felixsfd.de/v3/Concerts
   
+  /v3/Concerts/import:
+    get:
+      operationId: GetConcertImportStatus
+      tags:
+        - Concerts
+      responses:
+        200:
+          description: A JSON object with all concerts from Linkinpedia and their import status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LinkinpediaImportStatus"
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+  
   /v3/Concerts/import/{wikiPageId}:
     get: 
       operationId: GetConcertImportPlan

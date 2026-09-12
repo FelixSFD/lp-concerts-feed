@@ -150,6 +150,37 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
         return Ok(importPlan.ToDto());
     }
 
+    /// <summary>
+    /// Returns a list of all concerts on Linkinpedia and their import status.
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("import")]
+    public async Task<ActionResult<LinkinpediaImportStatusDto>> GetImportStatus(CancellationToken cancellationToken)
+    {
+        logger.LogDebug("Getting Linkinpedia import status");
+        var wikiPagesWithStatus = await linkinpediaImportConcertService
+            .GetImportStatusList(cancellationToken)
+            .Select(DtoMapper.ToDto)
+            .ToListAsync(cancellationToken);
+        logger.LogDebug("Retrieved all wiki pages and their import status.");
+
+        var result = new LinkinpediaImportStatusDto
+        {
+            Concerts = wikiPagesWithStatus,
+            NotImportedCount = wikiPagesWithStatus.Count(s =>
+                s.ImportStatus == LinkinpediaImportConcertStatusDto.ImportStatusEnum.NotImported),
+            ImportedWithoutSetlistCount = wikiPagesWithStatus.Count(s =>
+                s.ImportStatus == LinkinpediaImportConcertStatusDto.ImportStatusEnum.ImportedNoSetlist),
+            ImportedWithSetlistCount = wikiPagesWithStatus.Count(s =>
+                s.ImportStatus == LinkinpediaImportConcertStatusDto.ImportStatusEnum.Imported)
+        };
+        
+        logger.LogDebug("Generated import status. Counts: {countNotImported} not imported, {countNoSetlist} imported without setlist, {countWithSetlist} imported with setlist.", result.NotImportedCount, result.ImportedWithoutSetlistCount, result.ImportedWithSetlistCount);
+        
+        return Ok(result);
+    }
+
     private async Task EvictConcertCacheAsync(CancellationToken cancellationToken = default)
     {
         try
