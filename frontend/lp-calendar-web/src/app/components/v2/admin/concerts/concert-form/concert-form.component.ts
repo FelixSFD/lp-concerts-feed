@@ -32,6 +32,7 @@ import {
   ImportConcertDialogContentComponent
 } from '../import-concert-dialog-content/import-concert-dialog-content.component';
 import { firstValueFrom } from 'rxjs';
+import { ToggleSwitch } from 'primeng/toggleswitch';
 
 @Component({
   selector: 'app-concert-form',
@@ -53,6 +54,7 @@ import { firstValueFrom } from 'rxjs';
     InputGroupAddon,
     Dialog,
     ImportConcertDialogContentComponent,
+    ToggleSwitch,
   ],
   templateUrl: './concert-form.component.html',
   styleUrl: './concert-form.component.css',
@@ -96,6 +98,7 @@ export class ConcertFormComponent implements OnInit {
     tourLegId: new FormControl<string | null>(null),
     venue: new FormControl<VenueDto | null>(null, [Validators.required]),
     postedStartTime: new FormControl<Date | null>(null, [Validators.required]),
+    timeIsPlaceholder: new FormControl(false, []),
     lpuEarlyEntryConfirmed: new FormControl(false, []),
     lpuEarlyEntryTime: new FormControl('', []),
     doorsTime: new FormControl('', []),
@@ -207,6 +210,7 @@ export class ConcertFormComponent implements OnInit {
       tourLegId: tourLegId ?? null,
       venueId: venueId ?? null,
       postedStartTime: zonedDateTime,
+      timeIsPlaceholder: this.concertForm.value.timeIsPlaceholder ?? false,
       timezone: timezone,
       mainStageTime: lpStageDateTime,
       doorsTime: doorsDateTime,
@@ -256,6 +260,7 @@ export class ConcertFormComponent implements OnInit {
     this.concertForm.controls.expectedSetDuration.setValue(setDurationStr ?? null);
 
     this.concertForm.controls.linkinpediaUrl.setValue(concert.linkinpediaUrl ?? null);
+    this.concertForm.controls.timeIsPlaceholder.setValue(concert.timeIsPlaceholder ?? false);
 
     this.venueTimezone.set(timezones.find(t => t.tzCode == concert.venue?.timeZoneId) ?? null);
   }
@@ -387,6 +392,7 @@ export class ConcertFormContent {
   venueId?: number | null;
   timezone!: string;
   postedStartTime!: DateTime;
+  timeIsPlaceholder!: boolean;
   doorsTime?: DateTime | null;
   mainStageTime?: DateTime | null;
   expectedSetDuration?: number | null;

@@ -1835,6 +1835,9 @@ components:
         postedStartTime:
           type: string
           format: date-time
+        timeIsPlaceholder:
+          type: boolean
+          description: True if the postedStartTime is a placeholder. This usually is the case for old concerts where we never tracked the times.
         mainStageTime:
           type: string
           format: date-time
@@ -1923,6 +1926,9 @@ components:
         postedStartTime:
           type: string
           format: date-time
+        timeIsPlaceholder:
+          type: boolean
+          description: True if the postedStartTime is a placeholder. This usually is the case for old concerts where we never tracked the times.
         mainStageTime:
           type: string
           format: date-time
@@ -2072,6 +2078,9 @@ components:
         postedStartTime:
           type: string
           format: date-time
+        timeIsPlaceholder:
+          type: boolean
+          description: True if the postedStartTime is a placeholder. This usually is the case for old concerts where we never tracked the times.
         mainStageTime:
           type: string
           format: date-time
@@ -2198,6 +2207,9 @@ components:
         postedStartTime:
           type: string
           format: date-time
+        timeIsPlaceholder:
+          type: boolean
+          description: True if the postedStartTime is a placeholder. This usually is the case for old concerts where we never tracked the times.
         mainStageTime:
           type: string
           nullable: true

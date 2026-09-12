@@ -45,6 +45,11 @@ public class ConcertDetailsBo
     public DateTimeOffset PostedStartTime { get; set; }
     
     /// <summary>
+    /// True if the <see cref="PostedStartTime"/> is a placeholder. This usually is the case for old concerts where we never tracked the times.
+    /// </summary>
+    public bool TimeIsPlaceholder { get; set; }
+    
+    /// <summary>
     /// Time in the venue's timezone when Linkin Park will be on stage
     /// </summary>
     public DateTime? MainStageTime { get; set; }

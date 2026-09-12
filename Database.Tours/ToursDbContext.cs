@@ -2,7 +2,6 @@ using Common.Database.DataObjects;
 using Common.Database.DataObjects.Types;
 using Database.Tours.DataObjects;
 using Microsoft.EntityFrameworkCore;
-using MySql.EntityFrameworkCore.Extensions;
 
 namespace Database.Tours;
 

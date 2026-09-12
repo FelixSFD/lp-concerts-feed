@@ -66,14 +66,15 @@ export class EditConcertPageComponent implements OnInit {
 
     const request: UpdateConcertRequestDto = {
       customTitle: formContent.customTitle ?? undefined,
-      concertTypeId: formContent.concertTypeId != null ? String(formContent.concertTypeId) : undefined,
+      concertTypeId: formContent.concertTypeId != null ? formContent.concertTypeId : undefined,
       tourId: formContent.tourId ?? undefined,
       tourLegId: formContent.tourLegId ?? undefined,
       venueId: formContent.venueId ?? undefined,
       postedStartTime: formContent.postedStartTime.toISO()!,
+      timeIsPlaceholder: formContent.timeIsPlaceholder ?? undefined,
       doorsTime: formContent.doorsTime?.toISO() ?? undefined,
       mainStageTime: formContent.mainStageTime?.toISO() ?? undefined,
-      expectedSetDurationMinutes: String(formContent.expectedSetDuration) ?? undefined,
+      expectedSetDurationMinutes: formContent.expectedSetDuration ?? undefined,
       linkinpediaUrl: formContent.linkinpediaUrl ?? undefined,
     };
 

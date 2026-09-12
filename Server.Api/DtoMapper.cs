@@ -1,6 +1,4 @@
-using System.Linq;
 using Common.Contracts.Generated.Models;
-using Database.Tours.DataObjects;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Tours;
 using LPCalendar.DataStructure.Tours.Locations;
@@ -302,6 +300,7 @@ internal static class DtoMapper
         {
             CustomTitle = dto.CustomTitle,
             PostedStartTime = dto.PostedStartTime ?? throw new ArgumentNullException(nameof(dto.PostedStartTime)),
+            TimeIsPlaceholder = dto.TimeIsPlaceholder ?? false,
             MainStageTime = dto.MainStageTime?.DateTime,
             DoorsTime = dto.DoorsTime?.DateTime,
             LpuEarlyEntryTime = dto.LpuEarlyEntryTime?.DateTime,
@@ -323,6 +322,7 @@ internal static class DtoMapper
         {
             CustomTitle = dto.CustomTitle,
             PostedStartTime = dto.PostedStartTime ?? throw new ArgumentNullException(nameof(dto.PostedStartTime)),
+            TimeIsPlaceholder = dto.TimeIsPlaceholder ?? false,
             MainStageTime = dto.MainStageTime?.DateTime,
             DoorsTime = dto.DoorsTime?.DateTime,
             LpuEarlyEntryTime = dto.LpuEarlyEntryTime?.DateTime,
@@ -349,6 +349,7 @@ internal static class DtoMapper
             CustomTitle = bo.CustomTitle,
             Venue = bo.Venue.ToDto(),
             PostedStartTime = bo.PostedStartTime,
+            TimeIsPlaceholder = bo.TimeIsPlaceholder,
             MainStageTime = bo.MainStageTime,
             DoorsTime = bo.DoorsTime,
             LpuEarlyEntryTime = bo.LpuEarlyEntryTime,

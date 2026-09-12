@@ -443,6 +443,7 @@ internal static class DoMapper
             CustomTitle = bo.CustomTitle,
             VenueId = bo.VenueId,
             PostedStartTime = bo.PostedStartTime,
+            TimeIsPlaceholder = bo.TimeIsPlaceholder,
             MainStageTime = bo.MainStageTime,
             DoorsTime = bo.DoorsTime,
             LpuEarlyEntryTime = bo.LpuEarlyEntryTime,
@@ -468,6 +469,7 @@ internal static class DoMapper
         dataObject.CustomTitle = bo.CustomTitle;
         dataObject.VenueId = bo.VenueId;
         dataObject.PostedStartTime = bo.PostedStartTime;
+        dataObject.TimeIsPlaceholder = bo.TimeIsPlaceholder;
         dataObject.MainStageTime = bo.MainStageTime;
         dataObject.DoorsTime = bo.DoorsTime;
         dataObject.LpuEarlyEntryTime = bo.LpuEarlyEntryTime;
@@ -496,6 +498,7 @@ internal static class DoMapper
             CustomTitle = dataObject.CustomTitle,
             VenueId = dataObject.VenueId,
             PostedStartTime = dataObject.PostedStartTime,
+            TimeIsPlaceholder = dataObject.TimeIsPlaceholder,
             MainStageTime = dataObject.MainStageTime,
             DoorsTime = dataObject.DoorsTime,
             LpuEarlyEntryTime = dataObject.LpuEarlyEntryTime,
@@ -523,6 +526,7 @@ internal static class DoMapper
             CustomTitle = dataObject.CustomTitle,
             Venue = dataObject.Venue.ToBoWithAllDetails(),
             PostedStartTime = dataObject.PostedStartTime,
+            TimeIsPlaceholder = dataObject.TimeIsPlaceholder,
             MainStageTime = dataObject.MainStageTime,
             DoorsTime = dataObject.DoorsTime,
             LpuEarlyEntryTime = dataObject.LpuEarlyEntryTime,

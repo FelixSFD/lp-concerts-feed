@@ -37,6 +37,7 @@ export class AddConcertPageComponent {
       tourLegId: formContent.tourLegId ?? undefined,
       venueId: formContent.venueId ?? undefined,
       postedStartTime: formContent.postedStartTime.toISO()!,
+      timeIsPlaceholder: formContent.timeIsPlaceholder ?? undefined,
       doorsTime: formContent.doorsTime?.toISO() ?? undefined,
       mainStageTime: formContent.mainStageTime?.toISO() ?? undefined,
       expectedSetDurationMinutes: formContent.expectedSetDuration ?? undefined,
