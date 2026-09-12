@@ -64,6 +64,7 @@ export class ImportConcertDialogContentComponent implements OnInit {
       this.createTourLegForm.controls.legName.setValue(plan.tourLegName ?? null);
       this.createCountryForm.controls.name.setValue(plan.countryName ?? null);
       this.createCityForm.controls.name.setValue(plan.cityName ?? null);
+      this.createCityForm.controls.nativeName.setValue(plan.cityNativeName ?? null);
       this.createVenueForm.controls.currentName.setValue(plan.venueName ?? null);
     }
   });
