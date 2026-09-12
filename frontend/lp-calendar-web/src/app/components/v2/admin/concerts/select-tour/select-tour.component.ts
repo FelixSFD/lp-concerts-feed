@@ -57,7 +57,7 @@ export class SelectTourComponent implements ControlValueAccessor, OnInit {
   private onTouched: () => void = () => {};
 
   ngOnInit() {
-    this.loadTours();
+    this.loadTours().subscribe();
   }
 
   loadTours(): Observable<TourDto[]> {
@@ -66,12 +66,13 @@ export class SelectTourComponent implements ControlValueAccessor, OnInit {
       return of(this.availableTours);
     }
 
+    console.debug('Loading tours from server');
     this.loading.set(true);
     return this.toursService.getTours().pipe(
       tap({
-        next: (tours: any) => {
-          const tourList = Array.isArray(tours) ? tours : tours ? [tours] : [];
-          this.tours.set(tourList);
+        next: (tours: TourDto[]) => {
+          console.debug('Loaded tours from server', tours);
+          this.tours.set(tours);
           this.loading.set(false);
         },
         error: (err) => {
