@@ -3,7 +3,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {RouterLink} from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import {Button} from 'primeng/button';
+import { Button, ButtonDirective } from 'primeng/button';
 import {ButtonGroup} from 'primeng/buttongroup';
 import {Card} from 'primeng/card';
 import {IconField} from 'primeng/iconfield';
@@ -21,6 +21,7 @@ import { Divider } from 'primeng/divider';
 import { ConcertStatus } from '../../../../data/concert-status';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { AuthService } from '../../../../auth/auth.service';
+import { Panel } from 'primeng/panel';
 
 @Component({
   selector: 'app-manage-concerts-page',
@@ -37,6 +38,8 @@ import { AuthService } from '../../../../auth/auth.service';
     TableModule,
     Divider,
     ConfirmDialog,
+    Panel,
+    ButtonDirective,
   ],
   templateUrl: './manage-concerts-page.component.html',
   styleUrl: './manage-concerts-page.component.css',
