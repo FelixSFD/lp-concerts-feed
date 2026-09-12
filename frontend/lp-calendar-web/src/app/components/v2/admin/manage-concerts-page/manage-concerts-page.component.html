@@ -16,6 +16,8 @@
     [globalFilterFields]="['customTitle', 'tour.name', 'tourLeg.name', 'venue.currentName', 'venue.city.country.name', 'venue.city.country.nativeName', 'venue.city.name', 'venue.city.nativeName', 'postedStartTime']"
     [tableStyle]="{ 'min-width': '75rem' }"
     [scrollable]="true"
+    sortField="postedStartTime"
+    [sortOrder]="-1"
   >
     <ng-template #caption>
       <div class="flex">
