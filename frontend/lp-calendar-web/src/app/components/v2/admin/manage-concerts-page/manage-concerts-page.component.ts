@@ -1,5 +1,5 @@
 import {DatePipe} from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {RouterLink} from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -15,7 +15,11 @@ import {ConcertTitleGenerator} from '../../../../data/concert-title-generator';
 import {LegacyConcertsService} from '../../../../services/legacy-concerts.service';
 import { DateTime } from 'luxon';
 import { ConcertFilter } from '../../../../data/concert-filter';
-import { ConcertDetailsDto, LinkinpediaImportStatusDto } from '../../../../modules/lpshows-api/v3';
+import {
+  ConcertDetailsDto,
+  LinkinpediaImportConcertStatusDto,
+  LinkinpediaImportStatusDto
+} from '../../../../modules/lpshows-api/v3';
 import { ToursService } from '../../../../services/tours.service';
 import { Divider } from 'primeng/divider';
 import { ConcertStatus } from '../../../../data/concert-status';
@@ -23,6 +27,7 @@ import { ConfirmDialog } from 'primeng/confirmdialog';
 import { AuthService } from '../../../../auth/auth.service';
 import { Panel } from 'primeng/panel';
 import { ConcertsService } from '../../../../services/concerts.service';
+import { MeterGroup, MeterItem } from 'primeng/metergroup';
 
 @Component({
   selector: 'app-manage-concerts-page',
@@ -40,6 +45,7 @@ import { ConcertsService } from '../../../../services/concerts.service';
     Divider,
     ConfirmDialog,
     Panel,
+    MeterGroup,
   ],
   templateUrl: './manage-concerts-page.component.html',
   styleUrl: './manage-concerts-page.component.css',
@@ -58,10 +64,32 @@ export class ManageConcertsPageComponent implements OnInit {
   concertImportStats$ = signal<LinkinpediaImportStatusDto | null>(null);
   isLoadingImportStats$ = signal(false);
 
+  concertImportStatusMeterGroup$ = signal<MeterItem[]>([
+    { label: `Fully imported (${this.concertImportStats$()?.importedWithSetlistCount ?? 0})`, value: 0, color: '#10B981' },
+    { label: `Imported without setlist (${this.concertImportStats$()?.importedWithoutSetlistCount ?? 0})`, value: 0, color: '#EAB308' }
+  ]);
+
   isLoadingOld$ = false;
   isLoading$ = false;
   globalSearchTextOld$ = '';
   globalSearchText$ = '';
+
+  private updateImportStatsEffect = effect(() => {
+    this.concertImportStatusMeterGroup$.update(stats => {
+      console.debug("Updating stats...");
+
+      let numberOfPages = this.concertImportStats$()?.notImportedCount ?? 0;
+      let importedPercentage = (this.concertImportStats$()?.importedWithSetlistCount ?? 0) / numberOfPages;
+      let importedWithoutSetlistPercentage = (this.concertImportStats$()?.importedWithoutSetlistCount ?? 0) / numberOfPages;
+
+      console.debug("Imported percentage:", importedPercentage, "Without setlist:", importedWithoutSetlistPercentage);
+
+      return [
+        { label: `Fully imported (${this.concertImportStats$()?.importedWithSetlistCount ?? 0})`, value: importedPercentage * 100, color: '#10B981'},
+        { label: `Imported without setlist (${this.concertImportStats$()?.importedWithoutSetlistCount ?? 0})`, value: importedWithoutSetlistPercentage * 100, color: '#EAB308' }
+      ];
+    });
+  });
 
   ngOnInit() {
     this.reloadList();
