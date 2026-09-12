@@ -1,3 +1,4 @@
+using Common.WikiMedia;
 using Common.WikiMedia.Repositories;
 using Database.Tours.Repositories;
 using LPCalendar.DataStructure.Tours;
@@ -28,8 +29,45 @@ public class LinkinpediaImportConcertService(
     IVenueRepository venueRepository,
     ITourRepository tourRepository,
     IConcertTypeRepository concertTypeRepository,
+    IConcertRepository concertRepository,
     ILogger<LinkinpediaImportConcertService> logger)
 {
+    public IAsyncEnumerable<ConcertImportStatusBo> GetImportStatusList(
+        CancellationToken cancellationToken = default)
+    {
+        logger.LogDebug("Getting list of concerts on Linkinpedia...");
+        string[] tables = ["Shows"];
+        string[] fields = ["Artist", "ShowPage", "Date", "ShowType", "Country", "State", "Province", "UKCountry", "City", "Venue", "Tour", "TourLeg"];
+        CargoQueryWhereClause[] where = [
+            new()
+            {
+                FieldName = "Artist",
+                Value = "Linkin Park",
+                Comparison = CargoQueryWhereClause.Operation.IsEqual,
+            }
+        ];
+        string[] orderBy = ["Date"];
+        
+        return wikiMediaRepository
+            .RunCargoQueryAsync<LinkinpediaConcertListEntryBo>(tables, fields, where, orderBy, pageSize: 100, cancellationToken)
+            .Select(entry => entry.Value)
+            .Select(async (concert, ct) =>
+            {
+                var concertImported = await concertRepository
+                    .GetConcertsByWikiPageId(concert.WikiPageId)
+                    .AnyAsync(ct);
+                
+                var resultItem = new ConcertImportStatusBo()
+                {
+                    WikiPageId = concert.WikiPageId,
+                    ImportStatus = concertImported
+                        ? ConcertImportStatusBo.Status.Imported
+                        : ConcertImportStatusBo.Status.NotImported
+                };
+                return resultItem;
+            });
+    }
+    
     public async Task<ImportConcertPreviewBo> GetConcertImportPlan(string wikiPageId, CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Generating concert import plan for concert: {page}", wikiPageId);

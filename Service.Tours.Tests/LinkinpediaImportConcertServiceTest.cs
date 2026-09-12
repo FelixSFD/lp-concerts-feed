@@ -18,6 +18,7 @@ public class LinkinpediaImportConcertServiceTest
     private readonly IVenueRepository _venueRepository;
     private readonly ITourRepository _tourRepository;
     private readonly IConcertTypeRepository _concertTypeRepository;
+    private readonly IConcertRepository _concertRepository;
     private readonly ILogger<LinkinpediaImportConcertService> _logger;
     private readonly LinkinpediaImportConcertService _sut;
 
@@ -31,6 +32,7 @@ public class LinkinpediaImportConcertServiceTest
         _venueRepository = Substitute.For<IVenueRepository>();
         _tourRepository = Substitute.For<ITourRepository>();
         _concertTypeRepository = Substitute.For<IConcertTypeRepository>();
+        _concertRepository = Substitute.For<IConcertRepository>();
         _logger = Substitute.For<ILogger<LinkinpediaImportConcertService>>();
 
         _sut = new LinkinpediaImportConcertService(
@@ -42,6 +44,7 @@ public class LinkinpediaImportConcertServiceTest
             _venueRepository,
             _tourRepository,
             _concertTypeRepository,
+            _concertRepository,
             _logger
         );
     }

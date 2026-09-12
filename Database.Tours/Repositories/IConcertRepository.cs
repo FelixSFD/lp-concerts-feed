@@ -33,6 +33,13 @@ public interface IConcertRepository : ISingleKeyRepositoryBase<ConcertDo, string
     /// <returns>List of concerts</returns>
     IAsyncEnumerable<ConcertDo> GetConcerts(CancellationToken token, ConcertFilter? filter = null, IEnumerable<SortDescriptor>? orderBy = null,
         IPaginationParams? paginationParams = null, bool includeDeleted = false);
+    
+    /// <summary>
+    /// Returns a list of concerts that are linked to a given Linkinpedia page. Ideally, this should only return one concert, but there is technically no unique key.
+    /// </summary>
+    /// <param name="wikiPageId">ID of the page in Linkinpedia</param>
+    /// <returns></returns>
+    IAsyncEnumerable<ConcertDo> GetConcertsByWikiPageId(string wikiPageId);
 }
 
 

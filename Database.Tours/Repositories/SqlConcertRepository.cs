@@ -91,4 +91,12 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
                  (filter.After == null || c.PostedStartTime > filter.After),
             IncludeAllReferences, orderBy, paginationParams, includeDeleted);
     }
+
+    /// <inheritdoc/>
+    public IAsyncEnumerable<ConcertDo> GetConcertsByWikiPageId(string wikiPageId)
+    {
+        return FindDeletableAsync(
+            c => c.LinkinpediaUrl != null && c.LinkinpediaUrl.ToString()!.EndsWith(wikiPageId, StringComparison.OrdinalIgnoreCase),
+            IncludeAllReferences);
+    }
 }
