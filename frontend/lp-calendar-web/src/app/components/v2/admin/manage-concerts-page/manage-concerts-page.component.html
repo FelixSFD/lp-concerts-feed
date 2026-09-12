@@ -31,13 +31,34 @@
     </ng-template>
     <ng-template #header>
       <tr>
-        <th scope="col" pFrozenColumn>Date</th>
-        <th scope="col">Tour</th>
-        <th scope="col">Country</th>
-        <th scope="col">City</th>
-        <th scope="col">Venue</th>
-        <th scope="col">Custom Title</th>
-        <th scope="col">Status</th>
+        <th scope="col" pFrozenColumn pSortableColumn="postedStartTime">
+          Date
+          <p-sort-icon field="name" />
+        </th>
+        <th scope="col" pSortableColumn="tour.name">
+          Tour
+          <p-sort-icon field="tour.name" />
+        </th>
+        <th scope="col" pSortableColumn="venue.city.country.name">
+          Country
+          <p-sort-icon field="venue.city.country.name" />
+        </th>
+        <th scope="col" pSortableColumn="venue.city.name">
+          City
+          <p-sort-icon field="venue.city.name" />
+        </th>
+        <th scope="col" pSortableColumn="venue.currentName">
+          Venue
+          <p-sort-icon field="venue.currentName" />
+        </th>
+        <th scope="col" pSortableColumn="customTitle">
+          Custom Title
+          <p-sort-icon field="customTitle" />
+        </th>
+        <th scope="col" pSortableColumn="status">
+          Status
+          <p-sort-icon field="status" />
+        </th>
         <th scope="col" alignFrozen="right" pFrozenColumn></th>
       </tr>
     </ng-template>
