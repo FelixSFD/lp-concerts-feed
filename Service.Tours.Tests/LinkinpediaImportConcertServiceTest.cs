@@ -461,6 +461,21 @@ public class LinkinpediaImportConcertServiceTest
     public async Task GetImportStatusList_OneImportedWithoutSetlist()
     {
         // Set up mock data
+        var countryGer = new CountryDo
+        {
+            IsoCode = "GER",
+            Name = "Germany",
+            NativeName = "Deutschland"
+        };
+
+        var cityHamburg = new CityDo
+        {
+            CountryCode = "GER",
+            Name = "Hamburg",
+            NativeName = "Hamburg",
+            Country = countryGer,
+        };
+        
         var page1 = new LinkinpediaConcertListEntryBo
         {
             WikiPageId = "Live:20240905",
@@ -490,10 +505,26 @@ public class LinkinpediaImportConcertServiceTest
             Tour = "From Zero World Tour",
             TourLeg = ""
         };
+        
+        var existingConcert1 = new ConcertDo
+        {
+            Id = "concert1",
+            Type = new ConcertTypeDo { Id = 1, Name = "Linkin Park Show" },
+            LinkinpediaUrl = null,
+        };
 
         var existingConcert2 = new ConcertDo
         {
             Id = "concert2",
+            Type = new ConcertTypeDo { Id = 1, Name = "Linkin Park Show" },
+            Venue = new VenueDo
+            {
+                CountryCode = "GER",
+                CurrentName = "Barclay's Arena",
+                TimeZone = "Europe/Berlin",
+                City = cityHamburg,
+                Country = countryGer,
+            },
             LinkinpediaUrl = $"https://wiki/{page2.WikiPageId}",
         };
         
@@ -503,8 +534,8 @@ public class LinkinpediaImportConcertServiceTest
             .RunCargoQueryAsync<LinkinpediaConcertListEntryBo>(Arg.Any<string[]>(), Arg.Any<string[]>(), Arg.Any<CargoQueryWhereClause[]>(), Arg.Any<string[]>(), Arg.Is(100), Arg.Any<CancellationToken>())
             .Returns(mockQueryResult.Select(r => new CargoQueryResponseItemDto<LinkinpediaConcertListEntryBo> { Value = r }).ToAsyncEnumerable());
 
-        var concertQueryResult = new List<ConcertDo> { existingConcert2 };
-        _concertRepository.GetConcertsByWikiPageId(Arg.Is<string>(id => id == page2.WikiPageId))
+        var concertQueryResult = new List<ConcertDo> { existingConcert1, existingConcert2 };
+        _concertRepository.FindAllWithReferencesAsync(Arg.Any<CancellationToken>())
             .Returns(concertQueryResult.ToAsyncEnumerable());
         
         // run the test
@@ -522,8 +553,8 @@ public class LinkinpediaImportConcertServiceTest
         Assert.Equal(ConcertImportStatusBo.Status.Imported, status2.ImportStatus);
         
         // verify mock calls
-        _concertRepository.GetConcertsByWikiPageId(Arg.Is<string>(p => p == page1.WikiPageId)).Received(1);
-        _concertRepository.GetConcertsByWikiPageId(Arg.Is<string>(p => p == page2.WikiPageId)).Received(1);
         _concertRepository.GetConcertsByWikiPageId(Arg.Any<string>()).DidNotReceive();
+        _concertRepository.FindAllWithReferencesAsync(Arg.Any<CancellationToken>())
+            .Received(1);
     }
 }

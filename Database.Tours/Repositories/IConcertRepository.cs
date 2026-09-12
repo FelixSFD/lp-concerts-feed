@@ -40,6 +40,13 @@ public interface IConcertRepository : ISingleKeyRepositoryBase<ConcertDo, string
     /// <param name="wikiPageId">ID of the page in Linkinpedia</param>
     /// <returns></returns>
     IAsyncEnumerable<ConcertDo> GetConcertsByWikiPageId(string wikiPageId);
+    
+    /// <summary>
+    /// Starts a query that returns all concerts with their references. The query can be filtered.
+    /// </summary>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    IAsyncEnumerable<ConcertDo> FindAllWithReferencesAsync(CancellationToken token);
 }
 
 

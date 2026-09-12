@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+using Amazon.Runtime.Internal;
 using Common.WikiMedia;
 using Common.WikiMedia.Repositories;
 using Database.Tours.Repositories;
@@ -37,8 +39,8 @@ public class LinkinpediaImportConcertService(
     /// </summary>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public IAsyncEnumerable<ConcertImportStatusBo> GetImportStatusList(
-        CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<ConcertImportStatusBo> GetImportStatusList(
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Getting list of concerts on Linkinpedia...");
         string[] tables = ["Shows"];
@@ -53,24 +55,41 @@ public class LinkinpediaImportConcertService(
         ];
         string[] orderBy = ["Date"];
         
-        return wikiMediaRepository
+        logger.LogDebug("Preloading concert list...");
+        var concertByWikiPage = await concertRepository
+            .FindAllWithReferencesAsync(cancellationToken)
+            .Where(c => c.LinkinpediaUrl != null)
+            .ToDictionaryAsync(c => c.LinkinpediaUrl?.ToString().Split('/').LastOrDefault() ?? "none", c => c, null, cancellationToken);
+        logger.LogDebug("Preloaded concerts for {concertCount} wiki pages.", concertByWikiPage.Count);
+        
+        var results = wikiMediaRepository
             .RunCargoQueryAsync<LinkinpediaConcertListEntryBo>(tables, fields, where, orderBy, pageSize: 100, cancellationToken)
             .Select(entry => entry.Value)
-            .Select(async (concert, ct) =>
+            .Select(concert =>
             {
-                var concertImported = await concertRepository
-                    .GetConcertsByWikiPageId(concert.WikiPageId)
-                    .AnyAsync(ct);
+                var concertImported = concertByWikiPage.TryGetValue(concert.WikiPageId, out var existingConcert);
                 
-                var resultItem = new ConcertImportStatusBo()
+                var resultItem = new ConcertImportStatusBo
                 {
                     WikiPageId = concert.WikiPageId,
                     ImportStatus = concertImported
                         ? ConcertImportStatusBo.Status.Imported
-                        : ConcertImportStatusBo.Status.NotImported
+                        : ConcertImportStatusBo.Status.NotImported,
+                    Concert = existingConcert?.ToBoWithDetails(),
                 };
                 return resultItem;
             });
+
+        await foreach (var result in results)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                logger.LogDebug("Cancellation requested, stopping iteration.");
+                yield break;
+            }
+            
+            yield return result;
+        }
     }
     
     public async Task<ImportConcertPreviewBo> GetConcertImportPlan(string wikiPageId, CancellationToken cancellationToken = default)

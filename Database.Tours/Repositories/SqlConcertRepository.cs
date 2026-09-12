@@ -99,4 +99,10 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
             c => c.LinkinpediaUrl != null && EF.Functions.Like(c.LinkinpediaUrl, $"%{wikiPageId}"),
             IncludeAllReferences);
     }
+
+    /// <inheritdoc/>
+    public IAsyncEnumerable<ConcertDo> FindAllWithReferencesAsync(CancellationToken token)
+    {
+        return FindDeletableAsync(concert => true, IncludeAllReferences);
+    }
 }
