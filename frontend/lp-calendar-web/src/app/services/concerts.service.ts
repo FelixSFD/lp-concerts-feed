@@ -1,5 +1,5 @@
 import { inject, Service } from '@angular/core';
-import { ConcertsApi } from '../modules/lpshows-api/v3';
+import { ConcertsApi, LinkinpediaImportStatusDto } from '../modules/lpshows-api/v3';
 import { addAuthentication } from '../auth/auth.config';
 import { firstValueFrom } from 'rxjs';
 
@@ -18,6 +18,13 @@ export class ConcertsService {
     console.debug("getImportConcertPlanForConcert", wikiPageId);
     return firstValueFrom(
       this.concertsApi.getConcertImportPlan(wikiPageId)
+    );
+  }
+
+  async getLinkinpediaImportStatus(): Promise<LinkinpediaImportStatusDto> {
+    console.debug("getLinkinpediaImportStatus");
+    return firstValueFrom(
+      this.concertsApi.getConcertImportStatus()
     );
   }
 }

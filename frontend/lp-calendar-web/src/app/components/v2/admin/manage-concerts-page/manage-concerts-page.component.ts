@@ -15,13 +15,14 @@ import {ConcertTitleGenerator} from '../../../../data/concert-title-generator';
 import {LegacyConcertsService} from '../../../../services/legacy-concerts.service';
 import { DateTime } from 'luxon';
 import { ConcertFilter } from '../../../../data/concert-filter';
-import { ConcertDetailsDto } from '../../../../modules/lpshows-api/v3';
+import { ConcertDetailsDto, LinkinpediaImportStatusDto } from '../../../../modules/lpshows-api/v3';
 import { ToursService } from '../../../../services/tours.service';
 import { Divider } from 'primeng/divider';
 import { ConcertStatus } from '../../../../data/concert-status';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { AuthService } from '../../../../auth/auth.service';
 import { Panel } from 'primeng/panel';
+import { ConcertsService } from '../../../../services/concerts.service';
 
 @Component({
   selector: 'app-manage-concerts-page',
@@ -39,13 +40,13 @@ import { Panel } from 'primeng/panel';
     Divider,
     ConfirmDialog,
     Panel,
-    ButtonDirective,
   ],
   templateUrl: './manage-concerts-page.component.html',
   styleUrl: './manage-concerts-page.component.css',
 })
 export class ManageConcertsPageComponent implements OnInit {
-  private readonly concertsService = inject(LegacyConcertsService);
+  private readonly legacyConcertsService = inject(LegacyConcertsService);
+  private readonly concertsService = inject(ConcertsService);
   private readonly toursService = inject(ToursService);
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
@@ -54,6 +55,9 @@ export class ManageConcertsPageComponent implements OnInit {
   concertsOld$ = signal<ConcertDto[]>([]);
   concerts$ = signal<ConcertDetailsDto[]>([]);
   isDeletingConcert$ = signal(false);
+  concertImportStats$ = signal<LinkinpediaImportStatusDto | null>(null);
+  isLoadingImportStats$ = signal(false);
+
   isLoadingOld$ = false;
   isLoading$ = false;
   globalSearchTextOld$ = '';
@@ -61,10 +65,25 @@ export class ManageConcertsPageComponent implements OnInit {
 
   ngOnInit() {
     this.reloadList();
+    this.reloadConcertImportStats();
   }
 
   getTitle(concert: ConcertDto): string {
     return ConcertTitleGenerator.getTitleFor(concert);
+  }
+
+  private reloadConcertImportStats() {
+    this.isLoadingImportStats$.set(true);
+    this.concertsService.getLinkinpediaImportStatus()
+      .then(stats => {
+        this.concertImportStats$.set(stats);
+      })
+      .catch(err => {
+        console.error('Could not load concert import stats', err);
+      })
+      .finally(() => {
+        this.isLoadingImportStats$.set(false);
+      });
   }
 
   private reloadList() {
@@ -76,7 +95,7 @@ export class ManageConcertsPageComponent implements OnInit {
       tour: null,
       onlyFuture: false
     };
-    this.concertsService.getFilteredConcerts(allConcertsFilter, false).subscribe({
+    this.legacyConcertsService.getFilteredConcerts(allConcertsFilter, false).subscribe({
       next: concerts => {
         console.debug('Loaded OLD concerts:', concerts);
         this.concertsOld$.set(concerts);
