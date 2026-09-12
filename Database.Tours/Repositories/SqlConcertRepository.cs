@@ -96,7 +96,7 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
     public IAsyncEnumerable<ConcertDo> GetConcertsByWikiPageId(string wikiPageId)
     {
         return FindDeletableAsync(
-            c => c.LinkinpediaUrl != null && c.LinkinpediaUrl.ToString()!.EndsWith(wikiPageId, StringComparison.OrdinalIgnoreCase),
+            c => c.LinkinpediaUrl != null && EF.Functions.Like(c.LinkinpediaUrl, $"%{wikiPageId}"),
             IncludeAllReferences);
     }
 }
