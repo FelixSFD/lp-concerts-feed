@@ -36,6 +36,7 @@ export class AddConcertPageComponent implements OnInit {
       let wikiPageId = params["wikiPageId"] as string | null | undefined;
       if (wikiPageId) {
         this.concertFormComponent()?.setWikiPageId(wikiPageId);
+        this.concertFormComponent()?.importFromLinkinpediaUrlClicked();
       }
     });
   }
