@@ -1,4 +1,4 @@
-import {DatePipe} from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {RouterLink} from '@angular/router';
@@ -28,6 +28,7 @@ import { AuthService } from '../../../../auth/auth.service';
 import { Panel } from 'primeng/panel';
 import { ConcertsService } from '../../../../services/concerts.service';
 import { MeterGroup, MeterItem } from 'primeng/metergroup';
+import { Badge } from 'primeng/badge';
 
 @Component({
   selector: 'app-manage-concerts-page',
@@ -47,6 +48,8 @@ import { MeterGroup, MeterItem } from 'primeng/metergroup';
     Panel,
     MeterGroup,
     ButtonDirective,
+    Badge,
+    NgTemplateOutlet,
   ],
   templateUrl: './manage-concerts-page.component.html',
   styleUrl: './manage-concerts-page.component.css',

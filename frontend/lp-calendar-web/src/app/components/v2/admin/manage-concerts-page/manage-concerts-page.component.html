@@ -1,5 +1,12 @@
 <p-confirm-dialog />
 
+<ng-template #importStatusBadge let-status="status">
+  <p-badge
+    [value]="status == LinkinpediaImportConcertStatusDto.ImportStatusEnum.Imported ? 'Imported' : status == LinkinpediaImportConcertStatusDto.ImportStatusEnum.NotImported ? 'Not imported' : 'Imported without setlist'"
+    [severity]="status == LinkinpediaImportConcertStatusDto.ImportStatusEnum.Imported ? 'success' : status == LinkinpediaImportConcertStatusDto.ImportStatusEnum.NotImported ? 'danger' : 'warn'"
+  />
+</ng-template>
+
 <p-card>
   <ng-template #title>
     Manage concerts
@@ -161,7 +168,7 @@
       <ng-template #body let-concert>
         <tr>
           <td pFrozenColumn><a [href]="'https://linkinpedia.com/wiki/' + concert.wikiPageId" class="link" target="_blank">{{ concert.wikiPageId }} <i class="pi pi-external-link"></i></a></td>
-          <td>{{ concert.importStatus }}</td>
+          <td><ng-container [ngTemplateOutlet]="importStatusBadge" [ngTemplateOutletContext]="{ status: concert.importStatus }" /></td>
           <td pFrozenColumn>
             @if (concert.importStatus == LinkinpediaImportConcertStatusDto.ImportStatusEnum.NotImported) {
               <a
