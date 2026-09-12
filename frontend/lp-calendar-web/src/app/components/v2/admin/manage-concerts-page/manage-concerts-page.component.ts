@@ -46,6 +46,7 @@ import { MeterGroup, MeterItem } from 'primeng/metergroup';
     ConfirmDialog,
     Panel,
     MeterGroup,
+    ButtonDirective,
   ],
   templateUrl: './manage-concerts-page.component.html',
   styleUrl: './manage-concerts-page.component.css',

@@ -265,6 +265,10 @@ export class ConcertFormComponent implements OnInit {
     this.venueTimezone.set(timezones.find(t => t.tzCode == concert.venue?.timeZoneId) ?? null);
   }
 
+  public setWikiPageId(wikiPageId: string) {
+    this.concertForm.controls.linkinpediaUrl.setValue(`https://linkinpedia.com/wiki/${wikiPageId}`);
+  }
+
   public reset() {
     this.concertForm.reset({
       concertStatus: ConcertStatusValueDto.Planned,

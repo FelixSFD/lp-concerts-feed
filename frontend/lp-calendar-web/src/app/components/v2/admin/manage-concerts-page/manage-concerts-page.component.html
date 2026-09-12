@@ -151,12 +151,26 @@
             Import status
             <p-sort-icon field="importStatus" />
           </th>
+          <th scope="col" pFrozenColumn></th>
         </tr>
       </ng-template>
       <ng-template #body let-concert>
         <tr>
           <td pFrozenColumn><a [href]="'https://linkinpedia.com/wiki/' + concert.wikiPageId" class="link" target="_blank">{{ concert.wikiPageId }} <i class="pi pi-external-link"></i></a></td>
           <td>{{ concert.importStatus }}</td>
+          <td pFrozenColumn>
+            <a
+              pButton
+              variant="outlined"
+              [routerLink]="['add']"
+              [queryParams]="{ wikiPageId: concert.wikiPageId }"
+              target="_blank"
+              rel="noopener noreferrer"
+              style="text-decoration: none;">
+              <i class="pi pi-file-import"></i>
+              Import
+            </a>
+          </td>
         </tr>
       </ng-template>
       <ng-template #emptymessage>
