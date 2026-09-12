@@ -346,6 +346,11 @@ export class ConcertFormComponent implements OnInit {
       }
       await Promise.all(reloadTasks);
 
+      let previousStartTime = this.concertForm.value.postedStartTime;
+      if (previousStartTime) {
+        this.concertForm.controls.timeIsPlaceholder.setValue(true);
+      }
+
       const startTime = evt.postedStartTime;
       const concertType = evt.concertType;
       let importTour = evt.tour;

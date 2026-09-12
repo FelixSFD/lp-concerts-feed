@@ -192,4 +192,5 @@ export class ManageConcertsPageComponent implements OnInit {
 
   protected readonly ConcertStatusValueDto = ConcertStatusValueDto;
   protected readonly ConcertStatus = ConcertStatus;
+  protected readonly LinkinpediaImportConcertStatusDto = LinkinpediaImportConcertStatusDto;
 }
