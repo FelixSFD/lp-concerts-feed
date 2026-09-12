@@ -132,6 +132,8 @@ public class LinkinpediaImportConcertService(
         string? cityName = cityNameRaw;
         string? stateName = null;
 
+        var eventName = tourdate.Event;
+
         if (!string.IsNullOrWhiteSpace(cityNameRaw))
         {
             var commaIndex = cityNameRaw.IndexOf(',');
@@ -256,7 +258,7 @@ public class LinkinpediaImportConcertService(
             VenueName = venueName,
             TourName = tourName,
             TourLegName = tourLegName,
-            ProposedCustomTitle = null
+            ProposedCustomTitle = eventName,
         };
     }
 }

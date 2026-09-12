@@ -14,6 +14,11 @@ public class WikiTourdateEntry
     /// Artist name, e.g. "Linkin Park"
     /// </summary>
     public string? Artist { get; set; }
+    
+    /// <summary>
+    /// Mainly used for festivals like "Rock am Ring"
+    /// </summary>
+    public string? Event { get; set; }
 
     /// <summary>
     /// Date of the previous show

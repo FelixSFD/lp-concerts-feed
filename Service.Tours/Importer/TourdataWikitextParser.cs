@@ -86,6 +86,7 @@ public partial class TourdataWikitextParser : IWikitextParser
         {
             ShowType = GetProperty(properties, "ShowType", "Show Type"),
             Artist = GetProperty(properties, "Artist"),
+            Event = GetProperty(properties, "Event"),
             LastShow = GetProperty(properties, "Last show", "LastShow", "Last Show"),
             NextShow = GetProperty(properties, "Next show", "NextShow", "Next Show"),
             Year = year,
