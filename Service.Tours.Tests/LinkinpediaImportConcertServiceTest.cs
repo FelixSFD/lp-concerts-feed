@@ -215,8 +215,7 @@ public class LinkinpediaImportConcertServiceTest
         var foundTour = Assert.Single(result.FoundTours);
         Assert.Equal("pr-2004", foundTour.Id);
 
-        var foundLeg = Assert.Single(result.FoundTourLegs);
-        Assert.Equal("pr-2004-us", foundLeg.Id);
+        Assert.Empty(result.FoundTourLegs);
     }
 
     [Fact]
