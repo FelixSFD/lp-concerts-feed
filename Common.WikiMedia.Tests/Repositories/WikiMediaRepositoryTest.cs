@@ -18,7 +18,7 @@ public class WikiMediaRepositoryTest
         var mockJson = await File.ReadAllTextAsync("TestData/wiki_page_Live_20240905.json", TestContext.CancellationToken);
         var messageHandler = new MockHttpMessageHandler(mockJson, HttpStatusCode.OK);
         var httpClient = new HttpClient(messageHandler);
-        var repo = new WikiMediaRepository(httpClient, "http://localhost/wiki/rest.php/v1", _logger);
+        var repo = new WikiMediaRepository(httpClient, "http://localhost/wiki/rest.php/v1", "http://localhost/wiki/api.php", _logger);
         
         // run the test
         var wikiPageDto = await repo.GetWikiPageAsync("Live:20240905");
@@ -33,7 +33,7 @@ public class WikiMediaRepositoryTest
         var mockJson = await File.ReadAllTextAsync("TestData/wiki_cargo_shows_lp_10.json", TestContext.CancellationToken);
         var messageHandler = new MockHttpMessageHandler(mockJson, HttpStatusCode.OK);
         var httpClient = new HttpClient(messageHandler);
-        var repo = new WikiMediaRepository(httpClient, "https://linkinpedia.com/w", _logger);
+        var repo = new WikiMediaRepository(httpClient, "https://linkinpedia.com/w", "https://linkinpedia.com/w/api.php", _logger);
 
         string[] tables = ["Shows"];
         string[] fields = ["Artist", "ShowPage", "Date", "ShowType", "Country", "State", "Province", "UKCountry", "City", "Venue", "Tour", "TourLeg", "Date__precision"];

@@ -9,18 +9,24 @@ namespace Common.WikiMedia.Repositories;
 /// Repository to read data from a MediaWiki instance
 /// </summary>
 /// <param name="httpClient"></param>
-/// <param name="baseUrl"></param>
-public class WikiMediaRepository(HttpClient httpClient, string baseUrl, ILogger<WikiMediaRepository> logger) : IWikiMediaRepository
+/// <param name="restApiBaseUrl">Base URL for the REST-API</param>
+/// <param name="restApiBaseUrl">Base URL for the Action-API</param>
+public class WikiMediaRepository(HttpClient httpClient, string restApiBaseUrl, string actionApiBaseUrl, ILogger<WikiMediaRepository> logger) : IWikiMediaRepository
 {
     /// <summary>
-    /// Helper to generate the API URLs
+    /// Helper to generate the API URLs for the REST API
     /// </summary>
-    private readonly ApiUrlBuilder _apiUrlBuilder = new(baseUrl);
+    private readonly ApiUrlBuilder _restApiUrlBuilder = new(restApiBaseUrl);
+    
+    /// <summary>
+    /// Helper to generate the API URLs for the Action API
+    /// </summary>
+    private readonly ApiUrlBuilder _actionApiUrlBuilder = new(actionApiBaseUrl);
     
     /// <inheritdoc/>
     public async Task<WikiPageDto?> GetWikiPageAsync(string wikiPageId)
     {
-        var url = _apiUrlBuilder.GetPageUrl(wikiPageId);
+        var url = _restApiUrlBuilder.GetPageUrl(wikiPageId);
         var httpResponseMessage = await httpClient.GetAsync(url);
         if (!httpResponseMessage.IsSuccessStatusCode)
         {
@@ -45,7 +51,7 @@ public class WikiMediaRepository(HttpClient httpClient, string baseUrl, ILogger<
                 break;
             }
             
-            var url = _apiUrlBuilder.GetCargoQueryUrl(tables, fields, where, orderBy, pageSize, offset);
+            var url = _actionApiUrlBuilder.GetCargoQueryUrl(tables, fields, where, orderBy, pageSize, offset);
             logger.LogDebug("Get next page from URL: {url}", url);
             var queryResponse = await httpClient.GetFromJsonAsync<CargoQueryResponseDto<T>>(url, cancellationToken);
             if (queryResponse == null)
