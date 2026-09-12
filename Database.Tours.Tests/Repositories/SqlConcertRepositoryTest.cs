@@ -258,6 +258,107 @@ public class SqlConcertRepositoryTest : ToursDbIntegrationTestsBase
         Assert.Contains(gerRange, c => c.Id == concert2.Id);
         Assert.DoesNotContain(gerRange, c => c.Id == concert3.Id);
     }
+    
+    
+    [Fact]
+    public async Task GetByWikiPageIdAsync()
+    {
+        var concertRepo = new SqlConcertRepository(DbContext);
+        var concertTypeRepo = new SqlConcertTypeRepository(DbContext);
+        var venueRepo = new SqlVenueRepository(DbContext);
+        var tourRepo = new SqlTourRepository(DbContext);
+
+        var tour = new TourDo
+        {
+            Id = "fz-world-tour",
+            Name = "From Zero World Tour",
+            Legs = []
+        };
+
+        var tourLegEu = new TourLegDo
+        {
+            TourId = tour.Id,
+            Name = "European Tour",
+            Id = "eu-1"
+        };
+        tour.Legs.Add(tourLegEu);
+        
+        var tourLegUs = new TourLegDo
+        {
+            TourId = tour.Id,
+            Name = "North American Tour",
+            Id = "us-1"
+        };
+        tour.Legs.Add(tourLegUs);
+        
+        tourRepo.Add(tour);
+
+        var concertType = new ConcertTypeDo
+        {
+            Name = "Linkin Park Show"
+        };
+        concertTypeRepo.Add(concertType);
+
+        var countryGer = new CountryDo
+        {
+            IsoCode = "GER",
+            Name = "Germany",
+            NativeName = "Deutschland"
+        };
+        var stateBy = new StateDo
+        {
+            CountryCode = countryGer.IsoCode,
+            Code = "BY",
+            Name = "Bavaria",
+            NativeName = "Bayern",
+            Country = countryGer
+        };
+        var cityAux = new CityDo
+        {
+            CountryCode = countryGer.IsoCode,
+            StateCode = stateBy.Code,
+            Name = "Augsburg",
+            NativeName = "Augschburg",
+            State = stateBy,
+            Country = countryGer
+        };
+        var venue = new VenueDo
+        {
+            Id = 1,
+            CountryCode = countryGer.IsoCode,
+            StateCode = stateBy.Code,
+            Country = countryGer,
+            State = stateBy,
+            City = cityAux,
+            TimeZone = "Europe/Berlin",
+            CurrentName = "WWK Arena"
+        };
+        venueRepo.Add(venue);
+        
+        await venueRepo.SaveChangesAsync();
+
+        var concert = new ConcertDo
+        {
+            Id = "munich-2026-06-11",
+            TourId = tour.Id,
+            TourLegId = tourLegEu.Id,
+            Type = concertType,
+            VenueId = venue.Id,
+            PostedStartTime = new DateTimeOffset(2026, 6, 11, 20, 0, 0, TimeSpan.FromHours(2)),
+            DoorsTime = new DateTime(2026, 6, 11, 17, 30, 0),
+            MainStageTime = new DateTime(2026, 6, 11, 20, 55, 0),
+            Status = ConcertDo.ConcertStatus.Past,
+            LpuEarlyEntryConfirmed = true,
+            LinkinpediaUrl = "https://linkinpedia.com/page/Live:20260611"
+        };
+        
+        concertRepo.Add(concert);
+        await concertRepo.SaveChangesAsync();
+        
+        var retrievedConcert = await concertRepo.GetConcertsByWikiPageId("Live:20260611").FirstOrDefaultAsync();
+        Assert.NotNull(retrievedConcert);
+        AssertConcertsEqual(concert, retrievedConcert);
+    }
 
 
     private static void AssertConcertsEqual(ConcertDo expected, ConcertDo actual)
