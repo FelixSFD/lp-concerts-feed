@@ -351,6 +351,7 @@ export class ConcertFormComponent implements OnInit {
       let importTour = evt.tour;
       const importTourLeg = evt.tourLeg;
       const importVenue = evt.venue;
+      const importCustomTitle = evt.customTitle;
 
       if (startTime != null) {
         this.concertForm.controls.postedStartTime.setValue(startTime);
@@ -376,6 +377,11 @@ export class ConcertFormComponent implements OnInit {
         // Find the freshly loaded venue to match the options list
         const freshVenue = this.selectVenueComponent?.venues().find(v => v.id === importVenue?.id) ?? importVenue;
         this.concertForm.controls.venue.setValue(freshVenue);
+      }
+
+      // 5. Set custom title
+      if (importCustomTitle) {
+        this.concertForm.controls.customTitle.setValue(importCustomTitle);
       }
     } catch (error) {
       console.error('Failed to reload data before applying import:', error);

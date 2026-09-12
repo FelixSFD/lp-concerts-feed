@@ -335,6 +335,20 @@
         </p-accordion-content>
       </p-accordion-panel>
     }
+
+    <!-- Check if venue was found -->
+    @if (importPlan()?.proposedCustomTitle) {
+      <p-accordion-panel value="customTitle">
+        <p-accordion-header>
+          <span class="text-color-success"><i class="pi pi-check-circle"></i> Custom title</span>
+        </p-accordion-header>
+        <p-accordion-content>
+          <p class="m-0 text-sm">
+            Found custom title: <span class="font-bold">{{ importPlan()?.proposedCustomTitle }}</span>
+          </p>
+        </p-accordion-content>
+      </p-accordion-panel>
+    }
   </p-accordion>
 
   <p-divider />

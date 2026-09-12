@@ -366,6 +366,7 @@ export class ImportConcertDialogContentComponent implements OnInit {
       tourLeg: plan.foundTourLegs?.at(0) ?? null,
       postedStartTime: DateTime.fromISO(plan.postedStartTime ?? "").toJSDate() ?? null,
       venue: plan.foundVenues?.at(0) ?? null,
+      customTitle: plan.proposedCustomTitle ?? null,
     };
 
     console.debug("prepared ApplyClickedEvent:", applyEvent);
@@ -381,4 +382,5 @@ export class ApplyClickedEvent {
   tourLeg: TourDto | null = null;
   postedStartTime: Date | null = null;
   venue: VenueDto | null = null;
+  customTitle: string | null = null;
 }
