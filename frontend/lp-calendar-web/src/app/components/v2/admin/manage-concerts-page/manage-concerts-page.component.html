@@ -1,3 +1,5 @@
+<p-confirm-dialog />
+
 <p-card>
   <ng-template #title>
     Manage concerts
@@ -94,8 +96,9 @@
         <td>{{ ConcertStatus.allValues.find(s => s.value == concert.status)?.label ?? "unknown" }}</td>
         <td alignFrozen="right" pFrozenColumn>
           <p-button-group>
-            <p-button label="View" icon="pi pi-eye" variant="outlined" size="small" [routerLink]="['/concerts', 'beta', concert.id]" />
-            <p-button label="Edit" icon="pi pi-pencil" variant="outlined" size="small" [routerLink]="[concert.id]" />
+            <p-button label="View" icon="pi pi-eye" variant="outlined" size="small" severity="info" [routerLink]="['/concerts', 'beta', concert.id]" [disabled]="isDeletingConcert$()" />
+            <p-button label="Edit" icon="pi pi-pencil" variant="outlined" size="small" [routerLink]="[concert.id]" [disabled]="isDeletingConcert$()" />
+            <p-button label="Delete" icon="pi pi-trash" variant="outlined" size="small" severity="danger" (onClick)="onDeleteClicked($event, concert)" [disabled]="isDeletingConcert$()" />
           </p-button-group>
         </td>
       </tr>

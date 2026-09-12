@@ -2,7 +2,7 @@ import {DatePipe} from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {RouterLink} from '@angular/router';
-import {MessageService} from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import {Button} from 'primeng/button';
 import {ButtonGroup} from 'primeng/buttongroup';
 import {Card} from 'primeng/card';
@@ -19,6 +19,7 @@ import { ConcertDetailsDto } from '../../../../modules/lpshows-api/v3';
 import { ToursService } from '../../../../services/tours.service';
 import { Divider } from 'primeng/divider';
 import { ConcertStatus } from '../../../../data/concert-status';
+import { ConfirmDialog } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'app-manage-concerts-page',
@@ -34,6 +35,7 @@ import { ConcertStatus } from '../../../../data/concert-status';
     RouterLink,
     TableModule,
     Divider,
+    ConfirmDialog,
   ],
   templateUrl: './manage-concerts-page.component.html',
   styleUrl: './manage-concerts-page.component.css',
@@ -42,9 +44,11 @@ export class ManageConcertsPageComponent implements OnInit {
   private readonly concertsService = inject(LegacyConcertsService);
   private readonly toursService = inject(ToursService);
   private readonly messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
 
   concertsOld$ = signal<ConcertDto[]>([]);
   concerts$ = signal<ConcertDetailsDto[]>([]);
+  isDeletingConcert$ = signal(false);
   isLoadingOld$ = false;
   isLoading$ = false;
   globalSearchTextOld$ = '';
@@ -99,6 +103,37 @@ export class ManageConcertsPageComponent implements OnInit {
           text: errorResponse?.message,
         });
       },
+    });
+  }
+
+  async onDeleteClicked(event: MouseEvent, concert: ConcertDetailsDto) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: `Do you really want to delete the concert on "${concert.postedStartTime}" in "${concert.venue.city.name}"?`,
+      header: 'Delete concert',
+      icon: 'pi pi-info-circle',
+      rejectLabel: 'Cancel',
+      rejectButtonProps: {
+        label: 'Cancel',
+        severity: 'secondary',
+        outlined: true,
+      },
+      acceptButtonProps: {
+        label: 'Delete',
+        severity: 'danger',
+      },
+      accept: async () => {
+        this.isDeletingConcert$.set(true);
+        try {
+          await this.toursService.deleteConcert(concert.id);
+        } catch (e) {
+          console.error('Could not delete concert', e);
+        } finally {
+          this.reloadList();
+          this.isDeletingConcert$.set(false);
+        }
+      },
+      reject: () => {},
     });
   }
 

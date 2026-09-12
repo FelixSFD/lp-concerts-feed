@@ -99,4 +99,13 @@ export class ToursService {
     let result = this.concertsApi.getAdjacentConcertsForId(concertId);
     return firstValueFrom(result);
   }
+
+  /**
+   * Deletes a concert
+   * @param concertId ID of the concert to delete
+   */
+  deleteConcert(concertId: string): Promise<any> {
+    let response = this.concertsApi.deleteConcertById(concertId);
+    return firstValueFrom(response);
+  }
 }
