@@ -424,6 +424,7 @@ internal static class DtoMapper
         return new LinkinpediaImportConcertStatusDto
         {
             WikiPageId = bo.WikiPageId,
+            ConcertTitle = bo.ConcertTitle,
             ImportStatus = bo.ImportStatus.ToDto(),
             Concert = bo.Concert?.ToDto()
         };

@@ -72,6 +72,7 @@ public class LinkinpediaImportConcertService(
                 var resultItem = new ConcertImportStatusBo
                 {
                     WikiPageId = concert.WikiPageId,
+                    ConcertTitle = GenerateConcertTitle(concert.DateString, concert.Venue, concert.City, concert.Country),
                     ImportStatus = concertImported
                         ? ConcertImportStatusBo.Status.Imported
                         : ConcertImportStatusBo.Status.NotImported,
@@ -90,6 +91,14 @@ public class LinkinpediaImportConcertService(
             
             yield return result;
         }
+    }
+
+    private static string? GenerateConcertTitle(string dateString, string? venueName, string? cityName,
+        string? countryName)
+    {
+        string?[] parts = [dateString, venueName, cityName, countryName];
+        var partsNotNull = parts.Where(part => !string.IsNullOrWhiteSpace(part)).Cast<string>().ToArray();
+        return partsNotNull.Length == 0 ? null : string.Join(", ", partsNotNull);
     }
     
     public async Task<ImportConcertPreviewBo> GetConcertImportPlan(string wikiPageId, CancellationToken cancellationToken = default)

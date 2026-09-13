@@ -8,6 +8,11 @@ public class ConcertImportStatusBo
     /// ID of the page on Linkinpedia
     /// </summary>
     public required string WikiPageId { get; set; }
+
+    /// <summary>
+    /// Generated title based on info from Linkinpedia. This is just for informational purposes and will not be used for the import.
+    /// </summary>
+    public string? ConcertTitle { get; set; }
     
     /// <summary>
     /// If imported, this contains the concert details

@@ -2532,6 +2532,9 @@ components:
         wikiPageId:
           type: string
           description: The ID of the Linkinpedia page of the concert
+        concertTitle:
+          type: string
+          description: Generated title based on info from Linkinpedia. This is just for informational purposes and will not be used for the import.
         concert:
           $ref: "#/components/schemas/ConcertDetails"
         importStatus:

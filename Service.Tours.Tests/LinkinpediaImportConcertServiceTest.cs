@@ -445,10 +445,12 @@ public class LinkinpediaImportConcertServiceTest
 
         var status1 = result.First(r => r.WikiPageId == page1.WikiPageId);
         Assert.Equal(page1.WikiPageId, status1.WikiPageId);
+        Assert.Equal("2024-09-05, Los Angeles, USA", status1.ConcertTitle);
         Assert.Equal(ConcertImportStatusBo.Status.NotImported, status1.ImportStatus);
         
         var status2 = result.First(r => r.WikiPageId == page2.WikiPageId);
         Assert.Equal(page2.WikiPageId, status2.WikiPageId);
+        Assert.Equal("2024-09-22, Barclay's Arena, Hamburg, Germany", status2.ConcertTitle);
         Assert.Equal(ConcertImportStatusBo.Status.NotImported, status2.ImportStatus);
         
         // verify mock calls
