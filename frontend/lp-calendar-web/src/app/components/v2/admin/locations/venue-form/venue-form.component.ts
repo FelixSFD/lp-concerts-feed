@@ -244,26 +244,27 @@ export class VenueFormComponent {
     let cityName = this.citiesInCountry$.find(c => c.id == cityId)?.name;
     let countryName = this.countries$.find(c => c.isoCode == countryCode)?.name;
 
-    this.locationsService.getCoordinatesFor(cityName!, null, countryName!)
-      .subscribe(coordinates => {
-        console.log("Found coordinates: ", coordinates);
-        this.locationsService.getTimeZoneForCoordinates(coordinates?.latitude ?? 0, coordinates?.longitude ?? 0)
-          .subscribe(tzObj => {
-            console.log("Found timezone: ", tzObj);
-            let tz = tzObj.timeZoneId!;
-            this.timeZoneIsLoading$ = false;
+    this.locationsService.getTimeZoneForCity(cityName!, null, countryName!)
+      .subscribe(tzObj => {
+        if (tzObj == null) {
+          console.warn("No timezone found for: City: ", cityName, " Country: ", countryName);
+          return;
+        }
 
-            if (timezones.map(t => t.tzCode).indexOf(tz, 0) >= 0) {
-              this.venueForm.controls.timezone.setValue(tz);
-            } else {
-              console.error("Invalid timezone returned: ", tz);
-              this.messageService.add({
-                severity: "error",
-                summary: "Could not load timezone",
-                text: `Timezone '${tz}' found, but it is invalid.`,
-              });
-            }
+        console.log("Found timezone: ", tzObj);
+        let tz = tzObj.timeZoneId!;
+        this.timeZoneIsLoading$ = false;
+
+        if (timezones.map(t => t.tzCode).indexOf(tz, 0) >= 0) {
+          this.venueForm.controls.timezone.setValue(tz);
+        } else {
+          console.error("Invalid timezone returned: ", tz);
+          this.messageService.add({
+            severity: "error",
+            summary: "Could not load timezone",
+            text: `Timezone '${tz}' found, but it is invalid.`,
           });
+        }
       });
   }
 

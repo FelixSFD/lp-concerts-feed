@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {map, Observable} from 'rxjs';
+import { map, Observable, of, switchMap } from 'rxjs';
 import {OsmCity} from '../data/osm/osm-city';
 import {Coordinates} from '../data/location/coordinates';
 import {environment} from '../../environments/environment';
@@ -197,5 +197,18 @@ export class LocationsService {
 
   getTimeZoneForCoordinates(lat: number, lon: number): Observable<TimeZoneResponseDto> {
     return this.timezoneApiClient.getTimeZoneByCoordinates(lat, lon);
+  }
+
+
+  getTimeZoneForCity(cityName: string, state: string | null, country: string): Observable<TimeZoneResponseDto | undefined> {
+    return this.getCoordinatesFor(cityName, state, country)
+      .pipe(
+        switchMap(coordinates => {
+          if (!coordinates) {
+            return of(undefined);
+          }
+          return this.getTimeZoneForCoordinates(coordinates.latitude, coordinates.longitude);
+        })
+      );
   }
 }
