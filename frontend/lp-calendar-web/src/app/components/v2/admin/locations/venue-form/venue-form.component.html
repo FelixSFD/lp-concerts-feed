@@ -68,7 +68,7 @@
     <div class="grid gap-2">
       <div class="col-12">
         <p-floatlabel variant="on">
-          <p-select formControlName="countryCode" inputId="countryCode" [options]="countries$" optionLabel="name" optionValue="isoCode" aria-autocomplete="none" showClear fluid />
+          <p-select formControlName="countryCode" inputId="countryCode" [options]="countries$()" optionLabel="name" optionValue="isoCode" aria-autocomplete="none" showClear fluid />
           <label for="countryCode">Country</label>
         </p-floatlabel>
       </div>

@@ -84,7 +84,7 @@ export class VenueFormComponent {
   isSaving$: boolean = false;
 
   @Input("available-countries")
-  countries$: CountryDto[] = [];
+  countries$ = signal<CountryDto[]>([]);
 
   citiesInCountry$ = signal<CityWithCountryDto[]>([]);
 
@@ -394,7 +394,7 @@ export class VenueFormComponent {
     }
 
     let cityName = this.citiesInCountry$().find(c => c.id == cityId)?.name;
-    let countryName = this.countries$.find(c => c.isoCode == countryCode)?.name;
+    let countryName = this.countries$().find(c => c.isoCode == countryCode)?.name;
 
     this.locationsService.getTimeZoneForCity(cityName!, null, countryName!)
       .subscribe({
