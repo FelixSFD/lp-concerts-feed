@@ -312,6 +312,7 @@ export class ImportConcertDialogContentComponent implements OnInit {
     console.debug("Create city clicked");
 
     let countryCode = this.importPlan()?.foundCountries?.at(0)?.isoCode ?? null;
+    let stateCode = this.importPlan()?.foundStates?.at(0)?.code ?? null;
     let name = this.createCityForm.controls.name.value;
     let nativeName = this.createCityForm.controls.nativeName.value;
 
@@ -334,6 +335,7 @@ export class ImportConcertDialogContentComponent implements OnInit {
     }
 
     let createCityRequest: CreateCityRequestDto = {
+      stateCode: stateCode ?? undefined,
       name: name,
       nativeName: nativeName,
     };
