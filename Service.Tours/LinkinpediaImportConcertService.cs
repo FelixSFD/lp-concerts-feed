@@ -228,6 +228,12 @@ public class LinkinpediaImportConcertService(
                 if (festivalType != null)
                     concertType = festivalType.ToBo();
             }
+            else if (tourdate.ShowType.Contains("concert", StringComparison.OrdinalIgnoreCase))
+            {
+                var lpShowType = concertTypes.FirstOrDefault(ct => ct.Name.Contains("Linkin Park Show", StringComparison.OrdinalIgnoreCase));
+                if (lpShowType != null)
+                    concertType = lpShowType.ToBo();
+            }
             else
             {
                 var showTypeMatch = concertTypes.FirstOrDefault(ct => string.Equals(ct.Name, tourdate.ShowType, StringComparison.OrdinalIgnoreCase));
@@ -238,7 +244,7 @@ public class LinkinpediaImportConcertService(
 
         if (concertType == null)
         {
-            var lpShowType = concertTypes.FirstOrDefault(ct => string.Equals(ct.Name, "Linkin Park Show", StringComparison.OrdinalIgnoreCase));
+            var lpShowType = concertTypes.FirstOrDefault(ct => string.Equals(ct.Name, "Other", StringComparison.OrdinalIgnoreCase));
             if (lpShowType != null)
                 concertType = lpShowType.ToBo();
         }
