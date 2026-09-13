@@ -428,53 +428,57 @@ internal static class DoMapper
     }
     
     /// <summary>
-    /// Creates a new <see cref="ConcertDo"/> from a <see cref="CreateConcertRequestDto"/>
+    /// Creates a new <see cref="ConcertDo"/> from a <see cref="CreateConcertRequestBo"/>
     /// </summary>
-    /// <param name="dto"></param>
+    /// <param name="bo"></param>
     /// <returns>the new data object</returns>
-    public static ConcertDo ToDo(this CreateConcertRequestDto dto)
+    public static ConcertDo ToDo(this CreateConcertRequestBo bo)
     {
         return new ConcertDo
         {
             Id = Guid.NewGuid().ToString(),
-            ConcertTypeId = dto.ConcertTypeId,
-            TourId = dto.TourId,
-            TourLegId = dto.TourLegId,
-            CustomTitle = dto.CustomTitle,
-            VenueId = dto.VenueId,
-            PostedStartTime = dto.PostedStartTime,
-            MainStageTime = dto.MainStageTime,
-            DoorsTime = dto.DoorsTime,
-            LpuEarlyEntryTime = dto.LpuEarlyEntryTime,
-            LpuEarlyEntryConfirmed = dto.LpuEarlyEntryConfirmed,
-            ExpectedSetDurationMinutes = dto.ExpectedSetDurationMinutes,
-            ScheduleImageFile = dto.ScheduleImageFile,
-            //Status = dto.Status,
+            ConcertTypeId = bo.ConcertTypeId,
+            TourId = bo.TourId,
+            TourLegId = bo.TourLegId,
+            CustomTitle = bo.CustomTitle,
+            VenueId = bo.VenueId,
+            PostedStartTime = bo.PostedStartTime,
+            TimeIsPlaceholder = bo.TimeIsPlaceholder,
+            MainStageTime = bo.MainStageTime,
+            DoorsTime = bo.DoorsTime,
+            LpuEarlyEntryTime = bo.LpuEarlyEntryTime,
+            LpuEarlyEntryConfirmed = bo.LpuEarlyEntryConfirmed,
+            ExpectedSetDurationMinutes = bo.ExpectedSetDurationMinutes,
+            ScheduleImageFile = bo.ScheduleImageFile,
+            LinkinpediaUrl = bo.LinkinpediaUrl,
+            Status = bo.Status.ToDo(),
         };
     }
     
     /// <summary>
-    /// Updates the <see cref="ConcertDo"/> from a <see cref="UpdateConcertRequestDto"/>
+    /// Updates the <see cref="ConcertDo"/> from a <see cref="UpdateConcertRequestBo"/>
     /// </summary>
     /// <param name="dataObject"></param>
-    /// <param name="dto"></param>
+    /// <param name="bo"></param>
     /// <returns>the new data object</returns>
-    public static ConcertDo UpdateFromRequestDto(this ConcertDo dataObject, UpdateConcertRequestDto dto)
+    public static ConcertDo UpdateFromRequestBo(this ConcertDo dataObject, UpdateConcertRequestBo bo)
     {
-        dataObject.ConcertTypeId = dto.ConcertTypeId;
-        dataObject.TourId = dto.TourId;
-        dataObject.TourLegId = dto.TourLegId;
-        dataObject.CustomTitle = dto.CustomTitle;
-        dataObject.VenueId = dto.VenueId;
-        dataObject.PostedStartTime = dto.PostedStartTime;
-        dataObject.MainStageTime = dto.MainStageTime;
-        dataObject.DoorsTime = dto.DoorsTime;
-        dataObject.LpuEarlyEntryTime = dto.LpuEarlyEntryTime;
-        dataObject.LpuEarlyEntryConfirmed = dto.LpuEarlyEntryConfirmed;
-        dataObject.ExpectedSetDurationMinutes = dto.ExpectedSetDurationMinutes;
-        dataObject.ScheduleImageFile = dto.ScheduleImageFile;
-        dataObject.DeletedAt = dto.DeletedAt;
-        //dataObject.Status = dto.Status;
+        dataObject.ConcertTypeId = bo.ConcertTypeId;
+        dataObject.TourId = bo.TourId;
+        dataObject.TourLegId = bo.TourLegId;
+        dataObject.CustomTitle = bo.CustomTitle;
+        dataObject.VenueId = bo.VenueId;
+        dataObject.PostedStartTime = bo.PostedStartTime;
+        dataObject.TimeIsPlaceholder = bo.TimeIsPlaceholder;
+        dataObject.MainStageTime = bo.MainStageTime;
+        dataObject.DoorsTime = bo.DoorsTime;
+        dataObject.LpuEarlyEntryTime = bo.LpuEarlyEntryTime;
+        dataObject.LpuEarlyEntryConfirmed = bo.LpuEarlyEntryConfirmed;
+        dataObject.ExpectedSetDurationMinutes = bo.ExpectedSetDurationMinutes;
+        dataObject.ScheduleImageFile = bo.ScheduleImageFile;
+        dataObject.DeletedAt = bo.DeletedAt;
+        dataObject.LinkinpediaUrl = bo.LinkinpediaUrl;
+        dataObject.Status = bo.Status.ToDo();
         return dataObject;
     }
     
@@ -494,6 +498,7 @@ internal static class DoMapper
             CustomTitle = dataObject.CustomTitle,
             VenueId = dataObject.VenueId,
             PostedStartTime = dataObject.PostedStartTime,
+            TimeIsPlaceholder = dataObject.TimeIsPlaceholder,
             MainStageTime = dataObject.MainStageTime,
             DoorsTime = dataObject.DoorsTime,
             LpuEarlyEntryTime = dataObject.LpuEarlyEntryTime,
@@ -501,7 +506,7 @@ internal static class DoMapper
             ExpectedSetDurationMinutes = dataObject.ExpectedSetDurationMinutes,
             ScheduleImageFile = dataObject.ScheduleImageFile,
             DeletedAt = dataObject.DeletedAt,
-            //Status = dto.Status,
+            Status = dataObject.Status.ToDto(),
         };
     }
     
@@ -521,6 +526,7 @@ internal static class DoMapper
             CustomTitle = dataObject.CustomTitle,
             Venue = dataObject.Venue.ToBoWithAllDetails(),
             PostedStartTime = dataObject.PostedStartTime,
+            TimeIsPlaceholder = dataObject.TimeIsPlaceholder,
             MainStageTime = dataObject.MainStageTime,
             DoorsTime = dataObject.DoorsTime,
             LpuEarlyEntryTime = dataObject.LpuEarlyEntryTime,
@@ -529,6 +535,7 @@ internal static class DoMapper
             ScheduleImageFile = dataObject.ScheduleImageFile,
             DeletedAt = dataObject.DeletedAt,
             Status = dataObject.Status.ToDto(),
+            LinkinpediaUrl = dataObject.LinkinpediaUrl,
         };
     }
 
@@ -541,6 +548,24 @@ internal static class DoMapper
             ConcertDo.ConcertStatus.Past => ConcertDto.ConcertStatusValue.Past,
             ConcertDo.ConcertStatus.Cancelled => ConcertDto.ConcertStatusValue.Cancelled,
             _ => ConcertDto.ConcertStatusValue.Past
+        };
+    }
+    
+    /// <summary>
+    /// Converts a <see cref="ConcertDto.ConcertStatusValue"/> to the <see cref="ConcertDo.ConcertStatus"/>
+    /// </summary>
+    /// <param name="status"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
+    public static ConcertDo.ConcertStatus ToDo(this ConcertDto.ConcertStatusValue status)
+    {
+        return status switch
+        {
+            ConcertDto.ConcertStatusValue.Planned => ConcertDo.ConcertStatus.Planned,
+            ConcertDto.ConcertStatusValue.Running => ConcertDo.ConcertStatus.LiveRightNow,
+            ConcertDto.ConcertStatusValue.Past => ConcertDo.ConcertStatus.Past,
+            ConcertDto.ConcertStatusValue.Cancelled => ConcertDo.ConcertStatus.Cancelled,
+            _ => ConcertDo.ConcertStatus.Past
         };
     }
 }

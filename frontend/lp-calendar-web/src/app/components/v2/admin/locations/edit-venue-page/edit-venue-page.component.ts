@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { LocationsService } from '../../../../../services/locations.service';
@@ -36,12 +36,12 @@ export class EditVenuePageComponent {
 
   isSaving$ = false;
 
-  availableCountries$: CountryDto[] = [];
+  availableCountries$ = signal<CountryDto[]>([]);
 
   ngOnInit() {
     this.locationsService.getCountries().subscribe({
       next: countries => {
-        this.availableCountries$ = countries;
+        this.availableCountries$.set(countries);
       },
       error: err => {
         let errorResponse: ErrorResponseDto = err.error;

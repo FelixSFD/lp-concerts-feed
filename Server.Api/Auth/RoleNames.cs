@@ -40,4 +40,14 @@ public static class RoleNames
     /// People in this group can manage users
     /// </summary>
     public const string ManageUsers = "ManageUsers";
+    
+    /// <summary>
+    /// People in this group can manage Countries, States, Cities and Venues
+    /// </summary>
+    public const string ManageLocations = "ManageLocations";
+    
+    /// <summary>
+    /// People in this group can delete Countries, States, Cities and Venues
+    /// </summary>
+    public const string DeleteLocations = "DeleteLocations";
 }

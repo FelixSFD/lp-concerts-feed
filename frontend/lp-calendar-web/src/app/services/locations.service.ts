@@ -1,18 +1,19 @@
 import { Injectable } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {map, Observable} from 'rxjs';
+import { map, Observable, of, switchMap } from 'rxjs';
 import {OsmCity} from '../data/osm/osm-city';
 import {Coordinates} from '../data/location/coordinates';
 import {environment} from '../../environments/environment';
 import {TimeZoneResponseDto, TimezoneService} from '../modules/lpshows-api';
 import {
+  AddVenueNameRequestDto,
   CitiesApi,
   CityWithCountryDto,
   CountriesApi,
   CountryDto, CreateCityRequestDto,
   CreateCountryRequestDto, CreateStateRequestDto, CreateVenueRequestDto,
   StateDto, StateWithCountryDto, UpdateCityRequestDto,
-  UpdateCountryRequestDto, UpdateStateRequestDto, UpdateVenueRequestDto, VenueDto, VenuesApi, VenueWithDetailsDto
+  UpdateCountryRequestDto, UpdateStateRequestDto, UpdateVenueNameRequestDto, UpdateVenueRequestDto, VenueDto, VenuesApi, VenueWithDetailsDto
 } from '../modules/lpshows-api/v3';
 import { addAuthentication } from '../auth/auth.config';
 
@@ -143,6 +144,10 @@ export class LocationsService {
     return this.venuesApi.getVenueById(venueId);
   }
 
+  getVenueDetails(venueId: number): Observable<VenueWithDetailsDto> {
+    return this.venuesApi.getVenueWithDetailsById(venueId);
+  }
+
   /**
    * Creates a new venue
    * @param venue
@@ -160,6 +165,27 @@ export class LocationsService {
 
   deleteVenue(id: number): Observable<void> {
     return this.venuesApi.deleteVenueById(id);
+  }
+
+  /**
+   * Adds a new name to a venue for a given time range
+   */
+  addNewVenueName(venueId: number, request: AddVenueNameRequestDto): Observable<VenueWithDetailsDto> {
+    return this.venuesApi.addNewVenueName(venueId, request);
+  }
+
+  /**
+   * Updates an existing name of a venue
+   */
+  updateVenueName(venueId: number, venueNameId: number, request: UpdateVenueNameRequestDto): Observable<any> {
+    return this.venuesApi.updateVenueName(venueId, venueNameId, request);
+  }
+
+  /**
+   * Deletes a previous name of a venue
+   */
+  deleteVenueName(venueId: number, venueNameId: number): Observable<any> {
+    return this.venuesApi.deleteVenueName(venueId, venueNameId);
   }
 
   getCoordinatesFor(city: string, state: string | null, country: string): Observable<Coordinates | undefined> {
@@ -197,5 +223,18 @@ export class LocationsService {
 
   getTimeZoneForCoordinates(lat: number, lon: number): Observable<TimeZoneResponseDto> {
     return this.timezoneApiClient.getTimeZoneByCoordinates(lat, lon);
+  }
+
+
+  getTimeZoneForCity(cityName: string, state: string | null, country: string): Observable<TimeZoneResponseDto | undefined> {
+    return this.getCoordinatesFor(cityName, state, country)
+      .pipe(
+        switchMap(coordinates => {
+          if (!coordinates) {
+            return of(undefined);
+          }
+          return this.getTimeZoneForCoordinates(coordinates.latitude, coordinates.longitude);
+        })
+      );
   }
 }

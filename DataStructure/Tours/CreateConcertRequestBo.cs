@@ -3,7 +3,7 @@ namespace LPCalendar.DataStructure.Tours;
 /// <summary>
 /// Request to create a new concert
 /// </summary>
-public class UpdateConcertRequestDto
+public class CreateConcertRequestBo
 {
     /// <summary>
     /// ID of the <see cref="ConcertTypeBo"/>
@@ -37,6 +37,11 @@ public class UpdateConcertRequestDto
     public DateTimeOffset PostedStartTime { get; set; }
     
     /// <summary>
+    /// True if the <see cref="PostedStartTime"/> is a placeholder. This usually is the case for old concerts where we never tracked the times.
+    /// </summary>
+    public bool TimeIsPlaceholder { get; set; }
+    
+    /// <summary>
     /// Time in the venue's timezone when Linkin Park will be on stage
     /// </summary>
     public DateTime? MainStageTime { get; set; }
@@ -65,14 +70,14 @@ public class UpdateConcertRequestDto
     /// Name of the file in the S3 bucket that contains the official schedule for this concert
     /// </summary>
     public string? ScheduleImageFile { get; set; }
-    
-    /// <summary>
-    /// Time when this concert was deleted
-    /// </summary>
-    public DateTimeOffset? DeletedAt { get; set; }
 
     /// <summary>
     /// Status of this concert
     /// </summary>
     public ConcertDto.ConcertStatusValue Status { get; set; }
+
+    /// <summary>
+    /// URL to the concert page on Linkinpedia.
+    /// </summary>
+    public string? LinkinpediaUrl { get; set; }
 }

@@ -13,6 +13,7 @@ import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/f
 import { Select } from 'primeng/select';
 import { ToursService } from '../../../../../services/tours.service';
 import { TourDto } from '../../../../../modules/lpshows-api/v3';
+import { Observable, of, tap } from 'rxjs';
 
 @Component({
   selector: 'app-select-tour',
@@ -41,6 +42,11 @@ export class SelectTourComponent implements ControlValueAccessor, OnInit {
   @Input({ transform: booleanAttribute }) disabled: boolean = false;
   @Input({ transform: booleanAttribute }) invalid: boolean = false;
 
+  /**
+   * List of tours that are available for selection. If not provided, tours will be loaded from the server.
+   */
+  @Input("available-tours") availableTours: TourDto[] | null | undefined = null;
+
   @Output() tourChange = new EventEmitter<TourDto | null>();
 
   tours = signal<TourDto[]>([]);
@@ -51,21 +57,30 @@ export class SelectTourComponent implements ControlValueAccessor, OnInit {
   private onTouched: () => void = () => {};
 
   ngOnInit() {
-    this.loadTours();
+    this.loadTours().subscribe();
   }
 
-  loadTours() {
+  loadTours(): Observable<TourDto[]> {
+    if (this.availableTours) {
+      this.tours.set(this.availableTours);
+      return of(this.availableTours);
+    }
+
+    console.debug('Loading tours from server');
     this.loading.set(true);
-    this.toursService.getTours().subscribe({
-      next: (tours: any) => {
-        this.tours.set(Array.isArray(tours) ? tours : tours ? [tours] : []);
-        this.loading.set(false);
-      },
-      error: (err) => {
-        console.error('Failed to load tours', err);
-        this.loading.set(false);
-      },
-    });
+    return this.toursService.getTours().pipe(
+      tap({
+        next: (tours: TourDto[]) => {
+          console.debug('Loaded tours from server', tours);
+          this.tours.set(tours);
+          this.loading.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load tours', err);
+          this.loading.set(false);
+        }
+      })
+    );
   }
 
   writeValue(value: any): void {

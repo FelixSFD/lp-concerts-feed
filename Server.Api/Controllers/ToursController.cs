@@ -1,9 +1,5 @@
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Common.Contracts.Generated.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Server.Api.Auth;
 using Service.Tours;
 
@@ -25,7 +21,7 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpPost]
-    [AuthorizeRoles]
+    [AuthorizeRoles(RoleNames.AddConcerts)]
     public async Task<ActionResult<TourDto>> CreateTour([FromBody] CreateTourRequestDto createTourRequestDto, CancellationToken cancellationToken)
     {
         var createdTour = await tourService.CreateTourAsync(createTourRequestDto.ToBo());
@@ -65,7 +61,7 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
     /// <param name="tourId">ID of the tour</param>
     /// <returns>no content</returns>
     [HttpDelete("{tourId}")]
-    [AuthorizeRoles]
+    [AuthorizeRoles(RoleNames.DeleteConcerts)]
     public async Task<NoContentResult> DeleteTour([FromRoute] string tourId)
     {
         await tourService.DeleteTourAsync(tourId);
@@ -79,7 +75,7 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
     /// <param name="tourId">ID of the tour</param>
     /// <returns></returns>
     [HttpPost("{tourId}/legs")]
-    [AuthorizeRoles]
+    [AuthorizeRoles(RoleNames.AddConcerts)]
     public async Task<CreatedAtActionResult> CreateTourLeg([FromBody] AddTourLegRequestDto request, [FromRoute] string tourId)
     {
         var createdTourLeg = await tourService.AddTourLegAsync(request.ToBo(), tourId);
@@ -108,7 +104,7 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
     /// <param name="legId">ID of the tour leg</param>
     /// <returns>no content</returns>
     [HttpDelete("{tourId}/legs/{legId}")]
-    [AuthorizeRoles]
+    [AuthorizeRoles(RoleNames.DeleteConcerts)]
     public async Task<NoContentResult> DeleteTourLeg([FromRoute] string tourId, [FromRoute] string legId)
     {
         await tourService.DeleteTourLegAsync(tourId, legId);

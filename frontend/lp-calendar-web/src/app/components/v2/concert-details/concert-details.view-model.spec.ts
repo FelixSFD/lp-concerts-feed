@@ -122,14 +122,14 @@ describe('ConcertDetailsViewModel', () => {
         customTitle: 'Rock am Ring 2026',
         tour: { id: 'tour-1', name: 'Summer Festival Tour' },
         venue: {
-          id: 'venue-1',
+          id: 1,
           currentName: 'Nürburgring',
           timeZoneId: 'Europe/Berlin',
           latitude: 50.334,
           longitude: 6.942,
           countryCode: 'DE',
           city: {
-            id: 'city-1',
+            id: 1,
             name: 'Nürburg',
             nativeName: 'Nürburg',
             countryCode: 'DE',

@@ -1,7 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Component, inject, OnInit, signal, viewChild } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { ConcertsApi, CreateConcertRequestDto } from '../../../../../modules/lpshows-api/v3';
+import { ConcertDetailsDto, ConcertsApi, CreateConcertRequestDto } from '../../../../../modules/lpshows-api/v3';
 import { ErrorResponseDto } from '../../../../../modules/lpshows-api';
 import { ConcertFormComponent, ConcertFormContent } from '../concert-form/concert-form.component';
 import { Button } from 'primeng/button';
@@ -20,26 +20,43 @@ import { Divider } from 'primeng/divider';
   templateUrl: './add-concert-page.component.html',
   styleUrl: './add-concert-page.component.css',
 })
-export class AddConcertPageComponent {
+export class AddConcertPageComponent implements OnInit {
   private router = inject(Router);
+  private activeRoute = inject(ActivatedRoute);
   private messageService = inject(MessageService);
   private concertsApi = inject(ConcertsApi);
 
   isSaving = signal(false);
 
+  concertFormComponent = viewChild(ConcertFormComponent);
+
+  ngOnInit() {
+    this.activeRoute.queryParams.subscribe(params => {
+      console.debug("Query params:", params);
+      let wikiPageId = params["wikiPageId"] as string | null | undefined;
+      if (wikiPageId) {
+        this.concertFormComponent()?.setWikiPageId(wikiPageId);
+        this.concertFormComponent()?.importFromLinkinpediaUrlClicked();
+      }
+    });
+  }
+
   onSaveClicked(formContent: ConcertFormContent) {
     this.isSaving.set(true);
 
     const request: CreateConcertRequestDto = {
+      status: formContent.status,
       customTitle: formContent.customTitle ?? undefined,
-      concertTypeId: formContent.concertTypeId != null ? String(formContent.concertTypeId) : undefined,
+      concertTypeId: formContent.concertTypeId != null ? formContent.concertTypeId : undefined,
       tourId: formContent.tourId ?? undefined,
       tourLegId: formContent.tourLegId ?? undefined,
       venueId: formContent.venueId ?? undefined,
       postedStartTime: formContent.postedStartTime.toISO()!,
+      timeIsPlaceholder: formContent.timeIsPlaceholder ?? undefined,
       doorsTime: formContent.doorsTime?.toISO() ?? undefined,
       mainStageTime: formContent.mainStageTime?.toISO() ?? undefined,
-      expectedSetDurationMinutes: String(formContent.expectedSetDuration) ?? undefined,
+      expectedSetDurationMinutes: formContent.expectedSetDuration ?? undefined,
+      linkinpediaUrl: formContent.linkinpediaUrl ?? undefined,
     };
 
     this.concertsApi.createConcert(request).subscribe({

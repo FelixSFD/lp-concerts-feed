@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Common.Database.DataObjects;
+using Common.Database.DataObjects.Types;
 
 namespace Database.Tours.DataObjects;
 
@@ -8,7 +9,7 @@ namespace Database.Tours.DataObjects;
 /// All information about a concert
 /// </summary>
 [Table("Concert")]
-public class ConcertDo : BaseDo, IDeletableDataObject, ITimestampedDataObject
+public class ConcertDo : BaseDo, IDeletableDataObject, ITimestampedDataObject, ILinkinpediaLinkable
 {
     /// <summary>
     /// Status of a concert
@@ -68,6 +69,12 @@ public class ConcertDo : BaseDo, IDeletableDataObject, ITimestampedDataObject
     /// </summary>
     [Column("PostedStartTime")]
     public DateTimeOffset PostedStartTime { get; set; }
+
+    /// <summary>
+    /// True if the <see cref="PostedStartTime"/> is a placeholder. This usually is the case for old concerts where we never tracked the times.
+    /// </summary>
+    [Column("TimeIsPlaceholder")]
+    public bool TimeIsPlaceholder { get; set; }
     
     /// <summary>
     /// Time in the venue's timezone when Linkin Park will be on stage
@@ -148,4 +155,7 @@ public class ConcertDo : BaseDo, IDeletableDataObject, ITimestampedDataObject
     /// <inheritdoc/>
     [Column("UpdatedAt")]
     public DateTimeOffset? UpdatedAt { get; set; }
+
+    /// <inheritdoc/>
+    public LinkinpediaUrl? LinkinpediaUrl { get; set; }
 }

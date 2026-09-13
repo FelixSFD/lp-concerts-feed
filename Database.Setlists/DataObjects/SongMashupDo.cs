@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Common.Database.DataObjects;
+using Common.Database.DataObjects.Types;
 
 namespace Database.Setlists.DataObjects;
 
@@ -28,7 +29,7 @@ public class SongMashupDo: BaseDo, ILinkinpediaLinkable
     /// <inheritdoc/>
     [Column("LinkinpediaUrl")]
     [MaxLength(DataConstants.LinkinpediaUrlLength)]
-    public string? LinkinpediaUrl { get; set; }
+    public LinkinpediaUrl? LinkinpediaUrl { get; set; }
     
     /// <summary>
     /// Songs that are included in this mashup

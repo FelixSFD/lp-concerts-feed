@@ -99,6 +99,10 @@ namespace Database.Tours.Migrations
                         .HasColumnType("int unsigned")
                         .HasColumnName("ExpectedSetDurationMinutes");
 
+                    b.Property<string>("LinkinpediaUrl")
+                        .HasMaxLength(127)
+                        .HasColumnType("varchar(127)");
+
                     b.Property<bool>("LpuEarlyEntryConfirmed")
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("LpuEarlyEntryConfirmed");
@@ -124,14 +128,18 @@ namespace Database.Tours.Migrations
                         .HasColumnType("int")
                         .HasColumnName("Status");
 
+                    b.Property<bool>("TimeIsPlaceholder")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("TimeIsPlaceholder");
+
                     b.Property<string>("TourId")
-                        .HasMaxLength(31)
-                        .HasColumnType("varchar(31)")
+                        .HasMaxLength(63)
+                        .HasColumnType("varchar(63)")
                         .HasColumnName("TourId");
 
                     b.Property<string>("TourLegId")
-                        .HasMaxLength(31)
-                        .HasColumnType("varchar(31)")
+                        .HasMaxLength(63)
+                        .HasColumnType("varchar(63)")
                         .HasColumnName("TourLegId");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
@@ -181,6 +189,26 @@ namespace Database.Tours.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ConcertType");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1u,
+                            CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Name = "Linkin Park Show"
+                        },
+                        new
+                        {
+                            Id = 2u,
+                            CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Name = "Festival"
+                        },
+                        new
+                        {
+                            Id = 3u,
+                            CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Name = "Other"
+                        });
                 });
 
             modelBuilder.Entity("Database.Tours.DataObjects.CountryDo", b =>
@@ -301,8 +329,8 @@ namespace Database.Tours.Migrations
             modelBuilder.Entity("Database.Tours.DataObjects.TourDo", b =>
                 {
                     b.Property<string>("Id")
-                        .HasMaxLength(31)
-                        .HasColumnType("varchar(31)")
+                        .HasMaxLength(63)
+                        .HasColumnType("varchar(63)")
                         .HasColumnName("Id");
 
                     b.Property<DateTimeOffset>("CreatedAt")
@@ -329,13 +357,13 @@ namespace Database.Tours.Migrations
             modelBuilder.Entity("Database.Tours.DataObjects.TourLegDo", b =>
                 {
                     b.Property<string>("TourId")
-                        .HasMaxLength(31)
-                        .HasColumnType("varchar(31)")
+                        .HasMaxLength(63)
+                        .HasColumnType("varchar(63)")
                         .HasColumnName("TourId");
 
                     b.Property<string>("Id")
-                        .HasMaxLength(31)
-                        .HasColumnType("varchar(31)")
+                        .HasMaxLength(63)
+                        .HasColumnType("varchar(63)")
                         .HasColumnName("Id");
 
                     b.Property<DateTimeOffset>("CreatedAt")

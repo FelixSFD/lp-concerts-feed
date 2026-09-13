@@ -43,6 +43,7 @@ export class AddCityPageComponent implements OnInit {
     this.isAdding$ = true;
 
     let request: CreateCityRequestDto = {
+      stateCode: formContent.stateCode ?? undefined,
       name: formContent.name,
       nativeName: formContent.nativeName,
     };

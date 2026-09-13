@@ -1,3 +1,5 @@
+using Common.Database.DataObjects;
+using Common.Database.DataObjects.Types;
 using Database.Setlists.DataObjects;
 using Microsoft.EntityFrameworkCore;
 
@@ -97,5 +99,14 @@ public class SetlistsDbContext(DbContextOptions<SetlistsDbContext> options) : Db
         modelBuilder.Entity<SongInMashupDo>()
             .Navigation(e => e.Mashup)
             .AutoInclude();
+    }
+    
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        base.ConfigureConventions(configurationBuilder);
+        
+        configurationBuilder.Properties<LinkinpediaUrl>()
+            .HaveMaxLength(DataConstants.LinkinpediaUrlLength)
+            .HaveConversion<LinkinpediaUrlValueConverter>();
     }
 }

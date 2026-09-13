@@ -7,8 +7,13 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Common.WikiMedia\Common.WikiMedia.csproj" />
       <ProjectReference Include="..\Database.Tours\Database.Tours.csproj" />
       <ProjectReference Include="..\DataStructure\DataStructure.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Importer\" />
     </ItemGroup>
 
 </Project>

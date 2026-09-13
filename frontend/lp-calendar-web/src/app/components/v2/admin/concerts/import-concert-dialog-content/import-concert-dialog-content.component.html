@@ -1,0 +1,447 @@
+@if (importPlan()) {
+  <p-accordion [multiple]="true">
+    <!-- Check if date is set -->
+    <p-accordion-panel value="timingInfo">
+      <p-accordion-header>
+        @if (importPlan()?.postedStartTime != null) {
+          <span class="text-color-success"><i class="pi pi-check-circle"></i> Date: {{ importPlan()?.postedStartTime | date: "yyyy-MM-dd" }}</span>
+        } @else {
+          <span class="text-red-400"><i class="pi pi-exclamation-triangle"></i> Concert date missing</span>
+        }
+      </p-accordion-header>
+      <p-accordion-content>
+        @if (importPlan()?.concertType != null) {
+          <p class="m-0 text-sm">
+            Found date: {{ importPlan()?.postedStartTime | date:'medium' }}
+          </p>
+        } @else {
+          <p class="mt-2 text-sm">
+            The date of the concert could not be detected! You will have to enter it manually later.
+          </p>
+        }
+      </p-accordion-content>
+    </p-accordion-panel>
+
+    <!-- Check if status is set -->
+    <p-accordion-panel value="concertStatus">
+      <p-accordion-header>
+        @if (importPlan()?.concertStatus != null && importPlan()?.concertStatus != ConcertStatusValueDto.Cancelled) {
+          <span class="text-color-success"><i class="pi pi-check-circle"></i> Status: {{ importPlan()?.concertStatus }}</span>
+        } @else if (importPlan()?.concertStatus == ConcertStatusValueDto.Cancelled) {
+          <span class="text-red-400"><i class="pi pi-check-circle"></i> Concert was CANCELLED</span>
+        } @else {
+          <span class="text-red-400"><i class="pi pi-exclamation-triangle"></i> Concert status missing</span>
+        }
+      </p-accordion-header>
+      <p-accordion-content>
+        @if (importPlan()?.concertType != null) {
+          <p class="m-0 text-sm">
+            Found status of the concert: {{ importPlan()?.concertStatus }}
+          </p>
+        } @else {
+          <p class="mt-2 text-sm">
+            The status of the concert could not be detected! You will have to enter it manually later.
+          </p>
+        }
+      </p-accordion-content>
+    </p-accordion-panel>
+
+    <!-- Check if concert type is set -->
+    <p-accordion-panel value="concertType">
+      <p-accordion-header>
+        @if (importPlan()?.concertType != null) {
+          <span class="text-color-success"><i class="pi pi-check-circle"></i> Concert Type: {{ importPlan()?.concertType?.name }}</span>
+        } @else {
+          <span class="text-red-400"><i class="pi pi-exclamation-triangle"></i> Concert Type missing</span>
+        }
+      </p-accordion-header>
+      <p-accordion-content>
+        @if (importPlan()?.concertType != null) {
+          <p class="m-0 text-sm">
+            Found concert type: {{ importPlan()?.concertType?.name }}
+          </p>
+        } @else {
+          <p class="mt-2 text-sm">
+            No concert type could be detected. You will have to enter it manually later.
+          </p>
+        }
+      </p-accordion-content>
+    </p-accordion-panel>
+
+    <!-- Check if tour was found -->
+    <p-accordion-panel value="tour">
+      <p-accordion-header>
+        @if (importPlan()?.foundTours?.length == 0) {
+          <span class="text-orange-400"><i class="pi pi-rectangle-xmark"></i> Tour information</span>
+        } @else if (importPlan()?.foundTours?.length == 1) {
+          <span class="text-color-success"><i class="pi pi-check-circle"></i> Tour: {{ importPlan()?.foundTours?.at(0)?.name ?? "" }}</span>
+        } @else {
+          <span class="text-red-400"><i class="pi pi-exclamation-triangle"></i> Tour information</span>
+        }
+      </p-accordion-header>
+      <p-accordion-content>
+        @if (importPlan()?.foundTours?.length == 0) {
+          <p class="m-0 text-sm">
+            No matching tour found. Need to create one first or select existing.
+          </p>
+          <p class="mt-2 text-sm">
+            In case the concert was not part of a tour, you can ignore this warning.
+          </p>
+        } @else if (importPlan()?.foundTours?.length == 1) {
+          <p class="m-0 text-sm">
+            Found tour leg: <span [pTooltip]="'ID: ' + importPlan()?.foundTours?.at(0)?.id" class="font-bold">{{ importPlan()?.foundTours?.at(0)?.name ?? "" }}</span>
+          </p>
+        } @else {
+          <p class="m-0 text-sm">
+            TODO: Found {{ importPlan()?.foundTours?.length }} possible tours
+          </p>
+        }
+
+        <!-- Depending on the found data, show a form to create a new tour leg -->
+        @if (importPlan()?.foundTours?.length == 0) {
+          <form #form="ngForm" [formGroup]="createTourForm" class="form mt-3">
+            <div class="col-12">
+              <p-inputgroup>
+                <p-floatlabel variant="on">
+                  <input pInputText id="tourId" fluid formControlName="tourId" [invalid]="createTourForm.controls.tourId.invalid" />
+                  <label for="tourId">Tour ID</label>
+                </p-floatlabel>
+                <p-inputgroup-addon>
+                  <p-button icon="pi pi-refresh" severity="info" variant="outlined" (onClick)="generateId(createTourForm.controls.tourName, createTourForm.controls.tourId)" />
+                </p-inputgroup-addon>
+              </p-inputgroup>
+            </div>
+
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <input pInputText id="tourName" formControlName="tourName" autocomplete="off" fluid [invalid]="createTourForm.controls.tourName.invalid" />
+                <label for="tourName">Tour Name</label>
+              </p-floatlabel>
+            </div>
+
+            <div class="col-12 align-content-end">
+              <p-button label="Create Tour" variant="outlined" [disabled]="createTourForm.invalid" (onClick)="onCreateTourClicked()" />
+            </div>
+          </form>
+        }
+      </p-accordion-content>
+    </p-accordion-panel>
+
+    <!-- Check if tour leg was found -->
+    @if (importPlan()?.tourLegName) {
+      <p-accordion-panel value="tourLeg">
+        <p-accordion-header>
+          @if (importPlan()?.foundTourLegs?.length == 0) {
+            <span class="text-red-400"><i class="pi pi-rectangle-xmark"></i> Tour Leg information</span>
+          } @else if (importPlan()?.foundTourLegs?.length == 1) {
+            <span class="text-color-success"><i class="pi pi-check-circle"></i> Tour Leg: {{ importPlan()?.foundTourLegs?.at(0)?.name }}</span>
+          } @else {
+            <span class="text-orange-400"><i class="pi pi-exclamation-triangle"></i> Tour Leg information</span>
+          }
+        </p-accordion-header>
+        <p-accordion-content>
+          @if (importPlan()?.foundTourLegs?.length == 0) {
+            <p class="m-0 text-sm">
+              No matching tour leg found. Need to create one first or select existing.
+            </p>
+            <p class="mt-2 text-sm">
+              In case the concert was not part of a leg, you can ignore this warning.
+            </p>
+          } @else if (importPlan()?.foundTourLegs?.length == 1) {
+            <p class="m-0 text-sm">
+              Found tour leg: <span [pTooltip]="'ID: ' + importPlan()?.foundTourLegs?.at(0)?.id" class="font-bold">{{ importPlan()?.foundTourLegs?.at(0)?.name ?? "" }}</span>
+            </p>
+          } @else {
+            <p class="m-0 text-sm">
+              TODO: Found {{ importPlan()?.foundTourLegs?.length }} possible tour legs
+            </p>
+          }
+
+          <!-- Depending on the found data, show a form to create a new tour leg -->
+          @if (importPlan()?.foundTourLegs?.length == 0) {
+            <form #form="ngForm" [formGroup]="createTourLegForm" class="form mt-3">
+              <div class="col-12">
+                <p-inputgroup>
+                  <p-floatlabel variant="on">
+                    <input pInputText id="legId" fluid formControlName="legId" [invalid]="createTourLegForm.controls.legId.invalid" />
+                    <label for="legId">Leg ID</label>
+                  </p-floatlabel>
+                  <p-inputgroup-addon>
+                    <p-button icon="pi pi-refresh" variant="outlined" (onClick)="generateId(createTourLegForm.controls.legName, createTourLegForm.controls.legId)" />
+                  </p-inputgroup-addon>
+                </p-inputgroup>
+              </div>
+
+              <div class="col-12">
+                <p-floatlabel variant="on">
+                  <input pInputText id="legName" formControlName="legName" autocomplete="off" fluid [invalid]="createTourLegForm.controls.legName.invalid" />
+                  <label for="legName">Leg Name</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="col-12 align-content-end">
+                <p-button label="Create Tour Leg" variant="outlined" [disabled]="createTourLegForm.invalid" (onClick)="onCreateTourLegClicked()" />
+              </div>
+            </form>
+          }
+        </p-accordion-content>
+      </p-accordion-panel>
+    }
+
+    <!-- Check if country was found -->
+    @if (importPlan()?.countryName) {
+      <p-accordion-panel value="country">
+        <p-accordion-header>
+          @if (importPlan()?.foundCountries?.length == 0) {
+            <span class="text-red-400"><i class="pi pi-rectangle-xmark"></i> Country information</span>
+          } @else if (importPlan()?.foundCountries?.length == 1) {
+            <span class="text-color-success"><i class="pi pi-check-circle"></i> Country: {{ importPlan()?.foundCountries?.at(0)?.name }}</span>
+          } @else {
+            <span class="text-orange-400"><i class="pi pi-exclamation-triangle"></i> Country information</span>
+          }
+        </p-accordion-header>
+        <p-accordion-content>
+          @if (importPlan()?.foundCountries?.length == 0) {
+            <p class="m-0 text-sm">
+              No matching country found. Need to create one first or select existing.
+            </p>
+          } @else if (importPlan()?.foundCountries?.length == 1) {
+            <p class="m-0 text-sm">
+              Found country: <span [pTooltip]="'Country Code: ' + importPlan()?.foundCountries?.at(0)?.isoCode" class="font-bold">{{ importPlan()?.foundCountries?.at(0)?.name ?? "" }} ({{ importPlan()?.foundCountries?.at(0)?.nativeName ?? "" }})</span>
+            </p>
+          } @else {
+            <p class="m-0 text-sm">
+              TODO: Found {{ importPlan()?.foundCountries?.length }} possible countries
+            </p>
+          }
+
+          <!-- Depending on the found data, show a form to create a new country -->
+          @if (importPlan()?.foundCountries?.length == 0) {
+            <form #form="ngForm" [formGroup]="createCountryForm" class="form mt-3">
+              <div class="col-12">
+                <p-floatlabel variant="on">
+                  <input pInputText id="isoCode" fluid formControlName="isoCode" [invalid]="createCountryForm.controls.isoCode.invalid" />
+                  <label for="isoCode">ISO Code</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="col-12">
+                <p-floatlabel variant="on">
+                  <input pInputText id="name" formControlName="name" autocomplete="off" fluid [invalid]="createCountryForm.controls.name.invalid" />
+                  <label for="name">Name (English)</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="col-12">
+                <p-floatlabel variant="on">
+                  <input pInputText id="nativeName" formControlName="nativeName" autocomplete="off" fluid [invalid]="createCountryForm.controls.nativeName.invalid" />
+                  <label for="nativeName">Name (in country's language)</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="col-12 align-content-end">
+                <p-button label="Create Country" variant="outlined" [disabled]="createCountryForm.invalid" (onClick)="onCreateCountryClicked()" />
+              </div>
+            </form>
+          }
+        </p-accordion-content>
+      </p-accordion-panel>
+    }
+
+    <!-- Check if state was found -->
+    @if (importPlan()?.stateName) {
+      <p-accordion-panel value="state" [disabled]="importPlan()?.foundCountries?.length != 1">
+        <p-accordion-header>
+          @if (importPlan()?.foundStates?.length == 0) {
+            <span class="text-red-400"><i class="pi pi-rectangle-xmark"></i> State information</span>
+          } @else if (importPlan()?.foundStates?.length == 1) {
+            <span class="text-color-success"><i class="pi pi-check-circle"></i> State: {{ importPlan()?.foundStates?.at(0)?.name }}</span>
+          } @else {
+            <span class="text-orange-400"><i class="pi pi-exclamation-triangle"></i> State information</span>
+          }
+        </p-accordion-header>
+        <p-accordion-content>
+          @if (importPlan()?.foundStates?.length == 0) {
+            <p class="m-0 text-sm">
+              No matching state found. Need to create one first or select existing.
+            </p>
+          } @else if (importPlan()?.foundStates?.length == 1) {
+            <p class="m-0 text-sm">
+              Found state: <span [pTooltip]="'Code: ' + importPlan()?.foundStates?.at(0)?.code" class="font-bold">{{ importPlan()?.foundStates?.at(0)?.name ?? "" }} ({{ importPlan()?.foundStates?.at(0)?.nativeName ?? "" }})</span>
+            </p>
+          } @else {
+            <p class="m-0 text-sm">
+              TODO: Found {{ importPlan()?.foundStates?.length }} possible states
+            </p>
+          }
+
+          <!-- Depending on the found data, show a form to create a new state -->
+          @if (importPlan()?.foundStates?.length == 0) {
+            <form #form="ngForm" [formGroup]="createStateForm" class="form mt-3">
+              <div class="col-12">
+                <p-floatlabel variant="on">
+                  <input pInputText id="stateCode" formControlName="stateCode" autocomplete="off" fluid [invalid]="createStateForm.controls.stateCode.invalid" />
+                  <label for="stateCode">Code</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="col-12">
+                <p-floatlabel variant="on">
+                  <input pInputText id="name" formControlName="name" autocomplete="off" fluid [invalid]="createStateForm.controls.name.invalid" />
+                  <label for="name">Name (English)</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="col-12">
+                <p-floatlabel variant="on">
+                  <input pInputText id="nativeName" formControlName="nativeName" autocomplete="off" fluid [invalid]="createStateForm.controls.nativeName.invalid" />
+                  <label for="nativeName">Name (in country's language)</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="col-12 align-content-end">
+                <p-button label="Create State" variant="outlined" [disabled]="createStateForm.invalid" (onClick)="onCreateStateClicked()" />
+              </div>
+            </form>
+          }
+        </p-accordion-content>
+      </p-accordion-panel>
+    }
+
+    <!-- Check if city was found -->
+    @if (importPlan()?.cityName) {
+      <p-accordion-panel value="city" [disabled]="importPlan()?.foundCountries?.length != 1">
+        <p-accordion-header>
+          @if (importPlan()?.foundCities?.length == 0) {
+            <span class="text-red-400"><i class="pi pi-rectangle-xmark"></i> City information</span>
+          } @else if (importPlan()?.foundCities?.length == 1) {
+            <span class="text-color-success"><i class="pi pi-check-circle"></i> City: {{ importPlan()?.foundCities?.at(0)?.name }}</span>
+          } @else {
+            <span class="text-orange-400"><i class="pi pi-exclamation-triangle"></i> City information</span>
+          }
+        </p-accordion-header>
+        <p-accordion-content>
+          @if (importPlan()?.foundCities?.length == 0) {
+            <p class="m-0 text-sm">
+              No matching city found. Need to create one first or select existing.
+            </p>
+          } @else if (importPlan()?.foundCities?.length == 1) {
+            <p class="m-0 text-sm">
+              Found city: <span [pTooltip]="'ID: ' + importPlan()?.foundCities?.at(0)?.id" class="font-bold">{{ importPlan()?.foundCities?.at(0)?.name ?? "" }} ({{ importPlan()?.foundCities?.at(0)?.nativeName ?? "" }})</span>
+            </p>
+          } @else {
+            <p class="m-0 text-sm">
+              TODO: Found {{ importPlan()?.foundCities?.length }} possible cities
+            </p>
+          }
+
+          <!-- Depending on the found data, show a form to create a new city -->
+          @if (importPlan()?.foundCities?.length == 0) {
+            <form #form="ngForm" [formGroup]="createCityForm" class="form mt-3">
+              <div class="col-12">
+                <p-floatlabel variant="on">
+                  <input pInputText id="name" formControlName="name" autocomplete="off" fluid [invalid]="createCityForm.controls.name.invalid" />
+                  <label for="name">Name (English)</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="col-12">
+                <p-floatlabel variant="on">
+                  <input pInputText id="nativeName" formControlName="nativeName" autocomplete="off" fluid [invalid]="createCityForm.controls.nativeName.invalid" />
+                  <label for="nativeName">Name (in country's language)</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="col-12 align-content-end">
+                <p-button label="Create City" variant="outlined" [disabled]="createCityForm.invalid" (onClick)="onCreateCityClicked()" />
+              </div>
+            </form>
+          }
+        </p-accordion-content>
+      </p-accordion-panel>
+    }
+
+    <!-- Check if venue was found -->
+    @if (importPlan()?.venueName) {
+      <p-accordion-panel value="venue" [disabled]="importPlan()?.foundCountries?.length != 1 && importPlan()?.foundCities?.length != 1">
+        <p-accordion-header>
+          @if (importPlan()?.foundVenues?.length == 0) {
+            <span class="text-red-400"><i class="pi pi-rectangle-xmark"></i> Venue information</span>
+          } @else if (importPlan()?.foundVenues?.length == 1) {
+            <span class="text-color-success"><i class="pi pi-check-circle"></i> Venue information</span>
+          } @else {
+            <span class="text-orange-400"><i class="pi pi-exclamation-triangle"></i> Venue information</span>
+          }
+        </p-accordion-header>
+        <p-accordion-content>
+          @if (importPlan()?.foundVenues?.length == 0) {
+            <p class="m-0 text-sm">
+              No matching venue found. Need to create one first or select existing.
+            </p>
+          } @else if (importPlan()?.foundVenues?.length == 1) {
+            <p class="m-0 text-sm">
+              Found venue: <span [pTooltip]="'ID: ' + importPlan()?.foundVenues?.at(0)?.id" class="font-bold">{{ importPlan()?.foundVenues?.at(0)?.currentName ?? "" }}, {{ importPlan()?.foundVenues?.at(0)?.countryCode ?? "" }}</span>
+            </p>
+          } @else {
+            <p class="m-0 text-sm">
+              TODO: Found {{ importPlan()?.foundVenues?.length }} possible venues
+            </p>
+          }
+
+          <!-- Depending on the found data, show a form to create a new venue -->
+          @if (importPlan()?.foundVenues?.length == 0) {
+            <form #form="ngForm" [formGroup]="createVenueForm" class="form mt-3">
+              <div class="col-12">
+                <p-floatlabel variant="on">
+                  <app-select-timezone
+                    formControlName="timezone"
+                    inputId="timezone"
+                    [invalid]="createVenueForm.controls.timezone.invalid"
+                    fluid
+                    filter
+                  />
+                  <label for="timezone">Venue's timezone</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="col-12">
+                <p-button class="hidden md:inline" label="Load timezone" icon="pi pi-sync" variant="outlined" (onClick)="onGetVenueTimezoneClicked()" [disabled]="timeZoneIsLoading$()" [loading]="timeZoneIsLoading$()" />
+              </div>
+
+              <div class="col-12">
+                <p-floatlabel variant="on">
+                  <input pInputText id="currentName" formControlName="currentName" autocomplete="off" fluid [invalid]="createVenueForm.controls.currentName.invalid" />
+                  <label for="currentName">Name</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="col-12 align-content-end">
+                <p-button label="Create venue" variant="outlined" [disabled]="createVenueForm.invalid" (onClick)="onCreateVenueClicked()" />
+              </div>
+            </form>
+          }
+        </p-accordion-content>
+      </p-accordion-panel>
+    }
+
+    <!-- Check if custom title was found -->
+    @if (importPlan()?.proposedCustomTitle) {
+      <p-accordion-panel value="customTitle">
+        <p-accordion-header>
+          <span class="text-color-success"><i class="pi pi-check-circle"></i> Custom title</span>
+        </p-accordion-header>
+        <p-accordion-content>
+          <p class="m-0 text-sm">
+            Found custom title: <span class="font-bold">{{ importPlan()?.proposedCustomTitle }}</span>
+          </p>
+        </p-accordion-content>
+      </p-accordion-panel>
+    }
+  </p-accordion>
+
+  <p-divider />
+
+  <p-button label="Apply to form" (onClick)="onApplyClicked()" />
+} @else {
+  Loading...
+}

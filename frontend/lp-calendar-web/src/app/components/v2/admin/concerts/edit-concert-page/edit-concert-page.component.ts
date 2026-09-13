@@ -65,15 +65,18 @@ export class EditConcertPageComponent implements OnInit {
     this.isSaving.set(true);
 
     const request: UpdateConcertRequestDto = {
+      status: formContent.status,
       customTitle: formContent.customTitle ?? undefined,
-      concertTypeId: formContent.concertTypeId != null ? String(formContent.concertTypeId) : undefined,
+      concertTypeId: formContent.concertTypeId != null ? formContent.concertTypeId : undefined,
       tourId: formContent.tourId ?? undefined,
       tourLegId: formContent.tourLegId ?? undefined,
       venueId: formContent.venueId ?? undefined,
       postedStartTime: formContent.postedStartTime.toISO()!,
+      timeIsPlaceholder: formContent.timeIsPlaceholder ?? undefined,
       doorsTime: formContent.doorsTime?.toISO() ?? undefined,
       mainStageTime: formContent.mainStageTime?.toISO() ?? undefined,
-      expectedSetDurationMinutes: String(formContent.expectedSetDuration) ?? undefined,
+      expectedSetDurationMinutes: formContent.expectedSetDuration ?? undefined,
+      linkinpediaUrl: formContent.linkinpediaUrl ?? undefined,
     };
 
     this.concertsApi.updateConcert(this.currentConcertId, request).subscribe({

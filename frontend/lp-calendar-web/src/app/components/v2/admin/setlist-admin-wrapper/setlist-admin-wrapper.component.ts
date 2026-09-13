@@ -21,6 +21,22 @@ export class SetlistAdminWrapperComponent {
 
   menuItems: MenuItem[] = [
     {
+      label: "Concerts",
+      routerLink: "/admin/concerts",
+    },
+    {
+      label: "Venues",
+      routerLink: "/admin/venues",
+    },
+    {
+      label: "Cities",
+      routerLink: "/admin/cities",
+    },
+    {
+      label: "Countries",
+      routerLink: "/admin/countries",
+    },
+    {
       label: "Setlists",
       routerLink: "/admin/setlists",
     },
@@ -35,7 +51,7 @@ export class SetlistAdminWrapperComponent {
     {
       label: "Mashups",
       routerLink: "/admin/mashups",
-    }
+    },
   ];
 
   selectedArea = this.menuItems.find(

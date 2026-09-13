@@ -164,8 +164,8 @@ Resources:
         ParametersInCacheKeyAndForwardedToOrigin:
           CookiesConfig:
             CookieBehavior: all
-          EnableAcceptEncodingBrotli: false
-          EnableAcceptEncodingGzip: false
+          EnableAcceptEncodingBrotli: true
+          EnableAcceptEncodingGzip: true
           HeadersConfig:
             HeaderBehavior: whitelist
             Headers:
@@ -186,8 +186,8 @@ Resources:
         ParametersInCacheKeyAndForwardedToOrigin:
           CookiesConfig:
             CookieBehavior: all
-          EnableAcceptEncodingBrotli: false
-          EnableAcceptEncodingGzip: false
+          EnableAcceptEncodingBrotli: true
+          EnableAcceptEncodingGzip: true
           HeadersConfig:
             HeaderBehavior: whitelist
             Headers:
@@ -244,6 +244,7 @@ Resources:
               - HEAD
               - OPTIONS
             CachePolicyId: !Ref DefaultCachePolicy
+            Compress: true
           - PathPattern: /v3/*
             TargetOriginId: V3ApiOrigin
             ViewerProtocolPolicy: redirect-to-https
@@ -262,6 +263,7 @@ Resources:
             CachePolicyId: !Ref DefaultCachePolicy
             OriginRequestPolicyId: !Ref CORSOriginRequestPolicy
             ResponseHeadersPolicyId: !Ref CORSResponseHeadersPolicy
+            Compress: true
         ViewerCertificate:
           AcmCertificateArn: !Ref CertificateArn
           SslSupportMethod: sni-only
@@ -286,6 +288,7 @@ Resources:
           LambdaFunctionAssociations:
             - EventType: viewer-request
               LambdaFunctionARN: !Ref RedirectLambdaArn
+          Compress: true
         Enabled: true
         HttpVersion: http2and3
         Comment: !Sub "${AWS::StackName} API"
@@ -328,6 +331,7 @@ Resources:
               - HEAD
               - OPTIONS
             CachePolicyId: !Ref DefaultCachePolicy
+            Compress: true
         CustomErrorResponses:
           - ErrorCode: 403
             ResponseCode: 200
@@ -359,6 +363,7 @@ Resources:
           LambdaFunctionAssociations:
             - EventType: origin-request
               LambdaFunctionARN: !Ref SignS3MrapLambdaArn
+          Compress: true
         Enabled: true
         HttpVersion: http2and3
         Comment: !Sub "${AWS::StackName} Frontend"
@@ -399,6 +404,7 @@ Resources:
               - HEAD
               - OPTIONS
             CachePolicyId: !Ref DefaultCachePolicy
+            Compress: true
         ViewerCertificate:
           AcmCertificateArn: !Ref CertificateArn
           SslSupportMethod: sni-only
@@ -416,6 +422,7 @@ Resources:
           CachePolicyId: !Ref ExtraLongCachePolicy
           OriginRequestPolicyId: !Ref CORSOriginRequestPolicy
           ResponseHeadersPolicyId: !Ref CORSResponseHeadersPolicy
+          Compress: true
         Enabled: true
         HttpVersion: http2and3
         Comment: !Sub "${AWS::StackName} Image host"

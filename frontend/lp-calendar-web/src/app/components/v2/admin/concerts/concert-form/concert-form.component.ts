@@ -1,7 +1,13 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output, signal, ViewChild } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ConcertDetailsDto, ConcertStatusValueDto, TourDto, VenueDto } from '../../../../../modules/lpshows-api/v3';
+import {
+  ConcertDetailsDto,
+  ConcertStatusValueDto,
+  ImportConcertPreviewDto,
+  TourDto,
+  VenueDto
+} from '../../../../../modules/lpshows-api/v3';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { Divider } from 'primeng/divider';
@@ -17,6 +23,16 @@ import { Select } from 'primeng/select';
 import timezones, { TimeZone } from 'timezones-list';
 import { DateTime, Zone } from 'luxon';
 import { ConcertStatus } from '../../../../../data/concert-status';
+import { InputGroup } from 'primeng/inputgroup';
+import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import { ConcertsService } from '../../../../../services/concerts.service';
+import { Dialog } from 'primeng/dialog';
+import {
+  ApplyClickedEvent,
+  ImportConcertDialogContentComponent
+} from '../import-concert-dialog-content/import-concert-dialog-content.component';
+import { firstValueFrom } from 'rxjs';
+import { ToggleSwitch } from 'primeng/toggleswitch';
 
 @Component({
   selector: 'app-concert-form',
@@ -34,6 +50,11 @@ import { ConcertStatus } from '../../../../../data/concert-status';
     SelectVenueComponent,
     DatePicker,
     Select,
+    InputGroup,
+    InputGroupAddon,
+    Dialog,
+    ImportConcertDialogContentComponent,
+    ToggleSwitch,
   ],
   templateUrl: './concert-form.component.html',
   styleUrl: './concert-form.component.css',
@@ -41,6 +62,7 @@ import { ConcertStatus } from '../../../../../data/concert-status';
 export class ConcertFormComponent implements OnInit {
   private messageService = inject(MessageService);
   private formBuilder = inject(FormBuilder);
+  private concertsService = inject(ConcertsService);
 
   @Input("is-saving")
   isSaving$: boolean = false;
@@ -57,9 +79,16 @@ export class ConcertFormComponent implements OnInit {
   @Output("saveClicked")
   saveClicked = new EventEmitter<ConcertFormContent>();
 
+  @ViewChild(SelectTourComponent) selectTourComponent?: SelectTourComponent;
+  @ViewChild(SelectVenueComponent) selectVenueComponent?: SelectVenueComponent;
+
   venueTimezone = signal<TimeZone | null>(null);
 
   selectedTour = signal<TourDto | null>(null);
+
+  isShowingImportDialog = signal(false);
+  isImporting = signal(false);
+  importPlan = signal<ImportConcertPreviewDto | null>(null);
 
   concertForm = this.formBuilder.group({
     concertStatus: new FormControl<ConcertStatusValueDto>(ConcertStatusValueDto.Planned, [Validators.required]),
@@ -69,11 +98,13 @@ export class ConcertFormComponent implements OnInit {
     tourLegId: new FormControl<string | null>(null),
     venue: new FormControl<VenueDto | null>(null, [Validators.required]),
     postedStartTime: new FormControl<Date | null>(null, [Validators.required]),
+    timeIsPlaceholder: new FormControl(false, []),
     lpuEarlyEntryConfirmed: new FormControl(false, []),
     lpuEarlyEntryTime: new FormControl('', []),
     doorsTime: new FormControl('', []),
     lpStageTime: new FormControl('', []),
-    expectedSetDuration: new FormControl('', []),
+    expectedSetDuration: new FormControl<string | null>(null, []),
+    linkinpediaUrl: new FormControl<string | null>(null, []),
   });
 
   protected concertStatusValues: ConcertStatus[] = ConcertStatus.allValues;
@@ -179,10 +210,12 @@ export class ConcertFormComponent implements OnInit {
       tourLegId: tourLegId ?? null,
       venueId: venueId ?? null,
       postedStartTime: zonedDateTime,
+      timeIsPlaceholder: this.concertForm.value.timeIsPlaceholder ?? false,
       timezone: timezone,
       mainStageTime: lpStageDateTime,
       doorsTime: doorsDateTime,
       expectedSetDuration: expectedSetDuration,
+      linkinpediaUrl: this.concertForm.value.linkinpediaUrl?.valueOf() ?? null,
     };
   }
 
@@ -226,7 +259,14 @@ export class ConcertFormComponent implements OnInit {
     this.concertForm.controls.doorsTime.setValue(doorsDateTimeIsoStr?.substring(0, 5) ?? null);
     this.concertForm.controls.expectedSetDuration.setValue(setDurationStr ?? null);
 
+    this.concertForm.controls.linkinpediaUrl.setValue(concert.linkinpediaUrl ?? null);
+    this.concertForm.controls.timeIsPlaceholder.setValue(concert.timeIsPlaceholder ?? false);
+
     this.venueTimezone.set(timezones.find(t => t.tzCode == concert.venue?.timeZoneId) ?? null);
+  }
+
+  public setWikiPageId(wikiPageId: string) {
+    this.concertForm.controls.linkinpediaUrl.setValue(`https://linkinpedia.com/wiki/${wikiPageId}`);
   }
 
   public reset() {
@@ -261,7 +301,104 @@ export class ConcertFormComponent implements OnInit {
 
   private convertH2M(timeInHour: string){
     let timeParts = timeInHour.split(":");
-    return Number(timeParts[0]) * 60 + Number(timeParts[1]);
+    let minutes = Number(timeParts[0]) * 60 + Number(timeParts[1]);
+    return isNaN(minutes) ? null : minutes;
+  }
+
+  openLinkinpediaUrlClicked() {
+    let url = this.concertForm.value.linkinpediaUrl?.valueOf();
+    if (url?.length == 0) {
+      return;
+    }
+
+    window.open(url, "_blank");
+  }
+
+  async importFromLinkinpediaUrlClicked() {
+    let url = this.concertForm.value.linkinpediaUrl?.valueOf() ?? null;
+    if (url == null || url?.length == 0) {
+      return;
+    }
+
+    let wikiPageId = url.split("/").pop();
+    let importPlan = await this.concertsService.getImportConcertPlanForConcert(wikiPageId!);
+    console.debug("Import plan: ", importPlan);
+    this.isShowingImportDialog.set(true);
+    this.importPlan.set(importPlan);
+  }
+
+  async onApplyImportClicked(evt: ApplyClickedEvent) {
+    this.isImporting.set(true);
+    console.debug('Applying import: ', evt);
+    this.isShowingImportDialog.set(false);
+
+    try {
+      // 1. Reload tours and venues in parallel before assigning values
+      const reloadTasks = [];
+      if (this.selectTourComponent) {
+        reloadTasks.push(firstValueFrom(this.selectTourComponent.loadTours()));
+      } else {
+        console.error("selectTourComponent could not be referenced");
+      }
+      if (this.selectVenueComponent) {
+        reloadTasks.push(firstValueFrom(this.selectVenueComponent.reloadAvailableOptions()));
+        console.error("selectVenueComponent could not be referenced");
+      }
+      await Promise.all(reloadTasks);
+
+      const startTime = evt.postedStartTime;
+      const concertType = evt.concertType;
+      let importTour = evt.tour;
+      const importTourLeg = evt.tourLeg;
+      const importVenue = evt.venue;
+      const importCustomTitle = evt.customTitle;
+      const importConcertStatus = evt.concertStatus;
+
+      if (startTime != null) {
+        this.concertForm.controls.postedStartTime.setValue(startTime);
+      }
+      if (concertType != null) {
+        this.concertForm.controls.concertTypeId.setValue(concertType.id ?? null);
+      }
+
+      let previousStartTime = this.concertForm.value.postedStartTime;
+      if (previousStartTime) {
+        this.concertForm.controls.timeIsPlaceholder.setValue(true);
+      }
+
+      // 2. Set tour with full updated legs list
+      if (importTour != null) {
+        // Find the freshly loaded tour so its `legs` array contains newly created tour legs
+        const freshTour = this.selectTourComponent?.tours().find(t => t.id === importTour?.id) ?? importTour;
+        this.concertForm.controls.tour.setValue(freshTour);
+      }
+
+      // 3. Set tour leg (SelectTourLegComponent updates automatically via [tour] binding)
+      if (importTourLeg != null) {
+        this.concertForm.controls.tourLegId.setValue(importTourLeg.id);
+      }
+
+      // 4. Set venue
+      if (importVenue != null) {
+        // Find the freshly loaded venue to match the options list
+        const freshVenue = this.selectVenueComponent?.venues().find(v => v.id === importVenue?.id) ?? importVenue;
+        this.concertForm.controls.venue.setValue(freshVenue);
+      }
+
+      // 5. Set custom title
+      if (importCustomTitle) {
+        this.concertForm.controls.customTitle.setValue(importCustomTitle);
+      }
+
+      // 6. set concert status
+      if (importConcertStatus) {
+        this.concertForm.controls.concertStatus.setValue(importConcertStatus);
+      }
+    } catch (error) {
+      console.error('Failed to reload data before applying import:', error);
+    } finally {
+      this.isImporting.set(false);
+    }
   }
 
   protected readonly timezones = timezones;
@@ -273,10 +410,12 @@ export class ConcertFormContent {
   concertTypeId?: number | null;
   tourId?: string | null;
   tourLegId?: string | null;
-  venueId?: string | null;
+  venueId?: number | null;
   timezone!: string;
   postedStartTime!: DateTime;
+  timeIsPlaceholder!: boolean;
   doorsTime?: DateTime | null;
   mainStageTime?: DateTime | null;
   expectedSetDuration?: number | null;
+  linkinpediaUrl?: string | null;
 }

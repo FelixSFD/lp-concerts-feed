@@ -1,6 +1,6 @@
 import {Component, inject} from '@angular/core';
 import {LegacyConcertFormComponent} from '../concert-form/legacy-concert-form.component';
-import {ConcertsService} from '../../../../services/concerts.service';
+import {LegacyConcertsService} from '../../../../services/legacy-concerts.service';
 import {ConcertDto} from '../../../../modules/lpshows-api';
 import {Button} from 'primeng/button';
 import {ButtonGroup} from 'primeng/buttongroup';
@@ -21,7 +21,7 @@ export class AddLegacyConcertPageComponent {
 
   isSaving$: boolean = false;
 
-  constructor(private concertsService: ConcertsService) {
+  constructor(private concertsService: LegacyConcertsService) {
   }
 
 

@@ -5,6 +5,7 @@ using Database.Tours.Repositories;
 using LPCalendar.DataStructure.Tours;
 using Microsoft.Extensions.Logging;
 using Service.Tours.Exceptions;
+using RawConcertDto = LPCalendar.DataStructure.Tours.RawConcertDto;
 
 namespace Service.Tours;
 
@@ -83,7 +84,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
     /// Creates a new concert
     /// </summary>
     /// <param name="request"></param>
-    public async Task<RawConcertDto> CreateConcertAsync(CreateConcertRequestDto request)
+    public async Task<RawConcertDto> CreateConcertAsync(CreateConcertRequestBo request)
     {
         logger.LogDebug("Requested to create a new concert");
         var concert = request.ToDo();
@@ -98,11 +99,11 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
     /// </summary>
     /// <param name="request"></param>
     /// <param name="concertId">ID of the concert to update</param>
-    public async Task<RawConcertDto> UpdateConcertAsync(string concertId, UpdateConcertRequestDto request)
+    public async Task<RawConcertDto> UpdateConcertAsync(string concertId, UpdateConcertRequestBo request)
     {
         logger.LogDebug("Requested to update the concert with ID: {concertId}", concertId);
         var concert = await concertRepository.GetByPrimaryKeyWithoutReferencesAsync(concertId) ?? throw new ConcertNotFoundException(concertId);
-        concert.UpdateFromRequestDto(request);
+        concert.UpdateFromRequestBo(request);
         concertRepository.Update(concert);
         await concertRepository.SaveChangesAsync();
         logger.LogDebug("Successfully updated concert with ID: {concertId}", concert.Id);

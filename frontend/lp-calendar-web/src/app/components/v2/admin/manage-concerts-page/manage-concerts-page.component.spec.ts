@@ -1,7 +1,7 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {of} from 'rxjs';
 import {ManageConcertsPageComponent} from './manage-concerts-page.component';
-import {ConcertsService} from '../../../../services/concerts.service';
+import {LegacyConcertsService} from '../../../../services/legacy-concerts.service';
 
 describe('ManageConcertsPageComponent', () => {
   let component: ManageConcertsPageComponent;
@@ -11,7 +11,7 @@ describe('ManageConcertsPageComponent', () => {
     await TestBed.configureTestingModule({
       imports: [ManageConcertsPageComponent],
       providers: [{
-        provide: ConcertsService,
+        provide: LegacyConcertsService,
         useValue: {getFilteredConcerts: () => of([])},
       }],
     }).compileComponents();

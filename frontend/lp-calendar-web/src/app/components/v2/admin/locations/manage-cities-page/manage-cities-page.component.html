@@ -1,5 +1,16 @@
 <p-confirm-dialog />
 
+<ng-template #locationName let-name="name" let-nativeName="nativeName">
+  @if (name == nativeName) {
+    {{ name }}
+  } @else {
+    {{ name }}
+    <div class="text-500 font-italic">
+      {{ nativeName }}
+    </div>
+  }
+</ng-template>
+
 <p-card>
   <ng-template #title>
     Manage cities
@@ -35,6 +46,7 @@
         <th scope="col">Name (English)</th>
         <th scope="col">Name</th>
         <th scope="col">Country</th>
+        <th scope="col">State</th>
         <th scope="col"></th>
       </tr>
       <tr>
@@ -46,6 +58,9 @@
         </th>
         <th>
           <p-column-filter type="text" field="country.name" placeholder="Name" ariaLabel="Filter Country Names" filterOn="input"></p-column-filter>
+        </th>
+        <th>
+          <p-column-filter type="text" field="state.name" placeholder="Name" ariaLabel="Filter State Names" filterOn="input"></p-column-filter>
         </th>
         <th></th>
       </tr>
@@ -59,10 +74,12 @@
           {{ city.nativeName }}
         </td>
         <td>
-          {{ city.country.name }}
-          <div class="text-500 font-italic">
-            {{ city.country.nativeName }}
-          </div>
+          <ng-container [ngTemplateOutlet]="locationName" [ngTemplateOutletContext]="{ name: city.country.name, nativeName: city.country.nativeName }" />
+        </td>
+        <td>
+          @if (city.state) {
+            <ng-container [ngTemplateOutlet]="locationName" [ngTemplateOutletContext]="{ name: city.state.name, nativeName: city.state.nativeName }" />
+          }
         </td>
         <td>
           <p-button-group>
