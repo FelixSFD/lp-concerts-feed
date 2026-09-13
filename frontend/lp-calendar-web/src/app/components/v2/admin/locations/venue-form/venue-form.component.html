@@ -4,7 +4,6 @@
   [visible]="isShowingHistoricNameDialog$()"
   (visibleChange)="isShowingHistoricNameDialog$.set($event)"
   [modal]="true"
-  [breakpoints]="{ '1199px': '50vw', '575px': '90vw' }"
   [style]="{ width: '30rem' }"
   [draggable]="false"
   [dismissableMask]="true"
@@ -134,9 +133,9 @@
               <td>{{ historicName.usedFrom }}</td>
               <td>{{ historicName.usedUntil || '-' }}</td>
               <td>
-                <p-button-group size="small">
+                <p-button-group>
                   <p-button size="small" icon="pi pi-pencil" variant="outlined" severity="secondary" (onClick)="onEditHistoricNameClicked(historicName, i)" />
-                  <p-button size="small" icon="pi pi-trash" variant="outlined" severity="danger" (onClick)="onDeleteHistoricNameClicked(i)" />
+                  <p-button size="small" icon="pi pi-trash" variant="outlined" severity="danger" (onClick)="onDeleteHistoricNameClicked(historicName.id)" />
                 </p-button-group>
               </td>
             </tr>

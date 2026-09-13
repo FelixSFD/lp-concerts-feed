@@ -292,10 +292,28 @@ export class VenueFormComponent {
     this.isShowingHistoricNameDialog$.set(true);
   }
 
-  onDeleteHistoricNameClicked(index: number) {
-    const updated = [...this.historicNames$()];
-    updated.splice(index, 1);
-    this.historicNames$.set(updated);
+  onDeleteHistoricNameClicked(nameId: number) {
+    this.locationsService.deleteVenueName(this.currentVenueId!, nameId).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: "success",
+          summary: "Successfully deleted previous name"
+        });
+      },
+      error: err => {
+        console.error("Failed to delete name", err);
+        this.messageService.add({
+          severity: "error",
+          summary: "Failed to delete previous name"
+        });
+
+        this.locationsService.getVenueDetails(this.currentVenueId!).subscribe({
+          next: (updated) => {
+            this.historicNames$.set(updated.venueNames);
+          }
+        })
+      }
+    })
   }
 
   onSaveHistoricNameDialog() {
