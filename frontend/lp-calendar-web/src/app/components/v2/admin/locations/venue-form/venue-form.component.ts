@@ -11,7 +11,15 @@ import {
 } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CityWithCountryDto, CountryDto, PreviousVenueNameDto, VenueDto, VenueWithDetailsDto } from '../../../../../modules/lpshows-api/v3';
+import {
+  AddVenueNameRequestDto,
+  CityWithCountryDto,
+  CountryDto,
+  PreviousVenueNameDto,
+  UpdateVenueNameRequestDto,
+  VenueDto,
+  VenueWithDetailsDto
+} from '../../../../../modules/lpshows-api/v3';
 import { LocationsService } from '../../../../../services/locations.service';
 import { Button } from 'primeng/button';
 import { ButtonGroup } from 'primeng/buttongroup';
@@ -69,6 +77,8 @@ export class VenueFormComponent {
   private mapKit: MapKit | undefined;
   private appleMap: AppleMap | undefined;
   private locationMarker: MarkerAnnotation | null = null;
+
+  private currentVenueId: number | null = null;
 
   @Input("is-saving")
   isSaving$: boolean = false;
@@ -239,6 +249,8 @@ export class VenueFormComponent {
 
   public fillFormWith(venue: VenueDto | VenueWithDetailsDto) {
     console.debug("Fill form with data:", venue);
+    this.currentVenueId = venue.id ?? null;
+
     this.venueForm.controls.cityId.setValue(Number(venue.cityId));
     this.venueForm.controls.countryCode.setValue(venue.countryCode ?? null);
     this.venueForm.controls.timezone.setValue(venue.timeZoneId ?? null);
@@ -321,16 +333,36 @@ export class VenueFormComponent {
         usedFrom: fromStr,
         usedUntil: untilStr,
       };
-      this.historicNames$.set(updated);
-    } else {
-      const newItem: PreviousVenueNameDto = {
-        id: '',
-        venueId: 0,
-        name: formValue.name ?? '',
-        usedFrom: fromStr,
-        usedUntil: untilStr,
+      let updateRequest: UpdateVenueNameRequestDto = {
+        name: formValue.name ?? "",
+        from: fromStr,
+        to: untilStr
       };
-      this.historicNames$.set([...this.historicNames$(), newItem]);
+      this.locationsService.updateVenueName(existing.venueId, existing.id, updateRequest)
+        .subscribe({
+          next: value => {
+            this.historicNames$.set(updated);
+          },
+          error: err => {
+            console.error(err);
+          }
+        });
+    } else {
+      const newNameRequest: AddVenueNameRequestDto = {
+        name: formValue.name ?? "",
+        from: fromStr,
+        to: untilStr
+      };
+      this.locationsService.addNewVenueName(this.currentVenueId ?? 0, newNameRequest)
+        .subscribe({
+          next: updatedVenue => {
+            console.debug("Added venue name", updatedVenue.venueNames);
+            this.historicNames$.set(updatedVenue.venueNames);
+          },
+          error: err => {
+            console.error(err);
+          }
+        });
     }
 
     this.isShowingHistoricNameDialog$.set(false);

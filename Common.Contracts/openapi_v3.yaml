@@ -2064,9 +2064,10 @@ components:
           minimum: 0
           maximum: 4294967295
         id:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 4294967295
         name:
           type: string
         usedFrom:
