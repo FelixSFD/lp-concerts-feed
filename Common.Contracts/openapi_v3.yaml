@@ -109,6 +109,8 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      security:
+        - Bearer: [ ]
   
   /v3/Concerts/import/{wikiPageId}:
     get: 
@@ -133,6 +135,8 @@ paths:
         "403":
           description: "Forbidden: Credentials are valid, but the caller is not allowed to
             perform this operation"
+      security:
+        - Bearer: [ ]
   /v3/Concerts/{concertId}:
     put:
       tags:

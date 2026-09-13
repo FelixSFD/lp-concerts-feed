@@ -2,11 +2,14 @@ import { inject, Service } from '@angular/core';
 import { ConcertsApi, LinkinpediaImportStatusDto } from '../modules/lpshows-api/v3';
 import { addAuthentication } from '../auth/auth.config';
 import { firstValueFrom } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Service()
 export class ConcertsService {
   private concertsApi: ConcertsApi = inject(ConcertsApi);
+
   constructor() {
+    this.concertsApi.configuration.basePath = environment.apiBaseUrl;
     addAuthentication(this.concertsApi);
   }
 
