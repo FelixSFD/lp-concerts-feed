@@ -224,6 +224,66 @@
       </p-accordion-panel>
     }
 
+    <!-- Check if state was found -->
+    @if (importPlan()?.stateName) {
+      <p-accordion-panel value="state" [disabled]="importPlan()?.foundCountries?.length != 1">
+        <p-accordion-header>
+          @if (importPlan()?.foundStates?.length == 0) {
+            <span class="text-red-400"><i class="pi pi-rectangle-xmark"></i> State information</span>
+          } @else if (importPlan()?.foundStates?.length == 1) {
+            <span class="text-color-success"><i class="pi pi-check-circle"></i> State: {{ importPlan()?.foundStates?.at(0)?.name }}</span>
+          } @else {
+            <span class="text-orange-400"><i class="pi pi-exclamation-triangle"></i> State information</span>
+          }
+        </p-accordion-header>
+        <p-accordion-content>
+          @if (importPlan()?.foundStates?.length == 0) {
+            <p class="m-0 text-sm">
+              No matching state found. Need to create one first or select existing.
+            </p>
+          } @else if (importPlan()?.foundStates?.length == 1) {
+            <p class="m-0 text-sm">
+              Found state: <span [pTooltip]="'Code: ' + importPlan()?.foundStates?.at(0)?.code" class="font-bold">{{ importPlan()?.foundStates?.at(0)?.name ?? "" }} ({{ importPlan()?.foundStates?.at(0)?.nativeName ?? "" }})</span>
+            </p>
+          } @else {
+            <p class="m-0 text-sm">
+              TODO: Found {{ importPlan()?.foundStates?.length }} possible states
+            </p>
+          }
+
+          <!-- Depending on the found data, show a form to create a new state -->
+          @if (importPlan()?.foundStates?.length == 0) {
+            <form #form="ngForm" [formGroup]="createStateForm" class="form mt-3">
+              <div class="col-12">
+                <p-floatlabel variant="on">
+                  <input pInputText id="stateCode" formControlName="stateCode" autocomplete="off" fluid [invalid]="createStateForm.controls.stateCode.invalid" />
+                  <label for="stateCode">Code</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="col-12">
+                <p-floatlabel variant="on">
+                  <input pInputText id="name" formControlName="name" autocomplete="off" fluid [invalid]="createStateForm.controls.name.invalid" />
+                  <label for="name">Name (English)</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="col-12">
+                <p-floatlabel variant="on">
+                  <input pInputText id="nativeName" formControlName="nativeName" autocomplete="off" fluid [invalid]="createStateForm.controls.nativeName.invalid" />
+                  <label for="nativeName">Name (in country's language)</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="col-12 align-content-end">
+                <p-button label="Create State" variant="outlined" [disabled]="createStateForm.invalid" (onClick)="onCreateStateClicked()" />
+              </div>
+            </form>
+          }
+        </p-accordion-content>
+      </p-accordion-panel>
+    }
+
     <!-- Check if city was found -->
     @if (importPlan()?.cityName) {
       <p-accordion-panel value="city" [disabled]="importPlan()?.foundCountries?.length != 1">
@@ -251,7 +311,7 @@
             </p>
           }
 
-          <!-- Depending on the found data, show a form to create a new country -->
+          <!-- Depending on the found data, show a form to create a new city -->
           @if (importPlan()?.foundCities?.length == 0) {
             <form #form="ngForm" [formGroup]="createCityForm" class="form mt-3">
               <div class="col-12">

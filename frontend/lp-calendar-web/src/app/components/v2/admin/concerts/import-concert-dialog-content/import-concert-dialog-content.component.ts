@@ -1,7 +1,8 @@
 import { Component, effect, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import {
   AddTourLegRequestDto,
-  ConcertTypeDto, CreateCityRequestDto, CreateCountryRequestDto, CreateTourRequestDto, CreateVenueRequestDto,
+  ConcertTypeDto, CreateCityRequestDto, CreateCountryRequestDto,
+  CreateStateRequestDto, CreateTourRequestDto, CreateVenueRequestDto,
   ImportConcertPreviewDto,
   TourDto, VenueDto
 } from '../../../../../modules/lpshows-api/v3';
@@ -66,6 +67,7 @@ export class ImportConcertDialogContentComponent implements OnInit {
       this.createTourForm.controls.tourName.setValue(plan.tourName ?? null);
       this.createTourLegForm.controls.legName.setValue(plan.tourLegName ?? null);
       this.createCountryForm.controls.name.setValue(plan.countryName ?? null);
+      this.createStateForm.controls.name.setValue(plan.stateName ?? null);
       this.createCityForm.controls.name.setValue(plan.cityName ?? null);
       this.createCityForm.controls.nativeName.setValue(plan.cityNativeName ?? null);
       this.createVenueForm.controls.currentName.setValue(plan.venueName ?? null);
@@ -84,6 +86,12 @@ export class ImportConcertDialogContentComponent implements OnInit {
 
   createCountryForm = this.formBuilder.group({
     isoCode: new FormControl<string | null>(null, [Validators.required, Validators.pattern('^[A-Z]{3}$')]),
+    name: new FormControl<string | null>(null, [Validators.required]),
+    nativeName: new FormControl<string | null>(null, [Validators.required]),
+  });
+
+  createStateForm = this.formBuilder.group({
+    stateCode: new FormControl<string | null>(null, [Validators.required]),
     name: new FormControl<string | null>(null, [Validators.required]),
     nativeName: new FormControl<string | null>(null, [Validators.required]),
   });
@@ -234,6 +242,67 @@ export class ImportConcertDialogContentComponent implements OnInit {
       },
       error: (err) => {
         console.error("Could not create country:", err);
+      }
+    });
+  }
+
+
+  onCreateStateClicked() {
+    console.debug("Create state clicked");
+
+    let countryCode = this.importPlan()?.foundCountries?.at(0)?.isoCode ?? null;
+    let stateCode = this.createStateForm.controls.stateCode.value;
+    let name = this.createStateForm.controls.name.value;
+    let nativeName = this.createStateForm.controls.nativeName.value;
+
+    if (!countryCode || countryCode.length != 3) {
+      console.error("Country is required");
+      this.messageService.add({severity: "error", summary: "Country is required", detail: "Please create a country in the previous steps"});
+      return;
+    }
+
+    if (!stateCode) {
+      console.error("State code is required");
+      this.messageService.add({severity: "error", summary: "State code is required", detail: "Please enter a valid code"});
+      return;
+    }
+
+    if (!name) {
+      console.error("Name is required");
+      this.messageService.add({severity: "error", summary: "Name is required", detail: "Please enter a valid name"});
+      return;
+    }
+
+    if (!nativeName) {
+      console.error("Native name is required");
+      this.messageService.add({severity: "error", summary: "Native name is required", detail: "Please enter a valid name"});
+      return;
+    }
+
+    let createStateRequest: CreateStateRequestDto = {
+      code: stateCode,
+      name: name,
+      nativeName: nativeName,
+    };
+    this.locationsService.createState(countryCode, createStateRequest).subscribe({
+      next: (createdState) => {
+        console.debug("Created state:", createdState);
+        this.importPlan.update(prev => {
+          if (prev) {
+            prev.foundStates = [createdState];
+            console.debug("Updated states:", prev.foundStates);
+          }
+
+          console.debug("importPlan.update() will return:", prev);
+          return {
+            ...prev,
+            foundStates: [createdState]
+          };
+        });
+        console.debug("Updated import plan:", this.importPlan());
+      },
+      error: (err) => {
+        console.error("Could not create state:", err);
       }
     });
   }
