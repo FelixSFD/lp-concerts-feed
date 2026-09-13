@@ -8,6 +8,7 @@
 
 ## Development rules
 - avoid using `any` if possible. Prefer strongly typed functions, properties, etc.
+- properties in components that are used in the template HTML should be a `signal()` each
 
 ## Common tasks
 - `npm run generate` generates the API clients for both versions (v2 and v3) of the REST-API
