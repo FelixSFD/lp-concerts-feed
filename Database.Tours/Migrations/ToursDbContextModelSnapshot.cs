@@ -133,13 +133,13 @@ namespace Database.Tours.Migrations
                         .HasColumnName("TimeIsPlaceholder");
 
                     b.Property<string>("TourId")
-                        .HasMaxLength(31)
-                        .HasColumnType("varchar(31)")
+                        .HasMaxLength(63)
+                        .HasColumnType("varchar(63)")
                         .HasColumnName("TourId");
 
                     b.Property<string>("TourLegId")
-                        .HasMaxLength(31)
-                        .HasColumnType("varchar(31)")
+                        .HasMaxLength(63)
+                        .HasColumnType("varchar(63)")
                         .HasColumnName("TourLegId");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
@@ -329,8 +329,8 @@ namespace Database.Tours.Migrations
             modelBuilder.Entity("Database.Tours.DataObjects.TourDo", b =>
                 {
                     b.Property<string>("Id")
-                        .HasMaxLength(31)
-                        .HasColumnType("varchar(31)")
+                        .HasMaxLength(63)
+                        .HasColumnType("varchar(63)")
                         .HasColumnName("Id");
 
                     b.Property<DateTimeOffset>("CreatedAt")
@@ -357,13 +357,13 @@ namespace Database.Tours.Migrations
             modelBuilder.Entity("Database.Tours.DataObjects.TourLegDo", b =>
                 {
                     b.Property<string>("TourId")
-                        .HasMaxLength(31)
-                        .HasColumnType("varchar(31)")
+                        .HasMaxLength(63)
+                        .HasColumnType("varchar(63)")
                         .HasColumnName("TourId");
 
                     b.Property<string>("Id")
-                        .HasMaxLength(31)
-                        .HasColumnType("varchar(31)")
+                        .HasMaxLength(63)
+                        .HasColumnType("varchar(63)")
                         .HasColumnName("Id");
 
                     b.Property<DateTimeOffset>("CreatedAt")

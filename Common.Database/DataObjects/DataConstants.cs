@@ -75,5 +75,5 @@ public static class DataConstants
     /// <summary>
     /// Maximum length of tour IDs
     /// </summary>
-    public const int TourIdLength = 31;
+    public const int TourIdLength = 63;
 }
