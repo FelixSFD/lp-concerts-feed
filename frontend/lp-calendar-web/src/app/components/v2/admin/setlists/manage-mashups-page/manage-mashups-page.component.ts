@@ -1,4 +1,4 @@
-import {Component, inject, OnInit} from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import {SongsService} from '../../../../../services/songs.service';
 import {ErrorResponseDto, SongMashupDto} from '../../../../../modules/lpshows-api';
 import {RouterLink} from '@angular/router';
@@ -36,14 +36,14 @@ export class ManageMashupsPageComponent implements OnInit {
   private confirmationService = inject(ConfirmationService);
   private songsService = inject(SongsService);
 
-  mashups$: SongMashupDto[] = [];
+  mashups$ = signal<SongMashupDto[]>([]);
 
-  isDeletingMashup$ = false;
+  isDeletingMashup$ = signal(false);
 
   // true while data is being loaded
-  isLoading$ = false;
+  isLoading$ = signal(false);
 
-  globalSearchText$: string = "";
+  globalSearchText$ = signal("");
 
 
   ngOnInit() {
@@ -76,14 +76,14 @@ export class ManageMashupsPageComponent implements OnInit {
 
 
   onDeleteMashupConfirm(mashup: SongMashupDto) {
-    this.isDeletingMashup$ = true;
+    this.isDeletingMashup$.set(true);
 
     if (mashup) {
       this.songsService.deleteMashup(mashup.id!)
         .subscribe({
           next: () => {
             this.reloadList(false);
-            this.isDeletingMashup$ = false;
+            this.isDeletingMashup$.set(false);
           },
           error: err => {
             let errorResponse: ErrorResponseDto = err.error;
@@ -92,7 +92,7 @@ export class ManageMashupsPageComponent implements OnInit {
               summary: "Could not delete mashup!",
               text: errorResponse.message,
             });
-            this.isDeletingMashup$ = false;
+            this.isDeletingMashup$.set(false);
           }
         });
     }
@@ -100,11 +100,14 @@ export class ManageMashupsPageComponent implements OnInit {
 
 
   private reloadList(cache: boolean) {
+    this.isLoading$.set(true);
     this.songsService.getAllMashups(cache).subscribe({
       next: mashups => {
-        this.mashups$ = mashups;
+        this.mashups$.set(mashups);
+        this.isLoading$.set(false);
       },
       error: err => {
+        this.isLoading$.set(false);
         let errorResponse: ErrorResponseDto = err.error;
         this.messageService.add({
           severity: "danger",
