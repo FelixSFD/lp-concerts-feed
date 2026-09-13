@@ -350,7 +350,11 @@ export class ImportConcertDialogContentComponent implements OnInit {
 
   protected generateId(nameControl: FormControl<string | null>, idControl: FormControl<string | null>) {
     let name = nameControl.getRawValue();
-    let id = name?.toLowerCase().replaceAll(" ", "-") ?? null;
+    let id = name?.toLowerCase()
+        .replaceAll(" ", "-")
+        .replaceAll("(", "")
+        .replaceAll(")", "")
+      ?? null;
     if (id) {
       console.debug("Generated id:", id);
       idControl.setValue(id);
