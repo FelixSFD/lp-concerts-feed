@@ -13,6 +13,8 @@ import { InputText } from 'primeng/inputtext';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { RouterLink } from '@angular/router';
+import { NgTemplateOutlet } from '@angular/common';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-manage-venues-page',
@@ -27,7 +29,9 @@ import { RouterLink } from '@angular/router';
     ReactiveFormsModule,
     TableModule,
     RouterLink,
-    FormsModule
+    FormsModule,
+    NgTemplateOutlet,
+    Tooltip
   ],
   templateUrl: './manage-venues-page.component.html',
   styleUrl: './manage-venues-page.component.css',
