@@ -7,7 +7,6 @@
   [style]="{ width: '30rem' }"
   [draggable]="false"
   [dismissableMask]="true"
-  [resizable]="true"
 >
   <form [formGroup]="historicNameForm" class="flex flex-column gap-3 mt-2">
     <div>
@@ -34,6 +33,7 @@
           [showButtonBar]="true"
           fluid
           [invalid]="historicNameForm.controls.usedFrom.invalid && historicNameForm.controls.usedFrom.touched"
+          appendTo="body"
         />
         <label for="usedFrom">Valid from</label>
       </p-floatlabel>
@@ -48,6 +48,7 @@
           [showIcon]="true"
           [showButtonBar]="true"
           fluid
+          appendTo="body"
         />
         <label for="usedUntil">Valid until (optional)</label>
       </p-floatlabel>
