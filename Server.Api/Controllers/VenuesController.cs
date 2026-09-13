@@ -97,11 +97,11 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     [HttpGet("{venueId:int}/details")]
     [OutputCache(PolicyName = CachePolicyNames.Long, Tags = [CacheTags.VenuesAll])]
     [CustomResponseCache(Duration = CacheExpiration.Long)]
-    public async Task<ActionResult<VenueWithCityDto>> GetVenueWithCityById(uint venueId)
+    public async Task<ActionResult<VenueWithDetailsDto>> GetVenueWithDetailsById(uint venueId)
     {
         logger.LogDebug("Requested venue including details with ID: {venueId}", venueId);
         var venue = await service.GetVenueWithDetailsByIdAsync(venueId);
-        return Ok(((VenueWithCityBo)venue).ToDto());
+        return Ok(venue.ToDto());
     }
     
     /// <summary>

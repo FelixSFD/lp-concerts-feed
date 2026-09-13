@@ -282,7 +282,7 @@ internal static class DtoMapper
     {
         return new PreviousVenueNameDto
         {
-            Id = bo.Id.ToString(),
+            Id = bo.Id,
             VenueId = bo.VenueId,
             Name = bo.Name,
             UsedFrom = bo.UsedFrom,

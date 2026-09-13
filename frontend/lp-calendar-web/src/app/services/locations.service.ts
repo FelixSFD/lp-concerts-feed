@@ -144,6 +144,10 @@ export class LocationsService {
     return this.venuesApi.getVenueById(venueId);
   }
 
+  getVenueDetails(venueId: number): Observable<VenueWithDetailsDto> {
+    return this.venuesApi.getVenueWithDetailsById(venueId);
+  }
+
   /**
    * Creates a new venue
    * @param venue

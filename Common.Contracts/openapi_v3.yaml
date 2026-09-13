@@ -1604,7 +1604,7 @@ paths:
         - Venues
       summary: Returns the detailed information about a venue by its ID including
         information about the city and country
-      operationId: GetVenueWithCityById
+      operationId: GetVenueWithDetailsById
       parameters:
         - name: venueId
           in: path
@@ -1620,13 +1620,13 @@ paths:
           content:
             text/plain:
               schema:
-                $ref: "#/components/schemas/VenueWithCity"
+                $ref: "#/components/schemas/VenueWithDetails"
             application/json:
               schema:
-                $ref: "#/components/schemas/VenueWithCity"
+                $ref: "#/components/schemas/VenueWithDetails"
             text/json:
               schema:
-                $ref: "#/components/schemas/VenueWithCity"
+                $ref: "#/components/schemas/VenueWithDetails"
       x-amazon-apigateway-integration:
         type: HTTP_PROXY
         httpMethod: GET

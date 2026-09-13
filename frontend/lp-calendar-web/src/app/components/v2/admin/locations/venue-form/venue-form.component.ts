@@ -247,7 +247,7 @@ export class VenueFormComponent {
     };
   }
 
-  public fillFormWith(venue: VenueDto | VenueWithDetailsDto) {
+  public fillFormWith(venue: VenueWithDetailsDto) {
     console.debug("Fill form with data:", venue);
     this.currentVenueId = venue.id ?? null;
 
@@ -258,11 +258,7 @@ export class VenueFormComponent {
     this.venueForm.controls.latitude.setValue(venue.latitude ?? null);
     this.venueForm.controls.longitude.setValue(venue.longitude ?? null);
 
-    if ('venueNames' in venue && Array.isArray(venue.venueNames)) {
-      this.historicNames$.set([...venue.venueNames]);
-    } else {
-      this.historicNames$.set([]);
-    }
+    this.historicNames$.set(venue.venueNames);
   }
 
   onAddHistoricNameClicked() {
