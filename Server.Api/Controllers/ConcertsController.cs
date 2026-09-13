@@ -25,7 +25,7 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     /// <param name="request"></param>
     /// <returns>the created concert</returns>
     [HttpPost]
-    [AuthorizeRoles]
+    [AuthorizeRoles(RoleNames.AddConcerts)]
     [ClearCache(Tags = [CacheTags.ConcertsAll])]
     public async Task<CreatedAtActionResult> CreateConcert([FromBody] CreateConcertRequestDto request)
     {
@@ -42,7 +42,7 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     /// <param name="request"></param>
     /// <returns>no content</returns>
     [HttpPut("{concertId}")]
-    [AuthorizeRoles]
+    [AuthorizeRoles(RoleNames.AddConcerts)]
     [ClearCache(Tags = [CacheTags.ConcertsAll])]
     public async Task<NoContentResult> UpdateConcert([FromBody] UpdateConcertRequestDto request, [FromRoute] string concertId)
     {
@@ -58,7 +58,7 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     /// <param name="concertId"></param>
     /// <returns></returns>
     [HttpGet("{concertId}")]
-    [AuthorizeRoles]
+    [AuthorizeRoles(RoleNames.AddConcerts)]
     [OutputCache(PolicyName = CachePolicyNames.Short, Tags = [CacheTags.ConcertsAll])]
     public async Task<ActionResult<RawConcertDto>> GetRawConcertById([FromRoute] string concertId)
     {
@@ -104,7 +104,7 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     /// <param name="concertId">ID of the concert to delete</param>
     /// <returns>no content</returns>
     [HttpDelete("{concertId}")]
-    [AuthorizeRoles]
+    [AuthorizeRoles(RoleNames.DeleteConcerts)]
     public async Task<NoContentResult> DeleteConcertById([FromRoute] string concertId)
     {
         await concertService.DeleteConcertAsync(concertId);
@@ -142,6 +142,7 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     /// <param name="cancellationToken"></param>
     /// <returns>plan for the import</returns>
     [HttpGet("import/{wikiPageId}")]
+    [AuthorizeRoles(RoleNames.AddConcerts)]
     public async Task<ActionResult<ImportConcertPreviewDto>> GetConcertImportPlan(string wikiPageId, CancellationToken cancellationToken)
     {
         logger.LogDebug("Generating concert import plan for concert: {page}", wikiPageId);
@@ -156,6 +157,7 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpGet("import")]
+    [AuthorizeRoles(RoleNames.AddConcerts)]
     [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
     public async Task<ActionResult<LinkinpediaImportStatusDto>> GetImportStatus(CancellationToken cancellationToken)
     {

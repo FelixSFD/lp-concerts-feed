@@ -1,12 +1,8 @@
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Common.Contracts.Generated.Models;
 using Common.Utils.Cache;
 using LPCalendar.DataStructure.Tours.Locations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
-using Microsoft.Extensions.Logging;
 using Server.Api.Auth;
 using Server.Api.Cache;
 using Service.Tours;
@@ -30,7 +26,7 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <param name="request">data of the new venue</param>
     /// <returns></returns>
     [HttpPost]
-    [AuthorizeRoles]
+    [AuthorizeRoles(RoleNames.ManageLocations)]
     [ClearCache(Tags = [CacheTags.VenuesAll])]
     public async Task<ActionResult<VenueDto>> CreateVenue([FromBody] CreateVenueRequestDto request)
     {
@@ -48,7 +44,7 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <param name="venueId">ID of the venue</param>
     /// <returns>all information about the venue</returns>
     [HttpPut("{venueId:int}")]
-    [AuthorizeRoles]
+    [AuthorizeRoles(RoleNames.ManageLocations)]
     [ClearCache(Tags = [CacheTags.VenuesAll])]
     public async Task<ActionResult<VenueWithDetailsDto>> UpdateVenue([FromBody] UpdateVenueRequestDto request, [FromRoute] uint venueId)
     {
@@ -79,7 +75,7 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <param name="cancellationToken">Token to cancel the request</param>
     /// <returns>list of all venues</returns>
     [HttpGet]
-    [AuthorizeRoles]
+    [AuthorizeRoles(RoleNames.ManageLocations, RoleNames.AddConcerts)]
     [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.VenuesAll])]
     [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<VenueDto[]>> GetAllVenues(CancellationToken cancellationToken)
@@ -116,7 +112,7 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <response code="201">If the venue was deleted successfully</response>
     /// <response code="404">If the venue was not found</response>
     [HttpDelete("{venueId:int}")]
-    [AuthorizeRoles]
+    [AuthorizeRoles(RoleNames.DeleteLocations)]
     [ClearCache(Tags = [CacheTags.VenuesAll])]
     public async Task<NoContentResult> DeleteVenueById(uint venueId)
     {
@@ -134,7 +130,7 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <returns>Venue information with details</returns>
     /// <response code="404">If the venue was not found</response>
     [HttpPost("{venueId:int}/names")]
-    [AuthorizeRoles]
+    [AuthorizeRoles(RoleNames.ManageLocations)]
     [ClearCache(Tags = [CacheTags.VenuesAll])]
     public async Task<VenueWithDetailsDto> AddNewVenueName([FromBody] AddVenueNameRequestDto request, [FromRoute] uint venueId)
     {
@@ -153,7 +149,7 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <response code="201">If the name was updated successfully</response>
     /// <response code="404">If the venue or name was not found</response>
     [HttpPut("{venueId:int}/names/{venueNameId:int}")]
-    [AuthorizeRoles]
+    [AuthorizeRoles(RoleNames.ManageLocations)]
     [ClearCache(Tags = [CacheTags.VenuesAll])]
     public async Task<NoContentResult> UpdateVenueName([FromBody] UpdateVenueNameRequestDto request, [FromRoute] uint venueId, [FromRoute] uint venueNameId)
     {
@@ -170,7 +166,7 @@ public class VenuesController(VenueService service, ILogger<VenuesController> lo
     /// <response code="201">If the name was deleted successfully</response>
     /// <response code="404">If the venue was not found</response>
     [HttpDelete("{venueId:int}/names/{venueNameId:int}")]
-    [AuthorizeRoles]
+    [AuthorizeRoles(RoleNames.ManageLocations)]
     [ClearCache(Tags = [CacheTags.VenuesAll])]
     public async Task<NoContentResult> DeleteVenueName([FromRoute] uint venueId, [FromRoute] uint venueNameId)
     {

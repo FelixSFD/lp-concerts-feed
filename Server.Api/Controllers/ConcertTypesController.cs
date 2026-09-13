@@ -40,7 +40,6 @@ public class ConcertTypesController(ConcertService concertService, ILogger<Conce
     /// </summary>
     /// <returns>information about the concert types</returns>
     [HttpGet]
-    [AuthorizeRoles]
     [OutputCache(PolicyName = CachePolicyNames.VeryLong)]
     [CustomResponseCache(Duration = CacheExpiration.VeryLong)]
     public async Task<ActionResult<ConcertTypeDto[]>> GetConcertTypes(CancellationToken cancellationToken)
@@ -73,6 +72,7 @@ public class ConcertTypesController(ConcertService concertService, ILogger<Conce
     /// <param name="request">new data for the type</param>
     /// <returns>updated information about the concert type</returns>
     [HttpPut("{concertTypeId:int}")]
+    [AuthorizeRoles]
     public async Task<ActionResult<ConcertTypeDto>> UpdateType([FromRoute] int concertTypeId, [FromBody] UpdateConcertTypeRequestDto request)
     {
         var type = await concertService.UpdateConcertTypeAsync(request.ToBo(), concertTypeId.ConvertToUnsigned());
