@@ -9,7 +9,7 @@ namespace Service.Tours.Importer;
 /// </summary>
 public partial class TourdataWikitextParser : IWikitextParser
 {
-    [GeneratedRegex(@"{{Tourdate[\s\S-[}]]*}}", RegexOptions.IgnoreCase, "en-US")]
+    [GeneratedRegex(@"{{Tourdate\b(?:(?<open>{{)|(?<-open>}})|(?!{{|}})[\s\S])*}}(?(open)(?!))", RegexOptions.IgnoreCase, "en-US")]
     private static partial Regex ExtractTourdateFromSourceRegex { get; }
 
     [GeneratedRegex(@"^\|\s*(?<key>[^=\r\n]+?)\s*=\s*(?<value>.*)$", RegexOptions.Multiline, "en-US")]

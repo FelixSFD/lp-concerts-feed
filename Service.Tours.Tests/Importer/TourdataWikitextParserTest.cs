@@ -53,6 +53,29 @@ public class TourdataWikitextParserTest
         }}
         """;
 
+    private const string SampleTourdateWithLastshowAltSource = """
+       {{Tourdate
+       | ShowType = concert
+       | Last show alt = [[Live:20150430r|{{ShortDate{{!}}2015-04-30}}]]
+       | Artist = Linkin Park
+       | Next show = 2015.05.17
+       | Year = 2015
+       | Month = May
+       | Day = 09
+       | Country = United States
+       | City = Las Vegas, NV
+       | Venue = MGM Resorts Festival Grounds (City of Rock)
+       | Venue Type = Outdoor
+       | Venue Website = http://www.mgmresorts.com/festivals/
+       | Tour = North American Summer Shows 2015
+       | Event = Rock in Rio USA
+       | Event Website = http://rockinrio.com/usa/
+       | Stage = Main Stage
+       | Running order = Metallica, <nowiki>*</nowiki>, Rise Against, Hollywood Undead
+       | Setlist = US Festival (Shortened)
+       }}
+       """;
+
     [Fact]
     public void ExtractTourdateSource_WhenTourdatePresent_ReturnsTourdateBlock()
     {
@@ -64,6 +87,18 @@ public class TourdataWikitextParserTest
         Assert.EndsWith("}}", extracted);
         Assert.Contains("Cricket Pavilion", extracted);
         Assert.DoesNotContain("== Setlist ==", extracted);
+    }
+    
+    [Fact]
+    public void ExtractTourdateSource_WhenSpecialCharsUsed_ReturnsTourdateBlock()
+    {
+        var parser = new TourdataWikitextParser();
+        var extracted = parser.ExtractTourdateSource(SampleTourdateWithLastshowAltSource);
+
+        Assert.NotNull(extracted);
+        Assert.StartsWith("{{Tourdate", extracted);
+        Assert.EndsWith("}}", extracted);
+        Assert.Contains("US Festival", extracted);
     }
 
     [Fact]
@@ -112,6 +147,33 @@ public class TourdataWikitextParserTest
         Assert.Equal("Main Stage", entry.Stage);
         Assert.Equal("Korn, Snoop Dogg, The Used, Less Than Jake", entry.OtherArtists);
         Assert.Equal(16, entry.RawProperties.Count);
+    }
+    
+    [Fact]
+    public void GetEntry_ParsesSampleConcertWithLastShowAltCorrectly()
+    {
+        var parser = new TourdataWikitextParser();
+        var entry = parser.GetTourdateInformation(SampleTourdateWithLastshowAltSource);
+
+        Assert.NotNull(entry);
+        Assert.Equal("concert", entry.ShowType);
+        Assert.Equal("Linkin Park", entry.Artist);
+        Assert.Null(entry.LastShow); // because this sample has some weird format. We don't really use this field though, so we don't implement a special case for that
+        Assert.Equal("2015.05.17", entry.NextShow);
+        Assert.Equal((uint)2015, entry.Year);
+        Assert.Equal("May", entry.Month);
+        Assert.Equal((uint)9, entry.Day);
+        Assert.Equal(new DateOnly(2015, 5, 9), entry.Date);
+        Assert.Equal("United States", entry.Country);
+        Assert.Equal("Las Vegas, NV", entry.City);
+        Assert.Equal("MGM Resorts Festival Grounds (City of Rock)", entry.Venue);
+        Assert.Null(entry.VenueId);
+        Assert.Equal("Outdoor", entry.VenueType);
+        Assert.Equal("http://www.mgmresorts.com/festivals/", entry.VenueWebsite);
+        Assert.Equal("North American Summer Shows 2015", entry.Tour);
+        Assert.Equal("Main Stage", entry.Stage);
+        Assert.Null(entry.OtherArtists);
+        Assert.Equal(18, entry.RawProperties.Count);
     }
 
     [Fact]
