@@ -82,6 +82,7 @@ export class EditCityPageComponent {
     this.isSaving$ = true;
 
     let request: UpdateCityRequestDto = {
+      stateCode: formContent.stateCode,
       name: formContent.name,
       nativeName: formContent.nativeName,
     };

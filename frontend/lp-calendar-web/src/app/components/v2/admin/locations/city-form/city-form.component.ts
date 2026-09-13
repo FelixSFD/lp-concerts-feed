@@ -1,7 +1,7 @@
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CityWithCountryDto, CountryDto } from '../../../../../modules/lpshows-api/v3';
+import { CityWithCountryDto, CountryDto, StateDto } from '../../../../../modules/lpshows-api/v3';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { Divider } from 'primeng/divider';
@@ -9,6 +9,7 @@ import { FloatLabel } from 'primeng/floatlabel';
 import { InputText } from 'primeng/inputtext';
 import { NgTemplateOutlet } from '@angular/common';
 import { Select } from 'primeng/select';
+import { LocationsService } from '../../../../../services/locations.service';
 
 @Component({
   selector: 'app-city-form',
@@ -29,6 +30,7 @@ import { Select } from 'primeng/select';
 export class CityFormComponent {
   private messageService = inject(MessageService);
   private formBuilder = inject(FormBuilder);
+  private locationsService = inject(LocationsService);
 
   @Input("is-saving")
   isSaving$: boolean = false;
@@ -45,11 +47,34 @@ export class CityFormComponent {
   @Output("saveClicked")
   saveClicked = new EventEmitter<CityFormContent>();
 
+  statesInCountry$ = signal<StateDto[]>([]);
+
   cityForm = this.formBuilder.group({
-    countryCode: new FormControl<string>('', [Validators.required]),
+    country: new FormControl<CountryDto | null>(null, [Validators.required]),
+    state: new FormControl<StateDto | null>(null, []),
     name: new FormControl<string>('', [Validators.required]),
     nativeName: new FormControl<string>('', [Validators.required]),
   });
+
+  constructor() {
+    this.cityForm.controls.country.valueChanges.subscribe((country) => {
+      if (country == null) {
+        this.statesInCountry$.set([]);
+        console.debug("Country is null, clearing states in country");
+        return;
+      }
+
+      this.locationsService.getStatesIn(country.isoCode).subscribe({
+        next: (states) => {
+          this.statesInCountry$.set(states);
+          console.debug("States in selected country:", states);
+        },
+        error: (error) => {
+          console.error(error);
+        }
+      });
+    });
+  }
 
   onSaveClicked() {
     let content = this.readFromForm();
@@ -60,7 +85,8 @@ export class CityFormComponent {
 
 
   public readFromForm(): CityFormContent | null {
-    let countryCode = this.cityForm.value.countryCode?.valueOf();
+    let countryCode = this.cityForm.value.country?.isoCode ?? null;
+    let stateCode = this.cityForm.value.state?.code ?? null;
     let name = this.cityForm.value.name?.valueOf();
     let nativeName = this.cityForm.value.nativeName?.valueOf();
 
@@ -90,7 +116,7 @@ export class CityFormComponent {
 
     return {
       countryCode: countryCode,
-      stateCode: null,
+      stateCode: stateCode,
       name: name,
       nativeName: nativeName
     };
@@ -99,7 +125,7 @@ export class CityFormComponent {
 
   public fillFormWith(city: CityWithCountryDto) {
     console.debug("Fill form with data:", city);
-    this.cityForm.controls.countryCode.setValue(city.countryCode ?? null);
+    this.cityForm.controls.country.setValue(city.country ?? null);
     this.cityForm.controls.name.setValue(city.name ?? null);
     this.cityForm.controls.nativeName.setValue(city.nativeName ?? null);
   }
