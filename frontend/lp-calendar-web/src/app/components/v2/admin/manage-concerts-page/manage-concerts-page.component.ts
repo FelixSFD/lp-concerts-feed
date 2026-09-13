@@ -73,10 +73,10 @@ export class ManageConcertsPageComponent implements OnInit {
     { label: `Imported without setlist (${this.concertImportStats$()?.importedWithoutSetlistCount ?? 0})`, value: 0, color: '#EAB308' }
   ]);
 
-  isLoadingOld$ = false;
-  isLoading$ = false;
-  globalSearchTextOld$ = '';
-  globalSearchText$ = '';
+  isLoadingOld$ = signal(false);
+  isLoading$ = signal(false);
+  globalSearchTextOld$ = signal("");
+  globalSearchText$ = signal("");
   globalSearchTextImportStatus$ = signal("");
 
   private updateImportStatsEffect = effect(() => {
@@ -120,8 +120,8 @@ export class ManageConcertsPageComponent implements OnInit {
   }
 
   private reloadList() {
-    this.isLoadingOld$ = true;
-    this.isLoading$ = true;
+    this.isLoadingOld$.set(true);
+    this.isLoading$.set(true);
     let allConcertsFilter: ConcertFilter = {
       dateFrom: DateTime.fromMillis(0, {zone: 'UTC'}),
       dateTo: null,
@@ -132,11 +132,11 @@ export class ManageConcertsPageComponent implements OnInit {
       next: concerts => {
         console.debug('Loaded OLD concerts:', concerts);
         this.concertsOld$.set(concerts);
-        this.isLoadingOld$ = false;
+        this.isLoadingOld$.set(false);
       },
       error: err => {
         const errorResponse: ErrorResponseDto = err.error;
-        this.isLoadingOld$ = false;
+        this.isLoadingOld$.set(false);
         this.messageService.add({
           severity: 'error',
           summary: 'Could not load concerts in old database!',
@@ -149,11 +149,11 @@ export class ManageConcertsPageComponent implements OnInit {
       next: concerts => {
         console.debug('Loaded concerts:', concerts);
         this.concerts$.set(concerts);
-        this.isLoading$ = false;
+        this.isLoading$.set(false);
       },
       error: err => {
         const errorResponse: ErrorResponseDto = err.error;
-        this.isLoading$ = false;
+        this.isLoading$.set(false);
         this.messageService.add({
           severity: 'error',
           summary: 'Could not load concerts!',
