@@ -20,6 +20,7 @@ import { DateTime } from 'luxon';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { SelectTimezoneComponent } from '../../locations/select-timezone/select-timezone.component';
+import timezones from 'timezones-list';
 
 @Component({
   imports: [
@@ -54,6 +55,8 @@ export class ImportConcertDialogContentComponent implements OnInit {
 
   @Output("applyClicked")
   applyClickedEvent: EventEmitter<ApplyClickedEvent> = new EventEmitter<ApplyClickedEvent>();
+
+  timeZoneIsLoading$ = signal(false);
 
   private importPlanChangedEffect = effect(() => {
     let plan = this.importPlan();
@@ -372,6 +375,37 @@ export class ImportConcertDialogContentComponent implements OnInit {
 
     console.debug("prepared ApplyClickedEvent:", applyEvent);
     this.applyClickedEvent.emit(applyEvent);
+  }
+
+  protected onGetVenueTimezoneClicked() {
+    this.timeZoneIsLoading$.set(true);
+
+    let cityName = this.importPlan()?.foundCities?.at(0)?.name;
+    let countryName = this.importPlan()?.foundCountries?.at(0)?.name;
+
+    this.locationsService.getTimeZoneForCity(cityName!, null, countryName!)
+      .subscribe(tzObj => {
+        if (tzObj == null) {
+          console.warn("No timezone found for: City: ", cityName, " Country: ", countryName);
+          return;
+        }
+
+        console.log("Found timezone: ", tzObj);
+        let tz = tzObj.timeZoneId!;
+        this.timeZoneIsLoading$.set(false);
+
+        if (timezones.map(t => t.tzCode).indexOf(tz, 0) >= 0) {
+          this.createVenueForm.controls.timezone.setValue(tz);
+        } else {
+          console.error("Invalid timezone returned: ", tz);
+          this.timeZoneIsLoading$.set(false);
+          this.messageService.add({
+            severity: "error",
+            summary: "Could not load timezone",
+            text: `Timezone '${tz}' found, but it is invalid.`,
+          });
+        }
+      });
   }
 
   protected readonly DatePipe = DatePipe;
