@@ -70,7 +70,8 @@ export class ManageConcertsPageComponent implements OnInit {
 
   concertImportStatusMeterGroup$ = signal<MeterItem[]>([
     { label: `Fully imported (${this.concertImportStats$()?.importedWithSetlistCount ?? 0})`, value: 0, color: '#10B981' },
-    { label: `Imported without setlist (${this.concertImportStats$()?.importedWithoutSetlistCount ?? 0})`, value: 0, color: '#EAB308' }
+    { label: `Imported without setlist (${this.concertImportStats$()?.importedWithoutSetlistCount ?? 0})`, value: 0, color: '#EAB308' },
+    { label: `Not imported yet (${this.concertImportStats$()?.notImportedCount ?? 0})`, value: 0, color: 'var(--p-surface-300)' },
   ]);
 
   isLoadingOld$ = signal(false);
@@ -83,15 +84,21 @@ export class ManageConcertsPageComponent implements OnInit {
     this.concertImportStatusMeterGroup$.update(stats => {
       console.debug("Updating stats...");
 
-      let numberOfPages = this.concertImportStats$()?.notImportedCount ?? 0;
-      let importedPercentage = (this.concertImportStats$()?.importedWithSetlistCount ?? 0) / numberOfPages;
-      let importedWithoutSetlistPercentage = (this.concertImportStats$()?.importedWithoutSetlistCount ?? 0) / numberOfPages;
+      let notImportedCount = this.concertImportStats$()?.notImportedCount ?? 0;
+      let importedCount = this.concertImportStats$()?.importedWithSetlistCount ?? 0;
+      let importedWithoutSetlistCount = this.concertImportStats$()?.importedWithoutSetlistCount ?? 0;
+      let totalCount = notImportedCount + importedCount + importedWithoutSetlistCount;
 
-      console.debug("Imported percentage:", importedPercentage, "Without setlist:", importedWithoutSetlistPercentage);
+      let importedPercentage = importedCount / totalCount;
+      let importedWithoutSetlistPercentage = importedWithoutSetlistCount / totalCount;
+      let notImportedPercentage = notImportedCount / totalCount;
+
+      console.debug("Imported percentage:", importedPercentage, "Without setlist:", importedWithoutSetlistPercentage, "Not imported:", notImportedPercentage);
 
       return [
-        { label: `Fully imported (${this.concertImportStats$()?.importedWithSetlistCount ?? 0})`, value: importedPercentage * 100, color: '#10B981'},
-        { label: `Imported without setlist (${this.concertImportStats$()?.importedWithoutSetlistCount ?? 0})`, value: importedWithoutSetlistPercentage * 100, color: '#EAB308' }
+        { label: `Fully imported (${importedCount})`, value: importedPercentage * 100, color: '#10B981'},
+        { label: `Imported without setlist (${importedWithoutSetlistCount})`, value: importedWithoutSetlistPercentage * 100, color: '#EAB308' },
+        { label: `Not imported yet (${notImportedCount})`, value: notImportedPercentage * 100, color: 'var(--p-surface-300)' },
       ];
     });
   });
