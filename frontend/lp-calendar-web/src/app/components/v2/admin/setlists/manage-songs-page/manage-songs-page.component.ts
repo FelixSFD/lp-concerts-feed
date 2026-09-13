@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import {SongsService} from '../../../../../services/songs.service';
 import {ErrorResponseDto, SongDto} from '../../../../../modules/lpshows-api';
 import {RouterLink} from '@angular/router';
@@ -37,14 +37,14 @@ export class ManageSongsPageComponent {
   private songsService = inject(SongsService);
 
 
-  songs$: SongDto[] = [];
+  songs$ = signal<SongDto[]>([]);
 
-  isDeletingSong$ = false;
+  isDeletingSong$ = signal(false);
 
   // true while data is being loaded
-  isLoading$ = false;
+  isLoading$ = signal(false);
 
-  globalSearchText$: string = "";
+  globalSearchText$ = signal("");
 
 
   ngOnInit() {
@@ -77,14 +77,14 @@ export class ManageSongsPageComponent {
 
 
   onDeleteSongConfirm(song: SongDto) {
-    this.isDeletingSong$ = true;
+    this.isDeletingSong$.set(true);
 
     if (song) {
       this.songsService.deleteSong(song.id!)
         .subscribe({
           next: () => {
             this.reloadList(false);
-            this.isDeletingSong$ = false;
+            this.isDeletingSong$.set(false);
           },
           error: err => {
             let errorResponse: ErrorResponseDto = err.error;
@@ -93,7 +93,7 @@ export class ManageSongsPageComponent {
               summary: "Could not load delete song!",
               text: errorResponse.message,
             });
-            this.isDeletingSong$ = false;
+            this.isDeletingSong$.set(false);
           }
         });
     }
@@ -101,11 +101,14 @@ export class ManageSongsPageComponent {
 
 
   private reloadList(cache: boolean) {
+    this.isLoading$.set(true);
     this.songsService.getAllSongs(cache).subscribe({
       next: songs => {
-        this.songs$ = songs;
+        this.songs$.set(songs);
+        this.isLoading$.set(false);
       },
       error: err => {
+        this.isLoading$.set(false);
         let errorResponse: ErrorResponseDto = err.error;
         this.messageService.add({
           severity: "danger",
