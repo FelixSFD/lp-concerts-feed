@@ -209,7 +209,7 @@ export class ConcertDetailsViewModel {
 
     vm.previousConcertId = adjacent?.previous ?? undefined;
     vm.nextConcertId = adjacent?.next ?? undefined;
-    vm.wikiUrl = ConcertDetailsViewModel.buildWikiUrl(startDt);
+    vm.wikiUrl = dto.linkinpediaUrl ?? ConcertDetailsViewModel.buildWikiUrl(startDt);
 
     vm.timeline = ConcertDetailsViewModel.buildTimeline(
       vm.isPast,
