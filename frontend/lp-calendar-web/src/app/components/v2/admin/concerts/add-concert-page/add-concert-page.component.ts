@@ -45,6 +45,7 @@ export class AddConcertPageComponent implements OnInit {
     this.isSaving.set(true);
 
     const request: CreateConcertRequestDto = {
+      status: formContent.status,
       customTitle: formContent.customTitle ?? undefined,
       concertTypeId: formContent.concertTypeId != null ? formContent.concertTypeId : undefined,
       tourId: formContent.tourId ?? undefined,

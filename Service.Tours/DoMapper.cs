@@ -451,7 +451,7 @@ internal static class DoMapper
             ExpectedSetDurationMinutes = bo.ExpectedSetDurationMinutes,
             ScheduleImageFile = bo.ScheduleImageFile,
             LinkinpediaUrl = bo.LinkinpediaUrl,
-            //Status = dto.Status,
+            Status = bo.Status.ToDo(),
         };
     }
     
@@ -478,7 +478,7 @@ internal static class DoMapper
         dataObject.ScheduleImageFile = bo.ScheduleImageFile;
         dataObject.DeletedAt = bo.DeletedAt;
         dataObject.LinkinpediaUrl = bo.LinkinpediaUrl;
-        //dataObject.Status = dto.Status;
+        dataObject.Status = bo.Status.ToDo();
         return dataObject;
     }
     
@@ -506,7 +506,7 @@ internal static class DoMapper
             ExpectedSetDurationMinutes = dataObject.ExpectedSetDurationMinutes,
             ScheduleImageFile = dataObject.ScheduleImageFile,
             DeletedAt = dataObject.DeletedAt,
-            //Status = dto.Status,
+            Status = dataObject.Status.ToDto(),
         };
     }
     
@@ -548,6 +548,24 @@ internal static class DoMapper
             ConcertDo.ConcertStatus.Past => ConcertDto.ConcertStatusValue.Past,
             ConcertDo.ConcertStatus.Cancelled => ConcertDto.ConcertStatusValue.Cancelled,
             _ => ConcertDto.ConcertStatusValue.Past
+        };
+    }
+    
+    /// <summary>
+    /// Converts a <see cref="ConcertDto.ConcertStatusValue"/> to the <see cref="ConcertDo.ConcertStatus"/>
+    /// </summary>
+    /// <param name="status"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
+    public static ConcertDo.ConcertStatus ToDo(this ConcertDto.ConcertStatusValue status)
+    {
+        return status switch
+        {
+            ConcertDto.ConcertStatusValue.Planned => ConcertDo.ConcertStatus.Planned,
+            ConcertDto.ConcertStatusValue.Running => ConcertDo.ConcertStatus.LiveRightNow,
+            ConcertDto.ConcertStatusValue.Past => ConcertDo.ConcertStatus.Past,
+            ConcertDto.ConcertStatusValue.Cancelled => ConcertDo.ConcertStatus.Cancelled,
+            _ => ConcertDo.ConcertStatus.Past
         };
     }
 }

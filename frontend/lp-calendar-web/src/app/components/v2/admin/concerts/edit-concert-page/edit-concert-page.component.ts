@@ -65,6 +65,7 @@ export class EditConcertPageComponent implements OnInit {
     this.isSaving.set(true);
 
     const request: UpdateConcertRequestDto = {
+      status: formContent.status,
       customTitle: formContent.customTitle ?? undefined,
       concertTypeId: formContent.concertTypeId != null ? formContent.concertTypeId : undefined,
       tourId: formContent.tourId ?? undefined,
