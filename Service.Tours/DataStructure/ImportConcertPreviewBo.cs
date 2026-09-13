@@ -1,3 +1,5 @@
+using Database.Tours.DataObjects;
+using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Tours;
 using LPCalendar.DataStructure.Tours.Locations;
 
@@ -9,6 +11,8 @@ namespace Service.Tours.DataStructure;
 /// </summary>
 public class ImportConcertPreviewBo
 {
+    public ConcertDto.ConcertStatusValue? ConcertStatus { get; set; }
+    
     public ConcertTypeBo? ConcertType { get; set; }
     
     public DateTimeOffset PostedStartTime { get; set; }

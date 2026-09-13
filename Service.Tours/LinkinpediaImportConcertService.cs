@@ -2,7 +2,9 @@ using System.Runtime.CompilerServices;
 using Amazon.Runtime.Internal;
 using Common.WikiMedia;
 using Common.WikiMedia.Repositories;
+using Database.Tours.DataObjects;
 using Database.Tours.Repositories;
+using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Tours;
 using Microsoft.Extensions.Logging;
 using Service.Tours.DataStructure;
@@ -141,6 +143,7 @@ public class LinkinpediaImportConcertService(
         var cityNameRaw = tourdate.City;
         string? cityName = cityNameRaw;
         string? stateName = null;
+        var concertStatus = ConcertDto.ConcertStatusValue.Planned;
 
         var eventName = tourdate.Event;
 
@@ -251,6 +254,11 @@ public class LinkinpediaImportConcertService(
             }
         }
 
+        if (tourdate.ShowType == "cancelled")
+        {
+            concertStatus = ConcertDto.ConcertStatusValue.Cancelled;
+        }
+
         if (concertType == null)
         {
             var lpShowType = concertTypes.FirstOrDefault(ct => string.Equals(ct.Name, "Other", StringComparison.OrdinalIgnoreCase));
@@ -260,6 +268,7 @@ public class LinkinpediaImportConcertService(
 
         return new ImportConcertPreviewBo
         {
+            ConcertStatus = concertStatus,
             ConcertType = concertType,
             PostedStartTime = postedStartTime,
             FoundCountries = foundCountries,

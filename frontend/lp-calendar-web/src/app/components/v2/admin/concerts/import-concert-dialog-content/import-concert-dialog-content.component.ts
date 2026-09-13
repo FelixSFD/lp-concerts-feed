@@ -1,6 +1,6 @@
 import { Component, effect, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import {
-  AddTourLegRequestDto,
+  AddTourLegRequestDto, ConcertStatusValueDto,
   ConcertTypeDto, CreateCityRequestDto, CreateCountryRequestDto,
   CreateStateRequestDto, CreateTourRequestDto, CreateVenueRequestDto,
   ImportConcertPreviewDto,
@@ -440,6 +440,7 @@ export class ImportConcertDialogContentComponent implements OnInit {
     }
 
     let applyEvent: ApplyClickedEvent = {
+      concertStatus: plan.concertStatus ?? null,
       concertType: plan.concertType ?? null,
       tour: plan.foundTours?.at(0) ?? null,
       tourLeg: plan.foundTourLegs?.at(0) ?? null,
@@ -484,9 +485,11 @@ export class ImportConcertDialogContentComponent implements OnInit {
   }
 
   protected readonly DatePipe = DatePipe;
+  protected readonly ConcertStatusValueDto = ConcertStatusValueDto;
 }
 
 export class ApplyClickedEvent {
+  concertStatus: ConcertStatusValueDto | null = null;
   concertType: ConcertTypeDto | null = null;
   tour: TourDto | null = null;
   tourLeg: TourDto | null = null;

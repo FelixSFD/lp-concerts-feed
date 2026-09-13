@@ -22,6 +22,30 @@
       </p-accordion-content>
     </p-accordion-panel>
 
+    <!-- Check if status is set -->
+    <p-accordion-panel value="concertStatus">
+      <p-accordion-header>
+        @if (importPlan()?.concertStatus != null && importPlan()?.concertStatus != ConcertStatusValueDto.Cancelled) {
+          <span class="text-color-success"><i class="pi pi-check-circle"></i> Status: {{ importPlan()?.concertStatus }}</span>
+        } @else if (importPlan()?.concertStatus == ConcertStatusValueDto.Cancelled) {
+          <span class="text-red-400"><i class="pi pi-check-circle"></i> Concert was CANCELLED</span>
+        } @else {
+          <span class="text-red-400"><i class="pi pi-exclamation-triangle"></i> Concert status missing</span>
+        }
+      </p-accordion-header>
+      <p-accordion-content>
+        @if (importPlan()?.concertType != null) {
+          <p class="m-0 text-sm">
+            Found status of the concert: {{ importPlan()?.concertStatus }}
+          </p>
+        } @else {
+          <p class="mt-2 text-sm">
+            The status of the concert could not be detected! You will have to enter it manually later.
+          </p>
+        }
+      </p-accordion-content>
+    </p-accordion-panel>
+
     <!-- Check if concert type is set -->
     <p-accordion-panel value="concertType">
       <p-accordion-header>

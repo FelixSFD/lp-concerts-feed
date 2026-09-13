@@ -3,6 +3,7 @@ using Common.WikiMedia.DTOs;
 using Common.WikiMedia.Repositories;
 using Database.Tours.DataObjects;
 using Database.Tours.Repositories;
+using LPCalendar.DataStructure;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Service.Tours.DataStructure;
@@ -391,6 +392,98 @@ public class LinkinpediaImportConcertServiceTest
         Assert.Equal("Austria", result.CountryName);
         Assert.Equal("St. Pölten", result.CityName);
         Assert.Equal("Green Park", result.VenueName);
+        Assert.Single(result.FoundCountries);
+        Assert.Single(result.FoundCities);
+        Assert.Single(result.FoundVenues);
+        Assert.Single(result.FoundTours);
+    }
+    
+    [Fact]
+    public async Task GetConcertImportPlan_WhenCancelledShowType_MatchesCancelledStatus()
+    {
+        var pageUrl = "Live:20171015";
+        var festivalWikitext = """
+            {{Tourdate
+            |Last show=2017.10.14
+            |Artist=Linkin Park
+            |Next show=2017.10.17
+            |Year=2017
+            |Month=October
+            |Day=15
+            |ShowType=cancelled
+            |Country=Canada
+            |City=Vancouver, BC
+            |Venue=Rogers Arena
+            |Venue Type=Arena 
+            |Venue Website=https://rogersarena.com/
+            |Tour=One More Light North American Tour
+            |Other artists=Snoop Dogg
+            }}
+            """;
+
+        var mockWikiPage = new WikiPageDto
+        {
+            Id = 103,
+            Title = "Live:20171015",
+            Source = festivalWikitext
+        };
+
+        _wikiMediaRepository.GetWikiPageAsync("Live:20171015").Returns(mockWikiPage);
+
+        var countryCanada = new CountryDo
+        {
+            IsoCode = "CAN",
+            Name = "Canada",
+            NativeName = "Canada"
+        };
+        _countryRepository.QueryAsync(Arg.Any<CancellationToken>())
+            .Returns(new[] { countryCanada }.ToAsyncEnumerable());
+        _stateRepository.QueryAsync(Arg.Any<CancellationToken>())
+            .Returns(AsyncEnumerable.Empty<StateDo>());
+
+        var cityVancouver = new CityDo
+        {
+            Id = 20,
+            CountryCode = "AUT",
+            Name = "Vancouver",
+            NativeName = "Vancouver",
+            Country = countryCanada
+        };
+        _cityRepository.QueryAsync(Arg.Any<CancellationToken>())
+            .Returns(new[] { cityVancouver }.ToAsyncEnumerable());
+
+        var tour = new TourDo
+        {
+            Id = "oml-na-2017",
+            Name = "One More Light North American Tour",
+            Legs = []
+        };
+        _tourRepository.QueryAsync(Arg.Any<CancellationToken>())
+            .Returns(new[] { tour }.ToAsyncEnumerable());
+
+        var concertTypeLp = new ConcertTypeDo
+        {
+            Id = 1,
+            Name = "Linkin Park Show"
+        };
+        var concertTypeFestival = new ConcertTypeDo
+        {
+            Id = 2,
+            Name = "Festival"
+        };
+        _concertTypeRepository.QueryAsync(Arg.Any<CancellationToken>())
+            .Returns(new[] { concertTypeLp, concertTypeFestival }.ToAsyncEnumerable());
+
+        var result = await _sut.GetConcertImportPlan(pageUrl);
+
+        Assert.NotNull(result);
+        Assert.Equal(ConcertDto.ConcertStatusValue.Cancelled, result.ConcertStatus);
+        Assert.NotNull(result.ConcertType);
+        Assert.Equal((uint)2, result.ConcertType.Id);
+        Assert.Equal("Linkin Park", result.ConcertType.Name);
+        Assert.Equal("Canada", result.CountryName);
+        Assert.Equal("Vancouver", result.CityName);
+        Assert.Equal("Rogers Arena", result.VenueName);
         Assert.Single(result.FoundCountries);
         Assert.Single(result.FoundCities);
         Assert.Single(result.FoundVenues);

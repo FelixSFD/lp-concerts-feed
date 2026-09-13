@@ -395,6 +395,7 @@ internal static class DtoMapper
     {
         return new ImportConcertPreviewDto
         {
+            ConcertStatus = bo.ConcertStatus?.ToDto() ?? ConcertStatusValueDto.Planned,
             ConcertType = bo.ConcertType?.ToDto(),
             PostedStartTime = bo.PostedStartTime,
             FoundCities = [.. bo.FoundCities.Select(ToDto)],

@@ -346,23 +346,24 @@ export class ConcertFormComponent implements OnInit {
       }
       await Promise.all(reloadTasks);
 
-      let previousStartTime = this.concertForm.value.postedStartTime;
-      if (previousStartTime) {
-        this.concertForm.controls.timeIsPlaceholder.setValue(true);
-      }
-
       const startTime = evt.postedStartTime;
       const concertType = evt.concertType;
       let importTour = evt.tour;
       const importTourLeg = evt.tourLeg;
       const importVenue = evt.venue;
       const importCustomTitle = evt.customTitle;
+      const importConcertStatus = evt.concertStatus;
 
       if (startTime != null) {
         this.concertForm.controls.postedStartTime.setValue(startTime);
       }
       if (concertType != null) {
         this.concertForm.controls.concertTypeId.setValue(concertType.id ?? null);
+      }
+
+      let previousStartTime = this.concertForm.value.postedStartTime;
+      if (previousStartTime) {
+        this.concertForm.controls.timeIsPlaceholder.setValue(true);
       }
 
       // 2. Set tour with full updated legs list
@@ -387,6 +388,11 @@ export class ConcertFormComponent implements OnInit {
       // 5. Set custom title
       if (importCustomTitle) {
         this.concertForm.controls.customTitle.setValue(importCustomTitle);
+      }
+
+      // 6. set concert status
+      if (importConcertStatus) {
+        this.concertForm.controls.concertStatus.setValue(importConcertStatus);
       }
     } catch (error) {
       console.error('Failed to reload data before applying import:', error);
