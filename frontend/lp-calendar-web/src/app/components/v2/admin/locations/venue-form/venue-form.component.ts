@@ -6,30 +6,32 @@ import {
   inject,
   Input,
   Output,
+  signal,
   ViewChild
 } from '@angular/core';
 import { MessageService } from 'primeng/api';
-import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CityWithCountryDto, CountryDto, VenueDto } from '../../../../../modules/lpshows-api/v3';
+import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CityWithCountryDto, CountryDto, PreviousVenueNameDto, VenueDto, VenueWithDetailsDto } from '../../../../../modules/lpshows-api/v3';
 import { LocationsService } from '../../../../../services/locations.service';
 import { Button } from 'primeng/button';
+import { ButtonGroup } from 'primeng/buttongroup';
 import { Card } from 'primeng/card';
+import { DatePicker } from 'primeng/datepicker';
+import { Dialog } from 'primeng/dialog';
 import { Divider } from 'primeng/divider';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputText } from 'primeng/inputtext';
 import { NgTemplateOutlet } from '@angular/common';
 import { Select } from 'primeng/select';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import { TableModule } from 'primeng/table';
 import timezones from 'timezones-list';
 import { InputNumber } from 'primeng/inputnumber';
 import { SelectTimezoneComponent } from '../select-timezone/select-timezone.component';
+import { DateTime } from 'luxon';
 import {
-  AnnotationDragEvent,
   load,
   Map as AppleMap, MapAnnotationDragEvent,
   MapKit,
-  MapEvent,
   MarkerAnnotation
 } from '@apple/mapkit-loader';
 import { environment } from '../../../../../../environments/environment';
@@ -39,17 +41,20 @@ import { firstValueFrom } from 'rxjs';
   selector: 'app-venue-form',
   imports: [
     Button,
+    ButtonGroup,
     Card,
+    DatePicker,
+    Dialog,
     Divider,
     FloatLabel,
+    FormsModule,
     InputText,
     NgTemplateOutlet,
     ReactiveFormsModule,
     Select,
-    InputGroup,
-    InputGroupAddon,
     InputNumber,
     SelectTimezoneComponent,
+    TableModule,
   ],
   templateUrl: './venue-form.component.html',
   styleUrl: './venue-form.component.css',
@@ -71,9 +76,9 @@ export class VenueFormComponent {
   @Input("available-countries")
   countries$: CountryDto[] = [];
 
-  citiesInCountry$: CityWithCountryDto[] = [];
+  citiesInCountry$ = signal<CityWithCountryDto[]>([]);
 
-  timeZoneIsLoading$ = false;
+  timeZoneIsLoading$ = signal<boolean>(false);
 
   /*
    * true, if the form is "standalone", meaning it manages its own layout and has a save-button
@@ -83,6 +88,17 @@ export class VenueFormComponent {
 
   @Output("saveClicked")
   saveClicked = new EventEmitter<VenueFormContent>();
+
+  historicNames$ = signal<PreviousVenueNameDto[]>([]);
+  isShowingHistoricNameDialog$ = signal<boolean>(false);
+  isEditingHistoricName$ = signal<boolean>(false);
+  editingHistoricNameIndex$ = signal<number | null>(null);
+
+  historicNameForm = this.formBuilder.group({
+    name: new FormControl<string>('', [Validators.required]),
+    usedFrom: new FormControl<Date | string | null>(null, [Validators.required]),
+    usedUntil: new FormControl<Date | string | null>(null, []),
+  });
 
   venueForm = this.formBuilder.group({
     countryCode: new FormControl<string>('', [Validators.required]),
@@ -96,7 +112,7 @@ export class VenueFormComponent {
   constructor() {
     this.venueForm.controls.countryCode.valueChanges.subscribe((countryCode) => {
       if (countryCode == null) {
-        this.citiesInCountry$ = [];
+        this.citiesInCountry$.set([]);
         console.debug("Country code is null, clearing cities in country");
         return;
       }
@@ -104,7 +120,7 @@ export class VenueFormComponent {
       this.locationsService.getCitiesIn(countryCode)
         .subscribe({
           next: (cities) => {
-            this.citiesInCountry$ = cities;
+            this.citiesInCountry$.set(cities);
             console.debug("Cities in selected country:", cities);
           },
           error: (error) => {
@@ -215,12 +231,13 @@ export class VenueFormComponent {
       cityId: cityId,
       currentName: currentName,
       timeZoneId: timezone,
-      latitude: this.venueForm.value.latitude?? null,
-      longitude: this.venueForm.value.longitude ?? null
+      latitude: this.venueForm.value.latitude ?? null,
+      longitude: this.venueForm.value.longitude ?? null,
+      historicNames: this.historicNames$()
     };
   }
 
-  public fillFormWith(venue: VenueDto) {
+  public fillFormWith(venue: VenueDto | VenueWithDetailsDto) {
     console.debug("Fill form with data:", venue);
     this.venueForm.controls.cityId.setValue(Number(venue.cityId));
     this.venueForm.controls.countryCode.setValue(venue.countryCode ?? null);
@@ -228,42 +245,138 @@ export class VenueFormComponent {
     this.venueForm.controls.currentName.setValue(venue.currentName ?? null);
     this.venueForm.controls.latitude.setValue(venue.latitude ?? null);
     this.venueForm.controls.longitude.setValue(venue.longitude ?? null);
+
+    if ('venueNames' in venue && Array.isArray(venue.venueNames)) {
+      this.historicNames$.set([...venue.venueNames]);
+    } else {
+      this.historicNames$.set([]);
+    }
   }
 
+  onAddHistoricNameClicked() {
+    this.isEditingHistoricName$.set(false);
+    this.editingHistoricNameIndex$.set(null);
+    this.historicNameForm.reset();
+    this.isShowingHistoricNameDialog$.set(true);
+  }
+
+  onEditHistoricNameClicked(nameItem: PreviousVenueNameDto, index: number) {
+    this.isEditingHistoricName$.set(true);
+    this.editingHistoricNameIndex$.set(index);
+
+    let fromDate: Date | null = null;
+    if (nameItem.usedFrom) {
+      const dt = DateTime.fromISO(nameItem.usedFrom);
+      fromDate = dt.isValid ? dt.toJSDate() : new Date(nameItem.usedFrom);
+    }
+
+    let untilDate: Date | null = null;
+    if (nameItem.usedUntil) {
+      const dt = DateTime.fromISO(nameItem.usedUntil);
+      untilDate = dt.isValid ? dt.toJSDate() : new Date(nameItem.usedUntil);
+    }
+
+    this.historicNameForm.setValue({
+      name: nameItem.name,
+      usedFrom: fromDate,
+      usedUntil: untilDate,
+    });
+    this.isShowingHistoricNameDialog$.set(true);
+  }
+
+  onDeleteHistoricNameClicked(index: number) {
+    const updated = [...this.historicNames$()];
+    updated.splice(index, 1);
+    this.historicNames$.set(updated);
+  }
+
+  onSaveHistoricNameDialog() {
+    if (this.historicNameForm.invalid) {
+      this.historicNameForm.markAllAsTouched();
+      return;
+    }
+
+    const formValue = this.historicNameForm.value;
+    let fromStr = '';
+    if (formValue.usedFrom instanceof Date) {
+      fromStr = DateTime.fromJSDate(formValue.usedFrom).toISODate() ?? '';
+    } else if (typeof formValue.usedFrom === 'string') {
+      fromStr = formValue.usedFrom;
+    }
+
+    let untilStr: string | undefined = undefined;
+    if (formValue.usedUntil instanceof Date) {
+      untilStr = DateTime.fromJSDate(formValue.usedUntil).toISODate() ?? undefined;
+    } else if (typeof formValue.usedUntil === 'string' && formValue.usedUntil.trim() !== '') {
+      untilStr = formValue.usedUntil.trim();
+    }
+
+    if (this.isEditingHistoricName$()) {
+      const idx = this.editingHistoricNameIndex$()!;
+      const updated = [...this.historicNames$()];
+      const existing = updated[idx];
+      updated[idx] = {
+        ...existing,
+        name: formValue.name ?? '',
+        usedFrom: fromStr,
+        usedUntil: untilStr,
+      };
+      this.historicNames$.set(updated);
+    } else {
+      const newItem: PreviousVenueNameDto = {
+        id: '',
+        venueId: 0,
+        name: formValue.name ?? '',
+        usedFrom: fromStr,
+        usedUntil: untilStr,
+      };
+      this.historicNames$.set([...this.historicNames$(), newItem]);
+    }
+
+    this.isShowingHistoricNameDialog$.set(false);
+  }
 
   onUpdateTimeZoneClicked() {
-    this.timeZoneIsLoading$ = true;
+    this.timeZoneIsLoading$.set(true);
 
     let cityId = this.venueForm.value.cityId;
     let countryCode = this.venueForm.value.countryCode;
 
     if (cityId == null || countryCode == null) {
+      this.timeZoneIsLoading$.set(false);
       return;
     }
 
-    let cityName = this.citiesInCountry$.find(c => c.id == cityId)?.name;
+    let cityName = this.citiesInCountry$().find(c => c.id == cityId)?.name;
     let countryName = this.countries$.find(c => c.isoCode == countryCode)?.name;
 
     this.locationsService.getTimeZoneForCity(cityName!, null, countryName!)
-      .subscribe(tzObj => {
-        if (tzObj == null) {
-          console.warn("No timezone found for: City: ", cityName, " Country: ", countryName);
-          return;
-        }
+      .subscribe({
+        next: (tzObj) => {
+          if (tzObj == null) {
+            console.warn("No timezone found for: City: ", cityName, " Country: ", countryName);
+            this.timeZoneIsLoading$.set(false);
+            return;
+          }
 
-        console.log("Found timezone: ", tzObj);
-        let tz = tzObj.timeZoneId!;
-        this.timeZoneIsLoading$ = false;
+          console.log("Found timezone: ", tzObj);
+          let tz = tzObj.timeZoneId!;
+          this.timeZoneIsLoading$.set(false);
 
-        if (timezones.map(t => t.tzCode).indexOf(tz, 0) >= 0) {
-          this.venueForm.controls.timezone.setValue(tz);
-        } else {
-          console.error("Invalid timezone returned: ", tz);
-          this.messageService.add({
-            severity: "error",
-            summary: "Could not load timezone",
-            text: `Timezone '${tz}' found, but it is invalid.`,
-          });
+          if (timezones.map(t => t.tzCode).indexOf(tz, 0) >= 0) {
+            this.venueForm.controls.timezone.setValue(tz);
+          } else {
+            console.error("Invalid timezone returned: ", tz);
+            this.messageService.add({
+              severity: "error",
+              summary: "Could not load timezone",
+              text: `Timezone '${tz}' found, but it is invalid.`,
+            });
+          }
+        },
+        error: (err) => {
+          console.error("Error loading timezone", err);
+          this.timeZoneIsLoading$.set(false);
         }
       });
   }
@@ -375,4 +488,5 @@ export class VenueFormContent {
   timeZoneId!: string;
   latitude: number | null = null;
   longitude: number | null = null;
+  historicNames: PreviousVenueNameDto[] = [];
 }

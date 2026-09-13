@@ -1,3 +1,68 @@
+<!-- add/edit historic venue name modal -->
+<p-dialog
+  [header]="isEditingHistoricName$() ? 'Edit historic name' : 'Add historic name'"
+  [visible]="isShowingHistoricNameDialog$()"
+  (visibleChange)="isShowingHistoricNameDialog$.set($event)"
+  [modal]="true"
+  [breakpoints]="{ '1199px': '50vw', '575px': '90vw' }"
+  [style]="{ width: '30rem' }"
+  [draggable]="false"
+  [dismissableMask]="true"
+  [resizable]="true"
+>
+  <form [formGroup]="historicNameForm" class="flex flex-column gap-3 mt-2">
+    <div>
+      <p-floatlabel variant="on">
+        <input
+          pInputText
+          id="historicVenueName"
+          formControlName="name"
+          autocomplete="off"
+          fluid
+          [invalid]="historicNameForm.controls.name.invalid && historicNameForm.controls.name.touched"
+        />
+        <label for="historicVenueName">Name</label>
+      </p-floatlabel>
+    </div>
+
+    <div>
+      <p-floatlabel variant="on">
+        <p-date-picker
+          formControlName="usedFrom"
+          inputId="usedFrom"
+          dateFormat="yy-mm-dd"
+          [showIcon]="true"
+          [showButtonBar]="true"
+          fluid
+          [invalid]="historicNameForm.controls.usedFrom.invalid && historicNameForm.controls.usedFrom.touched"
+        />
+        <label for="usedFrom">Valid from</label>
+      </p-floatlabel>
+    </div>
+
+    <div>
+      <p-floatlabel variant="on">
+        <p-date-picker
+          formControlName="usedUntil"
+          inputId="usedUntil"
+          dateFormat="yy-mm-dd"
+          [showIcon]="true"
+          [showButtonBar]="true"
+          fluid
+        />
+        <label for="usedUntil">Valid until (optional)</label>
+      </p-floatlabel>
+    </div>
+  </form>
+
+  <ng-template #footer>
+    <div class="flex justify-content-end gap-2">
+      <p-button label="Cancel" severity="secondary" variant="text" (onClick)="isShowingHistoricNameDialog$.set(false)" />
+      <p-button [label]="isEditingHistoricName$() ? 'Save' : 'Add'" icon="pi pi-check" (onClick)="onSaveHistoricNameDialog()" [disabled]="!historicNameForm.valid" />
+    </div>
+  </ng-template>
+</p-dialog>
+
 <form #form="ngForm" [formGroup]="venueForm" class="form mt-2">
   <ng-template #formInputsGeneral>
     <div class="grid gap-2">
@@ -10,7 +75,7 @@
 
       <div class="col-12">
         <p-floatlabel variant="on">
-          <p-select formControlName="cityId" inputId="cityId" [options]="citiesInCountry$" optionLabel="name" optionValue="id" aria-autocomplete="none" showClear fluid />
+          <p-select formControlName="cityId" inputId="cityId" [options]="citiesInCountry$()" optionLabel="name" optionValue="id" aria-autocomplete="none" showClear fluid />
           <label for="cityId">City</label>
         </p-floatlabel>
       </div>
@@ -27,8 +92,8 @@
             />
             <label for="timezone">Venue's timezone</label>
           </p-floatlabel>
-          <p-button class="md:hidden" icon="pi pi-sync" variant="outlined" (onClick)="onUpdateTimeZoneClicked()" [disabled]="timeZoneIsLoading$" [loading]="timeZoneIsLoading$" />
-          <p-button class="hidden md:inline" label="Load timezone" icon="pi pi-sync" variant="outlined" (onClick)="onUpdateTimeZoneClicked()" [disabled]="timeZoneIsLoading$" [loading]="timeZoneIsLoading$" />
+          <p-button class="md:hidden" icon="pi pi-sync" variant="outlined" (onClick)="onUpdateTimeZoneClicked()" [disabled]="timeZoneIsLoading$()" [loading]="timeZoneIsLoading$()" />
+          <p-button class="hidden md:inline" label="Load timezone" icon="pi pi-sync" variant="outlined" (onClick)="onUpdateTimeZoneClicked()" [disabled]="timeZoneIsLoading$()" [loading]="timeZoneIsLoading$()" />
         </div>
       </div>
 
@@ -42,8 +107,46 @@
             fluid
             [invalid]="venueForm.controls.currentName.invalid"
           />
-          <label for="name">Current Name</label>
+          <label for="currentName">Current Name</label>
         </p-floatlabel>
+      </div>
+
+      <p-divider />
+
+      <!-- Historic names section -->
+      <div class="col-12">
+        <div class="flex justify-content-between align-items-center mb-2">
+          <span class="font-bold text-lg">Historic Names</span>
+          <p-button label="Add historic name" icon="pi pi-plus" size="small" variant="outlined" (onClick)="onAddHistoricNameClicked()" />
+        </div>
+        <p-table [value]="historicNames$()" [tableStyle]="{ 'min-width': '30rem' }" stripedRows>
+          <ng-template #header>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Valid From</th>
+              <th scope="col">Valid Until</th>
+              <th scope="col" style="width: 8rem"></th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-historicName let-i="rowIndex">
+            <tr>
+              <td>{{ historicName.name }}</td>
+              <td>{{ historicName.usedFrom }}</td>
+              <td>{{ historicName.usedUntil || '-' }}</td>
+              <td>
+                <p-button-group size="small">
+                  <p-button size="small" icon="pi pi-pencil" variant="outlined" severity="secondary" (onClick)="onEditHistoricNameClicked(historicName, i)" />
+                  <p-button size="small" icon="pi pi-trash" variant="outlined" severity="danger" (onClick)="onDeleteHistoricNameClicked(i)" />
+                </p-button-group>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template #emptymessage>
+            <tr>
+              <td colspan="4" class="text-center text-muted">No historic names recorded for this venue.</td>
+            </tr>
+          </ng-template>
+        </p-table>
       </div>
 
       <p-divider />

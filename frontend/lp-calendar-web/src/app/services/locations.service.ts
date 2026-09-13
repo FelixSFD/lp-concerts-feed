@@ -6,13 +6,14 @@ import {Coordinates} from '../data/location/coordinates';
 import {environment} from '../../environments/environment';
 import {TimeZoneResponseDto, TimezoneService} from '../modules/lpshows-api';
 import {
+  AddVenueNameRequestDto,
   CitiesApi,
   CityWithCountryDto,
   CountriesApi,
   CountryDto, CreateCityRequestDto,
   CreateCountryRequestDto, CreateStateRequestDto, CreateVenueRequestDto,
   StateDto, StateWithCountryDto, UpdateCityRequestDto,
-  UpdateCountryRequestDto, UpdateStateRequestDto, UpdateVenueRequestDto, VenueDto, VenuesApi, VenueWithDetailsDto
+  UpdateCountryRequestDto, UpdateStateRequestDto, UpdateVenueNameRequestDto, UpdateVenueRequestDto, VenueDto, VenuesApi, VenueWithDetailsDto
 } from '../modules/lpshows-api/v3';
 import { addAuthentication } from '../auth/auth.config';
 
@@ -160,6 +161,27 @@ export class LocationsService {
 
   deleteVenue(id: number): Observable<void> {
     return this.venuesApi.deleteVenueById(id);
+  }
+
+  /**
+   * Adds a new name to a venue for a given time range
+   */
+  addNewVenueName(venueId: number, request: AddVenueNameRequestDto): Observable<VenueWithDetailsDto> {
+    return this.venuesApi.addNewVenueName(venueId, request);
+  }
+
+  /**
+   * Updates an existing name of a venue
+   */
+  updateVenueName(venueId: number, venueNameId: number, request: UpdateVenueNameRequestDto): Observable<any> {
+    return this.venuesApi.updateVenueName(venueId, venueNameId, request);
+  }
+
+  /**
+   * Deletes a previous name of a venue
+   */
+  deleteVenueName(venueId: number, venueNameId: number): Observable<any> {
+    return this.venuesApi.deleteVenueName(venueId, venueNameId);
   }
 
   getCoordinatesFor(city: string, state: string | null, country: string): Observable<Coordinates | undefined> {

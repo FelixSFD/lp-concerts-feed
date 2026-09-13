@@ -34,7 +34,7 @@ describe('ConcertFormComponent', () => {
       tourId: 'tour-123',
     },
     venue: {
-      id: '10',
+      id: 10,
       currentName: 'Uber Arena',
       countryCode: 'DE',
       cityId: 1,
@@ -90,7 +90,7 @@ describe('ConcertFormComponent', () => {
     );
     locationsSpy.getVenues.and.returnValue(
       of([
-        { id: '10', currentName: 'Uber Arena', countryCode: 'DE', cityId: 1, timeZoneId: 'Europe/Berlin' },
+        { id: 10, currentName: 'Uber Arena', countryCode: 'DE', cityId: 1, timeZoneId: 'Europe/Berlin' },
       ])
     );
     locationsSpy.getCities.and.returnValue(
@@ -167,7 +167,7 @@ describe('ConcertFormComponent', () => {
     expect(result?.concertTypeId).toBe(1);
     expect(result?.tourId).toBe('tour-123');
     expect(result?.tourLegId).toBe('leg-123');
-    expect(result?.venueId).toBe('10');
+    expect(result?.venueId).toBe(10);
     expect(result?.timezone).toBe('Europe/Berlin');
   });
 
@@ -195,6 +195,6 @@ describe('ConcertFormComponent', () => {
     expect(emitted.concertTypeId).toBe(1);
     expect(emitted.tourId).toBe('tour-123');
     expect(emitted.tourLegId).toBe('leg-123');
-    expect(emitted.venueId).toBe('10');
+    expect(emitted.venueId).toBe(10);
   });
 });
