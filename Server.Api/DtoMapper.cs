@@ -1,4 +1,5 @@
 using Common.Contracts.Generated.Models;
+using Common.Utils;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Tours;
 using LPCalendar.DataStructure.Tours.Locations;
@@ -350,9 +351,9 @@ internal static class DtoMapper
             Venue = bo.Venue.ToDto(),
             PostedStartTime = bo.PostedStartTime,
             TimeIsPlaceholder = bo.TimeIsPlaceholder,
-            MainStageTime = bo.MainStageTime,
-            DoorsTime = bo.DoorsTime,
-            LpuEarlyEntryTime = bo.LpuEarlyEntryTime,
+            MainStageTime = bo.MainStageTime?.ToDateTimeOffset(bo.Venue.TimeZone),
+            DoorsTime = bo.DoorsTime?.ToDateTimeOffset(bo.Venue.TimeZone),
+            LpuEarlyEntryTime = bo.LpuEarlyEntryTime?.ToDateTimeOffset(bo.Venue.TimeZone),
             LpuEarlyEntryConfirmed = bo.LpuEarlyEntryConfirmed,
             ExpectedSetDurationMinutes = bo.ExpectedSetDurationMinutes.ToString(),
             ScheduleImageFile = bo.ScheduleImageFile,

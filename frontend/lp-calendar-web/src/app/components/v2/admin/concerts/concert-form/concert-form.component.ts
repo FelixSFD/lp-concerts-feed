@@ -234,9 +234,12 @@ export class ConcertFormComponent implements OnInit {
     let lpuEarlyEntryDateTimeIsoStr = lpuEarlyEntryDateTime?.toISOTime();
     console.log("LPU EE: " + lpuEarlyEntryDateTimeIsoStr);
 
-    let doorsDateTimeUtc = concert.doorsTime == undefined ? null : DateTime.fromISO(concert.doorsTime);
-    let doorsDateTime = doorsDateTimeUtc?.setZone(concert.venue.timeZoneId!, {keepLocalTime: false})
-    let doorsDateTimeIsoStr = doorsDateTime?.toISOTime();
+    console.debug("Doors time string: ", concert.doorsTime);
+    let doorsDateTime = concert.doorsTime == undefined ? null : DateTime.fromISO(concert.doorsTime);
+    console.debug("doorsDateTime:", doorsDateTime?.toString());
+    let doorsDateTimeVenue = doorsDateTime?.setZone(concert.venue.timeZoneId!, {keepLocalTime: false})
+    console.debug("doorsDateTimeVenue:", doorsDateTimeVenue?.toString());
+    let doorsDateTimeIsoStr = doorsDateTimeVenue?.toISOTime();
     console.log("Doors at: " + doorsDateTimeIsoStr);
 
     let lpStageDateTimeUtc = concert.mainStageTime == undefined ? null : DateTime.fromISO(concert.mainStageTime);
