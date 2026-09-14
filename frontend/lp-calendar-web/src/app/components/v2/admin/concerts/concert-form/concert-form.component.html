@@ -171,6 +171,21 @@
             <label for="expectedSetDuration">Expected set duration</label>
           </p-floatlabel>
         </div>
+
+        <!-- Schedule Image -->
+        <div class="col-12">
+          <h6>Image of the official schedule</h6>
+          <p-fileupload #scheduleImgUpload name="scheduleImg" (uploadHandler)="uploadFileHandler($event, scheduleImgUpload)" (onProgress)="onUploadProgress($event)" [customUpload]="true" [multiple]="false" accept="image/*" maxFileSize="8000000">
+            <ng-template #empty>
+              <div>Drag and drop file to here to upload the schedule of this concert.</div>
+            </ng-template>
+          </p-fileupload>
+
+          @if (currentConcert()?.scheduleImageFile != undefined) {
+            <br />
+            <img width="35%" src="{{ environment.imageBaseUrl + '/' + currentConcert()?.scheduleImageFile! }}" alt="Uploaded image" />
+          }
+        </div>
       </div>
     </p-card>
   </ng-template>

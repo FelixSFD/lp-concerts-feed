@@ -33,6 +33,10 @@ import {
 } from '../import-concert-dialog-content/import-concert-dialog-content.component';
 import { firstValueFrom } from 'rxjs';
 import { ToggleSwitch } from 'primeng/toggleswitch';
+import { FileProgressEvent, FileUpload, FileUploadHandlerEvent } from 'primeng/fileupload';
+import { environment } from '../../../../../../environments/environment';
+import { HttpClient, HttpEvent, HttpEventType, HttpRequest } from '@angular/common/http';
+import { LegacyConcertsService } from '../../../../../services/legacy-concerts.service';
 
 @Component({
   selector: 'app-concert-form',
@@ -55,6 +59,7 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
     Dialog,
     ImportConcertDialogContentComponent,
     ToggleSwitch,
+    FileUpload,
   ],
   templateUrl: './concert-form.component.html',
   styleUrl: './concert-form.component.css',
@@ -63,6 +68,8 @@ export class ConcertFormComponent implements OnInit {
   private messageService = inject(MessageService);
   private formBuilder = inject(FormBuilder);
   private concertsService = inject(ConcertsService);
+  private legacyConcertsService = inject(LegacyConcertsService);
+  private http = inject(HttpClient);
 
   @Input("is-saving")
   isSaving$: boolean = false;
@@ -89,6 +96,10 @@ export class ConcertFormComponent implements OnInit {
   isShowingImportDialog = signal(false);
   isImporting = signal(false);
   importPlan = signal<ImportConcertPreviewDto | null>(null);
+
+  scheduleIsUploading = signal(false);
+
+  protected currentConcert = signal<ConcertDetailsDto | null>(null);
 
   concertForm = this.formBuilder.group({
     concertStatus: new FormControl<ConcertStatusValueDto>(ConcertStatusValueDto.Planned, [Validators.required]),
@@ -266,6 +277,8 @@ export class ConcertFormComponent implements OnInit {
     this.concertForm.controls.timeIsPlaceholder.setValue(concert.timeIsPlaceholder ?? false);
 
     this.venueTimezone.set(timezones.find(t => t.tzCode == concert.venue?.timeZoneId) ?? null);
+
+    this.currentConcert.set(concert);
   }
 
   public setWikiPageId(wikiPageId: string) {
@@ -404,7 +417,80 @@ export class ConcertFormComponent implements OnInit {
     }
   }
 
+
+  uploadFileHandler(event: FileUploadHandlerEvent, fileUploadForm: FileUpload) {
+    console.debug("Upload File event:", event);
+    if (event.files.length == 0) {
+      this.messageService.add({
+        severity: "danger",
+        summary: "File upload failed!",
+        text: "No file was selected.",
+      });
+      return;
+    }
+
+    if (!this.currentConcert()) {
+      this.messageService.add({
+        severity: "danger",
+        summary: "No concert",
+        text: "Uploading the schedule is only possible in edit-mode.",
+      });
+      return;
+    }
+
+    this.scheduleIsUploading.set(true);
+    const file = event.files[0];
+    this.legacyConcertsService.getConcertScheduleUploadUrl(this.currentConcert()!.id,file)
+      .subscribe((result) => {
+        const req = new HttpRequest(
+          'PUT',
+          result.uploadUrl!,
+          file,
+          {
+            reportProgress: true,
+          }
+        );
+        this.http.request(req).subscribe({
+          next: (httpEvent: HttpEvent<any>) => {
+
+            if (httpEvent.type === HttpEventType.UploadProgress) {
+              const progress = Math.round(
+                100 * httpEvent.loaded / (httpEvent.total ?? file.size)
+              );
+
+              console.log('Progress:', progress);
+              fileUploadForm.progress.set(progress);
+              fileUploadForm.onProgress.emit({
+                progress: progress,
+                originalEvent: httpEvent,
+              });
+            }
+
+            if (httpEvent.type === HttpEventType.Response) {
+              console.log('Upload complete');
+              fileUploadForm.onUpload.emit({
+                files: fileUploadForm.files,
+                originalEvent: httpEvent,
+              });
+              fileUploadForm.uploadedFiles.set([...fileUploadForm.files]);
+              fileUploadForm.files = [];
+              fileUploadForm.clear();
+            }
+          },
+          error: err => {
+            console.error(err);
+          }
+        });
+      });
+  }
+
+
+  onUploadProgress(event: FileProgressEvent) {
+    console.debug("Upload Progress event:", event);
+  }
+
   protected readonly timezones = timezones;
+  protected readonly environment = environment;
 }
 
 export class ConcertFormContent {
