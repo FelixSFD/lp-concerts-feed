@@ -17,7 +17,7 @@ namespace Server.Api.Controllers;
 /// <param name="logger"></param>
 [ApiController]
 [Route("v3/[controller]")]
-public class ConcertsController(ConcertService concertService, LinkinpediaImportConcertService linkinpediaImportConcertService, IOutputCacheStore outputCacheStore, ILogger<ConcertsController> logger) : ControllerBase
+public class ConcertsController(ConcertService concertService, LinkinpediaImportConcertService linkinpediaImportConcertService, IOutputCacheStore outputCacheStore, IConcertImageUploadService concertImageUploadService, ILogger<ConcertsController> logger) : ControllerBase
 {
     /// <summary>
     /// Creates a new concert in the database
@@ -129,6 +129,28 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
             Current = concertId,
             Previous = bo.Previous?.Id,
             Next = bo.Next?.Id
+        };
+        
+        return Ok(response);
+    }
+
+    /// <summary>
+    /// Returns a presigned URL to upload a schedule image for a concert.
+    /// </summary>
+    /// <param name="concertId">ID of the concert</param>
+    /// <param name="uploadRequest">additional data</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpPut("{concertId}/schedule")]
+    public async Task<ActionResult<ConcertFileUploadResponseDto>> GetPresignedScheduleUploadUrl(string concertId,
+        ConcertScheduleUploadRequestDto uploadRequest,
+        CancellationToken cancellationToken)
+    {
+        logger.LogDebug("Requested to get presigned schedule upload url for concert: {concertId}; Content-Type: {contentType}", concertId, uploadRequest.ContentType);
+        var uploadUrl = await concertImageUploadService.GetPresignedScheduleUploadUrlAsync(concertId, uploadRequest.ContentType);
+        var response = new ConcertFileUploadResponseDto
+        {
+            UploadUrl = uploadUrl
         };
         
         return Ok(response);

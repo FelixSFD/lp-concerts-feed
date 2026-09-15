@@ -204,6 +204,7 @@ builder.Services.AddScoped<IWikiMediaRepository, WikiMediaRepository>(b => new W
     LinkinpediaImportService.LinkinpediaRestApiBaseUrl, LinkinpediaImportService.LinkinpediaActionApiBaseUrl, b.GetRequiredService<ILogger<WikiMediaRepository>>()));
 builder.Services.AddScoped<TourdataWikitextParser>();
 builder.Services.AddScoped<LinkinpediaImportConcertService>();
+builder.Services.AddConcertImageUploadService();
 
 // Register authentication schemes, and specify the default authentication scheme
 builder.Services

@@ -280,7 +280,47 @@ paths:
         uri: https://api.dev.lpshows.felixsfd.de/v3/Concerts/{concertId}/details
         requestParameters:
           integration.request.path.concertId: method.request.path.concertId
-  
+  /v3/Concerts/{concertId}/schedule:
+    put:
+      operationId: GetUrlForConcertFileUpload
+      summary: Requests a URL that can be used to upload the image of the schedule of a concert
+      tags:
+        - Concerts
+      parameters:
+        - name: concertId
+          in: path
+          description: "ID of the concert to upload the schedule image for"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConcertScheduleUploadRequest"
+      responses:
+        "200":
+          description: URL for upload requested successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConcertFileUploadResponse"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-concert-s3-upload-url-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
   /v3/Concerts/{concertId}/adjacent:
     get:
       operationId: GetAdjacentConcertsForId
@@ -2568,6 +2608,26 @@ components:
           description: Concerts that were found on Linkinpedia and their import status
           items:
             $ref: "#/components/schemas/LinkinpediaImportConcertStatus"
+    
+    # Request/response for file uploads (getting presigned S3-URLs)
+    ConcertScheduleUploadRequest:
+      type: object
+      description: Request to get a S3 url to upload the schedule for a concert
+      required: 
+        - contentType
+      properties:
+        contentType:
+          type: string
+          description: Type of the file to be uploaded
+          nullable: false
+    ConcertFileUploadResponse:
+      type: object
+      description: Response that tells the client which URL to use for the upload
+      properties:
+        uploadUrl:
+          type: string
+          description: URL to use when uploading the file. This URL is only valid for the requested file
+          nullable: false
     
     # Schemas from v2
     GetConcertBookmarkCountsResponse:

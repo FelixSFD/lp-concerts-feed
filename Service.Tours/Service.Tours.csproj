@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Common.Utils\Common.Utils.csproj" />
       <ProjectReference Include="..\Common.WikiMedia\Common.WikiMedia.csproj" />
       <ProjectReference Include="..\Database.Tours\Database.Tours.csproj" />
       <ProjectReference Include="..\DataStructure\DataStructure.csproj" />
@@ -14,6 +15,12 @@
 
     <ItemGroup>
       <Folder Include="Importer\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.101.4" />
+      <PackageReference Include="AWSSDK.S3" Version="4.0.18.6" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.12" />
     </ItemGroup>
 
 </Project>
