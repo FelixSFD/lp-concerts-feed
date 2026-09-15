@@ -1,4 +1,4 @@
-<div class="map-tile" [class.map-playing]="playing">
+<div class="map-tile">
   <span class="map-label">Map of the shows</span>
 
   <svg
@@ -7,20 +7,16 @@
     preserveAspectRatio="xMidYMid meet"
     aria-hidden="true"
   >
-    <g class="map-land">
-      @for (path of landPaths; track $index) {
-        <path [attr.d]="path" vector-effect="non-scaling-stroke" />
-      }
-    </g>
-
-    <g class="map-pins">
+    <g class="map-dots">
       @for (pin of pins; track $index) {
         <circle
-          class="map-pin"
+          class="map-dot"
+          [class.map-dot-highlight]="pin.isHighlight"
           [attr.cx]="pin.x"
           [attr.cy]="pin.y"
-          r="2.2"
+          [attr.r]="pin.radius"
           [style.animation-delay.ms]="pin.delay"
+          [style.animation-duration.ms]="pin.durationMs"
         >
           <title>{{ pin.label }}</title>
         </circle>
@@ -32,18 +28,6 @@
     <span class="map-readout-title">{{ countryLabel }}</span>
     <span class="map-readout-detail">{{ showLabel }}</span>
   </span>
-
-  <!-- Above the stretched link so it stays independently tappable -->
-  @if (pins.length > 0) {
-    <button
-      type="button"
-      class="map-replay"
-      aria-label="Replay the map animation"
-      (click)="play()"
-    >
-      <i class="pi pi-replay"></i>
-    </button>
-  }
 
   <!-- Covers the tile, so the whole thing opens the map page -->
   <a class="map-stretched" [routerLink]="['/map']" aria-label="Open the world tour map"></a>

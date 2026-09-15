@@ -4,27 +4,27 @@ import {ConcertDto} from '../../../modules/lpshows-api';
 import {
   projectLatitude,
   projectLongitude,
-  WORLD_OUTLINE_PATHS,
   WORLD_VIEWBOX,
 } from '../../../data/world-outline';
 
 interface TourPin {
   x: number;
   y: number;
-  /** Milliseconds into the sweep before this pin appears. */
+  /** Stagger offset for the pulse, so dots don't all breathe in unison. */
   delay: number;
+  /** Pulse cycle length — the highlighted pin runs a touch faster. */
+  durationMs: number;
+  radius: number;
+  isHighlight: boolean;
   label: string;
 }
 
-/** How long the whole west-to-east sweep takes. */
-const SWEEP_MS = 2200;
+/** Base pulse cycle length; the highlighted dot runs faster (see buildPins). */
+const PULSE_MS = 3200;
+const HIGHLIGHT_PULSE_MS = 2200;
 
 /**
- * Every show the site knows about, dropped onto a coarse world map.
- *
- * Deliberately plain: an SVG with a fixed viewBox, so it scales itself and
- * needs no resize handling, no canvas and no animation loop. The reveal is a
- * staggered CSS animation; replaying it just re-applies the class.
+ * Dot Map
  */
 @Component({
   selector: 'app-tour-map-tile',
@@ -35,19 +35,18 @@ const SWEEP_MS = 2200;
 export class TourMapTileComponent implements OnChanges {
   @Input() concerts: ConcertDto[] = [];
 
+  /** id of the concert (nearest-to-you, falling back to next/last show) to draw as the standout dot. */
+  @Input() highlightConcertId?: string;
+
   protected readonly viewBox = WORLD_VIEWBOX;
-  protected readonly landPaths = WORLD_OUTLINE_PATHS;
 
   pins: TourPin[] = [];
-  playing = false;
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['concerts']) {
+    if (changes['concerts'] || changes['highlightConcertId']) {
       this.buildPins();
-      this.play();
     }
   }
-
 
   get countryCount(): number {
     return new Set(
@@ -55,26 +54,14 @@ export class TourMapTileComponent implements OnChanges {
     ).size;
   }
 
-
   get countryLabel(): string {
     const count = this.countryCount;
     return count === 1 ? "1 country" : `${count} countries`;
   }
 
-
   get showLabel(): string {
     return this.pins.length === 1 ? "1 show on the map" : `${this.pins.length} shows on the map`;
   }
-
-
-  /** Restart the sweep. Dropping the class and re-adding it re-runs the CSS. */
-  play(): void {
-    this.playing = false;
-    requestAnimationFrame(() => {
-      this.playing = true;
-    });
-  }
-
 
   private buildPins(): void {
     // The map page applies the same guard: 0/0 means "we don't actually know".
@@ -83,18 +70,25 @@ export class TourMapTileComponent implements OnChanges {
       concert.venueLongitude != undefined && concert.venueLongitude != 0
     );
 
-    // Sweep west to east, so the reveal reads as a direction rather than noise.
+
     const ordered = [...plottable].sort(
       (a, b) => a.venueLongitude! - b.venueLongitude!
     );
 
-    const step = ordered.length > 1 ? SWEEP_MS / (ordered.length - 1) : 0;
+    const step = ordered.length > 1 ? PULSE_MS / ordered.length : 0;
 
-    this.pins = ordered.map((concert, index) => ({
-      x: projectLongitude(concert.venueLongitude!),
-      y: projectLatitude(concert.venueLatitude!),
-      delay: Math.round(index * step),
-      label: concert.locationShort ?? concert.city ?? concert.venue ?? "Show",
-    }));
+    this.pins = ordered.map((concert, index) => {
+      const isHighlight = this.highlightConcertId != null && concert.id === this.highlightConcertId;
+
+      return {
+        x: projectLongitude(concert.venueLongitude!),
+        y: projectLatitude(concert.venueLatitude!),
+        delay: Math.round(index * step),
+        durationMs: isHighlight ? HIGHLIGHT_PULSE_MS : PULSE_MS,
+        radius: isHighlight ? 3 : 2,
+        isHighlight,
+        label: concert.locationShort ?? concert.city ?? concert.venue ?? "Show",
+      };
+    });
   }
 }

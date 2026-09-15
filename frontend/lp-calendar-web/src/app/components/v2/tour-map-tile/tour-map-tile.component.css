@@ -48,46 +48,33 @@
 /* The viewBox does the scaling, so there is nothing to recompute on resize */
 .map-svg {
   position: absolute;
-  inset: 1.9rem 0.9rem 3.2rem;
+  inset: 1.9rem 0.9rem 2.6rem;
   width: calc(100% - 1.8rem);
-  height: calc(100% - 5.1rem);
+  height: calc(100% - 4.5rem);
 }
 
-.map-land path {
-  fill: none;
-  stroke: var(--p-surface-400);
-  stroke-width: 1;
-  stroke-linejoin: round;
-  opacity: 0.55;
-}
-
-@media (prefers-color-scheme: dark) {
-  .map-land path {
-    stroke: var(--p-surface-600);
-    opacity: 0.9;
-  }
-}
-
-.map-pin {
-  fill: var(--p-primary-color);
-  opacity: 0;
+/* An abstract field of dots */
+.map-dot {
+  fill: color-mix(in srgb, var(--p-primary-color) 60%, transparent);
+  opacity: 0.45;
   transform-box: fill-box;
   transform-origin: center;
+  animation: map-dot-pulse 3.2s ease-in-out infinite;
 }
 
-/* Staggered west-to-east reveal; delays are set per pin in the template */
-.map-playing .map-pin {
-  animation: map-pin-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+.map-dot-highlight {
+  fill: var(--p-primary-color);
 }
 
-@keyframes map-pin-in {
-  from {
-    opacity: 0;
-    transform: scale(0.2);
-  }
-  to {
-    opacity: 0.85;
+@keyframes map-dot-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
     transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.9);
   }
 }
 
@@ -112,73 +99,20 @@
   color: var(--p-surface-500);
 }
 
-.map-replay {
-  position: absolute;
-  right: 1rem;
-  bottom: 1rem;
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.3rem;
-  height: 2.3rem;
-  padding: 0;
-  border: 1px solid var(--p-content-border-color);
-  border-radius: 9px;
-  background: var(--p-content-background);
-  color: var(--p-surface-500);
-  cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
-}
-
-.map-replay:hover {
-  color: var(--p-primary-color);
-  border-color: color-mix(in srgb, var(--p-primary-color) 45%, var(--p-content-border-color));
-}
-
-.map-replay:focus-visible {
-  outline: 2px solid var(--p-primary-color);
-  outline-offset: 2px;
-}
-
-.map-replay .pi {
-  font-size: 0.9rem;
-}
-
-@media (pointer: coarse) {
-  .map-replay {
-    width: 2.75rem;
-    height: 2.75rem;
-  }
-}
-
 @media (hover: none) {
   .map-tile:hover {
     border-color: var(--p-content-border-color);
     transform: none;
   }
-
-  .map-replay:hover {
-    color: var(--p-surface-500);
-    border-color: var(--p-content-border-color);
-  }
 }
 
-/* No sweep, no replay control — just the finished map */
 @media (prefers-reduced-motion: reduce) {
-  .map-tile,
-  .map-replay {
+  .map-tile {
     transition: none;
   }
 
-  .map-playing .map-pin,
-  .map-pin {
+  .map-dot {
     animation: none;
-    opacity: 0.85;
-    transform: none;
-  }
-
-  .map-replay {
-    display: none;
+    opacity: 0.8;
   }
 }

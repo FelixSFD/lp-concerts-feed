@@ -5,7 +5,6 @@ import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { ConcertDto } from '../../../modules/lpshows-api';
 import { ConcertsService } from '../../../services/concerts.service';
 import { environment } from '../../../../environments/environment';
-import { Message } from 'primeng/message';
 import { Card } from 'primeng/card';
 import { Button } from 'primeng/button';
 import { Tag } from 'primeng/tag';
@@ -15,31 +14,24 @@ import { MenuItem, MessageService } from 'primeng/api';
 import { Tooltip } from 'primeng/tooltip';
 import {Divider} from 'primeng/divider';
 import {FormsModule} from '@angular/forms';
-import { NgOptimizedImage } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ConcertTitleGenerator } from '../../../data/concert-title-generator';
 import { downloadConcertIcs } from '../../../data/calendar-event';
 import { ConcertBookmarkUpdateRequestDto } from '../../../modules/lpshows-api';
 import { CalendarFeedBuilderComponent } from '../calendar-feed-builder/calendar-feed-builder.component';
-import { ConcertScheduleComponent } from '../concert-schedule/concert-schedule.component';
-import { ConcertCardComponent } from '../concert-card/concert-card.component';
 import { TourMapTileComponent } from '../tour-map-tile/tour-map-tile.component';
 import { DateTime } from 'luxon';
 
 @Component({
   selector: 'app-home-page',
   imports: [
-    Message,
     Button,
     Tag,
     Dialog,
     SplitButton,
     Tooltip,
-    NgOptimizedImage,
     RouterLink,
     CalendarFeedBuilderComponent,
-    ConcertScheduleComponent,
-    ConcertCardComponent,
     TourMapTileComponent,
   ],
   templateUrl: './home-page.component.html',
@@ -136,6 +128,50 @@ export class HomePageComponent implements OnInit {
     );
   }
 
+  /**
+   * The next few shows after the featured one
+   */
+  get upcomingConcerts(): ConcertDto[] {
+    const featuredId = this.featuredConcert?.id;
+
+    return this.allConcerts
+      .filter(
+        (concert) =>
+          !concert.isPast &&
+          concert.id !== featuredId &&
+          (concert.mainStageTime ?? concert.postedStartTime) != null,
+      )
+      .sort((a, b) =>
+        (a.mainStageTime ?? a.postedStartTime ?? '').localeCompare(
+          b.mainStageTime ?? b.postedStartTime ?? '',
+        ),
+      )
+      .slice(0, 4);
+  }
+
+  /**
+   * Distinct countries across every tracked show (past and upcoming)
+   */
+  get countriesPlayedCount(): number {
+    return new Set(
+      this.allConcerts
+        .map((concert) => concert.country)
+        .filter((country): country is string => (country?.length ?? 0) > 0),
+    ).size;
+  }
+
+  /** Any upcoming show with coordinates? Gates "Nearest to you" vs "Countries played". */
+  get hasUpcomingPlottableConcert(): boolean {
+    return this.allConcerts.some(
+      (concert) =>
+        !concert.isPast &&
+        concert.venueLatitude != undefined &&
+        concert.venueLatitude != 0 &&
+        concert.venueLongitude != undefined &&
+        concert.venueLongitude != 0,
+    );
+  }
+
   get featuredIsPast(): boolean {
     return this.featuredConcert?.isPast === true;
   }
@@ -169,6 +205,24 @@ export class HomePageComponent implements OnInit {
 
   get countdownCaption(): string {
     return this.featuredConcert?.doorsTime ? 'until doors' : 'until showtime';
+  }
+
+  /**
+   * A single light summary line for the featured card
+   */
+  get featuredDoorsSummary(): string | null {
+    const concert = this.featuredConcert;
+    const time = concert?.doorsTime ?? concert?.mainStageTime;
+    if (!time) {
+      return null;
+    }
+
+    const dt = concert?.timeZoneId
+      ? DateTime.fromISO(time, { zone: concert.timeZoneId })
+      : DateTime.fromISO(time);
+    const prefix = concert?.doorsTime ? 'doors' : 'stage time';
+
+    return `${prefix} ${dt.toFormat('h:mm a')}`;
   }
 
   get featuredIsAttending(): boolean {
@@ -351,7 +405,18 @@ export class HomePageComponent implements OnInit {
   }
 
   private get featuredDateTime(): DateTime | null {
-    const concert = this.featuredConcert;
+    return this.dateTimeFor(this.featuredConcert);
+  }
+
+  concertDay(concert: ConcertDto): string {
+    return this.dateTimeFor(concert)?.toFormat('dd') ?? '';
+  }
+
+  concertMonth(concert: ConcertDto): string {
+    return this.dateTimeFor(concert)?.toFormat('LLL') ?? '';
+  }
+
+  private dateTimeFor(concert: ConcertDto | null): DateTime | null {
     const start = concert?.mainStageTime ?? concert?.postedStartTime;
     if (!start) {
       return null;
