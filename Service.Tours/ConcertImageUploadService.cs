@@ -1,11 +1,9 @@
 using Amazon.S3;
 using Amazon.S3.Model;
-using Database.Tours;
 using Database.Tours.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Service.Tours.DataStructure;
 using Service.Tours.Exceptions;
 
 namespace Service.Tours;
@@ -27,10 +25,10 @@ internal class ConcertImageUploadService(IAmazonS3 s3Client, IConcertRepository 
     {
         logger.LogDebug("Getting presigned URL for file upload for concert: {concertId}", concertId);
         var concert = await concertRepository.GetByPrimaryKeyAsync(concertId) ?? throw new ConcertNotFoundException(concertId);
-        var getPresignedUrlRequest = new GetPreSignedUrlRequest()
+        var getPresignedUrlRequest = new GetPreSignedUrlRequest
         {
             BucketName = appSettings.GetConcertImageBucketName(),
-            Key = $"{concertId}/schedule/{Guid.NewGuid().ToString().ToLower()}.jpg",
+            Key = $"{concertId}/schedule/{Guid.NewGuid().ToString().ToLower()}",
             ContentType = contentType,
             Verb = HttpVerb.PUT,
             Expires = DateTime.UtcNow.Add(TimeSpan.FromMinutes(10)),
