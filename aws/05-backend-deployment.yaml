@@ -1369,7 +1369,26 @@ Resources:
                 - !Ref ConcertImagesBucket
                 - /*
       Bucket: !Ref ConcertImagesBucket
-      
+  
+  S3ConcertImageBucketWritePolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      Description: Policy that grants write access to the bucket where concert images are stored
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - 's3:GetObject'
+              - 's3:PutObject'
+              - 's3:PutObjectAcl'
+              - 's3:DeleteObject'
+              - 's3:AbortMultipartUpload'
+            Resource: !Join
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref ConcertImagesBucket
+                - /*
   
   # Event queues
   AuditLogQueue:
