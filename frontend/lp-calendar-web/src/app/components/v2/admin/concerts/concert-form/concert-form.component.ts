@@ -418,7 +418,7 @@ export class ConcertFormComponent implements OnInit {
   }
 
 
-  uploadFileHandler(event: FileUploadHandlerEvent, fileUploadForm: FileUpload) {
+  async uploadFileHandler(event: FileUploadHandlerEvent, fileUploadForm: FileUpload) {
     console.debug("Upload File event:", event);
     if (event.files.length == 0) {
       this.messageService.add({
@@ -440,48 +440,61 @@ export class ConcertFormComponent implements OnInit {
 
     this.scheduleIsUploading.set(true);
     const file = event.files[0];
-    this.legacyConcertsService.getConcertScheduleUploadUrl(this.currentConcert()!.id,file)
-      .subscribe((result) => {
-        const req = new HttpRequest(
-          'PUT',
-          result.uploadUrl!,
-          file,
-          {
-            reportProgress: true,
-          }
-        );
-        this.http.request(req).subscribe({
-          next: (httpEvent: HttpEvent<any>) => {
-
-            if (httpEvent.type === HttpEventType.UploadProgress) {
-              const progress = Math.round(
-                100 * httpEvent.loaded / (httpEvent.total ?? file.size)
-              );
-
-              console.log('Progress:', progress);
-              fileUploadForm.progress.set(progress);
-              fileUploadForm.onProgress.emit({
-                progress: progress,
-                originalEvent: httpEvent,
-              });
-            }
-
-            if (httpEvent.type === HttpEventType.Response) {
-              console.log('Upload complete');
-              fileUploadForm.onUpload.emit({
-                files: fileUploadForm.files,
-                originalEvent: httpEvent,
-              });
-              fileUploadForm.uploadedFiles.set([...fileUploadForm.files]);
-              fileUploadForm.files = [];
-              fileUploadForm.clear();
-            }
-          },
-          error: err => {
-            console.error(err);
-          }
-        });
+    let uploadUrlResult = await this.concertsService.getScheduleUploadUrlForConcertId(this.currentConcert()!.id, file.type);
+    const uploadUrl = uploadUrlResult.uploadUrl;
+    if (!uploadUrl) {
+      this.messageService.add({
+        severity: "danger",
+        summary: "File upload failed!",
+        text: "No upload URL returned from server.",
       });
+      return;
+    }
+
+    this.uploadFile(uploadUrl, file, fileUploadForm);
+  }
+
+  private uploadFile(uploadUrl: string, file: File, fileUploadForm: FileUpload) {
+    console.debug('Uploading file to', uploadUrl);
+    const req = new HttpRequest(
+      'PUT',
+      uploadUrl,
+      file,
+      {
+        reportProgress: true,
+      }
+    );
+    this.http.request(req).subscribe({
+      next: (httpEvent: HttpEvent<any>) => {
+
+        if (httpEvent.type === HttpEventType.UploadProgress) {
+          const progress = Math.round(
+            100 * httpEvent.loaded / (httpEvent.total ?? file.size)
+          );
+
+          console.log('Progress:', progress);
+          fileUploadForm.progress.set(progress);
+          fileUploadForm.onProgress.emit({
+            progress: progress,
+            originalEvent: httpEvent,
+          });
+        }
+
+        if (httpEvent.type === HttpEventType.Response) {
+          console.log('Upload complete');
+          fileUploadForm.onUpload.emit({
+            files: fileUploadForm.files,
+            originalEvent: httpEvent,
+          });
+          fileUploadForm.uploadedFiles.set([...fileUploadForm.files]);
+          fileUploadForm.files = [];
+          fileUploadForm.clear();
+        }
+      },
+      error: err => {
+        console.error(err);
+      }
+    });
   }
 
 

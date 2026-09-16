@@ -1,5 +1,10 @@
 import { inject, Service } from '@angular/core';
-import { ConcertsApi, LinkinpediaImportStatusDto } from '../modules/lpshows-api/v3';
+import {
+  ConcertFileUploadResponseDto,
+  ConcertsApi,
+  ConcertScheduleUploadRequestDto,
+  LinkinpediaImportStatusDto
+} from '../modules/lpshows-api/v3';
 import { addAuthentication } from '../auth/auth.config';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -29,5 +34,17 @@ export class ConcertsService {
     return firstValueFrom(
       this.concertsApi.getConcertImportStatus()
     );
+  }
+
+  /**
+   * Returns a presigned URL for uploading a concert schedule file
+   * @param concertId ID of the concert
+   * @param contentType MIME type of the file
+   */
+  getScheduleUploadUrlForConcertId(concertId: string, contentType: string): Promise<ConcertFileUploadResponseDto> {
+    let request: ConcertScheduleUploadRequestDto = {
+      contentType: contentType
+    };
+    return firstValueFrom(this.concertsApi.getUrlForConcertFileUpload(concertId, request));
   }
 }
