@@ -21,7 +21,7 @@ import { SelectVenueComponent } from '../select-venue/select-venue.component';
 import { DatePicker } from 'primeng/datepicker';
 import { Select } from 'primeng/select';
 import timezones, { TimeZone } from 'timezones-list';
-import { DateTime, Zone } from 'luxon';
+import { DateTime } from 'luxon';
 import { ConcertStatus } from '../../../../../data/concert-status';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
@@ -36,7 +36,6 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
 import { FileProgressEvent, FileUpload, FileUploadHandlerEvent } from 'primeng/fileupload';
 import { environment } from '../../../../../../environments/environment';
 import { HttpClient, HttpEvent, HttpEventType, HttpHeaders, HttpRequest, HttpResponse } from '@angular/common/http';
-import { LegacyConcertsService } from '../../../../../services/legacy-concerts.service';
 
 @Component({
   selector: 'app-concert-form',
@@ -68,7 +67,6 @@ export class ConcertFormComponent implements OnInit {
   private messageService = inject(MessageService);
   private formBuilder = inject(FormBuilder);
   private concertsService = inject(ConcertsService);
-  private legacyConcertsService = inject(LegacyConcertsService);
   private http = inject(HttpClient);
 
   @Input("is-saving")
@@ -454,7 +452,6 @@ export class ConcertFormComponent implements OnInit {
 
     try {
       await this.uploadFile(uploadUrl, file, fileUploadForm);
-      console.debug('S3 upload successful');
     } catch (err) {
       console.error('S3 upload failed:', err);
       return;
@@ -462,13 +459,13 @@ export class ConcertFormComponent implements OnInit {
     // load the new data, but don't refresh the whole form since the user might have unsaved changes! Only update the image
     let refreshedDetailsAfterUpload = await this.concertsService.getDetailsById(concertId);
     this.currentConcert.update(existing => {
-      if (!existing) {
+      if (existing == null) {
         return existing;
       }
 
       return {
         ...existing,
-        schedule: refreshedDetailsAfterUpload.scheduleImageFile,
+        scheduleImageFile: refreshedDetailsAfterUpload.scheduleImageFile,
       };
     });
   }
