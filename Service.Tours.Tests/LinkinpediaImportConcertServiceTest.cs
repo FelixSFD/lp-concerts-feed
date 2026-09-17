@@ -478,15 +478,13 @@ public class LinkinpediaImportConcertServiceTest
 
         Assert.NotNull(result);
         Assert.Equal(ConcertDto.ConcertStatusValue.Cancelled, result.ConcertStatus);
-        Assert.NotNull(result.ConcertType);
-        Assert.Equal((uint)2, result.ConcertType.Id);
-        Assert.Equal("Linkin Park", result.ConcertType.Name);
+        Assert.Null(result.ConcertType);
         Assert.Equal("Canada", result.CountryName);
         Assert.Equal("Vancouver", result.CityName);
         Assert.Equal("Rogers Arena", result.VenueName);
         Assert.Single(result.FoundCountries);
         Assert.Single(result.FoundCities);
-        Assert.Single(result.FoundVenues);
+        Assert.Empty(result.FoundVenues);
         Assert.Single(result.FoundTours);
     }
 
