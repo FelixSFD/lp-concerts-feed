@@ -119,6 +119,8 @@ export class ConcertFormComponent implements OnInit {
   protected concertStatusValues: ConcertStatus[] = ConcertStatus.allValues;
 
   ngOnInit() {
+    this.enableDisableEarlyEntryTimeInput();
+
     this.concertForm.controls.tour.valueChanges.subscribe((tour) => {
       console.debug('ConcertFormComponent tour changed', tour);
       this.selectedTour.set(tour);
@@ -128,6 +130,11 @@ export class ConcertFormComponent implements OnInit {
       console.debug("Venue changed: ", venue);
       console.debug("All timezones:", timezones);
       this.venueTimezone.set(timezones.find(tz => tz.tzCode === venue?.timeZoneId) ?? null);
+    });
+
+    this.concertForm.controls.lpuEarlyEntryConfirmed.valueChanges.subscribe((lpuEarlyEntryConfirmed) => {
+      console.debug("lpuEarlyEntryConfirmed changed: ", lpuEarlyEntryConfirmed);
+      this.enableDisableEarlyEntryTimeInput(lpuEarlyEntryConfirmed ?? false);
     });
   }
 
@@ -147,8 +154,10 @@ export class ConcertFormComponent implements OnInit {
     let venueId = this.concertForm.controls.venue.value?.id;
     let timezone = this.concertForm.controls.venue.value?.timeZoneId;
     const postedStartTime = this.concertForm.value.postedStartTime!;
-    const doorTime = this.concertForm.value.doorsTime;
-    const mainStageTime = this.concertForm.value.lpStageTime;
+    const doorsTime = this.concertForm.value.doorsTime;
+    const lpStageTime = this.concertForm.value.lpStageTime;
+    const lpuEarlyEntryConfirmed = this.concertForm.value.lpuEarlyEntryConfirmed ?? false;
+    const lpuEarlyEntryTime = this.concertForm.value.lpuEarlyEntryTime;
 
     // Expected set duration
     let expectedSetDuration = this.convertH2M(this.concertForm.value.expectedSetDuration?.valueOf() ?? "00:00");
@@ -193,7 +202,6 @@ export class ConcertFormComponent implements OnInit {
     console.log('Converted datetime in selected timezone:', zonedDateTime.toString());
 
     // Normal Doors Time
-    let doorsTime = this.concertForm.value.doorsTime?.valueOf();
     let doorsDateTime: DateTime | null = null;
     if (doorsTime != null && doorsTime.length > 0) {
       doorsDateTime = zonedDateTime.set(DateTime.fromFormat(doorsTime, 'hh:mm').toObject());
@@ -202,13 +210,21 @@ export class ConcertFormComponent implements OnInit {
     }
 
     // LP stage time
-    let lpStageTime = this.concertForm.value.lpStageTime?.valueOf();
     let lpStageDateTime: DateTime | null = null;
     console.debug("lpStageTime:", lpStageTime);
     if (lpStageTime != null && lpStageTime.length > 0) {
       lpStageDateTime = zonedDateTime.set(DateTime.fromFormat(lpStageTime, 'hh:mm').toObject());
       // weird timezone issues can cause the LPU time to be on the next day. That's why we need to fix the date just to be sure
       lpStageDateTime = lpStageDateTime.set({day: localDateTime.day, month: localDateTime.month, year: localDateTime.year});
+    }
+
+    // LPU EE time
+    let lpuEarlyEntryDateTime: DateTime | null = null;
+    if (lpuEarlyEntryConfirmed) {
+      if (lpuEarlyEntryTime != null && lpuEarlyEntryTime.length > 0) {
+        lpuEarlyEntryDateTime = zonedDateTime.set(DateTime.fromFormat(lpuEarlyEntryTime, 'hh:mm').toObject());
+        lpuEarlyEntryDateTime = lpuEarlyEntryDateTime.set({day: localDateTime.day, month: localDateTime.month, year: localDateTime.year});
+      }
     }
 
     return {
@@ -223,6 +239,8 @@ export class ConcertFormComponent implements OnInit {
       timezone: timezone,
       mainStageTime: lpStageDateTime,
       doorsTime: doorsDateTime,
+      lpuEarlyEntryTime: lpuEarlyEntryDateTime,
+      lpuEarlyEntryConfirmed: lpuEarlyEntryConfirmed ?? false,
       expectedSetDuration: expectedSetDuration,
       linkinpediaUrl: this.concertForm.value.linkinpediaUrl?.valueOf() ?? null,
     };
@@ -269,6 +287,8 @@ export class ConcertFormComponent implements OnInit {
     this.concertForm.controls.postedStartTime.setValue(postedStartDateTimeJs ?? null);
     this.concertForm.controls.lpStageTime.setValue(lpStageDateTimeIsoStr?.substring(0, 5) ?? null);
     this.concertForm.controls.doorsTime.setValue(doorsDateTimeIsoStr?.substring(0, 5) ?? null);
+    this.concertForm.controls.lpuEarlyEntryTime.setValue(lpuEarlyEntryDateTimeIsoStr?.substring(0, 5) ?? null);
+    this.concertForm.controls.lpuEarlyEntryConfirmed.setValue(concert.lpuEarlyEntryConfirmed ?? false);
     this.concertForm.controls.expectedSetDuration.setValue(setDurationStr ?? null);
 
     this.concertForm.controls.linkinpediaUrl.setValue(concert.linkinpediaUrl ?? null);
@@ -292,6 +312,14 @@ export class ConcertFormComponent implements OnInit {
       tourLegId: null,
       venue: null,
     });
+  }
+
+  private enableDisableEarlyEntryTimeInput(enable: boolean = this.concertForm.controls.lpuEarlyEntryConfirmed.value ?? false) {
+    if (enable) {
+      this.concertForm.controls.lpuEarlyEntryTime.enable();
+    } else {
+      this.concertForm.controls.lpuEarlyEntryTime.disable();
+    }
   }
 
   /**
@@ -541,6 +569,8 @@ export class ConcertFormContent {
   timeIsPlaceholder!: boolean;
   doorsTime?: DateTime | null;
   mainStageTime?: DateTime | null;
+  lpuEarlyEntryTime?: DateTime | null;
+  lpuEarlyEntryConfirmed?: boolean | null;
   expectedSetDuration?: number | null;
   linkinpediaUrl?: string | null;
 }

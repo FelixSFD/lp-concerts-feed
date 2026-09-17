@@ -55,6 +55,8 @@ export class AddConcertPageComponent implements OnInit {
       timeIsPlaceholder: formContent.timeIsPlaceholder ?? undefined,
       doorsTime: formContent.doorsTime?.toISO() ?? undefined,
       mainStageTime: formContent.mainStageTime?.toISO() ?? undefined,
+      lpuEarlyEntryTime: formContent.lpuEarlyEntryTime?.toISO() ?? undefined,
+      lpuEarlyEntryConfirmed: formContent.lpuEarlyEntryConfirmed ?? undefined,
       expectedSetDurationMinutes: formContent.expectedSetDuration ?? undefined,
       linkinpediaUrl: formContent.linkinpediaUrl ?? undefined,
     };
