@@ -31,11 +31,11 @@ import {
   ApplyClickedEvent,
   ImportConcertDialogContentComponent
 } from '../import-concert-dialog-content/import-concert-dialog-content.component';
-import { firstValueFrom } from 'rxjs';
+import { filter, firstValueFrom, tap } from 'rxjs';
 import { ToggleSwitch } from 'primeng/toggleswitch';
 import { FileProgressEvent, FileUpload, FileUploadHandlerEvent } from 'primeng/fileupload';
 import { environment } from '../../../../../../environments/environment';
-import { HttpClient, HttpEvent, HttpEventType, HttpRequest } from '@angular/common/http';
+import { HttpClient, HttpEvent, HttpEventType, HttpHeaders, HttpRequest, HttpResponse } from '@angular/common/http';
 import { LegacyConcertsService } from '../../../../../services/legacy-concerts.service';
 
 @Component({
@@ -438,9 +438,10 @@ export class ConcertFormComponent implements OnInit {
       return;
     }
 
+    const concertId = this.currentConcert()!.id;
     this.scheduleIsUploading.set(true);
     const file = event.files[0];
-    let uploadUrlResult = await this.concertsService.getScheduleUploadUrlForConcertId(this.currentConcert()!.id, file.type);
+    let uploadUrlResult = await this.concertsService.getScheduleUploadUrlForConcertId(concertId, file.type);
     const uploadUrl = uploadUrlResult.uploadUrl;
     if (!uploadUrl) {
       this.messageService.add({
@@ -451,7 +452,25 @@ export class ConcertFormComponent implements OnInit {
       return;
     }
 
-    this.uploadFile(uploadUrl, file, fileUploadForm);
+    try {
+      await this.uploadFile(uploadUrl, file, fileUploadForm);
+      console.debug('S3 upload successful');
+    } catch (err) {
+      console.error('S3 upload failed:', err);
+      return;
+    }
+    // load the new data, but don't refresh the whole form since the user might have unsaved changes! Only update the image
+    let refreshedDetailsAfterUpload = await this.concertsService.getDetailsById(concertId);
+    this.currentConcert.update(existing => {
+      if (!existing) {
+        return existing;
+      }
+
+      return {
+        ...existing,
+        schedule: refreshedDetailsAfterUpload.scheduleImageFile,
+      };
+    });
   }
 
   private uploadFile(uploadUrl: string, file: File, fileUploadForm: FileUpload) {
@@ -462,39 +481,46 @@ export class ConcertFormComponent implements OnInit {
       file,
       {
         reportProgress: true,
+        headers: new HttpHeaders({
+          'Content-Type': file.type,
+        }),
       }
     );
-    this.http.request(req).subscribe({
-      next: (httpEvent: HttpEvent<any>) => {
 
-        if (httpEvent.type === HttpEventType.UploadProgress) {
-          const progress = Math.round(
-            100 * httpEvent.loaded / (httpEvent.total ?? file.size)
-          );
+    return firstValueFrom(
+      this.http.request(req).pipe(
+        tap((httpEvent: HttpEvent<any>) => {
+            if (httpEvent.type === HttpEventType.UploadProgress) {
+              const progress = Math.round(
+                100 * httpEvent.loaded / (httpEvent.total ?? file.size)
+              );
 
-          console.log('Progress:', progress);
-          fileUploadForm.progress.set(progress);
-          fileUploadForm.onProgress.emit({
-            progress: progress,
-            originalEvent: httpEvent,
-          });
-        }
+              console.log('Progress:', progress);
+              fileUploadForm.progress.set(progress);
+              fileUploadForm.onProgress.emit({
+                progress: progress,
+                originalEvent: httpEvent,
+              });
+            }
 
-        if (httpEvent.type === HttpEventType.Response) {
-          console.log('Upload complete');
-          fileUploadForm.onUpload.emit({
-            files: fileUploadForm.files,
-            originalEvent: httpEvent,
-          });
-          fileUploadForm.uploadedFiles.set([...fileUploadForm.files]);
-          fileUploadForm.files = [];
-          fileUploadForm.clear();
-        }
-      },
-      error: err => {
-        console.error(err);
-      }
-    });
+            if (httpEvent.type === HttpEventType.Response) {
+              console.log('Upload complete');
+              fileUploadForm.onUpload.emit({
+                files: fileUploadForm.files,
+                originalEvent: httpEvent,
+              });
+              fileUploadForm.uploadedFiles.set([...fileUploadForm.files]);
+              fileUploadForm.files = [];
+              fileUploadForm.clear();
+            }
+          }
+        ),
+        filter(
+          (event): event is HttpResponse<any> =>
+            event.type === HttpEventType.Response
+        )
+      )
+    );
   }
 
 

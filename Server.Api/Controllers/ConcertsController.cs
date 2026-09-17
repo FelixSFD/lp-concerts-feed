@@ -142,6 +142,7 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpPut("{concertId}/schedule")]
+    [ClearCache(Tags = [CacheTags.ConcertsAll])]
     public async Task<ActionResult<ConcertFileUploadResponseDto>> GetPresignedScheduleUploadUrl(string concertId,
         ConcertScheduleUploadRequestDto uploadRequest,
         CancellationToken cancellationToken)

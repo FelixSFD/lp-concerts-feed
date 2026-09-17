@@ -1,5 +1,6 @@
 import { inject, Service } from '@angular/core';
 import {
+  ConcertDetailsDto,
   ConcertFileUploadResponseDto,
   ConcertsApi,
   ConcertScheduleUploadRequestDto,
@@ -46,5 +47,13 @@ export class ConcertsService {
       contentType: contentType
     };
     return firstValueFrom(this.concertsApi.getUrlForConcertFileUpload(concertId, request));
+  }
+
+  /**
+   * Returns the details of a concert
+   * @param concertId ID of the concert
+   */
+  getDetailsById(concertId: string): Promise<ConcertDetailsDto> {
+    return firstValueFrom(this.concertsApi.getConcertById(concertId));
   }
 }
