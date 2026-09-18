@@ -31,13 +31,17 @@ public class DateTimeExtensionsTest
     [Fact]
     public void ToDateTimeOffset_FromLocalDateTime_ConvertsToCorrectOffset()
     {
-        var utcDateTime = new DateTime(2026, 6, 30, 20, 0, 0, DateTimeKind.Local);
+        var localDateTime = new DateTime(2026, 6, 30, 20, 0, 0, DateTimeKind.Local);
         var nyTimeZone = TimeZoneInfo.FindSystemTimeZoneById("America/New_York");
+        
+        var result = localDateTime.ToDateTimeOffset(nyTimeZone);
 
-        var result = utcDateTime.ToDateTimeOffset(nyTimeZone);
+        var expectedUtcDateTime = localDateTime.ToUniversalTime();
+        var expectedOffset = nyTimeZone.GetUtcOffset(localDateTime);
+        var expectedHour = expectedUtcDateTime.Add(expectedOffset).Hour;
 
-        Assert.Equal(TimeSpan.FromHours(-4), result.Offset);
-        Assert.Equal(14, result.Hour);
-        Assert.Equal(18, result.UtcDateTime.Hour);
+        Assert.Equal(expectedOffset, result.Offset);
+        Assert.Equal(expectedHour, result.Hour);
+        Assert.Equal(expectedUtcDateTime.Hour, result.UtcDateTime.Hour);
     }
 }
