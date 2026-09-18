@@ -100,6 +100,10 @@ public class ToursDbContext(DbContextOptions<ToursDbContext> options) : DbContex
             .HasPrincipalKey(tl => new { tl.Id })
             .OnDelete(DeleteBehavior.Restrict);
         
+        modelBuilder.Entity<ConcertDo>()
+            .Navigation(c => c.Venue)
+            .AutoInclude();
+        
         modelBuilder.Entity<TourDo>()
             .Navigation(t => t.Legs)
             .AutoInclude();

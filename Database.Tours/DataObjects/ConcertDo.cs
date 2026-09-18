@@ -68,7 +68,7 @@ public class ConcertDo : BaseDo, IDeletableDataObject, ITimestampedDataObject, I
     /// Detailed schedules are published closer to the concert.
     /// </summary>
     [Column("PostedStartTime")]
-    public DateTimeOffset PostedStartTime { get; set; }
+    public DateTime PostedStartTime { get; set; }
 
     /// <summary>
     /// True if the <see cref="PostedStartTime"/> is a placeholder. This usually is the case for old concerts where we never tracked the times.

@@ -3,7 +3,7 @@ namespace LPCalendar.DataStructure.Tours;
 /// <summary>
 /// Raw information about a concert
 /// </summary>
-public class RawConcertDto
+public class RawConcertBo
 {
     /// <summary>
     /// Unique ID of the concert
@@ -49,17 +49,17 @@ public class RawConcertDto
     /// <summary>
     /// Time in the venue's timezone when Linkin Park will be on stage
     /// </summary>
-    public DateTime? MainStageTime { get; set; }
+    public DateTimeOffset? MainStageTime { get; set; }
     
     /// <summary>
     /// Time in the venue's timezone when the doors will open
     /// </summary>
-    public DateTime? DoorsTime { get; set; }
+    public DateTimeOffset? DoorsTime { get; set; }
     
     /// <summary>
     /// Time in the venue's timezone when the LPU Early Entry will start
     /// </summary>
-    public DateTime? LpuEarlyEntryTime { get; set; }
+    public DateTimeOffset? LpuEarlyEntryTime { get; set; }
     
     /// <summary>
     /// true, if LPU early entry has been confirmed for this concert

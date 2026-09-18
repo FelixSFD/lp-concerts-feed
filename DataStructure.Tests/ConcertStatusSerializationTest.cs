@@ -21,7 +21,7 @@ public class ConcertStatusSerializationTest
     [InlineData(ConcertDto.ConcertStatusValue.Cancelled, "Cancelled")]
     public void RawConcertDto_SerializesStatusAsString(ConcertDto.ConcertStatusValue status, string expectedStatusString)
     {
-        var rawConcert = new RawConcertDto
+        var rawConcert = new RawConcertBo
         {
             Id = "c123",
             Status = status
@@ -43,7 +43,7 @@ public class ConcertStatusSerializationTest
     public void RawConcertDto_DeserializesStatusFromString(string statusString, ConcertDto.ConcertStatusValue expectedStatus)
     {
         var json = $"{{\"id\":\"c123\",\"status\":\"{statusString}\"}}";
-        var deserialized = JsonSerializer.Deserialize<RawConcertDto>(json, CamelCaseOptions);
+        var deserialized = JsonSerializer.Deserialize<RawConcertBo>(json, CamelCaseOptions);
 
         Assert.NotNull(deserialized);
         Assert.Equal(expectedStatus, deserialized.Status);

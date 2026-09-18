@@ -5,7 +5,6 @@ using Database.Tours.Repositories;
 using LPCalendar.DataStructure.Tours;
 using Microsoft.Extensions.Logging;
 using Service.Tours.Exceptions;
-using RawConcertDto = LPCalendar.DataStructure.Tours.RawConcertDto;
 
 namespace Service.Tours;
 
@@ -84,14 +83,15 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
     /// Creates a new concert
     /// </summary>
     /// <param name="request"></param>
-    public async Task<RawConcertDto> CreateConcertAsync(CreateConcertRequestBo request)
+    public async Task<RawConcertBo> CreateConcertAsync(CreateConcertRequestBo request)
     {
         logger.LogDebug("Requested to create a new concert");
         var concert = request.ToDo();
         concertRepository.Add(concert);
         await concertRepository.SaveChangesAsync();
         logger.LogDebug("Successfully created concert with ID: {concertId}", concert.Id);
-        return concert.ToDto();
+        var concertDetails = await concertRepository.GetByPrimaryKeyAsync(concert.Id) ?? throw new ConcertNotFoundException("new");
+        return concertDetails.ToBo();
     }
     
     /// <summary>
@@ -99,7 +99,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
     /// </summary>
     /// <param name="request"></param>
     /// <param name="concertId">ID of the concert to update</param>
-    public async Task<RawConcertDto> UpdateConcertAsync(string concertId, UpdateConcertRequestBo request)
+    public async Task<RawConcertBo> UpdateConcertAsync(string concertId, UpdateConcertRequestBo request)
     {
         logger.LogDebug("Requested to update the concert with ID: {concertId}", concertId);
         var concert = await concertRepository.GetByPrimaryKeyWithoutReferencesAsync(concertId) ?? throw new ConcertNotFoundException(concertId);
@@ -107,7 +107,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         concertRepository.Update(concert);
         await concertRepository.SaveChangesAsync();
         logger.LogDebug("Successfully updated concert with ID: {concertId}", concert.Id);
-        return concert.ToDto();
+        return concert.ToBo();
     }
 
     /// <summary>
@@ -117,7 +117,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
     /// <param name="includeDeleted">true, if deleted concerts are allowed to be returned. (Default: false)</param>
     /// <returns></returns>
     /// <exception cref="ConcertNotFoundException">if the concert does not exist</exception>
-    public async Task<RawConcertDto> GetConcertWithoutDetailsByIdAsync(string id, bool includeDeleted = false)
+    public async Task<RawConcertBo> GetConcertWithoutDetailsByIdAsync(string id, bool includeDeleted = false)
     {
         logger.LogDebug("Requested concert without references to other objects. ID: {id}", id);
         var concert = await concertRepository.GetByPrimaryKeyWithoutReferencesAsync(id) ?? throw new ConcertNotFoundException(id);
@@ -126,7 +126,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
             ThrowNotFoundExceptionIfConcertDeleted(concert);
         }
         logger.LogDebug("Found concert.");
-        return concert.ToDto();
+        return concert.ToBo();
     }
     
     /// <summary>

@@ -89,9 +89,9 @@ public class SqlConcertRepositoryTest : ToursDbIntegrationTestsBase
             TourLegId = tourLegEu.Id,
             Type = concertType,
             VenueId = venue.Id,
-            PostedStartTime = new DateTimeOffset(2026, 6, 11, 20, 0, 0, TimeSpan.FromHours(2)),
-            DoorsTime = new DateTime(2026, 6, 11, 17, 30, 0),
-            MainStageTime = new DateTime(2026, 6, 11, 20, 55, 0),
+            PostedStartTime = new DateTimeOffset(2026, 6, 11, 20, 0, 0, TimeSpan.FromHours(2)).UtcDateTime,
+            DoorsTime = new DateTimeOffset(2026, 6, 11, 17, 30, 0, TimeSpan.FromHours(2)).UtcDateTime,
+            MainStageTime = new DateTimeOffset(2026, 6, 11, 20, 55, 0, TimeSpan.FromHours(2)).UtcDateTime,
             Status = ConcertDo.ConcertStatus.Past,
             LpuEarlyEntryConfirmed = true,
         };
@@ -181,7 +181,7 @@ public class SqlConcertRepositoryTest : ToursDbIntegrationTestsBase
             TourId = tour.Id,
             Type = concertType,
             VenueId = venueGer.Id,
-            PostedStartTime = new DateTimeOffset(2026, 5, 1, 20, 0, 0, TimeSpan.Zero),
+            PostedStartTime = new DateTimeOffset(2026, 5, 1, 20, 0, 0, TimeSpan.Zero).UtcDateTime,
             Status = ConcertDo.ConcertStatus.Planned,
         };
         var concert2 = new ConcertDo
@@ -190,7 +190,7 @@ public class SqlConcertRepositoryTest : ToursDbIntegrationTestsBase
             TourId = tour.Id,
             Type = concertType,
             VenueId = venueGer.Id,
-            PostedStartTime = new DateTimeOffset(2026, 6, 1, 20, 0, 0, TimeSpan.Zero),
+            PostedStartTime = new DateTimeOffset(2026, 6, 1, 20, 0, 0, TimeSpan.Zero).UtcDateTime,
             Status = ConcertDo.ConcertStatus.Planned,
         };
         var concert3 = new ConcertDo
@@ -199,7 +199,7 @@ public class SqlConcertRepositoryTest : ToursDbIntegrationTestsBase
             TourId = tour.Id,
             Type = concertType,
             VenueId = venueUs.Id,
-            PostedStartTime = new DateTimeOffset(2026, 7, 1, 20, 0, 0, TimeSpan.Zero),
+            PostedStartTime = new DateTimeOffset(2026, 7, 1, 20, 0, 0, TimeSpan.Zero).UtcDateTime,
             Status = ConcertDo.ConcertStatus.Planned,
         };
 
@@ -344,9 +344,9 @@ public class SqlConcertRepositoryTest : ToursDbIntegrationTestsBase
             TourLegId = tourLegEu.Id,
             Type = concertType,
             VenueId = venue.Id,
-            PostedStartTime = new DateTimeOffset(2026, 6, 11, 20, 0, 0, TimeSpan.FromHours(2)),
-            DoorsTime = new DateTime(2026, 6, 11, 17, 30, 0),
-            MainStageTime = new DateTime(2026, 6, 11, 20, 55, 0),
+            PostedStartTime = new DateTimeOffset(2026, 6, 11, 20, 0, 0, TimeSpan.FromHours(2)).UtcDateTime,
+            DoorsTime = new DateTimeOffset(2026, 6, 11, 17, 30, 0, TimeSpan.FromHours(2)).UtcDateTime,
+            MainStageTime = new DateTimeOffset(2026, 6, 11, 20, 55, 0, TimeSpan.FromHours(2)).UtcDateTime,
             Status = ConcertDo.ConcertStatus.Past,
             LpuEarlyEntryConfirmed = true,
             LinkinpediaUrl = "https://linkinpedia.com/page/Live:20260611"

@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.OutputCaching;
 using Server.Api.Auth;
 using Server.Api.Cache;
 using Service.Tours;
-using RawConcertDto = LPCalendar.DataStructure.Tours.RawConcertDto;
 
 namespace Server.Api.Controllers;
 
@@ -60,7 +59,7 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     [HttpGet("{concertId}")]
     [AuthorizeRoles(RoleNames.AddConcerts)]
     [OutputCache(PolicyName = CachePolicyNames.Short, Tags = [CacheTags.ConcertsAll])]
-    public async Task<ActionResult<RawConcertDto>> GetRawConcertById([FromRoute] string concertId)
+    public async Task<ActionResult<RawConcertBo>> GetRawConcertById([FromRoute] string concertId)
     {
         var concert = await concertService.GetConcertWithoutDetailsByIdAsync(concertId);
         return Ok(concert);

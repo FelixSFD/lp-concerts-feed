@@ -1,3 +1,4 @@
+using Common.Utils;
 using Database.Tours.DataObjects;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Tours;
@@ -442,11 +443,11 @@ internal static class DoMapper
             TourLegId = bo.TourLegId,
             CustomTitle = bo.CustomTitle,
             VenueId = bo.VenueId,
-            PostedStartTime = bo.PostedStartTime,
+            PostedStartTime = bo.PostedStartTime.UtcDateTime,
             TimeIsPlaceholder = bo.TimeIsPlaceholder,
-            MainStageTime = bo.MainStageTime,
-            DoorsTime = bo.DoorsTime,
-            LpuEarlyEntryTime = bo.LpuEarlyEntryTime,
+            MainStageTime = bo.MainStageTime?.UtcDateTime,
+            DoorsTime = bo.DoorsTime?.UtcDateTime,
+            LpuEarlyEntryTime = bo.LpuEarlyEntryTime?.UtcDateTime,
             LpuEarlyEntryConfirmed = bo.LpuEarlyEntryConfirmed,
             ExpectedSetDurationMinutes = bo.ExpectedSetDurationMinutes,
             ScheduleImageFile = bo.ScheduleImageFile,
@@ -468,11 +469,11 @@ internal static class DoMapper
         dataObject.TourLegId = bo.TourLegId;
         dataObject.CustomTitle = bo.CustomTitle;
         dataObject.VenueId = bo.VenueId;
-        dataObject.PostedStartTime = bo.PostedStartTime;
+        dataObject.PostedStartTime = bo.PostedStartTime.UtcDateTime;
         dataObject.TimeIsPlaceholder = bo.TimeIsPlaceholder;
-        dataObject.MainStageTime = bo.MainStageTime;
-        dataObject.DoorsTime = bo.DoorsTime;
-        dataObject.LpuEarlyEntryTime = bo.LpuEarlyEntryTime;
+        dataObject.MainStageTime = bo.MainStageTime?.UtcDateTime;
+        dataObject.DoorsTime = bo.DoorsTime?.UtcDateTime;
+        dataObject.LpuEarlyEntryTime = bo.LpuEarlyEntryTime?.UtcDateTime;
         dataObject.LpuEarlyEntryConfirmed = bo.LpuEarlyEntryConfirmed;
         dataObject.ExpectedSetDurationMinutes = bo.ExpectedSetDurationMinutes;
         dataObject.ScheduleImageFile = bo.ScheduleImageFile;
@@ -483,13 +484,16 @@ internal static class DoMapper
     }
     
     /// <summary>
-    /// Creates a <see cref="RawConcertDto"/> from the <see cref="ConcertDo"/>
+    /// Creates a <see cref="RawConcertBo"/> from the <see cref="ConcertDo"/>
     /// </summary>
     /// <param name="dataObject"></param>
     /// <returns>the new DTO</returns>
-    public static RawConcertDto ToDto(this ConcertDo dataObject)
+    public static RawConcertBo ToBo(this ConcertDo dataObject)
     {
-        return new RawConcertDto
+        var venueBo = dataObject.Venue.ToBoWithAllDetails();
+        var venueTimeZone = TimeZoneInfo.FindSystemTimeZoneById(venueBo.TimeZone);
+        
+        return new RawConcertBo
         {
             Id = dataObject.Id,
             ConcertTypeId = dataObject.ConcertTypeId,
@@ -497,11 +501,11 @@ internal static class DoMapper
             TourLegId = dataObject.TourLegId,
             CustomTitle = dataObject.CustomTitle,
             VenueId = dataObject.VenueId,
-            PostedStartTime = dataObject.PostedStartTime,
+            PostedStartTime = dataObject.PostedStartTime.ToDateTimeOffset(venueTimeZone),
             TimeIsPlaceholder = dataObject.TimeIsPlaceholder,
-            MainStageTime = dataObject.MainStageTime,
-            DoorsTime = dataObject.DoorsTime,
-            LpuEarlyEntryTime = dataObject.LpuEarlyEntryTime,
+            MainStageTime = dataObject.MainStageTime?.ToDateTimeOffset(venueTimeZone),
+            DoorsTime = dataObject.DoorsTime?.ToDateTimeOffset(venueTimeZone),
+            LpuEarlyEntryTime = dataObject.LpuEarlyEntryTime?.ToDateTimeOffset(venueTimeZone),
             LpuEarlyEntryConfirmed = dataObject.LpuEarlyEntryConfirmed,
             ExpectedSetDurationMinutes = dataObject.ExpectedSetDurationMinutes,
             ScheduleImageFile = dataObject.ScheduleImageFile,
@@ -517,6 +521,8 @@ internal static class DoMapper
     /// <returns>the new DTO</returns>
     public static ConcertDetailsBo ToBoWithDetails(this ConcertDo dataObject)
     {
+        var venueBo = dataObject.Venue.ToBoWithAllDetails();
+        var venueTimeZone = TimeZoneInfo.FindSystemTimeZoneById(venueBo.TimeZone);
         return new ConcertDetailsBo
         {
             Id = dataObject.Id,
@@ -524,12 +530,12 @@ internal static class DoMapper
             Tour = dataObject.Tour?.ToBo(),
             TourLeg = dataObject.TourLeg?.ToBo(),
             CustomTitle = dataObject.CustomTitle,
-            Venue = dataObject.Venue.ToBoWithAllDetails(),
-            PostedStartTime = dataObject.PostedStartTime,
+            Venue = venueBo,
+            PostedStartTime = dataObject.PostedStartTime.ToDateTimeOffset(venueTimeZone),
             TimeIsPlaceholder = dataObject.TimeIsPlaceholder,
-            MainStageTime = dataObject.MainStageTime,
-            DoorsTime = dataObject.DoorsTime,
-            LpuEarlyEntryTime = dataObject.LpuEarlyEntryTime,
+            MainStageTime = dataObject.MainStageTime?.ToDateTimeOffset(venueTimeZone),
+            DoorsTime = dataObject.DoorsTime?.ToDateTimeOffset(venueTimeZone),
+            LpuEarlyEntryTime = dataObject.LpuEarlyEntryTime?.ToDateTimeOffset(venueTimeZone),
             LpuEarlyEntryConfirmed = dataObject.LpuEarlyEntryConfirmed,
             ExpectedSetDurationMinutes = dataObject.ExpectedSetDurationMinutes,
             ScheduleImageFile = dataObject.ScheduleImageFile,

@@ -36,6 +36,7 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
 import { FileProgressEvent, FileUpload, FileUploadHandlerEvent } from 'primeng/fileupload';
 import { environment } from '../../../../../../environments/environment';
 import { HttpClient, HttpEvent, HttpEventType, HttpHeaders, HttpRequest, HttpResponse } from '@angular/common/http';
+import { LegacyConcertsService } from '../../../../../services/legacy-concerts.service';
 
 @Component({
   selector: 'app-concert-form',
@@ -68,6 +69,7 @@ export class ConcertFormComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
   private concertsService = inject(ConcertsService);
   private http = inject(HttpClient);
+  private legacyConcertsService = inject(LegacyConcertsService);
 
   @Input("is-saving")
   isSaving$: boolean = false;
@@ -551,6 +553,12 @@ export class ConcertFormComponent implements OnInit {
 
   onUploadProgress(event: FileProgressEvent) {
     console.debug("Upload Progress event:", event);
+  }
+
+  onImportTimesFromOldDbClicked() {
+    this.legacyConcertsService.getConcert(this.currentConcert()?.id!).subscribe((concert) => {
+      console.debug("Loaded old concert: ", concert);
+    });
   }
 
   protected readonly timezones = timezones;

@@ -157,6 +157,7 @@ public class ConcertServiceTest
         var cityMuc = new CityDo
         {
             CountryCode = countryGer.IsoCode,
+            Country = countryGer,
             Name = "Munich",
             NativeName = "München",
         };
@@ -181,6 +182,7 @@ public class ConcertServiceTest
             {
                 savedConcert = cb.Arg<ConcertDo>();
                 savedConcert.Id = mockConcertId;
+                savedConcert.Venue = mockVenue;
             });
         
         // call the service
@@ -285,10 +287,10 @@ public class ConcertServiceTest
             TourLegId = mockTourLegEu.Id,
             ConcertTypeId = mockConcertType.Id,
             Type = mockConcertType,
-            PostedStartTime = new DateTimeOffset(2026, 6, 30, 20, 0, 0, TimeSpan.FromHours(2)),
-            MainStageTime = new DateTime(2026, 6, 30, 20, 25, 0),
-            DoorsTime = new DateTime(2026, 6, 30, 16, 0, 0),
-            LpuEarlyEntryTime = new DateTime(2026, 6, 30, 15, 30, 0),
+            PostedStartTime = new DateTimeOffset(2026, 6, 30, 20, 0, 0, TimeSpan.FromHours(2)).UtcDateTime,
+            MainStageTime = new DateTimeOffset(2026, 6, 30, 20, 25, 0, TimeSpan.FromHours(2)).UtcDateTime,
+            DoorsTime = new DateTimeOffset(2026, 6, 30, 16, 0, 0, TimeSpan.FromHours(2)).UtcDateTime,
+            LpuEarlyEntryTime = new DateTimeOffset(2026, 6, 30, 15, 30, 0, TimeSpan.FromHours(2)).UtcDateTime,
             LpuEarlyEntryConfirmed = true,
             VenueId = mockVenue.Id,
             Venue = mockVenue,
