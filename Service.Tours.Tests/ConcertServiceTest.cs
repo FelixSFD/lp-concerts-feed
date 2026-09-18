@@ -185,6 +185,10 @@ public class ConcertServiceTest
                 savedConcert.Venue = mockVenue;
             });
         
+        _concertRepository
+            .GetByPrimaryKeyAsync(Arg.Is<string>(id => id == mockConcertId))
+            .Returns((_) => Task.FromResult(savedConcert));
+        
         // call the service
         var request = new CreateConcertRequestBo
         {
