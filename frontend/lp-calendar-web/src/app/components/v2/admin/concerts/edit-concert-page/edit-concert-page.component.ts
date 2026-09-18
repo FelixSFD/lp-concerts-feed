@@ -14,6 +14,8 @@ import { Card } from 'primeng/card';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { TableModule } from 'primeng/table';
 import { Divider } from 'primeng/divider';
+import { ConcertsService } from '../../../../../services/concerts.service';
+import { ToursService } from '../../../../../services/tours.service';
 
 @Component({
   selector: 'app-edit-concert-page',
@@ -33,11 +35,15 @@ export class EditConcertPageComponent implements OnInit {
   private activeRoute = inject(ActivatedRoute);
   private messageService = inject(MessageService);
   private concertsApi = inject(ConcertsApi);
+  private toursService = inject(ToursService);
 
   concertFormComponent = viewChild(ConcertFormComponent);
 
   currentConcertId: string = '';
   currentConcertTitle: string = '';
+
+  previousConcertId = signal<string | null>(null);
+  nextConcertId = signal<string | null>(null);
 
   isSaving = signal(false);
 
@@ -57,8 +63,15 @@ export class EditConcertPageComponent implements OnInit {
       }
 
       this.currentConcertId = concert.id ?? null;
+      this.loadAdjacentConcerts().then();
       this.concertFormComponent()?.fillFormWith(concert);
     });
+  }
+
+  private async loadAdjacentConcerts() {
+    let adjacentConcertData = await this.toursService.getAdjacentConcerts(this.currentConcertId);
+    this.previousConcertId.set(adjacentConcertData.previous ?? null);
+    this.nextConcertId.set(adjacentConcertData.next ?? null);
   }
 
   onSaveClicked(formContent: ConcertFormContent) {
