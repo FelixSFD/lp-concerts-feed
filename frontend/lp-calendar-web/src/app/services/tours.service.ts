@@ -12,6 +12,7 @@ import {
 } from '../modules/lpshows-api/v3';
 import { ConcertFilter } from '../data/concert-filter';
 import { AdjacentConcertsResponseDto, ConcertDto } from '../modules/lpshows-api';
+import { getRequestIdParameter } from '../helper/cache-parameter-helper';
 
 /**
  * Service to manage tours and tour legs
@@ -86,13 +87,11 @@ export class ToursService {
   }
 
   getFilteredConcerts(filter: ConcertFilter, cached: boolean = true): Observable<ConcertDetailsDto[]> {
-    // TODO: implement cache parameter
-    return this.concertsApi.getConcerts();
+    return this.concertsApi.getConcerts(getRequestIdParameter(cached));
   }
 
   getConcertById(concertId: string, cached: boolean = true): Observable<ConcertDetailsDto> {
-    // TODO: implement cache parameter
-    return this.concertsApi.getConcertById(concertId);
+    return this.concertsApi.getConcertById(concertId, getRequestIdParameter(cached));
   }
 
   getAdjacentConcerts(concertId: string): Promise<AdjacentConcertsResponseDto> {

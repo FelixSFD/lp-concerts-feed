@@ -453,6 +453,7 @@ export const routes: Routes = [
         canActivate: [authGuard, updateConcertsGuard],
         data: {
           breadcrumb: 'Edit concert',
+          noCache: true,
         },
         resolve: {
           concert: concertResolver,
