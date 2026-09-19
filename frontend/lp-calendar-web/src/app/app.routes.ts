@@ -8,7 +8,7 @@ import {albumResolver} from './resolvers/album-resolver';
 import {songResolver} from './resolvers/song-resolver';
 import { countryResolver } from './resolvers/country-resolver';
 import { cityResolver } from './resolvers/city-resolver';
-import { venueResolver } from './resolvers/venue-resolver';
+import { venueDetailsResolver, venueResolver } from './resolvers/venue-resolver';
 import { tourResolver } from './resolvers/tour-resolver';
 
 let baseTitle = "LP Concerts - ";
@@ -249,6 +249,9 @@ export const routes: Routes = [
     loadComponent: () =>
       import("./components/v2/admin/setlist-admin-wrapper/setlist-admin-wrapper.component").then(m => m.SetlistAdminWrapperComponent),
     canActivateChild: [authGuard, manageSetlistsGuard],
+    data: {
+      noCache: true,
+    },
     children: [
       {
         path: '',
@@ -422,7 +425,7 @@ export const routes: Routes = [
         title: baseTitle + 'Edit city',
         canActivate: [authGuard, manageLocationsGuard],
         resolve: {
-          venue: venueResolver
+          venue: venueDetailsResolver
         },
       },
       {
@@ -453,6 +456,7 @@ export const routes: Routes = [
         canActivate: [authGuard, updateConcertsGuard],
         data: {
           breadcrumb: 'Edit concert',
+          noCache: true,
         },
         resolve: {
           concert: concertResolver,

@@ -8,6 +8,8 @@ servers:
   - url: http://localhost:5133
 paths:
   /v3/Concerts:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     post:
       tags:
         - Concerts
@@ -92,7 +94,58 @@ paths:
         httpMethod: GET
         uri: https://api.dev.lpshows.felixsfd.de/v3/Concerts
   
+  /v3/Concerts/import:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+    get:
+      operationId: GetConcertImportStatus
+      tags:
+        - Concerts
+      responses:
+        200:
+          description: A JSON object with all concerts from Linkinpedia and their import status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LinkinpediaImportStatus"
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: [ ]
+  
+  /v3/Concerts/import/{wikiPageId}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+    get:
+      operationId: GetConcertImportPlan
+      tags:
+        - Concerts
+      parameters:
+        - name: wikiPageId
+          in: path
+          required: true
+          schema: 
+            type: string
+      responses: 
+        200:
+          description: A JSON object with the information of the concert import plan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportConcertPreview"
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
+      security:
+        - Bearer: [ ]
   /v3/Concerts/{concertId}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     put:
       tags:
         - Concerts
@@ -203,6 +256,8 @@ paths:
       security:
         - Bearer: []
   /v3/Concerts/{concertId}/details:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     get:
       tags:
         - Concerts
@@ -235,8 +290,52 @@ paths:
         uri: https://api.dev.lpshows.felixsfd.de/v3/Concerts/{concertId}/details
         requestParameters:
           integration.request.path.concertId: method.request.path.concertId
-  
+  /v3/Concerts/{concertId}/schedule:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+    put:
+      operationId: GetUrlForConcertFileUpload
+      summary: Requests a URL that can be used to upload the image of the schedule of a concert
+      tags:
+        - Concerts
+      parameters:
+        - name: concertId
+          in: path
+          description: "ID of the concert to upload the schedule image for"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConcertScheduleUploadRequest"
+      responses:
+        "200":
+          description: URL for upload requested successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConcertFileUploadResponse"
+      security:
+        - ConcertsCognitoAuthorizer: [ "openid" ]
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub:
+            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - LambdaArn:
+                Fn::ImportValue:
+                  Fn::Sub: "${BaseProductName}-lambda-concert-s3-upload-url-function"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
   /v3/Concerts/{concertId}/adjacent:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     get:
       operationId: GetAdjacentConcertsForId
       summary: Returns information about the previous and next concerts
@@ -264,6 +363,8 @@ paths:
           integration.request.path.concertId: method.request.path.concertId
   
   /v2/concerts/{id}/bookmarks/count:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     get:
       operationId: GetBookmarkCountForConcert
       summary: Checks how many bookmarks there are for a concert. Use GetBookmarkStatusForConcert if you want to check the status for the current user
@@ -299,6 +400,8 @@ paths:
         type: "aws_proxy"
   
   /v3/ConcertTypes:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     post:
       tags:
         - ConcertTypes
@@ -362,6 +465,8 @@ paths:
         - Bearer: []
   
   /v3/ConcertTypes/{concertTypeId}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     get:
       tags:
         - ConcertTypes
@@ -441,6 +546,8 @@ paths:
         requestParameters:
           integration.request.path.concertId: method.request.path.concertTypeId
   /v3/countries:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     post:
       tags:
         - Countries
@@ -460,8 +567,18 @@ paths:
               $ref: "#/components/schemas/CreateCountryRequest"
         required: true
       responses:
-        "200":
-          description: ""
+        "201":
+          description: "Successfully created the country"
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/Country"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Country"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/Country"
         "401":
           description: "Unauthorized: Credentials are missing or not valid"
         "403":
@@ -502,6 +619,8 @@ paths:
         httpMethod: GET
         uri: https://api.dev.lpshows.felixsfd.de/v3/countries
   /v3/countries/{countryCode}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     put:
       tags:
         - Countries
@@ -613,6 +732,8 @@ paths:
       security:
         - Bearer: []
   /v3/countries/{countryCode}/states:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     post:
       tags:
         - Countries
@@ -693,6 +814,8 @@ paths:
           integration.request.path.concertId: method.request.path.countryCode
   
   /v3/countries/{countryCode}/states/{stateCode}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     put:
       tags:
         - Countries
@@ -825,6 +948,8 @@ paths:
         - Bearer: []
   
   /v3/countries/{countryCode}/cities:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     post:
       tags:
         - Countries
@@ -851,8 +976,18 @@ paths:
               $ref: "#/components/schemas/CreateCityRequest"
         required: true
       responses:
-        "200":
-          description: ""
+        "201":
+          description: "Successfully created the city"
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/CityWithCountry"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CityWithCountry"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/CityWithCountry"
         "401":
           description: "Unauthorized: Credentials are missing or not valid"
         "403":
@@ -905,6 +1040,8 @@ paths:
           integration.request.path.concertId: method.request.path.countryCode
   
   /v3/countries/{countryCode}/cities/{cityId}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     put:
       tags:
         - Countries
@@ -1045,6 +1182,8 @@ paths:
         - Bearer: []
   
   /v3/Cities:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     get:
       tags:
         - Cities
@@ -1100,6 +1239,8 @@ paths:
           integration.request.path.concertId: method.request.path.countryCode
   
   /v3/Tours:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     post:
       tags:
         - Tours
@@ -1162,6 +1303,8 @@ paths:
         uri: https://api.dev.lpshows.felixsfd.de/v3/Tours
   
   /v3/Tours/{tourId}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     get:
       tags:
         - Tours
@@ -1222,6 +1365,8 @@ paths:
       security:
         - Bearer: []
   /v3/Tours/{tourId}/legs:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     post:
       tags:
         - Tours
@@ -1264,6 +1409,8 @@ paths:
       security:
         - Bearer: []
   /v3/Tours/{tourId}/legs/{legId}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     get:
       tags:
         - Tours
@@ -1338,6 +1485,8 @@ paths:
       security:
         - Bearer: []
   /v3/Venues:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     post:
       tags:
         - Venues
@@ -1416,6 +1565,8 @@ paths:
       security:
         - Bearer: []
   /v3/Venues/{venueId}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     put:
       tags:
         - Venues
@@ -1534,12 +1685,14 @@ paths:
       security:
         - Bearer: []
   /v3/Venues/{venueId}/details:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     get:
       tags:
         - Venues
       summary: Returns the detailed information about a venue by its ID including
         information about the city and country
-      operationId: GetVenueWithCityById
+      operationId: GetVenueWithDetailsById
       parameters:
         - name: venueId
           in: path
@@ -1555,13 +1708,13 @@ paths:
           content:
             text/plain:
               schema:
-                $ref: "#/components/schemas/VenueWithCity"
+                $ref: "#/components/schemas/VenueWithDetails"
             application/json:
               schema:
-                $ref: "#/components/schemas/VenueWithCity"
+                $ref: "#/components/schemas/VenueWithDetails"
             text/json:
               schema:
-                $ref: "#/components/schemas/VenueWithCity"
+                $ref: "#/components/schemas/VenueWithDetails"
       x-amazon-apigateway-integration:
         type: HTTP_PROXY
         httpMethod: GET
@@ -1569,6 +1722,8 @@ paths:
         requestParameters:
           integration.request.path.venueId: method.request.path.venueId
   /v3/Venues/{venueId}/names:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     post:
       tags:
         - Venues
@@ -1624,6 +1779,8 @@ paths:
         - Bearer: []
   
   /v3/Venues/{venueId}/names/{venueNameId}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     put:
       tags:
         - Venues
@@ -1716,6 +1873,14 @@ paths:
       security:
         - Bearer: []
 components:
+  parameters:
+    X-LP-Request-Id:
+      name: X-LP-Request-Id
+      in: header
+      description: Unique request id to bypass server caching
+      required: false
+      schema:
+        type: string
   schemas:
     AddTourLegRequest:
       required:
@@ -1758,7 +1923,7 @@ components:
           type: string
         id:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
+          type: integer
           format: uint32
         stateCode:
           type: string
@@ -1792,6 +1957,9 @@ components:
         postedStartTime:
           type: string
           format: date-time
+        timeIsPlaceholder:
+          type: boolean
+          description: True if the postedStartTime is a placeholder. This usually is the case for old concerts where we never tracked the times.
         mainStageTime:
           type: string
           format: date-time
@@ -1814,6 +1982,9 @@ components:
           format: date-time
         status:
           $ref: "#/components/schemas/ConcertStatusValue"
+        linkinpediaUrl:
+          type: string
+          description: URL to the concert page on Linkinpedia
     ConcertStatusValue:
       type: string
       enum: 
@@ -1862,7 +2033,7 @@ components:
       properties:
         concertTypeId:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
+          type: integer
           format: uint32
         tourId:
           type: string
@@ -1872,11 +2043,14 @@ components:
           type: string
         venueId:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
+          type: integer
           format: uint32
         postedStartTime:
           type: string
           format: date-time
+        timeIsPlaceholder:
+          type: boolean
+          description: True if the postedStartTime is a placeholder. This usually is the case for old concerts where we never tracked the times.
         mainStageTime:
           type: string
           format: date-time
@@ -1890,12 +2064,15 @@ components:
           type: boolean
         expectedSetDurationMinutes:
           pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
+          type: integer
           format: uint32
         scheduleImageFile:
           type: string
         status:
           $ref: "#/components/schemas/ConcertStatusValue"
+        linkinpediaUrl:
+          type: string
+          description: URL to the concert page on Linkinpedia
     CreateConcertTypeRequest:
       required:
         - name
@@ -1982,13 +2159,15 @@ components:
       type: object
       properties:
         venueId:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         id:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 4294967295
         name:
           type: string
         usedFrom:
@@ -2015,12 +2194,16 @@ components:
         customTitle:
           type: string
         venueId:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         postedStartTime:
           type: string
           format: date-time
+        timeIsPlaceholder:
+          type: boolean
+          description: True if the postedStartTime is a placeholder. This usually is the case for old concerts where we never tracked the times.
         mainStageTime:
           type: string
           format: date-time
@@ -2044,6 +2227,9 @@ components:
           nullable: true
         status:
           $ref: "#/components/schemas/ConcertStatusValue"
+        linkinpediaUrl:
+          type: string
+          description: URL to the concert page on Linkinpedia
     State:
       required:
         - countryCode
@@ -2123,9 +2309,10 @@ components:
       type: object
       properties:
         concertTypeId:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         tourId:
           type: string
           nullable: true
@@ -2136,12 +2323,16 @@ components:
           type: string
           nullable: true
         venueId:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         postedStartTime:
           type: string
           format: date-time
+        timeIsPlaceholder:
+          type: boolean
+          description: True if the postedStartTime is a placeholder. This usually is the case for old concerts where we never tracked the times.
         mainStageTime:
           type: string
           nullable: true
@@ -2157,9 +2348,10 @@ components:
         lpuEarlyEntryConfirmed:
           type: boolean
         expectedSetDurationMinutes:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         scheduleImageFile:
           type: string
           nullable: true
@@ -2169,6 +2361,9 @@ components:
           format: date-time
         status:
           $ref: "#/components/schemas/ConcertStatusValue"
+        linkinpediaUrl:
+          type: string
+          description: URL to the concert page on Linkinpedia
     UpdateConcertTypeRequest:
       required:
         - name
@@ -2248,9 +2443,10 @@ components:
       type: object
       properties:
         id:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         countryCode:
           maxLength: 3
           minLength: 3
@@ -2286,9 +2482,10 @@ components:
         city:
           $ref: "#/components/schemas/CityWithCountry"
         id:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         countryCode:
           maxLength: 3
           minLength: 3
@@ -2330,9 +2527,10 @@ components:
         city:
           $ref: "#/components/schemas/CityWithCountry"
         id:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         countryCode:
           maxLength: 3
           minLength: 3
@@ -2372,6 +2570,124 @@ components:
         next:
           type: string
           description: ID of the next concert
+    ImportConcertPreview:
+      type: object
+      description: Data of a concert to import from Linkinpedia
+      properties: 
+        concertStatus:
+          $ref: "#/components/schemas/ConcertStatusValue"
+        concertType:
+          $ref: "#/components/schemas/ConcertType"
+        postedStartTime:
+          type: string
+          format: date-time
+          description: The start time and date of the concert. Time is most likely a placeholder.
+        foundCities:
+          type: array
+          description: If matching cities were found, they are listed here
+          items:
+            $ref: "#/components/schemas/CityWithCountry"
+        foundVenues:
+          type: array
+          items:
+            $ref: "#/components/schemas/Venue"
+        foundCountries:
+          type: array
+          items:
+            $ref: "#/components/schemas/Country"
+        foundStates:
+          type: array
+          items:
+            $ref: "#/components/schemas/State"
+        countryName:
+          type: string
+        stateName:
+          type: string
+        cityName:
+          type: string
+        cityNativeName:
+          type: string
+        venueName:
+          type: string
+        foundTours:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tour"
+        foundTourLegs:
+          type: array
+          items:
+            $ref: "#/components/schemas/TourLeg"
+        tourName:
+          type: string
+        tourLegName:
+          type: string
+        proposedCustomTitle:
+          type: string
+    
+    LinkinpediaImportConcertStatus:
+      type: object
+      description: Information about the import status of a concert from Linkinpedia
+      required: 
+        - importStatus
+        - wikiPageId
+      properties: 
+        wikiPageId:
+          type: string
+          description: The ID of the Linkinpedia page of the concert
+        concertTitle:
+          type: string
+          description: Generated title based on info from Linkinpedia. This is just for informational purposes and will not be used for the import.
+        concert:
+          $ref: "#/components/schemas/ConcertDetails"
+        importStatus:
+          type: string
+          enum: 
+            - Imported
+            - ImportedNoSetlist
+            - NotImported
+    LinkinpediaImportStatus:
+      type: object
+      description: Statistics about the import of concerts from Linkinpedia
+      required: 
+        - concerts
+        - importedWithSetlistCount
+        - importedWithoutSetlistCount
+        - notImportedCount
+      properties: 
+        importedWithSetlistCount:
+          type: integer
+          description: Number of concerts that were imported with setlists
+        importedWithoutSetlistCount:
+          type: integer
+          description: Number of concerts that were imported without setlists
+        notImportedCount:
+          type: integer
+          description: Number of concerts that were not imported yet
+        concerts:
+          type: array
+          description: Concerts that were found on Linkinpedia and their import status
+          items:
+            $ref: "#/components/schemas/LinkinpediaImportConcertStatus"
+    
+    # Request/response for file uploads (getting presigned S3-URLs)
+    ConcertScheduleUploadRequest:
+      type: object
+      description: Request to get a S3 url to upload the schedule for a concert
+      required: 
+        - contentType
+      properties:
+        contentType:
+          type: string
+          description: Type of the file to be uploaded
+          nullable: false
+    ConcertFileUploadResponse:
+      type: object
+      description: Response that tells the client which URL to use for the upload
+      properties:
+        uploadUrl:
+          type: string
+          description: URL to use when uploading the file. This URL is only valid for the requested file
+          nullable: false
     
     # Schemas from v2
     GetConcertBookmarkCountsResponse:

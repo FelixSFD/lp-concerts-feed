@@ -1,5 +1,5 @@
 import {Component, ElementRef, inject, OnInit, ViewChild} from '@angular/core';
-import {ConcertsService} from '../../../services/concerts.service';
+import {LegacyConcertsService} from '../../../services/legacy-concerts.service';
 import {defaultShowType, listOfTours, tourConfigs,} from '../../../app.config';
 import {ConcertFilter} from '../../../data/concert-filter';
 
@@ -49,7 +49,7 @@ export class TourMapPageComponent {
   isLoadingPins$ = true;
 
 
-  constructor(private concertsService: ConcertsService) {
+  constructor(private concertsService: LegacyConcertsService) {
     this.availableTours$ = [...tourConfigs];
     this.availableTours$.push({ label: "All shows", value: null});
     this.availableTours$.push({ label: "Not part of a tour", value: ""});

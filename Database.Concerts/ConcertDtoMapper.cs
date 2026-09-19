@@ -43,7 +43,7 @@ public static class ConcertDtoMapper
     
     
     /// <summary>
-    /// Maps the <see cref="ConcertModel"/> to a <see cref="ConcertDto"/>
+    /// Maps the <see cref="ConcertModel"/> to a <see cref="ConcertWithSetlistsDto"/>
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -81,7 +81,7 @@ public static class ConcertDtoMapper
     
     
     /// <summary>
-    /// Maps the <see cref="ConcertDto"/> to a <see cref="ConcertModel"/>
+    /// Maps the <see cref="ConcertBo"/> to a <see cref="ConcertModel"/>
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>

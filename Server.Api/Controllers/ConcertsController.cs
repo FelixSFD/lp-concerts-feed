@@ -1,19 +1,11 @@
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Common.Contracts.Generated.Models;
 using Common.Utils.Cache;
 using LPCalendar.DataStructure.Tours;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
-using Microsoft.Extensions.Logging;
 using Server.Api.Auth;
 using Server.Api.Cache;
 using Service.Tours;
-using CreateConcertRequestDto = LPCalendar.DataStructure.Tours.CreateConcertRequestDto;
-using RawConcertDto = LPCalendar.DataStructure.Tours.RawConcertDto;
-using UpdateConcertRequestDto = LPCalendar.DataStructure.Tours.UpdateConcertRequestDto;
 
 namespace Server.Api.Controllers;
 
@@ -24,7 +16,7 @@ namespace Server.Api.Controllers;
 /// <param name="logger"></param>
 [ApiController]
 [Route("v3/[controller]")]
-public class ConcertsController(ConcertService concertService, IOutputCacheStore outputCacheStore, ILogger<ConcertsController> logger) : ControllerBase
+public class ConcertsController(ConcertService concertService, LinkinpediaImportConcertService linkinpediaImportConcertService, IOutputCacheStore outputCacheStore, IConcertImageUploadService concertImageUploadService, ILogger<ConcertsController> logger) : ControllerBase
 {
     /// <summary>
     /// Creates a new concert in the database
@@ -32,13 +24,13 @@ public class ConcertsController(ConcertService concertService, IOutputCacheStore
     /// <param name="request"></param>
     /// <returns>the created concert</returns>
     [HttpPost]
-    [AuthorizeRoles]
+    [AuthorizeRoles(RoleNames.AddConcerts)]
+    [ClearCache(Tags = [CacheTags.ConcertsAll])]
     public async Task<CreatedAtActionResult> CreateConcert([FromBody] CreateConcertRequestDto request)
     {
         logger.LogDebug("Requested to create a new concert...");
-        var concert = await concertService.CreateConcertAsync(request);
+        var concert = await concertService.CreateConcertAsync(request.ToBo());
         logger.LogDebug("Created concert with id: {id}", concert.Id);
-        await EvictConcertCacheAsync();
         return CreatedAtAction(nameof(GetRawConcertById), new { concertId = concert.Id }, concert);
     }
     
@@ -49,13 +41,13 @@ public class ConcertsController(ConcertService concertService, IOutputCacheStore
     /// <param name="request"></param>
     /// <returns>no content</returns>
     [HttpPut("{concertId}")]
-    [AuthorizeRoles]
+    [AuthorizeRoles(RoleNames.AddConcerts)]
+    [ClearCache(Tags = [CacheTags.ConcertsAll])]
     public async Task<NoContentResult> UpdateConcert([FromBody] UpdateConcertRequestDto request, [FromRoute] string concertId)
     {
         logger.LogDebug("Requested to update the concert with id: {concertId}", concertId);
-        var concert = await concertService.UpdateConcertAsync(concertId, request);
+        var concert = await concertService.UpdateConcertAsync(concertId, request.ToBo());
         logger.LogDebug("Updated concert with id: {id}", concert.Id);
-        await EvictConcertCacheAsync();
         return NoContent();
     }
 
@@ -65,9 +57,9 @@ public class ConcertsController(ConcertService concertService, IOutputCacheStore
     /// <param name="concertId"></param>
     /// <returns></returns>
     [HttpGet("{concertId}")]
-    [AuthorizeRoles]
+    [AuthorizeRoles(RoleNames.AddConcerts)]
     [OutputCache(PolicyName = CachePolicyNames.Short, Tags = [CacheTags.ConcertsAll])]
-    public async Task<ActionResult<RawConcertDto>> GetRawConcertById([FromRoute] string concertId)
+    public async Task<ActionResult<RawConcertBo>> GetRawConcertById([FromRoute] string concertId)
     {
         var concert = await concertService.GetConcertWithoutDetailsByIdAsync(concertId);
         return Ok(concert);
@@ -111,7 +103,7 @@ public class ConcertsController(ConcertService concertService, IOutputCacheStore
     /// <param name="concertId">ID of the concert to delete</param>
     /// <returns>no content</returns>
     [HttpDelete("{concertId}")]
-    [AuthorizeRoles]
+    [AuthorizeRoles(RoleNames.DeleteConcerts)]
     public async Task<NoContentResult> DeleteConcertById([FromRoute] string concertId)
     {
         await concertService.DeleteConcertAsync(concertId);
@@ -139,6 +131,79 @@ public class ConcertsController(ConcertService concertService, IOutputCacheStore
         };
         
         return Ok(response);
+    }
+
+    /// <summary>
+    /// Returns a presigned URL to upload a schedule image for a concert.
+    /// </summary>
+    /// <param name="concertId">ID of the concert</param>
+    /// <param name="uploadRequest">additional data</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpPut("{concertId}/schedule")]
+    [ClearCache(Tags = [CacheTags.ConcertsAll])]
+    public async Task<ActionResult<ConcertFileUploadResponseDto>> GetPresignedScheduleUploadUrl(string concertId,
+        ConcertScheduleUploadRequestDto uploadRequest,
+        CancellationToken cancellationToken)
+    {
+        logger.LogDebug("Requested to get presigned schedule upload url for concert: {concertId}; Content-Type: {contentType}", concertId, uploadRequest.ContentType);
+        var uploadUrl = await concertImageUploadService.GetPresignedScheduleUploadUrlAsync(concertId, uploadRequest.ContentType);
+        var response = new ConcertFileUploadResponseDto
+        {
+            UploadUrl = uploadUrl
+        };
+        
+        return Ok(response);
+    }
+
+    /// <summary>
+    /// Generates a preview of the concert import plan for a given concert.
+    /// This data can be used to call the correct APIs to create all the necessary data.
+    /// </summary>
+    /// <param name="wikiPageId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>plan for the import</returns>
+    [HttpGet("import/{wikiPageId}")]
+    [AuthorizeRoles(RoleNames.AddConcerts)]
+    public async Task<ActionResult<ImportConcertPreviewDto>> GetConcertImportPlan(string wikiPageId, CancellationToken cancellationToken)
+    {
+        logger.LogDebug("Generating concert import plan for concert: {page}", wikiPageId);
+        var importPlan = await linkinpediaImportConcertService.GetConcertImportPlan(wikiPageId, cancellationToken);
+        logger.LogDebug("Generated import plan for concert: {page}", wikiPageId);
+        return Ok(importPlan.ToDto());
+    }
+
+    /// <summary>
+    /// Returns a list of all concerts on Linkinpedia and their import status.
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("import")]
+    [AuthorizeRoles(RoleNames.AddConcerts)]
+    [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
+    public async Task<ActionResult<LinkinpediaImportStatusDto>> GetImportStatus(CancellationToken cancellationToken)
+    {
+        logger.LogDebug("Getting Linkinpedia import status");
+        var wikiPagesWithStatus = await linkinpediaImportConcertService
+            .GetImportStatusList(cancellationToken)
+            .Select(DtoMapper.ToDto)
+            .ToListAsync(cancellationToken);
+        logger.LogDebug("Retrieved all wiki pages and their import status.");
+
+        var result = new LinkinpediaImportStatusDto
+        {
+            Concerts = wikiPagesWithStatus,
+            NotImportedCount = wikiPagesWithStatus.Count(s =>
+                s.ImportStatus == LinkinpediaImportConcertStatusDto.ImportStatusEnum.NotImported),
+            ImportedWithoutSetlistCount = wikiPagesWithStatus.Count(s =>
+                s.ImportStatus == LinkinpediaImportConcertStatusDto.ImportStatusEnum.ImportedNoSetlist),
+            ImportedWithSetlistCount = wikiPagesWithStatus.Count(s =>
+                s.ImportStatus == LinkinpediaImportConcertStatusDto.ImportStatusEnum.Imported)
+        };
+        
+        logger.LogDebug("Generated import status. Counts: {countNotImported} not imported, {countNoSetlist} imported without setlist, {countWithSetlist} imported with setlist.", result.NotImportedCount, result.ImportedWithoutSetlistCount, result.ImportedWithSetlistCount);
+        
+        return Ok(result);
     }
 
     private async Task EvictConcertCacheAsync(CancellationToken cancellationToken = default)

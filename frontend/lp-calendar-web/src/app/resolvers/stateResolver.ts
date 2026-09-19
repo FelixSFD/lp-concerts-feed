@@ -4,6 +4,7 @@ import { catchError, Observable, of } from 'rxjs';
 import { ErrorResponseDto } from '../modules/lpshows-api';
 import { StateDto } from '../modules/lpshows-api/v3';
 import { LocationsService } from '../services/locations.service';
+import { getUseCacheFromRouteData } from '../helper/cache-parameter-helper';
 
 export const stateResolver: ResolveFn<StateDto | ErrorResponseDto> = (
   route: ActivatedRouteSnapshot,
@@ -21,7 +22,7 @@ export const stateResolver: ResolveFn<StateDto | ErrorResponseDto> = (
     } as ErrorResponseDto);
   }
 
-  return locationsService.getState(countryCode, stateCode).pipe(
+  return locationsService.getState(countryCode, stateCode, getUseCacheFromRouteData(route.data)).pipe(
     catchError(err => of(err.error as ErrorResponseDto))
   );
 };

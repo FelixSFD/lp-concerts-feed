@@ -1,144 +1,62 @@
-import {inject, Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {Observable, switchMap} from 'rxjs';
-import { Guid } from 'guid-typescript';
-import {ConcertFilter} from '../data/concert-filter';
+import { inject, Service } from '@angular/core';
 import {
-  AdjacentConcertsResponseDto, ConcertBookmarkUpdateRequestDto,
-  ConcertDto,
-  ConcertFileUploadRequestDto, ConcertFileUploadResponseDto,
-  ConcertsService as ConcertsApiClient, ConcertWithBookmarkStatusDto,
-  ConcertWithSetlistsDto, GetConcertBookmarkCountsResponseDto
-} from '../modules/lpshows-api';
-import {AuthService} from '../auth/auth.service';
+  ConcertDetailsDto,
+  ConcertFileUploadResponseDto,
+  ConcertsApi,
+  ConcertScheduleUploadRequestDto,
+  LinkinpediaImportStatusDto
+} from '../modules/lpshows-api/v3';
+import { addAuthentication } from '../auth/auth.config';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '../../environments/environment';
+import { getRequestIdParameter } from '../helper/cache-parameter-helper';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class ConcertsService {
-  private readonly authService = inject(AuthService);
+  private concertsApi: ConcertsApi = inject(ConcertsApi);
 
-  constructor(private httpClient: HttpClient, private concertsApiClient: ConcertsApiClient) { }
-
+  constructor() {
+    this.concertsApi.configuration.basePath = environment.apiBaseUrl;
+    addAuthentication(this.concertsApi);
+  }
 
   /**
-   * @deprecated Use getFilteredConcerts instead
+   * Returns the data that can be imported to create a concert
+   * @param wikiPageId ID of the page in Linkinpedia
    */
-  getConcerts(cached: boolean, onlyFuture: boolean) : Observable<ConcertDto[]> {
-    return this.getFilteredConcerts(null, cached);
+  async getImportConcertPlanForConcert(wikiPageId: string) {
+    console.debug("getImportConcertPlanForConcert", wikiPageId);
+    return firstValueFrom(
+      this.concertsApi.getConcertImportPlan(wikiPageId)
+    );
   }
 
-
-  getFilteredConcerts(filter: ConcertFilter | null, cached: boolean) : Observable<ConcertDto[]> {
-    console.debug("Getting filtered concerts", filter, cached);
-    if (!cached) {
-      // disable caching
-      return this.concertsApiClient.getConcerts(filter?.tour?.value ?? undefined, filter?.dateFrom?.toISO() ?? undefined, filter?.dateTo?.toISO() ?? undefined, Guid.create().toString(), "body", false);
-    }
-
-    return this.concertsApiClient.getConcerts(filter?.tour?.value ?? undefined, filter?.dateFrom?.toISO() ?? undefined, filter?.dateTo?.toISO() ?? undefined, undefined, "body", false);
+  async getLinkinpediaImportStatus(cached: boolean = true): Promise<LinkinpediaImportStatusDto> {
+    console.debug("getLinkinpediaImportStatus");
+    return firstValueFrom(
+      this.concertsApi.getConcertImportStatus(getRequestIdParameter(cached))
+    );
   }
-
-
-  getNextConcert() : Observable<ConcertDto> {
-    return this.concertsApiClient.getNextConcert("body", false);
-  }
-
-
-  getConcert(concertId: string, cached: boolean = true) : Observable<ConcertWithSetlistsDto> {
-    if (!cached) {
-      // disable caching
-      return this.concertsApiClient.getConcertById(concertId, Guid.create().toString(), "body", false);
-    }
-
-    return this.concertsApiClient.getConcertById(concertId, undefined, "body", false);
-  }
-
-
-  addConcert(concert: ConcertDto) {
-    concert.status = "PUBLISHED";
-    return this.concertsApiClient.addOrUpdateConcert(concert);
-  }
-
-
-  deleteConcert(concertId: string) {
-    return this.concertsApiClient.deleteConcert(concertId);
-  }
-
-
-  uploadConcertSchedule(concertId: string, imageFile: File) {
-    let getUrlRequest: ConcertFileUploadRequestDto = {};
-    getUrlRequest.concertId = concertId;
-    getUrlRequest.contentType = imageFile.type;
-    getUrlRequest.type = "ConcertSchedule";
-
-    return this.concertsApiClient.getUrlForConcertFileUpload(getUrlRequest)
-      .pipe(
-        switchMap((response) => {
-          return this.httpClient.put(response.uploadUrl!, imageFile);
-        })
-      )
-  }
-
-
-  getConcertScheduleUploadUrl(concertId: string, imageFile: File) {
-    let getUrlRequest: ConcertFileUploadRequestDto = {};
-    getUrlRequest.concertId = concertId;
-    getUrlRequest.contentType = imageFile.type;
-    getUrlRequest.type = "ConcertSchedule";
-
-    return this.concertsApiClient.getUrlForConcertFileUpload(getUrlRequest);
-  }
-
 
   /**
-   * Returns the previous and next ID based on the ID passed into the method
-   * @param currentId ID of the current concert
-   */
-  getAdjacentConcerts(currentId: string) : Observable<AdjacentConcertsResponseDto> {
-    return this.concertsApiClient.getAdjacentConcertsForId(currentId);
-  }
-
-
-  /**
-   * Returns the number of bookmarks for a concert and the status the current user has set
+   * Returns a presigned URL for uploading a concert schedule file
    * @param concertId ID of the concert
+   * @param contentType MIME type of the file
    */
-  getBookmarksForConcert(concertId: string): Observable<GetConcertBookmarkCountsResponseDto> {
-    return this.authService.isAuthenticated$.pipe(
-      switchMap((isAuthenticated) => {
-        if (isAuthenticated) {
-          return this.concertsApiClient.getBookmarkStatusForConcert(concertId, Guid.create().toString());
-        } else {
-          return this.concertsApiClient.getBookmarkCountForConcert(concertId);
-        }
-      })
-    )
-  }
-
-
-  /**
-   * Set the bookmark status for a concert and the current user
-   * @param concertId ID of the concert
-   * @param status status
-   */
-  setBookmarksForConcert(concertId: string, status: ConcertBookmarkUpdateRequestDto.StatusEnum) {
-    console.log("setBookmarksForConcert ", concertId, status);
-
-    let req: ConcertBookmarkUpdateRequestDto = {
-      status: status
+  getScheduleUploadUrlForConcertId(concertId: string, contentType: string): Promise<ConcertFileUploadResponseDto> {
+    let request: ConcertScheduleUploadRequestDto = {
+      contentType: contentType
     };
 
-    return this.concertsApiClient.setBookmarkOnConcert(concertId, req);
+    return firstValueFrom(this.concertsApi.getUrlForConcertFileUpload(concertId, getRequestIdParameter(true), request));
   }
 
-
-  getNextBookmarked(): Observable<Array<ConcertWithBookmarkStatusDto>> {
-    return this.concertsApiClient.getBookmarkedConcerts();
-  }
-
-
-  getNextAttending(): Observable<Array<ConcertWithBookmarkStatusDto>> {
-    return this.concertsApiClient.getUsersConcerts();
+  /**
+   * Returns the details of a concert
+   * @param concertId ID of the concert
+   * @param cached Whether to use cached data
+   */
+  getDetailsById(concertId: string, cached: boolean = true): Promise<ConcertDetailsDto> {
+    return firstValueFrom(this.concertsApi.getConcertById(concertId, getRequestIdParameter(cached)));
   }
 }

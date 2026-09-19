@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, TemplateRef, viewChild} from '@angular/core';
+import { Component, inject, OnInit, TemplateRef, viewChild } from '@angular/core';
 import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgTemplateOutlet} from '@angular/common';
 import {SetlistsService} from '../../../../../services/setlists.service';
@@ -19,7 +19,7 @@ import {SongsService} from '../../../../../services/songs.service';
 import {MashupFormComponent} from '../mashup-form/mashup-form.component';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DateTime} from 'luxon';
-import {ConcertsService} from '../../../../../services/concerts.service';
+import {LegacyConcertsService} from '../../../../../services/legacy-concerts.service';
 import {Card} from 'primeng/card';
 import {Button} from 'primeng/button';
 import {FloatLabel} from 'primeng/floatlabel';
@@ -60,7 +60,7 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
   private readonly messageService = inject(MessageService);
   private readonly setlistsService = inject(SetlistsService);
   private readonly songsService = inject(SongsService);
-  private readonly concertsService = inject(ConcertsService);
+  private readonly concertsService = inject(LegacyConcertsService);
 
   // true if the page is currently reading the source information
   isReadingSource$ = false;

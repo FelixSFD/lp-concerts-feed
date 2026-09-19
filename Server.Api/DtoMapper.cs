@@ -1,9 +1,9 @@
-using System.Linq;
 using Common.Contracts.Generated.Models;
-using Database.Tours.DataObjects;
+using Common.Utils;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Tours;
 using LPCalendar.DataStructure.Tours.Locations;
+using Service.Tours.DataStructure;
 
 namespace Server.Api;
 
@@ -174,7 +174,7 @@ internal static class DtoMapper
     {
         return new CityWithCountryDto
         {
-            Id = bo.Id.ToString(),
+            Id = (int)bo.Id,
             CountryCode = bo.CountryCode,
             StateCode = bo.StateCode,
             Name = bo.Name,
@@ -193,7 +193,7 @@ internal static class DtoMapper
     {
         return new VenueDto
         {
-            Id = bo.Id.ToString(),
+            Id = bo.Id,
             CountryCode = bo.CountryCode,
             StateCode = bo.StateCode,
             CityId = bo.CityId,
@@ -213,7 +213,7 @@ internal static class DtoMapper
     {
         return new VenueWithCityDto
         {
-            Id = bo.Id.ToString(),
+            Id = bo.Id,
             CountryCode = bo.CountryCode,
             StateCode = bo.StateCode,
             CityId = bo.CityId,
@@ -234,7 +234,7 @@ internal static class DtoMapper
     {
         return new VenueWithDetailsDto
         {
-            Id = bo.Id.ToString(),
+            Id = bo.Id,
             CountryCode = bo.CountryCode,
             StateCode = bo.StateCode,
             CityId = bo.CityId,
@@ -283,8 +283,8 @@ internal static class DtoMapper
     {
         return new PreviousVenueNameDto
         {
-            Id = bo.Id.ToString(),
-            VenueId = bo.VenueId.ToString(),
+            Id = bo.Id,
+            VenueId = bo.VenueId,
             Name = bo.Name,
             UsedFrom = bo.UsedFrom,
             UsedUntil = bo.UsedUntil,
@@ -294,6 +294,50 @@ internal static class DtoMapper
     #endregion
 
     #region Concerts
+    
+    public static CreateConcertRequestBo ToBo(this CreateConcertRequestDto dto)
+    {
+        return new CreateConcertRequestBo
+        {
+            CustomTitle = dto.CustomTitle,
+            PostedStartTime = dto.PostedStartTime ?? throw new ArgumentNullException(nameof(dto.PostedStartTime)),
+            TimeIsPlaceholder = dto.TimeIsPlaceholder ?? false,
+            MainStageTime = dto.MainStageTime?.UtcDateTime,
+            DoorsTime = dto.DoorsTime?.UtcDateTime,
+            LpuEarlyEntryTime = dto.LpuEarlyEntryTime?.UtcDateTime,
+            LpuEarlyEntryConfirmed = dto.LpuEarlyEntryConfirmed ?? false,
+            ExpectedSetDurationMinutes = (uint)(dto.ExpectedSetDurationMinutes ?? 0),
+            ScheduleImageFile = dto.ScheduleImageFile,
+            Status = dto.Status.ToBo(),
+            ConcertTypeId = (uint)(dto.ConcertTypeId ?? 0),
+            VenueId = (uint)(dto.VenueId ?? 0),
+            TourId = dto.TourId,
+            TourLegId = dto.TourLegId,
+            LinkinpediaUrl = dto.LinkinpediaUrl,
+        };
+    }
+    
+    public static UpdateConcertRequestBo ToBo(this UpdateConcertRequestDto dto)
+    {
+        return new UpdateConcertRequestBo
+        {
+            CustomTitle = dto.CustomTitle,
+            PostedStartTime = dto.PostedStartTime ?? throw new ArgumentNullException(nameof(dto.PostedStartTime)),
+            TimeIsPlaceholder = dto.TimeIsPlaceholder ?? false,
+            MainStageTime = dto.MainStageTime?.UtcDateTime,
+            DoorsTime = dto.DoorsTime?.UtcDateTime,
+            LpuEarlyEntryTime = dto.LpuEarlyEntryTime?.UtcDateTime,
+            LpuEarlyEntryConfirmed = dto.LpuEarlyEntryConfirmed ?? false,
+            ExpectedSetDurationMinutes = (uint)(dto.ExpectedSetDurationMinutes ?? 0),
+            ScheduleImageFile = dto.ScheduleImageFile,
+            Status = dto.Status.ToBo(),
+            ConcertTypeId = (uint)(dto.ConcertTypeId ?? 0),
+            VenueId = (uint)(dto.VenueId ?? 0),
+            TourId = dto.TourId,
+            TourLegId = dto.TourLegId,
+            LinkinpediaUrl = dto.LinkinpediaUrl,
+        };
+    }
 
     public static ConcertDetailsDto ToDto(this ConcertDetailsBo bo)
     {
@@ -306,6 +350,7 @@ internal static class DtoMapper
             CustomTitle = bo.CustomTitle,
             Venue = bo.Venue.ToDto(),
             PostedStartTime = bo.PostedStartTime,
+            TimeIsPlaceholder = bo.TimeIsPlaceholder,
             MainStageTime = bo.MainStageTime,
             DoorsTime = bo.DoorsTime,
             LpuEarlyEntryTime = bo.LpuEarlyEntryTime,
@@ -314,6 +359,7 @@ internal static class DtoMapper
             ScheduleImageFile = bo.ScheduleImageFile,
             DeletedAt = bo.DeletedAt,
             Status = bo.Status.ToDto(),
+            LinkinpediaUrl = bo.LinkinpediaUrl,
         };
     }
     
@@ -326,6 +372,79 @@ internal static class DtoMapper
             ConcertDto.ConcertStatusValue.Past => ConcertStatusValueDto.Past,
             ConcertDto.ConcertStatusValue.Cancelled => ConcertStatusValueDto.Cancelled,
             _ => ConcertStatusValueDto.Past
+        };
+    }
+    
+    public static ConcertDto.ConcertStatusValue ToBo(this ConcertStatusValueDto data)
+    {
+        return data switch
+        {
+            ConcertStatusValueDto.Planned => ConcertDto.ConcertStatusValue.Planned,
+            ConcertStatusValueDto.Running => ConcertDto.ConcertStatusValue.Running,
+            ConcertStatusValueDto.Past => ConcertDto.ConcertStatusValue.Past,
+            ConcertStatusValueDto.Cancelled => ConcertDto.ConcertStatusValue.Cancelled,
+            _ => ConcertDto.ConcertStatusValue.Past
+        };
+    }
+
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bo">BusinessObject to map</param>
+    /// <returns>the mapped DTO</returns>
+    public static ImportConcertPreviewDto ToDto(this ImportConcertPreviewBo bo)
+    {
+        return new ImportConcertPreviewDto
+        {
+            ConcertStatus = bo.ConcertStatus?.ToDto() ?? ConcertStatusValueDto.Planned,
+            ConcertType = bo.ConcertType?.ToDto(),
+            PostedStartTime = bo.PostedStartTime,
+            FoundCities = [.. bo.FoundCities.Select(ToDto)],
+            FoundVenues = [.. bo.FoundVenues.Select(ToDto)],
+            FoundCountries = [.. bo.FoundCountries.Select(ToDto)],
+            FoundStates = [.. bo.FoundStates.Select(ToDto)],
+            CountryName = bo.CountryName,
+            StateName = bo.StateName,
+            CityName = bo.CityName,
+            CityNativeName = bo.CityNativeName,
+            VenueName = bo.VenueName,
+            FoundTours = [.. bo.FoundTours.Select(ToDto)],
+            FoundTourLegs = [.. bo.FoundTourLegs.Select(ToDto)],
+            TourName = bo.TourName,
+            TourLegName = bo.TourLegName,
+            ProposedCustomTitle = bo.ProposedCustomTitle,
+        };
+    }
+
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bo">BusinessObject to map</param>
+    /// <returns>the mapped DTO</returns>
+    public static LinkinpediaImportConcertStatusDto ToDto(this ConcertImportStatusBo bo)
+    {
+        return new LinkinpediaImportConcertStatusDto
+        {
+            WikiPageId = bo.WikiPageId,
+            ConcertTitle = bo.ConcertTitle,
+            ImportStatus = bo.ImportStatus.ToDto(),
+            Concert = bo.Concert?.ToDto()
+        };
+    }
+
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bo">BusinessObject to map</param>
+    /// <returns>the mapped DTO</returns>
+    public static LinkinpediaImportConcertStatusDto.ImportStatusEnum ToDto(this ConcertImportStatusBo.Status bo)
+    {
+        return bo switch
+        {
+            ConcertImportStatusBo.Status.Imported => LinkinpediaImportConcertStatusDto.ImportStatusEnum.ImportedNoSetlist,
+            ConcertImportStatusBo.Status.NotImported => LinkinpediaImportConcertStatusDto.ImportStatusEnum.NotImported,
+            ConcertImportStatusBo.Status.ImportedWithSetlists => LinkinpediaImportConcertStatusDto.ImportStatusEnum.Imported,
+            _ => throw new ArgumentOutOfRangeException(nameof(bo), bo, null)
         };
     }
 

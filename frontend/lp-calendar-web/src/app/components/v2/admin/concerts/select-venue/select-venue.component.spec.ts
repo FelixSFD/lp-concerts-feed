@@ -17,24 +17,24 @@ describe('SelectVenueComponent', () => {
   ];
 
   const mockAllCities: CityWithCountryDto[] = [
-    { id: '1', name: 'Berlin', countryCode: 'DE', nativeName: 'Berlin', country: mockCountries[0] },
-    { id: '2', name: 'Hamburg', countryCode: 'DE', nativeName: 'Hamburg', country: mockCountries[0] },
-    { id: '3', name: 'New York', countryCode: 'US', nativeName: 'New York', country: mockCountries[1] },
+    { id: 1, name: 'Berlin', countryCode: 'DE', nativeName: 'Berlin', country: mockCountries[0] },
+    { id: 2, name: 'Hamburg', countryCode: 'DE', nativeName: 'Hamburg', country: mockCountries[0] },
+    { id: 3, name: 'New York', countryCode: 'US', nativeName: 'New York', country: mockCountries[1] },
   ];
 
   const mockGermanCities: CityWithCountryDto[] = [
-    { id: '1', name: 'Berlin', countryCode: 'DE', nativeName: 'Berlin', country: mockCountries[0] },
-    { id: '2', name: 'Hamburg', countryCode: 'DE', nativeName: 'Hamburg', country: mockCountries[0] },
+    { id: 1, name: 'Berlin', countryCode: 'DE', nativeName: 'Berlin', country: mockCountries[0] },
+    { id: 2, name: 'Hamburg', countryCode: 'DE', nativeName: 'Hamburg', country: mockCountries[0] },
   ];
 
   const mockUsCities: CityWithCountryDto[] = [
-    { id: '3', name: 'New York', countryCode: 'US', nativeName: 'New York', country: mockCountries[1] },
+    { id: 3, name: 'New York', countryCode: 'US', nativeName: 'New York', country: mockCountries[1] },
   ];
 
   const mockVenues: VenueDto[] = [
-    { id: '10', currentName: 'Uber Arena', countryCode: 'DE', cityId: '1', timeZoneId: 'Europe/Berlin' },
-    { id: '20', currentName: 'Barclays Arena', countryCode: 'DE', cityId: '2', timeZoneId: 'Europe/Berlin' },
-    { id: '30', currentName: 'Madison Square Garden', countryCode: 'US', cityId: '3', timeZoneId: 'America/New_York' },
+    { id: 10, currentName: 'Uber Arena', countryCode: 'DE', cityId: 1, timeZoneId: 'Europe/Berlin' },
+    { id: 20, currentName: 'Barclays Arena', countryCode: 'DE', cityId: 2, timeZoneId: 'Europe/Berlin' },
+    { id: 30, currentName: 'Madison Square Garden', countryCode: 'US', cityId: 3, timeZoneId: 'America/New_York' },
   ];
 
   beforeEach(async () => {
@@ -94,20 +94,20 @@ describe('SelectVenueComponent', () => {
 
     expect(locationsService.getCitiesIn).toHaveBeenCalledWith('DE');
     expect(component.cities()).toEqual(mockGermanCities);
-    expect(component.filteredVenues().map((v) => v.id)).toEqual(['10', '20']);
+    expect(component.filteredVenues().map((v) => v.id)).toEqual([10, 20]);
   });
 
   it('should filter venues by city when city is selected', () => {
     component.onCityChange(mockAllCities[0]);
 
-    expect(component.filteredVenues().map((v) => v.id)).toEqual(['10']);
+    expect(component.filteredVenues().map((v) => v.id)).toEqual([10]);
   });
 
   it('should filter venues by both country and city when both are selected', () => {
     component.onCountryChange(mockCountries[0]);
     component.onCityChange(mockGermanCities[1]);
 
-    expect(component.filteredVenues().map((v) => v.id)).toEqual(['20']);
+    expect(component.filteredVenues().map((v) => v.id)).toEqual([20]);
   });
 
   it('should clear venue value when country change invalidates current venue', () => {

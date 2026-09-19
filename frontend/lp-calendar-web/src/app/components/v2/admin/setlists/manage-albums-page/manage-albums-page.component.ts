@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import {AlbumDto, ErrorResponseDto} from '../../../../../modules/lpshows-api';
 import {AlbumsService} from '../../../../../services/music/albums.service';
 import {RouterLink} from '@angular/router';
@@ -37,14 +37,14 @@ export class ManageAlbumsPageComponent {
   private albumsService = inject(AlbumsService);
 
 
-  albums$: AlbumDto[] = [];
+  albums$ = signal<AlbumDto[]>([]);
 
-  isDeletingAlbum$ = false;
+  isDeletingAlbum$ = signal(false);
 
   // true while data is being loaded
-  isLoading$ = false;
+  isLoading$ = signal(false);
 
-  globalSearchText$: string = "";
+  globalSearchText$ = signal("");
 
 
   ngOnInit() {
@@ -77,14 +77,14 @@ export class ManageAlbumsPageComponent {
 
 
   onDeleteAlbumConfirm(album: AlbumDto) {
-    this.isDeletingAlbum$ = true;
+    this.isDeletingAlbum$.set(true);
 
     if (album) {
       this.albumsService.deleteAlbum(album.id!)
         .subscribe({
           next: () => {
             this.reloadList(false);
-            this.isDeletingAlbum$ = false;
+            this.isDeletingAlbum$.set(false);
           },
           error: err => {
             let errorResponse: ErrorResponseDto = err.error;
@@ -93,7 +93,7 @@ export class ManageAlbumsPageComponent {
               summary: "Could not load delete album!",
               text: errorResponse.message,
             });
-            this.isDeletingAlbum$ = false;
+            this.isDeletingAlbum$.set(false);
           }
         });
     }
@@ -101,14 +101,14 @@ export class ManageAlbumsPageComponent {
 
 
   private reloadList(cache: boolean) {
-    this.isLoading$ = true;
+    this.isLoading$.set(true);
     this.albumsService.getAllAlbums(cache).subscribe({
       next: albums => {
-        this.albums$ = albums;
-        this.isLoading$ = false;
+        this.albums$.set(albums);
+        this.isLoading$.set(false);
       },
       error: err => {
-        this.isLoading$ = false;
+        this.isLoading$.set(false);
         let errorResponse: ErrorResponseDto = err.error;
         this.messageService.add({
           severity: "danger",

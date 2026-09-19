@@ -1,7 +1,13 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output, signal, ViewChild } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ConcertDetailsDto, ConcertStatusValueDto, TourDto, VenueDto } from '../../../../../modules/lpshows-api/v3';
+import {
+  ConcertDetailsDto,
+  ConcertStatusValueDto,
+  ImportConcertPreviewDto,
+  TourDto,
+  VenueDto
+} from '../../../../../modules/lpshows-api/v3';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { Divider } from 'primeng/divider';
@@ -15,8 +21,21 @@ import { SelectVenueComponent } from '../select-venue/select-venue.component';
 import { DatePicker } from 'primeng/datepicker';
 import { Select } from 'primeng/select';
 import timezones, { TimeZone } from 'timezones-list';
-import { DateTime, Zone } from 'luxon';
+import { DateTime } from 'luxon';
 import { ConcertStatus } from '../../../../../data/concert-status';
+import { InputGroup } from 'primeng/inputgroup';
+import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import { ConcertsService } from '../../../../../services/concerts.service';
+import { Dialog } from 'primeng/dialog';
+import {
+  ApplyClickedEvent,
+  ImportConcertDialogContentComponent
+} from '../import-concert-dialog-content/import-concert-dialog-content.component';
+import { filter, firstValueFrom, tap } from 'rxjs';
+import { ToggleSwitch } from 'primeng/toggleswitch';
+import { FileProgressEvent, FileUpload, FileUploadHandlerEvent } from 'primeng/fileupload';
+import { environment } from '../../../../../../environments/environment';
+import { HttpClient, HttpEvent, HttpEventType, HttpHeaders, HttpRequest, HttpResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-concert-form',
@@ -34,6 +53,12 @@ import { ConcertStatus } from '../../../../../data/concert-status';
     SelectVenueComponent,
     DatePicker,
     Select,
+    InputGroup,
+    InputGroupAddon,
+    Dialog,
+    ImportConcertDialogContentComponent,
+    ToggleSwitch,
+    FileUpload,
   ],
   templateUrl: './concert-form.component.html',
   styleUrl: './concert-form.component.css',
@@ -41,6 +66,8 @@ import { ConcertStatus } from '../../../../../data/concert-status';
 export class ConcertFormComponent implements OnInit {
   private messageService = inject(MessageService);
   private formBuilder = inject(FormBuilder);
+  private concertsService = inject(ConcertsService);
+  private http = inject(HttpClient);
 
   @Input("is-saving")
   isSaving$: boolean = false;
@@ -57,9 +84,20 @@ export class ConcertFormComponent implements OnInit {
   @Output("saveClicked")
   saveClicked = new EventEmitter<ConcertFormContent>();
 
+  @ViewChild(SelectTourComponent) selectTourComponent?: SelectTourComponent;
+  @ViewChild(SelectVenueComponent) selectVenueComponent?: SelectVenueComponent;
+
   venueTimezone = signal<TimeZone | null>(null);
 
   selectedTour = signal<TourDto | null>(null);
+
+  isShowingImportDialog = signal(false);
+  isImporting = signal(false);
+  importPlan = signal<ImportConcertPreviewDto | null>(null);
+
+  scheduleIsUploading = signal(false);
+
+  protected currentConcert = signal<ConcertDetailsDto | null>(null);
 
   concertForm = this.formBuilder.group({
     concertStatus: new FormControl<ConcertStatusValueDto>(ConcertStatusValueDto.Planned, [Validators.required]),
@@ -69,16 +107,20 @@ export class ConcertFormComponent implements OnInit {
     tourLegId: new FormControl<string | null>(null),
     venue: new FormControl<VenueDto | null>(null, [Validators.required]),
     postedStartTime: new FormControl<Date | null>(null, [Validators.required]),
+    timeIsPlaceholder: new FormControl(false, []),
     lpuEarlyEntryConfirmed: new FormControl(false, []),
     lpuEarlyEntryTime: new FormControl('', []),
     doorsTime: new FormControl('', []),
     lpStageTime: new FormControl('', []),
-    expectedSetDuration: new FormControl('', []),
+    expectedSetDuration: new FormControl<string | null>(null, []),
+    linkinpediaUrl: new FormControl<string | null>(null, []),
   });
 
   protected concertStatusValues: ConcertStatus[] = ConcertStatus.allValues;
 
   ngOnInit() {
+    this.enableDisableEarlyEntryTimeInput();
+
     this.concertForm.controls.tour.valueChanges.subscribe((tour) => {
       console.debug('ConcertFormComponent tour changed', tour);
       this.selectedTour.set(tour);
@@ -88,6 +130,11 @@ export class ConcertFormComponent implements OnInit {
       console.debug("Venue changed: ", venue);
       console.debug("All timezones:", timezones);
       this.venueTimezone.set(timezones.find(tz => tz.tzCode === venue?.timeZoneId) ?? null);
+    });
+
+    this.concertForm.controls.lpuEarlyEntryConfirmed.valueChanges.subscribe((lpuEarlyEntryConfirmed) => {
+      console.debug("lpuEarlyEntryConfirmed changed: ", lpuEarlyEntryConfirmed);
+      this.enableDisableEarlyEntryTimeInput(lpuEarlyEntryConfirmed ?? false);
     });
   }
 
@@ -107,8 +154,10 @@ export class ConcertFormComponent implements OnInit {
     let venueId = this.concertForm.controls.venue.value?.id;
     let timezone = this.concertForm.controls.venue.value?.timeZoneId;
     const postedStartTime = this.concertForm.value.postedStartTime!;
-    const doorTime = this.concertForm.value.doorsTime;
-    const mainStageTime = this.concertForm.value.lpStageTime;
+    const doorsTime = this.concertForm.value.doorsTime;
+    const lpStageTime = this.concertForm.value.lpStageTime;
+    const lpuEarlyEntryConfirmed = this.concertForm.value.lpuEarlyEntryConfirmed ?? false;
+    const lpuEarlyEntryTime = this.concertForm.value.lpuEarlyEntryTime;
 
     // Expected set duration
     let expectedSetDuration = this.convertH2M(this.concertForm.value.expectedSetDuration?.valueOf() ?? "00:00");
@@ -153,7 +202,6 @@ export class ConcertFormComponent implements OnInit {
     console.log('Converted datetime in selected timezone:', zonedDateTime.toString());
 
     // Normal Doors Time
-    let doorsTime = this.concertForm.value.doorsTime?.valueOf();
     let doorsDateTime: DateTime | null = null;
     if (doorsTime != null && doorsTime.length > 0) {
       doorsDateTime = zonedDateTime.set(DateTime.fromFormat(doorsTime, 'hh:mm').toObject());
@@ -162,13 +210,21 @@ export class ConcertFormComponent implements OnInit {
     }
 
     // LP stage time
-    let lpStageTime = this.concertForm.value.lpStageTime?.valueOf();
     let lpStageDateTime: DateTime | null = null;
     console.debug("lpStageTime:", lpStageTime);
     if (lpStageTime != null && lpStageTime.length > 0) {
       lpStageDateTime = zonedDateTime.set(DateTime.fromFormat(lpStageTime, 'hh:mm').toObject());
       // weird timezone issues can cause the LPU time to be on the next day. That's why we need to fix the date just to be sure
       lpStageDateTime = lpStageDateTime.set({day: localDateTime.day, month: localDateTime.month, year: localDateTime.year});
+    }
+
+    // LPU EE time
+    let lpuEarlyEntryDateTime: DateTime | null = null;
+    if (lpuEarlyEntryConfirmed) {
+      if (lpuEarlyEntryTime != null && lpuEarlyEntryTime.length > 0) {
+        lpuEarlyEntryDateTime = zonedDateTime.set(DateTime.fromFormat(lpuEarlyEntryTime, 'hh:mm').toObject());
+        lpuEarlyEntryDateTime = lpuEarlyEntryDateTime.set({day: localDateTime.day, month: localDateTime.month, year: localDateTime.year});
+      }
     }
 
     return {
@@ -179,10 +235,14 @@ export class ConcertFormComponent implements OnInit {
       tourLegId: tourLegId ?? null,
       venueId: venueId ?? null,
       postedStartTime: zonedDateTime,
+      timeIsPlaceholder: this.concertForm.value.timeIsPlaceholder ?? false,
       timezone: timezone,
       mainStageTime: lpStageDateTime,
       doorsTime: doorsDateTime,
+      lpuEarlyEntryTime: lpuEarlyEntryDateTime,
+      lpuEarlyEntryConfirmed: lpuEarlyEntryConfirmed ?? false,
       expectedSetDuration: expectedSetDuration,
+      linkinpediaUrl: this.concertForm.value.linkinpediaUrl?.valueOf() ?? null,
     };
   }
 
@@ -201,9 +261,12 @@ export class ConcertFormComponent implements OnInit {
     let lpuEarlyEntryDateTimeIsoStr = lpuEarlyEntryDateTime?.toISOTime();
     console.log("LPU EE: " + lpuEarlyEntryDateTimeIsoStr);
 
-    let doorsDateTimeUtc = concert.doorsTime == undefined ? null : DateTime.fromISO(concert.doorsTime);
-    let doorsDateTime = doorsDateTimeUtc?.setZone(concert.venue.timeZoneId!, {keepLocalTime: false})
-    let doorsDateTimeIsoStr = doorsDateTime?.toISOTime();
+    console.debug("Doors time string: ", concert.doorsTime);
+    let doorsDateTime = concert.doorsTime == undefined ? null : DateTime.fromISO(concert.doorsTime);
+    console.debug("doorsDateTime:", doorsDateTime?.toString());
+    let doorsDateTimeVenue = doorsDateTime?.setZone(concert.venue.timeZoneId!, {keepLocalTime: false})
+    console.debug("doorsDateTimeVenue:", doorsDateTimeVenue?.toString());
+    let doorsDateTimeIsoStr = doorsDateTimeVenue?.toISOTime();
     console.log("Doors at: " + doorsDateTimeIsoStr);
 
     let lpStageDateTimeUtc = concert.mainStageTime == undefined ? null : DateTime.fromISO(concert.mainStageTime);
@@ -224,9 +287,20 @@ export class ConcertFormComponent implements OnInit {
     this.concertForm.controls.postedStartTime.setValue(postedStartDateTimeJs ?? null);
     this.concertForm.controls.lpStageTime.setValue(lpStageDateTimeIsoStr?.substring(0, 5) ?? null);
     this.concertForm.controls.doorsTime.setValue(doorsDateTimeIsoStr?.substring(0, 5) ?? null);
+    this.concertForm.controls.lpuEarlyEntryTime.setValue(lpuEarlyEntryDateTimeIsoStr?.substring(0, 5) ?? null);
+    this.concertForm.controls.lpuEarlyEntryConfirmed.setValue(concert.lpuEarlyEntryConfirmed ?? false);
     this.concertForm.controls.expectedSetDuration.setValue(setDurationStr ?? null);
 
+    this.concertForm.controls.linkinpediaUrl.setValue(concert.linkinpediaUrl ?? null);
+    this.concertForm.controls.timeIsPlaceholder.setValue(concert.timeIsPlaceholder ?? false);
+
     this.venueTimezone.set(timezones.find(t => t.tzCode == concert.venue?.timeZoneId) ?? null);
+
+    this.currentConcert.set(concert);
+  }
+
+  public setWikiPageId(wikiPageId: string) {
+    this.concertForm.controls.linkinpediaUrl.setValue(`https://linkinpedia.com/wiki/${wikiPageId}`);
   }
 
   public reset() {
@@ -238,6 +312,14 @@ export class ConcertFormComponent implements OnInit {
       tourLegId: null,
       venue: null,
     });
+  }
+
+  private enableDisableEarlyEntryTimeInput(enable: boolean = this.concertForm.controls.lpuEarlyEntryConfirmed.value ?? false) {
+    if (enable) {
+      this.concertForm.controls.lpuEarlyEntryTime.enable();
+    } else {
+      this.concertForm.controls.lpuEarlyEntryTime.disable();
+    }
   }
 
   /**
@@ -261,10 +343,218 @@ export class ConcertFormComponent implements OnInit {
 
   private convertH2M(timeInHour: string){
     let timeParts = timeInHour.split(":");
-    return Number(timeParts[0]) * 60 + Number(timeParts[1]);
+    let minutes = Number(timeParts[0]) * 60 + Number(timeParts[1]);
+    return isNaN(minutes) ? null : minutes;
+  }
+
+  openLinkinpediaUrlClicked() {
+    let url = this.concertForm.value.linkinpediaUrl?.valueOf();
+    if (url?.length == 0) {
+      return;
+    }
+
+    window.open(url, "_blank");
+  }
+
+  async importFromLinkinpediaUrlClicked() {
+    let url = this.concertForm.value.linkinpediaUrl?.valueOf() ?? null;
+    if (url == null || url?.length == 0) {
+      return;
+    }
+
+    let wikiPageId = url.split("/").pop();
+    let importPlan = await this.concertsService.getImportConcertPlanForConcert(wikiPageId!);
+    console.debug("Import plan: ", importPlan);
+    this.isShowingImportDialog.set(true);
+    this.importPlan.set(importPlan);
+  }
+
+  async onApplyImportClicked(evt: ApplyClickedEvent) {
+    this.isImporting.set(true);
+    console.debug('Applying import: ', evt);
+    this.isShowingImportDialog.set(false);
+
+    try {
+      // 1. Reload tours and venues in parallel before assigning values
+      const reloadTasks = [];
+      if (this.selectTourComponent) {
+        reloadTasks.push(firstValueFrom(this.selectTourComponent.loadTours()));
+      } else {
+        console.error("selectTourComponent could not be referenced");
+      }
+      if (this.selectVenueComponent) {
+        reloadTasks.push(firstValueFrom(this.selectVenueComponent.reloadAvailableOptions()));
+        console.error("selectVenueComponent could not be referenced");
+      }
+      await Promise.all(reloadTasks);
+
+      const startTime = evt.postedStartTime;
+      const concertType = evt.concertType;
+      let importTour = evt.tour;
+      const importTourLeg = evt.tourLeg;
+      const importVenue = evt.venue;
+      const importCustomTitle = evt.customTitle;
+      const importConcertStatus = evt.concertStatus;
+
+      if (startTime != null) {
+        this.concertForm.controls.postedStartTime.setValue(startTime);
+      }
+      if (concertType != null) {
+        this.concertForm.controls.concertTypeId.setValue(concertType.id ?? null);
+      }
+
+      let previousStartTime = this.concertForm.value.postedStartTime;
+      if (previousStartTime) {
+        this.concertForm.controls.timeIsPlaceholder.setValue(true);
+      }
+
+      // 2. Set tour with full updated legs list
+      if (importTour != null) {
+        // Find the freshly loaded tour so its `legs` array contains newly created tour legs
+        const freshTour = this.selectTourComponent?.tours().find(t => t.id === importTour?.id) ?? importTour;
+        this.concertForm.controls.tour.setValue(freshTour);
+      }
+
+      // 3. Set tour leg (SelectTourLegComponent updates automatically via [tour] binding)
+      if (importTourLeg != null) {
+        this.concertForm.controls.tourLegId.setValue(importTourLeg.id);
+      }
+
+      // 4. Set venue
+      if (importVenue != null) {
+        // Find the freshly loaded venue to match the options list
+        const freshVenue = this.selectVenueComponent?.venues().find(v => v.id === importVenue?.id) ?? importVenue;
+        this.concertForm.controls.venue.setValue(freshVenue);
+      }
+
+      // 5. Set custom title
+      if (importCustomTitle) {
+        this.concertForm.controls.customTitle.setValue(importCustomTitle);
+      }
+
+      // 6. set concert status
+      if (importConcertStatus) {
+        this.concertForm.controls.concertStatus.setValue(importConcertStatus);
+      }
+    } catch (error) {
+      console.error('Failed to reload data before applying import:', error);
+    } finally {
+      this.isImporting.set(false);
+    }
+  }
+
+
+  async uploadFileHandler(event: FileUploadHandlerEvent, fileUploadForm: FileUpload) {
+    console.debug("Upload File event:", event);
+    if (event.files.length == 0) {
+      this.messageService.add({
+        severity: "danger",
+        summary: "File upload failed!",
+        text: "No file was selected.",
+      });
+      return;
+    }
+
+    if (!this.currentConcert()) {
+      this.messageService.add({
+        severity: "danger",
+        summary: "No concert",
+        text: "Uploading the schedule is only possible in edit-mode.",
+      });
+      return;
+    }
+
+    const concertId = this.currentConcert()!.id;
+    this.scheduleIsUploading.set(true);
+    const file = event.files[0];
+    let uploadUrlResult = await this.concertsService.getScheduleUploadUrlForConcertId(concertId, file.type);
+    const uploadUrl = uploadUrlResult.uploadUrl;
+    if (!uploadUrl) {
+      this.messageService.add({
+        severity: "danger",
+        summary: "File upload failed!",
+        text: "No upload URL returned from server.",
+      });
+      return;
+    }
+
+    try {
+      await this.uploadFile(uploadUrl, file, fileUploadForm);
+    } catch (err) {
+      console.error('S3 upload failed:', err);
+      return;
+    }
+    // load the new data, but don't refresh the whole form since the user might have unsaved changes! Only update the image
+    let refreshedDetailsAfterUpload = await this.concertsService.getDetailsById(concertId, false);
+    this.currentConcert.update(existing => {
+      if (existing == null) {
+        return existing;
+      }
+
+      return {
+        ...existing,
+        scheduleImageFile: refreshedDetailsAfterUpload.scheduleImageFile,
+      };
+    });
+  }
+
+  private uploadFile(uploadUrl: string, file: File, fileUploadForm: FileUpload) {
+    console.debug('Uploading file to', uploadUrl);
+    const req = new HttpRequest(
+      'PUT',
+      uploadUrl,
+      file,
+      {
+        reportProgress: true,
+        headers: new HttpHeaders({
+          'Content-Type': file.type,
+        }),
+      }
+    );
+
+    return firstValueFrom(
+      this.http.request(req).pipe(
+        tap((httpEvent: HttpEvent<any>) => {
+            if (httpEvent.type === HttpEventType.UploadProgress) {
+              const progress = Math.round(
+                100 * httpEvent.loaded / (httpEvent.total ?? file.size)
+              );
+
+              console.log('Progress:', progress);
+              fileUploadForm.progress.set(progress);
+              fileUploadForm.onProgress.emit({
+                progress: progress,
+                originalEvent: httpEvent,
+              });
+            }
+
+            if (httpEvent.type === HttpEventType.Response) {
+              console.log('Upload complete');
+              fileUploadForm.onUpload.emit({
+                files: fileUploadForm.files,
+                originalEvent: httpEvent,
+              });
+              fileUploadForm.uploadedFiles.set([...fileUploadForm.files]);
+              fileUploadForm.files = [];
+              fileUploadForm.clear();
+            }
+          }
+        ),
+        filter(
+          (event): event is HttpResponse<any> =>
+            event.type === HttpEventType.Response
+        )
+      )
+    );
+  }
+
+
+  onUploadProgress(event: FileProgressEvent) {
+    console.debug("Upload Progress event:", event);
   }
 
   protected readonly timezones = timezones;
+  protected readonly environment = environment;
 }
 
 export class ConcertFormContent {
@@ -273,10 +563,14 @@ export class ConcertFormContent {
   concertTypeId?: number | null;
   tourId?: string | null;
   tourLegId?: string | null;
-  venueId?: string | null;
+  venueId?: number | null;
   timezone!: string;
   postedStartTime!: DateTime;
+  timeIsPlaceholder!: boolean;
   doorsTime?: DateTime | null;
   mainStageTime?: DateTime | null;
+  lpuEarlyEntryTime?: DateTime | null;
+  lpuEarlyEntryConfirmed?: boolean | null;
   expectedSetDuration?: number | null;
+  linkinpediaUrl?: string | null;
 }

@@ -1,4 +1,4 @@
-import {Component, inject, OnInit} from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import {RouterLink} from '@angular/router';
 import {SetlistsService} from '../../../../../services/setlists.service';
 import {Setlist} from '../../../../../data/setlists/setlist';
@@ -35,15 +35,15 @@ export class ManageSetlistsPageComponent implements OnInit {
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
 
-  setlists$: Setlist[] = [];
+  setlists$ = signal<Setlist[]>([]);
 
   // property to show whether the setlist is currently being deleted
-  setlistDeleting$ = false;
+  setlistDeleting$ = signal(false);
 
   // true while data is being loaded
-  isLoading$ = false;
+  isLoading$ = signal(false);
 
-  globalSearchText$: string = "";
+  globalSearchText$ = signal("");
 
   constructor(private setlistService: SetlistsService) {
   }
@@ -55,14 +55,20 @@ export class ManageSetlistsPageComponent implements OnInit {
 
 
   private reloadList(cache: boolean) {
-    this.isLoading$ = true;
+    this.isLoading$.set(true);
     this.setlistService.getSetlists(cache).subscribe({
       next: res => {
-        this.setlists$ = res.map(setlist => Setlist.fromDto(setlist));
-        this.isLoading$ = false;
+        this.setlists$.set(res.map(setlist => Setlist.fromDto(setlist)));
+        this.isLoading$.set(false);
       },
       error: err => {
-        this.isLoading$ = false;
+        this.isLoading$.set(false);
+        let errorResponse: ErrorResponseDto = err.error;
+        this.messageService.add({
+          severity: "danger",
+          summary: "Could not load setlists!",
+          text: errorResponse.message,
+        });
       }
     });
   }
@@ -92,7 +98,7 @@ export class ManageSetlistsPageComponent implements OnInit {
 
 
   onDeleteSetlistConfirm(setlist: Setlist) {
-    this.setlistDeleting$ = true;
+    this.setlistDeleting$.set(true);
     if (setlist == null) {
       this.confirmationService.close();
       return;
@@ -107,12 +113,12 @@ export class ManageSetlistsPageComponent implements OnInit {
         console.debug(result);
 
         this.reloadList(false);
-        this.setlistDeleting$ = false;
+        this.setlistDeleting$.set(false);
       },
       error: err => {
         let errorResponse: ErrorResponseDto = err.error;
         console.warn("Failed to delete setlist:", err);
-        this.setlistDeleting$ = false;
+        this.setlistDeleting$.set(false);
 
         this.messageService.add({
           severity: "danger",

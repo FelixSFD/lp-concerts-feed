@@ -3,7 +3,7 @@ import {MatomoTracker} from 'ngx-matomo-client';
 import {AuthService} from '../../../auth/auth.service';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {ConcertDto} from '../../../modules/lpshows-api';
-import {ConcertsService} from '../../../services/concerts.service';
+import {LegacyConcertsService} from '../../../services/legacy-concerts.service';
 import { environment } from "../../../../environments/environment";
 import {Message} from 'primeng/message';
 import {Card} from 'primeng/card';
@@ -60,7 +60,7 @@ export class HomePageComponent implements OnInit {
   iCalButtonItems$: MenuItem[] = [];
 
 
-  constructor(private concertsService: ConcertsService) {
+  constructor(private concertsService: LegacyConcertsService) {
   }
 
 

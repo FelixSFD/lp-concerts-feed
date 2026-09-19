@@ -15,6 +15,26 @@
     [routerLink]="['../']"
   />
 
+  <p-button
+    label="Previous show"
+    icon="pi pi-arrow-left"
+    variant="text"
+    severity="secondary"
+    [disabled]="previousConcertId() == null"
+    [routerLink]="previousConcertId() ? ['../', previousConcertId()] : null"
+    ariaLabel="Previous show"
+  />
+  <p-button
+    label="Next show"
+    icon="pi pi-arrow-right"
+    iconPos="right"
+    variant="text"
+    severity="secondary"
+    [disabled]="nextConcertId() == null"
+    [routerLink]="nextConcertId() ? ['../', nextConcertId()] : null"
+    ariaLabel="Next show"
+  />
+
   <app-concert-form
     [is-saving]="isSaving()"
     (saveClicked)="onSaveClicked($event)"

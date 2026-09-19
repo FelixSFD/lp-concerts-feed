@@ -155,7 +155,7 @@ public class TimestampTests
         var previousName = new PreviousVenueNameDo { Id = 1, VenueId = 1, Name = "Old Olympiahalle", From = new DateOnly(2000, 1, 1), Venue = venue };
         var tour = new TourDo { Id = "tour-1", Name = "Tour 1" };
         var leg = new TourLegDo { TourId = "tour-1", Id = "leg-1", Name = "Europe", Tour = tour };
-        var concert = new ConcertDo { Id = "c-1", ConcertTypeId = 1, VenueId = 1, PostedStartTime = DateTimeOffset.UtcNow, Status = ConcertDo.ConcertStatus.Planned, Venue = venue, Type = concertType };
+        var concert = new ConcertDo { Id = "c-1", ConcertTypeId = 1, VenueId = 1, PostedStartTime = DateTimeOffset.UtcNow.UtcDateTime, Status = ConcertDo.ConcertStatus.Planned, Venue = venue, Type = concertType };
 
         ITimestampedDataObject[] entities = [concertType, country, state, city, venue, previousName, tour, leg, concert];
 

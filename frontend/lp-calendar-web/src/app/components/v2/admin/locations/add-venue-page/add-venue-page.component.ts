@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { LocationsService } from '../../../../../services/locations.service';
 import { Router, RouterLink } from '@angular/router';
@@ -26,12 +26,12 @@ export class AddVenuePageComponent implements OnInit {
 
   isAdding$ = false;
 
-  availableCountries$: CountryDto[] = [];
+  availableCountries$ = signal<CountryDto[]>([]);
 
   ngOnInit() {
     this.locationsService.getCountries().subscribe({
       next: countries => {
-        this.availableCountries$ = countries;
+        this.availableCountries$.set(countries);
       },
       error: err => {
         let errorResponse: ErrorResponseDto = err.error;

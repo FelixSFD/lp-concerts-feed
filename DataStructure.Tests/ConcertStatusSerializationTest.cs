@@ -21,7 +21,7 @@ public class ConcertStatusSerializationTest
     [InlineData(ConcertDto.ConcertStatusValue.Cancelled, "Cancelled")]
     public void RawConcertDto_SerializesStatusAsString(ConcertDto.ConcertStatusValue status, string expectedStatusString)
     {
-        var rawConcert = new RawConcertDto
+        var rawConcert = new RawConcertBo
         {
             Id = "c123",
             Status = status
@@ -43,7 +43,7 @@ public class ConcertStatusSerializationTest
     public void RawConcertDto_DeserializesStatusFromString(string statusString, ConcertDto.ConcertStatusValue expectedStatus)
     {
         var json = $"{{\"id\":\"c123\",\"status\":\"{statusString}\"}}";
-        var deserialized = JsonSerializer.Deserialize<RawConcertDto>(json, CamelCaseOptions);
+        var deserialized = JsonSerializer.Deserialize<RawConcertBo>(json, CamelCaseOptions);
 
         Assert.NotNull(deserialized);
         Assert.Equal(expectedStatus, deserialized.Status);
@@ -56,7 +56,7 @@ public class ConcertStatusSerializationTest
     [InlineData(ConcertDto.ConcertStatusValue.Cancelled, "Cancelled")]
     public void CreateConcertRequestDto_SerializesStatusAsString(ConcertDto.ConcertStatusValue status, string expectedStatusString)
     {
-        var request = new CreateConcertRequestDto
+        var request = new CreateConcertRequestBo
         {
             ConcertTypeId = 1,
             VenueId = 2,
@@ -80,7 +80,7 @@ public class ConcertStatusSerializationTest
     public void CreateConcertRequestDto_DeserializesStatusFromString(string statusString, ConcertDto.ConcertStatusValue expectedStatus)
     {
         var json = $"{{\"concertTypeId\":1,\"venueId\":2,\"postedStartTime\":\"2026-09-01T20:00:00Z\",\"status\":\"{statusString}\"}}";
-        var deserialized = JsonSerializer.Deserialize<CreateConcertRequestDto>(json, CamelCaseOptions);
+        var deserialized = JsonSerializer.Deserialize<CreateConcertRequestBo>(json, CamelCaseOptions);
 
         Assert.NotNull(deserialized);
         Assert.Equal(expectedStatus, deserialized.Status);

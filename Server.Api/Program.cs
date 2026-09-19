@@ -2,6 +2,7 @@ using System.Configuration;
 using System.Text.Json.Serialization;
 using Common.Server.ClientIp;
 using Common.Utils.Cache;
+using Common.WikiMedia.Repositories;
 using Database.Tours;
 using Database.Tours.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -16,7 +17,9 @@ using Prometheus;
 using Server.Api.Cache;
 using Server.Api.ExceptionHandling;
 using Server.Api.HealthChecks;
+using Service.Setlists;
 using Service.Tours;
+using Service.Tours.Importer;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables("App_");
@@ -54,6 +57,8 @@ builder.Services.AddHttpLogging(opt =>
     opt.RequestHeaders.Add("X-Real-Ip");
     opt.RequestHeaders.Add("X-Warp-Provider");
     opt.RequestHeaders.Add("X-Warp-Trusted");
+    
+    opt.RequestHeaders.Add("X-LP-Request-Id");
     
     opt.ResponseHeaders.Add("Cache-Control");
     opt.ResponseHeaders.Add("Authorization");
@@ -196,6 +201,12 @@ builder.Services.AddScoped<LocationService>();
 builder.Services.AddScoped<VenueService>();
 builder.Services.AddScoped<TourService>();
 builder.Services.AddScoped<ConcertService>();
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<IWikiMediaRepository, WikiMediaRepository>(b => new WikiMediaRepository(b.GetRequiredService<HttpClient>(),
+    LinkinpediaImportService.LinkinpediaRestApiBaseUrl, LinkinpediaImportService.LinkinpediaActionApiBaseUrl, b.GetRequiredService<ILogger<WikiMediaRepository>>()));
+builder.Services.AddScoped<TourdataWikitextParser>();
+builder.Services.AddScoped<LinkinpediaImportConcertService>();
+builder.Services.AddConcertImageUploadService();
 
 // Register authentication schemes, and specify the default authentication scheme
 builder.Services

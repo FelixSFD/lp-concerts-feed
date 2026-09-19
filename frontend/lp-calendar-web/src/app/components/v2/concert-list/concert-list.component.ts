@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {ConcertDto, ConcertStatusValueDto, ErrorResponseDto} from '../../../modules/lpshows-api';
 import {AuthService} from '../../../auth/auth.service';
 import {ConcertFilter} from '../../../data/concert-filter';
-import {ConcertsService} from '../../../services/concerts.service';
+import {LegacyConcertsService} from '../../../services/legacy-concerts.service';
 import { DateTime } from "luxon";
 import { ConcertTitleGenerator } from "../../../data/concert-title-generator";
 import {Message} from 'primeng/message';
@@ -74,7 +74,7 @@ export class ConcertListComponent {
   // Filter that is used for loading the list
   currentFilter: ConcertFilter = this.defaultFilter;
 
-  constructor(private concertsService: ConcertsService) {
+  constructor(private concertsService: LegacyConcertsService) {
     this.reloadConcertList(true);
 
     this.authService.canAddConcerts.subscribe(hasPermission => {

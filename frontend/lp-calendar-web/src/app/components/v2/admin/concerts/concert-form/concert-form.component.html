@@ -1,3 +1,9 @@
+<p-dialog [(visible)]="isShowingImportDialog" header="Import data from Linkinpedia" [modal]="true">
+  <div class="mt-1">
+    <app-import-concert-dialog-content [import-plan]="importPlan" (applyClicked)="onApplyImportClicked($event)" />
+  </div>
+</p-dialog>
+
 <form #form="ngForm" [formGroup]="concertForm" class="form mt-3">
   <ng-template #formInputsGeneral>
     <p-card>
@@ -5,6 +11,27 @@
         General
       </ng-template>
       <div class="grid row-gap-2 mt-2">
+        <!-- Linkinpedia URL -->
+        <div class="col-12">
+          <div class="flex flex-nowrap gap-3">
+            <p-inputgroup>
+              <p-floatlabel variant="on">
+                <input pInputText id="linkinpediaUrl" fluid formControlName="linkinpediaUrl" [invalid]="concertForm.controls.linkinpediaUrl.invalid" />
+                <label for="linkinpediaUrl">Linkinpedia URL</label>
+              </p-floatlabel>
+              <p-inputgroup-addon>
+                <p-button icon="pi pi-external-link" label="Open" severity="info" variant="outlined" [disabled]="concertForm.controls.linkinpediaUrl.invalid || concertForm.value.linkinpediaUrl == null" (onClick)="openLinkinpediaUrlClicked()" />
+              </p-inputgroup-addon>
+            </p-inputgroup>
+
+            <div class="w-10rem">
+              <p-button label="Import&nbsp;data" icon="pi pi-download" variant="outlined" (onClick)="importFromLinkinpediaUrlClicked()" />
+            </div>
+          </div>
+        </div>
+
+        <p-divider />
+
         <!-- Concert Status -->
         <div class="col-12">
           <p-floatlabel variant="on">
@@ -85,6 +112,12 @@
       </ng-template>
 
       <div class="grid mt-2">
+        <!-- Times are placeholder -->
+        <div class="col-12 flex gap-2 vertical-align-middle mb-2">
+          <p-toggle-switch formControlName="timeIsPlaceholder" id="timeIsPlaceholder" class="h-full" />
+          <label for="timeIsPlaceholder" class="h-full">Times are unknown</label>
+        </div>
+
         <!-- Posted start time -->
         <div class="col-12">
           <div class="flex flex-wrap gap-3">
@@ -137,6 +170,35 @@
             </p-date-picker>
             <label for="expectedSetDuration">Expected set duration</label>
           </p-floatlabel>
+        </div>
+
+        <!-- LPE Early Entry Confirmed -->
+        <div class="col-12 flex gap-2 vertical-align-middle mb-2 mt-4">
+          <p-toggle-switch formControlName="lpuEarlyEntryConfirmed" id="lpuEarlyEntryConfirmed" class="h-full" />
+          <label for="lpuEarlyEntryConfirmed" class="h-full">LPU Early Entry confirmed</label>
+        </div>
+
+        <!-- LPU Early Entry Time -->
+        <div class="col-12 sm:col-12 md:col-6 xl:col-3">
+          <p-floatlabel variant="on">
+            <input pInputText id="lpuEarlyEntryTime" formControlName="lpuEarlyEntryTime" autocomplete="off" type="time" [invalid]="concertForm.controls.lpuEarlyEntryTime.invalid" fluid />
+            <label for="lpuEarlyEntryTime">LPU Early Entry time</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- Schedule Image -->
+        <div class="col-12">
+          <h4>Image of the official schedule</h4>
+          <p-fileupload #scheduleImgUpload name="scheduleImg" (uploadHandler)="uploadFileHandler($event, scheduleImgUpload)" (onProgress)="onUploadProgress($event)" [customUpload]="true" [multiple]="false" accept="image/*" maxFileSize="8000000">
+            <ng-template #empty>
+              <div>Drag and drop file to here to upload the schedule of this concert.</div>
+            </ng-template>
+          </p-fileupload>
+
+          @if (currentConcert()?.scheduleImageFile != undefined) {
+            <br />
+            <img width="35%" src="{{ environment.imageBaseUrl + '/' + currentConcert()?.scheduleImageFile! }}" alt="Uploaded image" />
+          }
         </div>
       </div>
     </p-card>

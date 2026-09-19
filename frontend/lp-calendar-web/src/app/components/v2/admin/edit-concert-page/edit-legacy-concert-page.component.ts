@@ -1,7 +1,7 @@
 import {Component, inject} from '@angular/core';
 import {LegacyConcertFormComponent} from '../concert-form/legacy-concert-form.component';
 import {ActivatedRoute, RouterLink} from '@angular/router';
-import {ConcertsService} from '../../../../services/concerts.service';
+import {LegacyConcertsService} from '../../../../services/legacy-concerts.service';
 import {HttpErrorResponse} from "@angular/common/http";
 import {AdjacentConcertsResponseDto, ConcertDto, ErrorResponseDto} from '../../../../modules/lpshows-api';
 import {Card} from 'primeng/card';
@@ -29,7 +29,7 @@ export class EditLegacyConcertPageComponent {
 
   isSaving$: boolean = false;
 
-  constructor(private route: ActivatedRoute, private concertsService: ConcertsService) {
+  constructor(private route: ActivatedRoute, private concertsService: LegacyConcertsService) {
     this.concertId = this.route.snapshot.paramMap.get('id');
     this.route.params.subscribe(params => {
       this.loadDataForId(params['id']);

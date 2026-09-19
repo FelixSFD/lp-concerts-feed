@@ -12,6 +12,7 @@ import {
 } from '../modules/lpshows-api/v3';
 import { ConcertFilter } from '../data/concert-filter';
 import { AdjacentConcertsResponseDto, ConcertDto } from '../modules/lpshows-api';
+import { getRequestIdParameter } from '../helper/cache-parameter-helper';
 
 /**
  * Service to manage tours and tour legs
@@ -37,9 +38,10 @@ export class ToursService {
   /**
    * Returns information about a single tour
    * @param tourId ID of the tour
+   * @param cached Whether to use cached data
    */
-  getTour(tourId: string): Observable<TourDto> {
-    return this.toursApi.getTour(tourId);
+  getTour(tourId: string, cached: boolean = true): Observable<TourDto> {
+    return this.toursApi.getTour(tourId, getRequestIdParameter(cached));
   }
 
   /**
@@ -86,17 +88,24 @@ export class ToursService {
   }
 
   getFilteredConcerts(filter: ConcertFilter, cached: boolean = true): Observable<ConcertDetailsDto[]> {
-    // TODO: implement cache parameter
-    return this.concertsApi.getConcerts();
+    return this.concertsApi.getConcerts(getRequestIdParameter(cached));
   }
 
   getConcertById(concertId: string, cached: boolean = true): Observable<ConcertDetailsDto> {
-    // TODO: implement cache parameter
-    return this.concertsApi.getConcertById(concertId);
+    return this.concertsApi.getConcertById(concertId, getRequestIdParameter(cached));
   }
 
   getAdjacentConcerts(concertId: string): Promise<AdjacentConcertsResponseDto> {
     let result = this.concertsApi.getAdjacentConcertsForId(concertId);
     return firstValueFrom(result);
+  }
+
+  /**
+   * Deletes a concert
+   * @param concertId ID of the concert to delete
+   */
+  deleteConcert(concertId: string): Promise<any> {
+    let response = this.concertsApi.deleteConcertById(concertId);
+    return firstValueFrom(response);
   }
 }

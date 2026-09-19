@@ -4,11 +4,12 @@ import { ErrorResponseDto } from '../modules/lpshows-api';
 import { catchError, of } from 'rxjs';
 import { TourDto } from '../modules/lpshows-api/v3';
 import { ToursService } from '../services/tours.service';
+import { getUseCacheFromRouteData } from '../helper/cache-parameter-helper';
 
 export const tourResolver: ResolveFn<TourDto | ErrorResponseDto> = (route) => {
   const toursService = inject(ToursService);
   const tourId = route.paramMap.get('tourId')!;
-  return toursService.getTour(tourId).pipe(
+  return toursService.getTour(tourId, getUseCacheFromRouteData(route.data)).pipe(
     catchError((err) => {
       let errorResponse: ErrorResponseDto = err.error;
       console.error('Failed to load tour:', errorResponse);

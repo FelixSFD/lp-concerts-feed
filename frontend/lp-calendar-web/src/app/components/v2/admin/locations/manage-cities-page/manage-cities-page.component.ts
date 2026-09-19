@@ -13,6 +13,7 @@ import { InputIcon } from 'primeng/inputicon';
 import { InputText } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { RouterLink } from '@angular/router';
+import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
   selector: 'app-manage-cities-page',
@@ -26,7 +27,8 @@ import { RouterLink } from '@angular/router';
     InputIcon,
     InputText,
     TableModule,
-    RouterLink
+    RouterLink,
+    NgTemplateOutlet
   ],
   templateUrl: './manage-cities-page.component.html',
   styleUrl: './manage-cities-page.component.css',

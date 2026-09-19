@@ -1,3 +1,12 @@
+<p-confirm-dialog />
+
+<ng-template #importStatusBadge let-status="status">
+  <p-badge
+    [value]="status == LinkinpediaImportConcertStatusDto.ImportStatusEnum.Imported ? 'Imported' : status == LinkinpediaImportConcertStatusDto.ImportStatusEnum.NotImported ? 'Not imported' : 'Imported without setlist'"
+    [severity]="status == LinkinpediaImportConcertStatusDto.ImportStatusEnum.Imported ? 'success' : status == LinkinpediaImportConcertStatusDto.ImportStatusEnum.NotImported ? 'danger' : 'warn'"
+  />
+</ng-template>
+
 <p-card>
   <ng-template #title>
     Manage concerts
@@ -11,11 +20,13 @@
     rowHover
     [rows]="25"
     [rowsPerPageOptions]="[25, 50, 100, 200, 500]"
-    [loading]="isLoading$"
+    [loading]="isLoading$()"
     [paginator]="true"
     [globalFilterFields]="['customTitle', 'tour.name', 'tourLeg.name', 'venue.currentName', 'venue.city.country.name', 'venue.city.country.nativeName', 'venue.city.name', 'venue.city.nativeName', 'postedStartTime']"
     [tableStyle]="{ 'min-width': '75rem' }"
     [scrollable]="true"
+    sortField="postedStartTime"
+    [sortOrder]="-1"
   >
     <ng-template #caption>
       <div class="flex">
@@ -25,19 +36,40 @@
           <p-inputicon>
             <i class="pi pi-search"></i>
           </p-inputicon>
-          <input pInputText type="text" [(ngModel)]="globalSearchText$" (input)="dt2.filterGlobal(globalSearchText$, 'contains')" placeholder="Search keyword" />
+          <input pInputText type="text" [(ngModel)]="globalSearchText$" (input)="dt2.filterGlobal(globalSearchText$(), 'contains')" placeholder="Search keyword" />
         </p-iconfield>
       </div>
     </ng-template>
     <ng-template #header>
       <tr>
-        <th scope="col" pFrozenColumn>Date</th>
-        <th scope="col">Tour</th>
-        <th scope="col">Country</th>
-        <th scope="col">City</th>
-        <th scope="col">Venue</th>
-        <th scope="col">Custom Title</th>
-        <th scope="col">Status</th>
+        <th scope="col" pFrozenColumn pSortableColumn="postedStartTime">
+          Date
+          <p-sort-icon field="name" />
+        </th>
+        <th scope="col" pSortableColumn="tour.name">
+          Tour
+          <p-sort-icon field="tour.name" />
+        </th>
+        <th scope="col" pSortableColumn="venue.city.country.name">
+          Country
+          <p-sort-icon field="venue.city.country.name" />
+        </th>
+        <th scope="col" pSortableColumn="venue.city.name">
+          City
+          <p-sort-icon field="venue.city.name" />
+        </th>
+        <th scope="col" pSortableColumn="venue.currentName">
+          Venue
+          <p-sort-icon field="venue.currentName" />
+        </th>
+        <th scope="col" pSortableColumn="customTitle">
+          Custom Title
+          <p-sort-icon field="customTitle" />
+        </th>
+        <th scope="col" pSortableColumn="status">
+          Status
+          <p-sort-icon field="status" />
+        </th>
         <th scope="col" alignFrozen="right" pFrozenColumn></th>
       </tr>
     </ng-template>
@@ -62,7 +94,11 @@
             <div class="text-500 font-italic">{{ concert.venue.city.nativeName }}</div>
           }
         </td>
-        <td>{{ concert.venue.currentName }}</td>
+        <td>
+          <a [routerLink]="['..', 'venues', concert.venue.id]" target="_blank" class="link">
+            {{ concert.venue.currentName }}
+          </a>
+        </td>
         <td>
           @if (concert.customTitle) {
             {{ concert.customTitle }}
@@ -71,8 +107,9 @@
         <td>{{ ConcertStatus.allValues.find(s => s.value == concert.status)?.label ?? "unknown" }}</td>
         <td alignFrozen="right" pFrozenColumn>
           <p-button-group>
-            <p-button label="View" icon="pi pi-eye" variant="outlined" size="small" [routerLink]="['/concerts', 'beta', concert.id]" />
-            <p-button label="Edit" icon="pi pi-pencil" variant="outlined" size="small" [routerLink]="[concert.id]" />
+            <p-button label="View" icon="pi pi-eye" variant="outlined" size="small" severity="info" [routerLink]="['/concerts', 'beta', concert.id]" [disabled]="isDeletingConcert$()" />
+            <p-button label="Edit" icon="pi pi-pencil" variant="outlined" size="small" [routerLink]="[concert.id]" [disabled]="isDeletingConcert$() || !authService.canUpdateConcerts" />
+            <p-button label="Delete" icon="pi pi-trash" variant="outlined" size="small" severity="danger" (onClick)="onDeleteClicked($event, concert)" [disabled]="isDeletingConcert$() || !authService.canDeleteConcerts" />
           </p-button-group>
         </td>
       </tr>
@@ -84,86 +121,171 @@
     </ng-template>
   </p-table>
 
+  <p-panel header="Linkinpedia Import Status" [toggleable]="true" iconPos="start" class="mt-3">
+    <p-metergroup [value]="concertImportStatusMeterGroup$()" [max]="100" class="max-w-md mx-auto" />
+
+    <p-table
+      #tableImportStatus
+      [value]="concertImportStats$()?.concerts ?? []"
+      dataKey="id"
+      stripedRows
+      rowHover
+      [rows]="25"
+      [rowsPerPageOptions]="[25, 50, 100, 200, 500]"
+      [loading]="isLoadingImportStats$()"
+      [paginator]="true"
+      [globalFilterFields]="['wikiPageId', 'importStatus', 'concertTitle']"
+      [tableStyle]="{ 'min-width': '75rem' }"
+      [scrollable]="true"
+      sortField="wikiPageId"
+      [sortOrder]="-1"
+    >
+      <ng-template #caption>
+        <div class="flex">
+          <p-iconfield iconPosition="left" class="ml-auto">
+            <p-inputicon>
+              <i class="pi pi-search"></i>
+            </p-inputicon>
+            <input pInputText type="text" [(ngModel)]="globalSearchTextImportStatus$" (input)="tableImportStatus.filterGlobal(globalSearchTextImportStatus$(), 'contains')" placeholder="Search keyword" />
+          </p-iconfield>
+        </div>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th scope="col" pFrozenColumn pSortableColumn="wikiPageId">
+            Page ID
+            <p-sort-icon field="wikiPageId" />
+          </th>
+          <th scope="col" pSortableColumn="description">
+            Description
+            <p-sort-icon field="description" />
+          </th>
+          <th scope="col" pSortableColumn="importStatus">
+            Import status
+            <p-sort-icon field="importStatus" />
+          </th>
+          <th scope="col" pFrozenColumn></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-concert>
+        <tr>
+          <td pFrozenColumn><a [href]="'https://linkinpedia.com/wiki/' + concert.wikiPageId" class="link" target="_blank">{{ concert.wikiPageId }} <i class="pi pi-external-link"></i></a></td>
+          <td>{{ concert.concertTitle }}</td>
+          <td><ng-container [ngTemplateOutlet]="importStatusBadge" [ngTemplateOutletContext]="{ status: concert.importStatus }" /></td>
+          <td pFrozenColumn>
+            @if (concert.importStatus == LinkinpediaImportConcertStatusDto.ImportStatusEnum.NotImported) {
+              <a
+                pButton
+                variant="outlined"
+                [routerLink]="['add']"
+                [queryParams]="{ wikiPageId: concert.wikiPageId }"
+                target="_blank"
+                style="text-decoration: none;">
+                <i class="pi pi-file-import"></i>
+                Import
+              </a>
+            } @else {
+              <a
+                pButton
+                variant="outlined"
+                [routerLink]="[concert.concert.id]"
+                style="text-decoration: none;">
+                <i class="pi pi-pencil"></i>
+                Edit
+              </a>
+            }
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="8">No wiki pages found.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-panel>
+
   <p-divider />
 
-  <h3>Concerts in old database</h3>
-  <p-table
-    #dt2
-    [value]="concertsOld$()"
-    dataKey="id"
-    stripedRows
-    rowHover
-    [rows]="25"
-    [rowsPerPageOptions]="[10, 25, 50, 100, 200]"
-    [loading]="isLoadingOld$"
-    [paginator]="true"
-    [globalFilterFields]="['customTitle', 'tourName', 'city', 'country', 'venue', 'postedStartTime']"
-    [tableStyle]="{ 'min-width': '75rem' }"
-  >
-    <ng-template #caption>
-      <div class="flex">
-        <p-button variant="outlined" label="Add concert" [routerLink]="['/concerts/add']" />
+  <p-panel header="Concerts in old database" [toggleable]="true" [collapsed]="true" iconPos="start">
+    <p-table
+      #dt2
+      [value]="concertsOld$()"
+      dataKey="id"
+      stripedRows
+      rowHover
+      [rows]="25"
+      [rowsPerPageOptions]="[10, 25, 50, 100, 200]"
+      [loading]="isLoadingOld$()"
+      [paginator]="true"
+      [globalFilterFields]="['customTitle', 'tourName', 'city', 'country', 'venue', 'postedStartTime']"
+      [tableStyle]="{ 'min-width': '75rem' }"
+    >
+      <ng-template #caption>
+        <div class="flex">
+          <p-button variant="outlined" label="Add concert" [routerLink]="['/concerts/add']" />
 
-        <p-iconfield iconPosition="left" class="ml-auto">
-          <p-inputicon>
-            <i class="pi pi-search"></i>
-          </p-inputicon>
-          <input pInputText type="text" [(ngModel)]="globalSearchTextOld$" (input)="dt2.filterGlobal(globalSearchTextOld$, 'contains')" placeholder="Search keyword" />
-        </p-iconfield>
-      </div>
-    </ng-template>
-    <ng-template #header>
-      <tr>
-        <th scope="col">Date</th>
-        <th scope="col">Concert</th>
-        <th scope="col">Location</th>
-        <th scope="col">Status</th>
-        <th scope="col"></th>
-      </tr>
-      <tr>
-        <th>
-          <p-column-filter type="text" field="postedStartTime" placeholder="Date" ariaLabel="Filter dates" filterOn="input" />
-        </th>
-        <th>
-          <p-column-filter type="text" field="customTitle" placeholder="Title" ariaLabel="Filter concert titles" filterOn="input" />
-        </th>
-        <th>
-          <p-column-filter type="text" field="city" placeholder="City" ariaLabel="Filter cities" filterOn="input" />
-        </th>
-        <th>
-          <p-column-filter type="text" field="status" placeholder="Status" ariaLabel="Filter statuses" filterOn="input" />
-        </th>
-        <th></th>
-      </tr>
-    </ng-template>
-    <ng-template #body let-concert>
-      <tr>
-        <td>{{ concert.postedStartTime | date: 'dd.MM.yyyy, HH:mm' }}</td>
-        <td>
-          {{ getTitle(concert) }}
-          @if (concert.tourName) {
-            <div class="text-500 font-italic">{{ concert.tourName }}</div>
-          }
-        </td>
-        <td>
-          {{ concert.locationMedium || concert.city }}
-          @if (concert.venue) {
-            <div class="text-500 font-italic">{{ concert.venue }}</div>
-          }
-        </td>
-        <td>{{ concert.status }}</td>
-        <td>
-          <p-button-group>
-            <p-button label="View" icon="pi pi-eye" variant="outlined" size="small" [routerLink]="['/concerts', concert.id]" />
-            <p-button label="Edit" icon="pi pi-pencil" variant="outlined" size="small" [routerLink]="['/concerts', concert.id, 'edit']" />
-          </p-button-group>
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template #emptymessage>
-      <tr>
-        <td colspan="5">No concerts found.</td>
-      </tr>
-    </ng-template>
-  </p-table>
+          <p-iconfield iconPosition="left" class="ml-auto">
+            <p-inputicon>
+              <i class="pi pi-search"></i>
+            </p-inputicon>
+            <input pInputText type="text" [(ngModel)]="globalSearchTextOld$" (input)="dt2.filterGlobal(globalSearchTextOld$(), 'contains')" placeholder="Search keyword" />
+          </p-iconfield>
+        </div>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th scope="col">Date</th>
+          <th scope="col">Concert</th>
+          <th scope="col">Location</th>
+          <th scope="col">Status</th>
+          <th scope="col"></th>
+        </tr>
+        <tr>
+          <th>
+            <p-column-filter type="text" field="postedStartTime" placeholder="Date" ariaLabel="Filter dates" filterOn="input" />
+          </th>
+          <th>
+            <p-column-filter type="text" field="customTitle" placeholder="Title" ariaLabel="Filter concert titles" filterOn="input" />
+          </th>
+          <th>
+            <p-column-filter type="text" field="city" placeholder="City" ariaLabel="Filter cities" filterOn="input" />
+          </th>
+          <th>
+            <p-column-filter type="text" field="status" placeholder="Status" ariaLabel="Filter statuses" filterOn="input" />
+          </th>
+          <th></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-concert>
+        <tr>
+          <td>{{ concert.postedStartTime | date: 'dd.MM.yyyy, HH:mm' }}</td>
+          <td>
+            {{ getTitle(concert) }}
+            @if (concert.tourName) {
+              <div class="text-500 font-italic">{{ concert.tourName }}</div>
+            }
+          </td>
+          <td>
+            {{ concert.locationMedium || concert.city }}
+            @if (concert.venue) {
+              <div class="text-500 font-italic">{{ concert.venue }}</div>
+            }
+          </td>
+          <td>{{ concert.status }}</td>
+          <td>
+            <p-button-group>
+              <p-button label="View" icon="pi pi-eye" variant="outlined" size="small" [routerLink]="['/concerts', concert.id]" />
+              <p-button label="Edit" icon="pi pi-pencil" variant="outlined" size="small" [routerLink]="['/concerts', concert.id, 'edit']" />
+            </p-button-group>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="5">No concerts found.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-panel>
 </p-card>

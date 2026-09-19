@@ -14,6 +14,7 @@ namespace Service.Setlists;
 public class LinkinpediaImportService(IWikiMediaRepository wikiMediaRepository, IWikitextParser wikitextParser, ISongRepository songRepository, ISongMashupRepository songMashupRepository, ILambdaLogger logger)
 {
     public const string LinkinpediaRestApiBaseUrl = "https://linkinpedia.com/w/rest.php/v1";
+    public const string LinkinpediaActionApiBaseUrl = "https://linkinpedia.com/w/api.php";
     
     public async Task<ImportSetlistPreviewDto> GetImportPlanForSetlistFromPageAsync(string wikiPageId)
     {

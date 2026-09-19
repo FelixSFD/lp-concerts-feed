@@ -14,6 +14,8 @@ import { Card } from 'primeng/card';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { TableModule } from 'primeng/table';
 import { Divider } from 'primeng/divider';
+import { ConcertsService } from '../../../../../services/concerts.service';
+import { ToursService } from '../../../../../services/tours.service';
 
 @Component({
   selector: 'app-edit-concert-page',
@@ -33,11 +35,15 @@ export class EditConcertPageComponent implements OnInit {
   private activeRoute = inject(ActivatedRoute);
   private messageService = inject(MessageService);
   private concertsApi = inject(ConcertsApi);
+  private toursService = inject(ToursService);
 
   concertFormComponent = viewChild(ConcertFormComponent);
 
   currentConcertId: string = '';
   currentConcertTitle: string = '';
+
+  previousConcertId = signal<string | null>(null);
+  nextConcertId = signal<string | null>(null);
 
   isSaving = signal(false);
 
@@ -57,23 +63,35 @@ export class EditConcertPageComponent implements OnInit {
       }
 
       this.currentConcertId = concert.id ?? null;
+      this.loadAdjacentConcerts().then();
       this.concertFormComponent()?.fillFormWith(concert);
     });
+  }
+
+  private async loadAdjacentConcerts() {
+    let adjacentConcertData = await this.toursService.getAdjacentConcerts(this.currentConcertId);
+    this.previousConcertId.set(adjacentConcertData.previous ?? null);
+    this.nextConcertId.set(adjacentConcertData.next ?? null);
   }
 
   onSaveClicked(formContent: ConcertFormContent) {
     this.isSaving.set(true);
 
     const request: UpdateConcertRequestDto = {
+      status: formContent.status,
       customTitle: formContent.customTitle ?? undefined,
-      concertTypeId: formContent.concertTypeId != null ? String(formContent.concertTypeId) : undefined,
+      concertTypeId: formContent.concertTypeId != null ? formContent.concertTypeId : undefined,
       tourId: formContent.tourId ?? undefined,
       tourLegId: formContent.tourLegId ?? undefined,
       venueId: formContent.venueId ?? undefined,
       postedStartTime: formContent.postedStartTime.toISO()!,
+      timeIsPlaceholder: formContent.timeIsPlaceholder ?? undefined,
       doorsTime: formContent.doorsTime?.toISO() ?? undefined,
       mainStageTime: formContent.mainStageTime?.toISO() ?? undefined,
-      expectedSetDurationMinutes: String(formContent.expectedSetDuration) ?? undefined,
+      lpuEarlyEntryTime: formContent.lpuEarlyEntryTime?.toISO() ?? undefined,
+      lpuEarlyEntryConfirmed: formContent.lpuEarlyEntryConfirmed ?? undefined,
+      expectedSetDurationMinutes: formContent.expectedSetDuration ?? undefined,
+      linkinpediaUrl: formContent.linkinpediaUrl ?? undefined,
     };
 
     this.concertsApi.updateConcert(this.currentConcertId, request).subscribe({
