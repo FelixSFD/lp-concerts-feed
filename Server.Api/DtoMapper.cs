@@ -329,7 +329,6 @@ internal static class DtoMapper
             LpuEarlyEntryTime = dto.LpuEarlyEntryTime?.UtcDateTime,
             LpuEarlyEntryConfirmed = dto.LpuEarlyEntryConfirmed ?? false,
             ExpectedSetDurationMinutes = (uint)(dto.ExpectedSetDurationMinutes ?? 0),
-            ScheduleImageFile = dto.ScheduleImageFile,
             Status = dto.Status.ToBo(),
             ConcertTypeId = (uint)(dto.ConcertTypeId ?? 0),
             VenueId = (uint)(dto.VenueId ?? 0),
