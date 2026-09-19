@@ -83,6 +83,8 @@ export class ManageConcertsPageComponent implements OnInit {
 
   private currentOffset: number | null = null;
   private currentLimit: number | null = null;
+  private currentSortFields: string[] = [];
+  private currentSortOrder: number | null = null;
 
   private updateImportStatsEffect = effect(() => {
     this.concertImportStatusMeterGroup$.update(stats => {
@@ -118,26 +120,39 @@ export class ManageConcertsPageComponent implements OnInit {
 
   loadConcertsLazy(event: TableLazyLoadEvent) {
     console.debug("loadConcertsLazy", event);
+
+    let sortFields = event.sortField == null
+      ? []
+      : Array.isArray(event.sortField)
+        ? event.sortField
+        : [event.sortField];
+    sortFields = sortFields.map(f => `${(event.sortOrder ?? 0) == -1 ? '-' : ''}${f}`)
+
     if (this.isLoading$()) {
       console.debug("loadConcertsLazy: skipping because it's already loading.");
       return;
     }
-    if (this.currentOffset === event.first && this.currentLimit === event.rows) {
+    if (this.currentOffset === event.first && this.currentLimit === event.rows && this.currentSortOrder == event.sortOrder && this.currentSortFields.join(",") === sortFields.join(",")) {
       console.debug("loadConcertsLazy: skipping because it's already loaded.");
       return;
     }
 
     this.isLoading$.set(true);
+    console.debug("loadConcertsLazy: sortFields", sortFields);
+
     this.concertsService.getFilteredConcerts({
       dateFrom: DateTime.fromMillis(0, {zone: 'UTC'}),
       dateTo: null,
       tour: null,
+      orderBy: sortFields,
       onlyFuture: false
     }, event.rows ?? 100, event.first).subscribe(response => {
       this.totalConcertCount$.set(response.metadata?.totalElements ?? 0);
       this.concerts$.set(response.concerts ?? []);
       this.currentOffset = event.first ?? null;
       this.currentLimit = event.rows ?? null;
+      this.currentSortFields = sortFields;
+      this.currentSortOrder = event.sortOrder ?? null;
       this.isLoading$.set(false);
     });
   }

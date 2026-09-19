@@ -12,4 +12,6 @@ export class ConcertFilter {
   dateTo: DateTime | null  = null;
 
   countryCode?: string | undefined;
+
+  orderBy?: string[] | undefined;
 }
