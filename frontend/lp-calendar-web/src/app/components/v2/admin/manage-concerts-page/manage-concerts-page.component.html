@@ -15,6 +15,9 @@
   <p-table
     #concertTable
     [value]="concerts$()"
+    [lazy]="true"
+    (onLazyLoad)="loadConcertsLazy($event)"
+    [(totalRecords)]="totalConcertCount$"
     dataKey="id"
     stripedRows
     rowHover

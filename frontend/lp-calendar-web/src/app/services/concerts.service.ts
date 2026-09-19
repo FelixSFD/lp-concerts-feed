@@ -1,7 +1,7 @@
 import { inject, Service } from '@angular/core';
 import {
   ConcertDetailsDto,
-  ConcertFileUploadResponseDto,
+  ConcertFileUploadResponseDto, ConcertListResponseDto,
   ConcertsApi,
   ConcertScheduleUploadRequestDto,
   LinkinpediaImportStatusDto
@@ -61,7 +61,7 @@ export class ConcertsService {
     return firstValueFrom(this.concertsApi.getConcertById(concertId, getRequestIdParameter(cached)));
   }
 
-  getFilteredConcerts(filter: ConcertFilter, limit: number = 100, skip: number = 0, cached: boolean = true): Observable<ConcertDetailsDto[]> {
+  getFilteredConcerts(filter: ConcertFilter, limit: number = 100, skip: number = 0, cached: boolean = true): Observable<ConcertListResponseDto> {
     return this.concertsApi.getConcerts(getRequestIdParameter(cached), filter.countryCode, limit, skip);
   }
 }

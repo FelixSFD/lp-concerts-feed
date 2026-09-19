@@ -64,6 +64,7 @@ export class ManageConcertsPageComponent implements OnInit {
 
   concertsOld$ = signal<ConcertDto[]>([]);
   concerts$ = signal<ConcertDetailsDto[]>([]);
+  totalConcertCount$ = signal(0);
   isDeletingConcert$ = signal(false);
   concertImportStats$ = signal<LinkinpediaImportStatusDto | null>(null);
   isLoadingImportStats$ = signal(false);
@@ -79,6 +80,9 @@ export class ManageConcertsPageComponent implements OnInit {
   globalSearchTextOld$ = signal("");
   globalSearchText$ = signal("");
   globalSearchTextImportStatus$ = signal("");
+
+  private currentOffset: number | null = null;
+  private currentLimit: number | null = null;
 
   private updateImportStatsEffect = effect(() => {
     this.concertImportStatusMeterGroup$.update(stats => {
@@ -104,7 +108,7 @@ export class ManageConcertsPageComponent implements OnInit {
   });
 
   ngOnInit() {
-    this.reloadList();
+    //this.reloadList();
     this.reloadConcertImportStats();
   }
 
@@ -114,6 +118,28 @@ export class ManageConcertsPageComponent implements OnInit {
 
   loadConcertsLazy(event: TableLazyLoadEvent) {
     console.debug("loadConcertsLazy", event);
+    if (this.isLoading$()) {
+      console.debug("loadConcertsLazy: skipping because it's already loading.");
+      return;
+    }
+    if (this.currentOffset === event.first && this.currentLimit === event.rows) {
+      console.debug("loadConcertsLazy: skipping because it's already loaded.");
+      return;
+    }
+
+    this.isLoading$.set(true);
+    this.concertsService.getFilteredConcerts({
+      dateFrom: DateTime.fromMillis(0, {zone: 'UTC'}),
+      dateTo: null,
+      tour: null,
+      onlyFuture: false
+    }, event.rows ?? 100, event.first).subscribe(response => {
+      this.totalConcertCount$.set(response.metadata?.totalElements ?? 0);
+      this.concerts$.set(response.concerts ?? []);
+      this.currentOffset = event.first ?? null;
+      this.currentLimit = event.rows ?? null;
+      this.isLoading$.set(false);
+    });
   }
 
   private reloadConcertImportStats() {
