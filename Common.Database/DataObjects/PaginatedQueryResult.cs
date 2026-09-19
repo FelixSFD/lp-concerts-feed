@@ -1,7 +1,7 @@
 namespace Common.Database.DataObjects;
 
-public class PaginatedQueryResult<TEntity> where TEntity : BaseDo
+public class PaginatedQueryResult<TEntity>
 {
     public int TotalCount { get; set; }
-    public IAsyncEnumerable<TEntity> Results { get; set; }
+    public required IAsyncEnumerable<TEntity> Results { get; set; }
 }

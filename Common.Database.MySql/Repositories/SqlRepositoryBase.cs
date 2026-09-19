@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using Common.Database;
 using Common.Database.DataObjects;
+using Common.Database.Pagination;
 using Common.Database.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -137,17 +138,7 @@ public abstract class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObje
 
         query = query.Where(predicate);
         
-        var totalCount = await query.CountAsync(cancellationToken);
-        var resultEnumerable = query
-            .ApplySorting(orderBy, SortExpressions)
-            .ApplyPagination(paginationParams)
-            .ToAsyncEnumerable();
-
-        return new PaginatedQueryResult<TDataObject>
-        {
-            Results = resultEnumerable,
-            TotalCount = totalCount
-        };
+        return await query.ToPaginatedResultAsync(orderBy, SortExpressions, paginationParams, cancellationToken);
     }
 
 
