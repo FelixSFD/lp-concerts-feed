@@ -58,6 +58,8 @@ builder.Services.AddHttpLogging(opt =>
     opt.RequestHeaders.Add("X-Warp-Provider");
     opt.RequestHeaders.Add("X-Warp-Trusted");
     
+    opt.RequestHeaders.Add("X-LP-Request-Id");
+    
     opt.ResponseHeaders.Add("Cache-Control");
     opt.ResponseHeaders.Add("Authorization");
 
