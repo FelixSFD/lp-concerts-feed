@@ -8,6 +8,8 @@ servers:
   - url: http://localhost:5133
 paths:
   /v3/Concerts:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     post:
       tags:
         - Concerts
@@ -93,6 +95,8 @@ paths:
         uri: https://api.dev.lpshows.felixsfd.de/v3/Concerts
   
   /v3/Concerts/import:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     get:
       operationId: GetConcertImportStatus
       tags:
@@ -113,7 +117,9 @@ paths:
         - Bearer: [ ]
   
   /v3/Concerts/import/{wikiPageId}:
-    get: 
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+    get:
       operationId: GetConcertImportPlan
       tags:
         - Concerts
@@ -138,6 +144,8 @@ paths:
       security:
         - Bearer: [ ]
   /v3/Concerts/{concertId}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     put:
       tags:
         - Concerts
@@ -248,6 +256,8 @@ paths:
       security:
         - Bearer: []
   /v3/Concerts/{concertId}/details:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     get:
       tags:
         - Concerts
@@ -281,6 +291,8 @@ paths:
         requestParameters:
           integration.request.path.concertId: method.request.path.concertId
   /v3/Concerts/{concertId}/schedule:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     put:
       operationId: GetUrlForConcertFileUpload
       summary: Requests a URL that can be used to upload the image of the schedule of a concert
@@ -322,6 +334,8 @@ paths:
         contentHandling: "CONVERT_TO_TEXT"
         type: "aws_proxy"
   /v3/Concerts/{concertId}/adjacent:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     get:
       operationId: GetAdjacentConcertsForId
       summary: Returns information about the previous and next concerts
@@ -349,6 +363,8 @@ paths:
           integration.request.path.concertId: method.request.path.concertId
   
   /v2/concerts/{id}/bookmarks/count:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     get:
       operationId: GetBookmarkCountForConcert
       summary: Checks how many bookmarks there are for a concert. Use GetBookmarkStatusForConcert if you want to check the status for the current user
@@ -384,6 +400,8 @@ paths:
         type: "aws_proxy"
   
   /v3/ConcertTypes:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     post:
       tags:
         - ConcertTypes
@@ -447,6 +465,8 @@ paths:
         - Bearer: []
   
   /v3/ConcertTypes/{concertTypeId}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     get:
       tags:
         - ConcertTypes
@@ -526,6 +546,8 @@ paths:
         requestParameters:
           integration.request.path.concertId: method.request.path.concertTypeId
   /v3/countries:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     post:
       tags:
         - Countries
@@ -597,6 +619,8 @@ paths:
         httpMethod: GET
         uri: https://api.dev.lpshows.felixsfd.de/v3/countries
   /v3/countries/{countryCode}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     put:
       tags:
         - Countries
@@ -708,6 +732,8 @@ paths:
       security:
         - Bearer: []
   /v3/countries/{countryCode}/states:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     post:
       tags:
         - Countries
@@ -788,6 +814,8 @@ paths:
           integration.request.path.concertId: method.request.path.countryCode
   
   /v3/countries/{countryCode}/states/{stateCode}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     put:
       tags:
         - Countries
@@ -920,6 +948,8 @@ paths:
         - Bearer: []
   
   /v3/countries/{countryCode}/cities:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     post:
       tags:
         - Countries
@@ -1010,6 +1040,8 @@ paths:
           integration.request.path.concertId: method.request.path.countryCode
   
   /v3/countries/{countryCode}/cities/{cityId}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     put:
       tags:
         - Countries
@@ -1150,6 +1182,8 @@ paths:
         - Bearer: []
   
   /v3/Cities:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     get:
       tags:
         - Cities
@@ -1205,6 +1239,8 @@ paths:
           integration.request.path.concertId: method.request.path.countryCode
   
   /v3/Tours:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     post:
       tags:
         - Tours
@@ -1267,6 +1303,8 @@ paths:
         uri: https://api.dev.lpshows.felixsfd.de/v3/Tours
   
   /v3/Tours/{tourId}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     get:
       tags:
         - Tours
@@ -1327,6 +1365,8 @@ paths:
       security:
         - Bearer: []
   /v3/Tours/{tourId}/legs:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     post:
       tags:
         - Tours
@@ -1369,6 +1409,8 @@ paths:
       security:
         - Bearer: []
   /v3/Tours/{tourId}/legs/{legId}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     get:
       tags:
         - Tours
@@ -1443,6 +1485,8 @@ paths:
       security:
         - Bearer: []
   /v3/Venues:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     post:
       tags:
         - Venues
@@ -1521,6 +1565,8 @@ paths:
       security:
         - Bearer: []
   /v3/Venues/{venueId}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     put:
       tags:
         - Venues
@@ -1639,6 +1685,8 @@ paths:
       security:
         - Bearer: []
   /v3/Venues/{venueId}/details:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     get:
       tags:
         - Venues
@@ -1674,6 +1722,8 @@ paths:
         requestParameters:
           integration.request.path.venueId: method.request.path.venueId
   /v3/Venues/{venueId}/names:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     post:
       tags:
         - Venues
@@ -1729,6 +1779,8 @@ paths:
         - Bearer: []
   
   /v3/Venues/{venueId}/names/{venueNameId}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
     put:
       tags:
         - Venues
@@ -1821,6 +1873,14 @@ paths:
       security:
         - Bearer: []
 components:
+  parameters:
+    X-LP-Request-Id:
+      name: X-LP-Request-Id
+      in: header
+      description: Unique request id to bypass server caching
+      required: false
+      schema:
+        type: string
   schemas:
     AddTourLegRequest:
       required:

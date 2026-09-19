@@ -110,7 +110,7 @@ export class LocationsService {
   }
 
   getCities(): Observable<CityWithCountryDto[]> {
-    return this.citiesApi.getCities(undefined, "1000", undefined, ["country.name", "name"]); // TODO: filter and sorting?
+    return this.citiesApi.getCities(undefined, undefined, "1000", undefined, ["country.name", "name"]); // TODO: filter and sorting?
   }
 
   getCitiesIn(countryCode: string): Observable<CityWithCountryDto[]> {

@@ -46,7 +46,7 @@ export class ConcertsService {
     let request: ConcertScheduleUploadRequestDto = {
       contentType: contentType
     };
-    return firstValueFrom(this.concertsApi.getUrlForConcertFileUpload(concertId, request));
+    return firstValueFrom(this.concertsApi.getUrlForConcertFileUpload(concertId, undefined, request));
   }
 
   /**
