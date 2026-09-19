@@ -13,7 +13,7 @@
   </ng-template>
 
   <p-table
-    #dt2
+    #concertTable
     [value]="concerts$()"
     dataKey="id"
     stripedRows
@@ -36,7 +36,7 @@
           <p-inputicon>
             <i class="pi pi-search"></i>
           </p-inputicon>
-          <input pInputText type="text" [(ngModel)]="globalSearchText$" (input)="dt2.filterGlobal(globalSearchText$(), 'contains')" placeholder="Search keyword" />
+          <input pInputText type="text" [(ngModel)]="globalSearchText$" (input)="concertTable.filterGlobal(globalSearchText$(), 'contains')" placeholder="Search keyword" />
         </p-iconfield>
       </div>
     </ng-template>

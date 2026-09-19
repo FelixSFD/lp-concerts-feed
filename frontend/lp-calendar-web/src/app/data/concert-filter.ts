@@ -10,4 +10,6 @@ export class ConcertFilter {
 
   dateFrom: DateTime | null = null;
   dateTo: DateTime | null  = null;
+
+  countryCode?: string | undefined;
 }

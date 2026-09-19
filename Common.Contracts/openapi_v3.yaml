@@ -56,13 +56,13 @@ paths:
           in: query
           schema:
             pattern: ^-?(?:0|[1-9]\d*)$
-            type: string
+            type: number
             format: uint32
         - name: Skip
           in: query
           schema:
             pattern: ^-?(?:0|[1-9]\d*)$
-            type: string
+            type: number
             format: uint32
         - name: OrderBy
           in: query

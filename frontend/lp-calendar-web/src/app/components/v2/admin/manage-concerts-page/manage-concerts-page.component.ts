@@ -9,7 +9,7 @@ import {Card} from 'primeng/card';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
 import {InputText} from 'primeng/inputtext';
-import {TableModule} from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { ConcertDto, ConcertStatusValueDto, ErrorResponseDto } from '../../../../modules/lpshows-api';
 import {ConcertTitleGenerator} from '../../../../data/concert-title-generator';
 import {LegacyConcertsService} from '../../../../services/legacy-concerts.service';
@@ -110,6 +110,10 @@ export class ManageConcertsPageComponent implements OnInit {
 
   getTitle(concert: ConcertDto): string {
     return ConcertTitleGenerator.getTitleFor(concert);
+  }
+
+  loadConcertsLazy(event: TableLazyLoadEvent) {
+    console.debug("loadConcertsLazy", event);
   }
 
   private reloadConcertImportStats() {
