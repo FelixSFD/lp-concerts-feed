@@ -1,5 +1,6 @@
 using Common.Database;
 using Common.Database.Repositories;
+using Common.Utils.Pagination;
 using Database.Tours.DataObjects;
 using Database.Tours.Repositories;
 using LPCalendar.DataStructure.Tours;
@@ -164,12 +165,24 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
     /// <param name="cancellationToken"></param>
     /// <param name="filter">Filter and sorting</param>
     /// <returns>Details about the concerts matching the filter</returns>
-    public IAsyncEnumerable<ConcertDetailsBo> GetConcertsWithDetailsAsync(CancellationToken cancellationToken, GetConcertsFilterDto filter)
+    public async Task<AsyncPaginationResult<ConcertDetailsBo>> GetConcertsWithDetailsAsync(CancellationToken cancellationToken, GetConcertsFilterDto filter)
     {
+        logger.LogDebug("Getting concerts with details... Fetching starting with result {offset} and take {limit}", filter.Skip, filter.Limit);
         var paginationParams = new PaginationParams(filter.Skip, filter.Limit);
-        return concertRepository
-            .GetConcerts(cancellationToken, filter.CountryCode, orderBy: filter.OrderBy.Select(SortDescriptor.FromString), paginationParams)
-            .Select(DoMapper.ToBoWithDetails);
+        var concertFilter = new ConcertFilter
+        {
+            CountryCode = filter.CountryCode
+        };
+        var paginatedResult = await concertRepository
+            .GetConcertsAsync(cancellationToken, concertFilter, orderBy: filter.OrderBy.Select(SortDescriptor.FromString), paginationParams, cancellationToken: cancellationToken);
+        logger.LogDebug("Query would return {count} concerts. A maximum of {limit} will be returned", paginatedResult.TotalCount, filter.Limit);
+        return new AsyncPaginationResult<ConcertDetailsBo>
+        {
+            TotalResults = paginatedResult.TotalCount,
+            Limit = (int)filter.Limit,
+            Offset = (int)filter.Skip,
+            Results = paginatedResult.Results.Select(DoMapper.ToBoWithDetails),
+        };
     }
 
     /// <summary>
