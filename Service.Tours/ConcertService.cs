@@ -107,7 +107,8 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         concertRepository.Update(concert);
         await concertRepository.SaveChangesAsync();
         logger.LogDebug("Successfully updated concert with ID: {concertId}", concert.Id);
-        return concert.ToBo();
+        var concertDetails = await concertRepository.GetByPrimaryKeyAsync(concert.Id) ?? throw new ConcertNotFoundException(concert.Id);
+        return concertDetails.ToBo();
     }
 
     /// <summary>
