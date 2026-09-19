@@ -249,6 +249,9 @@ export const routes: Routes = [
     loadComponent: () =>
       import("./components/v2/admin/setlist-admin-wrapper/setlist-admin-wrapper.component").then(m => m.SetlistAdminWrapperComponent),
     canActivateChild: [authGuard, manageSetlistsGuard],
+    data: {
+      noCache: true,
+    },
     children: [
       {
         path: '',

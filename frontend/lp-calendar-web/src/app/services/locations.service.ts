@@ -16,6 +16,7 @@ import {
   UpdateCountryRequestDto, UpdateStateRequestDto, UpdateVenueNameRequestDto, UpdateVenueRequestDto, VenueDto, VenuesApi, VenueWithDetailsDto
 } from '../modules/lpshows-api/v3';
 import { addAuthentication } from '../auth/auth.config';
+import { getRequestIdParameter } from '../helper/cache-parameter-helper';
 
 /**
  * Service to retrieve location data like coordinates and timezones
@@ -47,8 +48,8 @@ export class LocationsService {
   /**
    * Returns a list of all countries
    */
-  getCountry(countryCode: string): Observable<CountryDto> {
-    return this.countriesApi.getCountryByIsoCode(countryCode);
+  getCountry(countryCode: string, cached: boolean = true): Observable<CountryDto> {
+    return this.countriesApi.getCountryByIsoCode(countryCode, getRequestIdParameter(cached));
   }
 
   /**
@@ -84,8 +85,8 @@ export class LocationsService {
   /**
    * Returns a single state
    */
-  getState(countryCode: string, stateCode: string): Observable<StateWithCountryDto> {
-    return this.countriesApi.getState(countryCode, stateCode);
+  getState(countryCode: string, stateCode: string, cached: boolean = true): Observable<StateWithCountryDto> {
+    return this.countriesApi.getState(countryCode, stateCode, getRequestIdParameter(cached));
   }
 
   /**
@@ -129,8 +130,8 @@ export class LocationsService {
     return this.countriesApi.deleteCity(countryCode, id);
   }
 
-  getCity(countryCode: string, cityId: number): Observable<CityWithCountryDto> {
-    return this.countriesApi.getCity(countryCode, cityId);
+  getCity(countryCode: string, cityId: number, cached: boolean = true): Observable<CityWithCountryDto> {
+    return this.countriesApi.getCity(countryCode, cityId, getRequestIdParameter(cached));
   }
 
   /**
@@ -140,12 +141,12 @@ export class LocationsService {
     return this.venuesApi.getAllVenues();
   }
 
-  getVenue(venueId: number): Observable<VenueDto> {
-    return this.venuesApi.getVenueById(venueId);
+  getVenue(venueId: number, cached: boolean = true): Observable<VenueDto> {
+    return this.venuesApi.getVenueById(venueId, getRequestIdParameter(cached));
   }
 
-  getVenueDetails(venueId: number): Observable<VenueWithDetailsDto> {
-    return this.venuesApi.getVenueWithDetailsById(venueId);
+  getVenueDetails(venueId: number, cached: boolean = true): Observable<VenueWithDetailsDto> {
+    return this.venuesApi.getVenueWithDetailsById(venueId, getRequestIdParameter(cached));
   }
 
   /**

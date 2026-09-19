@@ -38,9 +38,10 @@ export class ToursService {
   /**
    * Returns information about a single tour
    * @param tourId ID of the tour
+   * @param cached Whether to use cached data
    */
-  getTour(tourId: string): Observable<TourDto> {
-    return this.toursApi.getTour(tourId);
+  getTour(tourId: string, cached: boolean = true): Observable<TourDto> {
+    return this.toursApi.getTour(tourId, getRequestIdParameter(cached));
   }
 
   /**

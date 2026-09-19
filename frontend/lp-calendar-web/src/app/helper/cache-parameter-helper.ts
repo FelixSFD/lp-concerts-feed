@@ -8,7 +8,7 @@ class CacheParameterHelper {
 
   public static getUseCacheFromRouteData(data: Data): boolean {
     if (data['noCache'] === undefined) {
-      return false;
+      return true;
     }
 
     return !data['noCache'];

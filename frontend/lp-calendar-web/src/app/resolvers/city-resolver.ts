@@ -4,12 +4,13 @@ import {ErrorResponseDto} from '../modules/lpshows-api';
 import {catchError, of} from 'rxjs';
 import { CityWithCountryDto } from '../modules/lpshows-api/v3';
 import { LocationsService } from '../services/locations.service';
+import { getUseCacheFromRouteData } from '../helper/cache-parameter-helper';
 
 export const cityResolver: ResolveFn<CityWithCountryDto | ErrorResponseDto> = (route) => {
   const locService = inject(LocationsService);
   const countryCode = route.paramMap.get('countryCode')!;
   const cityId = Number(route.paramMap.get('cityId')!);
-  return locService.getCity(countryCode, cityId).pipe(
+  return locService.getCity(countryCode, cityId, getUseCacheFromRouteData(route.data)).pipe(
     catchError((err) => {
       let errorResponse: ErrorResponseDto = err.error;
       console.error('Failed to load city:', errorResponse);
