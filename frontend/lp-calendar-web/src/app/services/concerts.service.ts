@@ -61,7 +61,7 @@ export class ConcertsService {
     return firstValueFrom(this.concertsApi.getConcertById(concertId, getRequestIdParameter(cached)));
   }
 
-  getFilteredConcerts(filter: ConcertFilter, limit: number = 100, skip: number = 0, cached: boolean = true): Observable<ConcertListResponseDto> {
-    return this.concertsApi.getConcerts(getRequestIdParameter(cached), filter.countryCode, limit, skip, filter.orderBy);
+  getFilteredConcerts(filter: ConcertFilter, limit: number = 100, skip: number = 0, cached: boolean = true): Promise<ConcertListResponseDto> {
+    return firstValueFrom(this.concertsApi.getConcerts(getRequestIdParameter(cached), filter.countryCode, limit, skip, filter.orderBy));
   }
 }

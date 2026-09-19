@@ -118,7 +118,7 @@ export class ManageConcertsPageComponent implements OnInit {
     return ConcertTitleGenerator.getTitleFor(concert);
   }
 
-  loadConcertsLazy(event: TableLazyLoadEvent) {
+  async loadConcertsLazy(event: TableLazyLoadEvent) {
     console.debug("loadConcertsLazy", event);
 
     let sortFields = event.sortField == null
@@ -140,21 +140,29 @@ export class ManageConcertsPageComponent implements OnInit {
     this.isLoading$.set(true);
     console.debug("loadConcertsLazy: sortFields", sortFields);
 
-    this.concertsService.getFilteredConcerts({
-      dateFrom: DateTime.fromMillis(0, {zone: 'UTC'}),
-      dateTo: null,
-      tour: null,
-      orderBy: sortFields,
-      onlyFuture: false
-    }, event.rows ?? 100, event.first).subscribe(response => {
+    try {
+      let response = await this.concertsService.getFilteredConcerts({
+        dateFrom: DateTime.fromMillis(0, {zone: 'UTC'}),
+        dateTo: null,
+        tour: null,
+        orderBy: sortFields,
+        onlyFuture: false
+      }, event.rows ?? 100, event.first);
       this.totalConcertCount$.set(response.metadata?.totalElements ?? 0);
       this.concerts$.set(response.concerts ?? []);
       this.currentOffset = event.first ?? null;
       this.currentLimit = event.rows ?? null;
       this.currentSortFields = sortFields;
       this.currentSortOrder = event.sortOrder ?? null;
+    } catch (err) {
+      console.error('Could not load concerts', err);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Could not load concerts',
+      });
+    } finally {
       this.isLoading$.set(false);
-    });
+    }
   }
 
   private reloadConcertImportStats() {
