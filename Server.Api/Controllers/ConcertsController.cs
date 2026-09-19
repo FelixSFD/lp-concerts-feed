@@ -71,7 +71,7 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     /// <param name="concertId"></param>
     /// <returns></returns>
     [HttpGet("{concertId}/details")]
-    [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
+    //[OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
     [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<ConcertDetailsDto>> GetConcertById([FromRoute] string concertId)
     {
@@ -86,7 +86,7 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     /// <param name="filter">Filter for the query</param>
     /// <returns>List of concerts including referenced objects</returns>
     [HttpGet]
-    [CustomResponseCache(Duration = CacheExpiration.Default)]
+    //[CustomResponseCache(Duration = CacheExpiration.Default)]
     [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
     public async Task<ActionResult<ConcertDetailsDto[]>> GetConcertsAsync(CancellationToken cancellationToken, [FromQuery] GetConcertsFilterDto filter)
     {
