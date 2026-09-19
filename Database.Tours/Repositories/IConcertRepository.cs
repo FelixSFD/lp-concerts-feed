@@ -1,4 +1,5 @@
 using Common.Database;
+using Common.Database.DataObjects;
 using Common.Database.Repositories;
 using Database.Tours.DataObjects;
 
@@ -33,6 +34,9 @@ public interface IConcertRepository : ISingleKeyRepositoryBase<ConcertDo, string
     /// <returns>List of concerts</returns>
     IAsyncEnumerable<ConcertDo> GetConcerts(CancellationToken token, ConcertFilter? filter = null, IEnumerable<SortDescriptor>? orderBy = null,
         IPaginationParams? paginationParams = null, bool includeDeleted = false);
+    
+    Task<PaginatedQueryResult<ConcertDo>> GetConcertsAsync(CancellationToken token, ConcertFilter? filter = null, IEnumerable<SortDescriptor>? orderBy = null,
+        IPaginationParams? paginationParams = null, bool includeDeleted = false, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Returns a list of concerts that are linked to a given Linkinpedia page. Ideally, this should only return one concert, but there is technically no unique key.

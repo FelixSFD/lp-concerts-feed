@@ -1,3 +1,5 @@
+using Common.Database;
+using Common.Database.Repositories;
 using Database.Tours.DataObjects;
 using Database.Tours.Repositories;
 
@@ -257,6 +259,175 @@ public class SqlConcertRepositoryTest : ToursDbIntegrationTestsBase
         Assert.DoesNotContain(gerRange, c => c.Id == concert1.Id);
         Assert.Contains(gerRange, c => c.Id == concert2.Id);
         Assert.DoesNotContain(gerRange, c => c.Id == concert3.Id);
+    }
+    
+    
+    [Fact]
+    public async Task GetConcerts_WithPagination()
+    {
+        var concertRepo = new SqlConcertRepository(DbContext);
+        var concertTypeRepo = new SqlConcertTypeRepository(DbContext);
+        var venueRepo = new SqlVenueRepository(DbContext);
+        var tourRepo = new SqlTourRepository(DbContext);
+        var countryRepo = new SqlCountryRepository(DbContext);
+
+        var tour = new TourDo
+        {
+            Id = "fz-world-tour-2",
+            Name = "From Zero World Tour 2",
+            Legs = []
+        };
+        tourRepo.Add(tour);
+
+        var concertType = new ConcertTypeDo
+        {
+            Name = "Linkin Park Show 2"
+        };
+        concertTypeRepo.Add(concertType);
+
+        var countryGer = new CountryDo
+        {
+            IsoCode = "GER",
+            Name = "Germany",
+            NativeName = "Deutschland"
+        };
+        var countryUs = new CountryDo
+        {
+            IsoCode = "USA",
+            Name = "United States",
+            NativeName = "United States"
+        };
+        countryRepo.Add(countryGer);
+        countryRepo.Add(countryUs);
+
+        var venueGer = new VenueDo
+        {
+            Id = 10,
+            CountryCode = countryGer.IsoCode,
+            Country = countryGer,
+            City = new CityDo
+            {
+                CountryCode = countryGer.IsoCode,
+                Name = "Munich",
+                NativeName = "München",
+                Country = countryGer
+            },
+            TimeZone = "Europe/Berlin",
+            CurrentName = "Olympiahalle"
+        };
+        var venueUs = new VenueDo
+        {
+            Id = 11,
+            CountryCode = countryUs.IsoCode,
+            Country = countryUs,
+            City = new CityDo
+            {
+                CountryCode = countryUs.IsoCode,
+                Name = "New York",
+                NativeName = "New York",
+                Country = countryUs
+            },
+            TimeZone = "America/New_York",
+            CurrentName = "Barclays Center"
+        };
+        venueRepo.Add(venueGer);
+        venueRepo.Add(venueUs);
+
+        var concert1 = new ConcertDo
+        {
+            Id = "concert-2026-05-01",
+            TourId = tour.Id,
+            Type = concertType,
+            VenueId = venueGer.Id,
+            PostedStartTime = new DateTimeOffset(2026, 5, 1, 20, 0, 0, TimeSpan.Zero).UtcDateTime,
+            Status = ConcertDo.ConcertStatus.Planned,
+        };
+        var concert2 = new ConcertDo
+        {
+            Id = "concert-2026-06-01",
+            TourId = tour.Id,
+            Type = concertType,
+            VenueId = venueGer.Id,
+            PostedStartTime = new DateTimeOffset(2026, 6, 1, 20, 0, 0, TimeSpan.Zero).UtcDateTime,
+            Status = ConcertDo.ConcertStatus.Planned,
+        };
+        var concert3 = new ConcertDo
+        {
+            Id = "concert-2026-07-01",
+            TourId = tour.Id,
+            Type = concertType,
+            VenueId = venueUs.Id,
+            PostedStartTime = new DateTimeOffset(2026, 7, 1, 20, 0, 0, TimeSpan.Zero).UtcDateTime,
+            Status = ConcertDo.ConcertStatus.Planned,
+        };
+
+        concertRepo.Add(concert1);
+        concertRepo.Add(concert2);
+        concertRepo.Add(concert3);
+        await concertRepo.SaveChangesAsync();
+
+        // 1. No pagination params - default pagination
+        var defaultPage = await concertRepo.GetConcertsAsync(CancellationToken.None);
+        Assert.Equal(3, defaultPage.TotalCount);
+        var defaultList = await defaultPage.Results.ToListAsync();
+        Assert.Equal(3, defaultList.Count);
+        Assert.Contains(defaultList, c => c.Id == concert1.Id);
+        Assert.Contains(defaultList, c => c.Id == concert2.Id);
+        Assert.Contains(defaultList, c => c.Id == concert3.Id);
+
+        // 2. Page 1: Skip = 0, Take = 2, sorted by date asc
+        var page1 = await concertRepo.GetConcertsAsync(
+            CancellationToken.None,
+            orderBy: [new SortDescriptor("date")],
+            paginationParams: new PaginationParams(0, 2));
+        Assert.Equal(3, page1.TotalCount);
+        var page1List = await page1.Results.ToListAsync();
+        Assert.Equal(2, page1List.Count);
+        Assert.Equal(concert1.Id, page1List[0].Id);
+        Assert.Equal(concert2.Id, page1List[1].Id);
+        Assert.NotNull(page1List[0].Venue);
+        Assert.NotNull(page1List[0].Type);
+
+        // 3. Page 2: Skip = 2, Take = 2, sorted by date asc
+        var page2 = await concertRepo.GetConcertsAsync(
+            CancellationToken.None,
+            orderBy: [new SortDescriptor("date")],
+            paginationParams: new PaginationParams(2, 2));
+        Assert.Equal(3, page2.TotalCount);
+        var page2List = await page2.Results.ToListAsync();
+        Assert.Single(page2List);
+        Assert.Equal(concert3.Id, page2List[0].Id);
+
+        // 4. Page out of bounds: Skip = 4, Take = 2
+        var emptyPage = await concertRepo.GetConcertsAsync(
+            CancellationToken.None,
+            orderBy: [new SortDescriptor("date")],
+            paginationParams: new PaginationParams(4, 2));
+        Assert.Equal(3, emptyPage.TotalCount);
+        var emptyPageList = await emptyPage.Results.ToListAsync();
+        Assert.Empty(emptyPageList);
+
+        // 5. Pagination with filter: CountryCode = "GER", Page 1: Skip = 0, Take = 1
+        var gerPage1 = await concertRepo.GetConcertsAsync(
+            CancellationToken.None,
+            filter: new ConcertFilter { CountryCode = "GER" },
+            orderBy: [new SortDescriptor("date")],
+            paginationParams: new PaginationParams(0, 1));
+        Assert.Equal(2, gerPage1.TotalCount);
+        var gerPage1List = await gerPage1.Results.ToListAsync();
+        Assert.Single(gerPage1List);
+        Assert.Equal(concert1.Id, gerPage1List[0].Id);
+
+        // 6. Pagination with filter: CountryCode = "GER", Page 2: Skip = 1, Take = 1
+        var gerPage2 = await concertRepo.GetConcertsAsync(
+            CancellationToken.None,
+            filter: new ConcertFilter { CountryCode = "GER" },
+            orderBy: [new SortDescriptor("date")],
+            paginationParams: new PaginationParams(1, 1));
+        Assert.Equal(2, gerPage2.TotalCount);
+        var gerPage2List = await gerPage2.Results.ToListAsync();
+        Assert.Single(gerPage2List);
+        Assert.Equal(concert2.Id, gerPage2List[0].Id);
     }
     
     

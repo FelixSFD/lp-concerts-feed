@@ -113,6 +113,43 @@ public abstract class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObje
             .ToAsyncEnumerable();
     }
 
+    protected async Task<PaginatedQueryResult<TDataObject>> FindPaginatedAsync(Expression<Func<TDataObject, bool>> predicate, Func<IQueryable<TDataObject>, IQueryable<TDataObject>>? configureQuery = null, IEnumerable<SortDescriptor>? orderBy = null, IPaginationParams? paginationParams = null, bool includeDeleted = false, CancellationToken cancellationToken = default)
+    {
+        if (!typeof(TDataObject).IsAssignableTo(typeof(IDeletableDataObject)))
+        {
+            throw new InvalidCastException($"The data object '{typeof(TDataObject).FullName}' must be of type IDeletableDataObject!");
+        }
+        
+        IQueryable<TDataObject> query = DbSet;
+        
+        orderBy ??= new List<SortDescriptor>();
+
+        if (configureQuery != null)
+            query = configureQuery(query);
+        
+        if (!includeDeleted)
+        {
+            query = query
+                .Cast<IDeletableDataObject>()
+                .NotDeleted()
+                .Cast<TDataObject>();
+        }
+
+        query = query.Where(predicate);
+        
+        var totalCount = await query.CountAsync(cancellationToken);
+        var resultEnumerable = query
+            .ApplySorting(orderBy, SortExpressions)
+            .ApplyPagination(paginationParams)
+            .ToAsyncEnumerable();
+
+        return new PaginatedQueryResult<TDataObject>
+        {
+            Results = resultEnumerable,
+            TotalCount = totalCount
+        };
+    }
+
 
     public async Task SaveChangesAsync()
     {

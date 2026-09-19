@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using Common.Database;
+using Common.Database.DataObjects;
 using Common.Database.Repositories;
 using Common.Database.MySql.Repositories;
 using Database.Tours.DataObjects;
@@ -81,6 +82,7 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
         return GetConcerts(token, filter, orderBy, paginationParams, includeDeleted);
     }
     
+    /// <inheritdoc/>
     public IAsyncEnumerable<ConcertDo> GetConcerts(CancellationToken token, ConcertFilter? filter = null, IEnumerable<SortDescriptor>? orderBy = null, IPaginationParams? paginationParams = null, bool includeDeleted = false)
     {
         paginationParams ??= new PaginationParams(0, 100);
@@ -90,6 +92,20 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
                  (filter.Before == null || c.PostedStartTime < filter.Before) &&
                  (filter.After == null || c.PostedStartTime > filter.After),
             IncludeAllReferences, orderBy, paginationParams, includeDeleted);
+    }
+
+    /// <inheritdoc/>
+    public async Task<PaginatedQueryResult<ConcertDo>> GetConcertsAsync(CancellationToken token, ConcertFilter? filter = null,
+        IEnumerable<SortDescriptor>? orderBy = null,
+        IPaginationParams? paginationParams = null, bool includeDeleted = false,
+        CancellationToken cancellationToken = default)
+    {
+        paginationParams ??= new PaginationParams(0, 100);
+        return await FindPaginatedAsync(c => filter == null || 
+                              (filter.CountryCode == null || c.Venue.CountryCode == filter.CountryCode) &&
+                              (filter.Before == null || c.PostedStartTime < filter.Before) &&
+                              (filter.After == null || c.PostedStartTime > filter.After),
+            IncludeAllReferences, orderBy, paginationParams, includeDeleted, cancellationToken);
     }
 
     /// <inheritdoc/>
