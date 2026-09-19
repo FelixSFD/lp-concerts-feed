@@ -65,16 +65,6 @@ public class UpdateConcertRequestBo
     /// Expected duration of the set in minutes
     /// </summary>
     public uint ExpectedSetDurationMinutes { get; set; }
-    
-    /// <summary>
-    /// Name of the file in the S3 bucket that contains the official schedule for this concert
-    /// </summary>
-    public string? ScheduleImageFile { get; set; }
-    
-    /// <summary>
-    /// Time when this concert was deleted
-    /// </summary>
-    public DateTimeOffset? DeletedAt { get; set; }
 
     /// <summary>
     /// Status of this concert

@@ -476,8 +476,6 @@ internal static class DoMapper
         dataObject.LpuEarlyEntryTime = bo.LpuEarlyEntryTime?.UtcDateTime;
         dataObject.LpuEarlyEntryConfirmed = bo.LpuEarlyEntryConfirmed;
         dataObject.ExpectedSetDurationMinutes = bo.ExpectedSetDurationMinutes;
-        dataObject.ScheduleImageFile = bo.ScheduleImageFile;
-        dataObject.DeletedAt = bo.DeletedAt;
         dataObject.LinkinpediaUrl = bo.LinkinpediaUrl;
         dataObject.Status = bo.Status.ToDo();
         return dataObject;

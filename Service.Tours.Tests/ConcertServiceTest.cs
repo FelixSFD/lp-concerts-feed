@@ -306,6 +306,61 @@ public class ConcertServiceTest
         
         return mockConcert;
     }
+
+    [Fact]
+    public async Task UpdateConcertAsync()
+    {
+        var mockConcert = CreateMockConcert();
+
+        var updateConcertRequest = new UpdateConcertRequestBo
+        {
+            PostedStartTime = mockConcert.PostedStartTime,
+            DoorsTime = mockConcert.DoorsTime,
+            LpuEarlyEntryTime = mockConcert.LpuEarlyEntryTime,
+            LpuEarlyEntryConfirmed = mockConcert.LpuEarlyEntryConfirmed,
+            VenueId = mockConcert.VenueId,
+            ExpectedSetDurationMinutes = mockConcert.ExpectedSetDurationMinutes,
+            CustomTitle = "updated title",
+            ConcertTypeId = mockConcert.ConcertTypeId,
+        };
+        
+        // setup mocks
+        _concertRepository
+            .GetByPrimaryKeyAsync(Arg.Is<string>(s => s == mockConcert.Id))
+            .Returns(mockConcert);
+        _concertRepository
+            .GetByPrimaryKeyWithoutReferencesAsync(Arg.Is<string>(s => s == mockConcert.Id))
+            .Returns(mockConcert);
+        
+        ConcertDo? savedConcert = null;
+        _concertRepository
+            .When(r => r.Update(Arg.Any<ConcertDo>()))
+            .Do(cb =>
+            {
+                savedConcert = cb.Arg<ConcertDo>();
+            });
+        
+        // call the service
+        await _service.UpdateConcertAsync(mockConcert.Id, updateConcertRequest);
+        await Task.Delay(TimeSpan.FromSeconds(3));
+        Assert.NotNull(savedConcert);
+        Assert.Equal(mockConcert.Id, savedConcert.Id);
+        Assert.Equal("updated title", savedConcert.CustomTitle);
+        
+        // make sure schedule image file was not updated
+        Assert.Equal(mockConcert.ScheduleImageFile, savedConcert.ScheduleImageFile);
+        
+        // verify mock calls
+        _concertRepository
+            .DidNotReceive()
+            .Delete(Arg.Any<ConcertDo>());
+        _concertRepository
+            .Received(1)
+            .Update(Arg.Is<ConcertDo>(c => c.Id == mockConcert.Id));
+        await _concertRepository
+            .Received(1)
+            .SaveChangesAsync();
+    }
     
     [Fact]
     public async Task DeleteConcertAsync_MarkDeletedOnly()
