@@ -9,6 +9,7 @@ import {
 import { addAuthentication } from '../auth/auth.config';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { getRequestIdParameter } from '../helper/cache-parameter-helper';
 
 @Service()
 export class ConcertsService {
@@ -30,10 +31,10 @@ export class ConcertsService {
     );
   }
 
-  async getLinkinpediaImportStatus(): Promise<LinkinpediaImportStatusDto> {
+  async getLinkinpediaImportStatus(cached: boolean = true): Promise<LinkinpediaImportStatusDto> {
     console.debug("getLinkinpediaImportStatus");
     return firstValueFrom(
-      this.concertsApi.getConcertImportStatus()
+      this.concertsApi.getConcertImportStatus(getRequestIdParameter(cached))
     );
   }
 
@@ -46,14 +47,16 @@ export class ConcertsService {
     let request: ConcertScheduleUploadRequestDto = {
       contentType: contentType
     };
-    return firstValueFrom(this.concertsApi.getUrlForConcertFileUpload(concertId, undefined, request));
+
+    return firstValueFrom(this.concertsApi.getUrlForConcertFileUpload(concertId, getRequestIdParameter(true), request));
   }
 
   /**
    * Returns the details of a concert
    * @param concertId ID of the concert
+   * @param cached Whether to use cached data
    */
-  getDetailsById(concertId: string): Promise<ConcertDetailsDto> {
-    return firstValueFrom(this.concertsApi.getConcertById(concertId));
+  getDetailsById(concertId: string, cached: boolean = true): Promise<ConcertDetailsDto> {
+    return firstValueFrom(this.concertsApi.getConcertById(concertId, getRequestIdParameter(cached)));
   }
 }

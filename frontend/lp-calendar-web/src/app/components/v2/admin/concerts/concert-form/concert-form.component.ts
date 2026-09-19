@@ -485,7 +485,7 @@ export class ConcertFormComponent implements OnInit {
       return;
     }
     // load the new data, but don't refresh the whole form since the user might have unsaved changes! Only update the image
-    let refreshedDetailsAfterUpload = await this.concertsService.getDetailsById(concertId);
+    let refreshedDetailsAfterUpload = await this.concertsService.getDetailsById(concertId, false);
     this.currentConcert.update(existing => {
       if (existing == null) {
         return existing;
