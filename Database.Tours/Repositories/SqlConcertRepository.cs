@@ -13,12 +13,14 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
 {
     protected override IReadOnlyDictionary<string, LambdaExpression> SortExpressions { get; } = new Dictionary<string, LambdaExpression>(StringComparer.OrdinalIgnoreCase)
     {
-        ["date"] = (Expression<Func<ConcertDo, DateTimeOffset>>)(c => c.PostedStartTime),
+        ["date"] = (Expression<Func<ConcertDo, DateTime>>)(c => c.PostedStartTime),
         ["venue"] = (Expression<Func<ConcertDo, string>>)(c => c.Venue.CurrentName),
         ["city"] = (Expression<Func<ConcertDo, string>>)(c => c.Venue.City.Name),
         ["country"] = (Expression<Func<ConcertDo, string>>)(c => c.Venue.Country.Name),
         ["tour"] = (Expression<Func<ConcertDo, string>>)(c => c.Tour!.Name),
-        ["type"] = (Expression<Func<ConcertDo, string>>)(c => c.Type.Name)
+        ["type"] = (Expression<Func<ConcertDo, string>>)(c => c.Type.Name),
+        ["customTitle"] = (Expression<Func<ConcertDo, string>>)(c => c.CustomTitle!),
+        ["status"] = (Expression<Func<ConcertDo, ConcertDo.ConcertStatus>>)(c => c.Status),
     };
     
     protected override async Task<ConcertDo> LoadReferences(ConcertDo dataObject)
