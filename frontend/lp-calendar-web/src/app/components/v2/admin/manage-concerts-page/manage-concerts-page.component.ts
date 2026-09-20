@@ -30,6 +30,8 @@ import { ConcertsService } from '../../../../services/concerts.service';
 import { MeterGroup, MeterItem } from 'primeng/metergroup';
 import { Badge } from 'primeng/badge';
 import { makeRealArray } from '../../../../helper/array-helper';
+import { debounceTime, Subject } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-manage-concerts-page',
@@ -82,6 +84,8 @@ export class ManageConcertsPageComponent implements OnInit {
   globalSearchText$ = signal("");
   globalSearchTextImportStatus$ = signal("");
 
+  private lazyLoad$ = new Subject<TableLazyLoadEvent>();
+
   private currentOffset: number | null = null;
   private currentLimit: number | null = null;
   private currentSortFields: string[] = [];
@@ -117,8 +121,16 @@ export class ManageConcertsPageComponent implements OnInit {
     });
   });
 
+  constructor() {
+    this.lazyLoad$
+      .pipe(
+        debounceTime(300),
+        switchMap(event => this.loadConcertsLazy(event))
+      )
+      .subscribe();
+  }
+
   ngOnInit() {
-    //this.reloadList();
     this.reloadConcertImportStats();
   }
 
@@ -126,7 +138,12 @@ export class ManageConcertsPageComponent implements OnInit {
     return ConcertTitleGenerator.getTitleFor(concert);
   }
 
-  async loadConcertsLazy(event: TableLazyLoadEvent) {
+  protected async onConcertTableLazyLoad(event: TableLazyLoadEvent) {
+    console.debug("onConcertTableLazyLoad", event);
+    this.lazyLoad$.next(event);
+  }
+
+  private async loadConcertsLazy(event: TableLazyLoadEvent) {
     console.debug("loadConcertsLazy", event);
 
     let sortFields = event.sortField == null

@@ -16,9 +16,9 @@
     #concertTable
     [value]="concerts$()"
     [lazy]="true"
-    (onLazyLoad)="loadConcertsLazy($event)"
+    (onLazyLoad)="onConcertTableLazyLoad($event)"
     [(totalRecords)]="totalConcertCount$"
-    [filterDelay]="1000"
+    [filterDelay]="5000"
     dataKey="id"
     stripedRows
     rowHover
@@ -72,11 +72,12 @@
         <th></th>
         <th></th>
         <th>
-          <p-column-filter type="text" filterOn="input" field="country" [showMenu]="false" [pt]="{ columnFilterFormElement: { class: 'p-fluid' } }">
-            <ng-template #filter let-value let-filter="filterCallback">
-              <input pInputText pSize="small" type="text" [value]="value || ''" (input)="filter($any($event.target).value)" placeholder="Search country..." />
-            </ng-template>
-          </p-column-filter>
+          <p-column-filter
+            type="text"
+            field="country"
+            filterOn="input"
+            [showMenu]="false"
+          />
         </th>
         <th></th>
         <th></th>
