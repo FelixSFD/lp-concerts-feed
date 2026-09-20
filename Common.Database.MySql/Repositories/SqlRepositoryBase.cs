@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using Common.Database;
 using Common.Database.DataObjects;
+using Common.Database.Filter;
 using Common.Database.Pagination;
 using Common.Database.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -137,6 +138,34 @@ public abstract class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObje
         }
 
         query = query.Where(predicate);
+        
+        return await query.ToPaginatedResultAsync(orderBy, SortExpressions, paginationParams, cancellationToken);
+    }
+    
+    protected async Task<PaginatedQueryResult<TDataObject>> FindPaginatedAsync(IQueryFilter<TDataObject>? filter = null, Func<IQueryable<TDataObject>, IQueryable<TDataObject>>? configureQuery = null, IEnumerable<SortDescriptor>? orderBy = null, IPaginationParams? paginationParams = null, bool includeDeleted = false, CancellationToken cancellationToken = default)
+    {
+        if (!typeof(TDataObject).IsAssignableTo(typeof(IDeletableDataObject)))
+        {
+            throw new InvalidCastException($"The data object '{typeof(TDataObject).FullName}' must be of type IDeletableDataObject!");
+        }
+        
+        IQueryable<TDataObject> query = DbSet;
+        
+        orderBy ??= new List<SortDescriptor>();
+
+        if (configureQuery != null)
+            query = configureQuery(query);
+        
+        if (!includeDeleted)
+        {
+            query = query
+                .Cast<IDeletableDataObject>()
+                .NotDeleted()
+                .Cast<TDataObject>();
+        }
+
+        if (filter != null)
+            query = query.ApplyFilter(filter);
         
         return await query.ToPaginatedResultAsync(orderBy, SortExpressions, paginationParams, cancellationToken);
     }

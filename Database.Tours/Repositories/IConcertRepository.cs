@@ -35,8 +35,21 @@ public interface IConcertRepository : ISingleKeyRepositoryBase<ConcertDo, string
     IAsyncEnumerable<ConcertDo> GetConcerts(CancellationToken token, ConcertFilter? filter = null, IEnumerable<SortDescriptor>? orderBy = null,
         IPaginationParams? paginationParams = null, bool includeDeleted = false);
     
-    Task<PaginatedQueryResult<ConcertDo>> GetConcertsAsync(CancellationToken token, ConcertFilter? filter = null, IEnumerable<SortDescriptor>? orderBy = null,
+    [Obsolete("Use Database.Tours.Filters.ConcertFilter instead")]
+    Task<PaginatedQueryResult<ConcertDo>> GetConcertsAsync(CancellationToken token, ConcertFilter? filter, IEnumerable<SortDescriptor>? orderBy = null,
         IPaginationParams? paginationParams = null, bool includeDeleted = false, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Returns a filtered list of concerts with pagination and sorting
+    /// </summary>
+    /// <param name="token">Token to cancel the operation</param>
+    /// <param name="filter">Filter to apply to the query</param>
+    /// <param name="orderBy">sorting</param>
+    /// <param name="paginationParams">pagination options</param>
+    /// <param name="includeDeleted">true, if deleted concerts should be returned, too</param>
+    /// <returns></returns>
+    Task<PaginatedQueryResult<ConcertDo>> GetConcertsAsync(CancellationToken token, Filters.ConcertFilter? filter = null, IEnumerable<SortDescriptor>? orderBy = null,
+        IPaginationParams? paginationParams = null, bool includeDeleted = false);
     
     /// <summary>
     /// Returns a list of concerts that are linked to a given Linkinpedia page. Ideally, this should only return one concert, but there is technically no unique key.
@@ -53,7 +66,7 @@ public interface IConcertRepository : ISingleKeyRepositoryBase<ConcertDo, string
     IAsyncEnumerable<ConcertDo> FindAllWithReferencesAsync(CancellationToken token);
 }
 
-
+[Obsolete("Use Database.Tours.Filters.ConcertFilter instead")]
 public class ConcertFilter
 {
     public string? CountryCode { get; set; }

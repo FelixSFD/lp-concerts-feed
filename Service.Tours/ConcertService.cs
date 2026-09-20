@@ -169,12 +169,12 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
     {
         logger.LogDebug("Getting concerts with details... Fetching starting with result {offset} and take {limit}", filter.Skip, filter.Limit);
         var paginationParams = new PaginationParams(filter.Skip, filter.Limit);
-        var concertFilter = new ConcertFilter
+        var concertFilter = new Database.Tours.Filters.ConcertFilter
         {
             CountryCode = filter.CountryCode
         };
         var paginatedResult = await concertRepository
-            .GetConcertsAsync(cancellationToken, concertFilter, orderBy: filter.OrderBy.Select(SortDescriptor.FromString), paginationParams, cancellationToken: cancellationToken);
+            .GetConcertsAsync(cancellationToken, concertFilter, orderBy: filter.OrderBy.Select(SortDescriptor.FromString), paginationParams);
         logger.LogDebug("Query would return {count} concerts. A maximum of {limit} will be returned", paginatedResult.TotalCount, filter.Limit);
         return new AsyncPaginationResult<ConcertDetailsBo>
         {

@@ -410,7 +410,7 @@ public class SqlConcertRepositoryTest : ToursDbIntegrationTestsBase
         // 5. Pagination with filter: CountryCode = "GER", Page 1: Skip = 0, Take = 1
         var gerPage1 = await concertRepo.GetConcertsAsync(
             CancellationToken.None,
-            filter: new ConcertFilter { CountryCode = "GER" },
+            filter: new Filters.ConcertFilter { CountryCode = "GER" },
             orderBy: [new SortDescriptor("date")],
             paginationParams: new PaginationParams(0, 1));
         Assert.Equal(2, gerPage1.TotalCount);
@@ -421,7 +421,7 @@ public class SqlConcertRepositoryTest : ToursDbIntegrationTestsBase
         // 6. Pagination with filter: CountryCode = "GER", Page 2: Skip = 1, Take = 1
         var gerPage2 = await concertRepo.GetConcertsAsync(
             CancellationToken.None,
-            filter: new ConcertFilter { CountryCode = "GER" },
+            filter: new Filters.ConcertFilter { CountryCode = "GER" },
             orderBy: [new SortDescriptor("date")],
             paginationParams: new PaginationParams(1, 1));
         Assert.Equal(2, gerPage2.TotalCount);

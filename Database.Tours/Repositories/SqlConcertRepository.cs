@@ -95,17 +95,34 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
     }
 
     /// <inheritdoc/>
-    public async Task<PaginatedQueryResult<ConcertDo>> GetConcertsAsync(CancellationToken token, ConcertFilter? filter = null,
+    public async Task<PaginatedQueryResult<ConcertDo>> GetConcertsAsync(CancellationToken token, ConcertFilter? filter,
         IEnumerable<SortDescriptor>? orderBy = null,
         IPaginationParams? paginationParams = null, bool includeDeleted = false,
         CancellationToken cancellationToken = default)
     {
+        /*
         paginationParams ??= new PaginationParams(0, 100);
         return await FindPaginatedAsync(c => filter == null || 
                               (filter.CountryCode == null || c.Venue.CountryCode == filter.CountryCode) &&
                               (filter.Before == null || c.PostedStartTime < filter.Before) &&
                               (filter.After == null || c.PostedStartTime > filter.After),
-            IncludeAllReferences, orderBy, paginationParams, includeDeleted, cancellationToken);
+            IncludeAllReferences, orderBy, paginationParams, includeDeleted, cancellationToken);*/
+        var newFilter = new Filters.ConcertFilter
+        {
+            CountryCode = filter?.CountryCode,
+            Before = filter?.Before,
+            After = filter?.After
+        };
+        return await GetConcertsAsync(token, newFilter, orderBy, paginationParams, includeDeleted);
+    }
+    
+    /// <inheritdoc/>
+    public async Task<PaginatedQueryResult<ConcertDo>> GetConcertsAsync(CancellationToken token, Filters.ConcertFilter? filter = null,
+        IEnumerable<SortDescriptor>? orderBy = null,
+        IPaginationParams? paginationParams = null, bool includeDeleted = false)
+    {
+        paginationParams ??= new PaginationParams(0, 100);
+        return await FindPaginatedAsync(filter, IncludeAllReferences, orderBy, paginationParams, includeDeleted, token);
     }
 
     /// <inheritdoc/>
