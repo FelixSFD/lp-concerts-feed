@@ -180,11 +180,13 @@ export class ManageConcertsPageComponent implements OnInit {
     if (filter) {
       let countryFilter = makeRealArray(filter["country"]).pop() ?? null;
       let cityFilter = makeRealArray(filter["city"]).pop() ?? null;
+      let venueFilter = makeRealArray(filter["venue"]).pop() ?? null;
 
       return {
         countryCode: undefined,
         country: countryFilter?.value,
         city: cityFilter?.value,
+        venue: venueFilter?.value,
         tour: undefined,
         onlyFuture: false,
         dateFrom: null,

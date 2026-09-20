@@ -14,6 +14,7 @@ export class ConcertFilter {
   countryCode?: string | undefined;
   country?: string | undefined;
   city?: string | undefined;
+  venue?: string | undefined;
 
   orderBy?: string[] | undefined;
 }
