@@ -51,6 +51,7 @@ paths:
         - $ref: "#/components/parameters/CountryCode"
         - $ref: "#/components/parameters/Country"
         - $ref: "#/components/parameters/City"
+        - $ref: "#/components/parameters/Venue"
         - $ref: "#/components/parameters/Before"
         - $ref: "#/components/parameters/After"
         - name: Limit
@@ -1892,6 +1893,12 @@ components:
     City:
       description: filter by city name or its native name
       name: city
+      in: query
+      schema:
+        type: string
+    Venue:
+      description: filter by venue name (including previous names)
+      name: venue
       in: query
       schema:
         type: string
