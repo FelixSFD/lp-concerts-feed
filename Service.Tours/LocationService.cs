@@ -59,7 +59,7 @@ public class LocationService(
     {
         logger.LogDebug("Requesting list of countries...");
         return countryRepository
-            .QueryAsync(cancellationToken)
+            .FindAsync(cancellationToken: cancellationToken)
             .Select(DoMapper.ToBo);
     }
     

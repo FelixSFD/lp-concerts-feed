@@ -193,9 +193,9 @@ public abstract class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObje
     /// <exception cref="InvalidCastException"></exception>
     protected IAsyncEnumerable<TDataObject> InternalFindAsync(IQueryFilter<TDataObject>? filter = null, Func<IQueryable<TDataObject>, IQueryable<TDataObject>>? configureQuery = null, IEnumerable<SortDescriptor>? orderBy = null, IPaginationParams? paginationParams = null, bool includeDeleted = false, CancellationToken cancellationToken = default)
     {
-        if (!typeof(TDataObject).IsAssignableTo(typeof(IDeletableDataObject)))
+        if (includeDeleted && !typeof(TDataObject).IsAssignableTo(typeof(IDeletableDataObject)))
         {
-            throw new InvalidCastException($"The data object '{typeof(TDataObject).FullName}' must be of type IDeletableDataObject!");
+            throw new InvalidCastException($"The data object '{typeof(TDataObject).FullName}' must be of type IDeletableDataObject, if includeDeleted = true");
         }
         
         IQueryable<TDataObject> query = DbSet;
@@ -205,7 +205,7 @@ public abstract class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObje
         configureQuery ??= DefaultQueryConfiguration; 
         query = configureQuery(query);
         
-        if (!includeDeleted)
+        if (!includeDeleted && typeof(TDataObject).IsAssignableTo(typeof(IDeletableDataObject)))
         {
             query = query
                 .Cast<IDeletableDataObject>()
