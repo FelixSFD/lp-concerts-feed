@@ -74,7 +74,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
     {
         logger.LogDebug("Read all concert types");
         return concertTypeRepository
-            .QueryAsync(cancellationToken)
+            .FindAsync(cancellationToken: cancellationToken)
             .Select(DoMapper.ToBo);
     }
     
