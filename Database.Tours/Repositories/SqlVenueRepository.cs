@@ -1,5 +1,6 @@
 using Common.Database.MySql.Repositories;
 using Database.Tours.DataObjects;
+using Microsoft.EntityFrameworkCore;
 
 namespace Database.Tours.Repositories;
 
@@ -21,5 +22,14 @@ public class SqlVenueRepository(ToursDbContext dbContext) : SingleKeySqlReposito
             .LoadAsync();
         
         return dataObject;
+    }
+
+    protected override IQueryable<VenueDo> DefaultQueryConfiguration(IQueryable<VenueDo> queryable)
+    {
+        return base.DefaultQueryConfiguration(queryable)
+            .Include(v => v.Country)
+            .Include(v => v.State)
+            .Include(v => v.City)
+            .Include(v => v.PreviousNames);
     }
 }

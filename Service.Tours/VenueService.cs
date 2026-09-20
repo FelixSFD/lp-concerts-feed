@@ -70,7 +70,7 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
     {
         logger.LogDebug("Searching for all venues...");
         return venueRepository
-            .QueryAsync(cancellationToken)
+            .FindAsync(cancellationToken: cancellationToken)
             .Select(DoMapper.ToBo);
     }
 
