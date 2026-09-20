@@ -18,6 +18,11 @@ public class ConcertFilter : IQueryFilter<ConcertDo>
     /// Search for exact country code
     /// </summary>
     public string? CountryCode { get; set; }
+
+    /// <summary>
+    /// Search for city name
+    /// </summary>
+    public string? City { get; set; }
     
     /// <summary>
     /// Filter for concert before a specific date. If null, no filter is applied
@@ -31,6 +36,16 @@ public class ConcertFilter : IQueryFilter<ConcertDo>
     
     public IQueryable<ConcertDo> ApplyTo(IQueryable<ConcertDo> query)
     {
+        // filter for date range
+        if (Before.HasValue)
+        {
+            query = query.Where(c => c.PostedStartTime <= Before.Value);
+        }
+        if (After.HasValue)
+        {
+            query = query.Where(c => c.PostedStartTime >= After.Value);
+        }
+        
         // Filter for country (in any country-related field)
         if (!string.IsNullOrEmpty(Country))
         {
@@ -47,14 +62,13 @@ public class ConcertFilter : IQueryFilter<ConcertDo>
             query = query.Where(c => c.Venue.CountryCode == CountryCode);
         }
         
-        // filter for date range
-        if (Before.HasValue)
+        // filter for city name
+        if (!string.IsNullOrEmpty(City))
         {
-            query = query.Where(c => c.PostedStartTime <= Before.Value);
-        }
-        if (After.HasValue)
-        {
-            query = query.Where(c => c.PostedStartTime >= After.Value);
+            query = query.Where(c => 
+                EF.Functions.Like(c.Venue.City.Name, $"%{City}%")
+                || EF.Functions.Like(c.Venue.City.NativeName, $"%{City}%")
+                );
         }
         
         return query;

@@ -50,6 +50,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/CountryCode"
         - $ref: "#/components/parameters/Country"
+        - $ref: "#/components/parameters/City"
         - $ref: "#/components/parameters/Before"
         - $ref: "#/components/parameters/After"
         - name: Limit
@@ -1885,6 +1886,12 @@ components:
     Country:
       description: filter by country name, native name or ISO code
       name: country
+      in: query
+      schema:
+        type: string
+    City:
+      description: filter by city name or its native name
+      name: city
       in: query
       schema:
         type: string
