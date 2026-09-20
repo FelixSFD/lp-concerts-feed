@@ -289,18 +289,17 @@ if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("EnableS
 // enable HTTP logging
 app.UseHttpLogging();
 
-app.UseCors();
-
-app.UseAuthentication(); // responsible for constructing AuthenticationTicket objects representing the user's identity
-app.UseAuthorization();
-
-app.MapControllers();
 app.UseHttpMetrics();
 
-app.MapHealthChecks("/health");
+app.UseCors();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseOutputCache();
 
+app.MapControllers();
+app.MapHealthChecks("/health");
 app.MapMetrics();
 
 app.Run();
