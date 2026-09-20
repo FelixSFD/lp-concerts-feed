@@ -81,7 +81,7 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
         IPaginationParams? paginationParams = null, bool includeDeleted = false)
     {
         paginationParams ??= new PaginationParams(0, 100);
-        return await FindPaginatedAsync(filter, IncludeAllReferences, orderBy, paginationParams, includeDeleted, token);
+        return await InternalFindPaginatedAsync(filter, IncludeAllReferences, orderBy, paginationParams, includeDeleted, token);
     }
 
     /// <inheritdoc/>
@@ -89,7 +89,7 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
         IPaginationParams? paginationParams = null, bool includeDeleted = false)
     {
         paginationParams ??= new PaginationParams(0, 100);
-        return FindAsync(filter, IncludeAllReferences, orderBy, paginationParams, includeDeleted, token);
+        return InternalFindAsync(filter, IncludeAllReferences, orderBy, paginationParams, includeDeleted, token);
     }
 
     /// <inheritdoc/>

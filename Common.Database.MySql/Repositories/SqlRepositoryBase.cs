@@ -64,6 +64,18 @@ public abstract class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObje
         return DbSet.AsAsyncEnumerable();
     }
 
+    /// <inheritdoc/>
+    public async Task<PaginatedQueryResult<TDataObject>> FindPaginatedAsync(IQueryFilter<TDataObject>? filter = null, IEnumerable<SortDescriptor>? orderBy = null, IPaginationParams? paginationParams = null, bool includeDeleted = false, CancellationToken cancellationToken = default)
+    {
+        return await InternalFindPaginatedAsync(filter, DefaultQueryConfiguration, orderBy, paginationParams, includeDeleted, cancellationToken);
+    }
+    
+    /// <inheritdoc/>
+    public IAsyncEnumerable<TDataObject> FindAsync(IQueryFilter<TDataObject>? filter = null, IEnumerable<SortDescriptor>? orderBy = null, IPaginationParams? paginationParams = null, bool includeDeleted = false, CancellationToken cancellationToken = default)
+    {
+        return InternalFindAsync(filter, DefaultQueryConfiguration, orderBy, paginationParams, includeDeleted, cancellationToken);
+    }
+
     /// <summary>
     /// Runs a query for objects in the repository
     /// </summary>
@@ -71,7 +83,7 @@ public abstract class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObje
     /// <param name="configureQuery">Optional parameter for further configuration of the query. If referenced objects should be included, do that in this parameter</param>
     /// <param name="paginationParams">Pagination of the results</param>
     /// <returns>The results matching the <paramref name="predicate"/></returns>
-    protected IAsyncEnumerable<TDataObject> FindAsync(Expression<Func<TDataObject, bool>> predicate, Func<IQueryable<TDataObject>, IQueryable<TDataObject>>? configureQuery = null, IEnumerable<SortDescriptor>? orderBy = null, IPaginationParams? paginationParams = null)
+    protected IAsyncEnumerable<TDataObject> InternalFindAsync(Expression<Func<TDataObject, bool>> predicate, Func<IQueryable<TDataObject>, IQueryable<TDataObject>>? configureQuery = null, IEnumerable<SortDescriptor>? orderBy = null, IPaginationParams? paginationParams = null)
     {
         IQueryable<TDataObject> query = DbSet;
         
@@ -137,11 +149,11 @@ public abstract class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObje
     /// <param name="cancellationToken">Cancellation token for the query</param>
     /// <returns>The results with pagination metadata</returns>
     /// <exception cref="InvalidCastException"></exception>
-    protected async Task<PaginatedQueryResult<TDataObject>> FindPaginatedAsync(IQueryFilter<TDataObject>? filter = null, Func<IQueryable<TDataObject>, IQueryable<TDataObject>>? configureQuery = null, IEnumerable<SortDescriptor>? orderBy = null, IPaginationParams? paginationParams = null, bool includeDeleted = false, CancellationToken cancellationToken = default)
+    protected async Task<PaginatedQueryResult<TDataObject>> InternalFindPaginatedAsync(IQueryFilter<TDataObject>? filter = null, Func<IQueryable<TDataObject>, IQueryable<TDataObject>>? configureQuery = null, IEnumerable<SortDescriptor>? orderBy = null, IPaginationParams? paginationParams = null, bool includeDeleted = false, CancellationToken cancellationToken = default)
     {
-        if (!typeof(TDataObject).IsAssignableTo(typeof(IDeletableDataObject)))
+        if (includeDeleted && !typeof(TDataObject).IsAssignableTo(typeof(IDeletableDataObject)))
         {
-            throw new InvalidCastException($"The data object '{typeof(TDataObject).FullName}' must be of type IDeletableDataObject!");
+            throw new InvalidCastException($"The data object '{typeof(TDataObject).FullName}' must be of type IDeletableDataObject, if includeDeleted = true");
         }
         
         IQueryable<TDataObject> query = DbSet;
@@ -151,7 +163,7 @@ public abstract class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObje
         configureQuery ??= DefaultQueryConfiguration; 
         query = configureQuery(query);
         
-        if (!includeDeleted)
+        if (!includeDeleted && typeof(TDataObject).IsAssignableTo(typeof(IDeletableDataObject)))
         {
             query = query
                 .Cast<IDeletableDataObject>()
@@ -168,7 +180,7 @@ public abstract class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObje
     /// <summary>
     /// Finds a list of data objects in the database. Pagination is applied, but no metadata will be returned.
     /// <p>
-    /// Prefer this method over <see cref="FindPaginatedAsync"/> when you don't need to return metadata.
+    /// Prefer this method over <see cref="InternalFindPaginatedAsync"/> when you don't need to return metadata.
     /// </p>
     /// </summary>
     /// <param name="filter">Filter to use for the query</param>
@@ -179,7 +191,7 @@ public abstract class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObje
     /// <param name="cancellationToken">Cancellation token for the query</param>
     /// <returns>The results without pagination metadata</returns>
     /// <exception cref="InvalidCastException"></exception>
-    protected IAsyncEnumerable<TDataObject> FindAsync(IQueryFilter<TDataObject>? filter = null, Func<IQueryable<TDataObject>, IQueryable<TDataObject>>? configureQuery = null, IEnumerable<SortDescriptor>? orderBy = null, IPaginationParams? paginationParams = null, bool includeDeleted = false, CancellationToken cancellationToken = default)
+    protected IAsyncEnumerable<TDataObject> InternalFindAsync(IQueryFilter<TDataObject>? filter = null, Func<IQueryable<TDataObject>, IQueryable<TDataObject>>? configureQuery = null, IEnumerable<SortDescriptor>? orderBy = null, IPaginationParams? paginationParams = null, bool includeDeleted = false, CancellationToken cancellationToken = default)
     {
         if (!typeof(TDataObject).IsAssignableTo(typeof(IDeletableDataObject)))
         {
