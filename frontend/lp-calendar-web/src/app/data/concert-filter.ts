@@ -10,4 +10,12 @@ export class ConcertFilter {
 
   dateFrom: DateTime | null = null;
   dateTo: DateTime | null  = null;
+
+  countryCode?: string | undefined;
+  country?: string | undefined;
+  city?: string | undefined;
+  venue?: string | undefined;
+  customTitle?: string | undefined;
+
+  orderBy?: string[] | undefined;
 }

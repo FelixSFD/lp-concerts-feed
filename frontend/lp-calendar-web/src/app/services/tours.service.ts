@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { firstValueFrom, Observable } from 'rxjs';
+import { firstValueFrom, map, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { addAuthentication } from '../auth/auth.config';
 import {
@@ -87,8 +87,13 @@ export class ToursService {
     return this.toursApi.deleteTourLeg(tourId, legId);
   }
 
+  /**
+   * @deprecated use ConcertsService.getFilteredConcerts
+   * @param filter
+   * @param cached
+   */
   getFilteredConcerts(filter: ConcertFilter, cached: boolean = true): Observable<ConcertDetailsDto[]> {
-    return this.concertsApi.getConcerts(getRequestIdParameter(cached));
+    return this.concertsApi.getConcerts(getRequestIdParameter(cached)).pipe(map(c => c.concerts ?? []));
   }
 
   getConcertById(concertId: string, cached: boolean = true): Observable<ConcertDetailsDto> {

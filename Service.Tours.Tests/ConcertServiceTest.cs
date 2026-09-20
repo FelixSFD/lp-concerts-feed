@@ -1,3 +1,6 @@
+using Common.Database;
+using Common.Database.Filter;
+using Common.Database.Repositories;
 using Database.Tours.DataObjects;
 using Database.Tours.Repositories;
 using LPCalendar.DataStructure;
@@ -110,7 +113,7 @@ public class ConcertServiceTest
         ConcertTypeDo[] mockTypes = [mockType];
 
         _concertTypeRepository
-            .QueryAsync(Arg.Any<CancellationToken>())
+            .FindAsync(Arg.Any<IQueryFilter<ConcertTypeDo>>(), Arg.Any<IEnumerable<SortDescriptor>>(), Arg.Any<PaginationParams>(), Arg.Is<bool>(b => b == false), Arg.Any<CancellationToken>())
             .Returns(mockTypes.ToAsyncEnumerable());
 
         var results = await _service.GetConcertTypesAsync(CancellationToken.None).ToArrayAsync();
@@ -121,7 +124,7 @@ public class ConcertServiceTest
         
         _concertTypeRepository
             .Received(1)
-            .QueryAsync(Arg.Any<CancellationToken>());
+            .FindAsync(Arg.Any<IQueryFilter<ConcertTypeDo>>(), Arg.Any<IEnumerable<SortDescriptor>>(), Arg.Any<PaginationParams>(), Arg.Is<bool>(b => b == false), Arg.Any<CancellationToken>());
     }
 
     [Fact]

@@ -1,15 +1,16 @@
 import { inject, Service } from '@angular/core';
 import {
   ConcertDetailsDto,
-  ConcertFileUploadResponseDto,
+  ConcertFileUploadResponseDto, ConcertListResponseDto,
   ConcertsApi,
   ConcertScheduleUploadRequestDto,
   LinkinpediaImportStatusDto
 } from '../modules/lpshows-api/v3';
 import { addAuthentication } from '../auth/auth.config';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { getRequestIdParameter } from '../helper/cache-parameter-helper';
+import { ConcertFilter } from '../data/concert-filter';
 
 @Service()
 export class ConcertsService {
@@ -58,5 +59,9 @@ export class ConcertsService {
    */
   getDetailsById(concertId: string, cached: boolean = true): Promise<ConcertDetailsDto> {
     return firstValueFrom(this.concertsApi.getConcertById(concertId, getRequestIdParameter(cached)));
+  }
+
+  getFilteredConcerts(filter: ConcertFilter, limit: number = 100, skip: number = 0, cached: boolean = true): Promise<ConcertListResponseDto> {
+    return firstValueFrom(this.concertsApi.getConcerts(getRequestIdParameter(cached), filter.countryCode, filter.country, filter.city, filter.venue, filter.customTitle, undefined, undefined, limit, skip, filter.orderBy));
   }
 }

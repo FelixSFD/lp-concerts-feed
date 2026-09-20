@@ -48,7 +48,7 @@ public class SqlCityRepository(ToursDbContext dbContext) : SqlRepositoryBase<Cit
         IPaginationParams? paginationParams = null)
     {
         paginationParams ??= new PaginationParams(0, 100);
-        return FindAsync(c => countryCode == null || c.CountryCode == countryCode, IncludeAllReferences, orderBy, paginationParams);
+        return InternalFindAsync(c => countryCode == null || c.CountryCode == countryCode, IncludeAllReferences, orderBy, paginationParams);
     }
 
     public async Task<CityDo?> GetByPrimaryKeyWithoutReferencesAsync(string countryCode, uint cityId)

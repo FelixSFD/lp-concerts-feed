@@ -88,13 +88,24 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     [HttpGet]
     [CustomResponseCache(Duration = CacheExpiration.Default)]
     [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
-    public async Task<ActionResult<ConcertDetailsDto[]>> GetConcertsAsync(CancellationToken cancellationToken, [FromQuery] GetConcertsFilterDto filter)
+    public async Task<ActionResult<ConcertListResponseDto>> GetConcertsAsync(CancellationToken cancellationToken, [FromQuery] GetConcertsFilterDto filter)
     {
-        var concerts = await concertService.GetConcertsWithDetailsAsync(cancellationToken, filter)
+        var paginatedResult = await concertService.GetConcertsWithDetailsAsync(cancellationToken, filter);
+        var concerts = await paginatedResult.Results
             .Select(DtoMapper.ToDto)
-            .ToArrayAsync(cancellationToken);
-        logger.LogDebug("Retrieved {count} concert details.", concerts.Length);
-        return Ok(concerts);
+            .ToListAsync(cancellationToken);
+        logger.LogDebug("Retrieved {count} concert details. The query could return up to {total} concerts", concerts.Count, paginatedResult.TotalResults);
+
+        var response = new ConcertListResponseDto
+        {
+            Concerts = concerts,
+            Metadata = new PaginationResponseMetadataDto
+            {
+                Offset = (int)filter.Skip,
+                TotalElements = paginatedResult.TotalResults,
+            }
+        };
+        return Ok(response);
     }
     
     /// <summary>

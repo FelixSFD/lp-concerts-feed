@@ -1,3 +1,5 @@
+using Common.Database;
+using Common.Database.Repositories;
 using Database.Tours.DataObjects;
 using Database.Tours.Repositories;
 
@@ -103,9 +105,10 @@ public class SqlConcertRepositoryTest : ToursDbIntegrationTestsBase
         Assert.NotNull(retrievedConcert);
         AssertConcertsEqual(concert, retrievedConcert);
     }
-
+    
+    
     [Fact]
-    public async Task GetConcerts_WithFilter()
+    public async Task GetConcerts_WithPaginationAndFilter()
     {
         var concertRepo = new SqlConcertRepository(DbContext);
         var concertTypeRepo = new SqlConcertTypeRepository(DbContext);
@@ -208,55 +211,68 @@ public class SqlConcertRepositoryTest : ToursDbIntegrationTestsBase
         concertRepo.Add(concert3);
         await concertRepo.SaveChangesAsync();
 
-        // 1. No filter - should return all concerts
-        var allConcerts = await concertRepo.GetConcerts(CancellationToken.None, (ConcertFilter?)null).ToListAsync();
-        Assert.Contains(allConcerts, c => c.Id == concert1.Id);
-        Assert.Contains(allConcerts, c => c.Id == concert2.Id);
-        Assert.Contains(allConcerts, c => c.Id == concert3.Id);
+        // 1. No pagination params - default pagination
+        var defaultPage = await concertRepo.GetConcertsAsync(CancellationToken.None);
+        Assert.Equal(3, defaultPage.TotalCount);
+        var defaultList = await defaultPage.Results.ToListAsync();
+        Assert.Equal(3, defaultList.Count);
+        Assert.Contains(defaultList, c => c.Id == concert1.Id);
+        Assert.Contains(defaultList, c => c.Id == concert2.Id);
+        Assert.Contains(defaultList, c => c.Id == concert3.Id);
 
-        // 2. Filter by CountryCode
-        var gerConcerts = await concertRepo.GetConcerts(CancellationToken.None, new ConcertFilter { CountryCode = "GER" }).ToListAsync();
-        Assert.Contains(gerConcerts, c => c.Id == concert1.Id);
-        Assert.Contains(gerConcerts, c => c.Id == concert2.Id);
-        Assert.DoesNotContain(gerConcerts, c => c.Id == concert3.Id);
+        // 2. Page 1: Skip = 0, Take = 2, sorted by date asc
+        var page1 = await concertRepo.GetConcertsAsync(
+            CancellationToken.None,
+            orderBy: [new SortDescriptor("date")],
+            paginationParams: new PaginationParams(0, 2));
+        Assert.Equal(3, page1.TotalCount);
+        var page1List = await page1.Results.ToListAsync();
+        Assert.Equal(2, page1List.Count);
+        Assert.Equal(concert1.Id, page1List[0].Id);
+        Assert.Equal(concert2.Id, page1List[1].Id);
+        Assert.NotNull(page1List[0].Venue);
+        Assert.NotNull(page1List[0].Type);
 
-        // 3. Filter by Before
-        var beforeJune = await concertRepo.GetConcerts(CancellationToken.None, new ConcertFilter
-        {
-            Before = new DateTimeOffset(2026, 5, 15, 0, 0, 0, TimeSpan.Zero)
-        }).ToListAsync();
-        Assert.Contains(beforeJune, c => c.Id == concert1.Id);
-        Assert.DoesNotContain(beforeJune, c => c.Id == concert2.Id);
-        Assert.DoesNotContain(beforeJune, c => c.Id == concert3.Id);
+        // 3. Page 2: Skip = 2, Take = 2, sorted by date asc
+        var page2 = await concertRepo.GetConcertsAsync(
+            CancellationToken.None,
+            orderBy: [new SortDescriptor("date")],
+            paginationParams: new PaginationParams(2, 2));
+        Assert.Equal(3, page2.TotalCount);
+        var page2List = await page2.Results.ToListAsync();
+        Assert.Single(page2List);
+        Assert.Equal(concert3.Id, page2List[0].Id);
 
-        // 4. Filter by After
-        var afterMay = await concertRepo.GetConcerts(CancellationToken.None, new ConcertFilter
-        {
-            After = new DateTimeOffset(2026, 5, 15, 0, 0, 0, TimeSpan.Zero)
-        }).ToListAsync();
-        Assert.DoesNotContain(afterMay, c => c.Id == concert1.Id);
-        Assert.Contains(afterMay, c => c.Id == concert2.Id);
-        Assert.Contains(afterMay, c => c.Id == concert3.Id);
+        // 4. Page out of bounds: Skip = 4, Take = 2
+        var emptyPage = await concertRepo.GetConcertsAsync(
+            CancellationToken.None,
+            orderBy: [new SortDescriptor("date")],
+            paginationParams: new PaginationParams(4, 2));
+        Assert.Equal(3, emptyPage.TotalCount);
+        var emptyPageList = await emptyPage.Results.ToListAsync();
+        Assert.Empty(emptyPageList);
 
-        // 5. Filter by Date range (After and Before)
-        var midRange = await concertRepo.GetConcerts(CancellationToken.None, new ConcertFilter
-        {
-            After = new DateTimeOffset(2026, 5, 15, 0, 0, 0, TimeSpan.Zero),
-            Before = new DateTimeOffset(2026, 6, 15, 0, 0, 0, TimeSpan.Zero)
-        }).ToListAsync();
-        Assert.DoesNotContain(midRange, c => c.Id == concert1.Id);
-        Assert.Contains(midRange, c => c.Id == concert2.Id);
-        Assert.DoesNotContain(midRange, c => c.Id == concert3.Id);
+        // 5. Pagination with filter: CountryCode = "GER", Page 1: Skip = 0, Take = 1
+        var gerPage1 = await concertRepo.GetConcertsAsync(
+            CancellationToken.None,
+            filter: new Filters.ConcertFilter { CountryCode = "GER" },
+            orderBy: [new SortDescriptor("date")],
+            paginationParams: new PaginationParams(0, 1));
+        Assert.Equal(2, gerPage1.TotalCount);
+        var gerPage1List = await gerPage1.Results.ToListAsync();
+        Assert.Single(gerPage1List);
+        Assert.Equal(concert1.Id, gerPage1List[0].Id);
 
-        // 6. Filter by CountryCode + Date range
-        var gerRange = await concertRepo.GetConcerts(CancellationToken.None, new ConcertFilter
-        {
-            CountryCode = "GER",
-            After = new DateTimeOffset(2026, 5, 15, 0, 0, 0, TimeSpan.Zero)
-        }).ToListAsync();
-        Assert.DoesNotContain(gerRange, c => c.Id == concert1.Id);
-        Assert.Contains(gerRange, c => c.Id == concert2.Id);
-        Assert.DoesNotContain(gerRange, c => c.Id == concert3.Id);
+        // 6. Pagination with filter: CountryCode = "GER", Page 2: Skip = 1, Take = 1
+        var gerPage2 = await concertRepo.GetConcertsAsync(
+            CancellationToken.None,
+            filter: new Filters.ConcertFilter { CountryCode = "GER" },
+            orderBy: [new SortDescriptor("date")],
+            paginationParams: new PaginationParams(1, 1));
+        Assert.Equal(2, gerPage2.TotalCount);
+        var gerPage2List = await gerPage2.Results.ToListAsync();
+        Assert.Single(gerPage2List);
+        Assert.Equal(concert2.Id, gerPage2List[0].Id);
     }
     
     

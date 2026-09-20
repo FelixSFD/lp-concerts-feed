@@ -35,7 +35,7 @@ public class TourService(ITourRepository tourRepository, ILogger<TourService> lo
     {
         logger.LogDebug("Loading a list of all tours...");
         return tourRepository
-            .QueryAsync(cancellationToken)
+            .FindAsync(cancellationToken: cancellationToken)
             .Select(DoMapper.ToBo);
     }
 

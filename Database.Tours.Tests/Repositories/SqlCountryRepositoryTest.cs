@@ -1,4 +1,5 @@
 using Database.Tours.DataObjects;
+using Database.Tours.Filters;
 using Database.Tours.Repositories;
 
 namespace Database.Tours.Tests.Repositories;
@@ -178,6 +179,67 @@ public class SqlCountryRepositoryTest : ToursDbIntegrationTestsBase
         
         retrievedCity = await cityRepo.GetByPrimaryKeyAsync(countryGer.IsoCode, cityMuc.Id);
         Assert.Null(retrievedCity);
+    }
+    
+    
+    [Fact]
+    public async Task FindPaginatedAsync_FilterByName()
+    {
+        var repo = new SqlCountryRepository(DbContext);
+
+        var countryGer = new CountryDo
+        {
+            IsoCode = "GER",
+            Name = "Germany",
+            NativeName = "Deutschland"
+        };
+        
+        var countryAut = new CountryDo
+        {
+            IsoCode = "AUT",
+            Name = "Austria",
+            NativeName = "Österreich"
+        };
+        
+        repo.Add(countryGer);
+        repo.Add(countryAut);
+        
+        await repo.SaveChangesAsync();
+
+        // filter for Germany
+        var filterCountryName = new CountryFilter
+        {
+            Name = "Germany"
+        };
+        var result = await repo.FindPaginatedAsync(filterCountryName);
+        Assert.Equal(1, result.TotalCount);
+        var retrievedCountry = await result.Results.FirstOrDefaultAsync();
+        Assert.NotNull(retrievedCountry);
+        AssertCountriesEqual(countryGer, retrievedCountry);
+        
+        filterCountryName = new CountryFilter
+        {
+            Name = "Deutschland"
+        };
+        result = await repo.FindPaginatedAsync(filterCountryName);
+        Assert.Equal(0, result.TotalCount);
+        retrievedCountry = await result.Results.FirstOrDefaultAsync();
+        Assert.Null(retrievedCountry);
+        
+        filterCountryName = new CountryFilter
+        {
+            NativeName = "schland"
+        };
+        result = await repo.FindPaginatedAsync(filterCountryName);
+        Assert.Equal(1, result.TotalCount);
+        retrievedCountry = await result.Results.FirstOrDefaultAsync();
+        Assert.NotNull(retrievedCountry);
+        AssertCountriesEqual(countryGer, retrievedCountry);
+        
+        repo.Delete(countryGer);
+        repo.Delete(countryAut);
+        
+        await repo.SaveChangesAsync();
     }
 
 

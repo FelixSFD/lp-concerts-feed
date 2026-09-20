@@ -1,5 +1,6 @@
 using Common.Database;
 using Common.Database.Repositories;
+using Common.Utils.Pagination;
 using Database.Tours.DataObjects;
 using Database.Tours.Repositories;
 using LPCalendar.DataStructure.Tours;
@@ -73,7 +74,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
     {
         logger.LogDebug("Read all concert types");
         return concertTypeRepository
-            .QueryAsync(cancellationToken)
+            .FindAsync(cancellationToken: cancellationToken)
             .Select(DoMapper.ToBo);
     }
     
@@ -164,12 +165,31 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
     /// <param name="cancellationToken"></param>
     /// <param name="filter">Filter and sorting</param>
     /// <returns>Details about the concerts matching the filter</returns>
-    public IAsyncEnumerable<ConcertDetailsBo> GetConcertsWithDetailsAsync(CancellationToken cancellationToken, GetConcertsFilterDto filter)
+    public async Task<AsyncPaginationResult<ConcertDetailsBo>> GetConcertsWithDetailsAsync(CancellationToken cancellationToken, GetConcertsFilterDto filter)
     {
+        logger.LogDebug("Getting concerts with details... Fetching starting with result {offset} and take {limit}", filter.Skip, filter.Limit);
         var paginationParams = new PaginationParams(filter.Skip, filter.Limit);
-        return concertRepository
-            .GetConcerts(cancellationToken, filter.CountryCode, orderBy: filter.OrderBy.Select(SortDescriptor.FromString), paginationParams)
-            .Select(DoMapper.ToBoWithDetails);
+        var timeFilter = new TimeOnly(12, 0);
+        var concertFilter = new Database.Tours.Filters.ConcertFilter
+        {
+            CountryCode = filter.CountryCode,
+            Country = filter.Country,
+            City = filter.City,
+            Venue = filter.Venue,
+            CustomTitle = filter.CustomTitle,
+            Before = filter.Before?.ToDateTime(timeFilter),
+            After = filter.After?.ToDateTime(timeFilter),
+        };
+        var paginatedResult = await concertRepository
+            .GetConcertsAsync(cancellationToken, concertFilter, orderBy: filter.OrderBy.Select(SortDescriptor.FromString), paginationParams);
+        logger.LogDebug("Query would return {count} concerts. A maximum of {limit} will be returned", paginatedResult.TotalCount, filter.Limit);
+        return new AsyncPaginationResult<ConcertDetailsBo>
+        {
+            TotalResults = paginatedResult.TotalCount,
+            Limit = (int)filter.Limit,
+            Offset = (int)filter.Skip,
+            Results = paginatedResult.Results.Select(DoMapper.ToBoWithDetails),
+        };
     }
 
     /// <summary>
@@ -212,11 +232,11 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         logger.LogDebug("Found current concert.");
         var pagingPrev = new PaginationParams(0, 1);
         var pagingNext = new PaginationParams(0, 2);
-        var getPreviousFilter = new ConcertFilter
+        var getPreviousFilter = new Database.Tours.Filters.ConcertFilter
         {
             Before = currentConcert.PostedStartTime
         };
-        var getNextFilter = new ConcertFilter
+        var getNextFilter = new Database.Tours.Filters.ConcertFilter
         {
             After = currentConcert.PostedStartTime
         };

@@ -7,60 +7,65 @@
   />
 </ng-template>
 
+<ng-template #concertStatusBadge let-status="status">
+  <p-badge
+    [value]="status"
+    [severity]="status == ConcertStatusValueDto.Cancelled ? 'danger' : status == ConcertStatusValueDto.Past ? 'secondary' : 'success'"
+  />
+</ng-template>
+
 <p-card>
   <ng-template #title>
     Manage concerts
   </ng-template>
 
   <p-table
-    #dt2
+    #concertTable
     [value]="concerts$()"
+    [lazy]="true"
+    (onLazyLoad)="onConcertTableLazyLoad($event)"
+    [(totalRecords)]="totalConcertCount$"
+    [filterDelay]="5000"
     dataKey="id"
     stripedRows
     rowHover
-    [rows]="25"
-    [rowsPerPageOptions]="[25, 50, 100, 200, 500]"
+    [rows]="10"
+    [rowsPerPageOptions]="[10, 25, 50, 100, 200, 500]"
     [loading]="isLoading$()"
     [paginator]="true"
-    [globalFilterFields]="['customTitle', 'tour.name', 'tourLeg.name', 'venue.currentName', 'venue.city.country.name', 'venue.city.country.nativeName', 'venue.city.name', 'venue.city.nativeName', 'postedStartTime']"
     [tableStyle]="{ 'min-width': '75rem' }"
     [scrollable]="true"
-    sortField="postedStartTime"
+    sortField="date"
     [sortOrder]="-1"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} concerts"
+    [showCurrentPageReport]="true"
   >
     <ng-template #caption>
       <div class="flex">
         <p-button variant="outlined" label="Add concert" [routerLink]="['add']" />
-
-        <p-iconfield iconPosition="left" class="ml-auto">
-          <p-inputicon>
-            <i class="pi pi-search"></i>
-          </p-inputicon>
-          <input pInputText type="text" [(ngModel)]="globalSearchText$" (input)="dt2.filterGlobal(globalSearchText$(), 'contains')" placeholder="Search keyword" />
-        </p-iconfield>
       </div>
     </ng-template>
     <ng-template #header>
       <tr>
-        <th scope="col" pFrozenColumn pSortableColumn="postedStartTime">
+        <th scope="col" pFrozenColumn pSortableColumn="date" style="min-width: 6rem">
           Date
-          <p-sort-icon field="name" />
+          <p-sort-icon field="date" />
         </th>
-        <th scope="col" pSortableColumn="tour.name">
+        <th scope="col" pSortableColumn="tour" style="min-width: 14rem">
           Tour
-          <p-sort-icon field="tour.name" />
+          <p-sort-icon field="tour" />
         </th>
-        <th scope="col" pSortableColumn="venue.city.country.name">
+        <th scope="col" pSortableColumn="country" style="min-width: 6rem">
           Country
-          <p-sort-icon field="venue.city.country.name" />
+          <p-sort-icon field="country" />
         </th>
-        <th scope="col" pSortableColumn="venue.city.name">
+        <th scope="col" pSortableColumn="city">
           City
-          <p-sort-icon field="venue.city.name" />
+          <p-sort-icon field="city" />
         </th>
-        <th scope="col" pSortableColumn="venue.currentName">
+        <th scope="col" pSortableColumn="venue">
           Venue
-          <p-sort-icon field="venue.currentName" />
+          <p-sort-icon field="venue" />
         </th>
         <th scope="col" pSortableColumn="customTitle">
           Custom Title
@@ -71,6 +76,48 @@
           <p-sort-icon field="status" />
         </th>
         <th scope="col" alignFrozen="right" pFrozenColumn></th>
+      </tr>
+      <tr>
+        <th></th>
+        <th></th>
+        <th>
+          <p-column-filter
+            type="text"
+            field="country"
+            filterOn="input"
+            [showMenu]="false"
+            [showClearButton]="true"
+          />
+        </th>
+        <th>
+          <p-column-filter
+            type="text"
+            field="city"
+            filterOn="input"
+            [showMenu]="false"
+            [showClearButton]="true"
+          />
+        </th>
+        <th>
+          <p-column-filter
+            type="text"
+            field="venue"
+            filterOn="input"
+            [showMenu]="false"
+            [showClearButton]="true"
+          />
+        </th>
+        <th>
+          <p-column-filter
+            type="text"
+            field="customTitle"
+            filterOn="input"
+            [showMenu]="false"
+            [showClearButton]="true"
+          />
+        </th>
+        <th></th>
+        <th alignFrozen="right" pFrozenColumn></th>
       </tr>
     </ng-template>
     <ng-template #body let-concert>
@@ -104,7 +151,7 @@
             {{ concert.customTitle }}
           }
         </td>
-        <td>{{ ConcertStatus.allValues.find(s => s.value == concert.status)?.label ?? "unknown" }}</td>
+        <td><ng-container [ngTemplateOutlet]="concertStatusBadge" [ngTemplateOutletContext]="{ status: concert.status }" /></td>
         <td alignFrozen="right" pFrozenColumn>
           <p-button-group>
             <p-button label="View" icon="pi pi-eye" variant="outlined" size="small" severity="info" [routerLink]="['/concerts', 'beta', concert.id]" [disabled]="isDeletingConcert$()" />

@@ -1,4 +1,7 @@
-﻿using Database.Tours.DataObjects;
+﻿using Common.Database;
+using Common.Database.Filter;
+using Common.Database.Repositories;
+using Database.Tours.DataObjects;
 using Database.Tours.Repositories;
 using LPCalendar.DataStructure.Tours.Locations;
 using Microsoft.Extensions.Logging;
@@ -228,7 +231,7 @@ public class VenueServiceTest
         
         // setup mocks
         _venueRepository
-            .QueryAsync(Arg.Any<CancellationToken>())
+            .FindAsync(Arg.Any<IQueryFilter<VenueDo>>(), Arg.Any<IEnumerable<SortDescriptor>>(), Arg.Any<PaginationParams>(), Arg.Is<bool>(b => b == false), Arg.Any<CancellationToken>())
             .Returns(mockVenues.ToAsyncEnumerable());
         
         // call the service
@@ -241,7 +244,7 @@ public class VenueServiceTest
         // validate mock calls
         _venueRepository
             .Received(1)
-            .QueryAsync(Arg.Any<CancellationToken>());
+            .FindAsync(Arg.Any<IQueryFilter<VenueDo>>(), Arg.Any<IEnumerable<SortDescriptor>>(), Arg.Any<PaginationParams>(), Arg.Is<bool>(b => b == false), Arg.Any<CancellationToken>());
     }
     
     [Fact]
@@ -251,7 +254,7 @@ public class VenueServiceTest
         
         // setup mocks
         _venueRepository
-            .QueryAsync(Arg.Any<CancellationToken>())
+            .FindAsync(Arg.Any<IQueryFilter<VenueDo>>(), Arg.Any<IEnumerable<SortDescriptor>>(), Arg.Any<PaginationParams>(), Arg.Is<bool>(b => b == false), Arg.Any<CancellationToken>())
             .Returns(mockVenues.ToAsyncEnumerable());
         
         // call the service
@@ -261,7 +264,8 @@ public class VenueServiceTest
         // validate mock calls
         _venueRepository
             .Received(1)
-            .QueryAsync(Arg.Any<CancellationToken>());
+            .FindAsync(Arg.Any<IQueryFilter<VenueDo>>(), Arg.Any<IEnumerable<SortDescriptor>>(),
+                Arg.Any<PaginationParams>(), Arg.Is<bool>(b => b == false), Arg.Any<CancellationToken>());
     }
     
     [Fact]
