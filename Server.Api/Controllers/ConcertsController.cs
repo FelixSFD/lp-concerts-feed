@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.OutputCaching;
 using Server.Api.Auth;
 using Server.Api.Cache;
 using Service.Tours;
+using Service.Tours.Exceptions;
 
 namespace Server.Api.Controllers;
 
@@ -63,6 +64,29 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     {
         var concert = await concertService.GetConcertWithoutDetailsByIdAsync(concertId);
         return Ok(concert);
+    }
+
+    /// <summary>
+    /// Returns the next concert from the current time
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="ConcertNotFoundException">if no concert is scheduled</exception>
+    [HttpGet("next")]
+    [OutputCache(PolicyName = CachePolicyNames.Short, Tags = [CacheTags.ConcertsAll])]
+    public async Task<ActionResult<ConcertDetailsDto>> GetNextConcert(CancellationToken cancellationToken)
+    {
+        logger.LogDebug("Loading next concert...");
+        var concert = await concertService.GetNextConcert(cancellationToken);
+
+        if (concert == null)
+        {
+            logger.LogDebug("No concert scheduled at the moment");
+            return NotFound();
+        }
+        
+        logger.LogDebug("Loaded next concert. Start: {startTime}", concert.PostedStartTime);
+        return Ok(concert.ToDto());
     }
     
     /// <summary>
