@@ -14,5 +14,15 @@ public class GetConcertsFilterDto : BaseFilterQuery
     /// </summary>
     public string? Country{ get; set; }
 
+    /// <summary>
+    /// Filter for concerts before a date
+    /// </summary>
+    public DateOnly? Before { get; set; }
+    
+    /// <summary>
+    /// Filter for concerts after a date
+    /// </summary>
+    public DateOnly? After { get; set; }
+
     public override string[] OrderBy { get; set; } = ["date"];
 }

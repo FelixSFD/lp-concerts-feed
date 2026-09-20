@@ -50,6 +50,8 @@ paths:
       parameters:
         - $ref: "#/components/parameters/CountryCode"
         - $ref: "#/components/parameters/Country"
+        - $ref: "#/components/parameters/Before"
+        - $ref: "#/components/parameters/After"
         - name: Limit
           in: query
           schema:
@@ -1886,6 +1888,20 @@ components:
       in: query
       schema:
         type: string
+    Before:
+      description: filter by concerts before a date
+      name: before
+      in: query
+      schema:
+        type: string
+        format: date
+    After:
+      description: filter by concerts after a date
+      name: after
+      in: query
+      schema:
+        type: string
+        format: date
   
   schemas:
     AddTourLegRequest:
