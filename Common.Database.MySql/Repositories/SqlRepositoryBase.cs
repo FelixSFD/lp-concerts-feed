@@ -197,10 +197,10 @@ public abstract class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObje
         
         return query.ApplyPagination(orderBy, SortExpressions, paginationParams);
     }
-
-
-    public async Task SaveChangesAsync()
+    
+    /// <inheritdoc/>
+    public async Task SaveChangesAsync(CancellationToken token = default)
     {
-        await Context.SaveChangesAsync();
+        await Context.SaveChangesAsync(token);
     }
 }
