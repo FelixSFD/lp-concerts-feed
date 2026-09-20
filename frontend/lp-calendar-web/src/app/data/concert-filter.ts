@@ -15,6 +15,7 @@ export class ConcertFilter {
   country?: string | undefined;
   city?: string | undefined;
   venue?: string | undefined;
+  customTitle?: string | undefined;
 
   orderBy?: string[] | undefined;
 }

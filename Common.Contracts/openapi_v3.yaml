@@ -52,6 +52,7 @@ paths:
         - $ref: "#/components/parameters/Country"
         - $ref: "#/components/parameters/City"
         - $ref: "#/components/parameters/Venue"
+        - $ref: "#/components/parameters/CustomConcertTitle"
         - $ref: "#/components/parameters/Before"
         - $ref: "#/components/parameters/After"
         - name: Limit
@@ -1899,6 +1900,12 @@ components:
     Venue:
       description: filter by venue name (including previous names)
       name: venue
+      in: query
+      schema:
+        type: string
+    CustomConcertTitle:
+      description: filter by the custom title field of a concert
+      name: customTitle
       in: query
       schema:
         type: string

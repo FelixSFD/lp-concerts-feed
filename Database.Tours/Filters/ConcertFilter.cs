@@ -28,6 +28,11 @@ public class ConcertFilter : IQueryFilter<ConcertDo>
     /// Search for venue name (including previous names)
     /// </summary>
     public string? Venue { get; set; }
+
+    /// <summary>
+    /// Search in the custom title of concerts
+    /// </summary>
+    public string? CustomTitle { get; set; }
     
     /// <summary>
     /// Filter for concert before a specific date. If null, no filter is applied
@@ -83,6 +88,12 @@ public class ConcertFilter : IQueryFilter<ConcertDo>
                 EF.Functions.Like(c.Venue.CurrentName, $"%{Venue}%")
                 || c.Venue.PreviousNames.Any(vn => EF.Functions.Like(vn.Name, $"%{Venue}%"))
                 );
+        }
+        
+        // filter for custom title
+        if (!string.IsNullOrEmpty(CustomTitle))
+        {
+            query = query.Where(c => EF.Functions.Like(c.CustomTitle, $"%{CustomTitle}%"));
         }
         
         return query;

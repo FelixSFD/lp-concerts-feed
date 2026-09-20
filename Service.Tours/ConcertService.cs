@@ -176,6 +176,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
             Country = filter.Country,
             City = filter.City,
             Venue = filter.Venue,
+            CustomTitle = filter.CustomTitle,
             Before = filter.Before?.ToDateTime(timeFilter),
             After = filter.After?.ToDateTime(timeFilter),
         };

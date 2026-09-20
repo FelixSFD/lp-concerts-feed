@@ -181,12 +181,14 @@ export class ManageConcertsPageComponent implements OnInit {
       let countryFilter = makeRealArray(filter["country"]).pop() ?? null;
       let cityFilter = makeRealArray(filter["city"]).pop() ?? null;
       let venueFilter = makeRealArray(filter["venue"]).pop() ?? null;
+      let customTitleFilter = makeRealArray(filter["customTitle"]).pop() ?? null;
 
       return {
         countryCode: undefined,
         country: countryFilter?.value,
         city: cityFilter?.value,
         venue: venueFilter?.value,
+        customTitle: customTitleFilter?.value,
         tour: undefined,
         onlyFuture: false,
         dateFrom: null,

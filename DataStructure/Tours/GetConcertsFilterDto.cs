@@ -25,6 +25,11 @@ public class GetConcertsFilterDto : BaseFilterQuery
     public string? Venue { get; set; }
 
     /// <summary>
+    /// Filter for concerts by their custom title
+    /// </summary>
+    public string? CustomTitle { get; set; }
+
+    /// <summary>
     /// Filter for concerts before a date
     /// </summary>
     public DateOnly? Before { get; set; }
