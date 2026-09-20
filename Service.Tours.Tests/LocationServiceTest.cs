@@ -125,7 +125,7 @@ public class LocationServiceTest
         
         _countryRepository
             .Configure()
-            .QueryAsync(Arg.Any<CancellationToken>())
+            .FindAsync(Arg.Any<CountryFilter>(), Arg.Any<IEnumerable<SortDescriptor>>(), Arg.Any<PaginationParams>(), Arg.Is<bool>(b => b == false), Arg.Any<CancellationToken>())
             .Returns(mockCountries.ToAsyncEnumerable());
 
         var result = await _service.GetCountriesAsync(CancellationToken.None).ToArrayAsync();
