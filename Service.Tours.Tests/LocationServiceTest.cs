@@ -1,4 +1,8 @@
-﻿using Database.Tours.DataObjects;
+﻿using Common.Database;
+using Common.Database.DataObjects;
+using Common.Database.Repositories;
+using Database.Tours.DataObjects;
+using Database.Tours.Filters;
 using Database.Tours.Repositories;
 using LPCalendar.DataStructure.Tours.Locations;
 using Microsoft.Extensions.Logging;
@@ -71,7 +75,7 @@ public class LocationServiceTest
         
         _countryRepository
             .Configure()
-            .QueryAsync(Arg.Any<CancellationToken>())
+            .FindAsync(Arg.Any<CountryFilter>(), Arg.Any<IEnumerable<SortDescriptor>>(), Arg.Any<PaginationParams>(), Arg.Is<bool>(b => b == false), Arg.Any<CancellationToken>())
             .Returns(mockCountries.ToAsyncEnumerable());
 
         var result = await _service.GetCountriesAsync(CancellationToken.None).ToArrayAsync();
