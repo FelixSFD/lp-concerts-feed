@@ -88,10 +88,6 @@ export class ManageConcertsPageComponent implements OnInit {
 
   private lazyLoad$ = new Subject<TableLazyLoadEvent>();
 
-  private currentOffset: number | null = null;
-  private currentLimit: number | null = null;
-  private currentSortFields: string[] = [];
-  private currentSortOrder: number | null = null;
   private currentFilter: ConcertFilter = {
     dateFrom: DateTime.fromMillis(0, {zone: 'UTC'}),
     dateTo: null,
@@ -169,10 +165,6 @@ export class ManageConcertsPageComponent implements OnInit {
       let response = await this.concertsService.getFilteredConcerts(concertFilter ?? this.currentFilter, event.rows ?? 100, event.first);
       this.totalConcertCount$.set(response.metadata?.totalElements ?? 0);
       this.concerts$.set(response.concerts ?? []);
-      this.currentOffset = event.first ?? null;
-      this.currentLimit = event.rows ?? null;
-      this.currentSortFields = sortFields;
-      this.currentSortOrder = event.sortOrder ?? null;
     } catch (err) {
       console.error('Could not load concerts', err);
       this.messageService.add({
@@ -187,10 +179,12 @@ export class ManageConcertsPageComponent implements OnInit {
   private makeConcertFilter(filter: {[p: string]: FilterMetadata | FilterMetadata[] | undefined} | undefined, orderBy: string[] | undefined): ConcertFilter | null {
     if (filter) {
       let countryFilter = makeRealArray(filter["country"]).pop() ?? null;
+      let cityFilter = makeRealArray(filter["city"]).pop() ?? null;
 
       return {
         countryCode: undefined,
         country: countryFilter?.value,
+        city: cityFilter?.value,
         tour: undefined,
         onlyFuture: false,
         dateFrom: null,
