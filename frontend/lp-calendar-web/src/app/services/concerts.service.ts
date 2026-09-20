@@ -61,6 +61,13 @@ export class ConcertsService {
     return firstValueFrom(this.concertsApi.getConcertById(concertId, getRequestIdParameter(cached)));
   }
 
+  /**
+   * Returns the details of the next concert
+   */
+  getNext(): Promise<ConcertDetailsDto> {
+    return firstValueFrom(this.concertsApi.getNextConcert());
+  }
+
   getFilteredConcerts(filter: ConcertFilter, limit: number = 100, skip: number = 0, cached: boolean = true): Promise<ConcertListResponseDto> {
     return firstValueFrom(this.concertsApi.getConcerts(getRequestIdParameter(cached), filter.countryCode, filter.country, filter.city, filter.venue, filter.customTitle, undefined, undefined, limit, skip, filter.orderBy));
   }

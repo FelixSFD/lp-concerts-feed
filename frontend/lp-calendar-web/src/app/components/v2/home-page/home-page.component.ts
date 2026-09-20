@@ -15,6 +15,8 @@ import {Divider} from 'primeng/divider';
 import {FormsModule} from '@angular/forms';
 import {CalendarFeedBuilderComponent} from '../calendar-feed-builder/calendar-feed-builder.component';
 import {ConcertCardComponent} from '../concert-card/concert-card.component';
+import { ConcertsService } from '../../../services/concerts.service';
+import { ConcertDetailsDto } from '../../../modules/lpshows-api/v3';
 
 @Component({
   selector: 'app-home-page',
@@ -41,8 +43,9 @@ export class HomePageComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly oidcSecurityService = inject(OidcSecurityService);
   private readonly messageService = inject(MessageService);
+  private readonly concertsService = inject(ConcertsService);
 
-  nextConcert: ConcertDto | null = null;
+  nextConcert: ConcertDetailsDto | null = null;
   nextAttendingConcert: ConcertDto | null = null;
   nextBookmarkedConcert: ConcertDto | null = null;
 
@@ -60,12 +63,12 @@ export class HomePageComponent implements OnInit {
   iCalButtonItems$: MenuItem[] = [];
 
 
-  constructor(private concertsService: LegacyConcertsService) {
+  constructor(private legacyConcertsService: LegacyConcertsService) {
   }
 
 
   ngOnInit() {
-    this.loadNextConcert();
+    this.loadNextConcert().then();
 
     this.authService.isAuthenticated$.subscribe(isAuthenticated => {
       console.debug("Home component is authenticated:", isAuthenticated);
@@ -108,27 +111,23 @@ export class HomePageComponent implements OnInit {
   }
 
 
-  private loadNextConcert() {
+  private async loadNextConcert() {
     this.isLoadingNextConcert = true;
-    this.concertsService.getNextConcert().subscribe({
-      next: result => {
-        this.nextConcert = result;
-        this.isLoadingNextConcert = false;
-        console.debug("Next concert:", this.nextConcert);
-      },
-      error: err => {
-        // If the request times out, an error will have been emitted.
-        console.warn("Next concert was not found. Maybe there is nothing scheduled.");
-        this.nextConcert = null;
-        this.isLoadingNextConcert = false;
-      }
-    });
+
+    try {
+      this.nextConcert = await this.concertsService.getNext();
+    } catch (err) {
+      console.warn("Next concert was not found. Maybe there is nothing scheduled.", err);
+      this.nextConcert = null;
+    } finally {
+      this.isLoadingNextConcert = false;
+    }
   }
 
 
   private loadNextBookmarkedConcert() {
     this.isLoadingBookmarkedConcert = true;
-    this.concertsService.getNextBookmarked().subscribe({
+    this.legacyConcertsService.getNextBookmarked().subscribe({
       next: result => {
         let next = result.at(0);
         if (next != undefined) {
@@ -150,7 +149,7 @@ export class HomePageComponent implements OnInit {
 
   private loadNextAttendingConcert() {
     this.isLoadingAttendingConcert = true;
-    this.concertsService.getNextAttending().subscribe({
+    this.legacyConcertsService.getNextAttending().subscribe({
       next: result => {
         let next = result.at(0);
         if (next != undefined) {
