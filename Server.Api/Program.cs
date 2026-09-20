@@ -42,6 +42,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddHttpLogging(opt =>
 {
     opt.LoggingFields = HttpLoggingFields.All;
+    opt.ResponseBodyLogLimit = builder.Configuration.GetValue<int>("Logging:ResponseBodyLogLimit");
     opt.CombineLogs = true;
     
     // Allow some more headers to be logged
