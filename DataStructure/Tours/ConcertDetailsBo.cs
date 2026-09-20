@@ -93,4 +93,9 @@ public class ConcertDetailsBo
     /// URL to the concert page on Linkinpedia.
     /// </summary>
     public string? LinkinpediaUrl { get; set; }
+
+    /// <summary>
+    /// Either the <see cref="MainStageTime"/> or if it is null, the <see cref="PostedStartTime"/> instead.
+    /// </summary>
+    public DateTimeOffset ComputedStartTime => MainStageTime ?? PostedStartTime;
 }

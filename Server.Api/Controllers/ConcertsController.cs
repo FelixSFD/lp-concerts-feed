@@ -86,6 +86,11 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
         }
         
         logger.LogDebug("Loaded next concert. Start: {startTime}", concert.PostedStartTime);
+        var timeUntilStart = concert.ComputedStartTime - DateTimeOffset.Now;
+        var maxCacheFor = TimeSpan.FromSeconds(CacheExpiration.VeryLong);
+        var cacheDuration = timeUntilStart > maxCacheFor ? maxCacheFor : timeUntilStart;
+        var cacheControl = CacheControlHeaderFactory.CacheFor(cacheDuration);
+        HttpContext.Response.Headers.CacheControl = cacheControl;
         return Ok(concert.ToDto());
     }
     

@@ -169,15 +169,16 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
     {
         var concertFilter = new ConcertFilter
         {
-            After = DateTimeOffset.UtcNow.AddHours(-4),
+            After = DateTimeOffset.Now.AddHours(-4),
         };
         
         var paginationParams = new PaginationParams(0, 1);
+        var sortDescriptor = new SortDescriptor("date");
         
         logger.LogDebug("Getting first concert after {afterDate}", concertFilter.After);
         
         var concert = await concertRepository
-            .FindAsync(concertFilter, paginationParams: paginationParams, cancellationToken: cancellationToken)
+            .FindAsync(concertFilter, [sortDescriptor], paginationParams: paginationParams, cancellationToken: cancellationToken)
             .FirstOrDefaultAsync(cancellationToken);
         return concert?.ToBoWithDetails();
     }
