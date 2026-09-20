@@ -392,20 +392,12 @@ public class LocationServiceTest
             Name = "Baden-Württemberg",
             NativeName = "nähe Stuttgart",
         };
-        
-        var stateOtherCountry = new StateDo
-        {
-            CountryCode = "SUI",
-            Code = "ZH",
-            Name = "Zürich",
-            NativeName = "Zürich",
-        };
 
-        StateDo[] mockStates = [stateBy, stateBw, stateOtherCountry];
+        StateDo[] mockStates = [stateBy, stateBw];
         
         _stateRepository
             .Configure()
-            .QueryAsync(Arg.Any<CancellationToken>())
+            .FindAsync(Arg.Is<StateFilter>(f => f.CountryCode == countryGer.IsoCode && f.Name == null && f.NativeName == null), Arg.Any<IEnumerable<SortDescriptor>>(), Arg.Any<PaginationParams>(), Arg.Is<bool>(b => b == false), Arg.Any<CancellationToken>())
             .Returns(mockStates.ToAsyncEnumerable());
 
         var result = await _service
@@ -423,20 +415,12 @@ public class LocationServiceTest
             Name = "Germany",
             NativeName = "Deutschland",
         };
-        
-        var stateOtherCountry = new StateDo
-        {
-            CountryCode = "SUI",
-            Code = "ZH",
-            Name = "Zürich",
-            NativeName = "Zürich",
-        };
 
-        StateDo[] mockStates = [stateOtherCountry];
+        StateDo[] mockStates = [];
         
         _stateRepository
             .Configure()
-            .QueryAsync(Arg.Any<CancellationToken>())
+            .FindAsync(Arg.Is<StateFilter>(f => f.CountryCode == countryGer.IsoCode && f.Name == null && f.NativeName == null), Arg.Any<IEnumerable<SortDescriptor>>(), Arg.Any<PaginationParams>(), Arg.Is<bool>(b => b == false), Arg.Any<CancellationToken>())
             .Returns(mockStates.ToAsyncEnumerable());
 
         var result = await _service

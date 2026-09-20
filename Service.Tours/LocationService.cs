@@ -186,9 +186,9 @@ public class LocationService(
     public IAsyncEnumerable<StateBo> GetStatesInCountryAsync(string countryCode, CancellationToken cancellationToken)
     {
         logger.LogDebug("Requesting list of states in '{countryCode}'...", countryCode);
+        var filter = new StateFilter { CountryCode = countryCode };
         return stateRepository
-            .QueryAsync(cancellationToken)
-            .Where(s => s.CountryCode == countryCode)
+            .FindAsync(filter, cancellationToken: cancellationToken)
             .Select(DoMapper.ToBo);
     }
     
