@@ -1,5 +1,4 @@
 using System.Linq.Expressions;
-using Common.Database;
 using Common.Database.DataObjects;
 using Common.Database.Filter;
 using Common.Database.Pagination;
@@ -114,33 +113,6 @@ public abstract class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObje
             .ApplyPagination(paginationParams)
             .ToAsyncEnumerable();
     }
-
-    protected async Task<PaginatedQueryResult<TDataObject>> FindPaginatedAsync(Expression<Func<TDataObject, bool>> predicate, Func<IQueryable<TDataObject>, IQueryable<TDataObject>>? configureQuery = null, IEnumerable<SortDescriptor>? orderBy = null, IPaginationParams? paginationParams = null, bool includeDeleted = false, CancellationToken cancellationToken = default)
-    {
-        if (!typeof(TDataObject).IsAssignableTo(typeof(IDeletableDataObject)))
-        {
-            throw new InvalidCastException($"The data object '{typeof(TDataObject).FullName}' must be of type IDeletableDataObject!");
-        }
-        
-        IQueryable<TDataObject> query = DbSet;
-        
-        orderBy ??= new List<SortDescriptor>();
-
-        if (configureQuery != null)
-            query = configureQuery(query);
-        
-        if (!includeDeleted)
-        {
-            query = query
-                .Cast<IDeletableDataObject>()
-                .NotDeleted()
-                .Cast<TDataObject>();
-        }
-
-        query = query.Where(predicate);
-        
-        return await query.ToPaginatedResultAsync(orderBy, SortExpressions, paginationParams, cancellationToken);
-    }
     
     /// <summary>
     /// Finds a list of data objects in the database. Pagination is applied, but no metadata will be returned.
@@ -187,7 +159,7 @@ public abstract class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObje
     /// <summary>
     /// Finds a list of data objects in the database. Pagination is applied, but no metadata will be returned.
     /// <p>
-    /// Prefer this method over <see cref="FindPaginatedAsync(System.Linq.Expressions.Expression{System.Func{TDataObject,bool}},System.Func{System.Linq.IQueryable{TDataObject},System.Linq.IQueryable{TDataObject}}?,System.Collections.Generic.IEnumerable{Common.Database.SortDescriptor}?,Common.Database.Repositories.IPaginationParams?,bool,System.Threading.CancellationToken)"/> when you don't need to return metadata.
+    /// Prefer this method over <see cref="FindPaginatedAsync"/> when you don't need to return metadata.
     /// </p>
     /// </summary>
     /// <param name="filter">Filter to use for the query</param>
