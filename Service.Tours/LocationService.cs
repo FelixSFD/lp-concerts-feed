@@ -1,5 +1,6 @@
 using Common.Database;
 using Common.Database.Repositories;
+using Database.Tours.Filters;
 using Database.Tours.Repositories;
 using LPCalendar.DataStructure.Tours.Locations;
 using Microsoft.Extensions.Logging;
@@ -308,9 +309,9 @@ public class LocationService(
     public IAsyncEnumerable<CityBo> GetCitiesInCountryAsync(string countryCode, CancellationToken cancellationToken)
     {
         logger.LogDebug("Requesting list of cities in '{countryCode}'...", countryCode);
+        var filter = new CityFilter { CountryCode = countryCode };
         return cityRepository
-            .QueryAsync(cancellationToken)
-            .Where(s => s.CountryCode == countryCode)
+            .FindAsync(filter, cancellationToken: cancellationToken)
             .Select(DoMapper.ToBo);
     }
     

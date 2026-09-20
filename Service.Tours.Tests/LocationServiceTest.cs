@@ -1,5 +1,6 @@
 ﻿using Common.Database;
 using Common.Database.DataObjects;
+using Common.Database.Filter;
 using Common.Database.Repositories;
 using Database.Tours.DataObjects;
 using Database.Tours.Filters;
@@ -688,7 +689,7 @@ public class LocationServiceTest
         
         _cityRepository
             .Configure()
-            .QueryAsync(Arg.Any<CancellationToken>())
+            .FindAsync(Arg.Is<CityFilter>(f => f.CountryCode == countryGer.IsoCode && f.Name == null && f.NativeName == null), Arg.Any<IEnumerable<SortDescriptor>>(), Arg.Any<PaginationParams>(), Arg.Is<bool>(b => b == false), Arg.Any<CancellationToken>())
             .Returns(mockCities.ToAsyncEnumerable());
 
         var result = await _service
