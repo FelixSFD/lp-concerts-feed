@@ -73,6 +73,9 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
             .Include(c => c.TourLeg);
     
     /// <inheritdoc/>
+    protected override IQueryable<ConcertDo> DefaultQueryConfiguration(IQueryable<ConcertDo> queryable) => IncludeAllReferences(queryable);
+    
+    /// <inheritdoc/>
     public async Task<PaginatedQueryResult<ConcertDo>> GetConcertsAsync(CancellationToken token, ConcertFilter? filter = null,
         IEnumerable<SortDescriptor>? orderBy = null,
         IPaginationParams? paginationParams = null, bool includeDeleted = false)

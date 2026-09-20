@@ -32,17 +32,27 @@ public abstract class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObje
     /// <param name="dataObject">The object that was retrieved from the DB, but has no referenced data yet</param>
     /// <returns>the <paramref name="dataObject"/> but with all referenced objects</returns>
     protected abstract Task<TDataObject> LoadReferences(TDataObject dataObject);
+    
+    /// <summary>
+    /// Provides a default configuration for queries
+    /// </summary>
+    /// <param name="queryable"></param>
+    /// <returns></returns>
+    protected virtual IQueryable<TDataObject> DefaultQueryConfiguration(IQueryable<TDataObject> queryable) => queryable;
 
+    /// <inheritdoc/>
     public virtual void Add(TDataObject data)
     {
         DbSet.Add(data);
     }
     
+    /// <inheritdoc/>
     public virtual void Update(TDataObject data)
     {
         DbSet.Update(data);
     }
 
+    /// <inheritdoc/>
     public virtual void Delete(TDataObject data)
     {
         DbSet.Remove(data);
@@ -66,9 +76,8 @@ public abstract class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObje
         IQueryable<TDataObject> query = DbSet;
         
         orderBy ??= new List<SortDescriptor>();
-
-        if (configureQuery != null)
-            query = configureQuery(query);
+        configureQuery ??= DefaultQueryConfiguration; 
+        query = configureQuery(query);
         
         return query
             .Where(predicate)
@@ -96,8 +105,8 @@ public abstract class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObje
         
         orderBy ??= new List<SortDescriptor>();
 
-        if (configureQuery != null)
-            query = configureQuery(query);
+        configureQuery ??= DefaultQueryConfiguration; 
+        query = configureQuery(query);
         
         if (!includeDeleted)
         {
@@ -139,8 +148,8 @@ public abstract class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObje
         
         orderBy ??= new List<SortDescriptor>();
 
-        if (configureQuery != null)
-            query = configureQuery(query);
+        configureQuery ??= DefaultQueryConfiguration; 
+        query = configureQuery(query);
         
         if (!includeDeleted)
         {
@@ -181,8 +190,8 @@ public abstract class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObje
         
         orderBy ??= new List<SortDescriptor>();
 
-        if (configureQuery != null)
-            query = configureQuery(query);
+        configureQuery ??= DefaultQueryConfiguration; 
+        query = configureQuery(query);
         
         if (!includeDeleted)
         {
