@@ -230,7 +230,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         logger.LogDebug("Load adjacent concerts to: {currentId}", concertId);
         var currentConcert = await concertRepository.GetByPrimaryKeyWithoutReferencesAsync(concertId) ?? throw new ConcertNotFoundException(concertId);
         logger.LogDebug("Found current concert.");
-        var pagingPrev = new PaginationParams(0, 1);
+        var pagingPrev = new PaginationParams(0, 2);
         var pagingNext = new PaginationParams(0, 2);
         var getPreviousFilter = new Database.Tours.Filters.ConcertFilter
         {
@@ -246,7 +246,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         
         var getPreviousTask = concertRepository
             .GetConcerts(cancellationToken, getPreviousFilter, [orderByPrev], pagingPrev)
-            .FirstOrDefaultAsync(cancellationToken);
+            .FirstOrDefaultAsync(c => c.Id != currentConcert.Id, cancellationToken);
         var getNextTask = concertRepository
             .GetConcerts(cancellationToken, getNextFilter, [orderByNext], pagingNext)
             .FirstOrDefaultAsync(c => c.Id != currentConcert.Id, cancellationToken);
