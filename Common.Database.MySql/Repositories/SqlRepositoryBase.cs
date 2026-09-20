@@ -142,6 +142,20 @@ public abstract class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObje
         return await query.ToPaginatedResultAsync(orderBy, SortExpressions, paginationParams, cancellationToken);
     }
     
+    /// <summary>
+    /// Finds a list of data objects in the database. Pagination is applied, but no metadata will be returned.
+    /// <p>
+    /// In case you don't need to return metadata of the pagination (like total count), prefer this method over <see cref="FindAsync"/>.
+    /// </p>
+    /// </summary>
+    /// <param name="filter">Filter to use for the query</param>
+    /// <param name="configureQuery">additional configuration for the query (like loading references)</param>
+    /// <param name="orderBy">Sort order for the query</param>
+    /// <param name="paginationParams">Pagination parameters for the query</param>
+    /// <param name="includeDeleted">Whether to include deleted objects in the query</param>
+    /// <param name="cancellationToken">Cancellation token for the query</param>
+    /// <returns>The results with pagination metadata</returns>
+    /// <exception cref="InvalidCastException"></exception>
     protected async Task<PaginatedQueryResult<TDataObject>> FindPaginatedAsync(IQueryFilter<TDataObject>? filter = null, Func<IQueryable<TDataObject>, IQueryable<TDataObject>>? configureQuery = null, IEnumerable<SortDescriptor>? orderBy = null, IPaginationParams? paginationParams = null, bool includeDeleted = false, CancellationToken cancellationToken = default)
     {
         if (!typeof(TDataObject).IsAssignableTo(typeof(IDeletableDataObject)))
@@ -168,6 +182,48 @@ public abstract class SqlRepositoryBase<TDataObject> : IRepositoryBase<TDataObje
             query = query.ApplyFilter(filter);
         
         return await query.ToPaginatedResultAsync(orderBy, SortExpressions, paginationParams, cancellationToken);
+    }
+    
+    /// <summary>
+    /// Finds a list of data objects in the database. Pagination is applied, but no metadata will be returned.
+    /// <p>
+    /// Prefer this method over <see cref="FindPaginatedAsync(System.Linq.Expressions.Expression{System.Func{TDataObject,bool}},System.Func{System.Linq.IQueryable{TDataObject},System.Linq.IQueryable{TDataObject}}?,System.Collections.Generic.IEnumerable{Common.Database.SortDescriptor}?,Common.Database.Repositories.IPaginationParams?,bool,System.Threading.CancellationToken)"/> when you don't need to return metadata.
+    /// </p>
+    /// </summary>
+    /// <param name="filter">Filter to use for the query</param>
+    /// <param name="configureQuery">additional configuration for the query (like loading references)</param>
+    /// <param name="orderBy">Sort order for the query</param>
+    /// <param name="paginationParams">Pagination parameters for the query</param>
+    /// <param name="includeDeleted">Whether to include deleted objects in the query</param>
+    /// <param name="cancellationToken">Cancellation token for the query</param>
+    /// <returns>The results without pagination metadata</returns>
+    /// <exception cref="InvalidCastException"></exception>
+    protected IAsyncEnumerable<TDataObject> FindAsync(IQueryFilter<TDataObject>? filter = null, Func<IQueryable<TDataObject>, IQueryable<TDataObject>>? configureQuery = null, IEnumerable<SortDescriptor>? orderBy = null, IPaginationParams? paginationParams = null, bool includeDeleted = false, CancellationToken cancellationToken = default)
+    {
+        if (!typeof(TDataObject).IsAssignableTo(typeof(IDeletableDataObject)))
+        {
+            throw new InvalidCastException($"The data object '{typeof(TDataObject).FullName}' must be of type IDeletableDataObject!");
+        }
+        
+        IQueryable<TDataObject> query = DbSet;
+        
+        orderBy ??= new List<SortDescriptor>();
+
+        if (configureQuery != null)
+            query = configureQuery(query);
+        
+        if (!includeDeleted)
+        {
+            query = query
+                .Cast<IDeletableDataObject>()
+                .NotDeleted()
+                .Cast<TDataObject>();
+        }
+
+        if (filter != null)
+            query = query.ApplyFilter(filter);
+        
+        return query.ApplyPagination(orderBy, SortExpressions, paginationParams);
     }
 
 

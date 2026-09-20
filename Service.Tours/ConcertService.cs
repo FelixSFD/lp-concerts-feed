@@ -231,11 +231,11 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         logger.LogDebug("Found current concert.");
         var pagingPrev = new PaginationParams(0, 1);
         var pagingNext = new PaginationParams(0, 2);
-        var getPreviousFilter = new ConcertFilter
+        var getPreviousFilter = new Database.Tours.Filters.ConcertFilter
         {
             Before = currentConcert.PostedStartTime
         };
-        var getNextFilter = new ConcertFilter
+        var getNextFilter = new Database.Tours.Filters.ConcertFilter
         {
             After = currentConcert.PostedStartTime
         };

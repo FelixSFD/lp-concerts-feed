@@ -42,5 +42,30 @@ public static class PaginationQueryableExtensions
                 TotalCount = totalCount
             };
         }
+        
+        /// <summary>
+        /// Applies pagination to the query
+        /// </summary>
+        /// <param name="orderBy">Order the results</param>
+        /// <param name="sortExpressions">Expressions to use for sorting</param>
+        /// <param name="paginationParams">Pagination parameters</param>
+        /// <returns>Result of the query</returns>
+        /// <exception cref="ArgumentException">if <paramref name="orderBy"/> is provided and <paramref name="sortExpressions"/> is not</exception>
+        public IAsyncEnumerable<TItem> ApplyPagination(IEnumerable<SortDescriptor>? orderBy = null, IReadOnlyDictionary<string, LambdaExpression>? sortExpressions = null, IPaginationParams? paginationParams = null)
+        {
+            if (orderBy != null && sortExpressions == null)
+            {
+                throw new ArgumentException($"When {nameof(orderBy)} is provided, {nameof(sortExpressions)} must also be provided");
+            }
+            
+            if (orderBy != null && sortExpressions != null)
+            {
+                query = query.ApplySorting(orderBy, sortExpressions!);
+            }
+            
+            return query
+                .ApplyPagination(paginationParams)
+                .ToAsyncEnumerable();
+        }
     }
 }
