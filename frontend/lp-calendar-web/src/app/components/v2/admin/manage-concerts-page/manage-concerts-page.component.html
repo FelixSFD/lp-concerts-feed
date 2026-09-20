@@ -18,6 +18,7 @@
     [lazy]="true"
     (onLazyLoad)="loadConcertsLazy($event)"
     [(totalRecords)]="totalConcertCount$"
+    [filterDelay]="1000"
     dataKey="id"
     stripedRows
     rowHover
@@ -66,6 +67,22 @@
           <p-sort-icon field="status" />
         </th>
         <th scope="col" alignFrozen="right" pFrozenColumn></th>
+      </tr>
+      <tr>
+        <th></th>
+        <th></th>
+        <th>
+          <p-column-filter type="text" filterOn="input" field="country" [showMenu]="false" [pt]="{ columnFilterFormElement: { class: 'p-fluid' } }">
+            <ng-template #filter let-value let-filter="filterCallback">
+              <input pInputText pSize="small" type="text" [value]="value || ''" (input)="filter($any($event.target).value)" placeholder="Search country..." />
+            </ng-template>
+          </p-column-filter>
+        </th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
       </tr>
     </ng-template>
     <ng-template #body let-concert>

@@ -2,14 +2,14 @@ import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {RouterLink} from '@angular/router';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmationService, FilterMetadata, MessageService } from 'primeng/api';
 import { Button, ButtonDirective } from 'primeng/button';
 import {ButtonGroup} from 'primeng/buttongroup';
 import {Card} from 'primeng/card';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
 import {InputText} from 'primeng/inputtext';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
+import { TableFilterEvent, TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { ConcertDto, ConcertStatusValueDto, ErrorResponseDto } from '../../../../modules/lpshows-api';
 import {ConcertTitleGenerator} from '../../../../data/concert-title-generator';
 import {LegacyConcertsService} from '../../../../services/legacy-concerts.service';
@@ -29,6 +29,7 @@ import { Panel } from 'primeng/panel';
 import { ConcertsService } from '../../../../services/concerts.service';
 import { MeterGroup, MeterItem } from 'primeng/metergroup';
 import { Badge } from 'primeng/badge';
+import { makeRealArray } from '../../../../helper/array-helper';
 
 @Component({
   selector: 'app-manage-concerts-page',
@@ -85,6 +86,13 @@ export class ManageConcertsPageComponent implements OnInit {
   private currentLimit: number | null = null;
   private currentSortFields: string[] = [];
   private currentSortOrder: number | null = null;
+  private currentFilter: ConcertFilter = {
+    dateFrom: DateTime.fromMillis(0, {zone: 'UTC'}),
+    dateTo: null,
+    tour: null,
+    orderBy: undefined,
+    onlyFuture: false
+  };
 
   private updateImportStatsEffect = effect(() => {
     this.concertImportStatusMeterGroup$.update(stats => {
@@ -128,11 +136,18 @@ export class ManageConcertsPageComponent implements OnInit {
         : [event.sortField];
     sortFields = sortFields.map(f => `${(event.sortOrder ?? 0) == -1 ? '-' : ''}${f}`)
 
+    let concertFilter = this.makeConcertFilter(event.filters, sortFields);
+
     if (this.isLoading$()) {
       console.debug("loadConcertsLazy: skipping because it's already loading.");
       return;
     }
-    if (this.currentOffset === event.first && this.currentLimit === event.rows && this.currentSortOrder == event.sortOrder && this.currentSortFields.join(",") === sortFields.join(",")) {
+    if (this.currentOffset === event.first
+      && this.currentLimit === event.rows
+      && this.currentSortOrder == event.sortOrder
+      && this.currentSortFields.join(",") === sortFields.join(",")
+      && this.currentFilter == concertFilter
+    ) {
       console.debug("loadConcertsLazy: skipping because it's already loaded.");
       return;
     }
@@ -141,13 +156,7 @@ export class ManageConcertsPageComponent implements OnInit {
     console.debug("loadConcertsLazy: sortFields", sortFields);
 
     try {
-      let response = await this.concertsService.getFilteredConcerts({
-        dateFrom: DateTime.fromMillis(0, {zone: 'UTC'}),
-        dateTo: null,
-        tour: null,
-        orderBy: sortFields,
-        onlyFuture: false
-      }, event.rows ?? 100, event.first);
+      let response = await this.concertsService.getFilteredConcerts(concertFilter ?? this.currentFilter, event.rows ?? 100, event.first);
       this.totalConcertCount$.set(response.metadata?.totalElements ?? 0);
       this.concerts$.set(response.concerts ?? []);
       this.currentOffset = event.first ?? null;
@@ -162,6 +171,24 @@ export class ManageConcertsPageComponent implements OnInit {
       });
     } finally {
       this.isLoading$.set(false);
+    }
+  }
+
+  private makeConcertFilter(filter: {[p: string]: FilterMetadata | FilterMetadata[] | undefined} | undefined, orderBy: string[] | undefined): ConcertFilter | null {
+    if (filter) {
+      let countryFilter = makeRealArray(filter["country"]).pop() ?? null;
+
+      return {
+        countryCode: undefined,
+        country: countryFilter?.value,
+        tour: undefined,
+        onlyFuture: false,
+        dateFrom: null,
+        dateTo: null,
+        orderBy: orderBy,
+      };
+    } else {
+      return null;
     }
   }
 
