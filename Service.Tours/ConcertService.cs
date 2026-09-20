@@ -171,7 +171,8 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         var paginationParams = new PaginationParams(filter.Skip, filter.Limit);
         var concertFilter = new Database.Tours.Filters.ConcertFilter
         {
-            CountryCode = filter.CountryCode
+            CountryCode = filter.CountryCode,
+            Country = filter.Country,
         };
         var paginatedResult = await concertRepository
             .GetConcertsAsync(cancellationToken, concertFilter, orderBy: filter.OrderBy.Select(SortDescriptor.FromString), paginationParams);

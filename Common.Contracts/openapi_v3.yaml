@@ -48,10 +48,8 @@ paths:
       summary: Returns a list of concerts that can be filtered
       operationId: GetConcerts
       parameters:
-        - name: CountryCode
-          in: query
-          schema:
-            type: string
+        - $ref: "#/components/parameters/CountryCode"
+        - $ref: "#/components/parameters/Country"
         - name: Limit
           in: query
           schema:
@@ -1875,6 +1873,20 @@ components:
       required: false
       schema:
         type: string
+    
+    CountryCode:
+      description: filter by exact country code
+      name: countryCode
+      in: query
+      schema:
+        type: string
+    Country:
+      description: filter by country name, native name or ISO code
+      name: country
+      in: query
+      schema:
+        type: string
+  
   schemas:
     AddTourLegRequest:
       required:
@@ -2726,7 +2738,7 @@ components:
             - Attending
           default: None
           nullable: false
-
+  
   securitySchemes:
     Bearer:
       type: http
