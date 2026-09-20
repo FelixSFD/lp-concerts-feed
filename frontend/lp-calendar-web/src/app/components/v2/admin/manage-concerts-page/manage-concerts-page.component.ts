@@ -1,5 +1,5 @@
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
-import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, OnInit, signal, ViewChild } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {RouterLink} from '@angular/router';
 import { ConfirmationService, FilterMetadata, MessageService } from 'primeng/api';
@@ -9,7 +9,7 @@ import {Card} from 'primeng/card';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
 import {InputText} from 'primeng/inputtext';
-import { TableFilterEvent, TableLazyLoadEvent, TableModule } from 'primeng/table';
+import { Table, TableFilterEvent, TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { ConcertDto, ConcertStatusValueDto, ErrorResponseDto } from '../../../../modules/lpshows-api';
 import {ConcertTitleGenerator} from '../../../../data/concert-title-generator';
 import {LegacyConcertsService} from '../../../../services/legacy-concerts.service';
@@ -83,6 +83,8 @@ export class ManageConcertsPageComponent implements OnInit {
   globalSearchTextOld$ = signal("");
   globalSearchText$ = signal("");
   globalSearchTextImportStatus$ = signal("");
+
+  @ViewChild('concertTable') concertTable!: Table;
 
   private lazyLoad$ = new Subject<TableLazyLoadEvent>();
 
@@ -159,15 +161,6 @@ export class ManageConcertsPageComponent implements OnInit {
       console.debug("loadConcertsLazy: skipping because it's already loading.");
       return;
     }
-    if (this.currentOffset === event.first
-      && this.currentLimit === event.rows
-      && this.currentSortOrder == event.sortOrder
-      && this.currentSortFields.join(",") === sortFields.join(",")
-      && this.currentFilter == concertFilter
-    ) {
-      console.debug("loadConcertsLazy: skipping because it's already loaded.");
-      return;
-    }
 
     this.isLoading$.set(true);
     console.debug("loadConcertsLazy: sortFields", sortFields);
@@ -223,48 +216,16 @@ export class ManageConcertsPageComponent implements OnInit {
       });
   }
 
-  private reloadList() {
-    this.isLoadingOld$.set(true);
-    this.isLoading$.set(true);
-    let allConcertsFilter: ConcertFilter = {
-      dateFrom: DateTime.fromMillis(0, {zone: 'UTC'}),
-      dateTo: null,
-      tour: null,
-      onlyFuture: false
+  private reloadConcertTable() {
+    const event: TableLazyLoadEvent = {
+      first: this.concertTable.first() ?? undefined,
+      rows: this.concertTable.rows(),
+      sortField: this.concertTable.sortField,
+      sortOrder: this.concertTable.sortOrder,
+      filters: this.concertTable.filters,
     };
-    this.legacyConcertsService.getFilteredConcerts(allConcertsFilter, false).subscribe({
-      next: concerts => {
-        console.debug('Loaded OLD concerts:', concerts);
-        this.concertsOld$.set(concerts);
-        this.isLoadingOld$.set(false);
-      },
-      error: err => {
-        const errorResponse: ErrorResponseDto = err.error;
-        this.isLoadingOld$.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Could not load concerts in old database!',
-          text: errorResponse?.message,
-        });
-      },
-    });
 
-    this.toursService.getFilteredConcerts(allConcertsFilter, false).subscribe({
-      next: concerts => {
-        console.debug('Loaded concerts:', concerts);
-        this.concerts$.set(concerts);
-        this.isLoading$.set(false);
-      },
-      error: err => {
-        const errorResponse: ErrorResponseDto = err.error;
-        this.isLoading$.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Could not load concerts!',
-          text: errorResponse?.message,
-        });
-      },
-    });
+    this.lazyLoad$.next(event);
   }
 
   async onDeleteClicked(event: MouseEvent, concert: ConcertDetailsDto) {
@@ -290,7 +251,7 @@ export class ManageConcertsPageComponent implements OnInit {
         } catch (e) {
           console.error('Could not delete concert', e);
         } finally {
-          this.reloadList();
+          this.reloadConcertTable();
           this.isDeletingConcert$.set(false);
         }
       },
