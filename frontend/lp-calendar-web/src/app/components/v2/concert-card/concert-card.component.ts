@@ -78,7 +78,7 @@ export class ConcertCardComponent implements OnInit, OnChanges {
     let current = changes.concert2$?.currentValue ?? changes.concert$?.currentValue;
     if (current == null) {
       this.viewModel.set(null);
-    } else if ("scheduleImageFile" in current) {
+    } else if ("timeIsPlaceholder" in current) {
       let currentV3 = current as ConcertDetailsDto;
       console.debug("currentV3", currentV3);
       this.viewModel.set({
