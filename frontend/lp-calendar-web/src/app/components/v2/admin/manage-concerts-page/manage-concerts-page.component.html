@@ -7,6 +7,13 @@
   />
 </ng-template>
 
+<ng-template #concertStatusBadge let-status="status">
+  <p-badge
+    [value]="status"
+    [severity]="status == ConcertStatusValueDto.Cancelled ? 'danger' : status == ConcertStatusValueDto.Past ? 'secondary' : 'success'"
+  />
+</ng-template>
+
 <p-card>
   <ng-template #title>
     Manage concerts
@@ -144,7 +151,7 @@
             {{ concert.customTitle }}
           }
         </td>
-        <td>{{ ConcertStatus.allValues.find(s => s.value == concert.status)?.label ?? "unknown" }}</td>
+        <td><ng-container [ngTemplateOutlet]="concertStatusBadge" [ngTemplateOutletContext]="{ status: concert.status }" /></td>
         <td alignFrozen="right" pFrozenColumn>
           <p-button-group>
             <p-button label="View" icon="pi pi-eye" variant="outlined" size="small" severity="info" [routerLink]="['/concerts', 'beta', concert.id]" [disabled]="isDeletingConcert$()" />
