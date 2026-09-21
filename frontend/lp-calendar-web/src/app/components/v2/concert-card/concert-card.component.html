@@ -8,26 +8,26 @@
     @if (isLoading$) {
       <p-skeleton width="8rem" />
     } @else {
-      <a class="no-underline text-color hover:text-color-secondary" [routerLink]="['/concerts', concert$?.id]">{{ concert$?.venue }}</a>
+      <a class="no-underline text-color hover:text-color-secondary" [routerLink]="['/concerts', viewModel()?.id]">{{ viewModel()?.venue }}</a>
     }
   </ng-template>
   <ng-template #subtitle>
-    @if (concert$ != null && !isLoading$) {
-      {{ concert$.city }}{{ (concert$.state?.length ?? 0) > 0 ? ", " + concert$.state : ""}}, {{ concert$.country }}
+    @if (viewModel() != null && !isLoading$) {
+      {{ viewModel()?.location }}
     } @else if (isLoading$) {
       <p-skeleton width="10rem" />
     }
   </ng-template>
 
-  @if (concert$?.postedStartTime != undefined || concert$?.mainStageTime != undefined) {
-    <div class="pb-2" pTooltip="In your local timezone" tooltipPosition="bottom">{{ concert$?.mainStageTime ?? concert$?.postedStartTime | date:"EEEE', ' dd.MM.yyyy' at ' HH:mm" }}</div>
+  @if (viewModel()?.postedStartTime != undefined || viewModel()?.mainStageTime != undefined) {
+    <div class="pb-2" pTooltip="In your local timezone" tooltipPosition="bottom">{{ viewModel()?.mainStageTime ?? viewModel()?.postedStartTime | date:"EEEE', ' dd.MM.yyyy' at ' HH:mm" }}</div>
 
     <div class="grid justify-content-center py-2">
-      <app-countdown [countdownToDate]="concert$?.mainStageTime ?? concert$?.postedStartTime!" [concertId]="concert$?.id" />
+      <app-countdown [countdownToDate]="viewModel()?.mainStageTime ?? viewModel()?.postedStartTime!" [concertId]="viewModel()?.id" />
     </div>
   }
 
-  @if (!isLoading$ && concert$ == null) {
+  @if (!isLoading$ && viewModel() == null) {
     <p-message [severity]="notFoundAlertClass">
       {{ notFoundAlertText }}
     </p-message>
@@ -35,18 +35,18 @@
 
   <ng-template #footer>
     <div class="flex flex-wrap justify-content-between">
-      @if (concert$ != null && !concert$.isPast) {
+      @if (viewModel() != null && !viewModel()?.isPast) {
         <div>
-          @if (concert$?.mainStageTime == undefined) {
+          @if (viewModel()?.mainStageTime == undefined) {
             <small style="font-size: 0.6rem">Based on start time on ticket</small>
           }
-          @if (concert$?.mainStageTime != undefined) {
+          @if (viewModel()?.mainStageTime != undefined) {
             <small style="font-size: 0.6rem">Based on Linkin Park's stage time</small>
           }
         </div>
       }
       <div class="flex flex-row-reverse flex-wrap mt-2">
-        @if (concert$?.id != null) {
+        @if (viewModel()?.id != null) {
           <p-button variant="outlined" label="Details" icon="pi pi-info-circle" [routerLink]="['/concerts', concert$?.id]" size="small" />
 
           @if (canUpdateConcerts$) {

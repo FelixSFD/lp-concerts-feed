@@ -140,6 +140,32 @@ paths:
             perform this operation"
       security:
         - Bearer: [ ]
+  /v3/Concerts/next:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+    get:
+      tags:
+        - Concerts
+      summary: Returns the next concert from the current time
+      operationId: GetNextConcert
+      responses:
+        "200":
+          description: ""
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/ConcertDetails"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConcertDetails"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/ConcertDetails"
+        "401":
+          description: "Unauthorized: Credentials are missing or not valid"
+        "403":
+          description: "Forbidden: Credentials are valid, but the caller is not allowed to
+            perform this operation"
   /v3/Concerts/{concertId}:
     parameters:
       - $ref: "#/components/parameters/X-LP-Request-Id"

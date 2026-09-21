@@ -2,6 +2,7 @@ using Common.Database;
 using Common.Database.Repositories;
 using Common.Utils.Pagination;
 using Database.Tours.DataObjects;
+using Database.Tours.Filters;
 using Database.Tours.Repositories;
 using LPCalendar.DataStructure.Tours;
 using Microsoft.Extensions.Logging;
@@ -157,6 +158,29 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
             logger.LogInformation("The concert with ID '{concertId}' was found in the database, but it's marked as deleted.", concert.Id);
            throw new ConcertNotFoundException(concert.Id); 
         }
+    }
+
+    /// <summary>
+    /// Returns the next concert after the current time.
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<ConcertDetailsBo?> GetNextConcert(CancellationToken cancellationToken)
+    {
+        var concertFilter = new ConcertFilter
+        {
+            After = DateTimeOffset.Now.AddHours(-4),
+        };
+        
+        var paginationParams = new PaginationParams(0, 1);
+        var sortDescriptor = new SortDescriptor("date");
+        
+        logger.LogDebug("Getting first concert after {afterDate}", concertFilter.After);
+        
+        var concert = await concertRepository
+            .FindAsync(concertFilter, [sortDescriptor], paginationParams: paginationParams, cancellationToken: cancellationToken)
+            .FirstOrDefaultAsync(cancellationToken);
+        return concert?.ToBoWithDetails();
     }
 
     /// <summary>
