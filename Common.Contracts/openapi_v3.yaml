@@ -298,9 +298,6 @@ paths:
         "200":
           description: ""
           content:
-            text/plain:
-              schema:
-                $ref: "#/components/schemas/ConcertDetails"
             application/json:
               schema:
                 $ref: "#/components/schemas/ConcertDetails"

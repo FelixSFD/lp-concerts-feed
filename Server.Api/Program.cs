@@ -1,6 +1,7 @@
 using System.Configuration;
 using System.Text.Json.Serialization;
 using Common.Server.ClientIp;
+using Common.Server.ExceptionHandling;
 using Common.Utils.Cache;
 using Common.WikiMedia.Repositories;
 using Database.Tours;
@@ -243,6 +244,7 @@ builder.Services.AddControllers()
 
 //Register Problem Details Service for API Errors
 builder.Services.AddProblemDetails();
+builder.Services.AddTransient<IProblemDetailsWriter, TextPlainProblemDetailsWriter>();
 
 //Register the GlobalExceptionHandler
 //Custom Global Exception Handler for HTTP Status Codes

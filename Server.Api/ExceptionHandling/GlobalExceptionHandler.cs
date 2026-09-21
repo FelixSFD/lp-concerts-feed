@@ -33,11 +33,18 @@ public sealed class GlobalExceptionHandler(
             problemDetails.Extensions["traceId"] = httpContext.TraceIdentifier;
             problemDetails.Extensions["timestamp"] = DateTime.UtcNow;
 
-            return await problemDetailsService.TryWriteAsync(new ProblemDetailsContext
+            var success = await problemDetailsService.TryWriteAsync(new ProblemDetailsContext
             {
                 HttpContext = httpContext,
                 ProblemDetails = problemDetails,
             });
+
+            if (!success)
+            {
+                logger.LogWarning("Failed to process problem details. TraceID: {traceId}", httpContext.TraceIdentifier);
+            }
+            
+            return success;
         }
 
         // Map the exceptions to HTTP responses
