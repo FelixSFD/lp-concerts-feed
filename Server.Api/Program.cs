@@ -31,7 +31,7 @@ builder.Configuration.AddEnvironmentVariables("App_");
 builder.Services.AddOpenTelemetry()
     .ConfigureResource(r =>
     {
-        r.AddService(builder.Environment.ApplicationName);
+        r.AddService("lpshows-api");
         r.AddAttributes([
             new KeyValuePair<string, object>("deployment.environment.name", "test")
         ]);
