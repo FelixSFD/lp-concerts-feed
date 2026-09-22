@@ -14,6 +14,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Resources;
 using Prometheus;
 using Server.Api.Cache;
 using Server.Api.ExceptionHandling;
@@ -24,6 +26,14 @@ using Service.Tours.Importer;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables("App_");
+
+builder.Logging.ClearProviders();
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(r => r.AddService(builder.Environment.ApplicationName))
+    .WithLogging(logging =>
+    {
+        logging.AddConsoleExporter();
+    });
 
 builder.Services.AddHttpContextAccessor();
 
