@@ -33,7 +33,7 @@ builder.Services.AddOpenTelemetry()
     {
         r.AddService("lpshows-api");
         r.AddAttributes([
-            new KeyValuePair<string, object>("deployment.environment.name", "test")
+            new KeyValuePair<string, object>("deployment.environment.name", builder.Configuration.GetValue<string>("OpenTelemetry:TelemetryEnvironmentName") ?? "default")
         ]);
     })
     .WithLogging(logging =>
