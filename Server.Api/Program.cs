@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using OpenTelemetry.Exporter;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
 using Prometheus;
@@ -27,12 +28,15 @@ using Service.Tours.Importer;
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables("App_");
 
-builder.Logging.ClearProviders();
 builder.Services.AddOpenTelemetry()
     .ConfigureResource(r => r.AddService(builder.Environment.ApplicationName))
     .WithLogging(logging =>
     {
-        logging.AddConsoleExporter();
+        logging.AddOtlpExporter(options =>
+        {
+            options.Endpoint = new Uri("http://alloy:4317");
+            options.Protocol = OtlpExportProtocol.Grpc;
+        });
     });
 
 builder.Services.AddHttpContextAccessor();
