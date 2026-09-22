@@ -29,7 +29,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables("App_");
 
 builder.Services.AddOpenTelemetry()
-    .ConfigureResource(r => r.AddService(builder.Environment.ApplicationName))
+    .ConfigureResource(r =>
+    {
+        r.AddService(builder.Environment.ApplicationName);
+        r.AddAttributes([
+            new KeyValuePair<string, object>("deployment.environment.name", "test")
+        ]);
+    })
     .WithLogging(logging =>
     {
         var sendOtlpLogs = builder.Configuration.GetValue<bool>("OpenTelemetry:Alloy:SendLogs");
