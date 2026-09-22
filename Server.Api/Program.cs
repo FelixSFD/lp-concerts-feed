@@ -32,11 +32,15 @@ builder.Services.AddOpenTelemetry()
     .ConfigureResource(r => r.AddService(builder.Environment.ApplicationName))
     .WithLogging(logging =>
     {
-        logging.AddOtlpExporter(options =>
+        var sendOtlpLogs = builder.Configuration.GetValue<bool>("OpenTelemetry:Alloy:SendLogs");
+        if (sendOtlpLogs)
         {
-            options.Endpoint = new Uri("http://alloy:4317");
-            options.Protocol = OtlpExportProtocol.Grpc;
-        });
+            logging.AddOtlpExporter(options =>
+            {
+                options.Endpoint = new Uri(builder.Configuration.GetValue<string>("OpenTelemetry:Alloy:Url") ?? "http://alloy:4317");
+                options.Protocol = OtlpExportProtocol.Grpc;
+            });
+        }
     });
 
 builder.Services.AddHttpContextAccessor();
