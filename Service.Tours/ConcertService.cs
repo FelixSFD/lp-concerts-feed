@@ -215,6 +215,32 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
             Results = paginatedResult.Results.Select(DoMapper.ToBoWithDetails),
         };
     }
+    
+    /// <summary>
+    /// Returns a (filtered) list of concerts.
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <param name="filter">Filter and sorting</param>
+    /// <returns>Details about the concerts matching the filter</returns>
+    public IAsyncEnumerable<ConcertDetailsBo> GetConcertsWithDetails(CancellationToken cancellationToken, GetConcertsFilterDto filter)
+    {
+        logger.LogDebug("Getting concerts with details... Fetching starting with result {offset} and take {limit}", filter.Skip, filter.Limit);
+        var paginationParams = new PaginationParams(filter.Skip, filter.Limit);
+        var timeFilter = new TimeOnly(12, 0);
+        var concertFilter = new ConcertFilter
+        {
+            CountryCode = filter.CountryCode,
+            Country = filter.Country,
+            City = filter.City,
+            Venue = filter.Venue,
+            CustomTitle = filter.CustomTitle,
+            Before = filter.Before?.ToDateTime(timeFilter),
+            After = filter.After?.ToDateTime(timeFilter),
+        };
+        var result = concertRepository
+            .GetConcerts(cancellationToken, concertFilter, orderBy: filter.OrderBy.Select(SortDescriptor.FromString), paginationParams);
+        return result.Select(DoMapper.ToBoWithDetails);
+    }
 
     /// <summary>
     /// Deletes a concert

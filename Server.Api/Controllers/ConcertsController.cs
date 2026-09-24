@@ -146,7 +146,7 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     [HttpGet("upcoming")]
     [CustomResponseCache(Duration = CacheExpiration.Medium)]
     [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
-    public async Task<ActionResult<ConcertListResponseDto>> GetUpcomingConcertsAsync([FromQuery] uint? limit, CancellationToken cancellationToken)
+    public async Task<ActionResult<ConcertDetailsDto[]>> GetUpcomingConcertsAsync([FromQuery] uint? limit, CancellationToken cancellationToken)
     {
         return await GetUpcomingOrRecentConcertsAsync(limit ?? 5, DateOnly.FromDateTime(DateTime.Today), null, cancellationToken);
     }
@@ -160,12 +160,12 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     [HttpGet("recent")]
     [CustomResponseCache(Duration = CacheExpiration.Medium)]
     [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
-    public async Task<ActionResult<ConcertListResponseDto>> GetRecentConcertsAsync([FromQuery] uint? limit, CancellationToken cancellationToken)
+    public async Task<ActionResult<ConcertDetailsDto[]>> GetRecentConcertsAsync([FromQuery] uint? limit, CancellationToken cancellationToken)
     {
         return await GetUpcomingOrRecentConcertsAsync(limit ?? 5, null, DateOnly.FromDateTime(DateTime.Today), cancellationToken);
     }
 
-    private async Task<ActionResult<ConcertListResponseDto>> GetUpcomingOrRecentConcertsAsync(uint limit, DateOnly? after, DateOnly? before, CancellationToken cancellationToken)
+    private async Task<ActionResult<ConcertDetailsDto[]>> GetUpcomingOrRecentConcertsAsync(uint limit, DateOnly? after, DateOnly? before, CancellationToken cancellationToken)
     {
         if (after != null && before != null)
             throw new ArgumentException($"Cannot specify both '{nameof(after)}' and '{nameof(before)}' parameters");
@@ -193,21 +193,11 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
             filter.OrderBy = ["-date"];
         }
         
-        var paginatedResult = await concertService.GetConcertsWithDetailsPaginatedAsync(cancellationToken, filter);
-        var concerts = await paginatedResult.Results
+        var concerts = await concertService.GetConcertsWithDetails(cancellationToken, filter)
             .Select(DtoMapper.ToDto)
-            .ToListAsync(cancellationToken);
+            .ToArrayAsync(cancellationToken);
         
-        var response = new ConcertListResponseDto
-        {
-            Concerts = concerts,
-            Metadata = new PaginationResponseMetadataDto
-            {
-                Offset = (int)filter.Skip,
-                TotalElements = paginatedResult.TotalResults,
-            }
-        };
-        return Ok(response);
+        return Ok(concerts);
     }
     
     /// <summary>
