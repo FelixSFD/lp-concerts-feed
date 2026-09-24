@@ -277,6 +277,127 @@ public class SqlConcertRepositoryTest : ToursDbIntegrationTestsBase
     
     
     [Fact]
+    public async Task GetOnThisDay()
+    {
+        var concertRepo = new SqlConcertRepository(DbContext);
+        var concertTypeRepo = new SqlConcertTypeRepository(DbContext);
+        var venueRepo = new SqlVenueRepository(DbContext);
+        var tourRepo = new SqlTourRepository(DbContext);
+        var countryRepo = new SqlCountryRepository(DbContext);
+
+        var tour = new TourDo
+        {
+            Id = "fz-world-tour-2",
+            Name = "From Zero World Tour 2",
+            Legs = []
+        };
+        tourRepo.Add(tour);
+
+        var concertType = new ConcertTypeDo
+        {
+            Name = "Linkin Park Show 2"
+        };
+        concertTypeRepo.Add(concertType);
+
+        var countryGer = new CountryDo
+        {
+            IsoCode = "GER",
+            Name = "Germany",
+            NativeName = "Deutschland"
+        };
+        var countryUs = new CountryDo
+        {
+            IsoCode = "USA",
+            Name = "United States",
+            NativeName = "United States"
+        };
+        countryRepo.Add(countryGer);
+        countryRepo.Add(countryUs);
+
+        var venueGer = new VenueDo
+        {
+            Id = 10,
+            CountryCode = countryGer.IsoCode,
+            Country = countryGer,
+            City = new CityDo
+            {
+                CountryCode = countryGer.IsoCode,
+                Name = "Munich",
+                NativeName = "München",
+                Country = countryGer
+            },
+            TimeZone = "Europe/Berlin",
+            CurrentName = "Olympiahalle"
+        };
+        var venueUs = new VenueDo
+        {
+            Id = 11,
+            CountryCode = countryUs.IsoCode,
+            Country = countryUs,
+            City = new CityDo
+            {
+                CountryCode = countryUs.IsoCode,
+                Name = "New York",
+                NativeName = "New York",
+                Country = countryUs
+            },
+            TimeZone = "America/New_York",
+            CurrentName = "Barclays Center"
+        };
+        venueRepo.Add(venueGer);
+        venueRepo.Add(venueUs);
+
+        var concert1 = new ConcertDo
+        {
+            Id = "concert-2026-05-11",
+            TourId = tour.Id,
+            Type = concertType,
+            VenueId = venueGer.Id,
+            PostedStartTime = new DateTimeOffset(2026, 5, 11, 20, 0, 0, TimeSpan.Zero).UtcDateTime,
+            Status = ConcertDo.ConcertStatus.Planned,
+        };
+        var concert2 = new ConcertDo
+        {
+            Id = "concert-2026-06-01",
+            TourId = tour.Id,
+            Type = concertType,
+            VenueId = venueGer.Id,
+            PostedStartTime = new DateTimeOffset(2026, 6, 1, 20, 0, 0, TimeSpan.Zero).UtcDateTime,
+            Status = ConcertDo.ConcertStatus.Planned,
+        };
+        var concert3 = new ConcertDo
+        {
+            Id = "concert-2025-06-01",
+            TourId = tour.Id,
+            Type = concertType,
+            VenueId = venueUs.Id,
+            PostedStartTime = new DateTimeOffset(2025, 6, 1, 20, 0, 0, TimeSpan.Zero).UtcDateTime,
+            Status = ConcertDo.ConcertStatus.Planned,
+        };
+
+        concertRepo.Add(concert1);
+        concertRepo.Add(concert2);
+        concertRepo.Add(concert3);
+        await concertRepo.SaveChangesAsync();
+
+        // check month 06 and day 01 -> 2 results
+        var concerts = await concertRepo.GetOnThisDay(CancellationToken.None, 6, 1).ToArrayAsync();
+        Assert.Equal(2, concerts.Length);
+        Assert.Contains(concerts, c => c.Id == concert2.Id);
+        Assert.Contains(concerts, c => c.Id == concert3.Id);
+        
+        // check month 05 and day 11 -> 1 result
+        concerts = await concertRepo.GetOnThisDay(CancellationToken.None, 5, 11).ToArrayAsync();
+        Assert.Single(concerts);
+        Assert.Contains(concerts, c => c.Id == concert1.Id);
+        
+        // check month 01 and day 31 -> 0 results
+        concerts = await concertRepo.GetOnThisDay(CancellationToken.None, 1, 31).ToArrayAsync();
+        Assert.Empty(concerts);
+    }
+    
+    
+    [Fact]
     public async Task GetByWikiPageIdAsync()
     {
         var concertRepo = new SqlConcertRepository(DbContext);

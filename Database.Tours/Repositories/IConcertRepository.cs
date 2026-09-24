@@ -35,6 +35,16 @@ public interface IConcertRepository : ISingleKeyRepositoryBase<ConcertDo, string
         IPaginationParams? paginationParams = null, bool includeDeleted = false);
     
     /// <summary>
+    /// Returns all concert that happened on a given day and month, including previous years
+    /// </summary>
+    /// <param name="token"></param>
+    /// <param name="month"></param>
+    /// <param name="day"></param>
+    /// <param name="orderBy"></param>
+    /// <returns></returns>
+    IAsyncEnumerable<ConcertDo> GetOnThisDay(CancellationToken token, uint month, uint day, IEnumerable<SortDescriptor>? orderBy = null);
+    
+    /// <summary>
     /// Returns a list of concerts that are linked to a given Linkinpedia page. Ideally, this should only return one concert, but there is technically no unique key.
     /// </summary>
     /// <param name="wikiPageId">ID of the page in Linkinpedia</param>
