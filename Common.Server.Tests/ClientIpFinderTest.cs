@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using Common.Server.ClientIp;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 

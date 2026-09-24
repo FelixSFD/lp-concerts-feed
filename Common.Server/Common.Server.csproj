@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
         <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.11" />
         <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.11" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.9" />

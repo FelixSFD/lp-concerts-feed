@@ -1,6 +1,7 @@
 using System.Configuration;
 using System.Text.Json.Serialization;
 using Common.Server.ClientIp;
+using Common.Server.ExceptionHandling;
 using Common.Utils.Cache;
 using Common.WikiMedia.Repositories;
 using Database.Tours;
@@ -13,6 +14,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Resources;
 using Prometheus;
 using Server.Api.Cache;
 using Server.Api.ExceptionHandling;
@@ -23,6 +27,27 @@ using Service.Tours.Importer;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables("App_");
+
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(r =>
+    {
+        r.AddService("lpshows-api");
+        r.AddAttributes([
+            new KeyValuePair<string, object>("deployment.environment.name", builder.Configuration.GetValue<string>("OpenTelemetry:TelemetryEnvironmentName") ?? "default")
+        ]);
+    })
+    .WithLogging(logging =>
+    {
+        var sendOtlpLogs = builder.Configuration.GetValue<bool>("OpenTelemetry:Alloy:SendLogs");
+        if (sendOtlpLogs)
+        {
+            logging.AddOtlpExporter(options =>
+            {
+                options.Endpoint = new Uri(builder.Configuration.GetValue<string>("OpenTelemetry:Alloy:Url") ?? "http://alloy:4317");
+                options.Protocol = OtlpExportProtocol.Grpc;
+            });
+        }
+    });
 
 builder.Services.AddHttpContextAccessor();
 
@@ -243,6 +268,7 @@ builder.Services.AddControllers()
 
 //Register Problem Details Service for API Errors
 builder.Services.AddProblemDetails();
+builder.Services.AddTransient<IProblemDetailsWriter, TextPlainProblemDetailsWriter>();
 
 //Register the GlobalExceptionHandler
 //Custom Global Exception Handler for HTTP Status Codes

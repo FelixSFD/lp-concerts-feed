@@ -4,13 +4,14 @@ import {
   ConcertFileUploadResponseDto, ConcertListResponseDto,
   ConcertsApi,
   ConcertScheduleUploadRequestDto,
-  LinkinpediaImportStatusDto
+  LinkinpediaImportStatusDto, ProblemDetailsDto
 } from '../modules/lpshows-api/v3';
 import { addAuthentication } from '../auth/auth.config';
 import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { getRequestIdParameter } from '../helper/cache-parameter-helper';
 import { ConcertFilter } from '../data/concert-filter';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Service()
 export class ConcertsService {
@@ -64,8 +65,16 @@ export class ConcertsService {
   /**
    * Returns the details of the next concert
    */
-  getNext(): Promise<ConcertDetailsDto> {
-    return firstValueFrom(this.concertsApi.getNextConcert());
+  async getNext(): Promise<ConcertDetailsDto | null> {
+    return firstValueFrom(this.concertsApi.getNextConcert()).catch(err => {
+      const problem = err as ProblemDetailsDto | null;
+      if (problem?.status === 404) {
+        console.info('No upcoming concert found');
+        return null;
+      }
+
+      throw problem;
+    });
   }
 
   getFilteredConcerts(filter: ConcertFilter, limit: number = 100, skip: number = 0, cached: boolean = true): Promise<ConcertListResponseDto> {

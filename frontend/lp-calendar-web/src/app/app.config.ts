@@ -21,6 +21,7 @@ import {ConfirmationService, MessageService} from 'primeng/api';
 import {TourConfig} from './data/tour-config';
 import {definePreset} from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
+import { apiErrorInterceptor } from './helper/api-error.interceptor';
 
 const cookieConfig:NgcCookieConsentConfig = {
   "cookie": {
@@ -61,7 +62,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideAuth(authConfig),
     { provide: AbstractSecurityStorage, useClass: DefaultLocalStorageService },
-    provideHttpClient(withInterceptors([authTokenInterceptor])),
+    provideHttpClient(withInterceptors([authTokenInterceptor, apiErrorInterceptor])),
     provideAnimations(),
     provideMatomo(
       {

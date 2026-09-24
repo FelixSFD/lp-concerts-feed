@@ -4,14 +4,20 @@ using Service.Tours.Exceptions;
 
 namespace Server.Api.ExceptionHandling;
 
+/// <summary>
+/// Handles unhandled exceptions globally to get the <see cref="ProblemDetails"/> object.
+/// </summary>
+/// <param name="logger"></param>
+/// <param name="problemDetailsService"></param>
 public sealed class GlobalExceptionHandler(
         ILogger<GlobalExceptionHandler> logger,
         IProblemDetailsService problemDetailsService) : IExceptionHandler
     {
+        /// <inheritdoc />
         public async ValueTask<bool> TryHandleAsync(
             HttpContext httpContext,
             Exception exception,
-            CancellationToken cancelaltionToken)
+            CancellationToken cancellationToken)
         {
             logger.LogError(exception, "Unhandled exception occured. TraceId: {TraceId}",
                 httpContext.TraceIdentifier);
@@ -27,17 +33,26 @@ public sealed class GlobalExceptionHandler(
                 Title = title,
                 Type = GetProblemType(statusCode),
                 Instance = httpContext.Request.Path,
-                Detail = GetSafeErrorMessage(exception, httpContext)
+                Detail = GetSafeErrorMessage(exception, httpContext),
+                Extensions =
+                {
+                    ["traceId"] = httpContext.TraceIdentifier,
+                    ["timestamp"] = DateTime.UtcNow
+                }
             };
 
-            problemDetails.Extensions["traceId"] = httpContext.TraceIdentifier;
-            problemDetails.Extensions["timestamp"] = DateTime.UtcNow;
-
-            return await problemDetailsService.TryWriteAsync(new ProblemDetailsContext
+            var success = await problemDetailsService.TryWriteAsync(new ProblemDetailsContext
             {
                 HttpContext = httpContext,
                 ProblemDetails = problemDetails,
             });
+
+            if (!success)
+            {
+                logger.LogWarning("Failed to process problem details. TraceID: {traceId}", httpContext.TraceIdentifier);
+            }
+            
+            return success;
         }
 
         // Map the exceptions to HTTP responses
