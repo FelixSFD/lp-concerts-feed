@@ -119,7 +119,7 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
     public async Task<ActionResult<ConcertListResponseDto>> GetConcertsAsync(CancellationToken cancellationToken, [FromQuery] GetConcertsFilterDto filter)
     {
-        var paginatedResult = await concertService.GetConcertsWithDetailsAsync(cancellationToken, filter);
+        var paginatedResult = await concertService.GetConcertsWithDetailsPaginatedAsync(cancellationToken, filter);
         var concerts = await paginatedResult.Results
             .Select(DtoMapper.ToDto)
             .ToListAsync(cancellationToken);
@@ -193,7 +193,7 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
             filter.OrderBy = ["-date"];
         }
         
-        var paginatedResult = await concertService.GetConcertsWithDetailsAsync(cancellationToken, filter);
+        var paginatedResult = await concertService.GetConcertsWithDetailsPaginatedAsync(cancellationToken, filter);
         var concerts = await paginatedResult.Results
             .Select(DtoMapper.ToDto)
             .ToListAsync(cancellationToken);

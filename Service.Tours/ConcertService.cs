@@ -189,7 +189,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
     /// <param name="cancellationToken"></param>
     /// <param name="filter">Filter and sorting</param>
     /// <returns>Details about the concerts matching the filter</returns>
-    public async Task<AsyncPaginationResult<ConcertDetailsBo>> GetConcertsWithDetailsAsync(CancellationToken cancellationToken, GetConcertsFilterDto filter)
+    public async Task<AsyncPaginationResult<ConcertDetailsBo>> GetConcertsWithDetailsPaginatedAsync(CancellationToken cancellationToken, GetConcertsFilterDto filter)
     {
         logger.LogDebug("Getting concerts with details... Fetching starting with result {offset} and take {limit}", filter.Skip, filter.Limit);
         var paginationParams = new PaginationParams(filter.Skip, filter.Limit);
