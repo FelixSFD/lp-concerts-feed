@@ -115,7 +115,7 @@ export class HomePageComponent implements OnInit {
     this.isLoadingNextConcert = true;
 
     try {
-      this.nextConcert = await this.concertsService.getUpcoming(1).then();
+      this.nextConcert = await this.concertsService.getUpcoming(1).then(c => c.at(0) ?? null);
     } catch (err) {
       console.warn("Next concert was not found. Maybe there is nothing scheduled.", err);
       this.nextConcert = null;
