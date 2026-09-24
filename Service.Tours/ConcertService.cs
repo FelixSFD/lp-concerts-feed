@@ -194,7 +194,7 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         logger.LogDebug("Getting concerts with details... Fetching starting with result {offset} and take {limit}", filter.Skip, filter.Limit);
         var paginationParams = new PaginationParams(filter.Skip, filter.Limit);
         var timeFilter = new TimeOnly(12, 0);
-        var concertFilter = new Database.Tours.Filters.ConcertFilter
+        var concertFilter = new ConcertFilter
         {
             CountryCode = filter.CountryCode,
             Country = filter.Country,

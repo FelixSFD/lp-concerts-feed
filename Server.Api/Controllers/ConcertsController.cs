@@ -138,6 +138,79 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     }
     
     /// <summary>
+    /// Returns the next x upcoming concerts
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <param name="limit">Number of concerts to fetch (maximum 10)</param>
+    /// <returns></returns>
+    [HttpGet("upcoming")]
+    [CustomResponseCache(Duration = CacheExpiration.Medium)]
+    [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
+    public async Task<ActionResult<ConcertListResponseDto>> GetUpcomingConcertsAsync([FromQuery] uint? limit, CancellationToken cancellationToken)
+    {
+        return await GetUpcomingOrRecentConcertsAsync(limit ?? 5, DateOnly.FromDateTime(DateTime.Today), null, cancellationToken);
+    }
+    
+    /// <summary>
+    /// Returns the x previous concerts
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <param name="limit">Number of concerts to fetch (maximum 10)</param>
+    /// <returns></returns>
+    [HttpGet("recent")]
+    [CustomResponseCache(Duration = CacheExpiration.Medium)]
+    [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
+    public async Task<ActionResult<ConcertListResponseDto>> GetRecentConcertsAsync([FromQuery] uint? limit, CancellationToken cancellationToken)
+    {
+        return await GetUpcomingOrRecentConcertsAsync(limit ?? 5, null, DateOnly.FromDateTime(DateTime.Today), cancellationToken);
+    }
+
+    private async Task<ActionResult<ConcertListResponseDto>> GetUpcomingOrRecentConcertsAsync(uint limit, DateOnly? after, DateOnly? before, CancellationToken cancellationToken)
+    {
+        if (after != null && before != null)
+            throw new ArgumentException($"Cannot specify both '{nameof(after)}' and '{nameof(before)}' parameters");
+        
+        if (after == null && before == null)
+            throw new ArgumentException($"Either '{nameof(after)}' or '{nameof(before)}' parameter must be specified");
+        
+        if (limit == 0)
+            limit = 5;
+        
+        var filter = new GetConcertsFilterDto
+        {
+            After = after,
+            Before = before,
+            Limit = uint.Min(limit, 10)
+        };
+        
+        // define the sort order based on After/Before parameter
+        if (after != null)
+        {
+            filter.OrderBy = ["date"];
+        }
+        else
+        {
+            filter.OrderBy = ["-date"];
+        }
+        
+        var paginatedResult = await concertService.GetConcertsWithDetailsAsync(cancellationToken, filter);
+        var concerts = await paginatedResult.Results
+            .Select(DtoMapper.ToDto)
+            .ToListAsync(cancellationToken);
+        
+        var response = new ConcertListResponseDto
+        {
+            Concerts = concerts,
+            Metadata = new PaginationResponseMetadataDto
+            {
+                Offset = (int)filter.Skip,
+                TotalElements = paginatedResult.TotalResults,
+            }
+        };
+        return Ok(response);
+    }
+    
+    /// <summary>
     /// Deletes a concert. Note that the data will not be fully removed from the database. Admins will still be able to see deleted concerts.
     /// </summary>
     /// <param name="concertId">ID of the concert to delete</param>

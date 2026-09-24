@@ -168,6 +168,54 @@ paths:
             perform this operation"
       security:
         - Bearer: [ ]
+  /v3/Concerts/upcoming:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+    get:
+      tags:
+        - Concerts
+      summary: Returns the next x concerts from the current time
+      operationId: GetUpcomingConcerts
+      parameters:
+        - $ref: "#/components/parameters/PaginationLimit"
+      responses:
+        "200":
+          description: "List of upcoming concerts"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConcertDetails"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConcertDetails"
+  /v3/Concerts/recent:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+    get:
+      tags:
+        - Concerts
+      summary: Returns the latest x concerts from the current time
+      operationId: GetRecentConcerts
+      parameters:
+        - $ref: "#/components/parameters/PaginationLimit"
+      responses:
+        "200":
+          description: "List of previous concerts"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConcertDetails"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConcertDetails"
   /v3/Concerts/next:
     parameters:
       - $ref: "#/components/parameters/X-LP-Request-Id"
@@ -176,6 +224,8 @@ paths:
         - Concerts
       summary: Returns the next concert from the current time
       operationId: GetNextConcert
+      deprecated: true
+      description: Returns the next concert from the current time. This endpoint is deprecated and will be removed in a future release. Please use the /v3/Concerts/upcoming endpoint instead.
       responses:
         "200":
           description: ""
@@ -1938,6 +1988,14 @@ components:
       required: false
       schema:
         type: string
+
+    PaginationLimit:
+      name: Limit
+      in: query
+      schema:
+        pattern: ^-?(?:0|[1-9]\d*)$
+        type: number
+        format: uint32
     
     CountryCode:
       description: filter by exact country code
