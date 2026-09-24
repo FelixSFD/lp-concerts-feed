@@ -201,6 +201,28 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     }
     
     /// <summary>
+    /// Returns the concerts that happened on the same day as the specified date
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <param name="month">Month to check</param>
+    /// <param name="day">Day to check</param>
+    /// <returns></returns>
+    [HttpGet("otd")]
+    [CustomResponseCache(Duration = CacheExpiration.Long)]
+    [OutputCache(PolicyName = CachePolicyNames.Long, Tags = [CacheTags.ConcertsAll])]
+    public async Task<ActionResult<ConcertDetailsDto[]>> GetConcertsOnThisDay([FromQuery] int? month, [FromQuery] int? day, CancellationToken cancellationToken)
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var concerts = await concertService
+            .GetHistoricConcertsOnDay(month ?? today.Month, day ?? today.Day, cancellationToken)
+            .Select(DtoMapper.ToDto)
+            .ToArrayAsync(cancellationToken);
+        
+        logger.LogDebug("Found {count} concerts that happened on {month}/{day}", concerts.Length, month, day);
+        return Ok(concerts);
+    }
+    
+    /// <summary>
     /// Deletes a concert. Note that the data will not be fully removed from the database. Admins will still be able to see deleted concerts.
     /// </summary>
     /// <param name="concertId">ID of the concert to delete</param>

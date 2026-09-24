@@ -42,7 +42,7 @@ public interface IConcertRepository : ISingleKeyRepositoryBase<ConcertDo, string
     /// <param name="day"></param>
     /// <param name="orderBy"></param>
     /// <returns></returns>
-    IAsyncEnumerable<ConcertDo> GetOnThisDay(CancellationToken token, uint month, uint day, IEnumerable<SortDescriptor>? orderBy = null);
+    IAsyncEnumerable<ConcertDo> GetOnThisDay(CancellationToken token, int month, int day, IEnumerable<SortDescriptor>? orderBy = null);
     
     /// <summary>
     /// Returns a list of concerts that are linked to a given Linkinpedia page. Ideally, this should only return one concert, but there is technically no unique key.

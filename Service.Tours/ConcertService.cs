@@ -241,6 +241,19 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
             .GetConcerts(cancellationToken, concertFilter, orderBy: filter.OrderBy.Select(SortDescriptor.FromString), paginationParams);
         return result.Select(DoMapper.ToBoWithDetails);
     }
+    
+    /// <summary>
+    /// Returns concerts that happened on a specific day
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <param name="month"></param>
+    /// <param name="day"></param>
+    /// <returns></returns>
+    public IAsyncEnumerable<ConcertDetailsBo> GetHistoricConcertsOnDay(int month, int day, CancellationToken cancellationToken)
+    {
+        logger.LogDebug("Getting concerts that happened on {month}/{day}", month, day);
+        return concertRepository.GetOnThisDay(cancellationToken, month, day).Select(DoMapper.ToBoWithDetails);
+    }
 
     /// <summary>
     /// Deletes a concert

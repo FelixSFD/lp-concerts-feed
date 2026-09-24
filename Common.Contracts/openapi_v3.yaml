@@ -253,6 +253,37 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
+  /v3/Concerts/otd:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+    get:
+      tags:
+        - Concerts
+      summary: Returns the concerts that happened on a specific day and month
+      operationId: GetConcertsOnThisDay
+      parameters:
+        - name: month
+          in: query
+          schema:
+            type: integer
+        - name: day
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "List of previous concerts"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConcertDetails"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConcertDetails"
   /v3/Concerts/{concertId}:
     parameters:
       - $ref: "#/components/parameters/X-LP-Request-Id"

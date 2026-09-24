@@ -95,7 +95,7 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
     }
 
     /// <inheritdoc/>
-    public IAsyncEnumerable<ConcertDo> GetOnThisDay(CancellationToken token, uint month, uint day, IEnumerable<SortDescriptor>? orderBy = null)
+    public IAsyncEnumerable<ConcertDo> GetOnThisDay(CancellationToken token, int month, int day, IEnumerable<SortDescriptor>? orderBy = null)
     {
         return InternalFindAsync(c => c.PostedStartTime.Month == month && c.PostedStartTime.Day == day, IncludeAllReferences, orderBy);
     }
