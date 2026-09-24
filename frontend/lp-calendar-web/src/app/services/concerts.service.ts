@@ -77,6 +77,24 @@ export class ConcertsService {
     });
   }
 
+  /**
+   * Returns the details of upcoming concerts
+   * @param count Number of concerts to return (maximum 10)
+   * @param cached Whether to use cached data
+   */
+  getUpcoming(count: number = 5, cached: boolean = true): Promise<ConcertDetailsDto[]> {
+    return firstValueFrom(this.concertsApi.getUpcomingConcerts(getRequestIdParameter(cached), count));
+  }
+
+  /**
+   * Returns the details of recent concerts
+   * @param count Number of concerts to return (maximum 10)
+   * @param cached Whether to use cached data
+   */
+  getRecent(count: number = 5, cached: boolean = true): Promise<ConcertDetailsDto[]> {
+    return firstValueFrom(this.concertsApi.getRecentConcerts(getRequestIdParameter(cached), count));
+  }
+
   getFilteredConcerts(filter: ConcertFilter, limit: number = 100, skip: number = 0, cached: boolean = true): Promise<ConcertListResponseDto> {
     return firstValueFrom(this.concertsApi.getConcerts(getRequestIdParameter(cached), filter.countryCode, filter.country, filter.city, filter.venue, filter.customTitle, undefined, undefined, limit, skip, filter.orderBy));
   }

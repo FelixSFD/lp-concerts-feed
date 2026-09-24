@@ -100,8 +100,6 @@ export class ConcertCardComponent implements OnInit, OnChanges {
         postedStartTime: current.postedStartTime,
         mainStageTime: current.mainStageTime
       });
-    } else {
-      throw new Error(`Unexpected type of concert: ${typeof current}`);
     }
   }
 

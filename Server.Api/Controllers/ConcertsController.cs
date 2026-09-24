@@ -119,7 +119,7 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
     public async Task<ActionResult<ConcertListResponseDto>> GetConcertsAsync(CancellationToken cancellationToken, [FromQuery] GetConcertsFilterDto filter)
     {
-        var paginatedResult = await concertService.GetConcertsWithDetailsAsync(cancellationToken, filter);
+        var paginatedResult = await concertService.GetConcertsWithDetailsPaginatedAsync(cancellationToken, filter);
         var concerts = await paginatedResult.Results
             .Select(DtoMapper.ToDto)
             .ToListAsync(cancellationToken);
@@ -135,6 +135,91 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
             }
         };
         return Ok(response);
+    }
+    
+    /// <summary>
+    /// Returns the next x upcoming concerts
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <param name="limit">Number of concerts to fetch (maximum 10)</param>
+    /// <returns></returns>
+    [HttpGet("upcoming")]
+    [CustomResponseCache(Duration = CacheExpiration.Medium)]
+    [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
+    public async Task<ActionResult<ConcertDetailsDto[]>> GetUpcomingConcertsAsync([FromQuery] uint? limit, CancellationToken cancellationToken)
+    {
+        return await GetUpcomingOrRecentConcertsAsync(limit ?? 5, DateOnly.FromDateTime(DateTime.Today), null, cancellationToken);
+    }
+    
+    /// <summary>
+    /// Returns the x previous concerts
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <param name="limit">Number of concerts to fetch (maximum 10)</param>
+    /// <returns></returns>
+    [HttpGet("recent")]
+    [CustomResponseCache(Duration = CacheExpiration.Medium)]
+    [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
+    public async Task<ActionResult<ConcertDetailsDto[]>> GetRecentConcertsAsync([FromQuery] uint? limit, CancellationToken cancellationToken)
+    {
+        return await GetUpcomingOrRecentConcertsAsync(limit ?? 5, null, DateOnly.FromDateTime(DateTime.Today), cancellationToken);
+    }
+
+    private async Task<ActionResult<ConcertDetailsDto[]>> GetUpcomingOrRecentConcertsAsync(uint limit, DateOnly? after, DateOnly? before, CancellationToken cancellationToken)
+    {
+        if (after != null && before != null)
+            throw new ArgumentException($"Cannot specify both '{nameof(after)}' and '{nameof(before)}' parameters");
+        
+        if (after == null && before == null)
+            throw new ArgumentException($"Either '{nameof(after)}' or '{nameof(before)}' parameter must be specified");
+        
+        if (limit == 0)
+            limit = 5;
+        
+        var filter = new GetConcertsFilterDto
+        {
+            After = after,
+            Before = before,
+            Limit = uint.Min(limit, 10)
+        };
+        
+        // define the sort order based on After/Before parameter
+        if (after != null)
+        {
+            filter.OrderBy = ["date"];
+        }
+        else
+        {
+            filter.OrderBy = ["-date"];
+        }
+        
+        var concerts = await concertService.GetConcertsWithDetails(cancellationToken, filter)
+            .Select(DtoMapper.ToDto)
+            .ToArrayAsync(cancellationToken);
+        
+        return Ok(concerts);
+    }
+    
+    /// <summary>
+    /// Returns the concerts that happened on the same day as the specified date
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <param name="month">Month to check</param>
+    /// <param name="day">Day to check</param>
+    /// <returns></returns>
+    [HttpGet("otd")]
+    [CustomResponseCache(Duration = CacheExpiration.Long)]
+    [OutputCache(PolicyName = CachePolicyNames.Long, Tags = [CacheTags.ConcertsAll])]
+    public async Task<ActionResult<ConcertDetailsDto[]>> GetConcertsOnThisDay([FromQuery] int? month, [FromQuery] int? day, CancellationToken cancellationToken)
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var concerts = await concertService
+            .GetHistoricConcertsOnDay(month ?? today.Month, day ?? today.Day, cancellationToken)
+            .Select(DtoMapper.ToDto)
+            .ToArrayAsync(cancellationToken);
+        
+        logger.LogDebug("Found {count} concerts that happened on {month}/{day}", concerts.Length, month, day);
+        return Ok(concerts);
     }
     
     /// <summary>
