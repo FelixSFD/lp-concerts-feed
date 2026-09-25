@@ -21,7 +21,7 @@ public class UserService(IUserRepository userRepository, ILogger<UserService> lo
     /// <exception cref="InvalidOperationException"></exception>
     public async Task<UserBo> CreateUserAsync(string username, CancellationToken cancellationToken = default)
     {
-        logger.LogInformation("Creating new user with username '{username}'", username);
+        Log.CreatingNewUserWithUsername(logger, username);
         var user = new UserDo
         {
             Id = Guid.NewGuid().ToString(),
@@ -30,7 +30,7 @@ public class UserService(IUserRepository userRepository, ILogger<UserService> lo
         
         userRepository.Add(user);
         await userRepository.SaveChangesAsync(cancellationToken);
-        logger.LogInformation("User created with id '{id}'", user.Id);
+        Log.CreatedNewUserWithUsernameAndId(logger, user.Username, user.Id);
 
         user = await userRepository.GetByPrimaryKeyAsync(user.Id) ?? throw new InvalidOperationException("User not found"); // TODO: Better exception
 
