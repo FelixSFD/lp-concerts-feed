@@ -24,7 +24,7 @@ public class UserDo : BaseDo, ITimestampedDataObject
     /// Displayed name of this user
     /// </summary>
     [MaxLength(DataConstants.UsernameLength)]
-    public string? Username { get; set; }
+    public required string Username { get; set; }
 
     /// <inheritdoc/>
     public DateTimeOffset CreatedAt { get; set; }

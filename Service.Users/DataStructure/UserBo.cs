@@ -13,5 +13,5 @@ public class UserBo
     /// <summary>
     /// Display name of the user
     /// </summary>
-    public string? Username { get; set; }
+    public required string Username { get; set; }
 }
