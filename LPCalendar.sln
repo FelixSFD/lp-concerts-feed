@@ -170,6 +170,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Server", "Common.Ser
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Server.Tests", "Common.Server.Tests\Common.Server.Tests.csproj", "{FCA6A115-DBAD-4693-8933-B72DE7686B3C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database.Users", "Database.Users\Database.Users.csproj", "{DF06E96A-BD21-4495-BFCF-EE258432B86A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database.Users.Tests", "Database.Users.Tests\Database.Users.Tests.csproj", "{710BCEDC-B09A-47E7-96BB-CE2515E829D5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -452,5 +456,13 @@ Global
 		{FCA6A115-DBAD-4693-8933-B72DE7686B3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FCA6A115-DBAD-4693-8933-B72DE7686B3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FCA6A115-DBAD-4693-8933-B72DE7686B3C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF06E96A-BD21-4495-BFCF-EE258432B86A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF06E96A-BD21-4495-BFCF-EE258432B86A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF06E96A-BD21-4495-BFCF-EE258432B86A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF06E96A-BD21-4495-BFCF-EE258432B86A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{710BCEDC-B09A-47E7-96BB-CE2515E829D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{710BCEDC-B09A-47E7-96BB-CE2515E829D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{710BCEDC-B09A-47E7-96BB-CE2515E829D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{710BCEDC-B09A-47E7-96BB-CE2515E829D5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

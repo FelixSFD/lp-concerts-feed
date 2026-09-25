@@ -3,6 +3,16 @@ namespace Common.Database.DataObjects;
 public static class DataConstants
 {
     /// <summary>
+    /// Maximum length of User IDs
+    /// </summary>
+    public const int UserIdLength = 63;
+    
+    /// <summary>
+    /// Maximum length of Usernames
+    /// </summary>
+    public const int UsernameLength = 32;
+    
+    /// <summary>
     /// Maximum length of Concert IDs
     /// </summary>
     public const int ConcertIdLength = 63;
