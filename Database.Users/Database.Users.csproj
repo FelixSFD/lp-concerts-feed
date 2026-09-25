@@ -19,5 +19,5 @@
         <ProjectReference Include="..\Common.Database.MySql\Common.Database.MySql.csproj" />
         <ProjectReference Include="..\Common.Database\Common.Database.csproj" />
     </ItemGroup>
-
+    
 </Project>

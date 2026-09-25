@@ -4,6 +4,7 @@ using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Tours;
 using LPCalendar.DataStructure.Tours.Locations;
 using Service.Tours.DataStructure;
+using Service.Users.DataStructure;
 
 namespace Server.Api;
 
@@ -444,6 +445,24 @@ internal static class DtoMapper
             ConcertImportStatusBo.Status.NotImported => LinkinpediaImportConcertStatusDto.ImportStatusEnum.NotImported,
             ConcertImportStatusBo.Status.ImportedWithSetlists => LinkinpediaImportConcertStatusDto.ImportStatusEnum.Imported,
             _ => throw new ArgumentOutOfRangeException(nameof(bo), bo, null)
+        };
+    }
+
+    #endregion
+
+    #region Users
+
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bo">BusinessObject to map</param>
+    /// <returns>the mapped DTO</returns>
+    public static UserDto ToDto(this UserBo bo)
+    {
+        return new UserDto
+        {
+            Id = bo.Id,
+            Username = bo.Username
         };
     }
 

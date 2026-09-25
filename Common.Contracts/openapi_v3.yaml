@@ -2010,6 +2010,40 @@ paths:
           integration.request.path.venueNameId: method.request.path.venueNameId
       security:
         - Bearer: []
+  
+  /v3/Users/me:
+    get:
+      tags:
+        - Users
+      summary: Returns information of the current user
+      responses: 
+        200:
+          description: Information about the authenticated user
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        401:
+          description: "Unauthorized: Credentials are missing or not valid"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        403:
+          description: "Forbidden: User doesn't have the required permissions"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      security:
+        - Bearer: [ ]
+  
 components:
   parameters:
     X-LP-Request-Id:
@@ -2860,6 +2894,18 @@ components:
           description: Concerts that were found on Linkinpedia and their import status
           items:
             $ref: "#/components/schemas/LinkinpediaImportConcertStatus"
+    
+    # Users
+    User:
+      description: Information about a user
+      type: object
+      properties: 
+        id:
+          type: string
+          description: Unique identifier of the user
+        username:
+          type: string
+          description: Username of the user
     
     # Paginated responses
     PaginationResponseMetadata:
