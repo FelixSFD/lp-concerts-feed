@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Common.Contracts.Generated.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Server.Api.Auth;
 using Service.Users;
 
 namespace Server.Api.Controllers;
@@ -49,5 +50,19 @@ public class UsersController(UserService userService, ILogger<UsersController> l
         
         await userService.UpdateUserAsync(userId, request.Username, cancellationToken);
         return NoContent();
+    }
+    
+    /// <summary>
+    /// Returns a user by their ID.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [AuthorizeRoles(RoleNames.ManageUsers)]
+    [HttpGet("{userId}")]
+    public async Task<ActionResult<UserDto>> GetUserById([FromRoute] string userId, CancellationToken cancellationToken)
+    {
+        var user = await userService.GetUserById(userId, cancellationToken);
+        return Ok(user.ToDto());
     }
 }
