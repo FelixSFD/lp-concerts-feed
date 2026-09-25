@@ -12,9 +12,9 @@ public abstract class SingleKeySqlRepositoryBase<TDataObject, TPrimaryKey> : Sql
     }
 
     /// <inheritdoc />
-    public virtual async Task<TDataObject?> GetByPrimaryKeyAsync(TPrimaryKey primaryKey)
+    public virtual async Task<TDataObject?> GetByPrimaryKeyAsync(TPrimaryKey primaryKey, CancellationToken cancellationToken = default)
     {
-        var loadedObject = await GetByPrimaryKeyWithoutReferencesAsync(primaryKey);
+        var loadedObject = await GetByPrimaryKeyWithoutReferencesAsync(primaryKey, cancellationToken);
         if (loadedObject == null)
             return null;
         
@@ -22,8 +22,8 @@ public abstract class SingleKeySqlRepositoryBase<TDataObject, TPrimaryKey> : Sql
     }
 
     /// <inheritdoc/>
-    public virtual async Task<TDataObject?> GetByPrimaryKeyWithoutReferencesAsync(TPrimaryKey primaryKey)
+    public virtual async Task<TDataObject?> GetByPrimaryKeyWithoutReferencesAsync(TPrimaryKey primaryKey, CancellationToken cancellationToken = default)
     {
-       return await DbSet.FindAsync(primaryKey);
+       return await DbSet.FindAsync([primaryKey], cancellationToken);
     }
 }
