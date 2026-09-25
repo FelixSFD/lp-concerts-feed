@@ -28,6 +28,12 @@ namespace Database.Users.Migrations
                     table.PrimaryKey("PK_User", x => x.Id);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateIndex(
+                name: "Unique_Username",
+                table: "User",
+                column: "Username",
+                unique: true);
         }
 
         /// <inheritdoc />

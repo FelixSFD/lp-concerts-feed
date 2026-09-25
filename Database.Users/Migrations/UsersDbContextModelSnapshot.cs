@@ -41,6 +41,9 @@ namespace Database.Users.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex(new[] { "Username" }, "Unique_Username")
+                        .IsUnique();
+
                     b.ToTable("User");
                 });
 #pragma warning restore 612, 618

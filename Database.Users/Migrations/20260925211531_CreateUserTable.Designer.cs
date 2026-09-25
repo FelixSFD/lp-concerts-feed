@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Users.Migrations
 {
     [DbContext(typeof(UsersDbContext))]
-    [Migration("20260925202002_CreateUserTable")]
+    [Migration("20260925211531_CreateUserTable")]
     partial class CreateUserTable
     {
         /// <inheritdoc />
@@ -43,6 +43,9 @@ namespace Database.Users.Migrations
                         .HasColumnType("varchar(32)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex(new[] { "Username" }, "Unique_Username")
+                        .IsUnique();
 
                     b.ToTable("User");
                 });

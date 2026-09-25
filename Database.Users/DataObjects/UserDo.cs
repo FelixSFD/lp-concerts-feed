@@ -10,6 +10,7 @@ namespace Database.Users.DataObjects;
 /// </summary>
 [Table("User")]
 [PrimaryKey(nameof(Id))]
+[Index(nameof(Username), Name = "Unique_Username", IsUnique = true)]
 public class UserDo : BaseDo, ITimestampedDataObject
 {
     /// <summary>
