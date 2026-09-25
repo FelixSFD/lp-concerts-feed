@@ -6,10 +6,19 @@ using Service.Users;
 
 namespace Server.Api.Controllers;
 
+/// <summary>
+/// Controller for user-related operations
+/// </summary>
+/// <param name="userService"></param>
+/// <param name="logger"></param>
 [ApiController]
 [Route("v3/[controller]")]
 public class UsersController(UserService userService, ILogger<UsersController> logger) : ControllerBase
 {
+    /// <summary>
+    /// Returns information about the current user
+    /// </summary>
+    /// <returns></returns>
     [Authorize]
     [HttpGet("me")]
     public async Task<ActionResult<UserDto>> GetCurrentUser()
