@@ -2,7 +2,9 @@ using System.Security.Claims;
 using Common.Contracts.Generated.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Server.Api.Auth;
+using Server.Api.Cache;
 using Service.Users;
 
 namespace Server.Api.Controllers;
@@ -60,6 +62,7 @@ public class UsersController(UserService userService, ILogger<UsersController> l
     /// <returns></returns>
     [AuthorizeRoles(RoleNames.ManageUsers)]
     [HttpGet("{userId}")]
+    [OutputCache(PolicyName = CachePolicyNames.Long, Tags = [CacheTags.UsersAll])]
     public async Task<ActionResult<UserDto>> GetUserById([FromRoute] string userId, CancellationToken cancellationToken)
     {
         var user = await userService.GetUserById(userId, cancellationToken);

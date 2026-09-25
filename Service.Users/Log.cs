@@ -13,16 +13,16 @@ public static partial class Log
     [LoggerMessage(LogLevel.Warning, "User with ID '{id}' was not found")]
     public static partial void UserNotFound(ILogger logger, string id);
     
-    [LoggerMessage(LogLevel.Warning, "Fetching User with ID '{id}'...")]
+    [LoggerMessage(LogLevel.Debug, "Fetching User with ID '{id}'...")]
     public static partial void GetUserByIdStart(ILogger logger, string id);
     
-    [LoggerMessage(LogLevel.Warning, "Successfully fetched User with ID '{id}'. Username: {username}")]
+    [LoggerMessage(LogLevel.Debug, "Successfully fetched User with ID '{id}'. Username: {username}")]
     public static partial void GetUserByIdSuccess(ILogger logger, string id, string username);
     
     [LoggerMessage(LogLevel.Information, "Updating User with ID '{id}'...")]
     public static partial void UpdateUserStart(ILogger logger, string id);
     
-    [LoggerMessage(LogLevel.Warning, "Successfully updated User with ID '{id}'. Username: {username}")]
+    [LoggerMessage(LogLevel.Information, "Successfully updated User with ID '{id}'. Username: {username}")]
     public static partial void UpdateUserSuccess(ILogger logger, string id, string username);
     
     [LoggerMessage(LogLevel.Information, "User with ID '{id}' doesn't have a profile yet. Will create a new user")]
