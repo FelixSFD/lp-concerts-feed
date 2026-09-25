@@ -2016,13 +2016,46 @@ paths:
       tags:
         - Users
       summary: Returns information of the current user
-      responses: 
+      responses:
         200:
           description: Information about the authenticated user
-          content: 
+          content:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        401:
+          description: "Unauthorized: Credentials are missing or not valid"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        403:
+          description: "Forbidden: User doesn't have the required permissions"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      security:
+        - Bearer: [ ]
+    put:
+      tags:
+        - Users
+      summary: Updates the profile of the current user
+      requestBody: 
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserProfile'
+      responses: 
+        204:
+          description: The profile of the current user has been updated
         401:
           description: "Unauthorized: Credentials are missing or not valid"
           content:
@@ -2899,10 +2932,23 @@ components:
     User:
       description: Information about a user
       type: object
+      required: 
+        - id
+        - username
       properties: 
         id:
           type: string
           description: Unique identifier of the user
+        username:
+          type: string
+          description: Username of the user
+    
+    UpdateUserProfile:
+      description: Information about a user to be updated
+      type: object
+      required: 
+        - username
+      properties:
         username:
           type: string
           description: Username of the user

@@ -55,4 +55,27 @@ public class UserService(IUserRepository userRepository, ILogger<UserService> lo
         return user.ToBo();
     }
 
+    /// <summary>
+    /// Updates a user with a given ID
+    /// </summary>
+    /// <param name="id">ID of the user</param>
+    /// <param name="username">username to set</param>
+    /// <param name="cancellationToken"></param>
+    /// <exception cref="UserNotFoundException">if the user doesn't exist</exception>
+    public async Task UpdateUserAsync(string id, string username, CancellationToken cancellationToken = default)
+    {
+        Log.UpdateUserStart(logger, id);
+        var user = await userRepository.GetByPrimaryKeyAsync(id, cancellationToken);
+        if (user is null)
+        {
+            Log.RequestedUserNotFoundWillCreate(logger, id);
+            await CreateUserAsync(username, id, cancellationToken);
+            return;
+        }
+        
+        user.Username = username;
+        userRepository.Update(user);
+        await userRepository.SaveChangesAsync(cancellationToken);
+        Log.UpdateUserSuccess(logger, id, username);
+    }
 }

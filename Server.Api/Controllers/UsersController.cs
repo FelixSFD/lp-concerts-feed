@@ -21,14 +21,33 @@ public class UsersController(UserService userService, ILogger<UsersController> l
     /// <returns></returns>
     [Authorize]
     [HttpGet("me")]
-    public async Task<ActionResult<UserDto>> GetCurrentUser()
+    public async Task<ActionResult<UserDto>> GetCurrentUserAsync(CancellationToken cancellationToken)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
         if (userId is null)
             return Unauthorized();
         
-        var user = await userService.GetUserById(userId);
+        var user = await userService.GetUserById(userId, cancellationToken);
         return Ok(user.ToDto());
+    }
+
+    /// <summary>
+    /// Updates the current user's profile. If it doesn't exist yet, it will be created.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [Authorize]
+    [HttpPut("me")]
+    public async Task<ActionResult> UpdateCurrentUserAsync([FromBody] UpdateUserProfileDto request, CancellationToken cancellationToken)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        
+        if (userId is null)
+            return Unauthorized();
+        
+        await userService.UpdateUserAsync(userId, request.Username, cancellationToken);
+        return NoContent();
     }
 }
