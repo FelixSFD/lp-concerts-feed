@@ -1,3 +1,5 @@
+using Common.Utils.Exceptions;
+
 namespace Service.Tours.Exceptions;
 
 public class CityNotFoundException(uint cityId) : NotFoundExceptionBase("City", cityId.ToString())

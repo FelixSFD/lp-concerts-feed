@@ -2,6 +2,7 @@
 using Database.Users.Repositories;
 using Microsoft.Extensions.Logging;
 using Service.Users.DataStructure;
+using Service.Users.Exceptions;
 
 namespace Service.Users;
 
@@ -22,9 +23,10 @@ public class UserService(IUserRepository userRepository, ILogger<UserService> lo
     public async Task<UserBo> CreateUserAsync(string username, CancellationToken cancellationToken = default)
     {
         Log.CreatingNewUserWithUsername(logger, username);
+        var id = Guid.NewGuid().ToString();
         var user = new UserDo
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = id,
             Username = username
         };
         
@@ -32,7 +34,7 @@ public class UserService(IUserRepository userRepository, ILogger<UserService> lo
         await userRepository.SaveChangesAsync(cancellationToken);
         Log.CreatedNewUserWithUsernameAndId(logger, user.Username, user.Id);
 
-        user = await userRepository.GetByPrimaryKeyAsync(user.Id) ?? throw new InvalidOperationException("User not found"); // TODO: Better exception
+        user = await userRepository.GetByPrimaryKeyAsync(user.Id) ?? throw new UserNotFoundException(id);
 
         return user.ToBo();
     }

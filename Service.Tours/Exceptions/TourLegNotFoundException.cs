@@ -1,3 +1,5 @@
+using Common.Utils.Exceptions;
+
 namespace Service.Tours.Exceptions;
 
 public class TourLegNotFoundException(string tourId, string legId) : NotFoundExceptionBase("Tour Leg", tourId, legId)

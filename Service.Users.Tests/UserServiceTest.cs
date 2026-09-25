@@ -41,5 +41,9 @@ public class UserServiceTest
         Assert.NotNull(savedUser);
         Assert.Equal(mockUsername, savedUser.Username);
         Assert.Equal(mockId, savedUser.Id);
+
+        await _userRepository
+            .Received(1)
+            .SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 }

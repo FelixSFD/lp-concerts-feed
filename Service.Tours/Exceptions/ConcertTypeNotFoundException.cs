@@ -1,3 +1,5 @@
+using Common.Utils.Exceptions;
+
 namespace Service.Tours.Exceptions;
 
 public class ConcertTypeNotFoundException(uint typeId) : NotFoundExceptionBase("Concert Type", typeId.ToString())
