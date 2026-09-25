@@ -20,7 +20,7 @@ public class UserServiceTest
     [Theory]
     [InlineData("FelixSFD", "1234")]
     [InlineData("test_user", "6352342")]
-    public async Task CreateUserAsync(string mockUsername, string mockId)
+    public async Task CreateUserAsync_NoId(string mockUsername, string mockId)
     {
         // setup mocks
         UserDo? savedUser = null;
@@ -36,6 +36,35 @@ public class UserServiceTest
         
         // run the test
         await _service.CreateUserAsync(mockUsername);
+        
+        // check result
+        Assert.NotNull(savedUser);
+        Assert.Equal(mockUsername, savedUser.Username);
+        Assert.Equal(mockId, savedUser.Id);
+
+        await _userRepository
+            .Received(1)
+            .SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+    
+    [Theory]
+    [InlineData("FelixSFD", "1234")]
+    [InlineData("test_user", "6352342")]
+    public async Task CreateUserAsync_PredefinedId(string mockUsername, string mockId)
+    {
+        // setup mocks
+        UserDo? savedUser = null;
+        _userRepository.When(r => r.Add(Arg.Is<UserDo>(u => u.Username == mockUsername)))
+            .Do(cb =>
+            {
+                savedUser = cb.Arg<UserDo>();
+            });
+        _userRepository
+            .GetByPrimaryKeyAsync(Arg.Is(mockId))
+            .Returns(_ => Task.FromResult(savedUser));
+        
+        // run the test
+        await _service.CreateUserAsync(mockUsername, mockId);
         
         // check result
         Assert.NotNull(savedUser);

@@ -17,13 +17,14 @@ public class UserService(IUserRepository userRepository, ILogger<UserService> lo
     /// Creates a new user in the database. This does not automatically create the user in AWS Cognito
     /// </summary>
     /// <param name="username">name of the new user</param>
+    /// <param name="id">ID of the new user. If null, a new GUID will be generated</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public async Task<UserBo> CreateUserAsync(string username, CancellationToken cancellationToken = default)
+    public async Task<UserBo> CreateUserAsync(string username, string? id = null, CancellationToken cancellationToken = default)
     {
         Log.CreatingNewUserWithUsername(logger, username);
-        var id = Guid.NewGuid().ToString();
+        id ??= Guid.NewGuid().ToString();
         var user = new UserDo
         {
             Id = id,
