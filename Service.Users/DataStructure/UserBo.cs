@@ -14,4 +14,14 @@ public class UserBo
     /// Display name of the user
     /// </summary>
     public required string Username { get; set; }
+
+    /// <summary>
+    /// Date and time when the user was created
+    /// </summary>
+    public DateTimeOffset CreatedAt { get; set; }
+    
+    /// <summary>
+    /// Date and time when the user was last updated
+    /// </summary>
+    public DateTimeOffset? UpdatedAt { get; set; }
 }

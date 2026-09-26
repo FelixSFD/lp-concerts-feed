@@ -462,7 +462,9 @@ internal static class DtoMapper
         return new UserDto
         {
             Id = bo.Id,
-            Username = bo.Username
+            Username = bo.Username,
+            CreatedAt = bo.CreatedAt,
+            UpdatedAt = bo.UpdatedAt,
         };
     }
 

@@ -16,6 +16,8 @@ public static class DoMapper
         {
             Id = dataObject.Id,
             Username = dataObject.Username,
+            CreatedAt = dataObject.CreatedAt,
+            UpdatedAt = dataObject.UpdatedAt,
         };
     }
 }

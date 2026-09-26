@@ -3050,6 +3050,14 @@ components:
         username:
           type: string
           description: Username of the user
+        createdAt:
+          type: string
+          format: date-time
+          description: Date and time when the user was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: Date and time when the user was last updated
     
     UpdateUserProfile:
       description: Information about a user to be updated
