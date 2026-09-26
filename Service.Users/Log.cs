@@ -27,4 +27,10 @@ public static partial class Log
     
     [LoggerMessage(LogLevel.Information, "User with ID '{id}' doesn't have a profile yet. Will create a new user")]
     public static partial void RequestedUserNotFoundWillCreate(ILogger logger, string id);
+    
+    [LoggerMessage(LogLevel.Debug, "Start Fetching paginated users. Skip: '{skip}', Limit: '{limit}'")]
+    public static partial void FetchUsersPaginatedStart(ILogger logger, uint skip, uint limit);
+    
+    [LoggerMessage(LogLevel.Debug, "Successfully fetched paginated users. Skip: '{skip}', Limit: '{limit}', Total Results: '{totalResults}'")]
+    public static partial void FetchUsersPaginatedSuccess(ILogger logger, uint skip, uint limit, int totalResults);
 }

@@ -1,5 +1,10 @@
-﻿using Database.Users.DataObjects;
+﻿using Common.Database;
+using Common.Database.Repositories;
+using Common.Utils.Pagination;
+using Database.Users.DataObjects;
+using Database.Users.Filters;
 using Database.Users.Repositories;
+using LPCalendar.DataStructure;
 using Microsoft.Extensions.Logging;
 using Service.Users.DataStructure;
 using Service.Users.Exceptions;
@@ -77,5 +82,31 @@ public class UserService(IUserRepository userRepository, ILogger<UserService> lo
         userRepository.Update(user);
         await userRepository.SaveChangesAsync(cancellationToken);
         Log.UpdateUserSuccess(logger, id, username);
+    }
+    
+    /// <summary>
+    /// Returns a paginated list of users
+    /// </summary>
+    /// <param name="filter">Filter and sorting</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<AsyncPaginationResult<UserBo>> GetUsersPaginatedAsync(GetUsersFilterDto filter, CancellationToken cancellationToken = default)
+    {
+        Log.FetchUsersPaginatedStart(logger, filter.Skip, filter.Limit);
+        var paginationParams = new PaginationParams(filter.Skip, filter.Limit);
+        var userFilter = new UserFilter
+        {
+            Username = filter.Username
+        };
+        
+        var paginatedResult = await userRepository.FindPaginatedAsync(userFilter, filter.OrderBy.Select(SortDescriptor.FromString), paginationParams, false, cancellationToken);
+        Log.FetchUsersPaginatedSuccess(logger, filter.Skip, filter.Limit, paginatedResult.TotalCount);
+        return new AsyncPaginationResult<UserBo>
+        {
+            TotalResults = paginatedResult.TotalCount,
+            Limit = (int)filter.Limit,
+            Offset = (int)filter.Skip,
+            Results = paginatedResult.Results.Select(DoMapper.ToBo),
+        };
     }
 }

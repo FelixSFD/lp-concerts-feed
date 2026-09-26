@@ -1,5 +1,10 @@
-﻿using Database.Users.DataObjects;
+﻿using Common.Database;
+using Common.Database.DataObjects;
+using Common.Database.Repositories;
+using Database.Users.DataObjects;
+using Database.Users.Filters;
 using Database.Users.Repositories;
+using LPCalendar.DataStructure;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 
@@ -91,5 +96,38 @@ public class UserServiceTest
         Assert.NotNull(result);
         Assert.Equal(mockUser.Id, result.Id);
         Assert.Equal(mockUser.Username, result.Username);
+    }
+
+    [Fact]
+    public async Task GetUsersPaginatedAsync()
+    {
+        var mockUser1 = new UserDo
+        {
+            Id = Guid.NewGuid().ToString(),
+            Username = "FelixSFD",
+        };
+        
+        var mockUsers = new List<UserDo> { mockUser1 };
+        var mockResult = new PaginatedQueryResult<UserDo>
+        {
+            Results = mockUsers.ToAsyncEnumerable(),
+            TotalCount = mockUsers.Count,
+        };
+        
+        // setup mocks
+        _userRepository
+            .FindPaginatedAsync(Arg.Is<UserFilter>(f => f.Username == "Felix"), Arg.Any<IEnumerable<SortDescriptor>>(), Arg.Any<IPaginationParams?>(), Arg.Is(false), Arg.Any<CancellationToken>())
+            .Returns(mockResult);
+        
+        // call the service
+        var filter =  new GetUsersFilterDto
+        {
+            Username = "Felix"
+        };
+        var result = await _service.GetUsersPaginatedAsync(filter);
+
+        Assert.NotNull(result);
+        Assert.Equal(mockResult.TotalCount, result.TotalResults);
+        Assert.Equal(mockUsers.Count, await result.Results.CountAsync());
     }
 }
