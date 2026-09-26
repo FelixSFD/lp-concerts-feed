@@ -12,7 +12,7 @@
 
     <ItemGroup>
         <None Include="openapi_v3.yaml">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <Link>openapi_v3.yaml</Link>
         </None>
     </ItemGroup>

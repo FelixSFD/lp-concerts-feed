@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Common.Contracts.Generated.Models;
+using LPCalendar.DataStructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
@@ -18,6 +19,30 @@ namespace Server.Api.Controllers;
 [Route("v3/[controller]")]
 public class UsersController(UserService userService, ILogger<UsersController> logger) : ControllerBase
 {
+    /// <summary>
+    /// Returns a list of users that can be filtered and sorted
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [AuthorizeRoles(RoleNames.ManageUsers)]
+    [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.UsersAll])]
+    public async Task<ActionResult<UserListResponseDto>> GetUsersAsync([FromQuery] GetUsersFilterDto request, CancellationToken cancellationToken)
+    {
+        var paginatedResult = await userService.GetUsersPaginatedAsync(request, cancellationToken);
+        var users = await paginatedResult.Results.Select(DtoMapper.ToDto).ToListAsync(cancellationToken);
+        var response = new UserListResponseDto
+        {
+            Users = users,
+            Metadata = new PaginationResponseMetadataDto
+            {
+                Offset = (int)request.Skip,
+                TotalElements = paginatedResult.TotalResults,
+            }
+        };
+        return Ok(response);
+    }
+    
     /// <summary>
     /// Returns information about the current user
     /// </summary>
@@ -43,6 +68,7 @@ public class UsersController(UserService userService, ILogger<UsersController> l
     /// <returns></returns>
     [Authorize]
     [HttpPut("me")]
+    [ClearCache(Tags = [CacheTags.UsersAll])]
     public async Task<ActionResult> UpdateCurrentUserAsync([FromBody] UpdateUserProfileDto request, CancellationToken cancellationToken)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
