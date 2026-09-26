@@ -2072,6 +2072,25 @@ paths:
                 $ref: '#/components/schemas/ProblemDetails'
       security:
         - Bearer: [ ]
+  /v3/Users/suggestedNames:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+    get:
+      tags:
+        - Users
+      operationId: GetSuggestedUserNames
+      description: Returns a list of suggested usernames for the current user
+      responses: 
+        200:
+          description: "List of suggested usernames"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+      security:
+        - Bearer: [ ]
   /v3/Users/me:
     parameters:
       - $ref: "#/components/parameters/X-LP-Request-Id"

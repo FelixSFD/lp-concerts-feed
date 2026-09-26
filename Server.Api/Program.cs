@@ -4,6 +4,8 @@ using Common.Server.ClientIp;
 using Common.Server.ExceptionHandling;
 using Common.Utils.Cache;
 using Common.WikiMedia.Repositories;
+using Database.Setlists;
+using Database.Setlists.Repositories;
 using Database.Tours;
 using Database.Tours.Repositories;
 using Database.Users;
@@ -211,6 +213,14 @@ var cognitoAWSRegion = builder.Configuration["Cognito:AWSRegion"] ?? throw new C
 var validIssuer = $"https://cognito-idp.{cognitoAWSRegion}.amazonaws.com/{cognitoUserPoolId}";
 var validAudience = cognitoAppClientId;
 
+builder.Services.AddDbContextPool<SetlistsDbContext>(options =>
+{
+    options.UseMySQL(connectionString, dbContextBuilder =>
+    {
+        dbContextBuilder.EnableRetryOnFailure(10, TimeSpan.FromSeconds(30), null);
+        dbContextBuilder.MigrationsAssembly(typeof(SetlistsDbContext).Assembly.FullName);
+    });
+});
 builder.Services.AddDbContextPool<ToursDbContext>(options =>
 {
     options.UseMySQL(connectionString, dbContextBuilder =>
@@ -235,6 +245,7 @@ builder.Services.AddScoped<ITourRepository, SqlTourRepository>();
 builder.Services.AddScoped<IConcertTypeRepository, SqlConcertTypeRepository>();
 builder.Services.AddScoped<IConcertRepository, SqlConcertRepository>();
 builder.Services.AddScoped<IUserRepository, SqlUserRepository>();
+builder.Services.AddScoped<IAlbumRepository, SqlAlbumRepository>();
 builder.Services.AddScoped<LocationService>();
 builder.Services.AddScoped<VenueService>();
 builder.Services.AddScoped<TourService>();

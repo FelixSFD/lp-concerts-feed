@@ -58,4 +58,13 @@ export class UsersService {
       this.usersApi.updateCurrentUserProfile(request)
     );
   }
+
+  /**
+   * Returns a list of suggested usernames.
+   */
+  getSuggestedUsernames() {
+    return firstValueFrom(
+      this.usersApi.getSuggestedUserNames()
+    );
+  }
 }

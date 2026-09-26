@@ -1,6 +1,7 @@
 ﻿using Common.Database;
 using Common.Database.DataObjects;
 using Common.Database.Repositories;
+using Database.Setlists.Repositories;
 using Database.Users.DataObjects;
 using Database.Users.Filters;
 using Database.Users.Repositories;
@@ -13,13 +14,15 @@ namespace Service.Users.Tests;
 public class UserServiceTest
 {
     private readonly IUserRepository _userRepository;
+    private readonly IAlbumRepository _albumRepository;
     private readonly UserService _service;
 
     public UserServiceTest()
     {
         _userRepository = Substitute.For<IUserRepository>();
+        _albumRepository = Substitute.For<IAlbumRepository>();
         var logger = Substitute.For<ILogger<UserService>>();
-        _service = new UserService(_userRepository, logger);
+        _service = new UserService(_userRepository, _albumRepository, logger);
     }
 
     [Theory]

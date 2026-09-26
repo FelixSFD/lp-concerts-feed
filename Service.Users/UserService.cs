@@ -1,6 +1,7 @@
 ﻿using Common.Database;
 using Common.Database.Repositories;
 using Common.Utils.Pagination;
+using Database.Setlists.Repositories;
 using Database.Users.DataObjects;
 using Database.Users.Filters;
 using Database.Users.Repositories;
@@ -16,7 +17,7 @@ namespace Service.Users;
 /// </summary>
 /// <param name="userRepository"></param>
 /// <param name="logger"></param>
-public class UserService(IUserRepository userRepository, ILogger<UserService> logger)
+public class UserService(IUserRepository userRepository, IAlbumRepository albumRepository, ILogger<UserService> logger)
 {
     /// <summary>
     /// Creates a new user in the database. This does not automatically create the user in AWS Cognito
@@ -108,5 +109,27 @@ public class UserService(IUserRepository userRepository, ILogger<UserService> lo
             Offset = (int)filter.Skip,
             Results = paginatedResult.Results.Select(DoMapper.ToBo),
         };
+    }
+    
+    /// <summary>
+    /// Returns a list of suggested random usernames based on album titles.
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<string[]> GetSuggestedUserNamesAsync(CancellationToken cancellationToken = default)
+    {
+        var albumNames = await albumRepository
+            .FindAsync(null, [new SortDescriptor("title")], null, false, cancellationToken)
+            .Select(x => x.Title)
+            .ToArrayAsync(cancellationToken);
+        
+        var randomNames = Enumerable.Range(0, 10)
+            .Select(_ => Random.Shared.Next(0, albumNames.Length))
+            .Select(randIndex => albumNames[randIndex])
+            .Select(name => name.Replace(" ", ""))
+            .Select(name => $"{name}{Random.Shared.Next(1000, 9999)}")
+            .ToArray();
+
+        return randomNames;
     }
 }

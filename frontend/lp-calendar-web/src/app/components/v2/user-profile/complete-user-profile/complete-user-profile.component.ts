@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Output, signal } from '@angular/core';
+import { Component, EventEmitter, inject, OnInit, Output, signal } from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputText } from 'primeng/inputtext';
@@ -20,7 +20,7 @@ import { MessageService } from 'primeng/api';
   styleUrl: './complete-user-profile.component.css',
   templateUrl: './complete-user-profile.component.html',
 })
-export class CompleteUserProfileComponent {
+export class CompleteUserProfileComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
   private usersService = inject(UsersService);
   private messageService = inject(MessageService);
@@ -31,7 +31,18 @@ export class CompleteUserProfileComponent {
 
   protected isSavingProfile = signal(false);
 
+  private randomUsernames: string[] = [];
+
   @Output("onProfileCompleted") profileCompleted = new EventEmitter<void>();
+
+  ngOnInit() {
+    this.loadSuggestedUsernames().then();
+  }
+
+  protected onSetRandomNameClicked() {
+    let randomUsername = this.randomUsernames[Math.floor(Math.random() * this.randomUsernames.length)];
+    this.setupForm.get('username')?.setValue(randomUsername);
+  }
 
   protected async onSaveUserProfileClicked() {
     let username = this.setupForm.value.username;
@@ -49,10 +60,20 @@ export class CompleteUserProfileComponent {
       this.profileCompleted.emit();
     } catch (error) {
       let problemDetails = error as ProblemDetailsDto;
-      let message = problemDetails.title;
+      let message = problemDetails.detail;
       this.messageService.add({ severity: 'error', summary: 'Failed to update user profile', detail: message });
     } finally {
       this.isSavingProfile.set(false);
+    }
+  }
+
+  private async loadSuggestedUsernames() {
+    try {
+      this.randomUsernames = await this.usersService.getSuggestedUsernames();
+    } catch (error) {
+      console.error('Failed to load suggested usernames:', error);
+      let problemDetails = error as ProblemDetailsDto;
+      this.messageService.add({ severity: 'error', summary: 'Failed to load suggested usernames', detail: problemDetails.detail });
     }
   }
 }

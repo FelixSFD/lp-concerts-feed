@@ -94,4 +94,12 @@ public class UsersController(UserService userService, ILogger<UsersController> l
         var user = await userService.GetUserById(userId, cancellationToken);
         return Ok(user.ToDto());
     }
+    
+    [Authorize]
+    [HttpGet("suggestedNames")]
+    public async Task<ActionResult<string[]>> GetSuggestedUserNamesAsync(CancellationToken cancellationToken)
+    {
+        var names = await userService.GetSuggestedUserNamesAsync(cancellationToken);
+        return Ok(names);
+    }
 }
