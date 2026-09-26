@@ -20,7 +20,7 @@ import { MessageService } from 'primeng/api';
   styleUrl: './complete-user-profile.component.css',
   templateUrl: './complete-user-profile.component.html',
 })
-export class CompleteUserProfileComponent implements OnInit {
+export class CompleteUserProfileComponent {
   private formBuilder = inject(FormBuilder);
   private usersService = inject(UsersService);
   private messageService = inject(MessageService);
@@ -35,11 +35,11 @@ export class CompleteUserProfileComponent implements OnInit {
 
   @Output("onProfileCompleted") profileCompleted = new EventEmitter<void>();
 
-  ngOnInit() {
-    this.loadSuggestedUsernames().then();
-  }
+  protected async onSetRandomNameClicked() {
+    if (this.randomUsernames.length === 0) {
+      await this.loadSuggestedUsernames();
+    }
 
-  protected onSetRandomNameClicked() {
     let randomUsername = this.randomUsernames[Math.floor(Math.random() * this.randomUsernames.length)];
     this.setupForm.get('username')?.setValue(randomUsername);
   }
