@@ -5,5 +5,4 @@ namespace Database.Users.Repositories;
 
 public interface IUserRepository : ISingleKeyRepositoryBase<UserDo, string>, IRepositoryBase<UserDo>
 {
-    
 }
