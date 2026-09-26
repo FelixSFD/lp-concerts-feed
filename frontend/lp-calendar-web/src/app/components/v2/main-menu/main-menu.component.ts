@@ -53,6 +53,7 @@ export class MainMenuComponent implements OnInit, OnChanges {
 
   private updatedUserDataEffect = effect(() => {
     this.username = this.currentUser$()?.username ?? null;
+    this.loadLoggedInMenuItems();
   });
 
   @Input("clock")
@@ -64,7 +65,7 @@ export class MainMenuComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     // Rebuild only when the auth state flips
     if (changes['isLoggedIn$']) {
-      this.loadMainMenuItems();
+      this.loadLoggedInMenuItems();
     }
   }
 
@@ -72,12 +73,6 @@ export class MainMenuComponent implements OnInit, OnChanges {
     this.loadMainMenuItems();
 
     this.loggedInMenuItems = [];
-
-    this.authStateService.userData$.subscribe(userData => {
-      this.username = userData?.username ?? null;
-
-      this.loadLoggedInMenuItems();
-    });
 
     this.authStateService.canManageUsers.subscribe(hasPermission => {
       this.canManageUsers = hasPermission;
