@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, inject, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component, effect,
+  inject,
+  Input,
+  OnChanges,
+  OnInit,
+  signal,
+  SimpleChanges
+} from '@angular/core';
 import {MenuItem} from 'primeng/api';
 import { Router, RouterLink } from '@angular/router';
 import {Menubar} from 'primeng/menubar';
@@ -9,6 +18,8 @@ import {Menu} from 'primeng/menu';
 import {AuthService} from '../../../auth/auth.service';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {environment} from '../../../../environments/environment';
+import { UsersService } from '../../../services/users.service';
+import { UserDto } from '../../../modules/lpshows-api/v3';
 
 @Component({
   selector: 'app-main-menu',
@@ -27,6 +38,7 @@ export class MainMenuComponent implements OnInit, OnChanges {
   private router = inject(Router);
   private readonly authStateService = inject(AuthService);
   private readonly oidcSecurityService = inject(OidcSecurityService);
+  private readonly usersService = inject(UsersService);
 
   mainMenuItems: MenuItem[] | undefined;
   loggedInMenuItems: MenuItem[] | undefined;
@@ -36,6 +48,12 @@ export class MainMenuComponent implements OnInit, OnChanges {
   private canManageSetlists: boolean = false;
   private canManageLocations: boolean = false;
   private canUpdateConcerts: boolean = false;
+
+  private currentUser$ = this.usersService.currentUser;
+
+  private updatedUserDataEffect = effect(() => {
+    this.username = this.currentUser$()?.username ?? null;
+  });
 
   @Input("clock")
   currentDateTime$: DateTime = DateTime.now();
