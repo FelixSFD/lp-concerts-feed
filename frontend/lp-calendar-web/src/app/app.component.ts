@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, HostListener, inject, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { EventType, Router, RouterOutlet } from '@angular/router';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { DateTime } from 'luxon';
@@ -19,12 +19,16 @@ import { AuthService } from './auth/auth.service';
 import { AutoBreadcrumbsComponent } from './components/v2/auto-breadcrumbs/auto-breadcrumbs.component';
 import { FooterComponent } from './components/v2/footer/footer.component';
 import { MainMenuComponent } from './components/v2/main-menu/main-menu.component';
-import { UserDto } from './modules/lpshows-api';
 import { ClockService } from './services/clock.service';
+import { UsersService } from './services/users.service';
+import { Dialog } from 'primeng/dialog';
+import {
+  CompleteUserProfileComponent
+} from './components/v2/user-profile/complete-user-profile/complete-user-profile.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MainMenuComponent, FooterComponent, ScrollTop, AutoBreadcrumbsComponent, ProgressBar, Toast],
+  imports: [RouterOutlet, MainMenuComponent, FooterComponent, ScrollTop, AutoBreadcrumbsComponent, ProgressBar, Toast, Dialog, CompleteUserProfileComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -38,6 +42,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private readonly tracker = inject(MatomoTracker);
   private readonly clockService = inject(ClockService);
   private readonly router = inject(Router);
+  private readonly usersService = inject(UsersService);
 
   //keep refs to subscriptions to be able to unsubscribe later
   private popupOpenSubscription!: Subscription;
@@ -49,9 +54,6 @@ export class AppComponent implements OnInit, OnDestroy {
   private revokeChoiceSubscription!: Subscription;
   private noCookieLawSubscription!: Subscription;
 
-  // currently logged-in user. Null if not logged in
-  currentUser$: UserDto | null = null;
-
   isAuthenticated$ = false;
 
   // the current clock
@@ -60,6 +62,9 @@ export class AppComponent implements OnInit, OnDestroy {
   // Loading progress of the router
   routerProgress: number = 0;
   scrolled = false;
+
+  // display a setup screen for new users (or those that are not in the new DB yet)
+  showProfileSetup$ = signal<boolean>(true);
 
   // All relevant router events in the correct order. This can calculate the current progress
   private progressValues: EventType[] = [
@@ -92,12 +97,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.authStateService.isAuthenticated$.subscribe(isAuthenticated => {
       console.debug('Authenticated:', isAuthenticated);
       this.isAuthenticated$ = isAuthenticated;
-
-      // get current user object
-      this.authStateService.userData$.subscribe(usr => {
-        console.debug("User -->", usr);
-        this.currentUser$ = usr;
-      });
 
       this.authStateService.accessToken$.subscribe(at => {
         console.debug("ACCESS_TOKEN: " + at);

@@ -1,0 +1,26 @@
+<div>
+  <p>Please complete the registration process by filling out your profile. Your username might be publicly visible in the future.</p>
+
+  <form #form="ngForm" class="form" [formGroup]="setupForm">
+    <div class="flex gap-4">
+      <p-fluid>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="col">
+            <p-floatlabel variant="on">
+              <input pInputText id="username" formControlName="username" autocomplete="off" fluid />
+              <label for="username">Username</label>
+            </p-floatlabel>
+          </div>
+
+          <div class="col-3">
+            <button pButton disabled variant="outlined">Random</button>
+          </div>
+
+          <div class="col-12">
+            <button pButton disabled>Continue <i class="pi pi-arrow-right"></i></button>
+          </div>
+        </div>
+      </p-fluid>
+    </div>
+  </form>
+</div>

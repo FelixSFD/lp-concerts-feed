@@ -1,3 +1,18 @@
+<p-dialog
+  [(visible)]="showProfileSetup$"
+  [modal]="true"
+  header="Complete your profile"
+  styleClass="rounded-none"
+  [style]="{
+    width: '100vw',
+    height: '100vh',
+    maxWidth: '100vw',
+    maxHeight: '100vh'
+  }"
+>
+  <app-complete-user-profile />
+</p-dialog>
+
 <div>
   <div class="sticky top-0 z-5 app-header-bar" [class.scrolled]="scrolled">
     <app-main-menu [clock]="currentDateTime$" [isLoggedIn]="isAuthenticated$" />
