@@ -1,6 +1,6 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {ErrorResponseDto, UserDto} from '../../../../../modules/lpshows-api';
-import {UsersService} from '../../../../../services/users.service';
+import {LegacyUsersService} from '../../../../../services/legacy-users.service';
 import {Toast} from 'primeng/toast';
 import {MessageService} from 'primeng/api';
 import {Button} from 'primeng/button';
@@ -34,7 +34,7 @@ import {Tooltip} from 'primeng/tooltip';
   styleUrl: './manage-users-page.component.css',
 })
 export class ManageUsersPageComponent implements OnInit {
-  private usersService = inject(UsersService);
+  private usersService = inject(LegacyUsersService);
   private messageService = inject(MessageService);
 
   users$: UserDto[] = [];

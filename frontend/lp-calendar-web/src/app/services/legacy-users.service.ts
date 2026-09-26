@@ -6,7 +6,7 @@ import {UserDto, UserNotificationSettingsDto, UsersService as UsersApiClient} fr
 @Injectable({
   providedIn: 'root'
 })
-export class UsersService {
+export class LegacyUsersService {
 
   constructor(private usersApiClient: UsersApiClient) { }
 
