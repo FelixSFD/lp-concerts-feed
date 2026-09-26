@@ -1,5 +1,5 @@
 import { effect, inject, Injectable, signal } from '@angular/core';
-import { UserDto, UsersApi } from '../modules/lpshows-api/v3';
+import { UpdateUserProfileDto, UserDto, UsersApi } from '../modules/lpshows-api/v3';
 import { environment } from '../../environments/environment';
 import { addAuthentication } from '../auth/auth.config';
 import { firstValueFrom } from 'rxjs';
@@ -12,7 +12,7 @@ export class UsersService {
   private oidcService = inject(OidcSecurityService);
   private usersApi = inject(UsersApi);
 
-  private currentUserSignal = signal<UserDto | null>(null);
+  private currentUserSignal = signal<UserDto | null | undefined>(undefined);
 
   private authChangedEffect = effect(async () => {
     if (this.oidcService.authenticated()) {
@@ -20,7 +20,7 @@ export class UsersService {
         let current = await this.getCurrentUser();
         this.currentUserSignal.set(current);
       } catch (e) {
-        console.error('Error getting current user:', e);
+        console.warn('Error getting current user:', e);
         this.currentUserSignal.set(null);
       }
     } else {
@@ -46,6 +46,16 @@ export class UsersService {
   getCurrentUser() {
     return firstValueFrom(
       this.usersApi.getCurrentUser()
+    );
+  }
+
+  /**
+   * Updates the profile of the current user.
+   * @param request new data for the profile
+   */
+  updateCurrentUserProfile(request: UpdateUserProfileDto) {
+    return firstValueFrom(
+      this.usersApi.updateCurrentUserProfile(request)
     );
   }
 }

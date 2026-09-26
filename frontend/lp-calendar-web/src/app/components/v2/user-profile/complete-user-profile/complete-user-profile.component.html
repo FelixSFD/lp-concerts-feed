@@ -17,7 +17,9 @@
           </div>
 
           <div class="col-12">
-            <button pButton disabled>Continue <i class="pi pi-arrow-right"></i></button>
+            <button pButton [disabled]="setupForm.invalid" [loading]="isSavingProfile()" (click)="onSaveUserProfileClicked()">
+              Continue <i class="pi pi-arrow-right"></i>
+            </button>
           </div>
         </div>
       </p-fluid>

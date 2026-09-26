@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, HostListener, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  HostListener,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal
+} from '@angular/core';
 import { EventType, Router, RouterOutlet } from '@angular/router';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { DateTime } from 'luxon';
@@ -14,7 +23,6 @@ import { ProgressBar } from 'primeng/progressbar';
 import { ScrollTop } from 'primeng/scrolltop';
 import { Toast } from 'primeng/toast';
 import { Subscription } from 'rxjs';
-import { environment } from '../environments/environment';
 import { AuthService } from './auth/auth.service';
 import { AutoBreadcrumbsComponent } from './components/v2/auto-breadcrumbs/auto-breadcrumbs.component';
 import { FooterComponent } from './components/v2/footer/footer.component';
@@ -64,7 +72,16 @@ export class AppComponent implements OnInit, OnDestroy {
   scrolled = false;
 
   // display a setup screen for new users (or those that are not in the new DB yet)
-  showProfileSetup$ = signal<boolean>(true);
+  showProfileSetup$ = signal<boolean>(false);
+  private checkProfileCompletedEffect = effect(() => {
+    if (this.oidcSecurityService.authenticated() && this.usersService.currentUser() === null) {
+      console.info("User is logged in but has no completed profile yet. Showing setup screen...")
+      this.showProfileSetup$.set(true);
+    } else {
+      console.debug('User either not logged in or has a completed profile. Will not show setup screen.');
+      this.showProfileSetup$.set(false);
+    }
+  });
 
   // All relevant router events in the correct order. This can calculate the current progress
   private progressValues: EventType[] = [
@@ -129,6 +146,10 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
+  onProfileCompleted(): void {
+    this.showProfileSetup$.set(false);
+  }
+
 
   // Set theme to the user's preferred color scheme
   private updateTheme() {
@@ -136,16 +157,6 @@ export class AppComponent implements OnInit, OnDestroy {
       "dark" :
       "light";
     document.querySelector("html")?.setAttribute("data-bs-theme", colorMode);
-  }
-
-
-  login(): void {
-    this.oidcSecurityService.authorize();
-  }
-
-  logout(): void {
-    this.oidcSecurityService.logoffLocal();
-    window.location.href = environment.cognitoLogoutUrl;
   }
 
 
