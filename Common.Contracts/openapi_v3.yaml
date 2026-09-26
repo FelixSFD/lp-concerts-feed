@@ -2079,6 +2079,7 @@ paths:
       tags:
         - Users
       summary: Returns information of the current user
+      operationId: GetCurrentUser
       responses:
         200:
           description: Information about the authenticated user
@@ -2110,6 +2111,7 @@ paths:
       tags:
         - Users
       summary: Updates the profile of the current user
+      operationId: UpdateCurrentUserProfile
       requestBody: 
         required: true
         content:
@@ -2151,6 +2153,7 @@ paths:
       tags:
         - Users
       summary: Returns information of the user with the given ID
+      operationId: GetUserById
       responses:
         200:
           description: Information about the user
