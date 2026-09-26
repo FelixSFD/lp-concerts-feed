@@ -1,0 +1,118 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.map-tile {
+  position: relative;
+  display: block;
+  height: 100%;
+  min-height: 15rem;
+  overflow: hidden;
+  border: 1px solid var(--p-content-border-color);
+  border-radius: 14px;
+  background: var(--p-content-hover-background);
+  color: var(--p-text-color);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.map-tile:hover {
+  border-color: color-mix(in srgb, var(--p-primary-color) 40%, var(--p-content-border-color));
+  transform: translateY(-1px);
+}
+
+.map-tile:focus-within {
+  border-color: var(--p-primary-color);
+}
+
+/* Covers the tile so the whole card opens the map page */
+.map-stretched {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+.map-label {
+  position: absolute;
+  top: 1rem;
+  left: 1.1rem;
+  z-index: 2;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--p-surface-500);
+}
+
+/* The viewBox does the scaling, so there is nothing to recompute on resize */
+.map-svg {
+  position: absolute;
+  inset: 1.9rem 0.9rem 2.6rem;
+  width: calc(100% - 1.8rem);
+  height: calc(100% - 4.5rem);
+}
+
+/* An abstract field of dots */
+.map-dot {
+  fill: color-mix(in srgb, var(--p-primary-color) 60%, transparent);
+  opacity: 0.45;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: map-dot-pulse 3.2s ease-in-out infinite;
+}
+
+.map-dot-highlight {
+  fill: var(--p-primary-color);
+}
+
+@keyframes map-dot-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.9);
+  }
+}
+
+.map-readout {
+  position: absolute;
+  left: 1.1rem;
+  bottom: 1rem;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+}
+
+.map-readout-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.map-readout-detail {
+  font-size: 0.78rem;
+  color: var(--p-surface-500);
+}
+
+@media (hover: none) {
+  .map-tile:hover {
+    border-color: var(--p-content-border-color);
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-tile {
+    transition: none;
+  }
+
+  .map-dot {
+    animation: none;
+    opacity: 0.8;
+  }
+}

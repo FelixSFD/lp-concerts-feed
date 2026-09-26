@@ -8,6 +8,11 @@
   height: 2px;
 }
 
+.app-content {
+  width: 100%;
+  max-width: var(--app-content-width);
+}
+
 .app-header-bar {
   width: 100vw;
   margin-left: calc(50% - 50vw);

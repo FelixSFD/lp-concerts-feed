@@ -1,0 +1,12 @@
+.card-header {
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--p-content-border-color);
+  border-top-left-radius: var(--p-card-border-radius, 12px);
+  border-top-right-radius: var(--p-card-border-radius, 12px);
+  background: var(--p-content-hover-background);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--p-surface-500);
+}

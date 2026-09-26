@@ -1,0 +1,34 @@
+<div class="map-tile">
+  <span class="map-label">Map of the shows</span>
+
+  <svg
+    class="map-svg"
+    [attr.viewBox]="viewBox"
+    preserveAspectRatio="xMidYMid meet"
+    aria-hidden="true"
+  >
+    <g class="map-dots">
+      @for (pin of pins; track $index) {
+        <circle
+          class="map-dot"
+          [class.map-dot-highlight]="pin.isHighlight"
+          [attr.cx]="pin.x"
+          [attr.cy]="pin.y"
+          [attr.r]="pin.radius"
+          [style.animation-delay.ms]="pin.delay"
+          [style.animation-duration.ms]="pin.durationMs"
+        >
+          <title>{{ pin.label }}</title>
+        </circle>
+      }
+    </g>
+  </svg>
+
+  <span class="map-readout">
+    <span class="map-readout-title">{{ countryLabel }}</span>
+    <span class="map-readout-detail">{{ showLabel }}</span>
+  </span>
+
+  <!-- Covers the tile, so the whole thing opens the map page -->
+  <a class="map-stretched" [routerLink]="['/map']" aria-label="Open the world tour map"></a>
+</div>

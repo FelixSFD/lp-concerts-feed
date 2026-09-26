@@ -43,6 +43,9 @@ export class SetlistComponent implements OnInit {
   @Input({ required: false })
   setlist: Setlist | undefined;
 
+  @Input({ required: false })
+  forceExpanded: boolean = false;
+
   // map that stores the artwork for an Apple Music Song ID
   songArtworks$ = new Map<string, Artwork>();
 
