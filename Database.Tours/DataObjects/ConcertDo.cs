@@ -151,7 +151,7 @@ public class ConcertDo : BaseDo, IDeletableDataObject, ITimestampedDataObject, I
     /// <summary>
     /// List of bookmarks for this concert
     /// </summary>
-    public virtual IEnumerable<UserConcertBookmarkDo>? Bookmarks { get; set; }
+    public virtual IEnumerable<UserConcertBookmarkDo> Bookmarks { get; set; }
     
     /// <inheritdoc/>
     [Column("CreatedAt")]

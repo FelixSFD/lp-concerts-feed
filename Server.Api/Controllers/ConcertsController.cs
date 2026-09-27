@@ -154,6 +154,28 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     }
     
     /// <summary>
+    /// Returns the next x upcoming concerts the user has bookmarked
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <param name="limit">Number of concerts to fetch (maximum 10)</param>
+    /// <returns></returns>
+    [HttpGet("upcoming/bookmarked")]
+    [Authorize]
+    [CustomResponseCache(Duration = CacheExpiration.Medium)]
+    [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
+    public async Task<ActionResult<ConcertDetailsDto[]>> GetUpcomingBookmarkedConcertsAsync([FromQuery] uint? limit, CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized();
+        }
+        
+        var concerts = await concertService.GetBookmarkedConcertsForAsync(userId, cancellationToken).Select(DtoMapper.ToDto).ToArrayAsync(cancellationToken);
+        return Ok(concerts);
+    }
+    
+    /// <summary>
     /// Returns the x previous concerts
     /// </summary>
     /// <param name="cancellationToken"></param>

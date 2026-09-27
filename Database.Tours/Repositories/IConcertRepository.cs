@@ -57,4 +57,7 @@ public interface IConcertRepository : ISingleKeyRepositoryBase<ConcertDo, string
     /// <param name="token"></param>
     /// <returns></returns>
     IAsyncEnumerable<ConcertDo> FindAllWithReferencesAsync(CancellationToken token);
+
+    IAsyncEnumerable<ConcertDo> GetUpcomingBookmarkedConcertsForAsync(string userId,
+        UserConcertBookmarkDo.BookmarkStatus status, CancellationToken cancellationToken = default);
 }

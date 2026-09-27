@@ -389,4 +389,11 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
             UserStatus = userStatus,
         };
     }
+    
+    public IAsyncEnumerable<ConcertDetailsBo> GetBookmarkedConcertsForAsync(string userId, CancellationToken cancellationToken = default)
+    {
+        return concertRepository
+            .GetUpcomingBookmarkedConcertsForAsync(userId, UserConcertBookmarkDo.BookmarkStatus.Bookmarked, cancellationToken)
+            .Select(DoMapper.ToBoWithDetails);
+    }
 }
