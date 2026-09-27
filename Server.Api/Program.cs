@@ -245,6 +245,7 @@ builder.Services.AddScoped<ITourRepository, SqlTourRepository>();
 builder.Services.AddScoped<IConcertTypeRepository, SqlConcertTypeRepository>();
 builder.Services.AddScoped<IConcertRepository, SqlConcertRepository>();
 builder.Services.AddScoped<IUserRepository, SqlUserRepository>();
+builder.Services.AddScoped<IUserConcertBookmarkRepository, SqlUserConcertBookmarkRepository>();
 builder.Services.AddScoped<IAlbumRepository, SqlAlbumRepository>();
 builder.Services.AddScoped<LocationService>();
 builder.Services.AddScoped<VenueService>();

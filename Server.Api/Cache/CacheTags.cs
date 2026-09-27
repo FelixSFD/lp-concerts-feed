@@ -8,6 +8,11 @@ public static class CacheTags
     public const string ConcertsAll = "concerts-all";
     
     /// <summary>
+    /// Tag for all concert bookmarks
+    /// </summary>
+    public const string ConcertBookmarksAll = "concert-bookmarks-all";
+    
+    /// <summary>
     /// Tag for a single concert
     /// </summary>
     public const string Concert = "concert";

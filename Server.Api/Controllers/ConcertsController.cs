@@ -1,6 +1,8 @@
 using Common.Contracts.Generated.Models;
+using Common.Server.Auth;
 using Common.Utils.Cache;
 using LPCalendar.DataStructure.Tours;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Server.Api.Auth;
@@ -329,6 +331,28 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
         logger.LogDebug("Generated import status. Counts: {countNotImported} not imported, {countNoSetlist} imported without setlist, {countWithSetlist} imported with setlist.", result.NotImportedCount, result.ImportedWithoutSetlistCount, result.ImportedWithSetlistCount);
         
         return Ok(result);
+    }
+    
+    /// <summary>
+    /// Sets the bookmark status for a concert and the current user
+    /// </summary>
+    /// <param name="concertId"></param>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpPut("{concertId}/bookmarks")]
+    [Authorize]
+    [ClearCache(Tags = [CacheTags.ConcertBookmarksAll])]
+    public async Task<ActionResult> SetBookmarkOnConcert(string concertId, [FromBody] ConcertBookmarkUpdateRequestDto request, CancellationToken cancellationToken)
+    {
+        var currentUserId = HttpContext.GetUserId();
+        if (currentUserId == null)
+        {
+            return Unauthorized("User is not authenticated.");
+        }
+
+        await concertService.SetBookmarkForUserAtConcertAsync(currentUserId, concertId, request.Status.ToBo(), cancellationToken);
+        return NoContent();
     }
 
     private async Task EvictConcertCacheAsync(CancellationToken cancellationToken = default)

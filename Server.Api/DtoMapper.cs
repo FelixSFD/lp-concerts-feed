@@ -469,4 +469,24 @@ internal static class DtoMapper
     }
 
     #endregion
+
+    #region Concert Bookmarks
+
+    /// <summary>
+    /// Maps the DTO to a BusinessObject
+    /// </summary>
+    /// <param name="dto">DTO to map</param>
+    /// <returns>the mapped BO</returns>
+    public static ConcertBookmark.BookmarkStatus ToBo(this ConcertBookmarkUpdateRequestDto.StatusEnum dto)
+    {
+        return dto switch
+        {
+            ConcertBookmarkUpdateRequestDto.StatusEnum.Bookmarked => ConcertBookmark.BookmarkStatus.Bookmarked,
+            ConcertBookmarkUpdateRequestDto.StatusEnum.Attending => ConcertBookmark.BookmarkStatus.Attending,
+            ConcertBookmarkUpdateRequestDto.StatusEnum.None => ConcertBookmark.BookmarkStatus.None,
+            _ => throw new ArgumentOutOfRangeException(nameof(dto), dto, null)
+        };
+    }
+
+    #endregion
 }

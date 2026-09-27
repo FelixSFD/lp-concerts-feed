@@ -499,6 +499,29 @@ paths:
         uri: https://api.dev.lpshows.felixsfd.de/v3/Concerts/{concertId}/adjacent
         requestParameters:
           integration.request.path.concertId: method.request.path.concertId
+  /v3/Concerts/{concertId}/bookmarks:
+    put:
+      operationId: SetBookmarkOnConcert
+      summary: Sets the bookmark of the current user to the concert
+      tags:
+        - Concerts
+      parameters:
+        - in: path
+          name: concertId
+          description: ID of the concert
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConcertBookmarkUpdateRequest"
+      responses:
+        "204":
+          description: Bookmark updated successfully
+      security:
+        - Bearer: [ ]
   
   /v2/concerts/{id}/bookmarks/count:
     parameters:
@@ -3151,6 +3174,21 @@ components:
         uploadUrl:
           type: string
           description: URL to use when uploading the file. This URL is only valid for the requested file
+          nullable: false
+    
+    # Bookmarks
+    ConcertBookmarkUpdateRequest:
+      type: object
+      description: Request to set a bookmark to a concert
+      properties:
+        status:
+          type: string
+          description: Bookmark status. Defined if there is a bookmark set and what kind of it
+          enum:
+            - None
+            - Bookmarked
+            - Attending
+          default: None
           nullable: false
     
     # Schemas from v2
