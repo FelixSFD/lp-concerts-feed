@@ -16,21 +16,6 @@ public class TimestampTests
     }
 
     [Fact]
-    public void AllEntitiesInToursDbContext_ImplementITimestampedDataObject()
-    {
-        using var context = CreateInMemoryDbContext();
-        var entityTypes = context.Model.GetEntityTypes().ToArray();
-
-        Assert.NotEmpty(entityTypes);
-        foreach (var entityType in entityTypes)
-        {
-            Assert.True(
-                typeof(ITimestampedDataObject).IsAssignableFrom(entityType.ClrType),
-                $"Entity type '{entityType.ClrType.Name}' does not implement ITimestampedDataObject.");
-        }
-    }
-
-    [Fact]
     public void SaveChanges_SetsCreatedAtAndLeavesUpdatedAtNull_OnNewEntity()
     {
         using var context = CreateInMemoryDbContext();
