@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, EventEmitter, inject, OnInit, Output, signal } from '@angular/core';
 import { ConcertDetailsComponent } from '../concert-details/concert-details.component';
 import { ConcertDetailsViewModel } from '../concert-details/concert-details.view-model';
 import {
@@ -7,7 +7,11 @@ import {
 } from '../../../modules/lpshows-api';
 import { MenuItem, MessageService } from 'primeng/api';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ConcertDetailsDto, GetConcertBookmarkCountsResponseDto } from '../../../modules/lpshows-api/v3';
+import {
+  ConcertBookmarkUpdateRequestDto,
+  ConcertDetailsDto,
+  GetConcertBookmarkCountsResponseDto
+} from '../../../modules/lpshows-api/v3';
 import { AuthService } from '../../../auth/auth.service';
 import { Meta } from '@angular/platform-browser';
 import { ToursService } from '../../../services/tours.service';
@@ -30,6 +34,9 @@ export class ConcertDetailsPageComponent implements OnInit {
   private readonly toursService = inject(ToursService);
   private readonly concertsService = inject(ConcertsService);
 
+  @Output("onChangeBookmark")
+  onChangeBookmark = new EventEmitter<GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum>();
+
   detailsViewModel = signal<ConcertDetailsViewModel | null>(null);
   resolverError = signal<ErrorResponseDto | null>(null);
 
@@ -38,6 +45,21 @@ export class ConcertDetailsPageComponent implements OnInit {
   canEditSetlists = signal<boolean>(false);
   concertBookmarks = signal<GetConcertBookmarkCountsResponseDto | null>(null);
   concertBookmarksLoading = signal<boolean>(false);
+
+  private updateViewModelEffect = effect(() => {
+    if (!this.concert) {
+      this.detailsViewModel.set(null);
+      return;
+    }
+
+    this.detailsViewModel.set(ConcertDetailsViewModel.fromV3Dto(
+      this.concert,
+      this.adjacentConcertData,
+      this.concertBookmarks(),
+      this.concertBookmarksLoading(),
+      []
+    ));
+  });
 
   adjacentConcertData: AdjacentConcertsResponseDto | null = null;
 
@@ -158,11 +180,39 @@ export class ConcertDetailsPageComponent implements OnInit {
   }
 
   onBookmarkClicked() {
-    //this.onBookmarkOrAttendingClicked(ConcertBookmarkUpdateRequestDto.StatusEnum.Bookmarked);
+    this.onBookmarkOrAttendingClicked(ConcertBookmarkUpdateRequestDto.StatusEnum.Bookmarked);
   }
 
   onAttendingClicked() {
-    //this.onBookmarkOrAttendingClicked(ConcertBookmarkUpdateRequestDto.StatusEnum.Attending);
+    this.onBookmarkOrAttendingClicked(ConcertBookmarkUpdateRequestDto.StatusEnum.Attending);
+  }
+
+  private onBookmarkOrAttendingClicked(status: GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum) {
+    console.debug("onBookmarkOrAttendingClicked", status);
+    this.concertBookmarks.update(old => {
+      let isRemoving = old?.currentUserStatus === status;
+      console.debug("isRemoving", isRemoving);
+      let addCount = isRemoving ? -1 : 1;
+      let newUserStatus = isRemoving ? GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.None : status;
+      console.debug("newUserStatus", newUserStatus);
+      this.onChangeBookmark.emit(newUserStatus);
+      if (status == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Bookmarked) {
+        return {
+          ...old,
+          currentUserStatus: newUserStatus,
+          bookmarked: (old?.bookmarked ?? 0) + addCount
+        }
+      } else if (status == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Attending) {
+        return {
+          ...old,
+          currentUserStatus: newUserStatus,
+          attending: (old?.attending ?? 0) + addCount
+        }
+      } else {
+        console.warn("Unknown status clicked", status);
+        return old;
+      }
+    });
   }
 
   onAddSetlistBtnClicked() {
