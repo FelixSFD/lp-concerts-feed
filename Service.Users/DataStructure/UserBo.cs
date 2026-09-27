@@ -14,6 +14,11 @@ public class UserBo
     /// Display name of the user
     /// </summary>
     public required string Username { get; set; }
+    
+    /// <summary>
+    /// ISO code of the country where this user is from. Can be null if the user has not specified their country
+    /// </summary>
+    public string? OriginCountryCode { get; set; }
 
     /// <summary>
     /// Date and time when the user was created

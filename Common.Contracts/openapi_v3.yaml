@@ -3072,6 +3072,10 @@ components:
         username:
           type: string
           description: Username of the user
+        originCountryCode:
+          type: string
+          description: ISO code of the country where this user is from. Can be null if the user has not specified their country
+          nullable: true
         createdAt:
           type: string
           format: date-time
@@ -3090,6 +3094,10 @@ components:
         username:
           type: string
           description: Username of the user
+        originCountryCode:
+          type: string
+          description: ISO code of the country where this user is from. Can be null if the user has not specified their country
+          nullable: true
     
     # Paginated responses
     PaginationResponseMetadata:

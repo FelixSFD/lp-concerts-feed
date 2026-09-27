@@ -16,6 +16,7 @@ public static class DoMapper
         {
             Id = dataObject.Id,
             Username = dataObject.Username,
+            OriginCountryCode = dataObject.OriginCountryCode,
             CreatedAt = dataObject.CreatedAt,
             UpdatedAt = dataObject.UpdatedAt,
         };

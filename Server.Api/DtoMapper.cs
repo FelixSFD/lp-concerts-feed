@@ -463,6 +463,7 @@ internal static class DtoMapper
         {
             Id = bo.Id,
             Username = bo.Username,
+            OriginCountryCode = bo.OriginCountryCode,
             CreatedAt = bo.CreatedAt,
             UpdatedAt = bo.UpdatedAt,
         };

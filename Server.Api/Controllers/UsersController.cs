@@ -76,7 +76,7 @@ public class UsersController(UserService userService, ILogger<UsersController> l
         if (userId is null)
             return Unauthorized();
         
-        await userService.UpdateUserAsync(userId, request.Username, cancellationToken);
+        await userService.UpdateUserAsync(userId, request.Username, request.OriginCountryCode, cancellationToken);
         return NoContent();
     }
     

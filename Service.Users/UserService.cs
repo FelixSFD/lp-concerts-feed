@@ -66,9 +66,10 @@ public class UserService(IUserRepository userRepository, IAlbumRepository albumR
     /// </summary>
     /// <param name="id">ID of the user</param>
     /// <param name="username">username to set</param>
+    /// <param name="originCountryCode">ISO code of the country where this user is from. Can be null if the user has not specified their country</param>
     /// <param name="cancellationToken"></param>
     /// <exception cref="UserNotFoundException">if the user doesn't exist</exception>
-    public async Task UpdateUserAsync(string id, string username, CancellationToken cancellationToken = default)
+    public async Task UpdateUserAsync(string id, string username, string? originCountryCode, CancellationToken cancellationToken = default)
     {
         Log.UpdateUserStart(logger, id);
         var user = await userRepository.GetByPrimaryKeyAsync(id, cancellationToken);
@@ -80,6 +81,7 @@ public class UserService(IUserRepository userRepository, IAlbumRepository albumR
         }
         
         user.Username = username;
+        user.OriginCountryCode = originCountryCode;
         userRepository.Update(user);
         await userRepository.SaveChangesAsync(cancellationToken);
         Log.UpdateUserSuccess(logger, id, username);
