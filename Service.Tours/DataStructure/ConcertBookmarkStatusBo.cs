@@ -1,3 +1,5 @@
+using LPCalendar.DataStructure;
+
 namespace Service.Tours.DataStructure;
 
 /// <summary>
@@ -14,4 +16,6 @@ public class ConcertBookmarkStatusBo
     /// Number of users who are attending the concert
     /// </summary>
     public int Attending { get; set; }
+
+    public ConcertBookmark.BookmarkStatus? UserStatus { get; set; }
 }

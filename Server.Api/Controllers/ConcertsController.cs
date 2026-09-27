@@ -365,12 +365,13 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertBookmarksAll])]
     public async Task<ActionResult<GetConcertBookmarkCountsResponseDto>> GetBookmarkCountForConcert(string concertId, CancellationToken cancellationToken)
     {
-        var status = await concertService.GetBookmarkStatusForConcert(concertId);
+        var userId = HttpContext.GetUserId();
+        var status = await concertService.GetBookmarkStatusForConcert(concertId, userId, cancellationToken);
         var response = new GetConcertBookmarkCountsResponseDto
         {
             Bookmarked = status.Bookmarked,
             Attending = status.Attending,
-            // TODO: get status of current user
+            CurrentUserStatus = status.UserStatus?.ToDto() ?? GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.None,
         };
         return Ok(response);
     }

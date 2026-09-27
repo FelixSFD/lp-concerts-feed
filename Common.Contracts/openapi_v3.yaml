@@ -541,6 +541,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GetConcertBookmarkCountsResponse"
+      security:
+        - Bearer: [ ]
   
   /v2/concerts/{id}/bookmarks/count:
     parameters:

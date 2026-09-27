@@ -1,5 +1,6 @@
 import { inject, Service } from '@angular/core';
 import {
+  ConcertBookmarkUpdateRequestDto,
   ConcertDetailsDto,
   ConcertFileUploadResponseDto, ConcertListResponseDto,
   ConcertsApi,
@@ -106,6 +107,21 @@ export class ConcertsService {
   getBookmarkStatusForConcert(concertId: string): Promise<GetConcertBookmarkCountsResponseDto> {
     return firstValueFrom(
       this.concertsApi.getBookmarkCountForConcert(concertId)
+    );
+  }
+
+  /**
+   * Sets the bookmark status for a concert for the current user
+   * @param concertId The ID of the concert
+   * @param status The new bookmark status
+   */
+  setBookmarkStatusForConcert(concertId: string, status: GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum) {
+    let request: ConcertBookmarkUpdateRequestDto = {
+      status: status
+    };
+
+    return firstValueFrom(
+      this.concertsApi.setBookmarkOnConcert(concertId, request)
     );
   }
 }

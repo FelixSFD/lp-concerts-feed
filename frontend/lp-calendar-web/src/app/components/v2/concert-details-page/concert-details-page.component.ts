@@ -1,4 +1,4 @@
-import { Component, effect, EventEmitter, inject, OnInit, Output, signal } from '@angular/core';
+import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { ConcertDetailsComponent } from '../concert-details/concert-details.component';
 import { ConcertDetailsViewModel } from '../concert-details/concert-details.view-model';
 import {
@@ -33,9 +33,6 @@ export class ConcertDetailsPageComponent implements OnInit {
   private readonly messageService = inject(MessageService);
   private readonly toursService = inject(ToursService);
   private readonly concertsService = inject(ConcertsService);
-
-  @Output("onChangeBookmark")
-  onChangeBookmark = new EventEmitter<GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum>();
 
   detailsViewModel = signal<ConcertDetailsViewModel | null>(null);
   resolverError = signal<ErrorResponseDto | null>(null);
@@ -195,7 +192,14 @@ export class ConcertDetailsPageComponent implements OnInit {
       let addCount = isRemoving ? -1 : 1;
       let newUserStatus = isRemoving ? GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.None : status;
       console.debug("newUserStatus", newUserStatus);
-      this.onChangeBookmark.emit(newUserStatus);
+
+      this.concertsService.setBookmarkStatusForConcert(this.concert!.id, newUserStatus)
+        .then(() => this.loadBookmarkStatus())
+        .catch((err) => {
+          console.error("Failed to set bookmark status", err);
+          this.messageService.add({severity: "error", summary: "Failed to set bookmark status", detail: err.message})
+        });
+
       if (status == GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Bookmarked) {
         return {
           ...old,

@@ -367,17 +367,26 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
     /// </summary>
     /// <param name="concertId"></param>
     /// <returns></returns>
-    public async Task<ConcertBookmarkStatusBo> GetBookmarkStatusForConcert(string concertId)
+    public async Task<ConcertBookmarkStatusBo> GetBookmarkStatusForConcert(string concertId, string? userId = null, CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Getting bookmark status for concert with ID: {concertId}", concertId);
-        var bookmarkStatusList = await userConcertBookmarkRepository.GetByConcertId(concertId);
+        ConcertBookmark.BookmarkStatus? userStatus = null;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            logger.LogDebug("Checking bookmark status for user: {userId}", userId);
+            var userBookmark = await userConcertBookmarkRepository.GetByUserIdAndConcertIdAsync(userId, concertId, cancellationToken);
+            userStatus = userBookmark?.Status.ToBo();
+        }
+        
+        var bookmarkStatusList = await userConcertBookmarkRepository.GetByConcertId(concertId, cancellationToken);
         var countBookmarked = bookmarkStatusList.Count(x => x.Status == UserConcertBookmarkDo.BookmarkStatus.Bookmarked);
         var countAttending = bookmarkStatusList.Count(x => x.Status == UserConcertBookmarkDo.BookmarkStatus.Attending);
         logger.LogDebug("Count of bookmarked: {countBookmarked}, Count of attending: {countAttending}", countBookmarked, countAttending);
         return new ConcertBookmarkStatusBo
         {
             Bookmarked = countBookmarked,
-            Attending = countAttending
+            Attending = countAttending,
+            UserStatus = userStatus,
         };
     }
 }
