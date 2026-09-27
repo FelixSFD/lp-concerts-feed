@@ -7,6 +7,7 @@ using Database.Tours.Repositories;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Tours;
 using Microsoft.Extensions.Logging;
+using Service.Tours.DataStructure;
 using Service.Tours.Exceptions;
 
 namespace Service.Tours;
@@ -359,5 +360,24 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         
         // save the changes
         await userConcertBookmarkRepository.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets the status of the bookmarks for a concert
+    /// </summary>
+    /// <param name="concertId"></param>
+    /// <returns></returns>
+    public async Task<ConcertBookmarkStatusBo> GetBookmarkStatusForConcert(string concertId)
+    {
+        logger.LogDebug("Getting bookmark status for concert with ID: {concertId}", concertId);
+        var bookmarkStatusList = await userConcertBookmarkRepository.GetByConcertId(concertId);
+        var countBookmarked = bookmarkStatusList.Count(x => x.Status == UserConcertBookmarkDo.BookmarkStatus.Bookmarked);
+        var countAttending = bookmarkStatusList.Count(x => x.Status == UserConcertBookmarkDo.BookmarkStatus.Attending);
+        logger.LogDebug("Count of bookmarked: {countBookmarked}, Count of attending: {countAttending}", countBookmarked, countAttending);
+        return new ConcertBookmarkStatusBo
+        {
+            Bookmarked = countBookmarked,
+            Attending = countAttending
+        };
     }
 }

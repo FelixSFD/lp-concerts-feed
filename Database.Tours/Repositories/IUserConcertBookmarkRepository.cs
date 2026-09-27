@@ -16,4 +16,12 @@ public interface IUserConcertBookmarkRepository : IRepositoryBase<UserConcertBoo
     /// <param name="cancellationToken">Token to cancel the operation</param>
     /// <returns></returns>
     Task<UserConcertBookmarkDo?> GetByUserIdAndConcertIdAsync(string userId, string concertId, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Returns all bookmarks for the given concert.
+    /// </summary>
+    /// <param name="concertId">ID of the concert</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<IList<UserConcertBookmarkDo>> GetByConcertId(string concertId, CancellationToken cancellationToken = default);
 }

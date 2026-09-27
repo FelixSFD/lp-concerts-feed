@@ -354,6 +354,26 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
         await concertService.SetBookmarkForUserAtConcertAsync(currentUserId, concertId, request.Status.ToBo(), cancellationToken);
         return NoContent();
     }
+    
+    /// <summary>
+    /// Returns information about the number of bookmarks for a concert.
+    /// </summary>
+    /// <param name="concertId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("{concertId}/bookmarks")]
+    [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertBookmarksAll])]
+    public async Task<ActionResult<GetConcertBookmarkCountsResponseDto>> GetBookmarkCountForConcert(string concertId, CancellationToken cancellationToken)
+    {
+        var status = await concertService.GetBookmarkStatusForConcert(concertId);
+        var response = new GetConcertBookmarkCountsResponseDto
+        {
+            Bookmarked = status.Bookmarked,
+            Attending = status.Attending,
+            // TODO: get status of current user
+        };
+        return Ok(response);
+    }
 
     private async Task EvictConcertCacheAsync(CancellationToken cancellationToken = default)
     {

@@ -522,12 +522,31 @@ paths:
           description: Bookmark updated successfully
       security:
         - Bearer: [ ]
+    get:
+      operationId: GetBookmarkCountForConcert
+      summary: Checks how many bookmarks there are for a concert. Use GetBookmarkStatusForConcert if you want to check the status for the current user
+      tags:
+        - Concerts
+      parameters:
+        - in: path
+          name: concertId
+          description: ID of the concert
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Found the number of bookmarks
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetConcertBookmarkCountsResponse"
   
   /v2/concerts/{id}/bookmarks/count:
     parameters:
       - $ref: "#/components/parameters/X-LP-Request-Id"
     get:
-      operationId: GetBookmarkCountForConcert
+      operationId: GetBookmarkCountForConcertOld
       summary: Checks how many bookmarks there are for a concert. Use GetBookmarkStatusForConcert if you want to check the status for the current user
       tags:
         - concerts
