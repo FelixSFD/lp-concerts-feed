@@ -13,6 +13,7 @@ public class ToursDbContext(DbContextOptions<ToursDbContext> options) : DbContex
 {
     public DbSet<ConcertTypeDo> ConcertTypes { get; set; }
     public DbSet<ConcertDo> Concerts { get; set; }
+    public DbSet<UserConcertBookmarkDo> ConcertBookmarks { get; set; }
     
     public DbSet<CountryDo> Countries { get; set; }
     public DbSet<StateDo> States { get; set; }
@@ -99,6 +100,13 @@ public class ToursDbContext(DbContextOptions<ToursDbContext> options) : DbContex
             .HasForeignKey(c => new { c.TourLegId })
             .HasPrincipalKey(tl => new { tl.Id })
             .OnDelete(DeleteBehavior.Restrict);
+        
+        modelBuilder.Entity<UserConcertBookmarkDo>()
+            .HasOne(ucb => ucb.Concert)
+            .WithMany(c => c.Bookmarks)
+            .HasForeignKey(ucb => new { ucb.ConcertId })
+            .HasPrincipalKey(c => new { c.Id })
+            .OnDelete(DeleteBehavior.Cascade); // Delete bookmarks when concert is deleted
         
         modelBuilder.Entity<ConcertDo>()
             .Navigation(c => c.Venue)
