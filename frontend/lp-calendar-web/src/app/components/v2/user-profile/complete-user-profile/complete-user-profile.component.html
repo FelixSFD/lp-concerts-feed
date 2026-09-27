@@ -2,7 +2,7 @@
   <p>Please complete the registration process by filling out your profile. Your username might be publicly visible in the future.</p>
 
   <form #form="ngForm" class="form" [formGroup]="setupForm">
-    <div class="flex gap-4">
+    <div class="flex gap-4 justify-content-center">
       <p-fluid>
         <div class="grid grid-cols-2 gap-2">
           <div class="col">
@@ -13,7 +13,7 @@
           </div>
 
           <div class="col-3">
-            <button pButton variant="outlined" (click)="onSetRandomNameClicked()">Random</button>
+            <button pButton variant="outlined" (click)="onSetRandomNameClicked()"><i class="pi pi-sync"></i> Random</button>
           </div>
 
           <div class="col-12">
