@@ -3,15 +3,15 @@ import { ConcertDetailsComponent } from '../concert-details/concert-details.comp
 import { ConcertDetailsViewModel } from '../concert-details/concert-details.view-model';
 import {
   AdjacentConcertsResponseDto,
-  ErrorResponseDto,
-  GetConcertBookmarkCountsResponseDto
+  ErrorResponseDto
 } from '../../../modules/lpshows-api';
 import { MenuItem, MessageService } from 'primeng/api';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ConcertDetailsDto } from '../../../modules/lpshows-api/v3';
+import { ConcertDetailsDto, GetConcertBookmarkCountsResponseDto } from '../../../modules/lpshows-api/v3';
 import { AuthService } from '../../../auth/auth.service';
 import { Meta } from '@angular/platform-browser';
 import { ToursService } from '../../../services/tours.service';
+import { ConcertsService } from '../../../services/concerts.service';
 
 @Component({
   selector: 'app-concert-details-page',
@@ -28,6 +28,7 @@ export class ConcertDetailsPageComponent implements OnInit {
   private readonly metaService = inject(Meta);
   private readonly messageService = inject(MessageService);
   private readonly toursService = inject(ToursService);
+  private readonly concertsService = inject(ConcertsService);
 
   detailsViewModel = signal<ConcertDetailsViewModel | null>(null);
   resolverError = signal<ErrorResponseDto | null>(null);
@@ -35,10 +36,11 @@ export class ConcertDetailsPageComponent implements OnInit {
   isAuthenticated = signal<boolean>(false);
   canUpdateConcerts = signal<boolean>(false);
   canEditSetlists = signal<boolean>(false);
+  concertBookmarks = signal<GetConcertBookmarkCountsResponseDto | null>(null);
+  concertBookmarksLoading = signal<boolean>(false);
 
   adjacentConcertData: AdjacentConcertsResponseDto | null = null;
-  concertBookmarks: GetConcertBookmarkCountsResponseDto | null = null;
-  concertBookmarksLoading: boolean = false;
+
   concert: ConcertDetailsDto | null = null;
 
   addSetlistButtonItems = signal<MenuItem[]>([]);
@@ -74,7 +76,8 @@ export class ConcertDetailsPageComponent implements OnInit {
 
       this.loadAdjacentConcerts()
         .then(() => this.updateViewModel());
-      //this.loadBookmarkStatus();
+      this.loadBookmarkStatus()
+        .then(() => this.updateViewModel());
 
       if (this.concert != null) {
         this.updateMetaInfo(this.concert);
@@ -101,8 +104,8 @@ export class ConcertDetailsPageComponent implements OnInit {
     this.detailsViewModel.set(ConcertDetailsViewModel.fromV3Dto(
       this.concert,
       this.adjacentConcertData,
-      this.concertBookmarks,
-      this.concertBookmarksLoading,
+      this.concertBookmarks(),
+      this.concertBookmarksLoading(),
       []
     ));
   }
@@ -179,5 +182,11 @@ export class ConcertDetailsPageComponent implements OnInit {
 
     console.debug("Loading adjacent concerts...");
     this.adjacentConcertData = await this.toursService.getAdjacentConcerts(this.concert!.id);
+  }
+
+  private async loadBookmarkStatus() {
+    this.concertBookmarksLoading.set(true);
+    this.concertBookmarks.set(await this.concertsService.getBookmarkStatusForConcert(this.concert!.id));
+    this.concertBookmarksLoading.set(false);
   }
 }
