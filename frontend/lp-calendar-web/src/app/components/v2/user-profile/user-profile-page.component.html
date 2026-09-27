@@ -3,35 +3,53 @@
     Your profile
   </ng-template>
 
-  <p-button label="Edit" icon="pi pi-pencil" [routerLink]="['/users', userId$]" [disabled]="userId$.length == 0" variant="outlined" />
+  <form #form="ngForm" class="form" [formGroup]="userForm">
+    <div class="grid gap-2 mt-2">
+      <!-- ID -->
+      <div class="col-12">
+        <label for="id">ID</label>
+        <input pInputText id="id" disabled autocomplete="off" fluid [value]="userId$" />
+      </div>
 
-  <div class="grid gap-2 mt-2">
-    <!-- ID -->
-    <div class="col-12">
-      <label for="id">ID</label>
-      <input pInputText id="id" disabled autocomplete="off" fluid [value]="userId$" />
-    </div>
+      <!-- E-Mail -->
+      <div class="col-12">
+        <label for="emailInput">E-Mail address</label>
+        <input pInputText id="emailInput" disabled autocomplete="off" fluid [value]="email$" />
+      </div>
 
-    <!-- Username -->
-    <div class="col-12">
-      <label for="usernameInput">Username</label>
-      <input pInputText id="usernameInput" disabled autocomplete="off" fluid [value]="username$" />
-    </div>
+      <!-- Username -->
+      <div class="col-12">
+        <p-floatlabel variant="on">
+          <input pInputText id="username" formControlName="username" autocomplete="off" fluid />
+          <label for="username">Username</label>
+        </p-floatlabel>
+        <small>Your username might be publicly visible in the future.</small>
+      </div>
 
-    <!-- E-Mail -->
-    <div class="col-12">
-      <label for="emailInput">E-Mail address</label>
-      <input pInputText id="emailInput" disabled autocomplete="off" fluid [value]="email$" />
-    </div>
+      <!-- Country of user -->
+      <div class="col-12">
+        <p-floatlabel variant="on">
+          <p-select formControlName="originCountryCode" inputId="originCountryCode" [options]="availableCountries()" optionLabel="name" optionValue="isoCode" appendTo="body" aria-autocomplete="none" [filter]="true" filterBy="name" showClear fluid>
+            <ng-template #selectedItem let-selectedOption>
+              <div class="flex items-center gap-2">
+                <div>{{ selectedOption.name }}</div>
+              </div>
+            </ng-template>
+            <ng-template let-country #item>
+              <div class="flex items-center gap-2">
+                <div>{{ country.name }}</div>
+              </div>
+            </ng-template>
+          </p-select>
+          <label for="originCountryCode">Country of origin (optional)</label>
+        </p-floatlabel>
+        <small>If you like, you can add your country to your profile.</small>
+      </div>
 
-    <div class="col-12">
-      <label for="groupsSelect">Groups</label>
-      <select multiple disabled class="form-control" id="groupsSelect">
-        @for (groupName of groupNames$; track groupName) {
-          <option>{{ groupName }}</option>
-        }
-      </select>
-      <small>Only administrators can add you to groups which grant you certain permissions on the site.</small>
+      <p-divider />
+      <div class="col-12">
+        <button pButton [disabled]="userForm.invalid" [loading]="isSavingProfile()" (click)="onSaveUserProfileClicked()">Save</button>
+      </div>
     </div>
-  </div>
+  </form>
 </p-card>
