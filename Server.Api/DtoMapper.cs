@@ -1,5 +1,4 @@
 using Common.Contracts.Generated.Models;
-using Common.Utils;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Tours;
 using LPCalendar.DataStructure.Tours.Locations;

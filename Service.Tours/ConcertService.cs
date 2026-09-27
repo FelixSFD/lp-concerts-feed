@@ -4,6 +4,7 @@ using Common.Utils.Pagination;
 using Database.Tours.DataObjects;
 using Database.Tours.Filters;
 using Database.Tours.Repositories;
+using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Tours;
 using Microsoft.Extensions.Logging;
 using Service.Tours.Exceptions;
@@ -16,7 +17,7 @@ namespace Service.Tours;
 /// <param name="concertRepository"></param>
 /// <param name="concertTypeRepository"></param>
 /// <param name="logger"></param>
-public class ConcertService(IConcertRepository concertRepository, IConcertTypeRepository concertTypeRepository, ILogger<ConcertService> logger)
+public class ConcertService(IConcertRepository concertRepository, IConcertTypeRepository concertTypeRepository, IUserConcertBookmarkRepository userConcertBookmarkRepository, ILogger<ConcertService> logger)
 {
     #region Concert Types
     
@@ -324,5 +325,39 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
             Previous = previousConcert?.ToBoWithDetails(),
             Next = nextConcert?.ToBoWithDetails()
         };
+    }
+
+    /// <summary>
+    /// Sets a bookmark for a user at a concert. This can also be used to remove a bookmark.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="concertId"></param>
+    /// <param name="bookmarkStatus"></param>
+    /// <param name="cancellationToken"></param>
+    public async Task SetBookmarkForUserAtConcertAsync(string userId, string concertId,
+        ConcertBookmark.BookmarkStatus bookmarkStatus, CancellationToken cancellationToken = default)
+    {
+        // check if entry for bookmark already exists
+        var bookmark = await userConcertBookmarkRepository.GetByUserIdAndConcertIdAsync(userId, concertId, cancellationToken);
+        if (bookmark == null)
+        {
+            // we need to create a new bookmark
+            bookmark = new UserConcertBookmarkDo
+            {
+                UserId = userId,
+                ConcertId = concertId,
+                Status = bookmarkStatus.ToDo()
+            };
+            userConcertBookmarkRepository.Add(bookmark);
+        }
+        else
+        {
+            // bookmark exists. Update it
+            bookmark.Status = bookmarkStatus.ToDo();
+            userConcertBookmarkRepository.Update(bookmark);
+        }
+        
+        // save the changes
+        await userConcertBookmarkRepository.SaveChangesAsync(cancellationToken);
     }
 }

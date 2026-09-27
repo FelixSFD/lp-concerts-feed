@@ -572,4 +572,24 @@ internal static class DoMapper
             _ => ConcertDo.ConcertStatus.Past
         };
     }
+    
+    #region UserConcertBookmarks
+
+    /// <summary>
+    /// Maps the BusinessObject to a data object
+    /// </summary>
+    /// <param name="bo">BusinessObject to map</param>
+    /// <returns>the mapped data object</returns>
+    public static UserConcertBookmarkDo.BookmarkStatus ToDo(this ConcertBookmark.BookmarkStatus bo)
+    {
+        return bo switch
+        {
+            ConcertBookmark.BookmarkStatus.Bookmarked => UserConcertBookmarkDo.BookmarkStatus.Bookmarked,
+            ConcertBookmark.BookmarkStatus.Attending => UserConcertBookmarkDo.BookmarkStatus.Attending,
+            ConcertBookmark.BookmarkStatus.None => UserConcertBookmarkDo.BookmarkStatus.None,
+            _ => throw new ArgumentOutOfRangeException(nameof(bo), bo, null)
+        };
+    }
+    
+    #endregion
 }
