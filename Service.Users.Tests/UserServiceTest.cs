@@ -43,7 +43,7 @@ public class UserServiceTest
             .Returns(_ => Task.FromResult(savedUser));
 
         // run the test
-        await _service.CreateUserAsync(mockUsername);
+        await _service.CreateUserAsync(mockUsername, null);
 
         // check result
         Assert.NotNull(savedUser);
@@ -69,7 +69,7 @@ public class UserServiceTest
             .Returns(_ => Task.FromResult(savedUser));
 
         // run the test
-        await _service.CreateUserAsync(mockUsername, mockId);
+        await _service.CreateUserAsync(mockUsername, null, mockId);
 
         // check result
         Assert.NotNull(savedUser);

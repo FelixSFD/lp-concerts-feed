@@ -27,14 +27,15 @@ public class UserService(IUserRepository userRepository, IAlbumRepository albumR
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public async Task<UserBo> CreateUserAsync(string username, string? id = null, CancellationToken cancellationToken = default)
+    public async Task<UserBo> CreateUserAsync(string username, string? originCountryCode, string? id = null, CancellationToken cancellationToken = default)
     {
         Log.CreatingNewUserWithUsername(logger, username);
         id ??= Guid.NewGuid().ToString();
         var user = new UserDo
         {
             Id = id,
-            Username = username
+            Username = username,
+            OriginCountryCode = originCountryCode
         };
         
         userRepository.Add(user);
@@ -76,7 +77,7 @@ public class UserService(IUserRepository userRepository, IAlbumRepository albumR
         if (user is null)
         {
             Log.RequestedUserNotFoundWillCreate(logger, id);
-            await CreateUserAsync(username, id, cancellationToken);
+            await CreateUserAsync(username, originCountryCode, id, cancellationToken);
             return;
         }
         

@@ -17,6 +17,14 @@
           </div>
 
           <div class="col-12">
+            <p-floatlabel variant="on">
+              <p-select formControlName="originCountry" inputId="originCountry" [options]="availableCountries()" optionLabel="name" appendTo="body" aria-autocomplete="none" showClear fluid />
+              <label for="originCountry">Country of origin (optional)</label>
+            </p-floatlabel>
+            <small>If you like, you can add your country to your profile.</small>
+          </div>
+
+          <div class="col-12">
             <button pButton [disabled]="setupForm.invalid" [loading]="isSavingProfile()" (click)="onSaveUserProfileClicked()">
               Continue <i class="pi pi-arrow-right"></i>
             </button>

@@ -59,8 +59,9 @@ public class LocationService(
     public IAsyncEnumerable<CountryBo> GetCountriesAsync(CancellationToken cancellationToken)
     {
         logger.LogDebug("Requesting list of countries...");
+        var paginationParams = new PaginationParams(0, 250);
         return countryRepository
-            .FindAsync(cancellationToken: cancellationToken)
+            .FindAsync(paginationParams: paginationParams, cancellationToken: cancellationToken)
             .Select(DoMapper.ToBo);
     }
     

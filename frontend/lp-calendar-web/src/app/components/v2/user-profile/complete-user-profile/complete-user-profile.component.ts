@@ -5,8 +5,11 @@ import { InputText } from 'primeng/inputtext';
 import { ButtonDirective } from 'primeng/button';
 import { Fluid } from 'primeng/fluid';
 import { UsersService } from '../../../../services/users.service';
-import { ProblemDetailsDto, UpdateUserProfileDto } from '../../../../modules/lpshows-api/v3';
+import { CountryDto, ProblemDetailsDto, UpdateUserProfileDto } from '../../../../modules/lpshows-api/v3';
 import { MessageService } from 'primeng/api';
+import { LocationsService } from '../../../../services/locations.service';
+import { firstValueFrom } from 'rxjs';
+import { Select } from 'primeng/select';
 
 @Component({
   imports: [
@@ -14,26 +17,34 @@ import { MessageService } from 'primeng/api';
     FloatLabel,
     InputText,
     ButtonDirective,
-    Fluid
+    Fluid,
+    Select
   ],
   selector: 'app-complete-user-profile',
   styleUrl: './complete-user-profile.component.css',
   templateUrl: './complete-user-profile.component.html',
 })
-export class CompleteUserProfileComponent {
+export class CompleteUserProfileComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
   private usersService = inject(UsersService);
+  private locationsService = inject(LocationsService);
   private messageService = inject(MessageService);
 
   protected setupForm = this.formBuilder.group({
     username: new FormControl('', [Validators.min(3), Validators.required]),
+    originCountry: new FormControl<CountryDto | null>(null, []),
   });
 
   protected isSavingProfile = signal(false);
+  protected availableCountries = signal<CountryDto[]>([]);
 
   private randomUsernames: string[] = [];
 
   @Output("onProfileCompleted") profileCompleted = new EventEmitter<void>();
+
+  ngOnInit() {
+    this.loadAvailableCountries().then();
+  }
 
   protected async onSetRandomNameClicked() {
     if (this.randomUsernames.length === 0) {
@@ -53,7 +64,8 @@ export class CompleteUserProfileComponent {
 
     this.isSavingProfile.set(true);
     let request: UpdateUserProfileDto = {
-      username: this.setupForm.value.username!
+      username: this.setupForm.value.username!,
+      originCountryCode: this.setupForm.value.originCountry?.isoCode ?? null
     };
     try {
       await this.usersService.updateCurrentUserProfile(request);
@@ -64,6 +76,16 @@ export class CompleteUserProfileComponent {
       this.messageService.add({ severity: 'error', summary: 'Failed to update user profile', detail: message });
     } finally {
       this.isSavingProfile.set(false);
+    }
+  }
+
+  private async loadAvailableCountries() {
+    try {
+      this.availableCountries.set(await firstValueFrom(this.locationsService.getCountries()));
+    } catch (error) {
+      console.error('Failed to load available countries:', error);
+      let problemDetails = error as ProblemDetailsDto;
+      this.messageService.add({ severity: 'error', summary: 'Failed to load available countries', detail: problemDetails.detail });
     }
   }
 
