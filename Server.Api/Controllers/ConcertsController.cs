@@ -1,6 +1,7 @@
 using Common.Contracts.Generated.Models;
 using Common.Server.Auth;
 using Common.Utils.Cache;
+using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Tours;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -163,7 +164,27 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     [Authorize]
     [CustomResponseCache(Duration = CacheExpiration.Medium)]
     [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
-    public async Task<ActionResult<ConcertDetailsDto[]>> GetUpcomingBookmarkedConcertsAsync([FromQuery] uint? limit, CancellationToken cancellationToken)
+    public async Task<ActionResult<ConcertDetailsDto[]>> GetUpcomingBookmarkedConcertsAsync([FromQuery] int? limit, CancellationToken cancellationToken)
+    {
+        return await GetUpcomingBookmarkedConcertsAsync(limit ?? 5, ConcertBookmark.BookmarkStatus.Bookmarked, cancellationToken);
+    }
+    
+    /// <summary>
+    /// Returns the next x upcoming concerts the user will attend
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <param name="limit">Number of concerts to fetch (maximum 10)</param>
+    /// <returns></returns>
+    [HttpGet("upcoming/attending")]
+    [Authorize]
+    [CustomResponseCache(Duration = CacheExpiration.Medium)]
+    [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
+    public async Task<ActionResult<ConcertDetailsDto[]>> GetUpcomingAttendingConcertsAsync([FromQuery] int? limit, CancellationToken cancellationToken)
+    {
+        return await GetUpcomingBookmarkedConcertsAsync(limit ?? 5, ConcertBookmark.BookmarkStatus.Attending, cancellationToken);
+    }
+    
+    private async Task<ActionResult<ConcertDetailsDto[]>> GetUpcomingBookmarkedConcertsAsync(int limit, ConcertBookmark.BookmarkStatus status, CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
         if (string.IsNullOrEmpty(userId))
@@ -171,7 +192,10 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
             return Unauthorized();
         }
         
-        var concerts = await concertService.GetBookmarkedConcertsForAsync(userId, cancellationToken).Select(DtoMapper.ToDto).ToArrayAsync(cancellationToken);
+        var concerts = await concertService
+            .GetBookmarkedConcertsForAsync(userId, status, limit, cancellationToken)
+            .Select(DtoMapper.ToDto)
+            .ToArrayAsync(cancellationToken);
         return Ok(concerts);
     }
     
