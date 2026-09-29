@@ -95,6 +95,11 @@ public class UsersController(UserService userService, ILogger<UsersController> l
         return Ok(user.ToDto());
     }
     
+    /// <summary>
+    /// Suggests some usernames for the current user. These are based on album names for now.
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [Authorize]
     [HttpGet("suggestedNames")]
     public async Task<ActionResult<string[]>> GetSuggestedUserNamesAsync(CancellationToken cancellationToken)
