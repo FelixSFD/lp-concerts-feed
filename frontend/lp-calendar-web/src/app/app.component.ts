@@ -96,6 +96,13 @@ export class AppComponent implements OnInit, OnDestroy {
     EventType.NavigationEnd,
   ];
 
+  // effect to update the tracker info based on the currentUser signal
+  private userChangedEffect = effect(() => {
+    let currentUser = this.usersService.currentUser();
+    console.debug("Sending username to Matomo: ", currentUser?.username);
+    this.tracker.setUserId(currentUser?.username ?? currentUser?.id!);
+  });
+
   ngOnInit(): void {
     this.initCookieConsent();
 
@@ -117,12 +124,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
       this.authStateService.accessToken$.subscribe(at => {
         console.debug("ACCESS_TOKEN: " + at);
-      });
-
-      // Set user ID for Matomo tracker
-      this.authStateService.userData$.subscribe(usr => {
-        console.debug("Sending username to Matomo: ", usr);
-        this.tracker.setUserId(usr?.username ?? usr?.id!);
       });
     });
 
