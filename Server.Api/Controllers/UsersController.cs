@@ -54,7 +54,7 @@ public class UsersController(UserService userService, ILogger<UsersController> l
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
         if (userId is null)
-            return Unauthorized();
+            return NotFound();
         
         var user = await userService.GetUserById(userId, cancellationToken);
         return Ok(user.ToDto());

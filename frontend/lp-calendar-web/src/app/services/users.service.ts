@@ -1,5 +1,5 @@
 import { effect, inject, Injectable, signal } from '@angular/core';
-import { UpdateUserProfileDto, UserDto, UsersApi } from '../modules/lpshows-api/v3';
+import { ProblemDetailsDto, UpdateUserProfileDto, UserDto, UsersApi } from '../modules/lpshows-api/v3';
 import { environment } from '../../environments/environment';
 import { addAuthentication } from '../auth/auth.config';
 import { firstValueFrom } from 'rxjs';
@@ -15,13 +15,17 @@ export class UsersService {
   private currentUserSignal = signal<UserDto | null | undefined>(undefined);
 
   private authChangedEffect = effect(async () => {
-    if (this.oidcService.authenticated()) {
+    if (this.oidcService.authenticated().isAuthenticated) {
       try {
         let current = await this.getCurrentUser();
         this.currentUserSignal.set(current);
       } catch (e) {
         console.warn('Error getting current user:', e);
-        this.currentUserSignal.set(null);
+        let problemDetails = e as ProblemDetailsDto;
+        if (problemDetails.status == 404) {
+          console.info('User is logged in but has no profile yet. Setting current user to null');
+          this.currentUserSignal.set(null);
+        }
       }
     } else {
       this.currentUserSignal.set(null);
