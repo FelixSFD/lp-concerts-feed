@@ -18,6 +18,7 @@ export const authConfig: PassedInitialConfig = {
     silentRenew: true, // Enable silent token renewal
     useRefreshToken: true, // Use refresh tokens to maintain the session
     allowUnsafeReuseRefreshToken: true,
+    renewTimeBeforeTokenExpiresInSeconds: 300,
     secureRoutes: [
       // config was moved
     ],
