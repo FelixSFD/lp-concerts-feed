@@ -1,0 +1,48 @@
+<div>
+  <p>Please complete the registration process by filling out your profile.</p>
+
+  <form #form="ngForm" class="form" [formGroup]="setupForm">
+    <div class="flex gap-4 justify-content-center">
+      <p-fluid>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="col">
+            <p-floatlabel variant="on">
+              <input pInputText id="username" formControlName="username" autocomplete="off" fluid />
+              <label for="username">Username</label>
+            </p-floatlabel>
+            <small>Your username might be publicly visible in the future.</small>
+          </div>
+
+          <div class="col-3">
+            <button pButton variant="outlined" (click)="onSetRandomNameClicked()"><i class="pi pi-sync"></i> Random</button>
+          </div>
+
+          <div class="col-12">
+            <p-floatlabel variant="on">
+              <p-select formControlName="originCountry" inputId="originCountry" [options]="availableCountries()" optionLabel="name" appendTo="body" aria-autocomplete="none" [filter]="true" filterBy="name" showClear fluid>
+                <ng-template #selectedItem let-selectedOption>
+                  <div class="flex items-center gap-2">
+                    <div>{{ selectedOption.name }}</div>
+                  </div>
+                </ng-template>
+                <ng-template let-country #item>
+                  <div class="flex items-center gap-2">
+                    <div>{{ country.name }}</div>
+                  </div>
+                </ng-template>
+              </p-select>
+              <label for="originCountry">Country of origin (optional)</label>
+            </p-floatlabel>
+            <small>If you like, you can add your country to your profile.</small>
+          </div>
+
+          <div class="col-12">
+            <button pButton [disabled]="setupForm.invalid" [loading]="isSavingProfile()" (click)="onSaveUserProfileClicked()">
+              Continue <i class="pi pi-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+      </p-fluid>
+    </div>
+  </form>
+</div>

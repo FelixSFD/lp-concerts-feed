@@ -1,9 +1,10 @@
 import { inject, Service } from '@angular/core';
 import {
+  ConcertBookmarkUpdateRequestDto,
   ConcertDetailsDto,
   ConcertFileUploadResponseDto, ConcertListResponseDto,
   ConcertsApi,
-  ConcertScheduleUploadRequestDto,
+  ConcertScheduleUploadRequestDto, GetConcertBookmarkCountsResponseDto,
   LinkinpediaImportStatusDto, ProblemDetailsDto
 } from '../modules/lpshows-api/v3';
 import { addAuthentication } from '../auth/auth.config';
@@ -97,5 +98,30 @@ export class ConcertsService {
 
   getFilteredConcerts(filter: ConcertFilter, limit: number = 100, skip: number = 0, cached: boolean = true): Promise<ConcertListResponseDto> {
     return firstValueFrom(this.concertsApi.getConcerts(getRequestIdParameter(cached), filter.countryCode, filter.country, filter.city, filter.venue, filter.customTitle, undefined, undefined, limit, skip, filter.orderBy));
+  }
+
+  /**
+   * Returns the bookmark status for a concert
+   * @param concertId The ID of the concert
+   */
+  getBookmarkStatusForConcert(concertId: string): Promise<GetConcertBookmarkCountsResponseDto> {
+    return firstValueFrom(
+      this.concertsApi.getBookmarkCountForConcert(concertId)
+    );
+  }
+
+  /**
+   * Sets the bookmark status for a concert for the current user
+   * @param concertId The ID of the concert
+   * @param status The new bookmark status
+   */
+  setBookmarkStatusForConcert(concertId: string, status: GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum) {
+    let request: ConcertBookmarkUpdateRequestDto = {
+      status: status
+    };
+
+    return firstValueFrom(
+      this.concertsApi.setBookmarkOnConcert(concertId, request)
+    );
   }
 }

@@ -1,3 +1,5 @@
+using Common.Utils.Exceptions;
+
 namespace Service.Tours.Exceptions;
 
 public class StateNotFoundException(string countryCode, string stateCode) : NotFoundExceptionBase("State", countryCode, stateCode)

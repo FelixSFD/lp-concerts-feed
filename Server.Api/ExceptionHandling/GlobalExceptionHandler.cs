@@ -1,3 +1,4 @@
+using Common.Utils.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Service.Tours.Exceptions;

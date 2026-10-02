@@ -1,3 +1,5 @@
+using Common.Utils.Exceptions;
+
 namespace Service.Tours.Exceptions;
 
 public class VenueNameNotFoundException(uint venueId, uint venueNameId) : NotFoundExceptionBase("Venue Name", venueId.ToString(), venueNameId.ToString())

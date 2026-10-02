@@ -4,8 +4,12 @@ using Common.Server.ClientIp;
 using Common.Server.ExceptionHandling;
 using Common.Utils.Cache;
 using Common.WikiMedia.Repositories;
+using Database.Setlists;
+using Database.Setlists.Repositories;
 using Database.Tours;
 using Database.Tours.Repositories;
+using Database.Users;
+using Database.Users.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpLogging;
@@ -24,6 +28,7 @@ using Server.Api.HealthChecks;
 using Service.Setlists;
 using Service.Tours;
 using Service.Tours.Importer;
+using Service.Users;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables("App_");
@@ -208,12 +213,28 @@ var cognitoAWSRegion = builder.Configuration["Cognito:AWSRegion"] ?? throw new C
 var validIssuer = $"https://cognito-idp.{cognitoAWSRegion}.amazonaws.com/{cognitoUserPoolId}";
 var validAudience = cognitoAppClientId;
 
+builder.Services.AddDbContextPool<SetlistsDbContext>(options =>
+{
+    options.UseMySQL(connectionString, dbContextBuilder =>
+    {
+        dbContextBuilder.EnableRetryOnFailure(10, TimeSpan.FromSeconds(30), null);
+        dbContextBuilder.MigrationsAssembly(typeof(SetlistsDbContext).Assembly.FullName);
+    });
+});
 builder.Services.AddDbContextPool<ToursDbContext>(options =>
 {
     options.UseMySQL(connectionString, dbContextBuilder =>
     {
         dbContextBuilder.EnableRetryOnFailure(10, TimeSpan.FromSeconds(30), null);
         dbContextBuilder.MigrationsAssembly(typeof(ToursDbContext).Assembly.FullName);
+    });
+});
+builder.Services.AddDbContextPool<UsersDbContext>(options =>
+{
+    options.UseMySQL(connectionString, dbContextBuilder =>
+    {
+        dbContextBuilder.EnableRetryOnFailure(10, TimeSpan.FromSeconds(30), null);
+        dbContextBuilder.MigrationsAssembly(typeof(UsersDbContext).Assembly.FullName);
     });
 });
 builder.Services.AddScoped<ICountryRepository, SqlCountryRepository>();
@@ -223,10 +244,14 @@ builder.Services.AddScoped<IVenueRepository, SqlVenueRepository>();
 builder.Services.AddScoped<ITourRepository, SqlTourRepository>();
 builder.Services.AddScoped<IConcertTypeRepository, SqlConcertTypeRepository>();
 builder.Services.AddScoped<IConcertRepository, SqlConcertRepository>();
+builder.Services.AddScoped<IUserRepository, SqlUserRepository>();
+builder.Services.AddScoped<IUserConcertBookmarkRepository, SqlUserConcertBookmarkRepository>();
+builder.Services.AddScoped<IAlbumRepository, SqlAlbumRepository>();
 builder.Services.AddScoped<LocationService>();
 builder.Services.AddScoped<VenueService>();
 builder.Services.AddScoped<TourService>();
 builder.Services.AddScoped<ConcertService>();
+builder.Services.AddScoped<UserService>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IWikiMediaRepository, WikiMediaRepository>(b => new WikiMediaRepository(b.GetRequiredService<HttpClient>(),
     LinkinpediaImportService.LinkinpediaRestApiBaseUrl, LinkinpediaImportService.LinkinpediaActionApiBaseUrl, b.GetRequiredService<ILogger<WikiMediaRepository>>()));
@@ -290,11 +315,14 @@ app.UseStatusCodePages();
 // run DB migrations
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<ToursDbContext>();
-    await db.Database.MigrateAsync();
+    var toursDb = scope.ServiceProvider.GetRequiredService<ToursDbContext>();
+    await toursDb.Database.MigrateAsync();
     
     // Make sure some ConcertTypes exist
-    await db.SeedConcertTypes();
+    await toursDb.SeedConcertTypes();
+    
+    var usersDb = scope.ServiceProvider.GetRequiredService<UsersDbContext>();
+    await usersDb.Database.MigrateAsync();
 }
 
 // Configure the HTTP request pipeline.

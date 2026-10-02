@@ -1,4 +1,4 @@
-namespace Service.Tours.Exceptions;
+namespace Common.Utils.Exceptions;
 
 /// <summary>
 /// Base class for errors where an object was not found

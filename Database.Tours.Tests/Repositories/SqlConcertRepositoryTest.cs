@@ -497,6 +497,46 @@ public class SqlConcertRepositoryTest : ToursDbIntegrationTestsBase
         AssertConcertsEqual(concert, retrievedConcert);
     }
 
+    [Fact]
+    public async Task GetUpcomingBookmarkedConcertsForAsync_NothingBookmarked()
+    {
+        var concertRepo = new SqlConcertRepository(DbContext);
+        
+        var concertId = "test-concert-1234";
+        await CreateSampleConcert(concertId);
+
+        var retrievedConcerts = await concertRepo.GetUpcomingBookmarkedConcertsForAsync("test-user", UserConcertBookmarkDo.BookmarkStatus.Attending).ToArrayAsync();
+        Assert.Empty(retrievedConcerts);
+    }
+    
+    [Fact]
+    public async Task GetUpcomingBookmarkedConcertsForAsync_Bookmarked()
+    {
+        var concertRepo = new SqlConcertRepository(DbContext);
+        var concertBookmarkRepo = new SqlUserConcertBookmarkRepository(DbContext);
+        
+        var concertId = "test-concert-1234";
+        var userId = "test-user";
+        await CreateSampleConcert(concertId);
+        
+        var concert = await concertRepo.GetByPrimaryKeyAsync(concertId);
+        Assert.NotNull(concert);
+        concertBookmarkRepo.Add(new UserConcertBookmarkDo
+        {
+            UserId = userId,
+            ConcertId = concertId,
+            Concert = concert,
+            Status = UserConcertBookmarkDo.BookmarkStatus.Bookmarked
+        });
+        await concertBookmarkRepo.SaveChangesAsync();
+
+        var retrievedConcerts = await concertRepo.GetUpcomingBookmarkedConcertsForAsync("test-user", UserConcertBookmarkDo.BookmarkStatus.Attending).ToArrayAsync();
+        Assert.Empty(retrievedConcerts);
+        
+        retrievedConcerts = await concertRepo.GetUpcomingBookmarkedConcertsForAsync("test-user", UserConcertBookmarkDo.BookmarkStatus.Bookmarked).ToArrayAsync();
+        var retrievedConcert = Assert.Single(retrievedConcerts);
+    }
+
 
     private static void AssertConcertsEqual(ConcertDo expected, ConcertDo actual)
     {
@@ -514,5 +554,100 @@ public class SqlConcertRepositoryTest : ToursDbIntegrationTestsBase
         Assert.Equal(expected.Status, actual.Status);
         Assert.Equal(expected.ScheduleImageFile, actual.ScheduleImageFile);
         Assert.Equal(expected.ExpectedSetDurationMinutes, actual.ExpectedSetDurationMinutes);
+    }
+
+
+    private async Task CreateSampleConcert(string concertId)
+    {
+        var concertRepo = new SqlConcertRepository(DbContext);
+        var concertTypeRepo = new SqlConcertTypeRepository(DbContext);
+        var venueRepo = new SqlVenueRepository(DbContext);
+        var tourRepo = new SqlTourRepository(DbContext);
+
+        var tour = new TourDo
+        {
+            Id = "fz-world-tour",
+            Name = "From Zero World Tour",
+            Legs = []
+        };
+
+        var tourLegEu = new TourLegDo
+        {
+            TourId = tour.Id,
+            Name = "European Tour",
+            Id = "eu-1"
+        };
+        tour.Legs.Add(tourLegEu);
+        
+        var tourLegUs = new TourLegDo
+        {
+            TourId = tour.Id,
+            Name = "North American Tour",
+            Id = "us-1"
+        };
+        tour.Legs.Add(tourLegUs);
+        
+        tourRepo.Add(tour);
+
+        var concertType = new ConcertTypeDo
+        {
+            Name = "Linkin Park Show"
+        };
+        concertTypeRepo.Add(concertType);
+
+        var countryGer = new CountryDo
+        {
+            IsoCode = "GER",
+            Name = "Germany",
+            NativeName = "Deutschland"
+        };
+        var stateBy = new StateDo
+        {
+            CountryCode = countryGer.IsoCode,
+            Code = "BY",
+            Name = "Bavaria",
+            NativeName = "Bayern",
+            Country = countryGer
+        };
+        var cityAux = new CityDo
+        {
+            CountryCode = countryGer.IsoCode,
+            StateCode = stateBy.Code,
+            Name = "Augsburg",
+            NativeName = "Augschburg",
+            State = stateBy,
+            Country = countryGer
+        };
+        var venue = new VenueDo
+        {
+            Id = 1,
+            CountryCode = countryGer.IsoCode,
+            StateCode = stateBy.Code,
+            Country = countryGer,
+            State = stateBy,
+            City = cityAux,
+            TimeZone = "Europe/Berlin",
+            CurrentName = "WWK Arena"
+        };
+        venueRepo.Add(venue);
+        
+        await venueRepo.SaveChangesAsync();
+
+        var concert = new ConcertDo
+        {
+            Id = concertId,
+            TourId = tour.Id,
+            TourLegId = tourLegEu.Id,
+            Type = concertType,
+            VenueId = venue.Id,
+            PostedStartTime = new DateTimeOffset(2026, 6, 11, 20, 0, 0, TimeSpan.FromHours(2)).UtcDateTime,
+            DoorsTime = new DateTimeOffset(2026, 6, 11, 17, 30, 0, TimeSpan.FromHours(2)).UtcDateTime,
+            MainStageTime = new DateTimeOffset(2026, 6, 11, 20, 55, 0, TimeSpan.FromHours(2)).UtcDateTime,
+            Status = ConcertDo.ConcertStatus.Past,
+            LpuEarlyEntryConfirmed = true,
+        };
+        
+        concertRepo.Add(concert);
+        await concertRepo.SaveChangesAsync();
     }
 }

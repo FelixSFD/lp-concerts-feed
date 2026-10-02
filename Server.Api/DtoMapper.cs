@@ -1,9 +1,9 @@
 using Common.Contracts.Generated.Models;
-using Common.Utils;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Tours;
 using LPCalendar.DataStructure.Tours.Locations;
 using Service.Tours.DataStructure;
+using Service.Users.DataStructure;
 
 namespace Server.Api;
 
@@ -443,6 +443,63 @@ internal static class DtoMapper
             ConcertImportStatusBo.Status.Imported => LinkinpediaImportConcertStatusDto.ImportStatusEnum.ImportedNoSetlist,
             ConcertImportStatusBo.Status.NotImported => LinkinpediaImportConcertStatusDto.ImportStatusEnum.NotImported,
             ConcertImportStatusBo.Status.ImportedWithSetlists => LinkinpediaImportConcertStatusDto.ImportStatusEnum.Imported,
+            _ => throw new ArgumentOutOfRangeException(nameof(bo), bo, null)
+        };
+    }
+
+    #endregion
+
+    #region Users
+
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bo">BusinessObject to map</param>
+    /// <returns>the mapped DTO</returns>
+    public static UserDto ToDto(this UserBo bo)
+    {
+        return new UserDto
+        {
+            Id = bo.Id,
+            Username = bo.Username,
+            OriginCountryCode = bo.OriginCountryCode,
+            CreatedAt = bo.CreatedAt,
+            UpdatedAt = bo.UpdatedAt,
+        };
+    }
+
+    #endregion
+
+    #region Concert Bookmarks
+
+    /// <summary>
+    /// Maps the DTO to a BusinessObject
+    /// </summary>
+    /// <param name="dto">DTO to map</param>
+    /// <returns>the mapped BO</returns>
+    public static ConcertBookmark.BookmarkStatus ToBo(this ConcertBookmarkUpdateRequestDto.StatusEnum dto)
+    {
+        return dto switch
+        {
+            ConcertBookmarkUpdateRequestDto.StatusEnum.Bookmarked => ConcertBookmark.BookmarkStatus.Bookmarked,
+            ConcertBookmarkUpdateRequestDto.StatusEnum.Attending => ConcertBookmark.BookmarkStatus.Attending,
+            ConcertBookmarkUpdateRequestDto.StatusEnum.None => ConcertBookmark.BookmarkStatus.None,
+            _ => throw new ArgumentOutOfRangeException(nameof(dto), dto, null)
+        };
+    }
+    
+    /// <summary>
+    /// Maps the DTO to a BusinessObject
+    /// </summary>
+    /// <param name="bo">object to map</param>
+    /// <returns>the mapped BO</returns>
+    public static GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum ToDto(this ConcertBookmark.BookmarkStatus bo)
+    {
+        return bo switch
+        {
+            ConcertBookmark.BookmarkStatus.Bookmarked => GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Bookmarked,
+            ConcertBookmark.BookmarkStatus.Attending => GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.Attending,
+            ConcertBookmark.BookmarkStatus.None => GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.None,
             _ => throw new ArgumentOutOfRangeException(nameof(bo), bo, null)
         };
     }

@@ -1,6 +1,6 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {UsersService} from '../../../../../services/users.service';
+import {LegacyUsersService} from '../../../../../services/legacy-users.service';
 import {UserFormComponent} from '../user-form/user-form.component';
 import {ErrorResponseDto, UserDto} from '../../../../../modules/lpshows-api';
 import {Message} from 'primeng/message';
@@ -28,7 +28,7 @@ export class EditUserPageComponent implements OnInit {
   // true while the user is saved on the server
   userIsSaving$: boolean = false;
 
-  constructor(private route: ActivatedRoute, private userService: UsersService) {
+  constructor(private route: ActivatedRoute, private userService: LegacyUsersService) {
 
   }
 

@@ -1,50 +1,82 @@
-import { Injectable } from '@angular/core';
-import {Observable} from 'rxjs';
-import {Guid} from 'guid-typescript';
-import {UserDto, UserNotificationSettingsDto, UsersService as UsersApiClient} from '../modules/lpshows-api';
+import { effect, inject, Injectable, signal } from '@angular/core';
+import { ProblemDetailsDto, UpdateUserProfileDto, UserDto, UsersApi } from '../modules/lpshows-api/v3';
+import { environment } from '../../environments/environment';
+import { addAuthentication } from '../auth/auth.config';
+import { firstValueFrom } from 'rxjs';
+import { OidcSecurityService } from 'angular-auth-oidc-client';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UsersService {
+  private oidcService = inject(OidcSecurityService);
+  private usersApi = inject(UsersApi);
 
-  constructor(private usersApiClient: UsersApiClient) { }
+  private currentUserSignal = signal<UserDto | null | undefined>(undefined);
+  private didLoadProfileSignal = signal(false);
 
-
-  getUsers(cached: boolean) : Observable<UserDto[]> {
-    if (!cached) {
-      return this.usersApiClient.getUsers(Guid.create().toString());
+  private authChangedEffect = effect(async () => {
+    if (this.oidcService.authenticated().isAuthenticated) {
+      try {
+        let current = await this.getCurrentUser();
+        this.currentUserSignal.set(current);
+        this.didLoadProfileSignal.set(true);
+      } catch (e) {
+        console.warn('Error getting current user:', e);
+        let problemDetails = e as ProblemDetailsDto;
+        if (problemDetails.status == 404) {
+          console.info('User is logged in but has no profile yet. Setting current user to null');
+          this.currentUserSignal.set(null);
+          this.didLoadProfileSignal.set(true);
+        }
+      }
+    } else {
+      this.currentUserSignal.set(null);
+      this.didLoadProfileSignal.set(false);
     }
+  });
 
-    return this.usersApiClient.getUsers();
+  constructor() {
+    this.usersApi.configuration.basePath = environment.apiBaseUrl;
+    addAuthentication(this.usersApi);
   }
 
-
-  getUserById(id: string, cached: boolean = false) : Observable<UserDto> {
-    if (!cached) {
-      // disable caching
-      return this.usersApiClient.getUserById(id, Guid.create().toString());
-    }
-
-    return this.usersApiClient.getUserById(id);
+  /**
+   * Returns a readonly signal of the current user.
+   */
+  get currentUser() {
+    return this.currentUserSignal.asReadonly();
   }
 
-
-  updateUser(user: UserDto) {
-    return this.usersApiClient.updateUser(user.id ?? "", user);
+  get didLoadProfile() {
+    return this.didLoadProfileSignal.asReadonly();
   }
 
-
-  getUserNotificationSettings(userId: string, cached: boolean) : Observable<UserNotificationSettingsDto> {
-    if (!cached) {
-      return this.usersApiClient.getUserNotificationSettings(userId, Guid.create().toString());
-    }
-
-    return this.usersApiClient.getUserNotificationSettings(userId);
+  /**
+   * Returns information about the current user.
+   */
+  getCurrentUser() {
+    return firstValueFrom(
+      this.usersApi.getCurrentUser()
+    );
   }
 
+  /**
+   * Updates the profile of the current user.
+   * @param request new data for the profile
+   */
+  updateCurrentUserProfile(request: UpdateUserProfileDto) {
+    return firstValueFrom(
+      this.usersApi.updateCurrentUserProfile(request)
+    );
+  }
 
-  updateUserNotificationSettings(settings: UserNotificationSettingsDto) {
-    return this.usersApiClient.updateUserNotificationSettings(settings.userId ?? "", settings);
+  /**
+   * Returns a list of suggested usernames.
+   */
+  getSuggestedUsernames() {
+    return firstValueFrom(
+      this.usersApi.getSuggestedUserNames()
+    );
   }
 }

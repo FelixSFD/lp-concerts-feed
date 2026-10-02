@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, inject, Input, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, inject, Input, OnInit, signal } from '@angular/core';
 import { ClockService } from '../../../services/clock.service';
 import { DecimalPipe } from '@angular/common';
 import { DiscordShareService } from '../../../services/discord-share.service';
@@ -28,11 +28,11 @@ export class HeroCountdownComponent implements OnInit, AfterViewInit {
   private clockService = inject(ClockService);
   protected readonly discordShare = inject(DiscordShareService);
 
-  differenceMillis$ = 0;
-  days$ = 0;
-  hours$ = 0;
-  minutes$ = 0;
-  seconds$ = 0;
+  differenceMillis$ = signal(0);
+  days$ = signal(0);
+  hours$ = signal(0);
+  minutes$ = signal(0);
+  seconds$ = signal(0);
 
   discordFull = '';
   discordRelative = '';
@@ -56,15 +56,15 @@ export class HeroCountdownComponent implements OnInit, AfterViewInit {
       ? this.countdownToDate.toJSDate()
       : new Date(this.countdownToDate);
     const difference = target.getTime() - now.getTime();
-    this.differenceMillis$ = difference;
+    this.differenceMillis$.set(difference);
 
     if (difference < 0) {
       return;
     }
 
-    this.days$ = Math.floor(difference / (24 * 60 * 60 * 1000));
-    this.hours$ = Math.floor((difference % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
-    this.minutes$ = Math.floor((difference % (60 * 60 * 1000)) / (60 * 1000));
-    this.seconds$ = Math.floor((difference % (60 * 1000)) / 1000);
+    this.days$.set(Math.floor(difference / (24 * 60 * 60 * 1000)));
+    this.hours$.set(Math.floor((difference % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000)));
+    this.minutes$.set(Math.floor((difference % (60 * 60 * 1000)) / (60 * 1000)));
+    this.seconds$.set(Math.floor((difference % (60 * 1000)) / 1000));
   }
 }

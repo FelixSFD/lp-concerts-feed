@@ -387,6 +387,24 @@ namespace Database.Tours.Migrations
                     b.ToTable("TourLeg");
                 });
 
+            modelBuilder.Entity("Database.Tours.DataObjects.UserConcertBookmarkDo", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("ConcertId")
+                        .HasColumnType("varchar(63)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "ConcertId");
+
+                    b.HasIndex("ConcertId");
+
+                    b.ToTable("UserConcertBookmark");
+                });
+
             modelBuilder.Entity("Database.Tours.DataObjects.VenueDo", b =>
                 {
                     b.Property<uint>("Id")
@@ -533,6 +551,17 @@ namespace Database.Tours.Migrations
                     b.Navigation("Tour");
                 });
 
+            modelBuilder.Entity("Database.Tours.DataObjects.UserConcertBookmarkDo", b =>
+                {
+                    b.HasOne("Database.Tours.DataObjects.ConcertDo", "Concert")
+                        .WithMany("Bookmarks")
+                        .HasForeignKey("ConcertId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Concert");
+                });
+
             modelBuilder.Entity("Database.Tours.DataObjects.VenueDo", b =>
                 {
                     b.HasOne("Database.Tours.DataObjects.CountryDo", "Country")
@@ -558,6 +587,11 @@ namespace Database.Tours.Migrations
                     b.Navigation("Country");
 
                     b.Navigation("State");
+                });
+
+            modelBuilder.Entity("Database.Tours.DataObjects.ConcertDo", b =>
+                {
+                    b.Navigation("Bookmarks");
                 });
 
             modelBuilder.Entity("Database.Tours.DataObjects.TourDo", b =>

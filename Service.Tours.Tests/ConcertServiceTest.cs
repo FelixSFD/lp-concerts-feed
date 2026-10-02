@@ -15,6 +15,7 @@ public class ConcertServiceTest
 {
     private readonly IConcertRepository _concertRepository;
     private readonly IConcertTypeRepository _concertTypeRepository;
+    private readonly IUserConcertBookmarkRepository _userConcertBookmarkRepository;
     private readonly ConcertService _service;
 
     public ConcertServiceTest()
@@ -22,7 +23,8 @@ public class ConcertServiceTest
         var logger = Substitute.For<ILogger<ConcertService>>();
         _concertRepository = Substitute.For<IConcertRepository>();
         _concertTypeRepository = Substitute.For<IConcertTypeRepository>();
-        _service = new ConcertService(_concertRepository, _concertTypeRepository, logger);
+        _userConcertBookmarkRepository = Substitute.For<IUserConcertBookmarkRepository>();
+        _service = new ConcertService(_concertRepository, _concertTypeRepository, _userConcertBookmarkRepository, logger);
     }
 
     [Theory]
@@ -486,5 +488,64 @@ public class ConcertServiceTest
         await _concertRepository
             .Received(1)
             .GetByPrimaryKeyAsync(Arg.Any<string>());
+    }
+
+    [Theory]
+    [InlineData(ConcertBookmark.BookmarkStatus.Bookmarked)]
+    [InlineData(ConcertBookmark.BookmarkStatus.Attending)]
+    [InlineData(ConcertBookmark.BookmarkStatus.None)]
+    public async Task SetBookmarkForUserAtConcertAsync_New(ConcertBookmark.BookmarkStatus bookmarkStatus)
+    {
+        const string userId = "user-id";
+        const string concertId = "concert-id";
+        
+        // call the service
+        await _service.SetBookmarkForUserAtConcertAsync(userId, concertId, bookmarkStatus);
+        
+        // user had no bookmark on that concert yet. Expect the repo to add it
+        _userConcertBookmarkRepository
+            .Received(1)
+            .Add(Arg.Is<UserConcertBookmarkDo>(bm => bm.UserId == userId && bm.ConcertId == concertId && bm.Status == bookmarkStatus.ToDo()));
+        await _userConcertBookmarkRepository
+            .Received(1)
+            .SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+    
+    [Theory]
+    [InlineData(UserConcertBookmarkDo.BookmarkStatus.Attending, ConcertBookmark.BookmarkStatus.Bookmarked)]
+    [InlineData(UserConcertBookmarkDo.BookmarkStatus.Attending, ConcertBookmark.BookmarkStatus.Attending)]
+    [InlineData(UserConcertBookmarkDo.BookmarkStatus.Attending, ConcertBookmark.BookmarkStatus.None)]
+    [InlineData(UserConcertBookmarkDo.BookmarkStatus.Bookmarked, ConcertBookmark.BookmarkStatus.Bookmarked)]
+    [InlineData(UserConcertBookmarkDo.BookmarkStatus.Bookmarked, ConcertBookmark.BookmarkStatus.Attending)]
+    [InlineData(UserConcertBookmarkDo.BookmarkStatus.Bookmarked, ConcertBookmark.BookmarkStatus.None)]
+    [InlineData(UserConcertBookmarkDo.BookmarkStatus.None, ConcertBookmark.BookmarkStatus.Bookmarked)]
+    [InlineData(UserConcertBookmarkDo.BookmarkStatus.None, ConcertBookmark.BookmarkStatus.Attending)]
+    [InlineData(UserConcertBookmarkDo.BookmarkStatus.None, ConcertBookmark.BookmarkStatus.None)]
+    public async Task SetBookmarkForUserAtConcertAsync_UpdateExisting(UserConcertBookmarkDo.BookmarkStatus bookmarkStatusOld, ConcertBookmark.BookmarkStatus bookmarkStatusNew)
+    {
+        const string userId = "user-id";
+        const string concertId = "concert-id";
+        
+        // mack data
+        var bookmark = new UserConcertBookmarkDo
+        {
+            UserId = userId,
+            ConcertId = concertId,
+            Status = bookmarkStatusOld
+        };
+        _userConcertBookmarkRepository
+            .GetByUserIdAndConcertIdAsync(userId, concertId)
+            .Returns(bookmark);
+        
+        // call the service
+        await _service.SetBookmarkForUserAtConcertAsync(userId, concertId, bookmarkStatusNew);
+        
+        // user had no bookmark on that concert yet. Expect the repo to add it
+        _userConcertBookmarkRepository
+            .Received(1)
+            .Update(Arg.Is<UserConcertBookmarkDo>(bm => bm.UserId == userId && bm.ConcertId == concertId && bm.Status == bookmarkStatusNew.ToDo()));
+        await _userConcertBookmarkRepository
+            .Received(1)
+            .SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 }
