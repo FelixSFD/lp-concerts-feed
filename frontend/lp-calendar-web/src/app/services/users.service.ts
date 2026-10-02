@@ -13,22 +13,26 @@ export class UsersService {
   private usersApi = inject(UsersApi);
 
   private currentUserSignal = signal<UserDto | null | undefined>(undefined);
+  private didLoadProfileSignal = signal(false);
 
   private authChangedEffect = effect(async () => {
     if (this.oidcService.authenticated().isAuthenticated) {
       try {
         let current = await this.getCurrentUser();
         this.currentUserSignal.set(current);
+        this.didLoadProfileSignal.set(true);
       } catch (e) {
         console.warn('Error getting current user:', e);
         let problemDetails = e as ProblemDetailsDto;
         if (problemDetails.status == 404) {
           console.info('User is logged in but has no profile yet. Setting current user to null');
           this.currentUserSignal.set(null);
+          this.didLoadProfileSignal.set(true);
         }
       }
     } else {
       this.currentUserSignal.set(null);
+      this.didLoadProfileSignal.set(false);
     }
   });
 
@@ -42,6 +46,10 @@ export class UsersService {
    */
   get currentUser() {
     return this.currentUserSignal.asReadonly();
+  }
+
+  get didLoadProfile() {
+    return this.didLoadProfileSignal.asReadonly();
   }
 
   /**

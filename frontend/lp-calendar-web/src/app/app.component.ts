@@ -74,11 +74,11 @@ export class AppComponent implements OnInit, OnDestroy {
   // display a setup screen for new users (or those that are not in the new DB yet)
   showProfileSetup$ = signal<boolean>(false);
   private checkProfileCompletedEffect = effect(() => {
-    if (this.oidcSecurityService.authenticated().isAuthenticated && (this.usersService.currentUser() === null || this.usersService.currentUser()?.username.length === 0)) {
-      console.info("User is logged in but has no completed profile yet. Showing setup screen...", this.oidcSecurityService.authenticated().isAuthenticated, this.usersService.currentUser());
+    if (this.oidcSecurityService.authenticated().isAuthenticated && this.usersService.didLoadProfile() && (this.usersService.currentUser()?.username.length ?? 0) == 0) {
+      console.info("User is logged in but has no completed profile yet. Showing setup screen...", this.oidcSecurityService.authenticated().isAuthenticated, this.usersService.currentUser(), this.usersService.didLoadProfile());
       this.showProfileSetup$.set(true);
     } else {
-      console.debug('User either not logged in or has a completed profile. Will not show setup screen.');
+      console.debug('User either not logged in or has a completed profile. Will not show setup screen.', this.oidcSecurityService.authenticated().isAuthenticated, this.usersService.currentUser(), this.usersService.didLoadProfile());
       this.showProfileSetup$.set(false);
     }
   });
