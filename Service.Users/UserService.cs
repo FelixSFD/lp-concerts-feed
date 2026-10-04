@@ -1,0 +1,138 @@
+﻿using Common.Database;
+using Common.Database.Repositories;
+using Common.Utils.Pagination;
+using Database.Setlists.Repositories;
+using Database.Users.DataObjects;
+using Database.Users.Filters;
+using Database.Users.Repositories;
+using LPCalendar.DataStructure;
+using Microsoft.Extensions.Logging;
+using Service.Users.DataStructure;
+using Service.Users.Exceptions;
+
+namespace Service.Users;
+
+/// <summary>
+/// Service to manage users
+/// </summary>
+/// <param name="userRepository"></param>
+/// <param name="logger"></param>
+public class UserService(IUserRepository userRepository, IAlbumRepository albumRepository, ILogger<UserService> logger)
+{
+    /// <summary>
+    /// Creates a new user in the database. This does not automatically create the user in AWS Cognito
+    /// </summary>
+    /// <param name="username">name of the new user</param>
+    /// <param name="id">ID of the new user. If null, a new GUID will be generated</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public async Task<UserBo> CreateUserAsync(string username, string? originCountryCode, string? id = null, CancellationToken cancellationToken = default)
+    {
+        Log.CreatingNewUserWithUsername(logger, username);
+        id ??= Guid.NewGuid().ToString();
+        var user = new UserDo
+        {
+            Id = id,
+            Username = username,
+            OriginCountryCode = originCountryCode
+        };
+        
+        userRepository.Add(user);
+        await userRepository.SaveChangesAsync(cancellationToken);
+        Log.CreatedNewUserWithUsernameAndId(logger, user.Username, user.Id);
+
+        user = await userRepository.GetByPrimaryKeyAsync(user.Id, cancellationToken) ?? throw new UserNotFoundException(id);
+
+        return user.ToBo();
+    }
+    
+    /// <summary>
+    /// Get the information about a user by their ID
+    /// </summary>
+    /// <param name="id">ID of the user to find</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="UserNotFoundException">if the user with the given ID was not found</exception>
+    public async Task<UserBo> GetUserById(string id, CancellationToken cancellationToken = default)
+    {
+        Log.GetUserByIdStart(logger, id);
+        var user = await userRepository.GetByPrimaryKeyAsync(id, cancellationToken) ?? throw new UserNotFoundException(id);
+        Log.GetUserByIdSuccess(logger, id, user.Username ?? "no username");
+        return user.ToBo();
+    }
+
+    /// <summary>
+    /// Updates a user with a given ID
+    /// </summary>
+    /// <param name="id">ID of the user</param>
+    /// <param name="username">username to set</param>
+    /// <param name="originCountryCode">ISO code of the country where this user is from. Can be null if the user has not specified their country</param>
+    /// <param name="cancellationToken"></param>
+    /// <exception cref="UserNotFoundException">if the user doesn't exist</exception>
+    public async Task UpdateUserAsync(string id, string username, string? originCountryCode, CancellationToken cancellationToken = default)
+    {
+        Log.UpdateUserStart(logger, id);
+        var user = await userRepository.GetByPrimaryKeyAsync(id, cancellationToken);
+        if (user is null)
+        {
+            Log.RequestedUserNotFoundWillCreate(logger, id);
+            await CreateUserAsync(username, originCountryCode, id, cancellationToken);
+            return;
+        }
+        
+        user.Username = username;
+        user.OriginCountryCode = originCountryCode;
+        userRepository.Update(user);
+        await userRepository.SaveChangesAsync(cancellationToken);
+        Log.UpdateUserSuccess(logger, id, username);
+    }
+    
+    /// <summary>
+    /// Returns a paginated list of users
+    /// </summary>
+    /// <param name="filter">Filter and sorting</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<AsyncPaginationResult<UserBo>> GetUsersPaginatedAsync(GetUsersFilterDto filter, CancellationToken cancellationToken = default)
+    {
+        Log.FetchUsersPaginatedStart(logger, filter.Skip, filter.Limit);
+        var paginationParams = new PaginationParams(filter.Skip, filter.Limit);
+        var userFilter = new UserFilter
+        {
+            Username = filter.Username
+        };
+        
+        var paginatedResult = await userRepository.FindPaginatedAsync(userFilter, filter.OrderBy.Select(SortDescriptor.FromString), paginationParams, false, cancellationToken);
+        Log.FetchUsersPaginatedSuccess(logger, filter.Skip, filter.Limit, paginatedResult.TotalCount);
+        return new AsyncPaginationResult<UserBo>
+        {
+            TotalResults = paginatedResult.TotalCount,
+            Limit = (int)filter.Limit,
+            Offset = (int)filter.Skip,
+            Results = paginatedResult.Results.Select(DoMapper.ToBo),
+        };
+    }
+    
+    /// <summary>
+    /// Returns a list of suggested random usernames based on album titles.
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<string[]> GetSuggestedUserNamesAsync(CancellationToken cancellationToken = default)
+    {
+        var albumNames = await albumRepository
+            .FindAsync(null, [new SortDescriptor("title")], null, false, cancellationToken)
+            .Select(x => x.Title)
+            .ToArrayAsync(cancellationToken);
+        
+        var randomNames = Enumerable.Range(0, 10)
+            .Select(_ => Random.Shared.Next(0, albumNames.Length))
+            .Select(randIndex => albumNames[randIndex])
+            .Select(name => name.Replace(" ", ""))
+            .Select(name => $"{name}{Random.Shared.Next(1000, 9999)}")
+            .ToArray();
+
+        return randomNames;
+    }
+}

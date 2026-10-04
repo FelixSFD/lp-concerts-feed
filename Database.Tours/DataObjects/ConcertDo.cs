@@ -148,6 +148,11 @@ public class ConcertDo : BaseDo, IDeletableDataObject, ITimestampedDataObject, I
     [ForeignKey(nameof(VenueId))]
     public virtual VenueDo Venue { get; set; }
     
+    /// <summary>
+    /// List of bookmarks for this concert
+    /// </summary>
+    public virtual IEnumerable<UserConcertBookmarkDo> Bookmarks { get; set; }
+    
     /// <inheritdoc/>
     [Column("CreatedAt")]
     public DateTimeOffset CreatedAt { get; set; }

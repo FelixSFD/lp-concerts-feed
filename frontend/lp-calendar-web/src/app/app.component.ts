@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, HostListener, inject, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  HostListener,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal
+} from '@angular/core';
 import { EventType, Router, RouterOutlet } from '@angular/router';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { DateTime } from 'luxon';
@@ -14,17 +23,20 @@ import { ProgressBar } from 'primeng/progressbar';
 import { ScrollTop } from 'primeng/scrolltop';
 import { Toast } from 'primeng/toast';
 import { Subscription } from 'rxjs';
-import { environment } from '../environments/environment';
 import { AuthService } from './auth/auth.service';
 import { AutoBreadcrumbsComponent } from './components/v2/auto-breadcrumbs/auto-breadcrumbs.component';
 import { FooterComponent } from './components/v2/footer/footer.component';
 import { MainMenuComponent } from './components/v2/main-menu/main-menu.component';
-import { UserDto } from './modules/lpshows-api';
 import { ClockService } from './services/clock.service';
+import { UsersService } from './services/users.service';
+import { Dialog } from 'primeng/dialog';
+import {
+  CompleteUserProfileComponent
+} from './components/v2/user-profile/complete-user-profile/complete-user-profile.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MainMenuComponent, FooterComponent, ScrollTop, AutoBreadcrumbsComponent, ProgressBar, Toast],
+  imports: [RouterOutlet, MainMenuComponent, FooterComponent, ScrollTop, AutoBreadcrumbsComponent, ProgressBar, Toast, Dialog, CompleteUserProfileComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -38,6 +50,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private readonly tracker = inject(MatomoTracker);
   private readonly clockService = inject(ClockService);
   private readonly router = inject(Router);
+  private readonly usersService = inject(UsersService);
 
   //keep refs to subscriptions to be able to unsubscribe later
   private popupOpenSubscription!: Subscription;
@@ -49,9 +62,6 @@ export class AppComponent implements OnInit, OnDestroy {
   private revokeChoiceSubscription!: Subscription;
   private noCookieLawSubscription!: Subscription;
 
-  // currently logged-in user. Null if not logged in
-  currentUser$: UserDto | null = null;
-
   isAuthenticated$ = false;
 
   // the current clock
@@ -60,6 +70,18 @@ export class AppComponent implements OnInit, OnDestroy {
   // Loading progress of the router
   routerProgress: number = 0;
   scrolled = false;
+
+  // display a setup screen for new users (or those that are not in the new DB yet)
+  showProfileSetup$ = signal<boolean>(false);
+  private checkProfileCompletedEffect = effect(() => {
+    if (this.oidcSecurityService.authenticated().isAuthenticated && this.usersService.didLoadProfile() && (this.usersService.currentUser()?.username.length ?? 0) == 0) {
+      console.info("User is logged in but has no completed profile yet. Showing setup screen...", this.oidcSecurityService.authenticated().isAuthenticated, this.usersService.currentUser(), this.usersService.didLoadProfile());
+      this.showProfileSetup$.set(true);
+    } else {
+      console.debug('User either not logged in or has a completed profile. Will not show setup screen.', this.oidcSecurityService.authenticated().isAuthenticated, this.usersService.currentUser(), this.usersService.didLoadProfile());
+      this.showProfileSetup$.set(false);
+    }
+  });
 
   // All relevant router events in the correct order. This can calculate the current progress
   private progressValues: EventType[] = [
@@ -73,6 +95,13 @@ export class AppComponent implements OnInit, OnDestroy {
     EventType.RouteConfigLoadEnd,
     EventType.NavigationEnd,
   ];
+
+  // effect to update the tracker info based on the currentUser signal
+  private userChangedEffect = effect(() => {
+    let currentUser = this.usersService.currentUser();
+    console.debug("Sending username to Matomo: ", currentUser?.username);
+    this.tracker.setUserId(currentUser?.username ?? currentUser?.id!);
+  });
 
   ngOnInit(): void {
     this.initCookieConsent();
@@ -93,20 +122,8 @@ export class AppComponent implements OnInit, OnDestroy {
       console.debug('Authenticated:', isAuthenticated);
       this.isAuthenticated$ = isAuthenticated;
 
-      // get current user object
-      this.authStateService.userData$.subscribe(usr => {
-        console.debug("User -->", usr);
-        this.currentUser$ = usr;
-      });
-
       this.authStateService.accessToken$.subscribe(at => {
         console.debug("ACCESS_TOKEN: " + at);
-      });
-
-      // Set user ID for Matomo tracker
-      this.authStateService.userData$.subscribe(usr => {
-        console.debug("Sending username to Matomo: ", usr);
-        this.tracker.setUserId(usr?.username ?? usr?.id!);
       });
     });
 
@@ -130,6 +147,10 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
+  onProfileCompleted(): void {
+    this.showProfileSetup$.set(false);
+  }
+
 
   // Set theme to the user's preferred color scheme
   private updateTheme() {
@@ -137,16 +158,6 @@ export class AppComponent implements OnInit, OnDestroy {
       "dark" :
       "light";
     document.querySelector("html")?.setAttribute("data-bs-theme", colorMode);
-  }
-
-
-  login(): void {
-    this.oidcSecurityService.authorize();
-  }
-
-  logout(): void {
-    this.oidcSecurityService.logoffLocal();
-    window.location.href = environment.cognitoLogoutUrl;
   }
 
 

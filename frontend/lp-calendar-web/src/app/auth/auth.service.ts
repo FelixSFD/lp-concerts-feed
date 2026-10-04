@@ -60,15 +60,6 @@ export class AuthService {
     this.userDataSubject.next(User.fromClaims(loginResponse.userData));
   }
 
-  /** convenience getters */
-  get currentUser() {
-    return this.userDataSubject.value;
-  }
-
-  get isLoggedIn() {
-    return this.isAuthenticatedSubject.value;
-  }
-
   /**
    * Returns the current access token
    */

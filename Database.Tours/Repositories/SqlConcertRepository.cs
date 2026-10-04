@@ -113,4 +113,13 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
     {
         return FindDeletableAsync(concert => true, IncludeAllReferences);
     }
+
+    public IAsyncEnumerable<ConcertDo> GetUpcomingBookmarkedConcertsForAsync(string userId,
+        UserConcertBookmarkDo.BookmarkStatus status, CancellationToken cancellationToken = default)
+    {
+        var query = DbSet.AsQueryable();
+        query = IncludeAllReferences(query);
+        return query.Where(c => c.Bookmarks.Any(b => b.UserId == userId && b.Status == status))
+            .ToAsyncEnumerable();
+    }
 }

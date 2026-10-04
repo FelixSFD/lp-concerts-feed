@@ -4,8 +4,10 @@ using Common.Utils.Pagination;
 using Database.Tours.DataObjects;
 using Database.Tours.Filters;
 using Database.Tours.Repositories;
+using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Tours;
 using Microsoft.Extensions.Logging;
+using Service.Tours.DataStructure;
 using Service.Tours.Exceptions;
 
 namespace Service.Tours;
@@ -16,7 +18,7 @@ namespace Service.Tours;
 /// <param name="concertRepository"></param>
 /// <param name="concertTypeRepository"></param>
 /// <param name="logger"></param>
-public class ConcertService(IConcertRepository concertRepository, IConcertTypeRepository concertTypeRepository, ILogger<ConcertService> logger)
+public class ConcertService(IConcertRepository concertRepository, IConcertTypeRepository concertTypeRepository, IUserConcertBookmarkRepository userConcertBookmarkRepository, ILogger<ConcertService> logger)
 {
     #region Concert Types
     
@@ -324,5 +326,83 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
             Previous = previousConcert?.ToBoWithDetails(),
             Next = nextConcert?.ToBoWithDetails()
         };
+    }
+
+    /// <summary>
+    /// Sets a bookmark for a user at a concert. This can also be used to remove a bookmark.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="concertId"></param>
+    /// <param name="bookmarkStatus"></param>
+    /// <param name="cancellationToken"></param>
+    public async Task SetBookmarkForUserAtConcertAsync(string userId, string concertId,
+        ConcertBookmark.BookmarkStatus bookmarkStatus, CancellationToken cancellationToken = default)
+    {
+        // check if entry for bookmark already exists
+        var bookmark = await userConcertBookmarkRepository.GetByUserIdAndConcertIdAsync(userId, concertId, cancellationToken);
+        if (bookmark == null)
+        {
+            // we need to create a new bookmark
+            bookmark = new UserConcertBookmarkDo
+            {
+                UserId = userId,
+                ConcertId = concertId,
+                Status = bookmarkStatus.ToDo()
+            };
+            userConcertBookmarkRepository.Add(bookmark);
+        }
+        else
+        {
+            // bookmark exists. Update it
+            bookmark.Status = bookmarkStatus.ToDo();
+            userConcertBookmarkRepository.Update(bookmark);
+        }
+        
+        // save the changes
+        await userConcertBookmarkRepository.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets the status of the bookmarks for a concert
+    /// </summary>
+    /// <param name="concertId"></param>
+    /// <returns></returns>
+    public async Task<ConcertBookmarkStatusBo> GetBookmarkStatusForConcert(string concertId, string? userId = null, CancellationToken cancellationToken = default)
+    {
+        logger.LogDebug("Getting bookmark status for concert with ID: {concertId}", concertId);
+        ConcertBookmark.BookmarkStatus? userStatus = null;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            logger.LogDebug("Checking bookmark status for user: {userId}", userId);
+            var userBookmark = await userConcertBookmarkRepository.GetByUserIdAndConcertIdAsync(userId, concertId, cancellationToken);
+            userStatus = userBookmark?.Status.ToBo();
+        }
+        
+        var bookmarkStatusList = await userConcertBookmarkRepository.GetByConcertId(concertId, cancellationToken);
+        var countBookmarked = bookmarkStatusList.Count(x => x.Status == UserConcertBookmarkDo.BookmarkStatus.Bookmarked);
+        var countAttending = bookmarkStatusList.Count(x => x.Status == UserConcertBookmarkDo.BookmarkStatus.Attending);
+        logger.LogDebug("Count of bookmarked: {countBookmarked}, Count of attending: {countAttending}", countBookmarked, countAttending);
+        return new ConcertBookmarkStatusBo
+        {
+            Bookmarked = countBookmarked,
+            Attending = countAttending,
+            UserStatus = userStatus,
+        };
+    }
+
+    /// <summary>
+    /// Returns upcoming concerts that the user has bookmarked.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="status"></param>
+    /// <param name="limit"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public IAsyncEnumerable<ConcertDetailsBo> GetBookmarkedConcertsForAsync(string userId, ConcertBookmark.BookmarkStatus status, int limit, CancellationToken cancellationToken = default)
+    {
+        return concertRepository
+            .GetUpcomingBookmarkedConcertsForAsync(userId, status.ToDo(), cancellationToken)
+            .Take(limit)
+            .Select(DoMapper.ToBoWithDetails);
     }
 }
