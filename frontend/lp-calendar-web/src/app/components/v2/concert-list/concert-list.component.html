@@ -31,7 +31,7 @@
 </div>
 
 <div class="grid gap-4 mt-2 justify-content-center">
-  @if (concerts$.length == 0) {
+  @if (concertsOld$.length == 0) {
     <div class="p-message p-message-secondary w-100">
       <div class="p-message-content-wrapper">
         <div class="p-message-content">
@@ -40,7 +40,7 @@
       </div>
     </div>
   }
-  @for (concert of concerts$; track concert.id) {
+  @for (concert of concertsOld$; track concert.id) {
     <p-card class="w-full justify-content-center">
       <ng-template #title>
         <a class="font-bold text-color {{ concert.concertStatus == ConcertStatusValueDto.Cancelled ? 'line-through' : 'no-underline' }}" [routerLink]="['/concerts/' + concert.id]">

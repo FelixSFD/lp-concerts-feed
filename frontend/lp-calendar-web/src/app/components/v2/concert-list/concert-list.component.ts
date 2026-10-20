@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import {ConcertDto, ConcertStatusValueDto, ErrorResponseDto} from '../../../modules/lpshows-api';
 import {AuthService} from '../../../auth/auth.service';
 import {ConcertFilter} from '../../../data/concert-filter';
@@ -17,6 +17,8 @@ import {ConfirmDialog} from 'primeng/confirmdialog';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {Tooltip} from 'primeng/tooltip';
 import {ConcertFilterComponent} from '../concert-filter/concert-filter.component';
+import { ConcertDetailsDto } from '../../../modules/lpshows-api/v3';
+import { ConcertsService } from '../../../services/concerts.service';
 
 @Component({
   selector: 'app-concert-list',
@@ -41,7 +43,11 @@ export class ConcertListComponent {
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
 
-  concerts$: ConcertDto[] = [];
+  private concertsService = inject(ConcertsService);
+
+  concertsOld$: ConcertDto[] = [];
+
+  concerts$ = signal<ConcertDetailsDto[]>([]);
 
   // status if the table is currently loading
   isLoading$ = false;
@@ -74,8 +80,8 @@ export class ConcertListComponent {
   // Filter that is used for loading the list
   currentFilter: ConcertFilter = this.defaultFilter;
 
-  constructor(private concertsService: LegacyConcertsService) {
-    this.reloadConcertList(true);
+  constructor(private legacyConcertsService: LegacyConcertsService) {
+    this.reloadConcertList(true).then();
 
     this.authService.canAddConcerts.subscribe(hasPermission => {
       this.canAddConcerts$ = hasPermission;
@@ -96,11 +102,11 @@ export class ConcertListComponent {
   }
 
 
-  private reloadConcertList(cache: boolean) {
+  private async reloadConcertList(cache: boolean) {
     this.isLoading$ = true;
-    this.concertsService.getFilteredConcerts(this.currentFilter, cache).subscribe({
+    this.legacyConcertsService.getFilteredConcerts(this.currentFilter, cache).subscribe({
       next: result => {
-        this.concerts$ = result;
+        this.concertsOld$ = result;
         this.isLoading$ = false;
       },
       error: err => {
@@ -111,6 +117,17 @@ export class ConcertListComponent {
         });
       }
     })
+
+    try {
+      let response = await this.concertsService.getFilteredConcerts(this.currentFilter);
+      this.concerts$.set(response.concerts ?? []);
+    } catch (err) {
+      this.messageService.add({
+        severity: "danger",
+        summary: "Failed to load concerts",
+        text: err,
+      });
+    }
   }
 
 
@@ -153,7 +170,7 @@ export class ConcertListComponent {
     let id = concertId!;
     console.debug("Will delete concert: " + id);
 
-    this.concertsService.deleteConcert(id).subscribe({
+    this.legacyConcertsService.deleteConcert(id).subscribe({
       next: result => {
         console.debug("DELETE concert request finished");
         console.debug(result);
