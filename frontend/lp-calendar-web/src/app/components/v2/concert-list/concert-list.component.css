@@ -1,3 +1,14 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+p-virtualscroller,
+p-scroller {
+  display: block;
+  width: 100%;
+}
+
 .countdown-description {
   font-size: 0.7rem;
 }
