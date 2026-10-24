@@ -19,7 +19,6 @@ import { ConcertFilterComponent } from '../concert-filter/concert-filter.compone
 import { ConcertDetailsDto } from '../../../modules/lpshows-api/v3';
 import { ConcertsService } from '../../../services/concerts.service';
 import { ToursService } from '../../../services/tours.service';
-import { Scroller, ScrollerLazyLoadEvent } from 'primeng/scroller';
 
 @Component({
   selector: 'app-concert-list',
@@ -34,7 +33,6 @@ import { Scroller, ScrollerLazyLoadEvent } from 'primeng/scroller';
     ConfirmDialog,
     Tooltip,
     ConcertFilterComponent,
-    Scroller,
   ],
   templateUrl: './concert-list.component.html',
   styleUrl: './concert-list.component.css',
@@ -46,10 +44,18 @@ export class ConcertListComponent implements OnInit {
   private concertsService = inject(ConcertsService);
   private toursService = inject(ToursService);
 
-  concerts$ = signal<(ConcertDetailsDto | undefined)[]>([]);
+  private readonly pageSize = 20;
 
-  // status if the table is currently loading
+  concerts$ = signal<ConcertDetailsDto[]>([]);
+
+  // status if the list is currently loading initial data / reloading
   isLoading$ = signal(false);
+
+  // status if additional entries are currently being loaded
+  isLoadingMore$ = signal(false);
+
+  // indicates if more entries are available to load
+  hasMore$ = signal(false);
 
   // property to indicate if all concerts or only future should be displayed
   showHistoricConcerts$ = signal(false);
@@ -99,14 +105,11 @@ export class ConcertListComponent implements OnInit {
   public async reloadConcertList(cache: boolean = true) {
     this.isLoading$.set(true);
     try {
-      const response = await this.concertsService.getFilteredConcerts(this.currentFilter, 20, 0, cache);
-      const total = response.metadata?.totalElements ?? response.concerts?.length ?? 0;
-      const items: (ConcertDetailsDto | undefined)[] = Array.from({ length: total });
+      const response = await this.concertsService.getFilteredConcerts(this.currentFilter, this.pageSize, 0, cache);
       const loaded = response.concerts ?? [];
-      for (let i = 0; i < loaded.length; i++) {
-        items[i] = loaded[i];
-      }
-      this.concerts$.set(items);
+      const total = response.metadata?.totalElements;
+      this.concerts$.set(loaded);
+      this.hasMore$.set(total !== undefined ? loaded.length < total : loaded.length === this.pageSize);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       this.messageService.add({
@@ -119,42 +122,29 @@ export class ConcertListComponent implements OnInit {
     }
   }
 
-  async onLazyLoad(event: ScrollerLazyLoadEvent) {
-    const first = typeof event.first === 'number' ? event.first : 0;
-    const last = typeof event.last === 'number' ? event.last : first + 10;
-    const limit = Math.max(last - first, 1);
-    const skip = first;
-
-    const current = this.concerts$();
-    const needLoad = current.length === 0 || current.slice(first, last).some(item => item === undefined);
-    if (!needLoad) {
+  public async loadMore() {
+    if (this.isLoading$() || this.isLoadingMore$() || !this.hasMore$()) {
       return;
     }
 
-    this.isLoading$.set(true);
+    this.isLoadingMore$.set(true);
     try {
-      const response = await this.concertsService.getFilteredConcerts(this.currentFilter, limit, skip);
-      const total = response.metadata?.totalElements ?? response.concerts?.length ?? 0;
-      let items = this.concerts$();
-      if (items.length !== total) {
-        items = Array.from({ length: total });
-      } else {
-        items = [...items];
-      }
+      const skip = this.concerts$().length;
+      const response = await this.concertsService.getFilteredConcerts(this.currentFilter, this.pageSize, skip);
       const loaded = response.concerts ?? [];
-      for (let i = 0; i < loaded.length; i++) {
-        items[skip + i] = loaded[i];
-      }
-      this.concerts$.set(items);
+      const total = response.metadata?.totalElements;
+      this.concerts$.update(current => [...current, ...loaded]);
+      const currentCount = this.concerts$().length;
+      this.hasMore$.set(total !== undefined ? currentCount < total : loaded.length === this.pageSize);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       this.messageService.add({
         severity: "danger",
-        summary: "Failed to load concerts",
+        summary: "Failed to load more concerts",
         text: message,
       });
     } finally {
-      this.isLoading$.set(false);
+      this.isLoadingMore$.set(false);
     }
   }
 

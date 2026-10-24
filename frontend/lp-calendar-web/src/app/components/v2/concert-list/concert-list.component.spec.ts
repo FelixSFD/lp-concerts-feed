@@ -23,18 +23,23 @@ describe('ConcertListComponent', () => {
     venue: {
       id: 1,
       currentName: 'Barclays Arena',
+      countryCode: 'DE',
+      venueNames: [],
       timeZoneId: 'Europe/Berlin',
       city: {
         id: 1,
         name: 'Hamburg',
+        countryCode: 'DE',
+        nativeName: 'Hamburg',
         country: {
           name: 'Germany',
+          nativeName: 'Deutschland',
           isoCode: 'DE',
         },
       },
     },
     tour: {
-      id: 1,
+      id: '1',
       name: 'From Zero World Tour',
     },
     concertType: {
@@ -92,11 +97,37 @@ describe('ConcertListComponent', () => {
     expect(mockConcertsService.getFilteredConcerts).toHaveBeenCalled();
     expect(component.concerts$().length).toBe(1);
     expect(component.concerts$()[0]?.id).toBe('concert-1');
+    expect(component.hasMore$()).toBeFalse();
   });
 
-  it('should handle onLazyLoad', async () => {
-    await component.onLazyLoad({ first: 0, last: 10 });
-    expect(mockConcertsService.getFilteredConcerts).toHaveBeenCalled();
+  it('should handle loadMore when more items are available', async () => {
+    const multiPageResponse: ConcertListResponseDto = {
+      concerts: [sampleConcert],
+      metadata: {
+        offset: 0,
+        totalElements: 2,
+      },
+    };
+    mockConcertsService.getFilteredConcerts.and.returnValue(Promise.resolve(multiPageResponse));
+    await component.reloadConcertList(true);
+    expect(component.hasMore$()).toBeTrue();
+
+    const secondConcert: ConcertDetailsDto = {
+      ...sampleConcert,
+      id: 'concert-2',
+    };
+    mockConcertsService.getFilteredConcerts.and.returnValue(Promise.resolve({
+      concerts: [secondConcert],
+      metadata: {
+        offset: 1,
+        totalElements: 2,
+      },
+    }));
+
+    await component.loadMore();
+    expect(component.concerts$().length).toBe(2);
+    expect(component.concerts$()[1]?.id).toBe('concert-2');
+    expect(component.hasMore$()).toBeFalse();
   });
 
   it('should format badges data correctly', () => {
