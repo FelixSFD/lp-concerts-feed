@@ -99,7 +99,6 @@ export class ConcertListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.reloadConcertList(true);
   }
 
   public async reloadConcertList(cache: boolean = true) {

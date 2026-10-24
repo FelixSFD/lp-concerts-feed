@@ -27,7 +27,7 @@
 <p-confirm-dialog />
 
 <div class="mb-3">
-  <app-concert-filter (applyClicked)="onFilterChanged($event)" />
+  <app-concert-filter [defaultFilter]="defaultFilter" (applyClicked)="onFilterChanged($event)" />
 </div>
 
 <div class="flex flex-column gap-3 mt-2 w-full">
