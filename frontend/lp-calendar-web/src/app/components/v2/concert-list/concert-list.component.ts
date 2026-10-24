@@ -4,7 +4,7 @@ import { AuthService } from '../../../auth/auth.service';
 import { ConcertFilter } from '../../../data/concert-filter';
 import { DateTime } from "luxon";
 import { ConcertTitleGenerator } from "../../../data/concert-title-generator";
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, NavigationExtras, Router, RouterLink } from '@angular/router';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { Skeleton } from 'primeng/skeleton';
@@ -43,6 +43,8 @@ export class ConcertListComponent implements OnInit {
   private messageService = inject(MessageService);
   private concertsService = inject(ConcertsService);
   private toursService = inject(ToursService);
+  private router = inject(Router);
+  private activatedRoute = inject(ActivatedRoute);
 
   private readonly pageSize = 20;
 
@@ -80,6 +82,9 @@ export class ConcertListComponent implements OnInit {
     orderBy: ["-date"]
   };
 
+  // sort order for sorting by date ('desc' or 'asc')
+  sortOrder$ = signal<'asc' | 'desc'>('desc');
+
   // Filter that is used for loading the list
   currentFilter: ConcertFilter = this.defaultFilter;
 
@@ -99,6 +104,19 @@ export class ConcertListComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const queryParams = this.activatedRoute.snapshot.queryParams;
+    if (queryParams['sortOrder'] === 'asc' || queryParams['sortOrder'] === 'desc') {
+      this.sortOrder$.set(queryParams['sortOrder']);
+    } else if (queryParams['orderBy'] === 'date' || queryParams['orderBy'] === '+date' || queryParams['orderBy'] === 'asc') {
+      this.sortOrder$.set('asc');
+    } else if (queryParams['orderBy'] === '-date' || queryParams['orderBy'] === 'desc') {
+      this.sortOrder$.set('desc');
+    } else if (queryParams['sort'] === 'asc' || queryParams['sort'] === 'desc') {
+      this.sortOrder$.set(queryParams['sort']);
+    }
+
+    this.defaultFilter.orderBy = [this.sortOrder$() === 'desc' ? '-date' : 'date'];
+    this.currentFilter.orderBy = this.defaultFilter.orderBy;
   }
 
   public async reloadConcertList(cache: boolean = true) {
@@ -205,7 +223,27 @@ export class ConcertListComponent implements OnInit {
   onFilterChanged(filter: ConcertFilter) {
     console.debug("filterEvent: ", filter);
     this.currentFilter = filter;
+    this.currentFilter.orderBy = [this.sortOrder$() === 'desc' ? '-date' : 'date'];
     this.reloadConcertList(true);
+  }
+
+  toggleDateSort() {
+    this.sortOrder$.update(order => (order === 'desc' ? 'asc' : 'desc'));
+    this.currentFilter.orderBy = [this.sortOrder$() === 'desc' ? '-date' : 'date'];
+    this.reloadConcertList(true);
+    this.setSortOrderToUrl(this.sortOrder$());
+  }
+
+  private setSortOrderToUrl(sortOrder: 'asc' | 'desc') {
+    const extras: NavigationExtras = {
+      relativeTo: this.activatedRoute,
+      queryParams: {
+        sortOrder: sortOrder,
+      },
+      queryParamsHandling: 'merge',
+    };
+
+    this.router.navigate([], extras).then(() => { /* continue here */ });
   }
 
   public getDateTime(inputDate: string) {

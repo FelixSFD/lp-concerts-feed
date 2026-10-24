@@ -26,8 +26,18 @@
 
 <p-confirm-dialog />
 
-<div class="mb-3">
+<div class="flex flex-row gap-2 mb-3">
   <app-concert-filter [defaultFilter]="defaultFilter" (applyClicked)="onFilterChanged($event)" />
+  <p-button
+    [label]="sortOrder$() === 'desc' ? 'Date (desc)' : 'Date (asc)'"
+    [icon]="sortOrder$() === 'desc' ? 'pi pi-sort-amount-down' : 'pi pi-sort-amount-up-alt'"
+    severity="secondary"
+    variant="outlined"
+    size="small"
+    (click)="toggleDateSort()"
+    [pTooltip]="sortOrder$() === 'desc' ? 'Sorting newest first. Click to sort oldest first.' : 'Sorting oldest first. Click to sort newest first.'"
+    tooltipPosition="top"
+  />
 </div>
 
 <div class="flex flex-column gap-3 mt-2 w-full">
