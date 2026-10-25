@@ -1,4 +1,6 @@
 using Database.Setlists.DataObjects;
+using Database.Tours.DataObjects;
+using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Setlists;
 
 namespace Service.Setlists;
@@ -305,6 +307,46 @@ public static class DtoMapper
             Type = ToDto(songExtraDo.Type),
             Song = ToDtoNullable(songExtraDo.Song),
             Description = songExtraDo.Description,
+        };
+    }
+
+    /// <summary>
+    /// Maps a <see cref="ConcertDo"/> to <see cref="ConcertDto"/>
+    /// </summary>
+    /// <param name="concert"></param>
+    /// <returns></returns>
+    public static ConcertDto ToDto(ConcertDo concert)
+    {
+        return new ConcertDto
+        {
+            Id = concert.Id,
+            ShowType = concert.Type?.Name ?? string.Empty,
+            CustomTitle = concert.CustomTitle,
+            TourName = concert.Tour?.Name,
+            Status = concert.Status.ToString(),
+            ConcertStatus = concert.Status switch
+            {
+                ConcertDo.ConcertStatus.Planned => ConcertDto.ConcertStatusValue.Planned,
+                ConcertDo.ConcertStatus.LiveRightNow => ConcertDto.ConcertStatusValue.Running,
+                ConcertDo.ConcertStatus.Past => ConcertDto.ConcertStatusValue.Past,
+                ConcertDo.ConcertStatus.Cancelled => ConcertDto.ConcertStatusValue.Cancelled,
+                _ => ConcertDto.ConcertStatusValue.Past
+            },
+            PostedStartTime = concert.PostedStartTime,
+            LpuEarlyEntryConfirmed = concert.LpuEarlyEntryConfirmed,
+            LpuEarlyEntryTime = concert.LpuEarlyEntryTime,
+            DoorsTime = concert.DoorsTime,
+            MainStageTime = concert.MainStageTime,
+            ExpectedSetDuration = (short?)concert.ExpectedSetDurationMinutes,
+            Venue = concert.Venue?.CurrentName,
+            City = concert.Venue?.City?.Name ?? string.Empty,
+            State = concert.Venue?.State?.Name,
+            Country = concert.Venue?.Country?.Name ?? string.Empty,
+            TimeZoneId = concert.Venue?.TimeZone ?? string.Empty,
+            VenueLatitude = concert.Venue?.Latitude ?? 0,
+            VenueLongitude = concert.Venue?.Longitude ?? 0,
+            ScheduleImageFile = concert.ScheduleImageFile,
+            DeletedAt = concert.DeletedAt
         };
     }
 }

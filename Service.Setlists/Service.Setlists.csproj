@@ -7,14 +7,15 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Common.Utils\Common.Utils.csproj" />
       <ProjectReference Include="..\Common.WikiMedia\Common.WikiMedia.csproj" />
-      <ProjectReference Include="..\Database.Concerts\Database.Concerts.csproj" />
       <ProjectReference Include="..\Database.Setlists\Database.Setlists.csproj" />
       <ProjectReference Include="..\Database.Tours\Database.Tours.csproj" />
       <ProjectReference Include="..\DataStructure\DataStructure.csproj" />
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Amazon.Lambda.Core" Version="2.8.1" />
       <PackageReference Include="AWSSDK.SQS" Version="4.0.2.14" />
     </ItemGroup>
 

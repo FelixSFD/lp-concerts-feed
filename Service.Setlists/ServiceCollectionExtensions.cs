@@ -20,6 +20,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISongVariantRepository, SqlSongVariantRepository>();
         services.AddScoped<ISongMashupRepository, SqlSongMashupRepository>();
         services.AddScoped<IConcertRepository, SqlConcertRepository>();
+        services.AddScoped<ISetlistPushEventSender, SetlistPushEventSender>();
         services.AddScoped<SetlistService>();
         return services;
     }

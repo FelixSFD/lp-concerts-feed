@@ -1,9 +1,10 @@
 using System.Text.Json;
 using Amazon.Lambda.Core;
 using Common.Utils;
-using Database.Concerts;
 using Database.Setlists.DataObjects;
 using Database.Setlists.Repositories;
+using Database.Tours.DataObjects;
+using Database.Tours.Repositories;
 using LPCalendar.DataStructure.Setlists;
 using LPCalendar.DataStructure.Setlists.Parameters;
 using Service.Setlists.Exceptions;
@@ -29,15 +30,15 @@ public class SetlistService(
     public async Task<CreateSetlistResponseDto> CreateSetlistAsync(CreateSetlistRequestDto request)
     {
         logger.LogDebug("Read Concert information: {concertId}", request.ConcertId);
-        var concert = await concertRepository.GetByIdAsync(request.ConcertId) ?? throw new ConcertNotFoundException(request.ConcertId);
+        var concert = await concertRepository.GetByPrimaryKeyAsync(request.ConcertId) ?? throw new ConcertNotFoundException(request.ConcertId);
         
         var setlistDo = new SetlistDo
         {
             ConcertId = request.ConcertId,
             ConcertTitle = request.ConcertTitle,
-            ConcertType = concert.ShowType,
-            ConcertTourName = concert.TourName,
-            ConcertDate = concert.PostedStartTime!.Value.Date,
+            ConcertType = concert.Type?.Name ?? string.Empty,
+            ConcertTourName = concert.Tour?.Name,
+            ConcertDate = concert.PostedStartTime.Date,
             SetName = StringUtils.NullIfEmpty(request.SetName),
             LinkinpediaUrl = StringUtils.NullIfEmpty(request.LinkinpediaUrl)
         };
@@ -419,7 +420,7 @@ public class SetlistService(
     public async Task UpdateSetlistHeader(uint setlistId, UpdateSetlistHeaderRequestDto request)
     {
         logger.LogDebug("Load setlist '{setlistId}' and concert '{concertId}'", setlistId, request.ConcertId);
-        var (setlist, concert) = (await setlistRepository.GetByPrimaryKeyAsync(setlistId) ?? throw new SetlistNotFoundException(setlistId), await concertRepository.GetByIdAsync(request.ConcertId) ?? throw new ConcertNotFoundException(request.ConcertId));
+        var (setlist, concert) = (await setlistRepository.GetByPrimaryKeyAsync(setlistId) ?? throw new SetlistNotFoundException(setlistId), await concertRepository.GetByPrimaryKeyAsync(request.ConcertId) ?? throw new ConcertNotFoundException(request.ConcertId));
         logger.LogDebug("Finished loading setlist and concert.");
         
         // update setlist fields
@@ -427,9 +428,9 @@ public class SetlistService(
         setlist.LinkinpediaUrl = request.LinkinpediaUrl;
         
         // set concert related fields
-        setlist.ConcertType = concert.ShowType;
-        setlist.ConcertDate = concert.PostedStartTime!.Value.Date;
-        setlist.ConcertTourName = concert.TourName;
+        setlist.ConcertType = concert.Type?.Name ?? string.Empty;
+        setlist.ConcertDate = concert.PostedStartTime.Date;
+        setlist.ConcertTourName = concert.Tour?.Name;
         
         setlistRepository.Update(setlist);
         await setlistRepository.SaveChangesAsync();
@@ -738,7 +739,7 @@ public class SetlistService(
         {
             logger.LogDebug("Cache setlists for concert: {concertId}", concertId);
 
-            var concert = await concertRepository.GetByIdAsync(concertId);
+            var concert = await concertRepository.GetByPrimaryKeyAsync(concertId);
             if (concert == null)
             {
                 logger.LogWarning("Setlist could not be cached because the concert '{concertId}' was not found.",
@@ -752,12 +753,6 @@ public class SetlistService(
                 .Select(DtoMapper.ToDto)
                 .ToListAsync();
 
-            var setlistJson = JsonSerializer.Serialize(setlists, SetlistDtoJsonContext.Default.ListSetlistDto);
-            concert.CachedSetlistsJson = setlistJson;
-            concert.CachedSetlistsAt = cacheDate;
-
-            await concertRepository.SaveAsync(concert);
-            await setlistRepository.SaveChangesAsync();
             logger.LogDebug("Setlist cached");
         }
         catch (Exception e)
@@ -853,7 +848,7 @@ public class SetlistService(
                 {
                     logger.LogInformation("This is a premiere! Sending notifications...");
                     var concertId = setlistEntry.Setlist.ConcertId;
-                    var concert = await concertRepository.GetByIdAsync(concertId);
+                    var concert = await concertRepository.GetByPrimaryKeyAsync(concertId);
                     if (concert == null)
                     {
                         logger.LogWarning("Concert with ID '{concertId}' was not found!", concertId);
@@ -871,7 +866,7 @@ public class SetlistService(
                         // send the notification
                         var setlistEntryDto = DtoMapper.ToDto(setlistEntry);
                         await setlistPushEventSender.SendLivePremiere(setlistEntryDto.Title,
-                            ConcertDtoMapper.ToDto(concert));
+                            DtoMapper.ToDto(concert));
                         logger.LogDebug("LivePremiere notification sent!");
 
                         setlistEntry.PremiereNotificationSent = true;
