@@ -6,9 +6,10 @@ using Amazon.Lambda.Core;
 using Amazon.SQS;
 using Common.Utils.Cache;
 using Common.Utils.Cors;
-using Database.Concerts;
 using Database.Setlists;
 using Database.Setlists.Repositories;
+using Database.Tours;
+using Database.Tours.Repositories;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Responses;
 using LPCalendar.DataStructure.Setlists;
@@ -45,14 +46,17 @@ public class Function
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        _concertRepository = DynamoDbConcertRepository.CreateDefault(context.Logger);
         var connectionString = Environment.GetEnvironmentVariable("SETLISTS_DB_CONNECTION_STRING") ?? throw new Exception("Missing environment variable 'SETLISTS_DB_CONNECTION_STRING'!");
         var stopwatch = Stopwatch.StartNew();
         var optBuilder = new DbContextOptionsBuilder<SetlistsDbContext>();
         optBuilder.UseMySQL(connectionString);
         var dbContext = new SetlistsDbContext(optBuilder.Options);
+        var toursOptBuilder = new DbContextOptionsBuilder<ToursDbContext>();
+        toursOptBuilder.UseMySQL(connectionString);
+        var toursDbContext = new ToursDbContext(toursOptBuilder.Options);
         stopwatch.Stop();
         context.Logger.LogDebug("Init duration of EFCore context: {duration}", stopwatch.ElapsedMilliseconds);
+        _concertRepository = new SqlConcertRepository(toursDbContext);
         _setlistRepository = new SqlSetlistRepository(dbContext);
         _setlistActRepository = new SqlSetlistActRepository(dbContext);
         _setlistEntryRepository = new SqlSetlistEntryRepository(dbContext);

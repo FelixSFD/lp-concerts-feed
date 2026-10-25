@@ -5,9 +5,10 @@ using Amazon.Lambda.Core;
 using Amazon.SQS;
 using Common.Utils.Cache;
 using Common.WikiMedia.Repositories;
-using Database.Concerts;
 using Database.Setlists;
 using Database.Setlists.Repositories;
+using Database.Tours;
+using Database.Tours.Repositories;
 using Lambda.Auth;
 using LPCalendar.DataStructure.Setlists;
 using LPCalendar.DataStructure.Setlists.Import;
@@ -60,14 +61,17 @@ public class Function
             return ForbiddenResponseHelper.GetResponse($"OPTIONS, {request.HttpMethod}");
         }
         
-        _concertRepository = DynamoDbConcertRepository.CreateDefault(context.Logger);
         var connectionString = Environment.GetEnvironmentVariable("SETLISTS_DB_CONNECTION_STRING") ?? throw new Exception("Missing environment variable 'SETLISTS_DB_CONNECTION_STRING'!");
         var stopwatch = Stopwatch.StartNew();
         var optBuilder = new DbContextOptionsBuilder<SetlistsDbContext>();
         optBuilder.UseMySQL(connectionString);
         var dbContext = new SetlistsDbContext(optBuilder.Options);
+        var toursOptBuilder = new DbContextOptionsBuilder<ToursDbContext>();
+        toursOptBuilder.UseMySQL(connectionString);
+        var toursDbContext = new ToursDbContext(toursOptBuilder.Options);
         stopwatch.Stop();
         context.Logger.LogDebug("Init duration of EFCore context: {duration} ms", stopwatch.ElapsedMilliseconds);
+        _concertRepository = new SqlConcertRepository(toursDbContext);
         _setlistRepository = new SqlSetlistRepository(dbContext);
         _setlistActRepository = new SqlSetlistActRepository(dbContext);
         _setlistEntryRepository = new SqlSetlistEntryRepository(dbContext);
@@ -391,7 +395,7 @@ public class Function
     {
         var concertId = request.ConcertId;
         context.Logger.LogDebug("Checking if concert '{concertId}' exists...", concertId);
-        var foundConcert = await _concertRepository.GetByIdAsync(concertId);
+        var foundConcert = await _concertRepository.GetByPrimaryKeyAsync(concertId);
         if (foundConcert == null)
         {
             context.Logger.LogError("The concert '{concertId}' does not exist!", concertId);
