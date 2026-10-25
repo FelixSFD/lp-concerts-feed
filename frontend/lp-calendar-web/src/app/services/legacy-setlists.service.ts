@@ -32,7 +32,7 @@ import {AddSetlistEntryFormContent} from '../components/v2/admin/setlists/add-se
 @Injectable({
   providedIn: 'root',
 })
-export class SetlistsService {
+export class LegacySetlistsService {
   private readonly authService = inject(AuthService);
 
   constructor(private httpClient: HttpClient, private setlistsApiClient: SetlistsApiClient, private concertsApiClient: ConcertsApiClient) { }

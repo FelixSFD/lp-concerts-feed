@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import {RouterLink} from '@angular/router';
-import {SetlistsService} from '../../../../../services/setlists.service';
+import {LegacySetlistsService} from '../../../../../services/legacy-setlists.service';
 import {Setlist} from '../../../../../data/setlists/setlist';
 import {ErrorResponseDto} from '../../../../../modules/lpshows-api';
 import {Card} from 'primeng/card';
@@ -45,7 +45,7 @@ export class ManageSetlistsPageComponent implements OnInit {
 
   globalSearchText$ = signal("");
 
-  constructor(private setlistService: SetlistsService) {
+  constructor(private setlistService: LegacySetlistsService) {
   }
 
 

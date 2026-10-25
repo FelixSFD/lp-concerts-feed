@@ -1,5 +1,5 @@
 import {Component, inject, Input, OnInit} from '@angular/core';
-import {SetlistsService} from '../../../../services/setlists.service';
+import {LegacySetlistsService} from '../../../../services/legacy-setlists.service';
 import {ErrorResponseDto} from '../../../../modules/lpshows-api';
 import {Setlist} from '../../../../data/setlists/setlist';
 import {SetlistEntryIconsComponent} from '../setlist-entry-icons/setlist-entry-icons.component';
@@ -52,7 +52,7 @@ export class SetlistComponent implements OnInit {
 
   private isLoadingThumbnails = false;
 
-  constructor(private setlistService: SetlistsService) {
+  constructor(private setlistService: LegacySetlistsService) {
     // init apple music
     this.appleMusicService.init().then(async () => {
       await this.loadThumbnails();

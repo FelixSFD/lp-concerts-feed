@@ -10,7 +10,7 @@ import {
   SongVariantDto
 } from '../../../../../modules/lpshows-api';
 import {NgTemplateOutlet} from '@angular/common';
-import {SetlistsService} from '../../../../../services/setlists.service';
+import {LegacySetlistsService} from '../../../../../services/legacy-setlists.service';
 import {nullIfEmpty} from '../../../../../helper/string-helper'
 import {
   SetlistEntrySongExtraFormComponent
@@ -56,7 +56,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
   private messageService = inject(MessageService);
   private formBuilder = inject(FormBuilder);
   private songService = inject(SongsService);
-  private setlistsService = inject(SetlistsService);
+  private setlistsService = inject(LegacySetlistsService);
 
   private static songVariantNormalVersion: SongVariantDto = {
     variantName: "Normal version"

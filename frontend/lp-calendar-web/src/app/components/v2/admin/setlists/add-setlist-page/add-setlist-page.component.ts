@@ -2,7 +2,7 @@ import {Component, inject, OnInit} from '@angular/core';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {CreateSetlistRequestDto, ErrorResponseDto} from '../../../../../modules/lpshows-api';
-import {SetlistsService} from '../../../../../services/setlists.service';
+import {LegacySetlistsService} from '../../../../../services/legacy-setlists.service';
 import {LegacyConcertsService} from '../../../../../services/legacy-concerts.service';
 import {DateTime} from 'luxon';
 import {Button} from 'primeng/button';
@@ -47,7 +47,7 @@ export class AddSetlistPageComponent implements OnInit {
 
   isSaving$: boolean = false;
 
-  constructor(private setlistService: SetlistsService) {
+  constructor(private setlistService: LegacySetlistsService) {
   }
 
   ngOnInit() {

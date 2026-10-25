@@ -6,7 +6,7 @@ import {
   UpdateSetlistHeaderRequestDto
 } from '../../../../../modules/lpshows-api';
 import {ActivatedRoute, RouterLink} from '@angular/router';
-import {SetlistsService} from '../../../../../services/setlists.service';
+import {LegacySetlistsService} from '../../../../../services/legacy-setlists.service';
 import {SetlistEntry} from '../../../../../data/setlists/setlist-entry';
 import {
   AddSetlistEntryFormComponent
@@ -51,7 +51,7 @@ import {InputGroupAddon} from 'primeng/inputgroupaddon';
 export class EditSetlistPageComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
   private activeRoute = inject(ActivatedRoute);
-  private setlistService = inject(SetlistsService);
+  private setlistService = inject(LegacySetlistsService);
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
 

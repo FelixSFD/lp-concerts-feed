@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, TemplateRef, viewChild } from '@angular/core';
 import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgTemplateOutlet} from '@angular/common';
-import {SetlistsService} from '../../../../../services/setlists.service';
+import {LegacySetlistsService} from '../../../../../services/legacy-setlists.service';
 import {
   ActParametersDto,
   AddSongMashupToSetlistRequestDto,
@@ -58,7 +58,7 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private readonly messageService = inject(MessageService);
-  private readonly setlistsService = inject(SetlistsService);
+  private readonly setlistsService = inject(LegacySetlistsService);
   private readonly songsService = inject(SongsService);
   private readonly concertsService = inject(LegacyConcertsService);
 
