@@ -1,6 +1,9 @@
+using Amazon.Lambda.Core;
+using Amazon.SQS;
 using Database.Setlists.Repositories;
 using Database.Tours.Repositories;
 using Microsoft.Extensions.DependencyInjection;
+using Service.Setlists.Importer;
 
 namespace Service.Setlists;
 
@@ -19,9 +22,16 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISongRepository, SqlSongRepository>();
         services.AddScoped<ISongVariantRepository, SqlSongVariantRepository>();
         services.AddScoped<ISongMashupRepository, SqlSongMashupRepository>();
+        services.AddScoped<IAlbumRepository, SqlAlbumRepository>();
         services.AddScoped<IConcertRepository, SqlConcertRepository>();
+        services.AddAWSService<IAmazonSQS>();
         services.AddScoped<ISetlistPushEventSender, SetlistPushEventSender>();
+        services.AddScoped<IWikitextParser, WikitextParser>();
+        services.AddScoped<ILambdaLogger, LambdaLogger>();
         services.AddScoped<SetlistService>();
+        services.AddScoped<AlbumService>();
+        services.AddScoped<SongService>();
+        services.AddScoped<LinkinpediaImportService>();
         return services;
     }
 }
