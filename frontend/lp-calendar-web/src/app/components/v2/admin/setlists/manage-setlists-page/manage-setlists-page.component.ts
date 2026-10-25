@@ -52,7 +52,7 @@ export class ManageSetlistsPageComponent implements OnInit {
   globalSearchText = signal("");
 
   ngOnInit(): void {
-    this.reloadList(true);
+    this.reloadList(true).then();
   }
 
   private async reloadList(cache: boolean): Promise<void> {
@@ -91,7 +91,7 @@ export class ManageSetlistsPageComponent implements OnInit {
 
       // Update the signal with new setlist data
       this.setlists.set(filteredSetlists);
-
+      this.isLoading.set(false);
     } catch (err: any) {
       this.isLoading.set(false);
 
@@ -130,35 +130,39 @@ export class ManageSetlistsPageComponent implements OnInit {
     });
   }
 
-  onDeleteSetlistConfirm(setlist: Setlist): Promise<void> {
+  async onDeleteSetlistConfirm(setlist: Setlist): Promise<void> {
     const id = setlist.id;
     console.debug("Will delete setlist: " + id);
 
-    return this.setlistsService.deleteSetlist(id).then(async (result) => {
+    try {
+      const result = await this.setlistsService.deleteSetlist(id);
       console.debug("DELETE setlist request finished");
       console.debug(result);
       await this.reloadList(false);
       this.setlistDeleting.set(false);
-    }).catch((err: any) => {
+    } catch (err) {
       if (Array.isArray(err) && err.length > 0) {
         const wrappedErr = err[0];
         if (wrappedErr?.status === 404) {
-          this.messageService.add({ severity: 'warn', summary: 'Setlist not found', text: wrappedErr.detail || '' });
+          this.messageService.add({severity: 'warn', summary: 'Setlist not found', text: wrappedErr.detail || ''});
           this.setlistDeleting.set(false);
           return Promise.resolve();
         } else if (wrappedErr?.message) {
-          this.messageService.add({ severity: 'error', summary: wrappedErr.title || wrappedErr.message, text: wrappedErr.detail || wrappedErr.message });
+          this.messageService.add({
+            severity: 'error',
+            summary: wrappedErr.title || wrappedErr.message,
+            text: wrappedErr.detail || wrappedErr.message
+          });
           this.setlistDeleting.set(false);
         }
       }
 
       const errText = typeof err === 'string' ? err : (err instanceof Error ? err.toString() : JSON.stringify(err));
       console.warn('Failed to delete setlist:', err);
-      this.messageService.add({ severity: 'error', summary: 'Could not delete setlist!', text: errText });
+      this.messageService.add({severity: 'error', summary: 'Could not delete setlist!', text: errText});
       this.setlistDeleting.set(false);
-
-      return Promise.reject(err);
-    });
+      return await Promise.reject(err);
+    }
   }
 
   private confirmationService = inject(ConfirmationService);
