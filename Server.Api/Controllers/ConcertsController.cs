@@ -2,14 +2,21 @@ using Common.Contracts.Generated.Models;
 using Common.Server.Auth;
 using Common.Utils.Cache;
 using LPCalendar.DataStructure;
+using LPCalendar.DataStructure.Setlists;
+using LPCalendar.DataStructure.Setlists.Import;
 using LPCalendar.DataStructure.Tours;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Server.Api.Auth;
 using Server.Api.Cache;
+using Service.Setlists;
+using Service.Setlists.Importer;
 using Service.Tours;
 using Service.Tours.Exceptions;
+using SetlistDto = LPCalendar.DataStructure.Setlists.SetlistDto;
+using ImportSetlistRequestDto = LPCalendar.DataStructure.Setlists.Import.ImportSetlistRequestDto;
+using ImportSetlistPreviewDto = LPCalendar.DataStructure.Setlists.Import.ImportSetlistPreviewDto;
 
 namespace Server.Api.Controllers;
 
@@ -17,10 +24,22 @@ namespace Server.Api.Controllers;
 /// Controller to manage concert data
 /// </summary>
 /// <param name="concertService"></param>
+/// <param name="linkinpediaImportConcertService"></param>
+/// <param name="setlistService"></param>
+/// <param name="linkinpediaImportService"></param>
+/// <param name="outputCacheStore"></param>
+/// <param name="concertImageUploadService"></param>
 /// <param name="logger"></param>
 [ApiController]
 [Route("v3/[controller]")]
-public class ConcertsController(ConcertService concertService, LinkinpediaImportConcertService linkinpediaImportConcertService, IOutputCacheStore outputCacheStore, IConcertImageUploadService concertImageUploadService, ILogger<ConcertsController> logger) : ControllerBase
+public class ConcertsController(
+    ConcertService concertService,
+    LinkinpediaImportConcertService linkinpediaImportConcertService,
+    SetlistService setlistService,
+    LinkinpediaImportService linkinpediaImportService,
+    IOutputCacheStore outputCacheStore,
+    IConcertImageUploadService concertImageUploadService,
+    ILogger<ConcertsController> logger) : ControllerBase
 {
     /// <summary>
     /// Creates a new concert in the database
@@ -37,7 +56,7 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
         logger.LogDebug("Created concert with id: {id}", concert.Id);
         return CreatedAtAction(nameof(GetRawConcertById), new { concertId = concert.Id }, concert);
     }
-    
+
     /// <summary>
     /// Updates a concert in the database
     /// </summary>
@@ -47,7 +66,8 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     [HttpPut("{concertId}")]
     [AuthorizeRoles(RoleNames.AddConcerts)]
     [ClearCache(Tags = [CacheTags.ConcertsAll])]
-    public async Task<NoContentResult> UpdateConcert([FromBody] UpdateConcertRequestDto request, [FromRoute] string concertId)
+    public async Task<NoContentResult> UpdateConcert([FromBody] UpdateConcertRequestDto request,
+        [FromRoute] string concertId)
     {
         logger.LogDebug("Requested to update the concert with id: {concertId}", concertId);
         var concert = await concertService.UpdateConcertAsync(concertId, request.ToBo());
@@ -87,7 +107,7 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
             logger.LogDebug("No concert scheduled at the moment");
             return NotFound();
         }
-        
+
         logger.LogDebug("Loaded next concert. Start: {startTime}", concert.PostedStartTime);
         var timeUntilStart = concert.ComputedStartTime - DateTimeOffset.Now;
         var maxCacheFor = TimeSpan.FromSeconds(CacheExpiration.VeryLong);
@@ -96,7 +116,7 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
         HttpContext.Response.Headers.CacheControl = cacheControl;
         return Ok(concert.ToDto());
     }
-    
+
     /// <summary>
     /// Returns all details about a concert. This includes information about the venue and general location.
     /// </summary>
@@ -120,13 +140,15 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     [HttpGet]
     [CustomResponseCache(Duration = CacheExpiration.Default)]
     [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
-    public async Task<ActionResult<ConcertListResponseDto>> GetConcertsAsync(CancellationToken cancellationToken, [FromQuery] GetConcertsFilterDto filter)
+    public async Task<ActionResult<ConcertListResponseDto>> GetConcertsAsync(CancellationToken cancellationToken,
+        [FromQuery] GetConcertsFilterDto filter)
     {
         var paginatedResult = await concertService.GetConcertsWithDetailsPaginatedAsync(cancellationToken, filter);
         var concerts = await paginatedResult.Results
             .Select(DtoMapper.ToDto)
             .ToListAsync(cancellationToken);
-        logger.LogDebug("Retrieved {count} concert details. The query could return up to {total} concerts", concerts.Count, paginatedResult.TotalResults);
+        logger.LogDebug("Retrieved {count} concert details. The query could return up to {total} concerts",
+            concerts.Count, paginatedResult.TotalResults);
 
         var response = new ConcertListResponseDto
         {
@@ -139,7 +161,7 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
         };
         return Ok(response);
     }
-    
+
     /// <summary>
     /// Returns the next x upcoming concerts
     /// </summary>
@@ -149,11 +171,13 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     [HttpGet("upcoming")]
     [CustomResponseCache(Duration = CacheExpiration.Medium)]
     [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
-    public async Task<ActionResult<ConcertDetailsDto[]>> GetUpcomingConcertsAsync([FromQuery] uint? limit, CancellationToken cancellationToken)
+    public async Task<ActionResult<ConcertDetailsDto[]>> GetUpcomingConcertsAsync([FromQuery] uint? limit,
+        CancellationToken cancellationToken)
     {
-        return await GetUpcomingOrRecentConcertsAsync(limit ?? 5, DateOnly.FromDateTime(DateTime.Today), null, cancellationToken);
+        return await GetUpcomingOrRecentConcertsAsync(limit ?? 5, DateOnly.FromDateTime(DateTime.Today), null,
+            cancellationToken);
     }
-    
+
     /// <summary>
     /// Returns the next x upcoming concerts the user has bookmarked
     /// </summary>
@@ -164,11 +188,13 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     [Authorize]
     [CustomResponseCache(Duration = CacheExpiration.Medium)]
     [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
-    public async Task<ActionResult<ConcertDetailsDto[]>> GetUpcomingBookmarkedConcertsAsync([FromQuery] int? limit, CancellationToken cancellationToken)
+    public async Task<ActionResult<ConcertDetailsDto[]>> GetUpcomingBookmarkedConcertsAsync([FromQuery] int? limit,
+        CancellationToken cancellationToken)
     {
-        return await GetUpcomingBookmarkedConcertsAsync(limit ?? 5, ConcertBookmark.BookmarkStatus.Bookmarked, cancellationToken);
+        return await GetUpcomingBookmarkedConcertsAsync(limit ?? 5, ConcertBookmark.BookmarkStatus.Bookmarked,
+            cancellationToken);
     }
-    
+
     /// <summary>
     /// Returns the next x upcoming concerts the user will attend
     /// </summary>
@@ -179,26 +205,29 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     [Authorize]
     [CustomResponseCache(Duration = CacheExpiration.Medium)]
     [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
-    public async Task<ActionResult<ConcertDetailsDto[]>> GetUpcomingAttendingConcertsAsync([FromQuery] int? limit, CancellationToken cancellationToken)
+    public async Task<ActionResult<ConcertDetailsDto[]>> GetUpcomingAttendingConcertsAsync([FromQuery] int? limit,
+        CancellationToken cancellationToken)
     {
-        return await GetUpcomingBookmarkedConcertsAsync(limit ?? 5, ConcertBookmark.BookmarkStatus.Attending, cancellationToken);
+        return await GetUpcomingBookmarkedConcertsAsync(limit ?? 5, ConcertBookmark.BookmarkStatus.Attending,
+            cancellationToken);
     }
-    
-    private async Task<ActionResult<ConcertDetailsDto[]>> GetUpcomingBookmarkedConcertsAsync(int limit, ConcertBookmark.BookmarkStatus status, CancellationToken cancellationToken)
+
+    private async Task<ActionResult<ConcertDetailsDto[]>> GetUpcomingBookmarkedConcertsAsync(int limit,
+        ConcertBookmark.BookmarkStatus status, CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
         if (string.IsNullOrEmpty(userId))
         {
             return Unauthorized();
         }
-        
+
         var concerts = await concertService
             .GetBookmarkedConcertsForAsync(userId, status, limit, cancellationToken)
             .Select(DtoMapper.ToDto)
             .ToArrayAsync(cancellationToken);
         return Ok(concerts);
     }
-    
+
     /// <summary>
     /// Returns the x previous concerts
     /// </summary>
@@ -208,29 +237,32 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     [HttpGet("recent")]
     [CustomResponseCache(Duration = CacheExpiration.Medium)]
     [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
-    public async Task<ActionResult<ConcertDetailsDto[]>> GetRecentConcertsAsync([FromQuery] uint? limit, CancellationToken cancellationToken)
+    public async Task<ActionResult<ConcertDetailsDto[]>> GetRecentConcertsAsync([FromQuery] uint? limit,
+        CancellationToken cancellationToken)
     {
-        return await GetUpcomingOrRecentConcertsAsync(limit ?? 5, null, DateOnly.FromDateTime(DateTime.Today), cancellationToken);
+        return await GetUpcomingOrRecentConcertsAsync(limit ?? 5, null, DateOnly.FromDateTime(DateTime.Today),
+            cancellationToken);
     }
 
-    private async Task<ActionResult<ConcertDetailsDto[]>> GetUpcomingOrRecentConcertsAsync(uint limit, DateOnly? after, DateOnly? before, CancellationToken cancellationToken)
+    private async Task<ActionResult<ConcertDetailsDto[]>> GetUpcomingOrRecentConcertsAsync(uint limit, DateOnly? after,
+        DateOnly? before, CancellationToken cancellationToken)
     {
         if (after != null && before != null)
             throw new ArgumentException($"Cannot specify both '{nameof(after)}' and '{nameof(before)}' parameters");
-        
+
         if (after == null && before == null)
             throw new ArgumentException($"Either '{nameof(after)}' or '{nameof(before)}' parameter must be specified");
-        
+
         if (limit == 0)
             limit = 5;
-        
+
         var filter = new GetConcertsFilterDto
         {
             After = after,
             Before = before,
             Limit = uint.Min(limit, 10)
         };
-        
+
         // define the sort order based on After/Before parameter
         if (after != null)
         {
@@ -240,14 +272,14 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
         {
             filter.OrderBy = ["-date"];
         }
-        
+
         var concerts = await concertService.GetConcertsWithDetails(cancellationToken, filter)
             .Select(DtoMapper.ToDto)
             .ToArrayAsync(cancellationToken);
-        
+
         return Ok(concerts);
     }
-    
+
     /// <summary>
     /// Returns the concerts that happened on the same day as the specified date
     /// </summary>
@@ -258,18 +290,19 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     [HttpGet("otd")]
     [CustomResponseCache(Duration = CacheExpiration.Long)]
     [OutputCache(PolicyName = CachePolicyNames.Long, Tags = [CacheTags.ConcertsAll])]
-    public async Task<ActionResult<ConcertDetailsDto[]>> GetConcertsOnThisDay([FromQuery] int? month, [FromQuery] int? day, CancellationToken cancellationToken)
+    public async Task<ActionResult<ConcertDetailsDto[]>> GetConcertsOnThisDay([FromQuery] int? month,
+        [FromQuery] int? day, CancellationToken cancellationToken)
     {
         var today = DateOnly.FromDateTime(DateTime.Today);
         var concerts = await concertService
             .GetHistoricConcertsOnDay(month ?? today.Month, day ?? today.Day, cancellationToken)
             .Select(DtoMapper.ToDto)
             .ToArrayAsync(cancellationToken);
-        
+
         logger.LogDebug("Found {count} concerts that happened on {month}/{day}", concerts.Length, month, day);
         return Ok(concerts);
     }
-    
+
     /// <summary>
     /// Deletes a concert. Note that the data will not be fully removed from the database. Admins will still be able to see deleted concerts.
     /// </summary>
@@ -283,7 +316,7 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
         await EvictConcertCacheAsync();
         return NoContent();
     }
-    
+
     /// <summary>
     /// Returns information about the previous and next concerts to a given concert.
     /// </summary>
@@ -293,7 +326,8 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     [HttpGet("{concertId}/adjacent")]
     [CustomResponseCache(Duration = CacheExpiration.Default)]
     [OutputCache(PolicyName = CachePolicyNames.Long, Tags = [CacheTags.ConcertsAll])]
-    public async Task<ActionResult<AdjacentConcertsResponseDto>> GetAdjacentConcerts([FromRoute] string concertId, CancellationToken cancellationToken)
+    public async Task<ActionResult<AdjacentConcertsResponseDto>> GetAdjacentConcerts([FromRoute] string concertId,
+        CancellationToken cancellationToken)
     {
         var bo = await concertService.GetAdjacentConcerts(concertId, cancellationToken);
         var response = new AdjacentConcertsResponseDto
@@ -302,7 +336,7 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
             Previous = bo.Previous?.Id,
             Next = bo.Next?.Id
         };
-        
+
         return Ok(response);
     }
 
@@ -319,13 +353,16 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
         ConcertScheduleUploadRequestDto uploadRequest,
         CancellationToken cancellationToken)
     {
-        logger.LogDebug("Requested to get presigned schedule upload url for concert: {concertId}; Content-Type: {contentType}", concertId, uploadRequest.ContentType);
-        var uploadUrl = await concertImageUploadService.GetPresignedScheduleUploadUrlAsync(concertId, uploadRequest.ContentType);
+        logger.LogDebug(
+            "Requested to get presigned schedule upload url for concert: {concertId}; Content-Type: {contentType}",
+            concertId, uploadRequest.ContentType);
+        var uploadUrl =
+            await concertImageUploadService.GetPresignedScheduleUploadUrlAsync(concertId, uploadRequest.ContentType);
         var response = new ConcertFileUploadResponseDto
         {
             UploadUrl = uploadUrl
         };
-        
+
         return Ok(response);
     }
 
@@ -338,7 +375,8 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     /// <returns>plan for the import</returns>
     [HttpGet("import/{wikiPageId}")]
     [AuthorizeRoles(RoleNames.AddConcerts)]
-    public async Task<ActionResult<ImportConcertPreviewDto>> GetConcertImportPlan(string wikiPageId, CancellationToken cancellationToken)
+    public async Task<ActionResult<ImportConcertPreviewDto>> GetConcertImportPlan(string wikiPageId,
+        CancellationToken cancellationToken)
     {
         logger.LogDebug("Generating concert import plan for concert: {page}", wikiPageId);
         var importPlan = await linkinpediaImportConcertService.GetConcertImportPlan(wikiPageId, cancellationToken);
@@ -373,12 +411,14 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
             ImportedWithSetlistCount = wikiPagesWithStatus.Count(s =>
                 s.ImportStatus == LinkinpediaImportConcertStatusDto.ImportStatusEnum.Imported)
         };
-        
-        logger.LogDebug("Generated import status. Counts: {countNotImported} not imported, {countNoSetlist} imported without setlist, {countWithSetlist} imported with setlist.", result.NotImportedCount, result.ImportedWithoutSetlistCount, result.ImportedWithSetlistCount);
-        
+
+        logger.LogDebug(
+            "Generated import status. Counts: {countNotImported} not imported, {countNoSetlist} imported without setlist, {countWithSetlist} imported with setlist.",
+            result.NotImportedCount, result.ImportedWithoutSetlistCount, result.ImportedWithSetlistCount);
+
         return Ok(result);
     }
-    
+
     /// <summary>
     /// Sets the bookmark status for a concert and the current user
     /// </summary>
@@ -389,7 +429,8 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     [HttpPut("{concertId}/bookmarks")]
     [Authorize]
     [ClearCache(Tags = [CacheTags.ConcertBookmarksAll])]
-    public async Task<ActionResult> SetBookmarkOnConcert(string concertId, [FromBody] ConcertBookmarkUpdateRequestDto request, CancellationToken cancellationToken)
+    public async Task<ActionResult> SetBookmarkOnConcert(string concertId,
+        [FromBody] ConcertBookmarkUpdateRequestDto request, CancellationToken cancellationToken)
     {
         var currentUserId = HttpContext.GetUserId();
         if (currentUserId == null)
@@ -397,10 +438,11 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
             return Unauthorized("User is not authenticated.");
         }
 
-        await concertService.SetBookmarkForUserAtConcertAsync(currentUserId, concertId, request.Status.ToBo(), cancellationToken);
+        await concertService.SetBookmarkForUserAtConcertAsync(currentUserId, concertId, request.Status.ToBo(),
+            cancellationToken);
         return NoContent();
     }
-    
+
     /// <summary>
     /// Returns information about the number of bookmarks for a concert.
     /// </summary>
@@ -409,7 +451,8 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
     /// <returns></returns>
     [HttpGet("{concertId}/bookmarks")]
     [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertBookmarksAll])]
-    public async Task<ActionResult<GetConcertBookmarkCountsResponseDto>> GetBookmarkCountForConcert(string concertId, CancellationToken cancellationToken)
+    public async Task<ActionResult<GetConcertBookmarkCountsResponseDto>> GetBookmarkCountForConcert(string concertId,
+        CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
         var status = await concertService.GetBookmarkStatusForConcert(concertId, userId, cancellationToken);
@@ -417,9 +460,43 @@ public class ConcertsController(ConcertService concertService, LinkinpediaImport
         {
             Bookmarked = status.Bookmarked,
             Attending = status.Attending,
-            CurrentUserStatus = status.UserStatus?.ToDto() ?? GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.None,
+            CurrentUserStatus = status.UserStatus?.ToDto() ??
+                                GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.None,
         };
         return Ok(response);
+    }
+
+    /// <summary>
+    /// Returns all setlists for a concert
+    /// </summary>
+    /// <param name="concertId"></param>
+    /// <returns></returns>
+    [HttpGet("{concertId}/setlists")]
+    [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll, CacheTags.SetlistsAll])]
+    [CustomResponseCache(Duration = CacheExpiration.Default)]
+    public async Task<ActionResult<List<SetlistDto>>> GetSetlistsForConcert([FromRoute] string concertId)
+    {
+        var setlistDtos = await setlistService.GetSetlistsForConcert(concertId);
+        return Ok(setlistDtos);
+    }
+
+    /// <summary>
+    /// Imports a setlist from Linkinpedia for a concert
+    /// </summary>
+    /// <param name="concertId"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPost("{concertId}/setlists/import")]
+    [AuthorizeRoles(RoleNames.ManageSetlists)]
+    public async Task<ActionResult<ImportSetlistPreviewDto>> ImportSetlistFromLinkinpedia(
+        [FromRoute] string concertId,
+        [FromBody] ImportSetlistRequestDto request)
+    {
+        logger.LogDebug("Importing setlist from URL: {url} for concert {concertId}", request.LinkinpediaUrl, concertId);
+        var pageTitle = request.LinkinpediaUrl.Split("/").Last();
+        var responseDto = await linkinpediaImportService.GetImportPlanForSetlistFromPageAsync(pageTitle);
+        logger.LogDebug("Successfully generated import instructions.");
+        return Ok(responseDto);
     }
 
     private async Task EvictConcertCacheAsync(CancellationToken cancellationToken = default)

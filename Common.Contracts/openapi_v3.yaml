@@ -595,6 +595,99 @@ paths:
                 $ref: "#/components/schemas/GetConcertBookmarkCountsResponse"
       security:
         - Bearer: [ ]
+
+  /v3/Concerts/{concertId}/setlists:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+      - name: concertId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - Concerts
+        - Setlists
+      summary: Returns all setlists for a concert
+      operationId: GetSetlistsForConcert
+      responses:
+        "200":
+          description: List of setlists for the concert
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Setlist"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Concerts/{concertId}/setlists
+        requestParameters:
+          integration.request.path.concertId: method.request.path.concertId
+
+  /v3/Concerts/{concertId}/setlists/import:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+      - name: concertId
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      tags:
+        - Concerts
+        - Setlists
+      summary: Imports a setlist from Linkinpedia for a concert
+      operationId: ImportSetlistFromLinkinpedia
+      security:
+        - Bearer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImportSetlistRequest"
+        required: true
+      responses:
+        "200":
+          description: Import preview instructions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportSetlistPreview"
+        "400":
+          description: "Bad Request"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "401":
+          description: "Unauthorized"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "403":
+          description: "Forbidden"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Concerts/{concertId}/setlists/import
+        requestParameters:
+          integration.request.path.concertId: method.request.path.concertId
   
   /v2/concerts/{id}/bookmarks/count:
     parameters:
@@ -2297,6 +2390,1589 @@ paths:
       security:
         - Bearer: [ ]
   
+  /v3/Setlists:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+    get:
+      tags:
+        - Setlists
+      summary: Returns headers of all setlists
+      operationId: GetSetlistHeaders
+      responses:
+        "200":
+          description: List of setlist headers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SetlistHeader"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Setlists
+    post:
+      tags:
+        - Setlists
+      summary: Creates a new setlist
+      operationId: CreateSetlist
+      security:
+        - Bearer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSetlistRequest"
+        required: true
+      responses:
+        "201":
+          description: Setlist was created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateSetlistResponse"
+        "400":
+          description: "Bad Request"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "401":
+          description: "Unauthorized"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "403":
+          description: "Forbidden"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Setlists
+
+  /v3/Setlists/{setlistId}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+      - name: setlistId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: uint32
+    get:
+      tags:
+        - Setlists
+      summary: Returns a complete setlist with all entries and acts
+      operationId: GetCompleteSetlist
+      responses:
+        "200":
+          description: Complete setlist with all entries and acts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Setlist"
+        "404":
+          description: "Resource not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Setlists/{setlistId}
+        requestParameters:
+          integration.request.path.setlistId: method.request.path.setlistId
+    put:
+      tags:
+        - Setlists
+      summary: Updates the header information of a setlist
+      operationId: UpdateSetlistHeader
+      security:
+        - Bearer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSetlistHeaderRequest"
+        required: true
+      responses:
+        "204":
+          description: Setlist header was updated
+        "400":
+          description: "Bad Request"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "401":
+          description: "Unauthorized"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "403":
+          description: "Forbidden"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "404":
+          description: "Resource not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: PUT
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Setlists/{setlistId}
+        requestParameters:
+          integration.request.path.setlistId: method.request.path.setlistId
+    delete:
+      tags:
+        - Setlists
+      summary: Deletes a setlist
+      operationId: DeleteSetlist
+      security:
+        - Bearer: []
+      responses:
+        "204":
+          description: Setlist was deleted
+        "401":
+          description: "Unauthorized"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "403":
+          description: "Forbidden"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "404":
+          description: "Resource not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: DELETE
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Setlists/{setlistId}
+        requestParameters:
+          integration.request.path.setlistId: method.request.path.setlistId
+
+  /v3/Setlists/{setlistId}/acts:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+      - name: setlistId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: uint32
+    get:
+      tags:
+        - Setlists
+      summary: Returns the acts of a setlist
+      operationId: GetActsInSetlist
+      responses:
+        "200":
+          description: Acts in the setlist
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SetlistAct"
+        "404":
+          description: "Resource not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Setlists/{setlistId}/acts
+        requestParameters:
+          integration.request.path.setlistId: method.request.path.setlistId
+
+  /v3/Setlists/{setlistId}/entries/{entryId}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+      - name: setlistId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: uint32
+      - name: entryId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - Setlists
+      summary: Returns a specific entry in a setlist
+      operationId: GetSetlistEntry
+      responses:
+        "200":
+          description: Setlist entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RawSetlistEntry"
+        "404":
+          description: "Resource not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Setlists/{setlistId}/entries/{entryId}
+        requestParameters:
+          integration.request.path.setlistId: method.request.path.setlistId
+          integration.request.path.entryId: method.request.path.entryId
+    put:
+      tags:
+        - Setlists
+      summary: Updates a setlist entry
+      operationId: UpdateSetlistEntry
+      security:
+        - Bearer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSetlistEntryRequest"
+        required: true
+      responses:
+        "204":
+          description: Setlist entry updated
+        "400":
+          description: "Bad Request"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "401":
+          description: "Unauthorized"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "403":
+          description: "Forbidden"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "404":
+          description: "Resource not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: PUT
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Setlists/{setlistId}/entries/{entryId}
+        requestParameters:
+          integration.request.path.setlistId: method.request.path.setlistId
+          integration.request.path.entryId: method.request.path.entryId
+    delete:
+      tags:
+        - Setlists
+      summary: Deletes an entry from a setlist
+      operationId: DeleteSetlistEntry
+      security:
+        - Bearer: []
+      responses:
+        "204":
+          description: Setlist entry deleted
+        "401":
+          description: "Unauthorized"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "403":
+          description: "Forbidden"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "404":
+          description: "Resource not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: DELETE
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Setlists/{setlistId}/entries/{entryId}
+        requestParameters:
+          integration.request.path.setlistId: method.request.path.setlistId
+          integration.request.path.entryId: method.request.path.entryId
+
+  /v3/Setlists/{setlistId}/entries/{entryId}/extras:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+      - name: setlistId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: uint32
+      - name: entryId
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      tags:
+        - Setlists
+      summary: Adds an extra to a song in a setlist entry
+      operationId: AddSongExtraToSetlistEntry
+      security:
+        - Bearer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddSongExtraToSetlistEntryRequest"
+        required: true
+      responses:
+        "200":
+          description: Extra was added successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AddSongExtraToSetlistEntryResponse"
+        "400":
+          description: "Bad Request"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "401":
+          description: "Unauthorized"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "403":
+          description: "Forbidden"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "404":
+          description: "Resource not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Setlists/{setlistId}/entries/{entryId}/extras
+        requestParameters:
+          integration.request.path.setlistId: method.request.path.setlistId
+          integration.request.path.entryId: method.request.path.entryId
+
+  /v3/Setlists/{setlistId}/entries/{entryId}/extras/{songExtraId}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+      - name: setlistId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: uint32
+      - name: entryId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: songExtraId
+        in: path
+        required: true
+        schema:
+          type: string
+    delete:
+      tags:
+        - Setlists
+      summary: Removes an extra from a song in a setlist entry
+      operationId: DeleteSongExtraFromSetlistEntry
+      security:
+        - Bearer: []
+      responses:
+        "204":
+          description: Extra was deleted
+        "401":
+          description: "Unauthorized"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "403":
+          description: "Forbidden"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "404":
+          description: "Resource not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: DELETE
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Setlists/{setlistId}/entries/{entryId}/extras/{songExtraId}
+        requestParameters:
+          integration.request.path.setlistId: method.request.path.setlistId
+          integration.request.path.entryId: method.request.path.entryId
+          integration.request.path.songExtraId: method.request.path.songExtraId
+
+  /v3/Setlists/{setlistId}/songs:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+      - name: setlistId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: uint32
+    post:
+      tags:
+        - Setlists
+      summary: Adds a song to a setlist
+      operationId: AddSongToSetlist
+      security:
+        - Bearer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddSongToSetlistRequest"
+        required: true
+      responses:
+        "200":
+          description: Song was added to setlist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AddSongToSetlistResponse"
+        "400":
+          description: "Bad Request"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "401":
+          description: "Unauthorized"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "403":
+          description: "Forbidden"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "404":
+          description: "Resource not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Setlists/{setlistId}/songs
+        requestParameters:
+          integration.request.path.setlistId: method.request.path.setlistId
+
+  /v3/Setlists/{setlistId}/variants:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+      - name: setlistId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: uint32
+    post:
+      tags:
+        - Setlists
+      summary: Adds a song variant to a setlist
+      operationId: AddSongVariantToSetlist
+      security:
+        - Bearer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddSongVariantToSetlistRequest"
+        required: true
+      responses:
+        "200":
+          description: Song variant was added to setlist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AddSongVariantToSetlistResponse"
+        "400":
+          description: "Bad Request"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "401":
+          description: "Unauthorized"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "403":
+          description: "Forbidden"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "404":
+          description: "Resource not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Setlists/{setlistId}/variants
+        requestParameters:
+          integration.request.path.setlistId: method.request.path.setlistId
+
+  /v3/Setlists/{setlistId}/mashups:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+      - name: setlistId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: uint32
+    post:
+      tags:
+        - Setlists
+      summary: Adds a song mashup to a setlist
+      operationId: AddSongMashupToSetlist
+      security:
+        - Bearer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddSongMashupToSetlistRequest"
+        required: true
+      responses:
+        "200":
+          description: Song mashup was added to setlist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AddSongMashupToSetlistResponse"
+        "400":
+          description: "Bad Request"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "401":
+          description: "Unauthorized"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "403":
+          description: "Forbidden"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "404":
+          description: "Resource not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Setlists/{setlistId}/mashups
+        requestParameters:
+          integration.request.path.setlistId: method.request.path.setlistId
+
+  /v3/Setlists/{setlistId}/custom:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+      - name: setlistId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: uint32
+    post:
+      tags:
+        - Setlists
+      summary: Adds a custom entry to a setlist
+      operationId: AddCustomEntryToSetlist
+      security:
+        - Bearer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddCustomEntryToSetlistRequest"
+        required: true
+      responses:
+        "200":
+          description: Custom entry was added to setlist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AddCustomEntryToSetlistResponse"
+        "400":
+          description: "Bad Request"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "401":
+          description: "Unauthorized"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "403":
+          description: "Forbidden"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "404":
+          description: "Resource not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Setlists/{setlistId}/custom
+        requestParameters:
+          integration.request.path.setlistId: method.request.path.setlistId
+
+  /v3/Setlists/{setlistId}/reorder:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+      - name: setlistId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: uint32
+    post:
+      tags:
+        - Setlists
+      summary: Reorders the entries in a setlist
+      operationId: ReorderSetlistEntries
+      security:
+        - Bearer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReorderSetlistEntriesRequest"
+        required: true
+      responses:
+        "200":
+          description: Setlist entries reordered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReorderSetlistEntriesResponse"
+        "400":
+          description: "Bad Request"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "401":
+          description: "Unauthorized"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "403":
+          description: "Forbidden"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "404":
+          description: "Resource not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Setlists/{setlistId}/reorder
+        requestParameters:
+          integration.request.path.setlistId: method.request.path.setlistId
+
+  /v3/Albums:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+    get:
+      tags:
+        - Albums
+      summary: Returns all albums
+      operationId: GetAllAlbums
+      responses:
+        "200":
+          description: List of albums
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Album"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Albums
+    post:
+      tags:
+        - Albums
+      summary: Creates a new album
+      operationId: CreateAlbum
+      security:
+        - Bearer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAlbumRequest"
+        required: true
+      responses:
+        "201":
+          description: Album was created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Album"
+        "400":
+          description: "Bad Request"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "401":
+          description: "Unauthorized"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "403":
+          description: "Forbidden"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Albums
+
+  /v3/Albums/{albumId}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+      - name: albumId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: uint32
+    get:
+      tags:
+        - Albums
+      summary: Returns an album by its ID
+      operationId: GetAlbumById
+      responses:
+        "200":
+          description: Album details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Album"
+        "404":
+          description: "Resource not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Albums/{albumId}
+        requestParameters:
+          integration.request.path.albumId: method.request.path.albumId
+    put:
+      tags:
+        - Albums
+      summary: Updates an album
+      operationId: UpdateAlbum
+      security:
+        - Bearer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAlbumRequest"
+        required: true
+      responses:
+        "200":
+          description: Album was updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Album"
+        "400":
+          description: "Bad Request"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "401":
+          description: "Unauthorized"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "403":
+          description: "Forbidden"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "404":
+          description: "Resource not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: PUT
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Albums/{albumId}
+        requestParameters:
+          integration.request.path.albumId: method.request.path.albumId
+    delete:
+      tags:
+        - Albums
+      summary: Deletes an album
+      operationId: DeleteAlbum
+      security:
+        - Bearer: []
+      responses:
+        "204":
+          description: Album was deleted
+        "401":
+          description: "Unauthorized"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "403":
+          description: "Forbidden"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "404":
+          description: "Resource not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: DELETE
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Albums/{albumId}
+        requestParameters:
+          integration.request.path.albumId: method.request.path.albumId
+
+  /v3/Songs:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+    get:
+      tags:
+        - Songs
+      summary: Returns all songs
+      operationId: GetAllSongs
+      responses:
+        "200":
+          description: List of songs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Song"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Songs
+    post:
+      tags:
+        - Songs
+      summary: Creates a new song
+      operationId: CreateSong
+      security:
+        - Bearer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSongRequest"
+        required: true
+      responses:
+        "201":
+          description: Song was created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Song"
+        "400":
+          description: "Bad Request"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "401":
+          description: "Unauthorized"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "403":
+          description: "Forbidden"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Songs
+
+  /v3/Songs/{songId}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+      - name: songId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: uint32
+    get:
+      tags:
+        - Songs
+      summary: Returns a song by its ID
+      operationId: GetSongById
+      responses:
+        "200":
+          description: Song details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Song"
+        "404":
+          description: "Resource not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Songs/{songId}
+        requestParameters:
+          integration.request.path.songId: method.request.path.songId
+    put:
+      tags:
+        - Songs
+      summary: Updates a song
+      operationId: UpdateSong
+      security:
+        - Bearer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSongRequest"
+        required: true
+      responses:
+        "200":
+          description: Song was updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Song"
+        "400":
+          description: "Bad Request"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "401":
+          description: "Unauthorized"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "403":
+          description: "Forbidden"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "404":
+          description: "Resource not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: PUT
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Songs/{songId}
+        requestParameters:
+          integration.request.path.songId: method.request.path.songId
+    delete:
+      tags:
+        - Songs
+      summary: Deletes a song
+      operationId: DeleteSong
+      security:
+        - Bearer: []
+      responses:
+        "204":
+          description: Song was deleted
+        "401":
+          description: "Unauthorized"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "403":
+          description: "Forbidden"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "404":
+          description: "Resource not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: DELETE
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Songs/{songId}
+        requestParameters:
+          integration.request.path.songId: method.request.path.songId
+
+  /v3/Songs/{songId}/variants:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+      - name: songId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: uint32
+    get:
+      tags:
+        - Songs
+      summary: Returns all variants of a song
+      operationId: GetVariantsOfSong
+      responses:
+        "200":
+          description: List of song variants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SongVariant"
+        "404":
+          description: "Resource not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Songs/{songId}/variants
+        requestParameters:
+          integration.request.path.songId: method.request.path.songId
+
+  /v3/Mashups:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+    get:
+      tags:
+        - Mashups
+      summary: Returns all song mashups
+      operationId: GetAllSongMashups
+      responses:
+        "200":
+          description: List of song mashups
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SongMashup"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Mashups
+    post:
+      tags:
+        - Mashups
+      summary: Creates a new song mashup
+      operationId: CreateSongMashup
+      security:
+        - Bearer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSongMashupRequest"
+        required: true
+      responses:
+        "201":
+          description: Song mashup was created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SongMashup"
+        "400":
+          description: "Bad Request"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "401":
+          description: "Unauthorized"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "403":
+          description: "Forbidden"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: POST
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Mashups
+
+  /v3/Mashups/{mashupId}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+      - name: mashupId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: uint32
+    get:
+      tags:
+        - Mashups
+      summary: Returns a song mashup by its ID
+      operationId: GetSongMashupById
+      responses:
+        "200":
+          description: Song mashup details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SongMashup"
+        "404":
+          description: "Resource not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Mashups/{mashupId}
+        requestParameters:
+          integration.request.path.mashupId: method.request.path.mashupId
+    put:
+      tags:
+        - Mashups
+      summary: Updates a song mashup
+      operationId: UpdateSongMashup
+      security:
+        - Bearer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSongMashupRequest"
+        required: true
+      responses:
+        "200":
+          description: Song mashup was updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SongMashup"
+        "400":
+          description: "Bad Request"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "401":
+          description: "Unauthorized"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "403":
+          description: "Forbidden"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "404":
+          description: "Resource not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: PUT
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Mashups/{mashupId}
+        requestParameters:
+          integration.request.path.mashupId: method.request.path.mashupId
+    delete:
+      tags:
+        - Mashups
+      summary: Deletes a song mashup
+      operationId: DeleteSongMashup
+      security:
+        - Bearer: []
+      responses:
+        "204":
+          description: Song mashup was deleted
+        "401":
+          description: "Unauthorized"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "403":
+          description: "Forbidden"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "404":
+          description: "Resource not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: DELETE
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Mashups/{mashupId}
+        requestParameters:
+          integration.request.path.mashupId: method.request.path.mashupId
+
 components:
   parameters:
     X-LP-Request-Id:
@@ -3311,6 +4987,926 @@ components:
           description: A URI reference identifying the specific occurrence of the problem.
       additionalProperties: true
   
+    # Setlists
+    Album:
+      type: object
+      description: Information about an album
+      properties:
+        id:
+          type: number
+          description: ID of the album
+        title:
+          type: string
+          description: Title of the album
+          nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+          
+    Song:
+      type: object
+      description: Information about a song
+      properties:
+        id:
+          type: number
+          description: ID of the song
+        title:
+          type: string
+          description: Title of the song
+          nullable: true
+        album:
+          type: object
+          description: Album that contains this song
+          nullable: true
+          anyOf:
+            - $ref: "#/components/schemas/Album"
+        isrc:
+          type: string
+          description: ISRC of the song
+          nullable: true
+        appleMusicId:
+          type: string
+          description: Unique ID for the Song on Apple Music
+          nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+    
+    SongVariant:
+      type: object
+      description: Information about a variation of a song
+      properties:
+        id:
+          type: number
+          description: ID of the song variant
+        songId:
+          type: number
+          description: ID of the main version of the song
+        isrcOverride:
+          type: string
+          description: ISRC of the variant if it is different from the normal version
+          nullable: true
+        appleMusicIdOverride:
+          type: string
+          description: unique ID for the Song on Apple Music. If not present, the ID of the original song will be used
+          nullable: true
+        variantName:
+          type: string
+          description: Name of this variant. This will be visible as the Song-Title in the setlist
+        description:
+          type: string
+          description: Optional description of the variant. What makes this variant different from the original?
+          nullable: true
+    
+    SongMashup:
+      type: object
+      description: Information about a song mashup. A mashup is used when the band plays a special mix of two or more songs. For example "Remember The Name" and "When They Come For Me" during the FROM ZERO WORLD TOUR 2024-2026.
+      properties:
+        id:
+          type: number
+          description: ID of the mashup
+        title:
+          type: string
+          description: Title of the mashup
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+        songs:
+          type: array
+          description: Songs that are included in this mashup
+          items:
+            $ref: "#/components/schemas/Song"
+    
+    SetlistAct:
+      type: object
+      description: Act within a setlist
+      properties:
+        setlistId:
+          type: number
+          description: ID of the setlist that contains this act
+        actNumber:
+          type: number
+          description: Number of the act within the setlist
+        title:
+          type: string
+          description: Title of this act
+          nullable: true
+    
+    SetlistEntrySongExtra:
+      type: object
+      description: Something added to a song in a setlist entry. And example for this is playing the "Cut The Bridge" bridge in the extended bridge of "Bleed It Out".
+      properties:
+        id:
+          type: string
+          description: Unique ID of the extra
+        song:
+          type: object
+          description: The song that has been used in this extra
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/Song"
+        type:
+          type: string
+          description: Defines how the SongId was included
+          enum: 
+            - ExtendedBridge
+            - ExtraVerse
+        description:
+          type: string
+          description: Description of the extra
+          nullable: true
+    
+    AddSongExtraToSetlistEntryRequest:
+      type: object
+      description: Adds an extra to a song in a setlist entry. And example for this is playing the "Cut The Bridge" bridge in the extended bridge of "Bleed It Out".
+      properties:
+        songId:
+          type: number
+          description: ID of the song that has been used in this extra
+          nullable: true
+        type:
+          type: string
+          description: Defines how the SongId was included
+          enum:
+            - ExtendedBridge
+            - ExtraVerse
+        description:
+          type: string
+          description: Description of the extra
+          nullable: true
+    
+    AddSongExtraToSetlistEntryResponse:
+      type: object
+      description: Response after an extra was added successfully.
+      properties:
+        entry:
+          type: object
+          description: The setlist entry that was updated
+          oneOf:
+            - $ref: "#/components/schemas/RawSetlistEntry"
+    
+    SetlistEntry:
+      type: object
+      description: An entry in a setlist
+      properties:
+        id:
+          type: string
+          description: Unique ID of the entry
+        actNumber:
+          type: number
+          description: Number of the act in which this song was played
+          nullable: true
+        sortNumber:
+          type: number
+          description: Number to sort the entries
+        songNumber:
+          type: number
+          description: Number of the song in this setlist. Is displayed as an orientation
+        playedSong:
+          type: object
+          description: Song that was played. If not set, they didn't play a song, but a mashup or song variant instead
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/Song"
+        playedSongVariant:
+          type: object
+          description: Song variant that was played. If not set, they didn't play a song variant, but a mashup or normal song instead
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/SongVariant"
+        playedSongMashup:
+          type: object
+          description: Song mashup or medley that was played. If not set, they didn't play a mashup, but a song or song variant instead
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/SongMashup"
+        title:
+          type: string
+          description: Title of this setlist entry. This can for example be the title of a song or a mashup
+        extraNotes:
+          type: string
+          description: Field to store additional notes about this entry
+          nullable: true
+          maxLength: 127
+        isrc:
+          type: string
+          description: ISRC for this entry. This can be used to find the song on Apple Music or Spotify
+          nullable: true
+        appleMusicId:
+          type: string
+          description: Unique ID for the Song on Apple Music
+          nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia. This value is stored either in the song or the mashup
+          nullable: true
+        isRotationSong:
+          type: boolean
+          description: true if this slot is known to rotate between shows on the same tour.
+        isPlayedFromRecording:
+          type: boolean
+          description: true if the song was played from a recording only. Not played live. (this can happen for pre-show-songs for example)
+        isWorldPremiere:
+          type: boolean
+          description: true if this song has not only not been played before, but was not released before this show. For example "Heavy Is The Crown" in Hamburg 2024
+        isLivePremiere:
+          type: boolean
+          description: true if this song was already released, but played live for the first time. For example "Keys To The Kingdom" in Los Angeles 2024
+        extras:
+          type: array
+          description: Extras for this song. For example playing the bridge of another song in the bridge of this song
+          items:
+            $ref: "#/components/schemas/SetlistEntrySongExtra"
+    
+    SetlistHeader:
+      type: object
+      description: Information about a setlist including all entries
+      properties:
+        id:
+          type: number
+          description: ID of the setlist
+          example: 1
+        concertId:
+          type: string
+          description: ID of the concert where this set was played
+          example: e710bebe-13b8-4cfb-aa84-ff6c208d5c21
+        concertTitle:
+          type: string
+          description: Title of the concert
+          example: Hamburg 22.09.2024
+        setName:
+          type: string
+          description: Name of the set
+          example: Set A
+          nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+    
+    Setlist:
+      type: object
+      description: Information about a setlist including all entries
+      properties:
+        id:
+          type: number
+          description: ID of the setlist
+          example: 1
+        concertId:
+          type: string
+          description: ID of the concert where this set was played
+          example: e710bebe-13b8-4cfb-aa84-ff6c208d5c21
+        concertTitle:
+          type: string
+          description: Title of the concert
+          example: Hamburg 22.09.2024
+        setName:
+          type: string
+          description: Name of the set
+          example: Set A
+          nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+        acts:
+          type: array
+          description: All acts in this setlist. The act numbers are referenced in the entries, so that not every entry must contain all the act information.
+          items:
+            $ref: "#/components/schemas/SetlistAct"
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/SetlistEntry"
+    
+    CreateSetlistRequest:
+      type: object
+      description: Request to create a new (empty) setlist
+      properties:
+        concertId:
+          type: string
+          description: ID of the concert where this setlist was played
+        concertTitle:
+          type: string
+          description: Title of the concert
+          example: Hamburg 22.09.2024
+        setName:
+          type: string
+          description: Name of the set
+          example: Set A
+          nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+        addSongs:
+          type: array
+          description: If set, the songs are appended automatically to this setlist
+          nullable: true
+          items:
+            $ref: "#/components/schemas/AddSongToSetlistRequest"
+        addSongVariants:
+          type: array
+          description: If set, the song variants are appended automatically to this setlist
+          nullable: true
+          items:
+            $ref: "#/components/schemas/AddSongVariantToSetlistRequest"
+        addSongMashups:
+          type: array
+          description: If set, the song mashups are appended automatically to this setlist
+          nullable: true
+          items:
+            $ref: "#/components/schemas/AddSongMashupToSetlistRequest"
+    
+    CreateSetlistResponse:
+      type: object
+      description: Response after a setlist was created
+      properties:
+        id:
+          type: string
+          description: ID of the newly created setlist
+        concertId:
+          type: string
+          description: ID of the concert where this setlist was played
+        concertTitle:
+          type: string
+          description: Title of the concert
+          example: Hamburg 22.09.2024
+        setName:
+          type: string
+          description: Name of the set
+          example: Set A
+          nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+          
+    UpdateSetlistHeaderRequest:
+      type: object
+      description: Request to update header-information of a setlist
+      properties:
+        concertId:
+          type: string
+          description: ID of the concert where this set was played
+        setName:
+          type: string
+          description: Name of the set
+          example: Set A
+          nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+    
+    CreateSongMashupRequest:
+      type: object
+      description: Request to create a new mashup of two or more songs
+      properties:
+        title:
+          type: string
+          description: Title of the mashup
+        linkinpediaUrl:
+          type: string
+          description: URL of the Mashup on Linkinpedia
+          nullable: true
+        songIds:
+          type: array
+          description: IDs of the songs in the mashup
+          items:
+            type: number
+            
+    UpdateSongMashupRequest:
+      type: object
+      description: Request to update a new mashup of two or more songs
+      properties:
+        title:
+          type: string
+          description: Title of the mashup
+        linkinpediaUrl:
+          type: string
+          description: URL of the Mashup on Linkinpedia
+          nullable: true
+        songIds:
+          type: array
+          description: IDs of the songs in the mashup
+          items:
+            type: number
+            
+    CreateSongRequest:
+      type: object
+      description: Request to create a new song
+      properties:
+        title:
+          type: string
+          description: Title of the song
+        albumId:
+          type: number
+          description: ID of the album that contains this song
+          nullable: true
+        isrc:
+          type: string
+          description: ISRC of the song
+          nullable: true
+        appleMusicId:
+          type: string
+          description: Unique ID for the Song on Apple Music
+          nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+          
+    UpdateSongRequest:
+      type: object
+      description: Request to update a song
+      properties:
+        title:
+          type: string
+          description: Title of the song
+        albumId:
+          type: number
+          description: ID of the album that contains this song
+          nullable: true
+        isrc:
+          type: string
+          description: ISRC of the song
+          nullable: true
+        appleMusicId:
+          type: string
+          description: Unique ID for the Song on Apple Music
+          nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+          
+    CreateAlbumRequest:
+      type: object
+      description: Request to create an album
+      properties:
+        title:
+          type: string
+          description: Title of the album
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+          
+    UpdateAlbumRequest:
+      type: object
+      description: Request to update an album
+      properties:
+        title:
+          type: string
+          description: Title of the album
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+
+    RawSetlistEntry:
+      type: object
+      description: An entry in a setlist
+      properties:
+        id:
+          type: string
+          description: Unique ID of the entry
+        actNumber:
+          type: number
+          description: Number of the act in which this song was played
+          nullable: true
+        sortNumber:
+          type: number
+          description: Number to sort the entries
+        songNumber:
+          type: number
+          description: Number of the song in this setlist. Is displayed as an orientation
+        songId:
+          type: number
+          description: ID of the played song
+          nullable: true
+        songVariantId:
+          type: number
+          description: ID of the played song variant
+          nullable: true
+        songMashupId:
+          type: number
+          description: ID of the played mashup
+          nullable: true
+        title:
+          type: string
+          description: Title of this setlist entry. This can for example be the title of a song or a mashup
+        extraNotes:
+          type: string
+          description: Field to store additional notes about this entry
+          nullable: true
+          maxLength: 127
+        isrc:
+          type: string
+          description: ISRC for this entry. This can be used to find the song on Apple Music or Spotify
+          nullable: true
+        appleMusicId:
+          type: string
+          description: Unique ID for the Song on Apple Music
+          nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia. This value is stored either in the song or the mashup
+          nullable: true
+        isRotationSong:
+          type: boolean
+          description: true if this slot is known to rotate between shows on the same tour.
+        isPlayedFromRecording:
+          type: boolean
+          description: true if the song was played from a recording only. Not played live. (this can happen for pre-show-songs for example)
+        isWorldPremiere:
+          type: boolean
+          description: true if this song has not only not been played before, but was not released before this show. For example "Heavy Is The Crown" in Hamburg 2024
+        isLivePremiere:
+          type: boolean
+          description: true if this song was already released, but played live for the first time. For example "Keys To The Kingdom" in Los Angeles 2024
+        extras:
+          type: array
+          description: Extras for this song. For example playing the bridge of another song in the bridge of this song
+          items:
+            $ref: "#/components/schemas/SetlistEntrySongExtra"
+
+    SongVariantParameters:
+      type: object
+      description: Parameters to define a song variant for an entry
+      properties:
+        id:
+          type: number
+          description: ID of an existing song variant
+        songId:
+          type: number
+          description: ID of the song for which the variant was played
+        variantName:
+          type: string
+          description: Name of the variant
+        description:
+          type: string
+          description: Description of the variant
+          nullable: true
+        isrcOverride:
+          type: string
+          description: ISRC of the variant if it's different from the song
+          nullable: true
+        appleMusicIdOverride:
+          type: string
+          description: Apple Music ID of the variant if it's different from the song
+          nullable: true
+
+    SongMashupParameters:
+      type: object
+      description: Parameters to define a song mashup for an entry
+      properties:
+        id:
+          type: number
+          description: ID of the mashup
+        title:
+          type: string
+          description: Title of the mashup
+        linkinpediaUrl:
+          type: string
+          description: URL to the Linkinpedia page of this mashup
+          nullable: true
+        songIds:
+          type: array
+          description: IDs of the songs that are part of this mashup
+          items:
+            type: number
+
+    ActParameters:
+      type: object
+      description: Parameters to define the act of an entry
+      properties:
+        actNumber:
+          type: number
+          description: Number of the act. Can be used to reference an existing act or create a new one
+        title:
+          type: string
+          description: Optional title of the act. Only required if the act is created.
+          nullable: true
+
+    SongParameters:
+      type: object
+      description: Parameters to define a song for an entry
+      properties:
+        id:
+          type: number
+          description: ID of the song
+        title:
+          type: string
+          description: Title of the song. Only required if the song does not exist yet.
+        albumId:
+          type: number
+          description: ID of the album containing this song. Only used when creating the song
+          nullable: true
+        isrc:
+          type: string
+          description: ISRC of the song
+          nullable: true
+        appleMusicId:
+          type: string
+          description: Unique ID for the Song on Apple Music
+          nullable: true
+        linkinpediaUrl:
+          type: string
+          description: URL to the wiki page on Linkinpedia
+          nullable: true
+
+    SetlistEntryParameters:
+      type: object
+      description: Parameters to define an entry
+      properties:
+        sortNumber:
+          type: number
+          description: Number to sort the entries
+        songNumber:
+          type: number
+          description: Number of the song in this setlist. Is displayed as an orientation
+        titleOverride:
+          type: string
+          description: Optional property to override the title of the song or mashup in this entry only.
+          nullable: true
+          maxLength: 31
+        extraNotes:
+          type: string
+          description: Field to store additional notes about this entry
+          nullable: true
+          maxLength: 127
+        isRotationSong:
+          type: boolean
+          description: true if this slot is known to rotate between shows on the same tour.
+        isPlayedFromRecording:
+          type: boolean
+          description: true if the song was played from a recording only. Not played live. (this can happen for pre-show-songs for example)
+        isWorldPremiere:
+          type: boolean
+          description: true if this song has not only not been played before, but was not released before this show. For example "Heavy Is The Crown" in Hamburg 2024
+        isLivePremiere:
+          type: boolean
+          description: true if this song was already released, but played live for the first time. For example "Keys To The Kingdom" in Los Angeles 2024
+    
+    AddSongVariantToSetlistRequest:
+      type: object
+      description: Request to add a song variant to an existing setlist
+      properties:
+        songVariantParameters:
+          type: object
+          description: Parameters of the song variant for this entry
+          oneOf:
+            - $ref: "#/components/schemas/SongVariantParameters"
+        actParameters:
+          type: object
+          description: If set, the added song will be added to this Act. Title isn't required if the Act already exists.
+          nullable: true
+          anyOf:
+            - $ref: "#/components/schemas/ActParameters"
+        entryParameters:
+          type: object
+          description: Common parameters for that entry, no matter if it was a song or mashup
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntryParameters"
+    
+    AddSongVariantToSetlistResponse:
+      type: object
+      description: Response after a song variant was added to the setlist
+      properties:
+        addedSetlistEntry:
+          type: object
+          description: The new entry that was added to the setlist
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntry"
+    
+    AddSongMashupToSetlistRequest:
+      type: object
+      description: Request to add a song mashup to an existing setlist
+      properties:
+        songMashupParameters:
+          type: object
+          description: Parameters of the song mashup for this entry
+          oneOf:
+            - $ref: "#/components/schemas/SongMashupParameters"
+        actParameters:
+          type: object
+          description: If set, the added song will be added to this Act. Title isn't required if the Act already exists.
+          nullable: true
+          anyOf:
+            - $ref: "#/components/schemas/ActParameters"
+        entryParameters:
+          type: object
+          description: Common parameters for that entry, no matter if it was a song or mashup
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntryParameters"
+
+    AddSongMashupToSetlistResponse:
+      type: object
+      description: Response after a song mashup was added to the setlist
+      properties:
+        addedSetlistEntry:
+          type: object
+          description: The new entry that was added to the setlist
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntry"
+    
+    AddSongToSetlistRequest:
+      type: object
+      description: Request to add a song to an existing setlist
+      properties:
+        songParameters:
+          type: object
+          description: Parameters of the song for this entry
+          oneOf:
+            - $ref: "#/components/schemas/SongParameters"
+        actParameters:
+          type: object
+          description: If set, the added song will be added to this Act. Title isn't required if the Act already exists.
+          nullable: true
+          anyOf:
+            - $ref: "#/components/schemas/ActParameters"
+        entryParameters:
+          type: object
+          description: Common parameters for that entry, no matter if it was a song or mashup
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntryParameters"
+    
+    AddSongToSetlistResponse:
+      type: object
+      description: Response after a song was added to the setlist
+      properties:
+        addedSetlistEntry:
+          type: object
+          description: The new entry that was added to the setlist
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntry"
+    
+    AddCustomEntryToSetlistRequest:
+      type: object
+      description: Request to add a custom entry to an existing setlist
+      properties:
+        actParameters:
+          type: object
+          description: If set, the added song will be added to this Act. Title isn't required if the Act already exists.
+          nullable: true
+          anyOf:
+            - $ref: "#/components/schemas/ActParameters"
+        entryParameters:
+          type: object
+          description: Common parameters for that entry, no matter if it was a song or mashup
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntryParameters"
+
+    AddCustomEntryToSetlistResponse:
+      type: object
+      description: Response after a entry was added to the setlist
+      properties:
+        addedSetlistEntry:
+          type: object
+          description: The new entry that was added to the setlist
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntry"
+    
+    UpdateSetlistEntryRequest:
+      type: object
+      description: Request to update a single setlist entry
+      properties:
+        songParameters:
+          type: object
+          description: Parameters of the song for this entry
+          oneOf:
+            - $ref: "#/components/schemas/SongParameters"
+        songVariantParameters:
+          type: object
+          description: Parameters of the song variant for this entry
+          oneOf:
+            - $ref: "#/components/schemas/SongVariantParameters"
+        songMashupParameters:
+          type: object
+          description: Parameters of the song mashup for this entry
+          oneOf:
+            - $ref: "#/components/schemas/SongMashupParameters"
+        actParameters:
+          type: object
+          description: If set, the added song will be added to this Act. Title isn't required if the Act already exists.
+          nullable: true
+          anyOf:
+            - $ref: "#/components/schemas/ActParameters"
+        entryParameters:
+          type: object
+          description: Common parameters for that entry, no matter if it was a song or mashup
+          oneOf:
+            - $ref: "#/components/schemas/SetlistEntryParameters"
+    
+    ReorderSetlistEntriesRequest:
+      type: object
+      description: Request to update the order of entries in a setlist. It's important that ALL entries are used here!
+      properties:
+        entryIds:
+          type: array
+          description: The IDs of all entries in that setlist in the preferred order
+          items:
+            type: string
+            
+    ReorderSetlistEntriesResponse:
+      type: object
+      description: Response after a setlist was reordered
+      properties:
+        reorderedEntries:
+          type: array
+          description: The newly ordered entries
+          items:
+            $ref: "#/components/schemas/SetlistEntry"
+    
+    ImportSetlistRequest:
+      type: object
+      description: Request to import a setlist
+      properties:
+        concertId:
+          type: string
+          description: ID of the concert where this setlist will be added
+        linkinpediaUrl:
+          type: string
+          description: Link to the concert page on Linkinpedia. This page must contain the setlist
+          
+    ImportSetlistEntryPreview:
+      type: object
+      description: Contains data of a setlist entry. Some entries might have IDs for existing songs/mashups, some only a title.
+      properties:
+        title:
+          type: string
+          description: Title of this entry
+        extraNotes:
+          type: string
+          description: Additional notes for this entry
+          nullable: true
+        songNumber:
+          type: number
+          description: Number of this entry within the setlist
+        actNumber:
+          type: number
+          description: Number of this act within the setlist
+          nullable: true
+        foundSongId:
+          type: number
+          description: If an existing song was found, the ID will be in this property. If not, you either have to select an existing song or create it.
+          nullable: true
+        possibleSongVariants:
+          type: array
+          description: If a songId was found and the song has variants, all possible variants are listed here
+          items:
+            $ref: "#/components/schemas/SongVariant"
+        foundSongIds:
+          type: array
+          description: If more than 1 matching song was found, the possible IDs are listed here
+          items:
+            type: number
+        foundSongVariantId:
+          type: number
+          description: If an existing song variant was found, the ID will be in this property. If not, you either have to select an existing song variant or create it.
+          nullable: true
+        foundMashupId:
+          type: number
+          description: If an existing mashup was found, the ID will be in this property. If not, you either have to select an existing mashup or create it.
+          nullable: true
+    
+    ImportSetlistActPreview:
+      type: object
+      description: Contains data of a setlist entry. Some entries might have IDs for existing songs/mashups, some only a title.
+      properties:
+        name:
+          type: string
+          description: Name of this act
+        extraNotes:
+          type: string
+          description: Additional notes for this entry
+          nullable: true
+        actNumber:
+          type: number
+          description: Number of this act within the setlist
+    
+    ImportSetlistPreview:
+      type: object
+      description: Contains data of a setlist that could be created
+      properties:
+        concertId:
+          type: string
+          description: ID of the concert where this setlist will be added
+        acts:
+          type: array
+          description: The acts that could be added to the new setlist
+          items:
+            $ref: "#/components/schemas/ImportSetlistActPreview"
+        entries:
+          type: array
+          description: The entries that could be added to the new setlist
+          items:
+            $ref: "#/components/schemas/ImportSetlistEntryPreview"
+  
   securitySchemes:
     Bearer:
       type: http
@@ -3335,3 +5931,7 @@ tags:
   - name: Cities
   - name: Tours
   - name: Venues
+  - name: Setlists
+  - name: Albums
+  - name: Songs
+  - name: Mashups
