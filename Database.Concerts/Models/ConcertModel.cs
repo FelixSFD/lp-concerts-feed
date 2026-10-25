@@ -9,6 +9,7 @@ namespace Database.Concerts.Models;
 /// Represents a concert of Linkin Park
 /// </summary>
 [DynamoDBTable(ConcertTableName)]
+[Obsolete("Use Database.Tours instead")]
 public class ConcertModel
 {
     public const string ConcertTableName = "Concertsv2";
