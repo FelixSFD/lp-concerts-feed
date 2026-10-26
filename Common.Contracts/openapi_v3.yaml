@@ -5584,6 +5584,13 @@ components:
       type: object
       description: Parameters to define the act of an entry
       properties:
+        setlistId:
+          type: integer
+          description: ID of the setlist that contains this act
+          example: 1
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         actNumber:
           type: number
           description: Number of the act. Can be used to reference an existing act or create a new one

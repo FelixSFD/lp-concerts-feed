@@ -17,10 +17,16 @@ import {
   SetlistHeaderDto,
   UpdateSetlistEntryRequestDto,
   UpdateSetlistHeaderRequestDto, SetlistsApi, AddSongToSetlistResponseDto, AddSongVariantToSetlistResponseDto,
-  AddSongMashupToSetlistResponseDto, AddSongExtraToSetlistEntryResponseDto,
+  AddSongMashupToSetlistResponseDto, AddSongExtraToSetlistEntryResponseDto, ActParametersDto, SetlistEntryParametersDto,
+  SongMashupParametersDto, SongVariantParametersDto, SongParametersDto, SetlistEntryDto,
 } from '../modules/lpshows-api/v3';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, map, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { getRequestIdParameter } from '../helper/cache-parameter-helper';
+import {
+  AddSetlistEntryFormContent
+} from '../components/v2/admin/setlists/add-setlist-entry-form/add-setlist-entry-form.component';
+import { addAuthentication } from '../auth/auth.config';
 
 /**
  * Service for interacting with setlists
@@ -33,6 +39,7 @@ export class SetlistsService {
 
   constructor() {
     this.setlistsApi.configuration.basePath = environment.apiBaseUrl;
+    addAuthentication(this.setlistsApi);
   }
 
   /**
@@ -147,9 +154,10 @@ export class SetlistsService {
   /**
    * Returns a complete setlist with all entries and acts
    * @param setlistId The ID of the setlist (number)
+   * @param cached true if cached values are allowed
    */
-  getCompleteSetlist(setlistId: number): Promise<SetlistDto> {
-    return firstValueFrom(this.setlistsApi.getCompleteSetlist(setlistId));
+  getCompleteSetlist(setlistId: number, cached: boolean = true): Promise<SetlistDto> {
+    return firstValueFrom(this.setlistsApi.getCompleteSetlist(setlistId, getRequestIdParameter(cached)));
   }
 
   /**
@@ -201,20 +209,6 @@ export class SetlistsService {
   }
 
   /**
-   * Updates a setlist entry
-   * @param setlistId The ID of the setlist (number)
-   * @param entryId The ID of the entry
-   * @param updateSetlistEntryRequestDto The request data
-   */
-  updateSetlistEntry(
-    setlistId: number,
-    entryId: string,
-    updateSetlistEntryRequestDto: UpdateSetlistEntryRequestDto
-  ): Promise<any> {
-    return firstValueFrom(this.setlistsApi.updateSetlistEntry(setlistId, entryId, updateSetlistEntryRequestDto));
-  }
-
-  /**
    * Updates the header information of a setlist
    * @param setlistId The ID of the setlist (number)
    * @param updateSetlistHeaderRequestDto The request data
@@ -224,5 +218,145 @@ export class SetlistsService {
     updateSetlistHeaderRequestDto: UpdateSetlistHeaderRequestDto
   ): Promise<any> {
     return firstValueFrom(this.setlistsApi.updateSetlistHeader(setlistId, updateSetlistHeaderRequestDto));
+  }
+
+  /**
+   * Applies a new order for the entries of a setlist
+   * @param setlistId ID of the setlist
+   * @param orderedEntryIds IDs of all entries in the new order
+   */
+  public applyNewEntryOrder(setlistId: number, orderedEntryIds: string[]) : Promise<SetlistEntryDto[]> {
+    return firstValueFrom(this.setlistsApi.reorderSetlistEntries(setlistId, { entryIds: orderedEntryIds }).pipe(
+      map(response => response.reorderedEntries ?? [])
+    ));
+  }
+
+  /**
+   * Updates a setlist entry
+   * @param setlistId ID of the setlist
+   * @param entryId ID of the entry
+   * @param formContent new Data of the setlist entry
+   */
+  public updateSetlistEntry(formContent: AddSetlistEntryFormContent, setlistId: number, entryId: string) : Promise<any> {
+    let request: UpdateSetlistEntryRequestDto = {
+      entryParameters: this.getEntryParametersFromFormContent(formContent),
+      actParameters: this.getActParametersFromFormContent(formContent, setlistId),
+      songParameters: this.getSongParametersFromFormContent(formContent),
+      songVariantParameters: this.getSongVariantParametersFromFormContent(formContent),
+      songMashupParameters: this.getSongMashupParametersFromFormContent(formContent),
+    };
+
+    return firstValueFrom(this.setlistsApi.updateSetlistEntry(setlistId, entryId, request));
+  }
+
+  private getEntryParametersFromFormContent(content: AddSetlistEntryFormContent): SetlistEntryParametersDto {
+    return {
+      songNumber: content.songNumber,
+      sortNumber: content.sortNumber ?? ((content.songNumber ?? 1) * 10),
+      titleOverride: content.titleOverride,
+      extraNotes: content.extraNotes,
+      isPlayedFromRecording: content.wasPlayedFromRecording,
+      isRotationSong: content.wasRotationSong,
+      isWorldPremiere: content.wasWorldPremiere,
+      isLivePremiere: content.wasLivePremiere
+    };
+  }
+
+  private getActParametersFromFormContent(content: AddSetlistEntryFormContent, setlistId: number): ActParametersDto | undefined {
+    let usedActNumber = Number(content.selectedActNumber ?? 0) >= 0 ? Number(content.selectedActNumber) : Number(content.actNumber);
+
+    if (usedActNumber == 0) {
+      return undefined;
+    }
+
+    return {
+      setlistId: Number(setlistId),
+      actNumber: usedActNumber ?? 0,
+      title: content.actTitle ?? null,
+    };
+  }
+
+  private getSongParametersFromFormContent(content: AddSetlistEntryFormContent): SongParametersDto | undefined {
+    if (content.selectedSongId == null) {
+      return undefined;
+    }
+
+    let songId = content.selectedSongId == -1 ? 0 : Number(content.selectedSongId);
+    return {
+      id: songId,
+      title: content.songTitle ?? undefined,
+      isrc: content.songIsrc
+    };
+  }
+
+  private getSongVariantParametersFromFormContent(content: AddSetlistEntryFormContent): SongVariantParametersDto | undefined {
+    if (content.selectedSongVariantId == null) {
+      return undefined;
+    }
+
+    let songId = content.selectedSongId == -1 ? 0 : Number(content.selectedSongId);
+    let songVariantId = content.selectedSongVariantId == -1 ? 0 : Number(content.selectedSongVariantId);
+    return {
+      songId: songId,
+      id: songVariantId ?? undefined,
+      variantName: content.songVariantName ?? undefined,
+      description: content.songVariantDescription,
+    };
+  }
+
+  private getSongMashupParametersFromFormContent(content: AddSetlistEntryFormContent): SongMashupParametersDto | undefined {
+    if (content.selectedSongMashupId == null) {
+      return undefined;
+    }
+
+    let mashupId = content.selectedSongMashupId == -1 ? 0 : Number(content.selectedSongMashupId);
+    return {
+      id: mashupId
+    };
+  }
+
+  public async addSetlistEntry(content: AddSetlistEntryFormContent, setlistId: number): Promise<any> {
+    let entryType = content.entryType;
+    console.debug("Entry type: ", entryType);
+
+    let entryParameters: SetlistEntryParametersDto = this.getEntryParametersFromFormContent(content);
+    let actParameters: ActParametersDto | undefined = this.getActParametersFromFormContent(content, setlistId);
+
+    if (entryType == AddSetlistEntryFormContent.entryTypeSong) {
+      let addSongRequest: AddSongToSetlistRequestDto = {
+        entryParameters: entryParameters,
+        songParameters: this.getSongParametersFromFormContent(content),
+        actParameters: actParameters
+      };
+
+      return this.setlistsApi.addSongToSetlist(setlistId, addSongRequest);
+    } else if (entryType == AddSetlistEntryFormContent.entryTypeSongVariant) {
+      let addSongVariantRequest: AddSongVariantToSetlistRequestDto = {
+        entryParameters: entryParameters,
+        songVariantParameters: this.getSongVariantParametersFromFormContent(content),
+        actParameters: actParameters
+      };
+
+      return this.setlistsApi.addSongVariantToSetlist(setlistId, addSongVariantRequest);
+    } else if (entryType == AddSetlistEntryFormContent.entryTypeSongMashup) {
+      let addSongMashupRequest: AddSongMashupToSetlistRequestDto = {
+        entryParameters: entryParameters,
+        songMashupParameters: this.getSongMashupParametersFromFormContent(content),
+        actParameters: actParameters
+      };
+      console.debug("addSongMashupRequest: ", addSongMashupRequest);
+
+      return this.setlistsApi.addSongMashupToSetlist(setlistId, addSongMashupRequest);
+    } else if (entryType == AddSetlistEntryFormContent.entryTypeFreeText) {
+      let addEntryRequest: AddCustomEntryToSetlistRequestDto = {
+        entryParameters: entryParameters,
+        actParameters: actParameters
+      };
+      return this.setlistsApi.addCustomEntryToSetlist(setlistId, addEntryRequest);
+    } else {
+      return throwError(() => ({
+        error: { message: `The entry type '${entryType}' is not implemented` }
+      }));
+    }
   }
 }
