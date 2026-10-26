@@ -38,7 +38,7 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     /// <returns></returns>
     [HttpPost]
     [AuthorizeRoles(RoleNames.ManageSetlists)]
-    [ClearCache(Tags = [CacheTags.SetlistsAll, CacheTags.ConcertsAll])]
+    [ClearCache(Tags = [CacheTags.SetlistsAll])]
     public async Task<CreatedAtActionResult> CreateSetlist([FromBody] CreateSetlistRequestDto request)
     {
         var responseDto = await setlistService.CreateSetlistAsync(request);
@@ -67,7 +67,7 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     /// <returns></returns>
     [HttpPut("{setlistId:int}")]
     [AuthorizeRoles(RoleNames.ManageSetlists)]
-    [ClearCache(Tags = [CacheTags.SetlistsAll, CacheTags.ConcertsAll])]
+    [ClearCache(Tags = [CacheTags.SetlistsAll])]
     public async Task<NoContentResult> UpdateSetlistHeader([FromRoute] uint setlistId,
         [FromBody] UpdateSetlistHeaderRequestDto request)
     {
@@ -82,7 +82,7 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     /// <returns></returns>
     [HttpDelete("{setlistId:int}")]
     [AuthorizeRoles(RoleNames.DeleteSongs, RoleNames.ManageSetlists)]
-    [ClearCache(Tags = [CacheTags.SetlistsAll, CacheTags.ConcertsAll])]
+    [ClearCache(Tags = [CacheTags.SetlistsAll])]
     public async Task<NoContentResult> DeleteSetlist([FromRoute] uint setlistId)
     {
         await setlistService.RemoveSetlist(setlistId);
@@ -129,7 +129,7 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     /// <returns></returns>
     [HttpPut("{setlistId:int}/entries/{entryId}")]
     [AuthorizeRoles(RoleNames.ManageSetlists)]
-    [ClearCache(Tags = [CacheTags.SetlistsAll, CacheTags.ConcertsAll])]
+    [ClearCache(Tags = [CacheTags.SetlistsAll])]
     public async Task<NoContentResult> UpdateSetlistEntry([FromRoute] uint setlistId, [FromRoute] string entryId,
         [FromBody] UpdateSetlistEntryRequestDto request)
     {
@@ -145,7 +145,7 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     /// <returns></returns>
     [HttpDelete("{setlistId:int}/entries/{entryId}")]
     [AuthorizeRoles(RoleNames.ManageSetlists)]
-    [ClearCache(Tags = [CacheTags.SetlistsAll, CacheTags.ConcertsAll])]
+    [ClearCache(Tags = [CacheTags.SetlistsAll])]
     public async Task<NoContentResult> DeleteSetlistEntry([FromRoute] uint setlistId, [FromRoute] string entryId)
     {
         await setlistService.RemoveSetlistEntry(entryId);
@@ -160,7 +160,7 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     /// <returns></returns>
     [HttpPost("{setlistId:int}/songs")]
     [AuthorizeRoles(RoleNames.ManageSetlists)]
-    [ClearCache(Tags = [CacheTags.SetlistsAll, CacheTags.ConcertsAll])]
+    [ClearCache(Tags = [CacheTags.SetlistsAll])]
     public async Task<ActionResult<AddSongToSetlistResponseDto>> AddSongToSetlist([FromRoute] uint setlistId,
         [FromBody] AddSongToSetlistRequestDto request)
     {
@@ -176,7 +176,7 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     /// <returns></returns>
     [HttpPost("{setlistId:int}/variants")]
     [AuthorizeRoles(RoleNames.ManageSetlists)]
-    [ClearCache(Tags = [CacheTags.SetlistsAll, CacheTags.ConcertsAll])]
+    [ClearCache(Tags = [CacheTags.SetlistsAll])]
     public async Task<ActionResult<AddSongVariantToSetlistResponseDto>> AddSongVariantToSetlist(
         [FromRoute] uint setlistId, [FromBody] AddSongVariantToSetlistRequestDto request)
     {
@@ -192,7 +192,7 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     /// <returns></returns>
     [HttpPost("{setlistId:int}/mashups")]
     [AuthorizeRoles(RoleNames.ManageSetlists)]
-    [ClearCache(Tags = [CacheTags.SetlistsAll, CacheTags.ConcertsAll])]
+    [ClearCache(Tags = [CacheTags.SetlistsAll])]
     public async Task<ActionResult<AddSongMashupToSetlistResponseDto>> AddSongMashupToSetlist(
         [FromRoute] uint setlistId, [FromBody] AddSongMashupToSetlistRequestDto request)
     {
@@ -208,7 +208,7 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     /// <returns></returns>
     [HttpPost("{setlistId:int}/custom")]
     [AuthorizeRoles(RoleNames.ManageSetlists)]
-    [ClearCache(Tags = [CacheTags.SetlistsAll, CacheTags.ConcertsAll])]
+    [ClearCache(Tags = [CacheTags.SetlistsAll])]
     public async Task<ActionResult<AddCustomEntryToSetlistResponseDto>> AddCustomEntryToSetlist(
         [FromRoute] uint setlistId, [FromBody] AddCustomEntryToSetlistRequestDto request)
     {
@@ -224,7 +224,7 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     /// <returns></returns>
     [HttpPost("{setlistId:int}/reorder")]
     [AuthorizeRoles(RoleNames.ManageSetlists)]
-    [ClearCache(Tags = [CacheTags.SetlistsAll, CacheTags.ConcertsAll])]
+    [ClearCache(Tags = [CacheTags.SetlistsAll])]
     public async Task<ActionResult<ReorderSetlistEntriesResponseDto>> ReorderSetlistEntries([FromRoute] uint setlistId,
         [FromBody] ReorderSetlistEntriesRequestDto request)
     {
@@ -244,7 +244,7 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     /// <returns></returns>
     [HttpPost("{setlistId:int}/entries/{entryId}/extras")]
     [AuthorizeRoles(RoleNames.ManageSetlists)]
-    [ClearCache(Tags = [CacheTags.SetlistsAll, CacheTags.ConcertsAll])]
+    [ClearCache(Tags = [CacheTags.SetlistsAll])]
     public async Task<ActionResult<AddSongExtraToSetlistEntryResponseDto>> AddSongExtraToSetlistEntry(
         [FromRoute] uint setlistId,
         [FromRoute] string entryId,
@@ -267,7 +267,7 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     /// <returns></returns>
     [HttpDelete("{setlistId:int}/entries/{entryId}/extras/{songExtraId}")]
     [AuthorizeRoles(RoleNames.ManageSetlists)]
-    [ClearCache(Tags = [CacheTags.SetlistsAll, CacheTags.ConcertsAll])]
+    [ClearCache(Tags = [CacheTags.SetlistsAll])]
     public async Task<NoContentResult> DeleteSongExtraFromSetlistEntry(
         [FromRoute] uint setlistId,
         [FromRoute] string entryId,

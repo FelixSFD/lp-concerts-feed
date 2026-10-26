@@ -473,7 +473,6 @@ public class ConcertsController(
     /// <returns></returns>
     [HttpGet("{concertId}/setlists")]
     [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll, CacheTags.SetlistsAll])]
-    [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<List<SetlistDto>>> GetSetlistsForConcert([FromRoute] string concertId)
     {
         var setlistDtos = await setlistService.GetSetlistsForConcert(concertId);
