@@ -24,6 +24,7 @@ import {InputText} from 'primeng/inputtext';
 import {InputGroup} from 'primeng/inputgroup';
 import {InputGroupAddon} from 'primeng/inputgroupaddon';
 import { SetlistsService } from '../../../../../services/setlists.service';
+import { ProblemDetailsDto } from '../../../../../modules/lpshows-api/v3';
 
 @Component({
   selector: 'app-edit-setlist-page',
@@ -155,11 +156,11 @@ export class EditSetlistPageComponent implements OnInit {
         summary: 'Successfully updated successfully',
       });
     } catch (err) {
-      let errorResponse: ErrorResponseDto = err as ErrorResponseDto;
+      let errorResponse: ProblemDetailsDto = err as ProblemDetailsDto;
       this.messageService.add({
-        severity: 'danger',
+        severity: 'error',
         summary: 'Could not update setlist',
-        text: errorResponse.message,
+        detail: errorResponse.detail,
       });
     } finally {
       this.isSaving.set(false);
@@ -217,11 +218,11 @@ export class EditSetlistPageComponent implements OnInit {
 
         this.dismissAddEntryModal();
       } catch (err) {
-        let errorResponse: ErrorResponseDto = err as ErrorResponseDto;
+        let errorResponse: ProblemDetailsDto = err as ProblemDetailsDto;
         this.messageService.add({
-          severity: 'danger',
+          severity: 'error',
           summary: 'Could not add entry to setlist',
-          text: errorResponse.message,
+          detail: errorResponse.detail,
         });
         this.dismissAddEntryModal();
       } finally {
@@ -256,11 +257,11 @@ export class EditSetlistPageComponent implements OnInit {
       });
       this.isPendingReorder.set(false);
     } catch (err) {
-      let errorResponse: ErrorResponseDto = err as ErrorResponseDto;
+      let errorResponse: ProblemDetailsDto = err as ProblemDetailsDto;
       this.messageService.add({
-        severity: 'danger',
+        severity: 'error',
         summary: 'Could not reorder setlist',
-        text: errorResponse.message,
+        detail: errorResponse.detail,
       });
       this.isSaving.set(false);
     } finally {
@@ -288,7 +289,7 @@ export class EditSetlistPageComponent implements OnInit {
       },
       acceptButtonProps: {
         label: 'Delete',
-        severity: 'danger'
+        severity: 'error'
       },
 
       accept: async () => {
@@ -316,7 +317,7 @@ export class EditSetlistPageComponent implements OnInit {
       this.messageService.add({
         severity: 'danger',
         summary: 'Could not delete setlist entry',
-        text: errorResponse.message,
+        detail: errorResponse.message,
       });
     }
   }
@@ -363,9 +364,9 @@ export class EditSetlistPageComponent implements OnInit {
       } catch (err) {
         let errorResponse: ErrorResponseDto = err as ErrorResponseDto;
         this.messageService.add({
-          severity: 'danger',
+          severity: 'error',
           summary: 'Could not update setlist entry',
-          text: errorResponse.message,
+          detail: errorResponse.message,
         });
       } finally {
         this.entryToEdit.set(null);
@@ -373,7 +374,7 @@ export class EditSetlistPageComponent implements OnInit {
       }
     } else {
       this.messageService.add({
-        severity: 'danger',
+        severity: 'error',
         summary: 'Failed to read form data',
       });
       this.isEditingEntry.set(false);
