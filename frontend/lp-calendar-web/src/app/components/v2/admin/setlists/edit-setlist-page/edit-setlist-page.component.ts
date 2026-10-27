@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, viewChild} from '@angular/core';
+import { Component, effect, inject, OnInit, signal, viewChild } from '@angular/core';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {
   ErrorResponseDto,
@@ -6,7 +6,6 @@ import {
   UpdateSetlistHeaderRequestDto
 } from '../../../../../modules/lpshows-api';
 import {ActivatedRoute, RouterLink} from '@angular/router';
-import {LegacySetlistsService} from '../../../../../services/legacy-setlists.service';
 import {SetlistEntry} from '../../../../../data/setlists/setlist-entry';
 import {
   AddSetlistEntryFormComponent
@@ -58,7 +57,7 @@ export class EditSetlistPageComponent implements OnInit {
 
   private addEntryFormComponent = viewChild(AddSetlistEntryFormComponent);
 
-  currentSetlistId: number = 0;
+  currentSetlistId = signal<number>(0);
 
   setlistForm = this.formBuilder.group({
     concertId: new FormControl('', [Validators.required]),
@@ -67,44 +66,47 @@ export class EditSetlistPageComponent implements OnInit {
     linkinpediaUrl: new FormControl('', [Validators.pattern(/^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/)]),
   });
 
-  isSaving$: boolean = false;
+  isSaving = signal(false);
 
-  isAddingEntry$: boolean = false;
-  isEditingEntry$: boolean = false;
+  isAddingEntry = signal(false);
+  isEditingEntry = signal(false);
 
-  isPendingReorder$: boolean = false;
+  isPendingReorder = signal(false);
 
-  isShowingAddEntryDialog$: boolean = false;
-  isShowingEditEntryDialog$: boolean = false;
+  isShowingAddEntryDialog = signal(false);
+  isShowingEditEntryDialog = signal(false);
 
   // Setlist entry that will be edited. Is used to store the data for the form
-  entryToEdit: SetlistEntry | undefined | null;
+  entryToEdit = signal<SetlistEntry | null>(null);
 
   // property to show whether the setlist is currently being deleted
-  entryDeleting$ = false;
+  entryDeleting = signal(false);
 
-  setlistEntries$: SetlistEntry[] = [];
+  setlistEntries = signal<SetlistEntry[]>([]);
 
   ngOnInit() {
     this.activeRoute.params.subscribe(async params => {
       let setlistId = params['setlistId'];
       if (setlistId != null && setlistId > 0) {
         await this.loadSetlist(setlistId);
-        this.currentSetlistId = setlistId;
+        this.currentSetlistId.set(setlistId);
       }
     });
   }
 
   private async loadSetlist(setlistId: number) {
-    let setlist = await this.setlistService
-      .getCompleteSetlist(setlistId, false);
+    let setlistResult = await this.setlistService.getCompleteSetlist(setlistId, false);
 
-    this.fillFormFromDto(setlist);
-    this.setlistEntries$ = setlist.entries?.map(SetlistEntry.fromDto) ?? [];
+    if (setlistResult) {
+      this.fillFormFromDto(setlistResult);
+    }
+
+    const entries: SetlistEntry[] = setlistResult?.entries?.map(SetlistEntry.fromDto) ?? [];
+    this.setlistEntries.set(entries);
   }
 
-  private reloadCurrentSetlist() {
-    this.loadSetlist(this.currentSetlistId).then();
+  private async reloadCurrentSetlist() {
+    await this.loadSetlist(this.currentSetlistId());
   }
 
   private fillFormFromDto(setlist: SetlistDto) {
@@ -134,7 +136,7 @@ export class EditSetlistPageComponent implements OnInit {
   }
 
   private getLargestSongNumber(): number {
-    const entries = [...this.setlistEntries$];
+    const entries = this.setlistEntries();
     return entries
       .sort((a, b) => b.songNumber - a.songNumber)
       .map(e => e.songNumber)
@@ -142,11 +144,11 @@ export class EditSetlistPageComponent implements OnInit {
   }
 
   async onSaveClicked() {
-    this.isSaving$ = true;
+    this.isSaving.set(true);
     let request = this.makeRequestDtoFromFormData();
 
     try {
-      await this.setlistService.updateSetlistHeader(this.currentSetlistId, request)
+      await this.setlistService.updateSetlistHeader(this.currentSetlistId(), request)
 
       this.messageService.add({
         severity: 'success',
@@ -160,7 +162,7 @@ export class EditSetlistPageComponent implements OnInit {
         text: errorResponse.message,
       });
     } finally {
-      this.isSaving$ = false;
+      this.isSaving.set(false);
     }
   }
 
@@ -190,12 +192,12 @@ export class EditSetlistPageComponent implements OnInit {
     this.addEntryFormComponent()?.clearForm();
     this.addEntryFormComponent()?.setSongNumber(largestSongNumber + 1);
 
-    this.isShowingAddEntryDialog$ = true;
+    this.isShowingAddEntryDialog.set(true);
   }
 
 
   async onAddEntryConfirm() {
-    this.isAddingEntry$ = true;
+    this.isAddingEntry.set(true);
 
     // read the values from the form
     console.debug("Found component: ", this.addEntryFormComponent);
@@ -204,13 +206,14 @@ export class EditSetlistPageComponent implements OnInit {
 
     if (formValues != null) {
       try {
-        await this.setlistService.addSetlistEntry(formValues, this.currentSetlistId);
+        await this.setlistService.addSetlistEntry(formValues, this.currentSetlistId());
 
         this.messageService.add({
           severity: 'success',
           summary: 'Entry was added successfully',
         });
-        this.reloadCurrentSetlist();
+
+        await this.reloadCurrentSetlist();
 
         this.dismissAddEntryModal();
       } catch (err) {
@@ -222,36 +225,36 @@ export class EditSetlistPageComponent implements OnInit {
         });
         this.dismissAddEntryModal();
       } finally {
-        this.isAddingEntry$ = false;
+        this.isAddingEntry.set(false);
       }
     } else {
       this.messageService.add({
         severity: 'danger',
         summary: 'Failed to read form data!',
       });
-      this.isAddingEntry$ = false;
+      this.isAddingEntry.set(false);
     }
   }
 
 
   onRowReordered(event: TableRowReorderEvent) {
     console.debug("RowReordered: ", event);
-    this.isPendingReorder$ = true;
+    this.isPendingReorder.set(true);
   }
 
 
   async onSaveOrderClicked() {
     console.debug("Save new order...");
-    this.isSaving$ = true;
+    this.isSaving.set(true);
 
     try {
-      await this.setlistService.applyNewEntryOrder(this.currentSetlistId, this.setlistEntries$.map(e => e.id));
+      await this.setlistService.applyNewEntryOrder(this.currentSetlistId(), this.setlistEntries().map(e => e.id));
 
       this.messageService.add({
         severity: 'success',
         summary: 'Successfully reordered setlist entries',
       });
-      this.isPendingReorder$ = false;
+      this.isPendingReorder.set(false);
     } catch (err) {
       let errorResponse: ErrorResponseDto = err as ErrorResponseDto;
       this.messageService.add({
@@ -259,15 +262,15 @@ export class EditSetlistPageComponent implements OnInit {
         summary: 'Could not reorder setlist',
         text: errorResponse.message,
       });
-      this.isSaving$ = false;
+      this.isSaving.set(false);
     } finally {
-      this.isPendingReorder$ = false;
+      this.isPendingReorder.set(false);
     }
   }
 
 
   dismissAddEntryModal() {
-    this.isShowingAddEntryDialog$ = false;
+    this.isShowingAddEntryDialog.set(false);
   }
 
 
@@ -288,8 +291,8 @@ export class EditSetlistPageComponent implements OnInit {
         severity: 'danger'
       },
 
-      accept: () => {
-        this.onDeleteEntryConfirm(entry);
+      accept: async () => {
+        await this.onDeleteEntryConfirm(entry);
       }
     });
   }
@@ -300,15 +303,15 @@ export class EditSetlistPageComponent implements OnInit {
     console.debug("Will delete setlist entry: " + id);
 
     try {
-      await this.setlistService.deleteSetlistEntry(this.currentSetlistId, id);
+      await this.setlistService.deleteSetlistEntry(this.currentSetlistId(), id);
 
       console.debug("DELETE setlist request entry finished");
-      this.entryDeleting$ = false;
-      this.reloadCurrentSetlist();
+      this.entryDeleting.set(false);
+      await this.reloadCurrentSetlist();
     } catch (err) {
       let errorResponse: ErrorResponseDto = err as ErrorResponseDto;
       console.warn("Failed to delete setlist entry:", err);
-      this.entryDeleting$ = false;
+      this.entryDeleting.set(false);
 
       this.messageService.add({
         severity: 'danger',
@@ -321,26 +324,27 @@ export class EditSetlistPageComponent implements OnInit {
 
   onEditEntryClicked(content: AddSetlistEntryFormComponent, entry: SetlistEntry) {
     console.debug("Content: ", content);
-    this.entryToEdit = entry;
+    this.entryToEdit.set(entry);
 
-    if (this.entryToEdit == null) {
+    if (this.entryToEdit() == null) {
       return;
     }
 
-    this.isShowingEditEntryDialog$ = true;
+    this.isShowingEditEntryDialog.set(true);
     content?.clearForm();
-    content?.loadEntry(this.currentSetlistId, entry.id);
+    content?.loadEntry(this.currentSetlistId(), entry.id);
   }
 
 
   async onEditEntryConfirm(content: AddSetlistEntryFormComponent) {
-    if (this.entryToEdit == null) {
+    let entry = this.entryToEdit();
+    if (entry == null) {
       return;
     }
 
-    this.isEditingEntry$ = true;
+    this.isEditingEntry.set(true);
 
-    let id = this.entryToEdit.id;
+    let id = entry.id;
     console.debug("Will edit setlist entry: " + id);
 
     let formValues = content.readValuesFromForm();
@@ -348,14 +352,14 @@ export class EditSetlistPageComponent implements OnInit {
 
     if (formValues != null) {
       try {
-        await this.setlistService.updateSetlistEntry(formValues, this.currentSetlistId, id);
+        await this.setlistService.updateSetlistEntry(formValues, this.currentSetlistId(), id);
 
         this.messageService.add({
           severity: 'success',
           summary: 'Entry was updated successfully',
         });
 
-        this.reloadCurrentSetlist();
+        await this.reloadCurrentSetlist();
       } catch (err) {
         let errorResponse: ErrorResponseDto = err as ErrorResponseDto;
         this.messageService.add({
@@ -364,21 +368,21 @@ export class EditSetlistPageComponent implements OnInit {
           text: errorResponse.message,
         });
       } finally {
-        this.entryToEdit = null;
-        this.isEditingEntry$ = false;
+        this.entryToEdit.set(null);
+        this.isEditingEntry.set(false);
       }
     } else {
       this.messageService.add({
         severity: 'danger',
         summary: 'Failed to read form data',
       });
-      this.isEditingEntry$ = false;
+      this.isEditingEntry.set(false);
     }
   }
 
 
   dismissEditEntryModal() {
-    this.isShowingEditEntryDialog$ = false;
-    this.entryToEdit = null;
+    this.isShowingEditEntryDialog.set(false);
+    this.entryToEdit.set(null);
   }
 }
