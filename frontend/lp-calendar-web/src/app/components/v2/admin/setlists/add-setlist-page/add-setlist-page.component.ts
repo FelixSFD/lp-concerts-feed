@@ -1,9 +1,6 @@
-import {Component, inject, OnInit} from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
-import {CreateSetlistRequestDto, ErrorResponseDto} from '../../../../../modules/lpshows-api';
-import {LegacySetlistsService} from '../../../../../services/legacy-setlists.service';
-import {LegacyConcertsService} from '../../../../../services/legacy-concerts.service';
 import {DateTime} from 'luxon';
 import {Button} from 'primeng/button';
 import {Card} from 'primeng/card';
@@ -13,6 +10,9 @@ import {InputGroupAddon} from 'primeng/inputgroupaddon';
 import {InputText} from 'primeng/inputtext';
 import {Divider} from 'primeng/divider';
 import {MessageService} from 'primeng/api';
+import { ConcertsService } from '../../../../../services/concerts.service';
+import { SetlistsService } from '../../../../../services/setlists.service';
+import { CreateSetlistRequestDto, ProblemDetailsDto } from '../../../../../modules/lpshows-api/v3';
 
 @Component({
   selector: 'app-add-setlist-page',
@@ -35,7 +35,8 @@ export class AddSetlistPageComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private concertsService = inject(LegacyConcertsService);
+  private concertsService = inject(ConcertsService);
+  private setlistService = inject(SetlistsService);
   private messageService = inject(MessageService);
 
   setlistForm = this.formBuilder.group({
@@ -45,23 +46,22 @@ export class AddSetlistPageComponent implements OnInit {
     linkinpediaUrl: new FormControl('', [Validators.pattern(/^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/)]),
   });
 
-  isSaving$: boolean = false;
+  isSaving = signal(false);
 
-  constructor(private setlistService: LegacySetlistsService) {
+  constructor() {
   }
 
   ngOnInit() {
-    this.setlistForm.controls.concertId.valueChanges.subscribe(id => {
+    this.setlistForm.controls.concertId.valueChanges.subscribe(async id => {
       console.debug("Changed concertId", id);
       if (id != null) {
-        this.concertsService.getConcert(id).subscribe(concert => {
-          let startDate = DateTime.fromISO(concert.postedStartTime!);
-          let year = startDate.year.toString();
-          let month = startDate.month < 10 ? '0' + startDate.month : startDate.month;
-          let day = startDate.day < 10 ? '0' + startDate.day : startDate.day;
-          this.setlistForm.controls.concertTitle.setValue(`${concert.locationShort} - ${year}-${month}-${day}`);
-          this.setlistForm.controls.linkinpediaUrl.setValue(`https://linkinpedia.com/wiki/Live:${year}${month}${day}`);
-        });
+        let concertDetails = await this.concertsService.getDetailsById(id);
+        let startDate = DateTime.fromISO(concertDetails.postedStartTime!);
+        let year = startDate.year.toString();
+        let month = startDate.month < 10 ? '0' + startDate.month : startDate.month;
+        let day = startDate.day < 10 ? '0' + startDate.day : startDate.day;
+        this.setlistForm.controls.concertTitle.setValue(`${concertDetails.venue.city.name}, ${concertDetails.venue.city.country.name} - ${year}-${month}-${day}`);
+        this.setlistForm.controls.linkinpediaUrl.setValue(`https://linkinpedia.com/wiki/Live:${year}${month}${day}`);
       }
     });
 
@@ -95,33 +95,32 @@ export class AddSetlistPageComponent implements OnInit {
     return request;
   }
 
-  onSaveClicked() {
-    this.isSaving$ = true;
+  async onSaveClicked() {
+    this.isSaving.set(true);
     let request = this.makeRequestDtoFromFormData();
-    this.setlistService.createSetlist(request)
-      .subscribe({
-        next: (response) => {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Setlist was created successfully',
-            key: 'created-setlist'
-          });
+    try {
+      let response = await this.setlistService.createSetlist(request);
 
-          this.navigateToSetlist(response.id);
-
-          this.isSaving$ = false;
-          this.setlistForm.reset();
-        },
-        error: err => {
-          let errorResponse: ErrorResponseDto = err.error;
-          this.messageService.add({
-            severity: 'danger',
-            summary: 'Could not create setlist',
-            text: errorResponse.message,
-          });
-          this.isSaving$ = false;
-        }
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Setlist was created successfully',
+        key: 'created-setlist'
       });
+
+      this.navigateToSetlist(response.id);
+
+      this.isSaving.set(false);
+      this.setlistForm.reset();
+    } catch (err) {
+      let errorResponse: ProblemDetailsDto = err as ProblemDetailsDto;
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Could not create setlist',
+        detail: errorResponse.detail,
+      });
+    } finally {
+      this.isSaving.set(false);
+    }
   }
 
   private navigateToSetlist(id: string | undefined) {
