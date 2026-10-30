@@ -263,7 +263,12 @@ export class SetlistsService {
   }
 
   private getActParametersFromFormContent(content: AddSetlistEntryFormContent, setlistId: number): ActParametersDto | undefined {
+    if (!content.selectedActNumber) {
+      return undefined;
+    }
+
     let usedActNumber = Number(content.selectedActNumber ?? 0) >= 0 ? Number(content.selectedActNumber) : Number(content.actNumber);
+    console.debug("usedActNumber: ", usedActNumber);
 
     if (usedActNumber == 0) {
       return undefined;
