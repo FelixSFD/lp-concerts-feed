@@ -172,7 +172,7 @@ public class Function
         try
         {
             var setlistDto = await _setlistService.GetCompleteSetlist(setlistId);
-            return Ok(setlistDto, SetlistDtoJsonContext.Default.SetlistDto, HttpMethod.Get);
+            return Ok(setlistDto, SetlistBoJsonContext.Default.SetlistBo, HttpMethod.Get);
         }
         catch (SetlistNotFoundException e)
         {
@@ -186,7 +186,7 @@ public class Function
         try
         {
             var setlistEntryDto = await _setlistService.GetSetlistEntryAsync(setlistId, entryId);
-            return Ok(setlistEntryDto, SetlistDtoJsonContext.Default.RawSetlistEntryDto, HttpMethod.Get);
+            return Ok(setlistEntryDto, SetlistBoJsonContext.Default.RawSetlistEntryBo, HttpMethod.Get);
         }
         catch (SetlistNotFoundException e)
         {
@@ -200,7 +200,7 @@ public class Function
         try
         {
             var setlists = await _setlistService.GetSetlistHeaders(context.GetCancellationToken()).ToListAsync();
-            return Ok(setlists, SetlistDtoJsonContext.Default.ListSetlistHeaderDto, HttpMethod.Get);
+            return Ok(setlists, SetlistBoJsonContext.Default.ListSetlistHeaderBo, HttpMethod.Get);
         }
         catch (SetlistNotFoundException e)
         {
@@ -214,7 +214,7 @@ public class Function
         try
         {
             var setlistDtos = await _setlistService.GetSetlistsForConcert(setlistId);
-            return Ok((List<SetlistDto>)setlistDtos, SetlistDtoJsonContext.Default.ListSetlistDto, HttpMethod.Get);
+            return Ok((List<SetlistBo>)setlistDtos, SetlistBoJsonContext.Default.ListSetlistBo, HttpMethod.Get);
         }
         catch (SetlistNotFoundException e)
         {
@@ -228,7 +228,7 @@ public class Function
         try
         {
             var song = await _songService.GetSongById(songId);
-            return Ok(song, SetlistDtoJsonContext.Default.SongDto, HttpMethod.Get);
+            return Ok(song, SetlistBoJsonContext.Default.SongBo, HttpMethod.Get);
         }
         catch (SongNotFoundException e)
         {
@@ -243,7 +243,7 @@ public class Function
         {
             var songs = await _songService.GetAllSongsAsync(context.GetCancellationToken()).ToListAsync();
             context.Logger.LogDebug("Found {songCount} songs", songs.Count);
-            return Ok(songs, SetlistDtoJsonContext.Default.ListSongDto, HttpMethod.Get);
+            return Ok(songs, SetlistBoJsonContext.Default.ListSongBo, HttpMethod.Get);
         }
         catch (SongNotFoundException e)
         {
@@ -258,7 +258,7 @@ public class Function
         {
             var albums = await _albumService.GetAllAlbumsAsync(context.GetCancellationToken()).ToListAsync();
             context.Logger.LogDebug("Found {albumCount} albums", albums.Count);
-            return Ok(albums, SetlistDtoJsonContext.Default.ListAlbumDto, HttpMethod.Get);
+            return Ok(albums, SetlistBoJsonContext.Default.ListAlbumBo, HttpMethod.Get);
         }
         catch (SongNotFoundException e)
         {
@@ -277,7 +277,7 @@ public class Function
         try
         {
             var album = await _albumService.GetAlbumById(albumId);
-            return Ok(album, SetlistDtoJsonContext.Default.AlbumDto, HttpMethod.Get);
+            return Ok(album, SetlistBoJsonContext.Default.AlbumBo, HttpMethod.Get);
         }
         catch (AlbumNotFoundException e)
         {
@@ -291,7 +291,7 @@ public class Function
         try
         {
             var variants = await _songService.GetVariantsOfSong(songId);
-            return Ok(variants, SetlistDtoJsonContext.Default.ListSongVariantDto, HttpMethod.Get);
+            return Ok(variants, SetlistBoJsonContext.Default.ListSongVariantBo, HttpMethod.Get);
         }
         catch (SongNotFoundException e)
         {
@@ -322,7 +322,7 @@ public class Function
         var cancellationToken = context.GetCancellationToken();
         var mashups = await _songService.GetAllSongMashupsAsync(cancellationToken).ToListAsync(cancellationToken);
         context.Logger.LogDebug("Found {count} mashups", mashups.Count);
-        return Ok(mashups, SetlistDtoJsonContext.Default.ListSongMashupDto, HttpMethod.Get);
+        return Ok(mashups, SetlistBoJsonContext.Default.ListSongMashupBo, HttpMethod.Get);
     }
     
     
@@ -336,7 +336,7 @@ public class Function
     {
         var mashup = await _songService.GetMashupByIdAsync(mashupId);
         if (mashup != null) 
-            return Ok(mashup, SetlistDtoJsonContext.Default.SongMashupDto, HttpMethod.Get);
+            return Ok(mashup, SetlistBoJsonContext.Default.SongMashupBo, HttpMethod.Get);
         
         context.Logger.LogError("Mashup with ID '{id}' not found!", mashupId);
         return NotFound($"The mashup with ID '{mashupId}' does not exist.", CacheControlHeaderConfig.Default, HttpMethod.Get);
@@ -348,7 +348,7 @@ public class Function
         try
         {
             var setlistActs = await _setlistService.GetActsWithinSetlistAsync(setlistId).ToListAsync(context.GetCancellationToken());
-            return Ok(setlistActs, SetlistDtoJsonContext.Default.ListSetlistActDto, HttpMethod.Get);
+            return Ok(setlistActs, SetlistBoJsonContext.Default.ListSetlistActBo, HttpMethod.Get);
         }
         catch (SetlistNotFoundException e)
         {

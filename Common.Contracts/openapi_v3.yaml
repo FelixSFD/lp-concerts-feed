@@ -5733,8 +5733,7 @@ components:
         actParameters:
           type: object
           description: If set, the added song will be added to this Act. Title isn't required if the Act already exists.
-          nullable: true
-          anyOf:
+          oneOf:
             - $ref: "#/components/schemas/ActParameters"
         entryParameters:
           type: object

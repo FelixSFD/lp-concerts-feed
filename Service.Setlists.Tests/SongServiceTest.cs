@@ -30,7 +30,7 @@ public class SongServiceTest
     public async Task CreateSongAsync()
     {
         // call the service
-        var request = new CreateSongRequestDto
+        var request = new CreateSongRequestBo
         {
             Title = "QWERTY",
             Isrc = "5355646",
@@ -74,7 +74,7 @@ public class SongServiceTest
             .Returns(mockSong);
         
         // call the service
-        var request = new UpdateSongRequestDto
+        var request = new UpdateSongRequestBo
         {
             Title = "QWERTY 2.0",
             Isrc = "1337",
@@ -406,7 +406,7 @@ public class SongServiceTest
         _songRepository.GetSongsByIds(song1.Id, song2.Id).Returns(mockSongs.ToAsyncEnumerable());
         
         // call the service
-        var request = new CreateSongMashupRequestDto
+        var request = new CreateSongMashupRequestBo
         {
             Title = "Weird mashup",
             LinkinpediaUrl = "https://lplive.net",
@@ -458,7 +458,7 @@ public class SongServiceTest
         _songRepository.GetSongsByIds(song1.Id).Returns(mockSongs.ToAsyncEnumerable());
         
         // call the service
-        var request = new CreateSongMashupRequestDto
+        var request = new CreateSongMashupRequestBo
         {
             Title = "no mashup",
             SongIds = [song1.Id]
@@ -725,7 +725,7 @@ public class SongServiceTest
             Mashup = mashup
         });
 
-        var request = new UpdateSongMashupRequestDto
+        var request = new UpdateSongMashupRequestBo
         {
             Title = "new title",
             LinkinpediaUrl = "https://linkinpedia.com/",

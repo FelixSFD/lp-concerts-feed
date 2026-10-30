@@ -26,7 +26,7 @@ public class MashupsController(SongService songService) : ControllerBase
     [HttpGet]
     [OutputCache(PolicyName = CachePolicyNames.Long, Tags = [CacheTags.MashupsAll])]
     [CustomResponseCache(Duration = CacheExpiration.Medium)]
-    public async Task<ActionResult<SongMashupDto[]>> GetAllSongMashups(CancellationToken cancellationToken)
+    public async Task<ActionResult<SongMashupBo[]>> GetAllSongMashups(CancellationToken cancellationToken)
     {
         return Ok(await songService.GetAllSongMashupsAsync(cancellationToken).ToArrayAsync(cancellationToken));
     }
@@ -39,7 +39,7 @@ public class MashupsController(SongService songService) : ControllerBase
     [HttpPost]
     [AuthorizeRoles(RoleNames.ManageSetlists)]
     [ClearCache(Tags = [CacheTags.MashupsAll])]
-    public async Task<CreatedAtActionResult> CreateSongMashup([FromBody] CreateSongMashupRequestDto request)
+    public async Task<CreatedAtActionResult> CreateSongMashup([FromBody] CreateSongMashupRequestBo request)
     {
         var mashup = await songService.CreateMashupOfSongsAsync(request);
         return CreatedAtAction(nameof(GetSongMashupById), new { mashupId = mashup.Id }, mashup);
@@ -53,7 +53,7 @@ public class MashupsController(SongService songService) : ControllerBase
     [HttpGet("{mashupId:int}")]
     [OutputCache(PolicyName = CachePolicyNames.Long, Tags = [CacheTags.MashupsAll])]
     [CustomResponseCache(Duration = CacheExpiration.Medium)]
-    public async Task<ActionResult<SongMashupDto>> GetSongMashupById([FromRoute] uint mashupId)
+    public async Task<ActionResult<SongMashupBo>> GetSongMashupById([FromRoute] uint mashupId)
     {
         var mashup = await songService.GetMashupByIdAsync(mashupId) ?? throw new SongMashupNotFoundException(mashupId);
         return Ok(mashup);
@@ -68,8 +68,8 @@ public class MashupsController(SongService songService) : ControllerBase
     [HttpPut("{mashupId:int}")]
     [AuthorizeRoles(RoleNames.ManageSetlists)]
     [ClearCache(Tags = [CacheTags.MashupsAll])]
-    public async Task<ActionResult<SongMashupDto>> UpdateSongMashup([FromRoute] uint mashupId,
-        [FromBody] UpdateSongMashupRequestDto request)
+    public async Task<ActionResult<SongMashupBo>> UpdateSongMashup([FromRoute] uint mashupId,
+        [FromBody] UpdateSongMashupRequestBo request)
     {
         var mashup = await songService.UpdateMashupAsync(mashupId, request);
         return Ok(mashup);

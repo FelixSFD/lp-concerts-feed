@@ -214,7 +214,7 @@ public class ConcertWithSetlistsDto : ConcertDto
     /// This is used as a cache so we don't have to hit the SQL DB all the time
     /// </summary>
     [JsonPropertyName("cachedSetlists")]
-    public required List<SetlistDto> CachedSetlists { get; set; }
+    public required List<SetlistBo> CachedSetlists { get; set; }
 
     /// <summary>
     /// Time when the <see cref="CachedSetlists"/> was last updated

@@ -24,7 +24,7 @@ public class AlbumServiceTest
     public async Task CreateAlbumAsync()
     {
         // call the service
-        var request = new CreateAlbumRequestDto
+        var request = new CreateAlbumRequestBo
         {
             Title = "From Zero",
             LinkinpediaUrl = "https://linkinpedia.com/wiki/From_Zero"
@@ -61,7 +61,7 @@ public class AlbumServiceTest
             .Returns(mockAlbum);
         
         // call the service
-        var request = new UpdateAlbumRequestDto
+        var request = new UpdateAlbumRequestBo
         {
             Title = "Mmm... cookies",
             LinkinpediaUrl = null

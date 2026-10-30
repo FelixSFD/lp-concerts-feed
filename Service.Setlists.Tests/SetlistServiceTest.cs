@@ -58,7 +58,7 @@ public class SetlistServiceTest
         _concertRepository.GetByPrimaryKeyAsync(concertId).Returns(concert);
         
         // call the service
-        var createRequest = new CreateSetlistRequestDto
+        var createRequest = new CreateSetlistRequestBo
         {
             ConcertId = concertId,
             ConcertTitle = "Setlist 1",
@@ -95,10 +95,10 @@ public class SetlistServiceTest
             LinkinpediaUrl = "https://lplive.net"
         };
 
-        var request = new AddSongToSetlistRequestDto
+        var request = new AddSongToSetlistRequestBo
         {
             Act = null,
-            EntryParameters = new SetlistEntryParametersDto
+            EntryParameters = new SetlistEntryParametersBo
             {
                 SongNumber = 1,
                 SortNumber = 10,
@@ -109,7 +109,7 @@ public class SetlistServiceTest
                 IsRotationSong = false,
                 IsLivePremiere = true
             },
-            SongParameters = new SongParametersDto
+            SongParameters = new SongParametersBo
             {
                 SongTitle = "New Song",
                 Isrc = "new1234"
@@ -165,10 +165,10 @@ public class SetlistServiceTest
             LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
         };
 
-        var request = new AddSongToSetlistRequestDto
+        var request = new AddSongToSetlistRequestBo
         {
             Act = null,
-            EntryParameters = new SetlistEntryParametersDto
+            EntryParameters = new SetlistEntryParametersBo
             {
                 SongNumber = 1,
                 SortNumber = 10,
@@ -178,7 +178,7 @@ public class SetlistServiceTest
                 IsWorldPremiere = true,
                 IsRotationSong = false
             },
-            SongParameters = new SongParametersDto
+            SongParameters = new SongParametersBo
             {
                 SongId = song1.Id
             }
@@ -238,10 +238,10 @@ public class SetlistServiceTest
             LinkinpediaUrl = "https://linkinpedia.com/wiki/QWERTY"
         };
 
-        var request = new AddSongToSetlistRequestDto
+        var request = new AddSongToSetlistRequestBo
         {
             Act = null,
-            EntryParameters = new SetlistEntryParametersDto
+            EntryParameters = new SetlistEntryParametersBo
             {
                 SongNumber = 1,
                 SortNumber = 10,
@@ -251,7 +251,7 @@ public class SetlistServiceTest
                 IsWorldPremiere = true,
                 IsRotationSong = false
             },
-            SongParameters = new SongParametersDto
+            SongParameters = new SongParametersBo
             {
                 SongId = song1.Id
             }
@@ -303,10 +303,10 @@ public class SetlistServiceTest
             LinkinpediaUrl = "https://lplive.net"
         };
 
-        var request = new AddSongMashupToSetlistRequestDto
+        var request = new AddSongMashupToSetlistRequestBo
         {
             Act = null,
-            EntryParameters = new SetlistEntryParametersDto
+            EntryParameters = new SetlistEntryParametersBo
             {
                 SongNumber = 1,
                 SortNumber = 10,
@@ -316,7 +316,7 @@ public class SetlistServiceTest
                 IsWorldPremiere = true,
                 IsRotationSong = false
             },
-            SongMashupParameters = new SongMashupParametersDto
+            SongMashupParameters = new SongMashupParametersBo
             {
                 SongMashupId = 1234
             }
@@ -403,10 +403,10 @@ public class SetlistServiceTest
             Mashup = mashup
         });
 
-        var request = new AddSongMashupToSetlistRequestDto
+        var request = new AddSongMashupToSetlistRequestBo
         {
             Act = null,
-            EntryParameters = new SetlistEntryParametersDto
+            EntryParameters = new SetlistEntryParametersBo
             {
                 SongNumber = 1,
                 SortNumber = 10,
@@ -416,7 +416,7 @@ public class SetlistServiceTest
                 IsWorldPremiere = true,
                 IsRotationSong = false
             },
-            SongMashupParameters = new SongMashupParametersDto
+            SongMashupParameters = new SongMashupParametersBo
             {
                 SongMashupId = mashup.Id
             }
@@ -469,7 +469,7 @@ public class SetlistServiceTest
             Entries = []
         };
 
-        var updateRequest = new UpdateSetlistHeaderRequestDto
+        var updateRequest = new UpdateSetlistHeaderRequestBo
         {
             SetName = "Set H5",
             ConcertId = setlist.ConcertId,
@@ -510,7 +510,7 @@ public class SetlistServiceTest
     [Fact]
     public async Task UpdateSetlistHeader_ConcertNotFound()
     {
-        var updateRequest = new UpdateSetlistHeaderRequestDto
+        var updateRequest = new UpdateSetlistHeaderRequestBo
         {
             SetName = "Set H5",
             ConcertId = Guid.NewGuid().ToString(),
@@ -549,7 +549,7 @@ public class SetlistServiceTest
     [Fact]
     public async Task UpdateSetlistHeader_SetlistNotFound()
     {
-        var updateRequest = new UpdateSetlistHeaderRequestDto
+        var updateRequest = new UpdateSetlistHeaderRequestBo
         {
             SetName = "Set H5",
             ConcertId = Guid.NewGuid().ToString(),
@@ -620,14 +620,14 @@ public class SetlistServiceTest
         entry.Act = act;
         entry.ActNumber = act.ActNumber;
 
-        var updateRequest = new UpdateSetlistEntryRequestDto
+        var updateRequest = new UpdateSetlistEntryRequestBo
         {
-            ActParameters = new ActParametersDto
+            ActParameters = new ActParametersBo
             {
                 ActNumber = 1,
                 SetlistId = setlist.Id,
             },
-            EntryParameters = new SetlistEntryParametersDto
+            EntryParameters = new SetlistEntryParametersBo
             {
                 SongNumber = 1,
                 SortNumber = 10,
@@ -637,7 +637,7 @@ public class SetlistServiceTest
                 IsWorldPremiere = true,
                 IsRotationSong = false
             },
-            SongParameters = new SongParametersDto
+            SongParameters = new SongParametersBo
             {
                 SongId = song.Id
             }
@@ -760,10 +760,10 @@ public class SetlistServiceTest
             Entries = [entry]
         };
 
-        var updateRequest = new UpdateSetlistEntryRequestDto
+        var updateRequest = new UpdateSetlistEntryRequestBo
         {
             ActParameters = null,
-            EntryParameters = new SetlistEntryParametersDto
+            EntryParameters = new SetlistEntryParametersBo
             {
                 SongNumber = 1337,
                 SortNumber = 15,
@@ -773,7 +773,7 @@ public class SetlistServiceTest
                 IsWorldPremiere = true,
                 IsRotationSong = false
             },
-            SongMashupParameters = new SongMashupParametersDto
+            SongMashupParameters = new SongMashupParametersBo
             {
                 SongMashupId = mashup.Id
             }
@@ -868,10 +868,10 @@ public class SetlistServiceTest
             Entries = [entry]
         };
 
-        var updateRequest = new UpdateSetlistEntryRequestDto
+        var updateRequest = new UpdateSetlistEntryRequestBo
         {
             ActParameters = null,
-            EntryParameters = new SetlistEntryParametersDto
+            EntryParameters = new SetlistEntryParametersBo
             {
                 SongNumber = 1337,
                 SortNumber = 15,
@@ -881,7 +881,7 @@ public class SetlistServiceTest
                 IsWorldPremiere = true,
                 IsRotationSong = false
             },
-            SongParameters = new SongParametersDto
+            SongParameters = new SongParametersBo
             {
                 SongId = song.Id
             }
@@ -984,10 +984,10 @@ public class SetlistServiceTest
             Entries = [entry]
         };
 
-        var updateRequest = new UpdateSetlistEntryRequestDto
+        var updateRequest = new UpdateSetlistEntryRequestBo
         {
             ActParameters = null,
-            EntryParameters = new SetlistEntryParametersDto
+            EntryParameters = new SetlistEntryParametersBo
             {
                 SongNumber = 1,
                 SortNumber = 10,
@@ -997,7 +997,7 @@ public class SetlistServiceTest
                 IsWorldPremiere = true,
                 IsRotationSong = false
             },
-            SongVariantParameters =  new SongVariantParametersDto
+            SongVariantParameters =  new SongVariantParametersBo
             {
                 SongId = songVariant.Id,
                 SongVariantId = songVariant.Id
@@ -1725,11 +1725,11 @@ public class SetlistServiceTest
             .GetByPrimaryKeyAsync(entry.Id)
             .Returns(entry);
 
-        var request = new AddSongExtraToSetlistEntryRequestDto
+        var request = new AddSongExtraToSetlistEntryRequestBo
         {
             SongId = song1.Id,
             Description = "extra verse",
-            Type = SetlistEntrySongExtraDto.ExtraType.ExtraVerse
+            Type = SetlistEntrySongExtraBo.ExtraType.ExtraVerse
         };
         await _setlistService.AddSongExtraToSetlistEntry(request, entry.Id);
         
@@ -1777,11 +1777,11 @@ public class SetlistServiceTest
             .GetByPrimaryKeyAsync(entry.Id)
             .Returns(entry);
 
-        var request = new AddSongExtraToSetlistEntryRequestDto
+        var request = new AddSongExtraToSetlistEntryRequestBo
         {
             SongId = 0,
             Description = "extra verse",
-            Type = SetlistEntrySongExtraDto.ExtraType.ExtraVerse
+            Type = SetlistEntrySongExtraBo.ExtraType.ExtraVerse
         };
         await _setlistService.AddSongExtraToSetlistEntry(request, entry.Id);
         

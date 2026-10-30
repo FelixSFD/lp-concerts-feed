@@ -14,9 +14,6 @@ using Service.Setlists;
 using Service.Setlists.Importer;
 using Service.Tours;
 using Service.Tours.Exceptions;
-using SetlistDto = LPCalendar.DataStructure.Setlists.SetlistDto;
-using ImportSetlistRequestDto = LPCalendar.DataStructure.Setlists.Import.ImportSetlistRequestDto;
-using ImportSetlistPreviewDto = LPCalendar.DataStructure.Setlists.Import.ImportSetlistPreviewDto;
 
 namespace Server.Api.Controllers;
 
@@ -475,8 +472,8 @@ public class ConcertsController(
     [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll, CacheTags.SetlistsAll])]
     public async Task<ActionResult<List<SetlistDto>>> GetSetlistsForConcert([FromRoute] string concertId)
     {
-        var setlistDtos = await setlistService.GetSetlistsForConcert(concertId);
-        return Ok(setlistDtos);
+        var setlistBos = await setlistService.GetSetlistsForConcert(concertId);
+        return Ok(setlistBos.Select(DtoMapper.ToDto).ToList());
     }
 
     /// <summary>
@@ -493,9 +490,9 @@ public class ConcertsController(
     {
         logger.LogDebug("Importing setlist from URL: {url} for concert {concertId}", request.LinkinpediaUrl, concertId);
         var pageTitle = request.LinkinpediaUrl.Split("/").Last();
-        var responseDto = await linkinpediaImportService.GetImportPlanForSetlistFromPageAsync(pageTitle);
+        var responseBo = await linkinpediaImportService.GetImportPlanForSetlistFromPageAsync(pageTitle);
         logger.LogDebug("Successfully generated import instructions.");
-        return Ok(responseDto);
+        return Ok(responseBo.ToDto());
     }
 
     private async Task EvictConcertCacheAsync(CancellationToken cancellationToken = default)

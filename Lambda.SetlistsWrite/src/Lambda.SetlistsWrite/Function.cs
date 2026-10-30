@@ -377,7 +377,7 @@ public class Function
     private async Task<APIGatewayProxyResponse> HandleCreateSetlist(string requestJson,
         ILambdaContext context)
     {
-        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.CreateSetlistRequestDto);
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistBoJsonContext.Default.CreateSetlistRequestBo);
         if (dto != null)
             return await HandleCreateSetlist(dto, context);
         
@@ -390,7 +390,7 @@ public class Function
     /// <param name="request"></param>
     /// <param name="context"></param>
     /// <returns></returns>
-    private async Task<APIGatewayProxyResponse> HandleCreateSetlist(CreateSetlistRequestDto request,
+    private async Task<APIGatewayProxyResponse> HandleCreateSetlist(CreateSetlistRequestBo request,
         ILambdaContext context)
     {
         var concertId = request.ConcertId;
@@ -404,13 +404,13 @@ public class Function
         
         var responseDto = await _setlistService.CreateSetlistAsync(request);
         context.Logger.LogDebug("Successfully created setlist with ID: {id}", responseDto.Id);
-        return Created(responseDto, SetlistDtoJsonContext.Default.CreateSetlistResponseDto, HttpMethod.Post);
+        return Created(responseDto, SetlistBoJsonContext.Default.CreateSetlistResponseBo, HttpMethod.Post);
     }
     
     private async Task<APIGatewayProxyResponse> HandleUpdateSetlistHeader(uint setlistId, string requestJson,
         ILambdaContext context)
     {
-        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.UpdateSetlistHeaderRequestDto);
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistBoJsonContext.Default.UpdateSetlistHeaderRequestBo);
         if (dto != null)
             return await HandleUpdateSetlistHeader(setlistId, dto, context);
         
@@ -424,7 +424,7 @@ public class Function
     /// <param name="request"></param>
     /// <param name="context"></param>
     /// <returns></returns>
-    private async Task<APIGatewayProxyResponse> HandleUpdateSetlistHeader(uint setlistId, UpdateSetlistHeaderRequestDto request,
+    private async Task<APIGatewayProxyResponse> HandleUpdateSetlistHeader(uint setlistId, UpdateSetlistHeaderRequestBo request,
         ILambdaContext context)
     {
         try
@@ -442,7 +442,7 @@ public class Function
     private async Task<APIGatewayProxyResponse> HandleReorderEntries(uint setlistId, string requestJson,
         ILambdaContext context)
     {
-        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.ReorderSetlistEntriesRequestDto);
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistBoJsonContext.Default.ReorderSetlistEntriesRequestBo);
         if (dto != null)
             return await HandleReorderEntries(setlistId, dto, context);
         
@@ -456,19 +456,19 @@ public class Function
     /// <param name="request"></param>
     /// <param name="context"></param>
     /// <returns></returns>
-    private async Task<APIGatewayProxyResponse> HandleReorderEntries(uint setlistId, ReorderSetlistEntriesRequestDto request,
+    private async Task<APIGatewayProxyResponse> HandleReorderEntries(uint setlistId, ReorderSetlistEntriesRequestBo request,
         ILambdaContext context)
     {
         try
         {
             var reorderedEntries = await _setlistService.ReorderSetlistEntriesAsync(setlistId, request.EntryIds);
             context.Logger.LogDebug("Successfully reordered setlist with ID: {id}", setlistId);
-            var response = new ReorderSetlistEntriesResponseDto
+            var response = new ReorderSetlistEntriesResponseBo
             {
-                ReorderedEntries = reorderedEntries.Select(DtoMapper.ToDto).ToList()
+                ReorderedEntries = reorderedEntries
             };
             
-            return Ok(response, SetlistDtoJsonContext.Default.ReorderSetlistEntriesResponseDto,
+            return Ok(response, SetlistBoJsonContext.Default.ReorderSetlistEntriesResponseBo,
                 CacheControlHeaderConfig.None);
         }
         catch (SetlistNotFoundException e)
@@ -480,7 +480,7 @@ public class Function
     private async Task<APIGatewayProxyResponse> HandleUpdateSetlistEntry(string requestJson, uint setlistId, string entryId,
         ILambdaContext context)
     {
-        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.UpdateSetlistEntryRequestDto);
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistBoJsonContext.Default.UpdateSetlistEntryRequestBo);
         if (dto != null)
             return await HandleUpdateSetlistEntry(dto, setlistId, entryId, context);
         
@@ -495,7 +495,7 @@ public class Function
     /// <param name="entryId">ID of the entry</param>
     /// <param name="context"></param>
     /// <returns></returns>
-    private async Task<APIGatewayProxyResponse> HandleUpdateSetlistEntry(UpdateSetlistEntryRequestDto request, uint setlistId, string entryId,
+    private async Task<APIGatewayProxyResponse> HandleUpdateSetlistEntry(UpdateSetlistEntryRequestBo request, uint setlistId, string entryId,
         ILambdaContext context)
     {
         try
@@ -512,7 +512,7 @@ public class Function
     private async Task<APIGatewayProxyResponse> HandleAddCustomEntryToSetlist(string requestJson, uint setlistId,
         ILambdaContext context)
     {
-        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.AddCustomEntryToSetlistRequestDto);
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistBoJsonContext.Default.AddCustomEntryToSetlistRequestBo);
         if (dto != null)
             return await HandleAddCustomEntryToSetlist(dto, setlistId, context);
         
@@ -526,14 +526,14 @@ public class Function
     /// <param name="setlistId">ID of the setlist</param>
     /// <param name="context"></param>
     /// <returns></returns>
-    private async Task<APIGatewayProxyResponse> HandleAddCustomEntryToSetlist(AddCustomEntryToSetlistRequestDto request, uint setlistId,
+    private async Task<APIGatewayProxyResponse> HandleAddCustomEntryToSetlist(AddCustomEntryToSetlistRequestBo request, uint setlistId,
         ILambdaContext context)
     {
         try
         {
             var entryDto = await _setlistService.AddCustomEntryToSetlistAsync(request, setlistId);
-            var responseDto = new AddCustomEntryToSetlistResponseDto(entryDto);
-            return Created(responseDto, SetlistDtoJsonContext.Default.AddCustomEntryToSetlistResponseDto, HttpMethod.Post);
+            var responseDto = new AddCustomEntryToSetlistResponseBo(entryDto);
+            return Created(responseDto, SetlistBoJsonContext.Default.AddCustomEntryToSetlistResponseBo, HttpMethod.Post);
         }
         catch (SetlistNotFoundException e)
         {
@@ -544,7 +544,7 @@ public class Function
     private async Task<APIGatewayProxyResponse> HandleAddSongToSetlist(string requestJson, uint setlistId,
         ILambdaContext context)
     {
-        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.AddSongToSetlistRequestDto);
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistBoJsonContext.Default.AddSongToSetlistRequestBo);
         if (dto != null)
             return await HandleAddSongToSetlist(dto, setlistId, context);
         
@@ -558,14 +558,14 @@ public class Function
     /// <param name="setlistId">ID of the setlist</param>
     /// <param name="context"></param>
     /// <returns></returns>
-    private async Task<APIGatewayProxyResponse> HandleAddSongToSetlist(AddSongToSetlistRequestDto request, uint setlistId,
+    private async Task<APIGatewayProxyResponse> HandleAddSongToSetlist(AddSongToSetlistRequestBo request, uint setlistId,
         ILambdaContext context)
     {
         try
         {
             var entryDto = await _setlistService.AddSongToSetlistAsync(request, setlistId);
-            var responseDto = new AddSongToSetlistResponseDto(entryDto);
-            return Created(responseDto, SetlistDtoJsonContext.Default.AddSongToSetlistResponseDto, HttpMethod.Post);
+            var responseDto = new AddSongToSetlistResponseBo(entryDto);
+            return Created(responseDto, SetlistBoJsonContext.Default.AddSongToSetlistResponseBo, HttpMethod.Post);
         }
         catch (SetlistNotFoundException e)
         {
@@ -577,7 +577,7 @@ public class Function
     private async Task<APIGatewayProxyResponse> HandleAddSongVariantToSetlist(string requestJson, uint setlistId,
         ILambdaContext context)
     {
-        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.AddSongVariantToSetlistRequestDto);
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistBoJsonContext.Default.AddSongVariantToSetlistRequestBo);
         if (dto != null)
             return await HandleAddSongVariantToSetlist(dto, setlistId, context);
         
@@ -591,14 +591,14 @@ public class Function
     /// <param name="setlistId">ID of the setlist</param>
     /// <param name="context"></param>
     /// <returns></returns>
-    private async Task<APIGatewayProxyResponse> HandleAddSongVariantToSetlist(AddSongVariantToSetlistRequestDto request, uint setlistId,
+    private async Task<APIGatewayProxyResponse> HandleAddSongVariantToSetlist(AddSongVariantToSetlistRequestBo request, uint setlistId,
         ILambdaContext context)
     {
         try
         {
             var entryDto = await _setlistService.AddSongVariantToSetlistAsync(request, setlistId);
-            var responseDto = new AddSongVariantToSetlistResponseDto(entryDto);
-            return Created(responseDto, SetlistDtoJsonContext.Default.AddSongVariantToSetlistResponseDto, HttpMethod.Post);
+            var responseDto = new AddSongVariantToSetlistResponseBo(entryDto);
+            return Created(responseDto, SetlistBoJsonContext.Default.AddSongVariantToSetlistResponseBo, HttpMethod.Post);
         }
         catch (SetlistNotFoundException e)
         {
@@ -609,7 +609,7 @@ public class Function
     private async Task<APIGatewayProxyResponse> HandleAddSongMashupToSetlist(string requestJson, uint setlistId,
         ILambdaContext context)
     {
-        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.AddSongMashupToSetlistRequestDto);
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistBoJsonContext.Default.AddSongMashupToSetlistRequestBo);
         if (dto != null)
             return await HandleAddSongMashupToSetlist(dto, setlistId, context);
         
@@ -623,14 +623,14 @@ public class Function
     /// <param name="setlistId">ID of the setlist</param>
     /// <param name="context"></param>
     /// <returns></returns>
-    private async Task<APIGatewayProxyResponse> HandleAddSongMashupToSetlist(AddSongMashupToSetlistRequestDto request, uint setlistId,
+    private async Task<APIGatewayProxyResponse> HandleAddSongMashupToSetlist(AddSongMashupToSetlistRequestBo request, uint setlistId,
         ILambdaContext context)
     {
         try
         {
             var entryDto = await _setlistService.AddSongMashupToSetlistAsync(request, setlistId);
-            var responseDto = new AddSongMashupToSetlistResponseDto(entryDto);
-            return Created(responseDto, SetlistDtoJsonContext.Default.AddSongMashupToSetlistResponseDto, HttpMethod.Post);
+            var responseDto = new AddSongMashupToSetlistResponseBo(entryDto);
+            return Created(responseDto, SetlistBoJsonContext.Default.AddSongMashupToSetlistResponseBo, HttpMethod.Post);
         }
         catch (SetlistNotFoundException e)
         {
@@ -668,7 +668,7 @@ public class Function
     private async Task<APIGatewayProxyResponse> HandleCreateAlbum(string requestJson,
         ILambdaContext context)
     {
-        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.CreateAlbumRequestDto);
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistBoJsonContext.Default.CreateAlbumRequestBo);
         if (dto != null)
             return await HandleCreateAlbum(dto, context);
         
@@ -681,18 +681,18 @@ public class Function
     /// <param name="request"></param>
     /// <param name="context"></param>
     /// <returns></returns>
-    private async Task<APIGatewayProxyResponse> HandleCreateAlbum(CreateAlbumRequestDto request,
+    private async Task<APIGatewayProxyResponse> HandleCreateAlbum(CreateAlbumRequestBo request,
         ILambdaContext context)
     {
         var responseDto = await _albumService.CreateAlbumAsync(request);
         context.Logger.LogDebug("Successfully created album with ID: {id}", responseDto.Id);
-        return Created(responseDto, SetlistDtoJsonContext.Default.AlbumDto, HttpMethod.Post);
+        return Created(responseDto, SetlistBoJsonContext.Default.AlbumBo, HttpMethod.Post);
     }
     
     private async Task<APIGatewayProxyResponse> HandleUpdateAlbum(uint albumId, string requestJson,
         ILambdaContext context)
     {
-        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.UpdateAlbumRequestDto);
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistBoJsonContext.Default.UpdateAlbumRequestBo);
         if (dto != null)
             return await HandleUpdateAlbum(albumId, dto, context);
         
@@ -719,14 +719,14 @@ public class Function
     /// <param name="request">new data</param>
     /// <param name="context"></param>
     /// <returns></returns>
-    private async Task<APIGatewayProxyResponse> HandleUpdateAlbum(uint albumId, UpdateAlbumRequestDto request,
+    private async Task<APIGatewayProxyResponse> HandleUpdateAlbum(uint albumId, UpdateAlbumRequestBo request,
         ILambdaContext context)
     {
         try
         {
             var responseDto = await _albumService.UpdateAlbumAsync(albumId, request);
             context.Logger.LogDebug("Successfully updated album with ID: {id}", responseDto.Id);
-            return Ok(responseDto, SetlistDtoJsonContext.Default.AlbumDto, HttpMethod.Post);
+            return Ok(responseDto, SetlistBoJsonContext.Default.AlbumBo, HttpMethod.Post);
         }
         catch (AlbumNotFoundException e)
         {
@@ -738,7 +738,7 @@ public class Function
     private async Task<APIGatewayProxyResponse> HandleCreateMashup(string requestJson,
         ILambdaContext context)
     {
-        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.CreateSongMashupRequestDto);
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistBoJsonContext.Default.CreateSongMashupRequestBo);
         if (dto != null)
             return await HandleCreateMashup(dto, context);
         
@@ -751,14 +751,14 @@ public class Function
     /// <param name="request"></param>
     /// <param name="context"></param>
     /// <returns></returns>
-    private async Task<APIGatewayProxyResponse> HandleCreateMashup(CreateSongMashupRequestDto request,
+    private async Task<APIGatewayProxyResponse> HandleCreateMashup(CreateSongMashupRequestBo request,
         ILambdaContext context)
     {
         try
         {
             var responseDto = await _songService.CreateMashupOfSongsAsync(request);
             context.Logger.LogDebug("Successfully created mashup with ID: {id}", responseDto.Id);
-            return Created(responseDto, SetlistDtoJsonContext.Default.SongMashupDto, HttpMethod.Post);
+            return Created(responseDto, SetlistBoJsonContext.Default.SongMashupBo, HttpMethod.Post);
         }
         catch (InvalidMashupException e)
         {
@@ -782,7 +782,7 @@ public class Function
     private async Task<APIGatewayProxyResponse> HandleUpdateMashup(uint mashupId, string requestJson,
         ILambdaContext context)
     {
-        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.UpdateSongMashupRequestDto);
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistBoJsonContext.Default.UpdateSongMashupRequestBo);
         if (dto != null)
             return await HandleUpdateMashup(mashupId, dto, context);
         
@@ -796,14 +796,14 @@ public class Function
     /// <param name="request">new data</param>
     /// <param name="context"></param>
     /// <returns></returns>
-    private async Task<APIGatewayProxyResponse> HandleUpdateMashup(uint mashupId, UpdateSongMashupRequestDto request,
+    private async Task<APIGatewayProxyResponse> HandleUpdateMashup(uint mashupId, UpdateSongMashupRequestBo request,
         ILambdaContext context)
     {
         try
         {
             var responseDto = await _songService.UpdateMashupAsync(mashupId, request);
             context.Logger.LogDebug("Successfully updated mashup with ID: {id}", responseDto.Id);
-            return Ok(responseDto, SetlistDtoJsonContext.Default.SongMashupDto, HttpMethod.Post);
+            return Ok(responseDto, SetlistBoJsonContext.Default.SongMashupBo, HttpMethod.Post);
         }
         catch (InvalidMashupException e)
         {
@@ -827,7 +827,7 @@ public class Function
     private async Task<APIGatewayProxyResponse> HandleCreateSong(string requestJson,
         ILambdaContext context)
     {
-        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.CreateSongRequestDto);
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistBoJsonContext.Default.CreateSongRequestBo);
         if (dto != null)
             return await HandleCreateSong(dto, context);
         
@@ -840,14 +840,14 @@ public class Function
     /// <param name="request"></param>
     /// <param name="context"></param>
     /// <returns></returns>
-    private async Task<APIGatewayProxyResponse> HandleCreateSong(CreateSongRequestDto request,
+    private async Task<APIGatewayProxyResponse> HandleCreateSong(CreateSongRequestBo request,
         ILambdaContext context)
     {
         try
         {
             var responseDto = await _songService.CreateSongAsync(request);
             context.Logger.LogDebug("Successfully created song with ID: {id}", responseDto.Id);
-            return Created(responseDto, SetlistDtoJsonContext.Default.SongDto, HttpMethod.Post);
+            return Created(responseDto, SetlistBoJsonContext.Default.SongBo, HttpMethod.Post);
         }
         catch (InvalidMashupException e)
         {
@@ -858,7 +858,7 @@ public class Function
     private async Task<APIGatewayProxyResponse> HandleUpdateSong(uint songId, string requestJson,
         ILambdaContext context)
     {
-        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.UpdateSongRequestDto);
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistBoJsonContext.Default.UpdateSongRequestBo);
         if (dto != null)
             return await HandleUpdateSong(songId, dto, context);
         
@@ -872,14 +872,14 @@ public class Function
     /// <param name="request">new data</param>
     /// <param name="context"></param>
     /// <returns></returns>
-    private async Task<APIGatewayProxyResponse> HandleUpdateSong(uint songId, UpdateSongRequestDto request,
+    private async Task<APIGatewayProxyResponse> HandleUpdateSong(uint songId, UpdateSongRequestBo request,
         ILambdaContext context)
     {
         try
         {
             var responseDto = await _songService.UpdateSongAsync(songId, request);
             context.Logger.LogDebug("Successfully updated song with ID: {id}", responseDto.Id);
-            return Ok(responseDto, SetlistDtoJsonContext.Default.SongDto, HttpMethod.Post);
+            return Ok(responseDto, SetlistBoJsonContext.Default.SongBo, HttpMethod.Post);
         }
         catch (InvalidMashupException e)
         {
@@ -890,7 +890,7 @@ public class Function
     private async Task<APIGatewayProxyResponse> HandleImportSetlist(string requestJson,
         ILambdaContext context)
     {
-        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.ImportSetlistRequestDto);
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistBoJsonContext.Default.ImportSetlistRequestBo);
         if (dto != null)
             return await HandleImportSetlist(dto, context);
         
@@ -903,19 +903,19 @@ public class Function
     /// <param name="request"></param>
     /// <param name="context"></param>
     /// <returns></returns>
-    private async Task<APIGatewayProxyResponse> HandleImportSetlist(ImportSetlistRequestDto request,
+    private async Task<APIGatewayProxyResponse> HandleImportSetlist(ImportSetlistRequestBo request,
         ILambdaContext context)
     {
         context.Logger.LogDebug("Importing from URL: {url}", request.LinkinpediaUrl);
         var responseDto = await _linkinpediaImportService.GetImportPlanForSetlistFromPageAsync(request.LinkinpediaUrl.Split("/").Last());
         context.Logger.LogDebug("Successfully generated import instructions.");
-        return Ok(responseDto, SetlistDtoJsonContext.Default.ImportSetlistPreviewDto, HttpMethod.Post);
+        return Ok(responseDto, SetlistBoJsonContext.Default.ImportSetlistPreviewBo, HttpMethod.Post);
     }
     
     private async Task<APIGatewayProxyResponse> HandleAddSetlistEntrySongExtra(string requestJson, uint setlistId, string setlistEntryId,
         ILambdaContext context)
     {
-        var dto = JsonSerializer.Deserialize(requestJson, SetlistDtoJsonContext.Default.AddSongExtraToSetlistEntryRequestDto);
+        var dto = JsonSerializer.Deserialize(requestJson, SetlistBoJsonContext.Default.AddSongExtraToSetlistEntryRequestBo);
         if (dto == null)
             return ReturnBadRequest("Failed to deserialize the request body", HttpMethod.Post, context.Logger);
         
@@ -928,7 +928,7 @@ public class Function
     /// <param name="request"></param>
     /// <param name="context"></param>
     /// <returns></returns>
-    private async Task<APIGatewayProxyResponse> HandleAddSetlistEntrySongExtra(AddSongExtraToSetlistEntryRequestDto request, uint setlistId, string setlistEntryId,
+    private async Task<APIGatewayProxyResponse> HandleAddSetlistEntrySongExtra(AddSongExtraToSetlistEntryRequestBo request, uint setlistId, string setlistEntryId,
         ILambdaContext context)
     {
         context.Logger.LogDebug("Adding extra to setlist entry: {entryId}", setlistEntryId);
@@ -936,12 +936,12 @@ public class Function
         context.Logger.LogDebug("Successfully added extra.");
         
         var entry = await _setlistService.GetSetlistEntryAsync(setlistId, setlistEntryId);
-        var responseDto = new AddSongExtraToSetlistEntryResponseDto
+        var responseDto = new AddSongExtraToSetlistEntryResponseBo
         {
             Entry = entry
         };
         
-        return Ok(responseDto, SetlistDtoJsonContext.Default.AddSongExtraToSetlistEntryResponseDto, HttpMethod.Post);
+        return Ok(responseDto, SetlistBoJsonContext.Default.AddSongExtraToSetlistEntryResponseBo, HttpMethod.Post);
     }
     
     /// <summary>

@@ -11,13 +11,13 @@ namespace Service.Setlists;
 public static class DtoMapper
 {
     /// <summary>
-    /// Maps a <see cref="AlbumDo"/> to <see cref="AlbumDto"/>
+    /// Maps a <see cref="AlbumDo"/> to <see cref="AlbumBo"/>
     /// </summary>
     /// <param name="albumDo">Song to map to its DTO</param>
     /// <returns>the DTO</returns>
-    public static AlbumDto ToDto(AlbumDo albumDo)
+    public static AlbumBo ToDto(AlbumDo albumDo)
     {
-        return new AlbumDto
+        return new AlbumBo
         {
             Id = albumDo.Id,
             Title = albumDo.Title,
@@ -26,21 +26,21 @@ public static class DtoMapper
     }
     
     /// <summary>
-    /// Maps a <see cref="AlbumDo"/> to <see cref="AlbumDto"/>
+    /// Maps a <see cref="AlbumDo"/> to <see cref="AlbumBo"/>
     /// </summary>
     /// <param name="albumDo">Song to map to its DTO</param>
     /// <returns>the DTO</returns>
-    public static AlbumDto? ToDtoNullable(AlbumDo? albumDo) 
+    public static AlbumBo? ToDtoNullable(AlbumDo? albumDo) 
         => albumDo == null ? null : ToDto(albumDo);
 
     /// <summary>
-    /// Maps a <see cref="SongDo"/> to <see cref="SongDto"/>
+    /// Maps a <see cref="SongDo"/> to <see cref="SongBo"/>
     /// </summary>
     /// <param name="songDo">Song to map to its DTO</param>
     /// <returns>the DTO</returns>
-    public static SongDto ToDto(SongDo songDo)
+    public static SongBo ToDto(SongDo songDo)
     {
-        return new SongDto
+        return new SongBo
         {
             Id = songDo.Id,
             Title = songDo.Title,
@@ -52,16 +52,16 @@ public static class DtoMapper
     }
     
     /// <summary>
-    /// Maps a <see cref="SongDo"/> to <see cref="SongDto"/>
+    /// Maps a <see cref="SongDo"/> to <see cref="SongBo"/>
     /// </summary>
     /// <param name="songDo">Song to map to its DTO</param>
     /// <returns>the DTO</returns>
-    private static SongDto? ToDtoNullable(SongDo? songDo)
+    private static SongBo? ToDtoNullable(SongDo? songDo)
     {
         if (songDo == null)
             return null;
         
-        return new SongDto
+        return new SongBo
         {
             Id = songDo.Id,
             Title = songDo.Title,
@@ -73,16 +73,16 @@ public static class DtoMapper
     }
     
     /// <summary>
-    /// Maps a <see cref="SongVariantDo"/> to <see cref="SongVariantDto"/>
+    /// Maps a <see cref="SongVariantDo"/> to <see cref="SongVariantBo"/>
     /// </summary>
     /// <param name="songVariantDo">Song variant to map to its DTO</param>
     /// <returns>the DTO</returns>
-    private static SongVariantDto? ToDtoNullable(SongVariantDo? songVariantDo)
+    private static SongVariantBo? ToDtoNullable(SongVariantDo? songVariantDo)
     {
         if (songVariantDo == null)
             return null;
         
-        return new SongVariantDto
+        return new SongVariantBo
         {
             Id = songVariantDo.Id,
             SongId = songVariantDo.SongId,
@@ -94,13 +94,13 @@ public static class DtoMapper
     }
     
     /// <summary>
-    /// Maps a <see cref="SongVariantDo"/> to <see cref="SongVariantDto"/>
+    /// Maps a <see cref="SongVariantDo"/> to <see cref="SongVariantBo"/>
     /// </summary>
     /// <param name="songVariantDo">Song variant to map to its DTO</param>
     /// <returns>the DTO</returns>
-    public static SongVariantDto ToDto(SongVariantDo songVariantDo)
+    public static SongVariantBo ToDto(SongVariantDo songVariantDo)
     {
-        return new SongVariantDto
+        return new SongVariantBo
         {
             Id = songVariantDo.Id,
             SongId = songVariantDo.SongId,
@@ -112,13 +112,13 @@ public static class DtoMapper
     }
     
     /// <summary>
-    /// Maps a <see cref="SongMashupDo"/> to <see cref="SongMashupDto"/>
+    /// Maps a <see cref="SongMashupDo"/> to <see cref="SongMashupBo"/>
     /// </summary>
     /// <param name="songMashupDo">Song mashup to map to its DTO</param>
     /// <returns>the DTO</returns>
-    public static SongMashupDto ToDto(SongMashupDo songMashupDo)
+    public static SongMashupBo ToDto(SongMashupDo songMashupDo)
     {
-        return new SongMashupDto
+        return new SongMashupBo
         {
             Id = songMashupDo.Id,
             Title = songMashupDo.Title,
@@ -132,23 +132,23 @@ public static class DtoMapper
     }
     
     /// <summary>
-    /// Maps a <see cref="SongMashupDo"/> to <see cref="SongMashupDto"/>
+    /// Maps a <see cref="SongMashupDo"/> to <see cref="SongMashupBo"/>
     /// </summary>
     /// <param name="songMashupDo">Song mashup to map to its DTO</param>
     /// <returns>the DTO</returns>
-    private static SongMashupDto? ToDtoNullable(SongMashupDo? songMashupDo)
+    private static SongMashupBo? ToDtoNullable(SongMashupDo? songMashupDo)
     {
         return songMashupDo == null ? null : ToDto(songMashupDo);
     }
     
     /// <summary>
-    /// Maps a <see cref="SetlistActDo"/> to <see cref="SetlistActDto"/>
+    /// Maps a <see cref="SetlistActDo"/> to <see cref="SetlistActBo"/>
     /// </summary>
     /// <param name="actDo">Setlist act to map to its DTO</param>
     /// <returns>the DTO</returns>
-    public static SetlistActDto ToDto(SetlistActDo actDo)
+    public static SetlistActBo ToDto(SetlistActDo actDo)
     {
-        return new SetlistActDto
+        return new SetlistActBo
         {
             SetlistId = actDo.SetlistId,
             ActNumber = actDo.ActNumber,
@@ -157,11 +157,11 @@ public static class DtoMapper
     }
 
     /// <summary>
-    /// Maps a <see cref="SetlistDo"/> to <see cref="SetlistDto"/>
+    /// Maps a <see cref="SetlistDo"/> to <see cref="SetlistBo"/>
     /// </summary>
     /// <param name="setlistDo">Setlist to map to its DTO</param>
     /// <returns>the DTO</returns>
-    public static SetlistDto ToDto(SetlistDo setlistDo)
+    public static SetlistBo ToDto(SetlistDo setlistDo)
     {
         var entries = setlistDo.Entries?
             .OrderBy(se => se.SortNumber)
@@ -175,7 +175,7 @@ public static class DtoMapper
             .Select(ToDto)
             .ToList();
         
-        return new SetlistDto
+        return new SetlistBo
         {
             Id = setlistDo.Id,
             ConcertId = setlistDo.ConcertId,
@@ -188,13 +188,13 @@ public static class DtoMapper
     }
     
     /// <summary>
-    /// Maps a <see cref="SetlistDo"/> to <see cref="SetlistHeaderDto"/>
+    /// Maps a <see cref="SetlistDo"/> to <see cref="SetlistHeaderBo"/>
     /// </summary>
     /// <param name="setlistDo">Setlist to map to its DTO</param>
     /// <returns>the DTO</returns>
-    public static SetlistHeaderDto ToHeaderOnlyDto(SetlistDo setlistDo)
+    public static SetlistHeaderBo ToHeaderOnlyDto(SetlistDo setlistDo)
     {
-        return new SetlistHeaderDto
+        return new SetlistHeaderBo
         {
             Id = setlistDo.Id,
             ConcertId = setlistDo.ConcertId,
@@ -205,13 +205,13 @@ public static class DtoMapper
     }
     
     /// <summary>
-    /// Maps a <see cref="SetlistEntryDo"/> to <see cref="SetlistEntryDto"/>
+    /// Maps a <see cref="SetlistEntryDo"/> to <see cref="SetlistEntryBo"/>
     /// </summary>
     /// <param name="setlistEntryDo">Setlist entry to map to its DTO</param>
     /// <returns>the DTO</returns>
-    public static SetlistEntryDto ToDto(SetlistEntryDo setlistEntryDo)
+    public static SetlistEntryBo ToDto(SetlistEntryDo setlistEntryDo)
     {
-        return new SetlistEntryDto
+        return new SetlistEntryBo
         {
             Id = setlistEntryDo.Id,
             ActNumber = setlistEntryDo.ActNumber,
@@ -229,7 +229,7 @@ public static class DtoMapper
             IsRotationSong = setlistEntryDo.IsRotationSong,
             IsWorldPremiere = setlistEntryDo.IsWorldPremiere,
             IsLivePremiere = setlistEntryDo.IsLivePremiere,
-            SongExtras = setlistEntryDo.SongExtras.Select(ToDto).ToList(),
+            SongExtras = setlistEntryDo.SongExtras?.Select(ToDto).ToList() ?? [],
         };
     }
     
@@ -248,13 +248,13 @@ public static class DtoMapper
     }
     
     /// <summary>
-    /// Maps a <see cref="SetlistEntryDo"/> to <see cref="SetlistEntryDto"/>
+    /// Maps a <see cref="SetlistEntryDo"/> to <see cref="SetlistEntryBo"/>
     /// </summary>
     /// <param name="setlistEntryDo">Setlist entry to map to its DTO</param>
     /// <returns>the DTO</returns>
-    public static RawSetlistEntryDto ToRawDto(SetlistEntryDo setlistEntryDo)
+    public static RawSetlistEntryBo ToRawDto(SetlistEntryDo setlistEntryDo)
     {
-        return new RawSetlistEntryDto
+        return new RawSetlistEntryBo
         {
             Id = setlistEntryDo.Id,
             ActNumber = setlistEntryDo.ActNumber,
@@ -270,26 +270,26 @@ public static class DtoMapper
             IsRotationSong = setlistEntryDo.IsRotationSong,
             IsWorldPremiere = setlistEntryDo.IsWorldPremiere,
             IsLivePremiere = setlistEntryDo.IsLivePremiere,
-            SongExtras = setlistEntryDo.SongExtras.Select(ToDto).ToList()
+            SongExtras = setlistEntryDo.SongExtras?.Select(ToDto).ToList() ?? []
         };
     }
 
-    public static SetlistEntrySongExtraDo.ExtraType FromDto(SetlistEntrySongExtraDto.ExtraType dto)
+    public static SetlistEntrySongExtraDo.ExtraType FromDto(SetlistEntrySongExtraBo.ExtraType dto)
     {
         return dto switch
         {
-            SetlistEntrySongExtraDto.ExtraType.ExtendedBridge => SetlistEntrySongExtraDo.ExtraType.ExtendedBridge,
-            SetlistEntrySongExtraDto.ExtraType.ExtraVerse => SetlistEntrySongExtraDo.ExtraType.ExtraVerse,
+            SetlistEntrySongExtraBo.ExtraType.ExtendedBridge => SetlistEntrySongExtraDo.ExtraType.ExtendedBridge,
+            SetlistEntrySongExtraBo.ExtraType.ExtraVerse => SetlistEntrySongExtraDo.ExtraType.ExtraVerse,
             _ => throw new NotImplementedException()
         };
     }
     
-    public static SetlistEntrySongExtraDto.ExtraType ToDto(SetlistEntrySongExtraDo.ExtraType dto)
+    public static SetlistEntrySongExtraBo.ExtraType ToDto(SetlistEntrySongExtraDo.ExtraType dto)
     {
         return dto switch
         {
-            SetlistEntrySongExtraDo.ExtraType.ExtendedBridge => SetlistEntrySongExtraDto.ExtraType.ExtendedBridge,
-            SetlistEntrySongExtraDo.ExtraType.ExtraVerse => SetlistEntrySongExtraDto.ExtraType.ExtraVerse,
+            SetlistEntrySongExtraDo.ExtraType.ExtendedBridge => SetlistEntrySongExtraBo.ExtraType.ExtendedBridge,
+            SetlistEntrySongExtraDo.ExtraType.ExtraVerse => SetlistEntrySongExtraBo.ExtraType.ExtraVerse,
             _ => throw new NotImplementedException()
         };
     }
@@ -299,9 +299,9 @@ public static class DtoMapper
     /// </summary>
     /// <param name="songExtraDo"></param>
     /// <returns></returns>
-    public static SetlistEntrySongExtraDto ToDto(SetlistEntrySongExtraDo songExtraDo)
+    public static SetlistEntrySongExtraBo ToDto(SetlistEntrySongExtraDo songExtraDo)
     {
-        return new SetlistEntrySongExtraDto
+        return new SetlistEntrySongExtraBo
         {
             Id = songExtraDo.Id,
             Type = ToDto(songExtraDo.Type),

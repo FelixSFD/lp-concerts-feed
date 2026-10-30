@@ -25,7 +25,7 @@ public class AlbumsController(AlbumService albumService) : ControllerBase
     [HttpGet]
     [OutputCache(PolicyName = CachePolicyNames.Long, Tags = [CacheTags.AlbumsAll])]
     [CustomResponseCache(Duration = CacheExpiration.Medium)]
-    public async Task<ActionResult<AlbumDto[]>> GetAllAlbums(CancellationToken cancellationToken)
+    public async Task<ActionResult<AlbumBo[]>> GetAllAlbums(CancellationToken cancellationToken)
     {
         return Ok(await albumService.GetAllAlbumsAsync(cancellationToken).ToArrayAsync(cancellationToken));
     }
@@ -38,7 +38,7 @@ public class AlbumsController(AlbumService albumService) : ControllerBase
     [HttpPost]
     [AuthorizeRoles(RoleNames.ManageSetlists)]
     [ClearCache(Tags = [CacheTags.AlbumsAll])]
-    public async Task<CreatedAtActionResult> CreateAlbum([FromBody] CreateAlbumRequestDto request)
+    public async Task<CreatedAtActionResult> CreateAlbum([FromBody] CreateAlbumRequestBo request)
     {
         var album = await albumService.CreateAlbumAsync(request);
         return CreatedAtAction(nameof(GetAlbumById), new { albumId = album.Id }, album);
@@ -52,7 +52,7 @@ public class AlbumsController(AlbumService albumService) : ControllerBase
     [HttpGet("{albumId:int}")]
     [OutputCache(PolicyName = CachePolicyNames.Long, Tags = [CacheTags.AlbumsAll])]
     [CustomResponseCache(Duration = CacheExpiration.Medium)]
-    public async Task<ActionResult<AlbumDto>> GetAlbumById([FromRoute] uint albumId)
+    public async Task<ActionResult<AlbumBo>> GetAlbumById([FromRoute] uint albumId)
     {
         var album = await albumService.GetAlbumById(albumId);
         return Ok(album);
@@ -67,8 +67,8 @@ public class AlbumsController(AlbumService albumService) : ControllerBase
     [HttpPut("{albumId:int}")]
     [AuthorizeRoles(RoleNames.ManageSetlists)]
     [ClearCache(Tags = [CacheTags.AlbumsAll])]
-    public async Task<ActionResult<AlbumDto>> UpdateAlbum([FromRoute] uint albumId,
-        [FromBody] UpdateAlbumRequestDto request)
+    public async Task<ActionResult<AlbumBo>> UpdateAlbum([FromRoute] uint albumId,
+        [FromBody] UpdateAlbumRequestBo request)
     {
         var album = await albumService.UpdateAlbumAsync(albumId, request);
         return Ok(album);

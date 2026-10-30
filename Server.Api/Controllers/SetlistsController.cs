@@ -1,12 +1,11 @@
-using Asp.Versioning;
+using Common.Contracts.Generated.Models;
 using Common.Utils.Cache;
-using LPCalendar.DataStructure.Converters;
-using LPCalendar.DataStructure.Setlists;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Server.Api.Auth;
 using Server.Api.Cache;
 using Service.Setlists;
+using AddSongToSetlistRequestDto = Common.Contracts.Generated.Models.AddSongToSetlistRequestDto;
 
 namespace Server.Api.Controllers;
 
@@ -28,7 +27,7 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<SetlistHeaderDto[]>> GetSetlistHeaders(CancellationToken cancellationToken)
     {
-        return Ok(await setlistService.GetSetlistHeaders(cancellationToken).ToArrayAsync(cancellationToken));
+        return Ok(await setlistService.GetSetlistHeaders(cancellationToken).Select(DtoMapper.ToDto).ToArrayAsync(cancellationToken));
     }
 
     /// <summary>
@@ -41,7 +40,8 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     [ClearCache(Tags = [CacheTags.SetlistsAll])]
     public async Task<CreatedAtActionResult> CreateSetlist([FromBody] CreateSetlistRequestDto request)
     {
-        var responseDto = await setlistService.CreateSetlistAsync(request);
+        var responseBo = await setlistService.CreateSetlistAsync(request.ToBo());
+        var responseDto = responseBo.ToDto();
         return CreatedAtAction(nameof(GetCompleteSetlist), new { setlistId = responseDto.Id }, responseDto);
     }
 
@@ -55,8 +55,8 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<SetlistDto>> GetCompleteSetlist([FromRoute] uint setlistId)
     {
-        var setlistDto = await setlistService.GetCompleteSetlist(setlistId);
-        return Ok(setlistDto);
+        var setlistBo = await setlistService.GetCompleteSetlist(setlistId);
+        return Ok(setlistBo.ToDto());
     }
 
     /// <summary>
@@ -71,7 +71,7 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     public async Task<NoContentResult> UpdateSetlistHeader([FromRoute] uint setlistId,
         [FromBody] UpdateSetlistHeaderRequestDto request)
     {
-        await setlistService.UpdateSetlistHeader(setlistId, request);
+        await setlistService.UpdateSetlistHeader(setlistId, request.ToBo());
         return NoContent();
     }
 
@@ -101,7 +101,7 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     public async Task<ActionResult<SetlistActDto[]>> GetActsInSetlist([FromRoute] uint setlistId,
         CancellationToken cancellationToken)
     {
-        return Ok(await setlistService.GetActsWithinSetlistAsync(setlistId).ToArrayAsync(cancellationToken));
+        return Ok(await setlistService.GetActsWithinSetlistAsync(setlistId).Select(DtoMapper.ToDto).ToArrayAsync(cancellationToken));
     }
 
     /// <summary>
@@ -116,8 +116,8 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     public async Task<ActionResult<RawSetlistEntryDto>> GetSetlistEntry([FromRoute] uint setlistId,
         [FromRoute] string entryId)
     {
-        var setlistEntryDto = await setlistService.GetSetlistEntryAsync(setlistId, entryId);
-        return Ok(setlistEntryDto);
+        var setlistEntryBo = await setlistService.GetSetlistEntryAsync(setlistId, entryId);
+        return Ok(setlistEntryBo.ToDto());
     }
 
     /// <summary>
@@ -133,7 +133,7 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     public async Task<NoContentResult> UpdateSetlistEntry([FromRoute] uint setlistId, [FromRoute] string entryId,
         [FromBody] UpdateSetlistEntryRequestDto request)
     {
-        await setlistService.UpdateSetlistEntryAsync(setlistId, entryId, request);
+        await setlistService.UpdateSetlistEntryAsync(setlistId, entryId, request.ToBo());
         return NoContent();
     }
 
@@ -164,8 +164,8 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     public async Task<ActionResult<AddSongToSetlistResponseDto>> AddSongToSetlist([FromRoute] uint setlistId,
         [FromBody] AddSongToSetlistRequestDto request)
     {
-        var entry = await setlistService.AddSongToSetlistAsync(request, setlistId);
-        return Ok(new AddSongToSetlistResponseDto(entry));
+        var entry = await setlistService.AddSongToSetlistAsync(request.ToBo(), setlistId);
+        return Ok(new AddSongToSetlistResponseDto { AddedSetlistEntry = entry.ToDto() });
     }
 
     /// <summary>
@@ -180,8 +180,8 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     public async Task<ActionResult<AddSongVariantToSetlistResponseDto>> AddSongVariantToSetlist(
         [FromRoute] uint setlistId, [FromBody] AddSongVariantToSetlistRequestDto request)
     {
-        var entry = await setlistService.AddSongVariantToSetlistAsync(request, setlistId);
-        return Ok(new AddSongVariantToSetlistResponseDto(entry));
+        var entry = await setlistService.AddSongVariantToSetlistAsync(request.ToBo(), setlistId);
+        return Ok(new AddSongVariantToSetlistResponseDto { AddedSetlistEntry = entry.ToDto() });
     }
 
     /// <summary>
@@ -196,8 +196,8 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     public async Task<ActionResult<AddSongMashupToSetlistResponseDto>> AddSongMashupToSetlist(
         [FromRoute] uint setlistId, [FromBody] AddSongMashupToSetlistRequestDto request)
     {
-        var entry = await setlistService.AddSongMashupToSetlistAsync(request, setlistId);
-        return Ok(new AddSongMashupToSetlistResponseDto(entry));
+        var entry = await setlistService.AddSongMashupToSetlistAsync(request.ToBo(), setlistId);
+        return Ok(new AddSongMashupToSetlistResponseDto { AddedSetlistEntry = entry.ToDto() });
     }
 
     /// <summary>
@@ -212,8 +212,8 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     public async Task<ActionResult<AddCustomEntryToSetlistResponseDto>> AddCustomEntryToSetlist(
         [FromRoute] uint setlistId, [FromBody] AddCustomEntryToSetlistRequestDto request)
     {
-        var entry = await setlistService.AddCustomEntryToSetlistAsync(request, setlistId);
-        return Ok(new AddCustomEntryToSetlistResponseDto(entry));
+        var entry = await setlistService.AddCustomEntryToSetlistAsync(request.ToBo(), setlistId);
+        return Ok(new AddCustomEntryToSetlistResponseDto { AddedSetlistEntry = entry.ToDto() });
     }
 
     /// <summary>
@@ -228,10 +228,10 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     public async Task<ActionResult<ReorderSetlistEntriesResponseDto>> ReorderSetlistEntries([FromRoute] uint setlistId,
         [FromBody] ReorderSetlistEntriesRequestDto request)
     {
-        var reorderedEntries = await setlistService.ReorderSetlistEntriesAsync(setlistId, request.EntryIds);
+        var reorderedEntries = await setlistService.ReorderSetlistEntriesAsync(setlistId, request.EntryIds?.ToArray() ?? []);
         return Ok(new ReorderSetlistEntriesResponseDto
         {
-            ReorderedEntries = reorderedEntries.Select(Service.Setlists.DtoMapper.ToDto).ToList()
+            ReorderedEntries = reorderedEntries.Select(e => e.ToDto()).ToList()
         });
     }
 
@@ -250,11 +250,11 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
         [FromRoute] string entryId,
         [FromBody] AddSongExtraToSetlistEntryRequestDto request)
     {
-        await setlistService.AddSongExtraToSetlistEntry(request, entryId);
+        await setlistService.AddSongExtraToSetlistEntry(request.ToBo(), entryId);
         var entry = await setlistService.GetSetlistEntryAsync(setlistId, entryId);
         return Ok(new AddSongExtraToSetlistEntryResponseDto
         {
-            Entry = entry
+            Entry = entry.ToDto()
         });
     }
 

@@ -25,7 +25,7 @@ public class SongsController(SongService songService) : ControllerBase
     [HttpGet]
     [OutputCache(PolicyName = CachePolicyNames.Long, Tags = [CacheTags.SongsAll])]
     [CustomResponseCache(Duration = CacheExpiration.Medium)]
-    public async Task<ActionResult<SongDto[]>> GetAllSongs(CancellationToken cancellationToken)
+    public async Task<ActionResult<SongBo[]>> GetAllSongs(CancellationToken cancellationToken)
     {
         return Ok(await songService.GetAllSongsAsync(cancellationToken).ToArrayAsync(cancellationToken));
     }
@@ -38,7 +38,7 @@ public class SongsController(SongService songService) : ControllerBase
     [HttpPost]
     [AuthorizeRoles(RoleNames.ManageSetlists)]
     [ClearCache(Tags = [CacheTags.SongsAll])]
-    public async Task<CreatedAtActionResult> CreateSong([FromBody] CreateSongRequestDto request)
+    public async Task<CreatedAtActionResult> CreateSong([FromBody] CreateSongRequestBo request)
     {
         var song = await songService.CreateSongAsync(request);
         return CreatedAtAction(nameof(GetSongById), new { songId = song.Id }, song);
@@ -52,7 +52,7 @@ public class SongsController(SongService songService) : ControllerBase
     [HttpGet("{songId:int}")]
     [OutputCache(PolicyName = CachePolicyNames.Long, Tags = [CacheTags.SongsAll])]
     [CustomResponseCache(Duration = CacheExpiration.Medium)]
-    public async Task<ActionResult<SongDto>> GetSongById([FromRoute] uint songId)
+    public async Task<ActionResult<SongBo>> GetSongById([FromRoute] uint songId)
     {
         var song = await songService.GetSongById(songId);
         return Ok(song);
@@ -67,8 +67,8 @@ public class SongsController(SongService songService) : ControllerBase
     [HttpPut("{songId:int}")]
     [AuthorizeRoles(RoleNames.ManageSetlists)]
     [ClearCache(Tags = [CacheTags.SongsAll])]
-    public async Task<ActionResult<SongDto>> UpdateSong([FromRoute] uint songId,
-        [FromBody] UpdateSongRequestDto request)
+    public async Task<ActionResult<SongBo>> UpdateSong([FromRoute] uint songId,
+        [FromBody] UpdateSongRequestBo request)
     {
         var song = await songService.UpdateSongAsync(songId, request);
         return Ok(song);
@@ -96,7 +96,7 @@ public class SongsController(SongService songService) : ControllerBase
     [HttpGet("{songId:int}/variants")]
     [OutputCache(PolicyName = CachePolicyNames.Long, Tags = [CacheTags.SongsAll])]
     [CustomResponseCache(Duration = CacheExpiration.Medium)]
-    public async Task<ActionResult<List<SongVariantDto>>> GetVariantsOfSong([FromRoute] uint songId)
+    public async Task<ActionResult<List<SongVariantBo>>> GetVariantsOfSong([FromRoute] uint songId)
     {
         var variants = await songService.GetVariantsOfSong(songId);
         return Ok(variants);
