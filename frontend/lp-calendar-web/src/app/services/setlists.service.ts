@@ -329,7 +329,7 @@ export class SetlistsService {
         actParameters: actParameters
       };
 
-      return this.setlistsApi.addSongToSetlist(setlistId, addSongRequest);
+      return await this.addSongToSetlist(setlistId, addSongRequest);
     } else if (entryType == AddSetlistEntryFormContent.entryTypeSongVariant) {
       let addSongVariantRequest: AddSongVariantToSetlistRequestDto = {
         entryParameters: entryParameters,
@@ -346,13 +346,13 @@ export class SetlistsService {
       };
       console.debug("addSongMashupRequest: ", addSongMashupRequest);
 
-      return this.setlistsApi.addSongMashupToSetlist(setlistId, addSongMashupRequest);
+      return await this.addSongMashupToSetlist(setlistId, addSongMashupRequest);
     } else if (entryType == AddSetlistEntryFormContent.entryTypeFreeText) {
       let addEntryRequest: AddCustomEntryToSetlistRequestDto = {
         entryParameters: entryParameters,
         actParameters: actParameters
       };
-      return this.setlistsApi.addCustomEntryToSetlist(setlistId, addEntryRequest);
+      return await this.addCustomEntryToSetlist(setlistId, addEntryRequest);
     } else {
       return throwError(() => ({
         error: { message: `The entry type '${entryType}' is not implemented` }

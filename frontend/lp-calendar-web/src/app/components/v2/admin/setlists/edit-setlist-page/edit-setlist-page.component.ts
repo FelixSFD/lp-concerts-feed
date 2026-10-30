@@ -208,6 +208,7 @@ export class EditSetlistPageComponent implements OnInit {
     if (formValues != null) {
       try {
         await this.setlistService.addSetlistEntry(formValues, this.currentSetlistId());
+        console.debug("Added setlist entry");
 
         this.messageService.add({
           severity: 'success',
@@ -230,7 +231,7 @@ export class EditSetlistPageComponent implements OnInit {
       }
     } else {
       this.messageService.add({
-        severity: 'danger',
+        severity: 'error',
         summary: 'Failed to read form data!',
       });
       this.isAddingEntry.set(false);
