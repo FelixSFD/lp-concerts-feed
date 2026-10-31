@@ -346,7 +346,7 @@ export class SetlistsService {
     } else if (entryType == AddSetlistEntryFormContent.entryTypeSongMashup) {
       let addSongMashupRequest: AddSongMashupToSetlistRequestDto = {
         entryParameters: entryParameters,
-        songMashupParameters: this.getSongMashupParametersFromFormContent(content),
+        songMashupParameters: this.getSongMashupParametersFromFormContent(content)!,
         actParameters: actParameters
       };
       console.debug("addSongMashupRequest: ", addSongMashupRequest);

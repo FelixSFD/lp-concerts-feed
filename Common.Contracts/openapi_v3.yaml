@@ -5567,9 +5567,11 @@ components:
         id:
           type: number
           description: ID of the mashup
+          nullable: true
         title:
           type: string
           description: Title of the mashup
+          nullable: true
         linkinpediaUrl:
           type: string
           description: URL to the Linkinpedia page of this mashup
@@ -5577,6 +5579,7 @@ components:
         songIds:
           type: array
           description: IDs of the songs that are part of this mashup
+          nullable: true
           items:
             type: number
 
@@ -5693,6 +5696,9 @@ components:
     AddSongMashupToSetlistRequest:
       type: object
       description: Request to add a song mashup to an existing setlist
+      required: 
+        - songMashupParameters
+        - entryParameters
       properties:
         songMashupParameters:
           type: object
@@ -5702,8 +5708,7 @@ components:
         actParameters:
           type: object
           description: If set, the added song will be added to this Act. Title isn't required if the Act already exists.
-          nullable: true
-          anyOf:
+          oneOf:
             - $ref: "#/components/schemas/ActParameters"
         entryParameters:
           type: object
@@ -5780,6 +5785,8 @@ components:
     UpdateSetlistEntryRequest:
       type: object
       description: Request to update a single setlist entry
+      required: 
+        - entryParameters
       properties:
         songParameters:
           type: object
@@ -5799,7 +5806,6 @@ components:
         actParameters:
           type: object
           description: If set, the added song will be added to this Act. Title isn't required if the Act already exists.
-          nullable: true
           anyOf:
             - $ref: "#/components/schemas/ActParameters"
         entryParameters:
