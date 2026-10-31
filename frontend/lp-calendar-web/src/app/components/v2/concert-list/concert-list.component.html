@@ -1,14 +1,14 @@
 <h1>Concerts</h1>
 
 <!-- Button to add concert -->
-<div class="flex flex-col gap-2 my-3">
-  @if (canAddConcerts$) {
+<div class="flex flex-row gap-2 my-3">
+  @if (canAddConcerts$()) {
     <div>
       <p-button variant="outlined" label="Add concert" icon="pi pi-plus-circle" [routerLink]="['/concerts/add']" />
     </div>
   }
 
-  @if (canManageSetlists$) {
+  @if (canManageSetlists$()) {
     <div>
       <p-button variant="outlined" severity="info" label="Import concert" icon="pi pi-file-import" [routerLink]="['/concerts/import']" />
     </div>
@@ -26,12 +26,22 @@
 
 <p-confirm-dialog />
 
-<div class="mb-3">
-  <app-concert-filter (applyClicked)="onFilterChanged($event)" />
+<div class="flex flex-row gap-2 mb-3">
+  <app-concert-filter [defaultFilter]="defaultFilter" (applyClicked)="onFilterChanged($event)" />
+  <p-button
+    [label]="sortOrder$() === 'desc' ? 'Date (desc)' : 'Date (asc)'"
+    [icon]="sortOrder$() === 'desc' ? 'pi pi-sort-amount-down' : 'pi pi-sort-amount-up-alt'"
+    severity="secondary"
+    variant="outlined"
+    size="small"
+    (click)="toggleDateSort()"
+    [pTooltip]="sortOrder$() === 'desc' ? 'Sorting newest first. Click to sort oldest first.' : 'Sorting oldest first. Click to sort newest first.'"
+    tooltipPosition="top"
+  />
 </div>
 
-<div class="grid gap-4 mt-2 justify-content-center">
-  @if (concerts$.length == 0) {
+<div class="flex flex-column gap-3 mt-2 w-full">
+  @if (concerts$().length == 0 && !isLoading$()) {
     <div class="p-message p-message-secondary w-100">
       <div class="p-message-content-wrapper">
         <div class="p-message-content">
@@ -40,77 +50,89 @@
       </div>
     </div>
   }
-  @for (concert of concerts$; track concert.id) {
-    <p-card class="w-full justify-content-center">
-      <ng-template #title>
-        <a class="font-bold text-color {{ concert.concertStatus == ConcertStatusValueDto.Cancelled ? 'line-through' : 'no-underline' }}" [routerLink]="['/concerts/' + concert.id]">
-          {{ ConcertTitleGenerator.getTitleFor(concert) }}
-        </a>
-      </ng-template>
-      <ng-template #subtitle>
-        <a class="text-primary-500 {{ concert.concertStatus == ConcertStatusValueDto.Cancelled ? 'line-through' : 'no-underline' }}" [routerLink]="['/concerts/' + concert.id]">
-          {{ concert.venue }}, {{ concert.city }}{{ (concert.state?.length ?? 0) > 0 ? ", " + concert.state : ""}}, {{ concert.country }}
-        </a>
-      </ng-template>
 
-      <div class="grid">
-        <div class="col-6 min-w-max align-self-center align-items-center justify-content-center">
-          <table>
-            <tr>
-              <td class="fw-bold">Your timezone:</td>
-              <td>&nbsp;</td>
-              <td>{{getDateTime(concert.mainStageTime ?? concert.postedStartTime!).toLocaleString(DateTime. DATETIME_SHORT)}}</td>
-            </tr>
-            @if (concert.timeZoneId != undefined) {
-              <tr [pTooltip]="concert.timeZoneId" tooltipPosition="bottom">
-                <td class="fw-bold">Venue timezone:</td>
+  @if (isLoading$()) {
+    @for (item of [1, 2, 3]; track item) {
+      <p-card class="w-full">
+        <p-skeleton width="100%" height="180px" />
+      </p-card>
+    }
+  } @else {
+    @for (concert of concerts$(); track concert.id) {
+      <p-card class="w-full">
+        <ng-template #title>
+          <a class="font-bold text-color {{ concert.status == ConcertStatusValueDto.Cancelled ? 'line-through' : 'no-underline' }}" [routerLink]="['/concerts/' + concert.id]">
+            {{ ConcertTitleGenerator.getTitleFor(concert) }}
+          </a>
+        </ng-template>
+        <ng-template #subtitle>
+          <a class="text-primary-500 {{ concert.status == ConcertStatusValueDto.Cancelled ? 'line-through' : 'no-underline' }}" [routerLink]="['/concerts/' + concert.id]">
+            {{ concert.venue.currentName }}, {{ concert.venue.city.name }}{{ (concert.venue.city.state?.name?.length ?? 0) > 0 ? ", " + concert.venue.city.state?.name : ""}}, {{ concert.venue.city.country.name }}
+          </a>
+        </ng-template>
+
+        <div class="grid">
+          <div class="col-6 min-w-max align-self-center align-items-center justify-content-center">
+            <table>
+              <tr>
+                <td class="fw-bold">Your timezone:</td>
                 <td>&nbsp;</td>
-                <td>{{getDateTimeInTimezone(concert.mainStageTime ?? concert.postedStartTime!, concert.timeZoneId).toLocaleString(DateTime. DATETIME_SHORT)}}</td>
+                <td>{{getDateTime(concert.mainStageTime ?? concert.postedStartTime!).toLocaleString(DateTime.DATETIME_SHORT)}}</td>
               </tr>
-            }
-          </table>
-        </div>
-
-        @if (!concert.isPast) {
-          <div class="col-6 min-w-max h-full align-self-center align-items-center justify-content-center hidden sm:inline">
-            <app-countdown [concertId]="concert.id" [countdownToDate]="concert?.mainStageTime ?? concert?.postedStartTime!" />
+              @if (concert.venue.timeZoneId != undefined) {
+                <tr [pTooltip]="concert.venue.timeZoneId" tooltipPosition="bottom">
+                  <td class="fw-bold">Venue timezone:</td>
+                  <td>&nbsp;</td>
+                  <td>{{getDateTimeInTimezone(concert.mainStageTime ?? concert.postedStartTime!, concert.venue.timeZoneId).toLocaleString(DateTime.DATETIME_SHORT)}}</td>
+                </tr>
+              }
+            </table>
           </div>
-        }
 
-        <div class="col-12">
-          <app-concert-badges [concert]="concert"></app-concert-badges>
+          @if (!isPast(concert)) {
+            <div class="col-6 min-w-max h-full align-self-center align-items-center justify-content-center hidden sm:inline">
+              <app-countdown [concertId]="concert.id" [countdownToDate]="concert.mainStageTime ?? concert.postedStartTime!" />
+            </div>
+          }
+
+          <div class="col-12">
+            <app-concert-badges [concert]="getBadgesData(concert)"></app-concert-badges>
+          </div>
         </div>
+
+        <ng-template #footer>
+          <div class="flex justify-content-between">
+            <div class="align-self-center">
+              @if (concert.mainStageTime == undefined) {
+                <span class="countdown-description">Based on start time on ticket</span>
+              }
+              @if (concert.mainStageTime != undefined) {
+                <span class="countdown-description">Based on Linkin Park stage time</span>
+              }
+            </div>
+            <div class="flex flex-row-reverse flex-wrap">
+              @if (concert.id != null) {
+                <p-button-group>
+                  @if (canDeleteConcerts$()) {
+                    <p-button variant="outlined" icon="pi pi-trash" size="small" severity="danger" (click)="onDeleteConcertClicked($event, concert.id ?? null)" />
+                  }
+                  @if (canUpdateConcerts$()) {
+                    <p-button variant="outlined" label="Edit" icon="pi pi-pencil" [routerLink]="['/admin', 'concerts', concert.id]" size="small" severity="secondary" />
+                  }
+
+                  <p-button variant="outlined" label="Details" icon="pi pi-info-circle" [routerLink]="['/concerts', concert.id]" size="small" />
+                </p-button-group>
+              }
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    }
+
+    @if (hasMore$()) {
+      <div class="flex justify-content-center my-3">
+        <p-button label="Load more" icon="pi pi-chevron-down" [loading]="isLoadingMore$()" (click)="loadMore()" />
       </div>
-
-      <ng-template #footer>
-        <div class="flex justify-content-between">
-          <div class="align-self-center">
-            @if (concert.mainStageTime == undefined) {
-              <span class="countdown-description">Based on start time on ticket</span>
-            }
-            @if (concert.mainStageTime != undefined) {
-              <span class="countdown-description">Based on Linkin Park stage time</span>
-            }
-          </div>
-          <div class="flex flex-row-reverse flex-wrap">
-            @if (concert?.id != null) {
-              <p-button-group>
-                @if (canDeleteConcerts$) {
-                  <p-button variant="outlined" icon="pi pi-trash" size="small" severity="danger" (click)="onDeleteConcertClicked($event, concert.id ?? null)" />
-                }
-                @if (canUpdateConcerts$) {
-                  <p-button variant="outlined" label="Edit" icon="pi pi-pencil" [routerLink]="['/concerts', concert.id, 'edit']" size="small" severity="secondary" />
-                }
-
-                <!--<p-button variant="outlined" icon="pi pi-share-alt" label="Share" severity="info" size="small" />-->
-                <p-button variant="outlined" label="Details" icon="pi pi-info-circle" [routerLink]="['/concerts', concert.id]" size="small" />
-              </p-button-group>
-            } @else if (isLoading$) {
-              <p-skeleton borderRadius="2" width="5rem" height="2.2rem" />
-            }
-          </div>
-        </div>
-      </ng-template>
-    </p-card>
+    }
   }
 </div>

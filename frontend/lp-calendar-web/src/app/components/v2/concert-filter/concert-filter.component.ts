@@ -165,6 +165,7 @@ export class ConcertFilterComponent implements OnInit {
 
   private readFilterFromForm() {
     let concertFilter = new ConcertFilter();
+    concertFilter.orderBy = this.defaultFilter?.orderBy;
     concertFilter.tour = (this.filterForm.value.tourName?.valueOf() as TourConfig) ?? null;
 
     let filterDateFrom = this.filterForm.value.dateFrom;

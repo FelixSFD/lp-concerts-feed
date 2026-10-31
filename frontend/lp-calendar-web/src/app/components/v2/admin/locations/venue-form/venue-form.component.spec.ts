@@ -35,8 +35,8 @@ describe('VenueFormComponent', () => {
 
   it('should populate historic names when fillFormWith is called with venueNames', () => {
     const mockHistoricNames: PreviousVenueNameDto[] = [
-      { id: '1', venueId: 10, name: 'O2 World', usedFrom: '2008-09-10', usedUntil: '2015-06-30' },
-      { id: '2', venueId: 10, name: 'Mercedes-Benz Arena', usedFrom: '2015-07-01', usedUntil: '2024-03-21' },
+      { id: 1, venueId: 10, name: 'O2 World', usedFrom: '2008-09-10', usedUntil: '2015-06-30' },
+      { id: 2, venueId: 10, name: 'Mercedes-Benz Arena', usedFrom: '2015-07-01', usedUntil: '2024-03-21' },
     ];
 
     const mockVenue: VenueWithDetailsDto = {
@@ -93,7 +93,7 @@ describe('VenueFormComponent', () => {
 
   it('should populate dialog form when editing an existing historic name', () => {
     component.historicNames$.set([
-      { id: '1', venueId: 10, name: 'O2 World', usedFrom: '2008-09-10', usedUntil: '2015-06-30' },
+      { id: 1, venueId: 10, name: 'O2 World', usedFrom: '2008-09-10', usedUntil: '2015-06-30' },
     ]);
 
     component.onEditHistoricNameClicked(component.historicNames$()[0], 0);
@@ -108,7 +108,7 @@ describe('VenueFormComponent', () => {
 
   it('should update existing historic name when saving edit from dialog', () => {
     component.historicNames$.set([
-      { id: '1', venueId: 10, name: 'O2 World', usedFrom: '2008-09-10', usedUntil: '2015-06-30' },
+      { id: 1, venueId: 10, name: 'O2 World', usedFrom: '2008-09-10', usedUntil: '2015-06-30' },
     ]);
 
     component.onEditHistoricNameClicked(component.historicNames$()[0], 0);
@@ -123,13 +123,13 @@ describe('VenueFormComponent', () => {
     expect(component.isShowingHistoricNameDialog$()).toBeFalse();
     expect(component.historicNames$().length).toBe(1);
     expect(component.historicNames$()[0].name).toBe('O2 World Berlin');
-    expect(component.historicNames$()[0].id).toBe('1');
+    expect(component.historicNames$()[0].id).toBe(1);
   });
 
   it('should delete a historic name when onDeleteHistoricNameClicked is called', () => {
     component.historicNames$.set([
-      { id: '1', venueId: 10, name: 'O2 World', usedFrom: '2008-09-10', usedUntil: '2015-06-30' },
-      { id: '2', venueId: 10, name: 'Mercedes-Benz Arena', usedFrom: '2015-07-01', usedUntil: '2024-03-21' },
+      { id: 1, venueId: 10, name: 'O2 World', usedFrom: '2008-09-10', usedUntil: '2015-06-30' },
+      { id: 2, venueId: 10, name: 'Mercedes-Benz Arena', usedFrom: '2015-07-01', usedUntil: '2024-03-21' },
     ]);
 
     component.onDeleteHistoricNameClicked(0);
@@ -140,7 +140,7 @@ describe('VenueFormComponent', () => {
 
   it('should include historic names in readFromForm output', () => {
     const mockHistoricNames: PreviousVenueNameDto[] = [
-      { id: '1', venueId: 10, name: 'O2 World', usedFrom: '2008-09-10', usedUntil: '2015-06-30' },
+      { id: 1, venueId: 10, name: 'O2 World', usedFrom: '2008-09-10', usedUntil: '2015-06-30' },
     ];
 
     component.venueForm.setValue({

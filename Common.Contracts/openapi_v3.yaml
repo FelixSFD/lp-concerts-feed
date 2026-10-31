@@ -5190,7 +5190,7 @@ components:
           type: string
           description: Field to store additional notes about this entry
           nullable: true
-          maxLength: 127
+          maxLength: 255
         isrc:
           type: string
           description: ISRC for this entry. This can be used to find the song on Apple Music or Spotify
@@ -5503,7 +5503,7 @@ components:
           type: string
           description: Field to store additional notes about this entry
           nullable: true
-          maxLength: 127
+          maxLength: 255
         isrc:
           type: string
           description: ISRC for this entry. This can be used to find the song on Apple Music or Spotify
@@ -5648,7 +5648,7 @@ components:
           type: string
           description: Field to store additional notes about this entry
           nullable: true
-          maxLength: 127
+          maxLength: 255
         isRotationSong:
           type: boolean
           description: true if this slot is known to rotate between shows on the same tour.
