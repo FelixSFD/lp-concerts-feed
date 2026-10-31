@@ -1,16 +1,16 @@
-import {Component, inject, Input, OnInit, signal, viewChild} from '@angular/core';
+import { Component, effect, inject, Input, OnInit, signal, viewChild } from '@angular/core';
 import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from "@angular/forms";
 import {SongsService} from '../../../../../services/songs.service';
 import {
   AddSongExtraToSetlistEntryRequestDto,
-  ErrorResponseDto,
+  ProblemDetailsDto,
   RawSetlistEntryDto,
   SetlistActDto, SetlistEntrySongExtraDto,
   SongDto, SongMashupDto,
   SongVariantDto
-} from '../../../../../modules/lpshows-api';
+} from '../../../../../modules/lpshows-api/v3';
 import {NgTemplateOutlet} from '@angular/common';
-import {LegacySetlistsService} from '../../../../../services/legacy-setlists.service';
+import {SetlistsService} from '../../../../../services/setlists.service';
 import {nullIfEmpty} from '../../../../../helper/string-helper'
 import {
   SetlistEntrySongExtraFormComponent
@@ -56,7 +56,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
   private messageService = inject(MessageService);
   private formBuilder = inject(FormBuilder);
   private songService = inject(SongsService);
-  private setlistsService = inject(LegacySetlistsService);
+  private setlistsService = inject(SetlistsService);
 
   private static songVariantNormalVersion: SongVariantDto = {
     variantName: "Normal version"
@@ -65,7 +65,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
   protected confirmDeleteSongExtraKey = "confirm-delete-song-extra";
 
   @Input("setlist-id")
-  setlistId: number | undefined;
+  setlistId = signal<number | undefined>(undefined);
 
   setlistEntryForm = this.formBuilder.group({
     entryType: new FormControl(AddSetlistEntryFormContent.entryTypeSong, [Validators.required]),
@@ -118,6 +118,15 @@ export class AddSetlistEntryFormComponent implements OnInit {
   // To work around race conditions (entry loading before the select-fields), the entry can be stored here
   private storedEntry: RawSetlistEntryDto | null = null;
 
+  private loadActsEffect = effect(() => {
+    let setlistId = this.setlistId();
+    if (setlistId != null && setlistId > 0) {
+      this.loadActs(setlistId).then();
+    } else {
+      console.warn("No setlist ID provided in AddSetlistEntryFormComponent");
+    }
+  });
+
   ngOnInit(): void {
     this.setlistEntryForm.controls.selectedSongVariant.disable();
 
@@ -138,19 +147,19 @@ export class AddSetlistEntryFormComponent implements OnInit {
 
           if (this.storedEntry) {
             console.debug("Has a stored entry: ", this.storedEntry);
-            let songId = this.storedEntry.playedSong?.id ?? 0;
+            let songId = this.storedEntry.songId ?? 0;
             if (songId > 0) {
-              this.setlistEntryForm.controls.selectedSong.setValue(this.storedEntry.playedSong ?? null);
+              this.setlistEntryForm.controls.selectedSong.setValue(this.availableSongs$().find(s => s.id == songId) ?? null);
               this.loadVariantsOfSelectedSong(songId);
             }
           }
         },
         error: err => {
-          let errorResponse: ErrorResponseDto = err.error;
+          let errorResponse: ProblemDetailsDto = err?.error ?? err;
           this.messageService.add({
             severity: "danger",
             summary: "Could not load songs",
-            text: errorResponse.message,
+            detail: errorResponse?.detail ?? errorResponse?.['message'],
           });
         }
       });
@@ -164,41 +173,39 @@ export class AddSetlistEntryFormComponent implements OnInit {
 
           if (this.storedEntry) {
             console.debug("Has a stored entry: ", this.storedEntry);
-            this.setlistEntryForm.controls.selectedSongMashup.setValue(this.storedEntry.playedSongMashup ?? null);
+            this.setlistEntryForm.controls.selectedSongMashup.setValue(this.availableSongMashups$().find(m => m.id == (this.storedEntry?.songMashupId ?? 0)) ?? null);
           }
         },
         error: err => {
-          let errorResponse: ErrorResponseDto = err.error;
+          let errorResponse: ProblemDetailsDto = err?.error ?? err;
           this.messageService.add({
-            severity: "danger",
+            severity: "error",
             summary: "Could not load mashups",
-            text: errorResponse.message,
+            detail: errorResponse?.detail ?? errorResponse?.['message'],
           });
         }
       });
+  }
 
-    this.setlistsService
-      .getSetlistActs(this.setlistId!, false)
-      .subscribe({
-        next: data => {
-          data.sort((a, b) => (a.actNumber ?? 0) < (b.actNumber ?? 0) ? -1 : 1);
-          this.availableActs$.set(data);
-          console.debug("Loaded acts: ", this.availableActs$());
+  private async loadActs(setlistId: number) {
+    try {
+      const data = await this.setlistsService.getActsInSetlist(setlistId);
+      data.sort((a, b) => (a.actNumber ?? 0) < (b.actNumber ?? 0) ? -1 : 1);
+      this.availableActs$.set(data);
+      console.debug("Loaded acts: ", this.availableActs$());
 
-          if (this.storedEntry) {
-            console.debug("Has a stored entry: ", this.storedEntry);
-            this.setlistEntryForm.controls.selectedAct.setValue(this.availableActs$().find(act => this.storedEntry?.actNumber == act.actNumber) ?? null);
-          }
-        },
-        error: err => {
-          let errorResponse: ErrorResponseDto = err.error;
-          this.messageService.add({
-            severity: "danger",
-            summary: "Could not load acts",
-            text: errorResponse.message,
-          });
-        }
-      })
+      if (this.storedEntry) {
+        console.debug("Has a stored entry: ", this.storedEntry);
+        this.setlistEntryForm.controls.selectedAct.setValue(this.availableActs$().find(act => this.storedEntry?.actNumber == act.actNumber) ?? null);
+      }
+    } catch (err: any) {
+      let errorResponse: ProblemDetailsDto = err?.error ?? err;
+      this.messageService.add({
+        severity: "error",
+        summary: "Could not load acts",
+        detail: errorResponse?.detail ?? errorResponse?.['message'],
+      });
+    }
   }
 
   public clearForm() {
@@ -217,7 +224,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
     this.showAddSongExtrasDialog.set(false);
   }
 
-  onAddSongExtraConfirmed() {
+  async onAddSongExtraConfirmed() {
     if (this.setlistId == null || this.storedEntry?.id == null) {
       this.messageService.add({
         severity: "danger",
@@ -237,29 +244,27 @@ export class AddSetlistEntryFormComponent implements OnInit {
       description: formContent?.description,
     };
 
-    this.setlistsService.addSongExtraToEntry(addExtraRequest, this.setlistId!, this.storedEntry!.id)
-      .subscribe({
-        next: data => {
-          console.debug("Response after adding extra: ", data);
-          if (this.storedEntry != null) {
-            this.storedEntry.songExtras = data.songExtras ?? [];
-          }
+    try {
+      const data = await this.setlistsService.addSongExtraToSetlistEntry(this.setlistId()!, this.storedEntry!.id!, addExtraRequest);
+      console.debug("Response after adding extra: ", data);
+      const songExtras = data.entry?.extras ?? [];
+      if (this.storedEntry != null) {
+        this.storedEntry.extras = songExtras;
+      }
 
-          this.currentSongExtras$.set(data.songExtras ?? []);
+      this.currentSongExtras$.set(songExtras);
 
-          this.dismissAddExtraModal();
-          this.isAddingSongExtra$.set(false);
-        },
-        error: err => {
-          let errorResponse: ErrorResponseDto = err.error;
-          this.messageService.add({
-            severity: "danger",
-            summary: "Could not add extra to this entry",
-            text: errorResponse.message,
-          });
-          this.isAddingSongExtra$.set(false);
-        }
+      this.dismissAddExtraModal();
+    } catch (err: any) {
+      let errorResponse: ProblemDetailsDto = err?.error ?? err;
+      this.messageService.add({
+        severity: "danger",
+        summary: "Could not add extra to this entry",
+        detail: errorResponse?.detail ?? errorResponse?.['message'],
       });
+    } finally {
+      this.isAddingSongExtra$.set(false);
+    }
   }
 
 
@@ -287,7 +292,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
   }
 
 
-  confirmDeleteSongExtraConfirmationModal(extra: SetlistEntrySongExtraDto) {
+  async confirmDeleteSongExtraConfirmationModal(extra: SetlistEntrySongExtraDto) {
     console.debug("Delete song extra", extra);
 
     let deleteId = extra?.id ?? null;
@@ -296,30 +301,24 @@ export class AddSetlistEntryFormComponent implements OnInit {
       return;
     }
 
-    this.setlistsService.removeSongExtraFromEntry(deleteId, this.setlistId ?? 0, this.storedEntry?.id ?? "")
-      .subscribe({
-        next: _ => {
-          if (this.storedEntry != null) {
-            this.storedEntry.songExtras = this.storedEntry.songExtras?.filter(e => e.id != deleteId);
-          }
+    try {
+      await this.setlistsService.deleteSongExtraFromSetlistEntry(this.setlistId() ?? 0, this.storedEntry?.id ?? "", deleteId);
+      if (this.storedEntry != null) {
+        this.storedEntry.extras = this.storedEntry.extras?.filter(e => e.id != deleteId);
+      }
 
-          this.currentSongExtras$.set(this.currentSongExtras$().filter(e => e.id != deleteId));
-
-          this.showAddSongExtrasDialog.set(false);
-          this.isDeletingSongExtra$.set(false);
-        },
-        error: err => {
-          let errorResponse: ErrorResponseDto = err.error;
-          this.messageService.add({
-            severity: "danger",
-            summary: "Could not delete song extra from this entry",
-            text: errorResponse.message,
-          });
-          this.isDeletingSongExtra$.set(false);
-
-          this.showAddSongExtrasDialog.set(false);
-        }
+      this.currentSongExtras$.set(this.currentSongExtras$().filter(e => e.id != deleteId));
+    } catch (err: any) {
+      let errorResponse: ProblemDetailsDto = err?.error ?? err;
+      this.messageService.add({
+        severity: "danger",
+        summary: "Could not delete song extra from this entry",
+        detail: errorResponse?.detail ?? errorResponse?.['message'],
       });
+    } finally {
+      this.isDeletingSongExtra$.set(false);
+      this.showAddSongExtrasDialog.set(false);
+    }
   }
 
 
@@ -396,7 +395,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
         this.variantsOfSelectedSong$.set([AddSetlistEntryFormComponent.songVariantNormalVersion, ...variants]);
 
         if (this.storedEntry) {
-          let songVariantId = this.storedEntry.playedSongVariant?.id ?? 0;
+          let songVariantId = this.storedEntry.songVariantId ?? 0;
           let foundVariant = this.variantsOfSelectedSong$().find(e => e.id == songVariantId);
           this.setlistEntryForm.controls.selectedSongVariant.setValue(foundVariant ?? AddSetlistEntryFormComponent.songVariantNormalVersion);
         }
@@ -406,55 +405,54 @@ export class AddSetlistEntryFormComponent implements OnInit {
   }
 
 
-  public loadEntry(setlistId: number, entryId: string) {
+  public async loadEntry(setlistId: number, entryId: string) {
     this.setlistEntryForm.disable();
 
-    this.setlistsService.getSetlistEntry(setlistId, entryId, false)
-      .subscribe({
-        next: entry => {
-          this.storedEntry = entry;
+    try {
+      const entry = await this.setlistsService.getSetlistEntry(setlistId, entryId);
+      this.storedEntry = entry;
 
-          console.debug("Loaded entry: ", this.storedEntry);
+      console.debug("Loaded entry: ", this.storedEntry);
 
-          console.debug("Available songs: ", this.availableSongs$());
+      console.debug("Available songs: ", this.availableSongs$());
 
-          this.setlistEntryForm.controls.sortNumber.setValue(entry.sortNumber ?? null);
-          this.setlistEntryForm.controls.songNumber.setValue(entry.songNumber ?? null);
-          this.setlistEntryForm.controls.titleOverride.setValue(entry.titleOverride ?? null);
-          this.setlistEntryForm.controls.extraNotes.setValue(entry.extraNotes ?? null);
-          this.setlistEntryForm.controls.selectedAct.setValue(this.availableActs$().find(act => act.actNumber == entry.actNumber) ?? null);
-          this.setlistEntryForm.controls.selectedSong.setValue(entry.playedSong ?? this.availableSongs$().find(s => s.id == (entry.playedSongVariant?.songId ?? 0)) ?? null);
-          this.setlistEntryForm.controls.selectedSongVariant.setValue(entry.playedSongVariant ?? null);
-          this.setlistEntryForm.controls.selectedSongMashup.setValue(entry.playedSongMashup ?? null);
-          this.setlistEntryForm.controls.wasWorldPremiere.setValue(entry.isWorldPremiere ?? false);
-          this.setlistEntryForm.controls.wasPlayedFromRecording.setValue(entry.isPlayedFromRecording ?? false);
-          this.setlistEntryForm.controls.wasRotationSong.setValue(entry.isRotationSong ?? false);
-          this.setlistEntryForm.controls.wasLivePremiere.setValue(entry.isLivePremiere ?? false);
+      this.setlistEntryForm.controls.sortNumber.setValue(entry.sortNumber ?? null);
+      this.setlistEntryForm.controls.songNumber.setValue(entry.songNumber ?? null);
+      this.setlistEntryForm.controls.titleOverride.setValue(entry.title ?? null);
+      this.setlistEntryForm.controls.extraNotes.setValue(entry.extraNotes ?? null);
+      this.setlistEntryForm.controls.selectedAct.setValue(this.availableActs$().find(act => act.actNumber == entry.actNumber) ?? null);
+      this.setlistEntryForm.controls.selectedSong.setValue(this.availableSongs$().find(s => s.id == (entry.songId ?? 0)) ?? null);
+      if (entry.songId) {
+        this.loadVariantsOfSelectedSong(entry.songId);
+      }
+      this.setlistEntryForm.controls.selectedSongMashup.setValue(this.availableSongMashups$().find(m => m.id == (entry.songMashupId ?? 0)) ?? null);
+      this.setlistEntryForm.controls.wasWorldPremiere.setValue(entry.isWorldPremiere ?? false);
+      this.setlistEntryForm.controls.wasPlayedFromRecording.setValue(entry.isPlayedFromRecording ?? false);
+      this.setlistEntryForm.controls.wasRotationSong.setValue(entry.isRotationSong ?? false);
+      this.setlistEntryForm.controls.wasLivePremiere.setValue(entry.isLivePremiere ?? false);
 
-          if (entry.playedSong != null) {
-            this.setlistEntryForm.controls.entryType.setValue(AddSetlistEntryFormContent.entryTypeSong);
-          } else if (entry.playedSongVariant != null) {
-            this.setlistEntryForm.controls.entryType.setValue(AddSetlistEntryFormContent.entryTypeSong);
-          } else if (entry.playedSongMashup != null) {
-            this.setlistEntryForm.controls.entryType.setValue(AddSetlistEntryFormContent.entryTypeSongMashup);
-          } else {
-            console.debug("This is a free-text entry");
-            this.setlistEntryForm.controls.entryType.setValue(AddSetlistEntryFormContent.entryTypeFreeText);
-          }
+      if (entry.songVariantId != null && entry.songVariantId > 0) {
+        this.setlistEntryForm.controls.entryType.setValue(AddSetlistEntryFormContent.entryTypeSong);
+      } else if (entry.songId != null && entry.songId > 0) {
+        this.setlistEntryForm.controls.entryType.setValue(AddSetlistEntryFormContent.entryTypeSong);
+      } else if (entry.songMashupId != null && entry.songMashupId > 0) {
+        this.setlistEntryForm.controls.entryType.setValue(AddSetlistEntryFormContent.entryTypeSongMashup);
+      } else {
+        console.debug("This is a free-text entry");
+        this.setlistEntryForm.controls.entryType.setValue(AddSetlistEntryFormContent.entryTypeFreeText);
+      }
 
-          this.currentSongExtras$.set(this.storedEntry.songExtras ?? []);
-
-          this.setlistEntryForm.enable();
-        },
-        error: err => {
-          let errorResponse: ErrorResponseDto = err.error;
-          this.messageService.add({
-            severity: "danger",
-            summary: "Could not load entry",
-            text: errorResponse.message,
-          });
-        }
+      this.currentSongExtras$.set(this.storedEntry.extras ?? []);
+    } catch (err: any) {
+      let errorResponse: ProblemDetailsDto = err?.error ?? err;
+      this.messageService.add({
+        severity: "danger",
+        summary: "Could not load entry",
+        detail: errorResponse?.detail ?? errorResponse?.['message'],
       });
+    } finally {
+      this.setlistEntryForm.enable();
+    }
   }
 
 

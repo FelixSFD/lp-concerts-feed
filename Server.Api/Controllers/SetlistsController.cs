@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.OutputCaching;
 using Server.Api.Auth;
 using Server.Api.Cache;
 using Service.Setlists;
-using AddSongToSetlistRequestDto = Common.Contracts.Generated.Models.AddSongToSetlistRequestDto;
+using Service.Setlists.Exceptions;
 
 namespace Server.Api.Controllers;
 
@@ -55,7 +55,7 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<SetlistDto>> GetCompleteSetlist([FromRoute] uint setlistId)
     {
-        var setlistBo = await setlistService.GetCompleteSetlist(setlistId);
+        var setlistBo = await setlistService.GetCompleteSetlist(setlistId) ?? throw new SetlistNotFoundException(setlistId);
         return Ok(setlistBo.ToDto());
     }
 

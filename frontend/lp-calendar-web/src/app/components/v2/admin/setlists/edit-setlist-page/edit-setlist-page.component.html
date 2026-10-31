@@ -1,6 +1,6 @@
 <!-- add setlist entry modal -->
 <p-dialog header="Add a new entry" [(visible)]="isShowingAddEntryDialog" [modal]="true" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [style]="{ width: '50vw' }" [draggable]="false">
-  <app-add-setlist-entry-form [setlist-id]="currentSetlistId()" />
+  <app-add-setlist-entry-form [setlist-id]="currentSetlistId" />
 
   <p-divider />
 
@@ -12,7 +12,7 @@
 
 <!-- edit setlist entry modal -->
 <p-dialog header="Edit a setlist entry" [(visible)]="isShowingEditEntryDialog" [modal]="true" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [style]="{ width: '50vw' }" [draggable]="false" [dismissableMask]="true">
-  <app-add-setlist-entry-form #editEntryForm [setlist-id]="currentSetlistId()" />
+  <app-add-setlist-entry-form #editEntryForm [setlist-id]="currentSetlistId" />
 
   <p-divider />
 
