@@ -1,4 +1,4 @@
-<div class="table-wrapper position-relative" [class.expanded]="isExpanded$" id="setlist-container-{{ setlist?.id }}">
+<div class="table-wrapper position-relative" [class.expanded]="isExpanded$()" id="setlist-container-{{ setlist?.id }}">
   <div class="collapsible-table">
     <div class="tracklist">
       @for (entry of setlist?.entries ?? []; track entry.id; let i = $index) {
@@ -23,9 +23,9 @@
             <span class="tl-num">{{ entry.songNumber == 0 ? "" : entry.songNumber }}</span>
 
             <span class="tl-art">
-              @if (entry.appleMusicId != null && songArtworks$.get(entry.appleMusicId) != null) {
+              @if (entry.appleMusicId != null && songArtworks$().get(entry.appleMusicId) != null) {
                 <app-apple-music-artwork
-                  [artwork]="songArtworks$.get(entry.appleMusicId)!"
+                  [artwork]="songArtworks$().get(entry.appleMusicId)!"
                   [width]="44"
                   [pTooltip]="entry.albumTitle ?? ''"
                   tooltipPosition="top"
@@ -70,7 +70,7 @@
   </div>
 
   <!-- Fade overlay (only visible when collapsed) -->
-  @if (!isExpanded$) {
+  @if (!isExpanded$()) {
     <div class="fade-overlay"></div>
   }
 </div>
@@ -79,8 +79,8 @@
   <p-button
     size="small"
     variant="outlined"
-    [icon]="isExpanded$ ? 'pi pi-minus-circle' : 'pi pi-plus-circle'"
-    [label]="isExpanded$ ? 'Hide setlist' : 'Show full setlist'"
+    [icon]="isExpanded$() ? 'pi pi-minus-circle' : 'pi pi-plus-circle'"
+    [label]="isExpanded$() ? 'Hide setlist' : 'Show full setlist'"
     (onClick)="onToggleExpendedClicked()"
   />
 </div>

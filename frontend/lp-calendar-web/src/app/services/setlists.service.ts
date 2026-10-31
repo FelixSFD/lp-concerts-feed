@@ -179,9 +179,10 @@ export class SetlistsService {
   /**
    * Returns all setlists for a concert
    * @param concertId The ID of the concert
+   * @param cached true if cached data should be used
    */
-  getSetlistsForConcert(concertId: string): Promise<SetlistDto[]> {
-    return firstValueFrom(this.setlistsApi.getSetlistsForConcert(concertId));
+  getSetlistsForConcert(concertId: string, cached: boolean = true): Promise<SetlistDto[]> {
+    return firstValueFrom(this.setlistsApi.getSetlistsForConcert(concertId, getRequestIdParameter(cached)));
   }
 
   /**
