@@ -1,58 +1,235 @@
-import {inject, Injectable} from '@angular/core';
-import {AuthService} from '../auth/auth.service';
-import {HttpClient} from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
 import {
+  AddCustomEntryToSetlistRequestDto,
+  AddSongExtraToSetlistEntryRequestDto,
+  AddSongMashupToSetlistRequestDto,
+  AddSongToSetlistRequestDto,
+  AddSongVariantToSetlistRequestDto,
   CreateSetlistRequestDto,
   CreateSetlistResponseDto,
-  SetlistDto,
-  SetlistsService as SetlistsApiClient,
-  ConcertsService as ConcertsApiClient,
-  UpdateSetlistHeaderRequestDto,
-  AddSongToSetlistRequestDto,
-  SetlistEntryParametersDto,
-  AddSongVariantToSetlistRequestDto,
-  SetlistEntryDto,
-  ActParametersDto,
-  RawSetlistEntryDto,
-  UpdateSetlistEntryRequestDto,
-  SongParametersDto,
-  SongVariantParametersDto,
-  SetlistActDto,
-  AddSongMashupToSetlistRequestDto,
-  AddCustomEntryToSetlistRequestDto,
-  SongMashupParametersDto,
-  ImportSetlistRequestDto,
   ImportSetlistPreviewDto,
-  SetlistEntrySongExtraDto,
-} from '../modules/lpshows-api';
-import {map, Observable, throwError} from 'rxjs';
-import {Guid} from 'guid-typescript';
-import {AddSetlistEntryFormContent} from '../components/v2/admin/setlists/add-setlist-entry-form/add-setlist-entry-form.component';
+  ImportSetlistRequestDto,
+  ReorderSetlistEntriesRequestDto,
+  ReorderSetlistEntriesResponseDto,
+  RawSetlistEntryDto,
+  SetlistActDto,
+  SetlistDto,
+  SetlistHeaderDto,
+  UpdateSetlistEntryRequestDto,
+  UpdateSetlistHeaderRequestDto, SetlistsApi, AddSongToSetlistResponseDto, AddSongVariantToSetlistResponseDto,
+  AddSongMashupToSetlistResponseDto, AddSongExtraToSetlistEntryResponseDto, ActParametersDto, SetlistEntryParametersDto,
+  SongMashupParametersDto, SongVariantParametersDto, SongParametersDto, SetlistEntryDto,
+} from '../modules/lpshows-api/v3';
+import { firstValueFrom, map, throwError } from 'rxjs';
+import { environment } from '../../environments/environment';
+import { getRequestIdParameter } from '../helper/cache-parameter-helper';
+import {
+  AddSetlistEntryFormContent
+} from '../components/v2/admin/setlists/add-setlist-entry-form/add-setlist-entry-form.component';
+import { addAuthentication } from '../auth/auth.config';
 
+/**
+ * Service for interacting with setlists
+ */
 @Injectable({
   providedIn: 'root',
 })
 export class SetlistsService {
-  private readonly authService = inject(AuthService);
+  private readonly setlistsApi = inject(SetlistsApi);
 
-  constructor(private httpClient: HttpClient, private setlistsApiClient: SetlistsApiClient, private concertsApiClient: ConcertsApiClient) { }
-
-
-  /**
-   * Creates a new setlist
-   * @param request Data of the setlist
-   */
-  public createSetlist(request: CreateSetlistRequestDto) : Observable<CreateSetlistResponseDto> {
-    return this.setlistsApiClient.createSetlist(request);
+  constructor() {
+    this.setlistsApi.configuration.basePath = environment.apiBaseUrl;
+    addAuthentication(this.setlistsApi);
   }
 
   /**
-   * Updates a setlist
-   * @param setlistId ID of the setlist
-   * @param request Data of the setlist
+   * Adds a custom entry to a setlist
+   * @param setlistId The ID of the setlist (number, not string)
+   * @param addCustomEntryToSetlistRequestDto The request data
    */
-  public updateSetlistHeader(setlistId: number, request: UpdateSetlistHeaderRequestDto) : Observable<any> {
-    return this.setlistsApiClient.updateSetlistHeader(setlistId, request);
+  addCustomEntryToSetlist(
+    setlistId: number,
+    addCustomEntryToSetlistRequestDto: AddCustomEntryToSetlistRequestDto
+  ): Promise<any> {
+    return firstValueFrom(this.setlistsApi.addCustomEntryToSetlist(setlistId, addCustomEntryToSetlistRequestDto));
+  }
+
+  /**
+   * Adds an extra to a song in a setlist entry
+   * @param setlistId The ID of the setlist (number)
+   * @param entryId The ID of the setlist entry (string)
+   * @param addSongExtraToSetlistEntryRequestDto The request data
+   */
+  addSongExtraToSetlistEntry(
+    setlistId: number,
+    entryId: string,
+    addSongExtraToSetlistEntryRequestDto: AddSongExtraToSetlistEntryRequestDto
+  ): Promise<AddSongExtraToSetlistEntryResponseDto> {
+    return firstValueFrom(this.setlistsApi.addSongExtraToSetlistEntry(setlistId, entryId, addSongExtraToSetlistEntryRequestDto));
+  }
+
+  /**
+   * Adds a song mashup to a setlist
+   * @param setlistId The ID of the setlist (number)
+   * @param addSongMashupToSetlistRequestDto The request data
+   */
+  addSongMashupToSetlist(
+    setlistId: number,
+    addSongMashupToSetlistRequestDto: AddSongMashupToSetlistRequestDto
+  ): Promise<AddSongMashupToSetlistResponseDto> {
+    return firstValueFrom(this.setlistsApi.addSongMashupToSetlist(setlistId, addSongMashupToSetlistRequestDto));
+  }
+
+  /**
+   * Adds a song to a setlist
+   * @param setlistId The ID of the setlist (number)
+   * @param addSongToSetlistRequestDto The request data
+   */
+  addSongToSetlist(
+    setlistId: number,
+    addSongToSetlistRequestDto: AddSongToSetlistRequestDto
+  ): Promise<AddSongToSetlistResponseDto> {
+    return firstValueFrom(this.setlistsApi.addSongToSetlist(setlistId, addSongToSetlistRequestDto));
+  }
+
+  /**
+   * Adds a song variant to a setlist
+   * @param setlistId The ID of the setlist (number)
+   * @param addSongVariantToSetlistRequestDto The request data
+   */
+  addSongVariantToSetlist(
+    setlistId: number,
+    addSongVariantToSetlistRequestDto: AddSongVariantToSetlistRequestDto
+  ): Promise<AddSongVariantToSetlistResponseDto> {
+    return firstValueFrom(this.setlistsApi.addSongVariantToSetlist(setlistId, addSongVariantToSetlistRequestDto));
+  }
+
+  /**
+   * Creates a new setlist
+   * @param createSetlistRequestDto The request data
+   */
+  createSetlist(createSetlistRequestDto: CreateSetlistRequestDto): Promise<CreateSetlistResponseDto> {
+    return firstValueFrom(this.setlistsApi.createSetlist(createSetlistRequestDto));
+  }
+
+  /**
+   * Deletes a setlist
+   * @param setlistId The ID of the setlist to delete
+   */
+  deleteSetlist(setlistId: number): Promise<any> {
+    return firstValueFrom(this.setlistsApi.deleteSetlist(setlistId));
+  }
+
+  /**
+   * Deletes an entry from a setlist
+   * @param setlistId The ID of the setlist
+   * @param entryId The ID of the entry to delete
+   */
+  deleteSetlistEntry(setlistId: number, entryId: string): Promise<any> {
+    return firstValueFrom(this.setlistsApi.deleteSetlistEntry(setlistId, entryId));
+  }
+
+  /**
+   * Removes an extra from a song in a setlist entry
+   * @param setlistId The ID of the setlist
+   * @param entryId The ID of the setlist entry
+   * @param songExtraId The ID of the extra to remove
+   */
+  deleteSongExtraFromSetlistEntry(
+    setlistId: number,
+    entryId: string,
+    songExtraId: string
+  ): Promise<any> {
+    return firstValueFrom(this.setlistsApi.deleteSongExtraFromSetlistEntry(setlistId, entryId, songExtraId));
+  }
+
+  /**
+   * Returns the acts of a setlist
+   * @param setlistId The ID of the setlist (number)
+   */
+  getActsInSetlist(setlistId: number): Promise<SetlistActDto[]> {
+    return firstValueFrom(this.setlistsApi.getActsInSetlist(setlistId));
+  }
+
+  /**
+   * Returns a complete setlist with all entries and acts
+   * @param setlistId The ID of the setlist (number)
+   * @param cached true if cached values are allowed
+   */
+  getCompleteSetlist(setlistId: number, cached: boolean = true): Promise<SetlistDto> {
+    return firstValueFrom(this.setlistsApi.getCompleteSetlist(setlistId, getRequestIdParameter(cached)));
+  }
+
+  /**
+   * Returns a specific entry in a setlist
+   * @param setlistId The ID of the setlist (number)
+   * @param entryId The ID of the entry
+   */
+  getSetlistEntry(setlistId: number, entryId: string): Promise<RawSetlistEntryDto> {
+    return firstValueFrom(this.setlistsApi.getSetlistEntry(setlistId, entryId));
+  }
+
+  /**
+   * Returns headers of all setlists
+   */
+  getSetlistHeaders(): Promise<SetlistHeaderDto[]> {
+    return firstValueFrom(this.setlistsApi.getSetlistHeaders());
+  }
+
+  /**
+   * Returns all setlists for a concert
+   * @param concertId The ID of the concert
+   * @param cached true if cached data should be used
+   */
+  getSetlistsForConcert(concertId: string, cached: boolean = true): Promise<SetlistDto[]> {
+    return firstValueFrom(this.setlistsApi.getSetlistsForConcert(concertId, getRequestIdParameter(cached)));
+  }
+
+  /**
+   * Imports a setlist from Linkinpedia for a concert
+   * @param concertId The ID of the concert
+   * @param importSetlistRequestDto The request data
+   */
+  importSetlistFromLinkinpedia(
+    concertId: string,
+    importSetlistRequestDto: ImportSetlistRequestDto
+  ): Promise<ImportSetlistPreviewDto> {
+    return firstValueFrom(this.setlistsApi.importSetlistFromLinkinpedia(concertId, importSetlistRequestDto));
+  }
+
+  /**
+   * Reorders the entries in a setlist
+   * @param setlistId The ID of the setlist (number)
+   * @param reorderSetlistEntriesRequestDto The request data
+   */
+  reorderSetlistEntries(
+    setlistId: number,
+    reorderSetlistEntriesRequestDto: ReorderSetlistEntriesRequestDto
+  ): Promise<ReorderSetlistEntriesResponseDto> {
+    return firstValueFrom(this.setlistsApi.reorderSetlistEntries(setlistId, reorderSetlistEntriesRequestDto));
+  }
+
+  /**
+   * Updates the header information of a setlist
+   * @param setlistId The ID of the setlist (number)
+   * @param updateSetlistHeaderRequestDto The request data
+   */
+  updateSetlistHeader(
+    setlistId: number,
+    updateSetlistHeaderRequestDto: UpdateSetlistHeaderRequestDto
+  ): Promise<any> {
+    return firstValueFrom(this.setlistsApi.updateSetlistHeader(setlistId, updateSetlistHeaderRequestDto));
+  }
+
+  /**
+   * Applies a new order for the entries of a setlist
+   * @param setlistId ID of the setlist
+   * @param orderedEntryIds IDs of all entries in the new order
+   */
+  public applyNewEntryOrder(setlistId: number, orderedEntryIds: string[]) : Promise<SetlistEntryDto[]> {
+    return firstValueFrom(this.setlistsApi.reorderSetlistEntries(setlistId, { entryIds: orderedEntryIds }).pipe(
+      map(response => response.reorderedEntries ?? [])
+    ));
   }
 
   /**
@@ -61,7 +238,7 @@ export class SetlistsService {
    * @param entryId ID of the entry
    * @param formContent new Data of the setlist entry
    */
-  public updateSetlistEntry(formContent: AddSetlistEntryFormContent, setlistId: number, entryId: string) : Observable<any> {
+  public updateSetlistEntry(formContent: AddSetlistEntryFormContent, setlistId: number, entryId: string) : Promise<any> {
     let request: UpdateSetlistEntryRequestDto = {
       entryParameters: this.getEntryParametersFromFormContent(formContent),
       actParameters: this.getActParametersFromFormContent(formContent, setlistId),
@@ -69,26 +246,9 @@ export class SetlistsService {
       songVariantParameters: this.getSongVariantParametersFromFormContent(formContent),
       songMashupParameters: this.getSongMashupParametersFromFormContent(formContent),
     };
-    return this.setlistsApiClient.updateSetlistEntry(setlistId, entryId, request);
-  }
 
-  /**
-   * Deletes a setlists by its ID
-   * @param setlistId ID of the setlist to delete
-   */
-  public deleteSetlist(setlistId: number) : Observable<any> {
-    return this.setlistsApiClient.deleteSetlist(setlistId);
+    return firstValueFrom(this.setlistsApi.updateSetlistEntry(setlistId, entryId, request));
   }
-
-  /**
-   * Deletes a setlist entry by its ID
-   * @param setlistId ID of the setlist
-   * @param entryId ID of the entry in the setlist
-   */
-  public deleteSetlistEntry(setlistId: number, entryId: string) : Observable<any> {
-    return this.setlistsApiClient.deleteSetlistEntry(setlistId, entryId);
-  }
-
 
   private getEntryParametersFromFormContent(content: AddSetlistEntryFormContent): SetlistEntryParametersDto {
     return {
@@ -104,7 +264,12 @@ export class SetlistsService {
   }
 
   private getActParametersFromFormContent(content: AddSetlistEntryFormContent, setlistId: number): ActParametersDto | undefined {
+    if (!content.selectedActNumber) {
+      return undefined;
+    }
+
     let usedActNumber = Number(content.selectedActNumber ?? 0) >= 0 ? Number(content.selectedActNumber) : Number(content.actNumber);
+    console.debug("usedActNumber: ", usedActNumber);
 
     if (usedActNumber == 0) {
       return undefined;
@@ -124,8 +289,8 @@ export class SetlistsService {
 
     let songId = content.selectedSongId == -1 ? 0 : Number(content.selectedSongId);
     return {
-      songId: songId,
-      songTitle: content.songTitle,
+      id: songId,
+      title: content.songTitle ?? undefined,
       isrc: content.songIsrc
     };
   }
@@ -139,8 +304,8 @@ export class SetlistsService {
     let songVariantId = content.selectedSongVariantId == -1 ? 0 : Number(content.selectedSongVariantId);
     return {
       songId: songId,
-      songVariantId: songVariantId,
-      variantName: content.songVariantName,
+      id: songVariantId ?? undefined,
+      variantName: content.songVariantName ?? undefined,
       description: content.songVariantDescription,
     };
   }
@@ -152,11 +317,11 @@ export class SetlistsService {
 
     let mashupId = content.selectedSongMashupId == -1 ? 0 : Number(content.selectedSongMashupId);
     return {
-      songMashupId: mashupId
+      id: mashupId
     };
   }
 
-  public addSetlistEntry(content: AddSetlistEntryFormContent, setlistId: number): Observable<any> {
+  public async addSetlistEntry(content: AddSetlistEntryFormContent, setlistId: number): Promise<any> {
     let entryType = content.entryType;
     console.debug("Entry type: ", entryType);
 
@@ -170,7 +335,7 @@ export class SetlistsService {
         actParameters: actParameters
       };
 
-      return this.setlistsApiClient.addSongToSetlist(setlistId, addSongRequest);
+      return await this.addSongToSetlist(setlistId, addSongRequest);
     } else if (entryType == AddSetlistEntryFormContent.entryTypeSongVariant) {
       let addSongVariantRequest: AddSongVariantToSetlistRequestDto = {
         entryParameters: entryParameters,
@@ -178,130 +343,26 @@ export class SetlistsService {
         actParameters: actParameters
       };
 
-      return this.setlistsApiClient.addSongVariantToSetlist(setlistId, addSongVariantRequest);
+      return this.setlistsApi.addSongVariantToSetlist(setlistId, addSongVariantRequest);
     } else if (entryType == AddSetlistEntryFormContent.entryTypeSongMashup) {
       let addSongMashupRequest: AddSongMashupToSetlistRequestDto = {
         entryParameters: entryParameters,
-        songMashupParameters: this.getSongMashupParametersFromFormContent(content),
+        songMashupParameters: this.getSongMashupParametersFromFormContent(content)!,
         actParameters: actParameters
       };
       console.debug("addSongMashupRequest: ", addSongMashupRequest);
 
-      return this.setlistsApiClient.addSongMashupToSetlist(setlistId, addSongMashupRequest);
+      return await this.addSongMashupToSetlist(setlistId, addSongMashupRequest);
     } else if (entryType == AddSetlistEntryFormContent.entryTypeFreeText) {
       let addEntryRequest: AddCustomEntryToSetlistRequestDto = {
         entryParameters: entryParameters,
         actParameters: actParameters
       };
-      return this.setlistsApiClient.addCustomEntryToSetlist(setlistId, addEntryRequest);
+      return await this.addCustomEntryToSetlist(setlistId, addEntryRequest);
     } else {
       return throwError(() => ({
         error: { message: `The entry type '${entryType}' is not implemented` }
       }));
     }
-  }
-
-  /**
-   * Returns a setlist by its ID
-   * @param setlistId ID of the setlist
-   * @param cached true if the setlist can be read from cache
-   */
-  public getSetlist(setlistId: number, cached: boolean = true) : Observable<SetlistDto> {
-    if (cached) {
-      return this.setlistsApiClient.getCompleteSetlist(setlistId);
-    } else {
-      return this.setlistsApiClient.getCompleteSetlist(setlistId, Guid.create().toString(), "body", false);
-    }
-  }
-
-
-  /**
-   * Returns a setlist entry by its ID
-   * @param setlistId ID of the setlist
-   * @param entryId ID of the entry
-   * @param cached true if the setlist entry can be read from cache
-   */
-  public getSetlistEntry(setlistId: number, entryId: string, cached: boolean = true) : Observable<RawSetlistEntryDto> {
-    if (cached) {
-      return this.setlistsApiClient.getSetlistEntry(setlistId, entryId);
-    } else {
-      return this.setlistsApiClient.getSetlistEntry(setlistId, entryId, Guid.create().toString(), "body", false);
-    }
-  }
-
-  /**
-   * Returns all setlists for a given concert
-   * @param concertId ID of the concert
-   */
-  public getSetlistsForConcert(concertId: string) : Observable<SetlistDto[]> {
-    return this.concertsApiClient.getSetlistsForConcert(concertId);
-  }
-
-  /**
-   * Returns all setlists
-   */
-  public getSetlists(cached: boolean) : Observable<SetlistDto[]> {
-    if (cached) {
-      return this.setlistsApiClient.getSetlists();
-    } else {
-      return this.setlistsApiClient.getSetlists(Guid.create().toString(), "body", false);
-    }
-  }
-
-
-  /**
-   * Returns all acts in a setlist
-   */
-  public getSetlistActs(setlistId: number, cached: boolean) : Observable<SetlistActDto[]> {
-    if (cached) {
-      return this.setlistsApiClient.getActsWithinSetlist(setlistId);
-    } else {
-      return this.setlistsApiClient.getActsWithinSetlist(setlistId, Guid.create().toString(), "body", false);
-    }
-  }
-
-
-  /**
-   * Applies a new order for the entries of a setlist
-   * @param setlistId ID of the setlist
-   * @param orderedEntryIds IDs of all entries in the new order
-   */
-  public applyNewEntryOrder(setlistId: number, orderedEntryIds: string[]) : Observable<SetlistEntryDto[]> {
-    return this.setlistsApiClient.reorderSetlistEntries(setlistId, { entryIds: orderedEntryIds }).pipe(
-      map(response => response.reorderedEntries ?? [])
-    );
-  }
-
-
-  public getImportInfosFromLinkinpedia(url: string) : Observable<ImportSetlistPreviewDto> {
-    let request: ImportSetlistRequestDto = {
-      concertId: "123",
-      linkinpediaUrl: url
-    };
-
-    return this.concertsApiClient.importSetlistFromLinkinpedia("123", request);
-  }
-
-
-  /**
-   * Adds a new extra to a setlist entry
-   * @param extra the extra to add
-   * @param setlistId ID of the setlist
-   * @param setlistEntryId ID of the setlist entry
-   */
-  public addSongExtraToEntry(extra: SetlistEntrySongExtraDto, setlistId: number, setlistEntryId: string): Observable<RawSetlistEntryDto> {
-    return this.setlistsApiClient.addSongExtraToSetlistEntry(setlistId, setlistEntryId, extra).pipe(
-      map(response => response.entry!)
-    );
-  }
-
-  /**
-   * Removes an extra from a setlist entry
-   * @param extraId the extra to remove
-   * @param setlistId ID of the setlist
-   * @param setlistEntryId ID of the setlist entry
-   */
-  public removeSongExtraFromEntry(extraId: string, setlistId: number, setlistEntryId: string): Observable<void> {
-    return this.setlistsApiClient.deleteSongExtraFromSetlistEntry(setlistId, setlistEntryId, extraId);
   }
 }

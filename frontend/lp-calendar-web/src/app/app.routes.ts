@@ -10,6 +10,7 @@ import { countryResolver } from './resolvers/country-resolver';
 import { cityResolver } from './resolvers/city-resolver';
 import { venueDetailsResolver, venueResolver } from './resolvers/venue-resolver';
 import { tourResolver } from './resolvers/tour-resolver';
+import { setlistsForConcertResolver } from './resolvers/setlist-resolver';
 
 let baseTitle = "LP Concerts - ";
 
@@ -140,6 +141,7 @@ export const routes: Routes = [
         },
         resolve: {
           concert: concertResolver,
+          setlists: setlistsForConcertResolver,
         },
         children: [
           {

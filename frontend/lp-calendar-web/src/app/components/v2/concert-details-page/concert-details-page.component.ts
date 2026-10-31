@@ -10,12 +10,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   ConcertBookmarkUpdateRequestDto,
   ConcertDetailsDto,
-  GetConcertBookmarkCountsResponseDto
+  GetConcertBookmarkCountsResponseDto, SetlistDto
 } from '../../../modules/lpshows-api/v3';
 import { AuthService } from '../../../auth/auth.service';
 import { Meta } from '@angular/platform-browser';
 import { ToursService } from '../../../services/tours.service';
 import { ConcertsService } from '../../../services/concerts.service';
+import { Setlist } from '../../../data/setlists/setlist';
 
 @Component({
   selector: 'app-concert-details-page',
@@ -44,23 +45,27 @@ export class ConcertDetailsPageComponent implements OnInit {
   concertBookmarksLoading = signal<boolean>(false);
 
   private updateViewModelEffect = effect(() => {
-    if (!this.concert) {
+    let concert = this.concert();
+    if (concert == null) {
       this.detailsViewModel.set(null);
       return;
     }
 
     this.detailsViewModel.set(ConcertDetailsViewModel.fromV3Dto(
-      this.concert,
-      this.adjacentConcertData,
+      concert,
+      this.adjacentConcertData(),
       this.concertBookmarks(),
       this.concertBookmarksLoading(),
-      []
+      this.setlists().map(s => Setlist.fromDto(s))
     ));
+
+    this.updateMetaInfo(concert);
   });
 
-  adjacentConcertData: AdjacentConcertsResponseDto | null = null;
+  adjacentConcertData = signal<AdjacentConcertsResponseDto | null>(null);
 
-  concert: ConcertDetailsDto | null = null;
+  concert = signal<ConcertDetailsDto | null>(null);
+  setlists = signal<SetlistDto[]>([]);
 
   addSetlistButtonItems = signal<MenuItem[]>([]);
 
@@ -88,19 +93,15 @@ export class ConcertDetailsPageComponent implements OnInit {
         return;
       }
 
-      this.concert = concert;
-      //this.setlists$ = concert?.cachedSetlists?.map(s => Setlist.fromDto(s)) ?? [];
-      //this.setlistsCacheUpdatedAt$ = concert?.cachedSetlistsAt != null ? this.getDateTime(concert?.cachedSetlistsAt) : null;
-      this.updateViewModel();
+      this.concert.set(concert);
+
+      let setlists = data['setlists'] as SetlistDto[] | null;
+      this.setlists.set(setlists ?? []);
 
       this.loadAdjacentConcerts()
-        .then(() => this.updateViewModel());
+        .then();
       this.loadBookmarkStatus()
-        .then(() => this.updateViewModel());
-
-      if (this.concert != null) {
-        this.updateMetaInfo(this.concert);
-      }
+        .then();
     });
 
     this.authService.canUpdateConcerts.subscribe(hasPermission => {
@@ -112,21 +113,6 @@ export class ConcertDetailsPageComponent implements OnInit {
     this.authService.isAuthenticated$.subscribe(authenticated => {
       this.isAuthenticated.set(authenticated);
     });
-  }
-
-  private updateViewModel() {
-    if (!this.concert) {
-      this.detailsViewModel.set(null);
-      return;
-    }
-
-    this.detailsViewModel.set(ConcertDetailsViewModel.fromV3Dto(
-      this.concert,
-      this.adjacentConcertData,
-      this.concertBookmarks(),
-      this.concertBookmarksLoading(),
-      []
-    ));
   }
 
   private updateMetaInfo(concert: ConcertDetailsDto) {
@@ -193,7 +179,7 @@ export class ConcertDetailsPageComponent implements OnInit {
       let newUserStatus = isRemoving ? GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.None : status;
       console.debug("newUserStatus", newUserStatus);
 
-      this.concertsService.setBookmarkStatusForConcert(this.concert!.id, newUserStatus)
+      this.concertsService.setBookmarkStatusForConcert(this.concert()!.id, newUserStatus)
         .then(() => this.loadBookmarkStatus())
         .catch((err) => {
           console.error("Failed to set bookmark status", err);
@@ -220,7 +206,7 @@ export class ConcertDetailsPageComponent implements OnInit {
   }
 
   onAddSetlistBtnClicked() {
-    this.router.navigate(['/admin', 'setlists', 'add', this.concert?.id]).then().catch((err) => {
+    this.router.navigate(['/admin', 'setlists', 'add', this.concert()?.id]).then().catch((err) => {
       this.messageService.add({
         severity: "danger",
         summary: "Could not navigate to setlist",
@@ -235,12 +221,13 @@ export class ConcertDetailsPageComponent implements OnInit {
     }
 
     console.debug("Loading adjacent concerts...");
-    this.adjacentConcertData = await this.toursService.getAdjacentConcerts(this.concert!.id);
+    let adjacentConcertData = await this.toursService.getAdjacentConcerts(this.concert()!.id);
+    this.adjacentConcertData.set(adjacentConcertData);
   }
 
   private async loadBookmarkStatus() {
     this.concertBookmarksLoading.set(true);
-    this.concertBookmarks.set(await this.concertsService.getBookmarkStatusForConcert(this.concert!.id));
+    this.concertBookmarks.set(await this.concertsService.getBookmarkStatusForConcert(this.concert()!.id));
     this.concertBookmarksLoading.set(false);
   }
 }

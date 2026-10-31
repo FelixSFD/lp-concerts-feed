@@ -21,6 +21,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataStructure\DataStructure.csproj" />
+    <ProjectReference Include="..\Common.Contracts\Common.Contracts.csproj" />
+    <ProjectReference Include="..\Server.Api\Server.Api.csproj" />
   </ItemGroup>
   
 </Project>

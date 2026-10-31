@@ -16,7 +16,7 @@ public class LinkinpediaImportService(IWikiMediaRepository wikiMediaRepository, 
     public const string LinkinpediaRestApiBaseUrl = "https://linkinpedia.com/w/rest.php/v1";
     public const string LinkinpediaActionApiBaseUrl = "https://linkinpedia.com/w/api.php";
     
-    public async Task<ImportSetlistPreviewDto> GetImportPlanForSetlistFromPageAsync(string wikiPageId)
+    public async Task<ImportSetlistPreviewBo> GetImportPlanForSetlistFromPageAsync(string wikiPageId)
     {
         logger.LogDebug("Importing from Linkinpedia Page: {page}", wikiPageId);
         var wikiPage = await wikiMediaRepository.GetWikiPageAsync(wikiPageId) ?? throw new InvalidWikiContentException($"Could not find WikiPage: {wikiPageId}");
@@ -37,7 +37,7 @@ public class LinkinpediaImportService(IWikiMediaRepository wikiMediaRepository, 
         var mappedActs = actEntries.Select(GetPreviewAct);
         var mappedEntries = await Task.WhenAll(songEntries.Select(GetPreviewEntryAsync));
 
-        var setlistPreview = new ImportSetlistPreviewDto
+        var setlistPreview = new ImportSetlistPreviewBo
         {
             ConcertId = "1234",
             Acts = mappedActs.ToList(),
@@ -47,9 +47,9 @@ public class LinkinpediaImportService(IWikiMediaRepository wikiMediaRepository, 
         return setlistPreview;
     }
     
-    private static ImportSetlistActPreviewDto GetPreviewAct(ActWikiSetlistEntry wikiSetlistEntry)
+    private static ImportSetlistActPreviewBo GetPreviewAct(ActWikiSetlistEntry wikiSetlistEntry)
     {
-        ImportSetlistActPreviewDto preview = new()
+        ImportSetlistActPreviewBo preview = new()
         {
             Name = wikiSetlistEntry.Name ?? "Unknown",
             ActNumber = wikiSetlistEntry.ActNumber,
@@ -59,9 +59,9 @@ public class LinkinpediaImportService(IWikiMediaRepository wikiMediaRepository, 
         return preview;
     }
 
-    private async Task<ImportSetlistEntryPreviewDto> GetPreviewEntryAsync(WikiSetlistEntry wikiSetlistEntry)
+    private async Task<ImportSetlistEntryPreviewBo> GetPreviewEntryAsync(WikiSetlistEntry wikiSetlistEntry)
     {
-        ImportSetlistEntryPreviewDto preview = new()
+        ImportSetlistEntryPreviewBo preview = new()
         {
             Title = wikiSetlistEntry.Name ?? "Unknown",
             ExtraNotes = wikiSetlistEntry.Note

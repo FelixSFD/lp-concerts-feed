@@ -75,7 +75,7 @@ public static class ConcertDtoMapper
             VenueLongitude = model.VenueLongitude,
             // special fields for setlists cache
             CachedSetlistsAt = model.CachedSetlistsAt,
-            CachedSetlists = JsonSerializer.Deserialize(model.CachedSetlistsJson ?? "[]", SetlistDtoJsonContext.Default.ListSetlistDto) ?? [],
+            CachedSetlists = JsonSerializer.Deserialize(model.CachedSetlistsJson ?? "[]", SetlistBoJsonContext.Default.ListSetlistBo) ?? [],
         };
     }
     

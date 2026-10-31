@@ -1,4 +1,4 @@
-import {Component, inject, Input} from '@angular/core';
+import { Component, inject, Input, signal } from '@angular/core';
 import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
 import {SetlistEntrySongExtraDto, SongDto} from '../../../../../modules/lpshows-api';
 import TypeEnum = SetlistEntrySongExtraDto.TypeEnum;
@@ -23,7 +23,7 @@ export class SetlistEntrySongExtraFormComponent {
   private formBuilder = inject(FormBuilder);
 
   @Input("setlist-id")
-  setlistId: number | undefined;
+  setlistId = signal<number | undefined>(undefined);
 
   @Input("available-songs")
   availableSongs$: SongDto[] = [];

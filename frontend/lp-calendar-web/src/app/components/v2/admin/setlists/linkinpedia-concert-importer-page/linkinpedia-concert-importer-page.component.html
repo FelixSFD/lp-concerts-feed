@@ -1,24 +1,24 @@
 <!-- add song modal -->
 <p-dialog header="Add a new song" [(visible)]="isShowingAddSongDialog$" [modal]="true" [dismissableMask]="true" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [style]="{ width: '50vw' }" [draggable]="false">
-  <app-song-form [standalone]="false" [is-saving]="isAddingSong$" />
+  <app-song-form [standalone]="false" [is-saving]="isAddingSong$()" />
 
   <p-divider />
 
   <ng-template #footer>
     <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="dismissAddSongModal()" />
-    <p-button [label]="isAddingSong$ ? 'Adding...' : 'Add'" (onClick)="onAddSongConfirm()" [loading]="isAddingSong$" [disabled]="isAddingSong$" />
+    <p-button [label]="isAddingSong$() ? 'Adding...' : 'Add'" (onClick)="onAddSongConfirm()" [loading]="isAddingSong$()" [disabled]="isAddingSong$()" />
   </ng-template>
 </p-dialog>
 
 <!-- add song mashup modal -->
 <p-dialog header="Add a new song mashup" [(visible)]="isShowingAddMashupDialog$" [modal]="true" [dismissableMask]="true" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [style]="{ width: '50vw' }" [draggable]="false">
-  <app-mashup-form [standalone]="false" [is-saving]="isAddingMashup$" />
+  <app-mashup-form [standalone]="false" [is-saving]="isAddingMashup$()" />
 
   <p-divider />
 
   <ng-template #footer>
     <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="dismissAddMashupModal()" />
-    <p-button [label]="isAddingMashup$ ? 'Adding...' : 'Add'" (onClick)="onAddMashupConfirm()" [loading]="isAddingMashup$" [disabled]="isAddingMashup$" />
+    <p-button [label]="isAddingMashup$() ? 'Adding...' : 'Add'" (onClick)="onAddMashupConfirm()" [loading]="isAddingMashup$()" [disabled]="isAddingMashup$()" />
   </ng-template>
 </p-dialog>
 
@@ -77,7 +77,7 @@
     <ng-template #footer>
       <p-divider />
       <div class="flex gap-4 mt-1 align-content-end justify-content-end">
-        <p-button [label]="isReadingSource$ ? 'Loading...' : 'Load'" [loading]="isReadingSource$" (onClick)="onLoadSourceClicked()" [disabled]="isReadingSource$ || !sourceDataForm.valid" />
+        <p-button [label]="isReadingSource$() ? 'Loading...' : 'Load'" [loading]="isReadingSource$()" (onClick)="onLoadSourceClicked()" [disabled]="isReadingSource$() || !sourceDataForm.valid" />
       </div>
     </ng-template>
   </p-card>
@@ -106,7 +106,7 @@
     </tr>
   </ng-template>
 
-  @if (generatedSetlist$ != null) {
+  @if (generatedSetlist$() != null) {
     <p-card class="mt-2">
       <ng-template #title>
         <h4>Setlist to import</h4>
@@ -114,7 +114,7 @@
 
       <h5>Acts</h5>
 
-      <p-table [value]="generatedSetlist$.acts ?? []" stripedRows>
+      <p-table [value]="generatedSetlist$()?.acts ?? []" stripedRows>
         <ng-template #header let-columns>
           <tr>
             <th>#</th>
@@ -134,7 +134,7 @@
       <p-divider />
       <h5>Setlist entries</h5>
 
-      <p-table [value]="generatedSetlist$.entries ?? []">
+      <p-table [value]="generatedSetlist$()?.entries ?? []">
         <ng-template #header let-columns>
           <tr>
             <th>#</th>
@@ -191,7 +191,7 @@
       <ng-template #footer>
         <p-divider />
         <div class="flex gap-4 mt-1 align-content-end justify-content-end">
-          <p-button [label]="isCreatingSetlist$ ? 'Importing...' : 'Import'" [loading]="isCreatingSetlist$" (onClick)="onCreateSetlistClicked()" [disabled]="isCreatingSetlist$ || !sourceDataForm.valid || !allEntriesValid$" />
+          <p-button [label]="isCreatingSetlist$() ? 'Importing...' : 'Import'" [loading]="isCreatingSetlist$()" (onClick)="onCreateSetlistClicked()" [disabled]="isCreatingSetlist$() || !sourceDataForm.valid || !allEntriesValid$()" />
         </div>
       </ng-template>
     </p-card>

@@ -20,7 +20,7 @@
   </form>
 
   <ng-template #footer>
-    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="showAddActDialog = false" />
+    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="showAddActDialog.set(false)" />
     <p-button label="Add" (onClick)="onActAdd()" [disabled]="addActForm.invalid" />
   </ng-template>
 </p-dialog>
@@ -46,18 +46,18 @@
   </form>
 
   <ng-template #footer>
-    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="showAddSongDialog = false" />
+    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="showAddSongDialog.set(false)" />
     <p-button label="Add" (onClick)="onSongAdd()" [disabled]="addSongForm.invalid" />
   </ng-template>
 </p-dialog>
 
 <!-- add setlist entry extra modal -->
 <p-dialog header="Add a new extra to this entry" [(visible)]="showAddSongExtrasDialog" [modal]="true" [draggable]="false" [dismissableMask]="true" [style]="{ height: '30rem', width: '30vw' }">
-  <app-setlist-entry-song-extra-form [setlist-id]="setlistId" [available-songs]="availableSongs$"></app-setlist-entry-song-extra-form>
+  <app-setlist-entry-song-extra-form [setlist-id]="setlistId" [available-songs]="availableSongs$()"></app-setlist-entry-song-extra-form>
 
   <ng-template #footer>
-    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="showAddSongExtrasDialog = false" />
-    <p-button [label]="isAddingSongExtra$ ? 'Adding...' : 'Add'" (onClick)="onAddSongExtraConfirmed()" [disabled]="isAddingSongExtra$" [loading]="isAddingSongExtra$" />
+    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="showAddSongExtrasDialog.set(false)" />
+    <p-button [label]="isAddingSongExtra$() ? 'Adding...' : 'Add'" (onClick)="onAddSongExtraConfirmed()" [disabled]="isAddingSongExtra$()" [loading]="isAddingSongExtra$()" />
   </ng-template>
 </p-dialog>
 
@@ -78,7 +78,7 @@
         Act {{ act.actNumber }}: {{ act.title }}
       </ng-template>
       <p-floatlabel variant="on">
-        <p-select inputId="selectedAct" [options]="availableActs$" formControlName="selectedAct" fluid showClear>
+        <p-select inputId="selectedAct" [options]="availableActs$()" formControlName="selectedAct" fluid showClear>
           <ng-template #selectedItem let-selectedOption>
             <ng-container *ngTemplateOutlet="actSelectionItem; context: { act: selectedOption }" />
           </ng-template>
@@ -102,13 +102,13 @@
       <p-select-button [options]="SetlistEntryTypeSelectorItem.possibleTypes" id="entryType" formControlName="entryType" optionLabel="label" optionValue="value" aria-labelledby="basic" allowEmpty="false" />
     </div>
 
-    @if (selectedEntryType$ == AddSetlistEntryFormContent.entryTypeFreeText) {
+    @if (selectedEntryType$() == AddSetlistEntryFormContent.entryTypeFreeText) {
       <div class="mb-4">
         <small>Use this entry type for entries like the intro song where we don't need statistics.</small>
       </div>
     }
 
-    @if (selectedEntryType$ == AddSetlistEntryFormContent.entryTypeSong) {
+    @if (selectedEntryType$() == AddSetlistEntryFormContent.entryTypeSong) {
       <!-- Song selection -->
       <div class="col-12">
         <ng-template #songSelectionItem let-song="song">
@@ -124,7 +124,7 @@
           </div>
         </ng-template>
         <p-floatlabel variant="on">
-          <p-select inputId="selectedSong" [options]="availableSongs$" formControlName="selectedSong" fluid showClear>
+          <p-select inputId="selectedSong" [options]="availableSongs$()" formControlName="selectedSong" fluid showClear>
             <ng-template #selectedItem let-selectedOption>
               <ng-container *ngTemplateOutlet="songSelectionItem; context: { song: selectedOption }" />
             </ng-template>
@@ -147,7 +147,7 @@
           {{ variant.variantName }} {{ variant.description != null && variant.description.length > 0 ? `(${variant.description})` : "" }}
         </ng-template>
         <p-floatlabel variant="on">
-          <p-select inputId="selectedSong" [options]="variantsOfSelectedSong$" formControlName="selectedSongVariant" fluid showClear>
+          <p-select inputId="selectedSong" [options]="variantsOfSelectedSong$()" formControlName="selectedSongVariant" fluid showClear>
             <ng-template #selectedItem let-selectedOption>
               <ng-container *ngTemplateOutlet="songVariantSelectionItem; context: { variant: selectedOption }" />
             </ng-template>
@@ -164,11 +164,11 @@
           <label for="selectedSong">Played variation of this song</label>
         </p-floatlabel>
       </div>
-    } @else if (selectedEntryType$ == AddSetlistEntryFormContent.entryTypeSongMashup) {
+    } @else if (selectedEntryType$() == AddSetlistEntryFormContent.entryTypeSongMashup) {
       <!-- Mashup -->
       <div class="col-12">
         <p-floatlabel variant="on">
-          <p-select inputId="selectedSongMashup" [options]="availableSongMashups$" optionLabel="title" formControlName="selectedSongMashup" fluid showClear />
+          <p-select inputId="selectedSongMashup" [options]="availableSongMashups$()" optionLabel="title" formControlName="selectedSongMashup" fluid showClear />
           <label for="selectedSongMashup">Mashup/Medley</label>
         </p-floatlabel>
       </div>
@@ -178,7 +178,7 @@
     <div class="col-12">
       <p-floatlabel variant="on">
         <input pInputText id="titleOverride" formControlName="titleOverride" placeholder="if empty, the name of the song/mashup will be used by default" autocomplete="off" fluid />
-        <label for="titleOverride">{{ selectedEntryType$ != AddSetlistEntryFormContent.entryTypeFreeText ? '(Optional)' : '' }} Override the title for this entry</label>
+        <label for="titleOverride">{{ selectedEntryType$() != AddSetlistEntryFormContent.entryTypeFreeText ? '(Optional)' : '' }} Override the title for this entry</label>
       </p-floatlabel>
     </div>
 
@@ -212,10 +212,10 @@
   <!-- song extras -->
   <br />
   <h4>Song extras <p-button size="small" label="Add" (onClick)="onAddSongExtraClicked()" /></h4>
-  @if (currentSongExtras$.length == 0) {
+  @if (currentSongExtras$().length == 0) {
     <p>You can add some extras like an extended bridge for this entry.</p>
   } @else {
-    <p-table [value]="currentSongExtras$">
+    <p-table [value]="currentSongExtras$()">
       <ng-template #header let-columns>
         <tr>
           <th>Type</th>

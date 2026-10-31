@@ -62,7 +62,7 @@
   <ng-template #footer>
     <p-divider />
     <div class="flex gap-4 mt-1 align-content-end justify-content-end">
-      <p-button [label]="isSaving$ ? 'Adding...' : 'Add'" [loading]="isSaving$" (onClick)="onSaveClicked()" [disabled]="isSaving$ || !setlistForm.valid" />
+      <p-button [label]="isSaving() ? 'Adding...' : 'Add'" [loading]="isSaving()" (onClick)="onSaveClicked()" [disabled]="isSaving() || !setlistForm.valid" />
     </div>
   </ng-template>
 </p-card>
