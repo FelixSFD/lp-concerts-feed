@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, inject, OnInit, signal } from '@angular/core';
 import { ConcertStatusValueDto } from '../../../modules/lpshows-api';
 import { AuthService } from '../../../auth/auth.service';
 import { ConcertFilter } from '../../../data/concert-filter';
@@ -117,6 +117,22 @@ export class ConcertListComponent implements OnInit {
 
     this.defaultFilter.orderBy = [this.sortOrder$() === 'desc' ? '-date' : 'date'];
     this.currentFilter.orderBy = this.defaultFilter.orderBy;
+  }
+
+  @HostListener('window:scroll', [])
+  async onWindowScroll(): Promise<void> {
+    if (!this.hasMore$()) {
+      return;
+    }
+
+    const threshold = 100; // Pixels from the bottom
+
+    const scrollPosition = window.scrollY + window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+
+    if (scrollPosition >= documentHeight - threshold) {
+      await this.loadMore();
+    }
   }
 
   public async reloadConcertList(cache: boolean = true) {
