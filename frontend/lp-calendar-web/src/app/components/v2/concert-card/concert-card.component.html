@@ -46,11 +46,11 @@
         </div>
       }
       <div class="flex flex-row-reverse flex-wrap mt-2">
-        @if (viewModel()?.id != null) {
-          <p-button variant="outlined" label="Details" icon="pi pi-info-circle" [routerLink]="['/concerts', concert$?.id]" size="small" />
+        @if (loadedConcertId() != null) {
+          <p-button variant="outlined" label="Details" icon="pi pi-info-circle" [routerLink]="['/concerts', loadedConcertId()]" size="small" />
 
           @if (canUpdateConcerts$) {
-            <p-button variant="outlined" label="Edit" icon="pi pi-pencil" [routerLink]="['/concerts', concert$?.id, 'edit']" size="small" class="pr-2" severity="info" />
+            <p-button variant="outlined" label="Edit" icon="pi pi-pencil" [routerLink]="['/admin', 'concerts', loadedConcertId()]" size="small" class="pr-2" severity="info" />
           }
         } @else if (isLoading$) {
           <p-skeleton borderRadius="2" width="5rem" height="2.2rem" />

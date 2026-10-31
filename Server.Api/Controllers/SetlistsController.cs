@@ -81,7 +81,7 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     /// <param name="setlistId"></param>
     /// <returns></returns>
     [HttpDelete("{setlistId:int}")]
-    [AuthorizeRoles(RoleNames.DeleteSongs, RoleNames.ManageSetlists)]
+    [AuthorizeRoles(RoleNames.ManageSetlists)]
     [ClearCache(Tags = [CacheTags.SetlistsAll])]
     public async Task<NoContentResult> DeleteSetlist([FromRoute] uint setlistId)
     {

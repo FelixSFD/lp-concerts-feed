@@ -1,6 +1,6 @@
 import {
   ChangeDetectionStrategy,
-  Component,
+  Component, effect,
   inject,
   Input,
   OnChanges,
@@ -53,6 +53,8 @@ export class ConcertCardComponent implements OnInit, OnChanges {
 
   protected viewModel = signal<ConcertCardViewModel | null>(null);
 
+  protected loadedConcertId = signal<string | null>(null);
+
   @Input("isLoading")
   isLoading$: boolean = false;
 
@@ -63,6 +65,13 @@ export class ConcertCardComponent implements OnInit, OnChanges {
   notFoundAlertText: string = "Concert was not found";
 
   canUpdateConcerts$ = false;
+
+  private viewModelChangedEffect = effect(() => {
+    let viewModel = this.viewModel();
+    if (viewModel) {
+      this.loadedConcertId.set(viewModel.id);
+    }
+  });
 
   constructor() {
   }

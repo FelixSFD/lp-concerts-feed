@@ -1,7 +1,7 @@
 import { Guid } from 'guid-typescript';
 import { Data } from '@angular/router';
 
-class CacheParameterHelper {
+export class CacheParameterHelper {
   public static getRequestIdParameter(cached: boolean): string | undefined {
     return cached ? undefined : Guid.create().toString();
   }
