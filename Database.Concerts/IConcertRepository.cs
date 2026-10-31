@@ -7,6 +7,7 @@ using DateRange = (DateTimeOffset? from, DateTimeOffset? to);
 /// <summary>
 /// Handles DB actions for Concerts
 /// </summary>
+[Obsolete("Use Database.Tours.IConcertRepository instead")]
 public interface IConcertRepository
 {
     /// <summary>

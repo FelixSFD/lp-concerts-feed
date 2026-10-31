@@ -17,7 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\Database.Concerts\Database.Concerts.csproj" />
+      <ProjectReference Include="..\..\..\Database.Tours\Database.Tours.csproj" />
       <ProjectReference Include="..\..\..\DataStructure\DataStructure.csproj" />
       <ProjectReference Include="..\..\..\Lambda.Auth\Lambda.Auth.csproj" />
       <ProjectReference Include="..\..\..\Lambda.Common.ApiGateway\Lambda.Common.ApiGateway.csproj" />

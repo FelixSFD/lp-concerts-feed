@@ -80,17 +80,17 @@ public class LinkinpediaImportServiceTest
         List<SongDo> mockSongsSong3 = [song3, song3SameName];
         List<SongDo> mockSongsSong4 = [song4];
         
-        var expectedResult = new ImportSetlistPreviewDto
+        var expectedResult = new ImportSetlistPreviewBo
         {
             ConcertId = "1234",
             Acts = [
-                new ImportSetlistActPreviewDto
+                new ImportSetlistActPreviewBo
                 {
                     Name = "Inception Intro A",
                     ActNumber = 1,
                     ExtraNotes = "COG vocals",
                 },
-                new ImportSetlistActPreviewDto
+                new ImportSetlistActPreviewBo
                 {
                     Name = "Resolution Intro A",
                     ActNumber = 2,
@@ -98,7 +98,7 @@ public class LinkinpediaImportServiceTest
                 },
             ],
             Entries = [
-                new ImportSetlistEntryPreviewDto
+                new ImportSetlistEntryPreviewBo
                 {
                     SongNumber = 1,
                     ActNumber = 1,
@@ -106,14 +106,14 @@ public class LinkinpediaImportServiceTest
                     ExtraNotes = "some notes",
                     FoundSongId = song1.Id,
                 },
-                new ImportSetlistEntryPreviewDto
+                new ImportSetlistEntryPreviewBo
                 {
                     SongNumber = 2,
                     ActNumber = 1,
                     Title = "Song 2",
                     ExtraNotes = null,
                 },
-                new ImportSetlistEntryPreviewDto
+                new ImportSetlistEntryPreviewBo
                 {
                     SongNumber = 3,
                     ActNumber = 2,
@@ -121,20 +121,20 @@ public class LinkinpediaImportServiceTest
                     ExtraNotes = null,
                     FoundSongIds = mockSongsSong3.Select(s => s.Id).ToArray()
                 },
-                new ImportSetlistEntryPreviewDto
+                new ImportSetlistEntryPreviewBo
                 {
                     SongNumber = 4,
                     ActNumber = 2,
                     Title = "Song 4",
                     FoundSongId = song4.Id,
                     PossibleSongVariants = [
-                        new SongVariantDto
+                        new SongVariantBo
                         {
                             Id = 123,
                             VariantName = "Piano Version",
                             SongId = song4.Id
                         },
-                        new SongVariantDto
+                        new SongVariantBo
                         {
                             Id = 432,
                             VariantName = "Nu-Metal Version",
@@ -253,8 +253,8 @@ public class LinkinpediaImportServiceTest
     }
 
 
-    private void AssertEqual(ImportSetlistPreviewDto expectedResult,
-        ImportSetlistPreviewDto actualResult)
+    private void AssertEqual(ImportSetlistPreviewBo expectedResult,
+        ImportSetlistPreviewBo actualResult)
     {
         //Assert.Equal(expectedResult.ConcertId, actualResult.ConcertId);
         
@@ -275,16 +275,16 @@ public class LinkinpediaImportServiceTest
         }
     }
     
-    private void AssertEqual(ImportSetlistActPreviewDto expectedAct,
-        ImportSetlistActPreviewDto actualAct)
+    private void AssertEqual(ImportSetlistActPreviewBo expectedAct,
+        ImportSetlistActPreviewBo actualAct)
     {
         Assert.Equal(expectedAct.Name, actualAct.Name);
         Assert.Equal(expectedAct.ActNumber, actualAct.ActNumber);
         Assert.Equal(expectedAct.ExtraNotes, actualAct.ExtraNotes);
     }
     
-    private void AssertEqual(ImportSetlistEntryPreviewDto expectedEntry,
-        ImportSetlistEntryPreviewDto actualEntry)
+    private void AssertEqual(ImportSetlistEntryPreviewBo expectedEntry,
+        ImportSetlistEntryPreviewBo actualEntry)
     {
         Assert.Equal(expectedEntry.Title, actualEntry.Title);
         Assert.Equal(expectedEntry.SongNumber, actualEntry.SongNumber);
@@ -302,7 +302,7 @@ public class LinkinpediaImportServiceTest
     }
     
     
-    private static void AssertEqual(SongVariantDto[] expectedVariants, SongVariantDto[] actualVariants)
+    private static void AssertEqual(SongVariantBo[] expectedVariants, SongVariantBo[] actualVariants)
     {
         Assert.Equal(expectedVariants.Length, actualVariants.Length);
         for (var i = 0; i < expectedVariants.Length; i++)
@@ -312,7 +312,7 @@ public class LinkinpediaImportServiceTest
     }
 
 
-    private static void AssertEqual(SongVariantDto expectedVariant, SongVariantDto actualVariant)
+    private static void AssertEqual(SongVariantBo expectedVariant, SongVariantBo actualVariant)
     {
         Assert.Equal(expectedVariant.Id, actualVariant.Id);
         Assert.Equal(expectedVariant.SongId, actualVariant.SongId);

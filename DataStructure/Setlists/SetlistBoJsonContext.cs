@@ -1,0 +1,50 @@
+using System.Text.Json.Serialization;
+using LPCalendar.DataStructure.Setlists.Import;
+using LPCalendar.DataStructure.Setlists.Parameters;
+
+namespace LPCalendar.DataStructure.Setlists;
+
+[JsonSerializable(typeof(CreateAlbumRequestBo))]
+[JsonSerializable(typeof(CreateSetlistRequestBo))]
+[JsonSerializable(typeof(CreateSetlistResponseBo))]
+[JsonSerializable(typeof(CreateSongMashupRequestBo))]
+[JsonSerializable(typeof(CreateSongRequestBo))]
+[JsonSerializable(typeof(UpdateAlbumRequestBo))]
+[JsonSerializable(typeof(UpdateSongRequestBo))]
+[JsonSerializable(typeof(UpdateSongMashupRequestBo))]
+[JsonSerializable(typeof(UpdateSetlistHeaderRequestBo))]
+[JsonSerializable(typeof(UpdateSetlistEntryRequestBo))]
+[JsonSerializable(typeof(ReorderSetlistEntriesRequestBo))]
+[JsonSerializable(typeof(ReorderSetlistEntriesResponseBo))]
+[JsonSerializable(typeof(AddSongVariantToSetlistRequestBo))]
+[JsonSerializable(typeof(AddSongVariantToSetlistResponseBo))]
+[JsonSerializable(typeof(AddSongToSetlistRequestBo))]
+[JsonSerializable(typeof(AddSongToSetlistResponseBo))]
+[JsonSerializable(typeof(AddSongMashupToSetlistRequestBo))]
+[JsonSerializable(typeof(AddSongMashupToSetlistResponseBo))]
+[JsonSerializable(typeof(AddCustomEntryToSetlistRequestBo))]
+[JsonSerializable(typeof(AddCustomEntryToSetlistResponseBo))]
+[JsonSerializable(typeof(AddSongExtraToSetlistEntryRequestBo))]
+[JsonSerializable(typeof(AddSongExtraToSetlistEntryResponseBo))]
+[JsonSerializable(typeof(SetlistEntryBo))]
+[JsonSerializable(typeof(RawSetlistEntryBo))]
+[JsonSerializable(typeof(SetlistEntryParametersBo))]
+[JsonSerializable(typeof(ActParametersBo))]
+[JsonSerializable(typeof(SetlistBo))]
+[JsonSerializable(typeof(SetlistHeaderBo))]
+[JsonSerializable(typeof(AlbumBo))]
+[JsonSerializable(typeof(SongBo))]
+[JsonSerializable(typeof(SongMashupBo))]
+[JsonSerializable(typeof(ImportSetlistRequestBo))]
+[JsonSerializable(typeof(ImportSetlistPreviewBo))]
+[JsonSerializable(typeof(List<ImportSetlistEntryPreviewBo>))]
+[JsonSerializable(typeof(List<AlbumBo>))]
+[JsonSerializable(typeof(List<SetlistActBo>))]
+[JsonSerializable(typeof(List<SetlistBo>))]
+[JsonSerializable(typeof(List<SetlistHeaderBo>))]
+[JsonSerializable(typeof(List<SongBo>))]
+[JsonSerializable(typeof(List<SongVariantBo>))]
+[JsonSerializable(typeof(List<SongMashupBo>))]
+public partial class SetlistBoJsonContext : JsonSerializerContext
+{
+}

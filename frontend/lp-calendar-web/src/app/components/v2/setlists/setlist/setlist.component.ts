@@ -1,6 +1,6 @@
-import {Component, inject, Input, OnInit} from '@angular/core';
+import {Component, inject, Input, OnInit, signal} from '@angular/core';
 import {SetlistsService} from '../../../../services/setlists.service';
-import {ErrorResponseDto} from '../../../../modules/lpshows-api';
+import {ProblemDetailsDto} from '../../../../modules/lpshows-api/v3';
 import {Setlist} from '../../../../data/setlists/setlist';
 import {SetlistEntryIconsComponent} from '../setlist-entry-icons/setlist-entry-icons.component';
 import {SetlistAlbumChartComponent} from '../setlist-album-chart/setlist-album-chart.component';
@@ -36,6 +36,7 @@ export class SetlistComponent implements OnInit {
   private readonly scroller = inject(ViewportScroller);
   private readonly appleMusicService = inject(AppleMusicService);
   private readonly messageService = inject(MessageService);
+  private readonly setlistsService = inject(SetlistsService);
 
   @Input({ required: false })
   setlistId: number | undefined;
@@ -44,27 +45,19 @@ export class SetlistComponent implements OnInit {
   setlist: Setlist | undefined;
 
   // map that stores the artwork for an Apple Music Song ID
-  songArtworks$ = new Map<string, Artwork>();
+  songArtworks$ = signal<Map<string, Artwork>>(new Map<string, Artwork>());
 
-  setlistTitle$: string = "Setlist";
+  setlistTitle$ = signal<string>("Setlist");
 
-  isExpanded$ = false;
+  isExpanded$ = signal(false);
 
   private isLoadingThumbnails = false;
 
-  constructor(private setlistService: SetlistsService) {
-    // init apple music
-    this.appleMusicService.init().then(async () => {
-      await this.loadThumbnails();
-    });
-  }
-
   private async didLoadSetlist() {
     console.debug("Found setlist", this.setlist);
-    this.setlistTitle$ = this.setlist?.concertId ?? "Setlist";
+    this.setlistTitle$.set(this.setlist?.concertId ?? "Setlist");
     await this.loadThumbnails();
   }
-
 
   private async loadThumbnails() {
     if (this.isLoadingThumbnails) {
@@ -73,47 +66,62 @@ export class SetlistComponent implements OnInit {
 
     this.isLoadingThumbnails = true;
 
-    const appleMusicIds = this.setlist?.entries.filter(entry => entry.appleMusicId != null).map(entry => entry.appleMusicId!);
-    const foundSongs = appleMusicIds ? await this.appleMusicService.getSongsById(appleMusicIds ?? []) : [];
-    for (const entry of this.setlist?.entries ?? []) {
-      if (entry.appleMusicId == null) {
-        continue;
+    try {
+      const appleMusicIds = this.setlist?.entries.filter(entry => entry.appleMusicId != null).map(entry => entry.appleMusicId!);
+      const foundSongs = appleMusicIds && appleMusicIds.length > 0 ? await this.appleMusicService.getSongsById(appleMusicIds) : [];
+      const artworks = new Map<string, Artwork>(this.songArtworks$());
+      for (const entry of this.setlist?.entries ?? []) {
+        if (entry.appleMusicId == null) {
+          continue;
+        }
+        const song = foundSongs.find(song => song.id == entry.appleMusicId);
+        if (song?.attributes?.artwork) {
+          artworks.set(entry.appleMusicId, song.attributes.artwork);
+        }
       }
-      const song = foundSongs.find(song => song.id == entry.appleMusicId);
-      if (song?.attributes?.artwork) {
-        this.songArtworks$.set(entry.appleMusicId, song.attributes.artwork);
-      }
+      this.songArtworks$.set(artworks);
+    } catch (err) {
+      console.error("Could not load thumbnails", err);
+    } finally {
+      this.isLoadingThumbnails = false;
     }
-
-    this.isLoadingThumbnails = false;
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    try {
+      await this.appleMusicService.init();
+      await this.loadThumbnails();
+    } catch (err) {
+      console.error("Could not initialize Apple Music", err);
+    }
+
     if (this.setlist == undefined && this.setlistId !== undefined) {
-      this.setlistService.getSetlist(this.setlistId).subscribe({
-        next: async data => {
-          this.setlist = Setlist.fromDto(data);
-          await this.didLoadSetlist();
-        },
-        error: err => {
-          let errorResponse: ErrorResponseDto = err.error;
-          this.messageService.add({severity: "error", summary: "Could not load setlist", detail: errorResponse.message});
-        }
-      })
+      try {
+        const data = await this.setlistsService.getCompleteSetlist(this.setlistId);
+        this.setlist = Setlist.fromDto(data);
+        await this.didLoadSetlist();
+      } catch (err: any) {
+        let errorResponse: ProblemDetailsDto = err?.error ?? err;
+        this.messageService.add({
+          severity: "error",
+          summary: "Could not load setlist",
+          detail: errorResponse?.detail ?? errorResponse?.title ?? errorResponse?.['message'] ?? "Could not load setlist"
+        });
+      }
     } else {
-      this.didLoadSetlist().then();
+      await this.didLoadSetlist();
     }
   }
 
   onToggleExpendedClicked() {
-    this.isExpanded$ = !this.isExpanded$;
+    this.isExpanded$.update(expanded => !expanded);
     this.scroller.setOffset([0, 120]);
     this.scroller.scrollToAnchor(`setlist-container-${this.setlist?.id}`, {
       behavior: 'smooth'
     });
 
-    if (this.isExpanded$) {
-      this.tracker.trackEvent("setlist", "expand_view", this.setlistTitle$);
+    if (this.isExpanded$()) {
+      this.tracker.trackEvent("setlist", "expand_view", this.setlistTitle$());
     }
   }
 

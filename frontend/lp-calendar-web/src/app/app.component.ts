@@ -227,4 +227,5 @@ export class AppComponent implements OnInit, OnDestroy {
 
   protected readonly DateTime = DateTime;
   protected readonly EventType = EventType;
+  protected readonly Toast = Toast;
 }

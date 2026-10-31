@@ -15,7 +15,7 @@ public class AlbumService(IAlbumRepository albumRepository, ILambdaLogger logger
     /// Creates a new album
     /// </summary>
     /// <param name="request">Request to create the album</param>
-    public async Task<AlbumDto> CreateAlbumAsync(CreateAlbumRequestDto request)
+    public async Task<AlbumBo> CreateAlbumAsync(CreateAlbumRequestBo request)
     {
         logger.LogDebug("Creating album with title '{title}'...", request.Title);
 
@@ -37,7 +37,7 @@ public class AlbumService(IAlbumRepository albumRepository, ILambdaLogger logger
     /// <param name="albumId">ID of the album</param>
     /// <returns></returns>
     /// <exception cref="AlbumNotFoundException">if the album was not found</exception>
-    public async Task<AlbumDto> GetAlbumById(uint albumId)
+    public async Task<AlbumBo> GetAlbumById(uint albumId)
     {
         logger.LogDebug("Getting album with id: {albumId}", albumId);
         var album = await albumRepository.GetByPrimaryKeyAsync(albumId) ?? throw new AlbumNotFoundException(albumId);
@@ -49,7 +49,7 @@ public class AlbumService(IAlbumRepository albumRepository, ILambdaLogger logger
     /// </summary>
     /// <param name="cancellationToken"></param>
     /// <returns>Enumerable of all albums</returns>
-    public IAsyncEnumerable<AlbumDto> GetAllAlbumsAsync(CancellationToken cancellationToken)
+    public IAsyncEnumerable<AlbumBo> GetAllAlbumsAsync(CancellationToken cancellationToken)
     {
         logger.LogDebug("Getting all albums...");
         return albumRepository
@@ -65,7 +65,7 @@ public class AlbumService(IAlbumRepository albumRepository, ILambdaLogger logger
     /// <param name="request">new information for the album</param>
     /// <returns>the saved album</returns>
     /// <exception cref="AlbumNotFoundException">if the album does not exist</exception>
-    public async Task<AlbumDto> UpdateAlbumAsync(uint albumId, UpdateAlbumRequestDto request)
+    public async Task<AlbumBo> UpdateAlbumAsync(uint albumId, UpdateAlbumRequestBo request)
     {
         logger.LogDebug("Load song with id: {albumId}", albumId);
         var album = await albumRepository.GetByPrimaryKeyAsync(albumId) ?? throw new AlbumNotFoundException(albumId);

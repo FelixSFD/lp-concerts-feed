@@ -1,9 +1,10 @@
 using System.Text.Json;
 using Amazon.Lambda.Core;
 using Common.Utils;
-using Database.Concerts;
 using Database.Setlists.DataObjects;
 using Database.Setlists.Repositories;
+using Database.Tours.DataObjects;
+using Database.Tours.Repositories;
 using LPCalendar.DataStructure.Setlists;
 using LPCalendar.DataStructure.Setlists.Parameters;
 using Service.Setlists.Exceptions;
@@ -26,18 +27,18 @@ public class SetlistService(
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    public async Task<CreateSetlistResponseDto> CreateSetlistAsync(CreateSetlistRequestDto request)
+    public async Task<CreateSetlistResponseBo> CreateSetlistAsync(CreateSetlistRequestBo request)
     {
         logger.LogDebug("Read Concert information: {concertId}", request.ConcertId);
-        var concert = await concertRepository.GetByIdAsync(request.ConcertId) ?? throw new ConcertNotFoundException(request.ConcertId);
+        var concert = await concertRepository.GetByPrimaryKeyAsync(request.ConcertId) ?? throw new ConcertNotFoundException(request.ConcertId);
         
         var setlistDo = new SetlistDo
         {
             ConcertId = request.ConcertId,
             ConcertTitle = request.ConcertTitle,
-            ConcertType = concert.ShowType,
-            ConcertTourName = concert.TourName,
-            ConcertDate = concert.PostedStartTime!.Value.Date,
+            ConcertType = concert.Type?.Name ?? string.Empty,
+            ConcertTourName = concert.Tour?.Name,
+            ConcertDate = concert.PostedStartTime.Date,
             SetName = StringUtils.NullIfEmpty(request.SetName),
             LinkinpediaUrl = StringUtils.NullIfEmpty(request.LinkinpediaUrl)
         };
@@ -81,7 +82,7 @@ public class SetlistService(
             await UpdateSetlistCacheForSetlist(setlistDo.Id, DateTimeOffset.Now);
         }
 
-        var response = new CreateSetlistResponseDto
+        var response = new CreateSetlistResponseBo
         {
             Id = setlistDo.Id,
             ConcertId = setlistDo.ConcertId,
@@ -105,7 +106,7 @@ public class SetlistService(
     /// <param name="saveContext">true, if the DbContext should be saved automatically</param>
     /// <returns>the newly created setlist entry</returns>
     /// <exception cref="SetlistNotFoundException">if the setlist does not exist. Call <see cref="CreateSetlistAsync"/> to create a setlist first.</exception>
-    private async Task<SetlistEntryDto> AddToSetlist(AddToSetlistRequestDto request, uint setlistId, SongDo? playedSong = null, SongVariantDo? playedSongVariant = null, SongMashupDo? playedSongMashup = null, bool saveContext = true)
+    private async Task<SetlistEntryBo> AddToSetlist(AddToSetlistRequestBo request, uint setlistId, SongDo? playedSong = null, SongVariantDo? playedSongVariant = null, SongMashupDo? playedSongMashup = null, bool saveContext = true)
     {
         logger.LogDebug("Read or create setlist act: {actNumber}");
         SetlistActDo? actDo;
@@ -173,7 +174,7 @@ public class SetlistService(
     /// <param name="saveContext">true, if the DbContext should be saved automatically</param>
     /// <returns>the newly created setlist entry</returns>
     /// <exception cref="SetlistNotFoundException">if the setlist does not exist. Call <see cref="CreateSetlistAsync"/> to create a setlist first.</exception>
-    public async Task<SetlistEntryDto> AddCustomEntryToSetlistAsync(AddCustomEntryToSetlistRequestDto request, uint setlistId, bool saveContext = true)
+    public async Task<SetlistEntryBo> AddCustomEntryToSetlistAsync(AddCustomEntryToSetlistRequestBo request, uint setlistId, bool saveContext = true)
     {
         logger.LogDebug("Load setlist: {setlistId}", setlistId);
         var setlist = await setlistRepository.GetByPrimaryKeyAsync(setlistId);
@@ -196,7 +197,7 @@ public class SetlistService(
     /// <param name="saveContext">true, if the DbContext should be saved automatically</param>
     /// <returns>the newly created setlist entry</returns>
     /// <exception cref="SetlistNotFoundException">if the setlist does not exist. Call <see cref="CreateSetlistAsync"/> to create a setlist first.</exception>
-    public async Task<SetlistEntryDto> AddSongToSetlistAsync(AddSongToSetlistRequestDto request, uint setlistId, bool saveContext = true)
+    public async Task<SetlistEntryBo> AddSongToSetlistAsync(AddSongToSetlistRequestBo request, uint setlistId, bool saveContext = true)
     {
         logger.LogDebug("Load setlist: {setlistId}", setlistId);
         var setlist = await setlistRepository.GetByPrimaryKeyAsync(setlistId);
@@ -238,7 +239,7 @@ public class SetlistService(
     /// <param name="saveContext">true, if the DbContext should be saved automatically</param>
     /// <returns>the newly created setlist entry</returns>
     /// <exception cref="SetlistNotFoundException">if the setlist does not exist. Call <see cref="CreateSetlistAsync"/> to create a setlist first.</exception>
-    public async Task<SetlistEntryDto> AddSongVariantToSetlistAsync(AddSongVariantToSetlistRequestDto request, uint setlistId, bool saveContext = true)
+    public async Task<SetlistEntryBo> AddSongVariantToSetlistAsync(AddSongVariantToSetlistRequestBo request, uint setlistId, bool saveContext = true)
     {
         logger.LogDebug("Load setlist: {setlistId}", setlistId);
         var setlist = await setlistRepository.GetByPrimaryKeyAsync(setlistId);
@@ -283,7 +284,7 @@ public class SetlistService(
     /// <returns>the newly created setlist entry</returns>
     /// <exception cref="SetlistNotFoundException">if the setlist does not exist. Call <see cref="CreateSetlistAsync"/> to create a setlist first.</exception>
     /// <exception cref="SongMashupNotFoundException">if the provided mashup does not exist. Call <see cref="SongService.CreateMashupOfSongsAsync"/> to create a <see cref="SongMashupDo"/> first.</exception>
-    public async Task<SetlistEntryDto> AddSongMashupToSetlistAsync(AddSongMashupToSetlistRequestDto request, uint setlistId, bool saveContext = true)
+    public async Task<SetlistEntryBo> AddSongMashupToSetlistAsync(AddSongMashupToSetlistRequestBo request, uint setlistId, bool saveContext = true)
     {
         logger.LogDebug("Load setlist: {setlistId}", setlistId);
         var setlist = await setlistRepository.GetByPrimaryKeyAsync(setlistId);
@@ -313,7 +314,7 @@ public class SetlistService(
     /// <param name="setlistId">ID of the setlist</param>
     /// <returns></returns>
     /// <exception cref="SetlistNotFoundException">if the setlist does not exist</exception>
-    public async IAsyncEnumerable<SetlistActDto> GetActsWithinSetlistAsync(uint setlistId)
+    public async IAsyncEnumerable<SetlistActBo> GetActsWithinSetlistAsync(uint setlistId)
     {
         var setlist = await setlistRepository.GetByPrimaryKeyAsync(setlistId) ?? throw new SetlistNotFoundException(setlistId);
         logger.LogDebug("Found setlist with {entries} entries.", setlist.Entries.Count);
@@ -341,7 +342,7 @@ public class SetlistService(
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns></returns>
     /// <exception cref="SetlistNotFoundException">if the setlist was not found</exception>
-    public IAsyncEnumerable<SetlistHeaderDto> GetSetlistHeaders(CancellationToken cancellationToken)
+    public IAsyncEnumerable<SetlistHeaderBo> GetSetlistHeaders(CancellationToken cancellationToken)
     {
         logger.LogDebug("Retrieve setlist headers");
         return setlistRepository
@@ -356,7 +357,7 @@ public class SetlistService(
     /// <param name="setlistId">ID of the setlist</param>
     /// <returns></returns>
     /// <exception cref="SetlistNotFoundException">if the setlist was not found</exception>
-    public async Task<SetlistDto?> GetCompleteSetlist(uint setlistId)
+    public async Task<SetlistBo?> GetCompleteSetlist(uint setlistId)
     {
         logger.LogDebug("Retrieve the setlist: {setlistId}", setlistId);
         var setlistDo = await setlistRepository.GetByPrimaryKeyAsync(setlistId) ?? throw new SetlistNotFoundException(setlistId);
@@ -372,7 +373,7 @@ public class SetlistService(
     /// <param name="entryId">ID of the entry</param>
     /// <returns></returns>
     /// <exception cref="SetlistEntryNotFoundException">if the setlist entry was not found</exception>
-    public async Task<RawSetlistEntryDto> GetSetlistEntryAsync(uint setlistId, string entryId)
+    public async Task<RawSetlistEntryBo> GetSetlistEntryAsync(uint setlistId, string entryId)
     {
         logger.LogDebug("Retrieve the setlist entry: {entryId}", entryId);
         var entry = await setlistEntryRepository.GetByPrimaryKeyAsync(entryId) ?? throw new SetlistEntryNotFoundException(setlistId, entryId);
@@ -385,7 +386,7 @@ public class SetlistService(
     /// <param name="concertId">ID of the concert</param>
     /// <returns></returns>
     /// <exception cref="SetlistNotFoundException">if the setlist was not found</exception>
-    public async Task<IList<SetlistDto>> GetSetlistsForConcert(string concertId)
+    public async Task<IList<SetlistBo>> GetSetlistsForConcert(string concertId)
     {
         logger.LogDebug("Retrieve the setlists for concert: {concertId}", concertId);
         return await setlistRepository
@@ -416,10 +417,10 @@ public class SetlistService(
     /// <param name="setlistId">ID of the setlist</param>
     /// <param name="request">Updated data</param>
     /// <exception cref="SetlistNotFoundException">if the setlist does not exist</exception>
-    public async Task UpdateSetlistHeader(uint setlistId, UpdateSetlistHeaderRequestDto request)
+    public async Task UpdateSetlistHeader(uint setlistId, UpdateSetlistHeaderRequestBo request)
     {
         logger.LogDebug("Load setlist '{setlistId}' and concert '{concertId}'", setlistId, request.ConcertId);
-        var (setlist, concert) = (await setlistRepository.GetByPrimaryKeyAsync(setlistId) ?? throw new SetlistNotFoundException(setlistId), await concertRepository.GetByIdAsync(request.ConcertId) ?? throw new ConcertNotFoundException(request.ConcertId));
+        var (setlist, concert) = (await setlistRepository.GetByPrimaryKeyAsync(setlistId) ?? throw new SetlistNotFoundException(setlistId), await concertRepository.GetByPrimaryKeyAsync(request.ConcertId) ?? throw new ConcertNotFoundException(request.ConcertId));
         logger.LogDebug("Finished loading setlist and concert.");
         
         // update setlist fields
@@ -427,9 +428,9 @@ public class SetlistService(
         setlist.LinkinpediaUrl = request.LinkinpediaUrl;
         
         // set concert related fields
-        setlist.ConcertType = concert.ShowType;
-        setlist.ConcertDate = concert.PostedStartTime!.Value.Date;
-        setlist.ConcertTourName = concert.TourName;
+        setlist.ConcertType = concert.Type?.Name ?? string.Empty;
+        setlist.ConcertDate = concert.PostedStartTime.Date;
+        setlist.ConcertTourName = concert.Tour?.Name;
         
         setlistRepository.Update(setlist);
         await setlistRepository.SaveChangesAsync();
@@ -444,7 +445,7 @@ public class SetlistService(
     /// <param name="entryId">ID of the setlist entry</param>
     /// <param name="request">Updated data</param>
     /// <exception cref="SetlistEntryNotFoundException">if the setlist entry does not exist</exception>
-    public async Task UpdateSetlistEntryAsync(uint setlistId, string entryId, UpdateSetlistEntryRequestDto request)
+    public async Task UpdateSetlistEntryAsync(uint setlistId, string entryId, UpdateSetlistEntryRequestBo request)
     {
         logger.LogDebug("Load setlist entry: {entryId}", entryId);
         var setlistEntry = await setlistEntryRepository.GetByPrimaryKeyAsync(entryId) ?? throw new SetlistEntryNotFoundException(setlistId, entryId);
@@ -525,13 +526,13 @@ public class SetlistService(
     }
     
     /// <summary>
-    /// Either creates a new <see cref="SetlistActDo"/> or returns the stored object for the <see cref="ActParametersDto.ActNumber"/>
+    /// Either creates a new <see cref="SetlistActDo"/> or returns the stored object for the <see cref="ActParametersBo.ActNumber"/>
     /// </summary>
     /// <param name="actParams"></param>
     /// <param name="setlistId"></param>
     /// <returns></returns>
     /// <exception cref="SongNotFoundException">if an act number was passed, but the song does not exist</exception>
-    private async Task<SetlistActDo> GetOrAddFromParameters(ActParametersDto actParams, uint setlistId)
+    private async Task<SetlistActDo> GetOrAddFromParameters(ActParametersBo actParams, uint setlistId)
     {
         var actDo = await actRepository.GetBy(setlistId, actParams.ActNumber);
         if (actDo == null)
@@ -556,12 +557,12 @@ public class SetlistService(
     }
 
     /// <summary>
-    /// Either creates a new <see cref="SongDo"/> or returns the stored object for the <see cref="SongParametersDto.SongId"/>
+    /// Either creates a new <see cref="SongDo"/> or returns the stored object for the <see cref="SongParametersBo.SongId"/>
     /// </summary>
     /// <param name="songParams"></param>
     /// <returns></returns>
     /// <exception cref="SongNotFoundException">if a Song ID was passed, but the song does not exist</exception>
-    private async Task<SongDo> GetOrAddFromParameters(SongParametersDto songParams)
+    private async Task<SongDo> GetOrAddFromParameters(SongParametersBo songParams)
     {
         SongDo song;
         if (songParams.SongId is > 0)
@@ -585,12 +586,12 @@ public class SetlistService(
     }
     
     /// <summary>
-    /// Either creates a new <see cref="SongVariantDo"/> or returns the stored object for the <see cref="SongVariantParametersDto.SongVariantId"/>
+    /// Either creates a new <see cref="SongVariantDo"/> or returns the stored object for the <see cref="SongVariantParametersBo.SongVariantId"/>
     /// </summary>
     /// <param name="songVariantParams"></param>
     /// <returns></returns>
     /// <exception cref="SongVariantNotFoundException">if a Song variant ID was passed, but the variant does not exist</exception>
-    private async Task<SongVariantDo> GetOrAddFromParameters(SongVariantParametersDto songVariantParams)
+    private async Task<SongVariantDo> GetOrAddFromParameters(SongVariantParametersBo songVariantParams)
     {
         SongVariantDo songVariant;
         if (songVariantParams.SongVariantId is > 0)
@@ -671,7 +672,7 @@ public class SetlistService(
     /// <returns>the newly ordered (and saved) entries</returns>
     /// <exception cref="SetlistNotFoundException">If the setlist <paramref name="setlistId"/> does not exist</exception>
     /// <exception cref="InvalidEntryOrderException">If the new order could not be applied</exception>
-    public async Task<List<SetlistEntryDo>> ReorderSetlistEntriesAsync(uint setlistId, string[] orderedEntryIds)
+    public async Task<List<SetlistEntryBo>> ReorderSetlistEntriesAsync(uint setlistId, string[] orderedEntryIds)
     {
         logger.LogDebug("Load setlist: {setlistId}", setlistId);
         var setlist = await setlistRepository.GetByPrimaryKeyAsync(setlistId) ?? throw new SetlistNotFoundException(setlistId);
@@ -706,6 +707,7 @@ public class SetlistService(
         return entries
             .OrderBy(entry => entry.SortNumber)
             .ThenBy(entry => entry.SongNumber)
+            .Select(DtoMapper.ToDto)
             .ToList();
     }
 
@@ -730,7 +732,7 @@ public class SetlistService(
     /// <summary>
     /// Writes the setlist into the Concerts database to cache it
     /// </summary>
-    /// <param name="concertId">ID of the concert. Use <see cref="SetlistDto.ConcertId"/> of the setlist that has been changed.</param>
+    /// <param name="concertId">ID of the concert. Use <see cref="SetlistBo.ConcertId"/> of the setlist that has been changed.</param>
     /// <param name="cacheDate"></param>
     public async Task UpdateSetlistCacheForConcert(string concertId, DateTimeOffset cacheDate)
     {
@@ -738,7 +740,7 @@ public class SetlistService(
         {
             logger.LogDebug("Cache setlists for concert: {concertId}", concertId);
 
-            var concert = await concertRepository.GetByIdAsync(concertId);
+            var concert = await concertRepository.GetByPrimaryKeyAsync(concertId);
             if (concert == null)
             {
                 logger.LogWarning("Setlist could not be cached because the concert '{concertId}' was not found.",
@@ -752,12 +754,6 @@ public class SetlistService(
                 .Select(DtoMapper.ToDto)
                 .ToListAsync();
 
-            var setlistJson = JsonSerializer.Serialize(setlists, SetlistDtoJsonContext.Default.ListSetlistDto);
-            concert.CachedSetlistsJson = setlistJson;
-            concert.CachedSetlistsAt = cacheDate;
-
-            await concertRepository.SaveAsync(concert);
-            await setlistRepository.SaveChangesAsync();
             logger.LogDebug("Setlist cached");
         }
         catch (Exception e)
@@ -772,7 +768,7 @@ public class SetlistService(
     /// <param name="request"></param>
     /// <param name="setlistEntryId">ID of the setlist entry where this extra will be added to</param>
     /// <exception cref="SetlistEntryNotFoundException">if the setlist entry does not exist</exception>
-    public async Task AddSongExtraToSetlistEntry(AddSongExtraToSetlistEntryRequestDto request, string setlistEntryId)
+    public async Task AddSongExtraToSetlistEntry(AddSongExtraToSetlistEntryRequestBo request, string setlistEntryId)
     {
         logger.LogDebug("Adding extra to setlist entry with ID: {setlistEntryId}", setlistEntryId);
         var extraDo = new SetlistEntrySongExtraDo
@@ -853,7 +849,7 @@ public class SetlistService(
                 {
                     logger.LogInformation("This is a premiere! Sending notifications...");
                     var concertId = setlistEntry.Setlist.ConcertId;
-                    var concert = await concertRepository.GetByIdAsync(concertId);
+                    var concert = await concertRepository.GetByPrimaryKeyAsync(concertId);
                     if (concert == null)
                     {
                         logger.LogWarning("Concert with ID '{concertId}' was not found!", concertId);
@@ -871,7 +867,7 @@ public class SetlistService(
                         // send the notification
                         var setlistEntryDto = DtoMapper.ToDto(setlistEntry);
                         await setlistPushEventSender.SendLivePremiere(setlistEntryDto.Title,
-                            ConcertDtoMapper.ToDto(concert));
+                            DtoMapper.ToDto(concert));
                         logger.LogDebug("LivePremiere notification sent!");
 
                         setlistEntry.PremiereNotificationSent = true;
