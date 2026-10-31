@@ -2,8 +2,6 @@ using Common.Contracts.Generated.Models;
 using Common.Server.Auth;
 using Common.Utils.Cache;
 using LPCalendar.DataStructure;
-using LPCalendar.DataStructure.Setlists;
-using LPCalendar.DataStructure.Setlists.Import;
 using LPCalendar.DataStructure.Tours;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +9,6 @@ using Microsoft.AspNetCore.OutputCaching;
 using Server.Api.Auth;
 using Server.Api.Cache;
 using Service.Setlists;
-using Service.Setlists.Importer;
 using Service.Tours;
 using Service.Tours.Exceptions;
 
@@ -346,6 +343,7 @@ public class ConcertsController(
     /// <returns></returns>
     [HttpPut("{concertId}/schedule")]
     [ClearCache(Tags = [CacheTags.ConcertsAll])]
+    [AuthorizeRoles(RoleNames.UpdateConcerts)]
     public async Task<ActionResult<ConcertFileUploadResponseDto>> GetPresignedScheduleUploadUrl(string concertId,
         ConcertScheduleUploadRequestDto uploadRequest,
         CancellationToken cancellationToken)
