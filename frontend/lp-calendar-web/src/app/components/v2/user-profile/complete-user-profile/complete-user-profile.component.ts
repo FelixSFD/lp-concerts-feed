@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, OnInit, Output, signal } from '@angular/core';
+import { Component, effect, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputText } from 'primeng/inputtext';
@@ -24,7 +24,7 @@ import { Select } from 'primeng/select';
   styleUrl: './complete-user-profile.component.css',
   templateUrl: './complete-user-profile.component.html',
 })
-export class CompleteUserProfileComponent implements OnInit {
+export class CompleteUserProfileComponent {
   private formBuilder = inject(FormBuilder);
   private usersService = inject(UsersService);
   private locationsService = inject(LocationsService);
@@ -40,11 +40,15 @@ export class CompleteUserProfileComponent implements OnInit {
 
   private randomUsernames: string[] = [];
 
+  @Input("visible") isVisible = signal(false);
+
   @Output("onProfileCompleted") profileCompleted = new EventEmitter<void>();
 
-  ngOnInit() {
-    this.loadAvailableCountries().then();
-  }
+  private loadFormDataEffect = effect(() => {
+    if (this.isVisible()) {
+      this.loadAvailableCountries().then();
+    }
+  });
 
   protected async onSetRandomNameClicked() {
     if (this.randomUsernames.length === 0) {
