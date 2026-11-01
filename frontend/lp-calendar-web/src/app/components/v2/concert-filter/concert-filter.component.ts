@@ -3,11 +3,10 @@ import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule} from "@angul
 
 import {ConcertFilter} from '../../../data/concert-filter';
 import {DateTime} from 'luxon';
-import {listOfTours, tourConfigs} from '../../../app.config';
+import {listOfTours} from '../../../app.config';
 import {Button} from 'primeng/button';
 import {Drawer} from 'primeng/drawer';
 import {DatePicker} from 'primeng/datepicker';
-import {TourConfig} from '../../../data/tour-config';
 import {Card} from 'primeng/card';
 import {ActivatedRoute, NavigationExtras, Router} from '@angular/router';
 import {isValidDate} from 'rxjs/internal/util/isDate';

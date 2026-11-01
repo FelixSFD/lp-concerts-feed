@@ -59,9 +59,6 @@ export class ConcertListComponent implements OnInit {
   // indicates if more entries are available to load
   hasMore$ = signal(false);
 
-  // property to indicate if all concerts or only future should be displayed
-  showHistoricConcerts$ = signal(false);
-
   // property to show whether the concert is currently being deleted
   concertDeleting$ = signal(false);
 
@@ -77,7 +74,7 @@ export class ConcertListComponent implements OnInit {
   defaultFilter: ConcertFilter = {
     onlyFuture: true,
     tour: null,
-    dateFrom: DateTime.now().set({hour: 0, minute: 0, second: 0, millisecond: 0}),
+    dateFrom: null,
     dateTo: null,
     orderBy: ["-date"]
   };
