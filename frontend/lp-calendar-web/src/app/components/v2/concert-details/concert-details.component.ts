@@ -6,6 +6,7 @@ import {
   inject,
   Input,
   OnChanges,
+  OnDestroy,
   Output,
   SimpleChanges,
   ViewChild
@@ -50,7 +51,7 @@ import {ConcertDetailsViewModel} from './concert-details.view-model';
   styleUrl: './concert-details.component.css',
   changeDetection: ChangeDetectionStrategy.Eager,
 })
-export class ConcertDetailsComponent implements OnChanges {
+export class ConcertDetailsComponent implements OnChanges, OnDestroy {
   private readonly messageService = inject(MessageService);
   protected readonly tracker = inject(MatomoTracker);
   protected readonly discordShare = inject(DiscordShareService);
@@ -68,6 +69,7 @@ export class ConcertDetailsComponent implements OnChanges {
 
   // Apple Maps
   private mapKit: MapKit | undefined;
+  private mapKitPromise: Promise<MapKit> | null = null;
   private appleMap: AppleMap | undefined;
   private locationMarker: MarkerAnnotation | null = null;
   private mapElementRef: ElementRef<HTMLDivElement> | undefined;
@@ -75,6 +77,14 @@ export class ConcertDetailsComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['viewModel'] && this.appleMap && this.mapKit) {
       this.fillMapData();
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.appleMap) {
+      this.appleMap.destroy();
+      this.appleMap = undefined;
+      this.locationMarker = null;
     }
   }
 
@@ -90,29 +100,56 @@ export class ConcertDetailsComponent implements OnChanges {
     this.addSetlistClicked.emit();
   }
 
-  private async initAppleMaps() {
-    this.mapKit = await load({
-      token: environment.appleMapsToken,
-      language: "en-US",
-      libraries: ["map", "annotations"],
-    });
+  private async initAppleMaps(): Promise<MapKit> {
+    if (this.mapKit) {
+      return this.mapKit;
+    }
+    if (!this.mapKitPromise) {
+      this.mapKitPromise = load({
+        token: environment.appleMapsToken,
+        language: "en-US",
+        libraries: ["map", "annotations"],
+      });
+    }
+    this.mapKit = await this.mapKitPromise;
+    return this.mapKit;
   }
 
   @ViewChild('appleMaps')
   set appleMaps(mapElement: ElementRef<HTMLDivElement> | undefined) {
-    if (!mapElement) return;
+    if (!mapElement) {
+      if (this.appleMap) {
+        this.appleMap.destroy();
+        this.appleMap = undefined;
+        this.locationMarker = null;
+      }
+      this.mapElementRef = undefined;
+      return;
+    }
+
+    if (this.appleMap && this.mapElementRef?.nativeElement !== mapElement.nativeElement) {
+      this.appleMap.destroy();
+      this.appleMap = undefined;
+      this.locationMarker = null;
+    }
+
     this.mapElementRef = mapElement;
+
     if (!this.mapKit) {
       console.debug('MapKit not initialized yet!');
       this.initAppleMaps().then(() => {
-        this.appleMap = this.makeMap(mapElement.nativeElement);
-        this.fillMapData();
+        if (this.mapElementRef?.nativeElement === mapElement.nativeElement && !this.appleMap) {
+          this.appleMap = this.makeMap(mapElement.nativeElement);
+          this.fillMapData();
+        }
       });
       return;
     }
 
-    console.log("Will set map element: ", mapElement);
-    this.appleMap = this.makeMap(mapElement.nativeElement);
+    if (!this.appleMap) {
+      console.log("Will set map element: ", mapElement);
+      this.appleMap = this.makeMap(mapElement.nativeElement);
+    }
     this.fillMapData();
   }
 
@@ -125,6 +162,9 @@ export class ConcertDetailsComponent implements OnChanges {
   private fillMapData() {
     if (this.viewModel?.venueCoordinates) {
       this.addOrMoveMarker(this.viewModel.venueCoordinates.longitude, this.viewModel.venueCoordinates.latitude);
+    } else if (this.locationMarker && this.appleMap) {
+      this.appleMap.removeAnnotation(this.locationMarker);
+      this.locationMarker = null;
     }
   }
 
