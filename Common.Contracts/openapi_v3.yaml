@@ -7,6 +7,19 @@ servers:
   - url: /
   - url: http://localhost:5133
 paths:
+  /v3/apple-music/token:
+    get:
+      operationId: GetAppleMusicDeveloperToken
+      summary: Returns a developer token to access the Apple Music API
+      tags:
+        - AppleMusic
+      responses:
+        "200":
+          description: The token as plain text
+          content:
+            text/plain:
+              schema:
+                type: string
   /v3/Concerts:
     parameters:
       - $ref: "#/components/parameters/X-LP-Request-Id"
