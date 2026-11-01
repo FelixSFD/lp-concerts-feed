@@ -103,9 +103,6 @@ export class ConcertsService {
     }
 
     let dateTo = filter.dateTo?.toFormat("yyyy-MM-dd") ?? undefined;
-    if (dateTo == "3001-12-31") {
-      dateTo = undefined;
-    }
 
     return firstValueFrom(this.concertsApi.getConcerts(getRequestIdParameter(cached),
       filter.countryCode,

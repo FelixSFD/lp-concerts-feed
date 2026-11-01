@@ -8,6 +8,13 @@
 
   <app-select-tour [(ngModel)]="this.currentFilter.tour" placeholder="Select a tour" (ngModelChange)="onTourSelected($event)" class="w-full" [showClear]="true" />
 
+  <p-progress-bar
+    class="mt-1 h-1rem"
+    [value]="downloadStatus() * 100"
+    [class.download-progress-hidden]="downloadStatus() >= 1"
+    [class.download-progress-visible]="downloadStatus() < 1"
+  />
+
   <p-divider />
 
   <div #map class="map"></div>

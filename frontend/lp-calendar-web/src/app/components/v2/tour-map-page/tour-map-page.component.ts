@@ -1,4 +1,4 @@
-import {Component, ElementRef, inject, ViewChild} from '@angular/core';
+import {Component, ElementRef, inject, signal, ViewChild} from '@angular/core';
 import {ConcertFilter} from '../../../data/concert-filter';
 
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -10,8 +10,9 @@ import {Divider} from 'primeng/divider';
 import {MessageService} from 'primeng/api';
 import { SelectTourComponent } from '../admin/concerts/select-tour/select-tour.component';
 import { ConcertsService } from '../../../services/concerts.service';
-import { ProblemDetailsDto } from '../../../modules/lpshows-api/v3';
+import { ConcertDetailsDto, ProblemDetailsDto } from '../../../modules/lpshows-api/v3';
 import { defaultShowTypeId } from '../../../app.config';
+import { ProgressBar } from 'primeng/progressbar';
 
 @Component({
   selector: 'app-tour-map-page',
@@ -20,7 +21,8 @@ import { defaultShowTypeId } from '../../../app.config';
     Card,
     Divider,
     FormsModule,
-    SelectTourComponent
+    SelectTourComponent,
+    ProgressBar
   ],
   templateUrl: './tour-map-page.component.html',
   styleUrl: './tour-map-page.component.css'
@@ -45,6 +47,9 @@ export class TourMapPageComponent {
 
   // true, if the pins on the map are being loaded from the server
   isLoadingPins$ = true;
+
+  // status of the download (fetched results / total expected results)
+  downloadStatus = signal<number>(0);
 
 
   constructor() {
@@ -95,10 +100,32 @@ export class TourMapPageComponent {
 
   private async reloadPins() {
     this.isLoadingPins$ = true;
+    this.downloadStatus.set(0);
 
     try {
-      let response = await this.concertsService.getFilteredConcerts(this.currentFilter);
-      let results = response.concerts ?? [];
+      const limit = 50;
+      let skip = 0;
+      const results: ConcertDetailsDto[] = [];
+      let totalElements: number | undefined = undefined;
+
+      do {
+        let response = await this.concertsService.getFilteredConcerts(this.currentFilter, limit, skip);
+        let concerts = response.concerts ?? [];
+        results.push(...concerts);
+
+        totalElements = response.metadata?.totalElements;
+        if (totalElements !== undefined && totalElements > 0) {
+          this.downloadStatus.set(results.length / totalElements);
+        } else {
+          this.downloadStatus.set(1);
+        }
+
+        if (concerts.length === 0) {
+          break;
+        }
+
+        skip += limit;
+      } while (totalElements !== undefined && results.length < totalElements);
 
       let annotations = results.map(r => {
         if (r.venue.longitude != undefined && r.venue.longitude != 0 && r.venue.latitude != undefined && r.venue.latitude != 0) {
