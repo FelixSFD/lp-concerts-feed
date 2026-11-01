@@ -14,7 +14,7 @@
           </div>
 
           <div class="col-3">
-            <button pButton variant="outlined" (click)="onSetRandomNameClicked()"><i class="pi pi-sync"></i> Random</button>
+            <button pButton type="button" variant="outlined" (click)="onSetRandomNameClicked()"><i class="pi pi-sync"></i> Random</button>
           </div>
 
           <div class="col-12">
@@ -37,7 +37,7 @@
           </div>
 
           <div class="col-12">
-            <button pButton [disabled]="setupForm.invalid" [loading]="isSavingProfile()" (click)="onSaveUserProfileClicked()">
+            <button pButton type="button" [disabled]="setupForm.invalid" [loading]="isSavingProfile()" (click)="onSaveUserProfileClicked()">
               Continue <i class="pi pi-arrow-right"></i>
             </button>
           </div>

@@ -4,7 +4,7 @@
   header="Complete your profile"
   styleClass="rounded-none"
 >
-  <app-complete-user-profile (onProfileCompleted)="onProfileCompleted()" />
+  <app-complete-user-profile (onProfileCompleted)="onProfileCompleted()" [visible]="showProfileSetup$" />
 </p-dialog>
 
 <div>
