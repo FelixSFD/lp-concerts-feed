@@ -97,15 +97,25 @@ export class ConcertsService {
   }
 
   getFilteredConcerts(filter: ConcertFilter, limit: number = 100, skip: number = 0, cached: boolean = true): Promise<ConcertListResponseDto> {
+    let dateFrom = filter.dateFrom?.toFormat("yyyy-MM-dd") ?? undefined;
+    if (dateFrom == "0000-01-01") {
+      dateFrom = undefined;
+    }
+
+    let dateTo = filter.dateTo?.toFormat("yyyy-MM-dd") ?? undefined;
+    if (dateTo == "3001-12-31") {
+      dateTo = undefined;
+    }
+
     return firstValueFrom(this.concertsApi.getConcerts(getRequestIdParameter(cached),
       filter.countryCode,
       filter.country,
       filter.city,
       filter.venue,
       filter.customTitle,
-      filter.dateTo?.toFormat("yyyy-MM-dd") ?? undefined,
-      filter.dateFrom?.toFormat("yyyy-MM-dd")?? undefined,
-      filter.tourNew?.id ?? undefined,
+      dateTo,
+      dateFrom,
+      filter.tour?.id ?? undefined,
       undefined,
       limit,
       skip,

@@ -4,8 +4,7 @@ import { TourDto } from '../modules/lpshows-api/v3';
 
 export class ConcertFilter {
   // Name of the tour to filter by
-  tour: TourConfig | undefined | null;
-  tourNew?: TourDto | undefined | null;
+  tour?: TourDto | undefined | null;
 
   // if true, only future concerts will be returned
   onlyFuture: boolean = false;

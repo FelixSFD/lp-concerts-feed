@@ -1,6 +1,6 @@
 import {Component, ElementRef, inject, OnInit, ViewChild} from '@angular/core';
 import {LegacyConcertsService} from '../../../services/legacy-concerts.service';
-import {defaultShowType, listOfTours, tourConfigs,} from '../../../app.config';
+import {defaultShowType, listOfTours} from '../../../app.config';
 import {ConcertFilter} from '../../../data/concert-filter';
 
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -9,9 +9,10 @@ import {load, Map as AppleMap, MapKit, MarkerAnnotation} from '@apple/mapkit-loa
 import {environment} from '../../../../environments/environment';
 import {Card} from 'primeng/card';
 import {Divider} from 'primeng/divider';
-import {TourConfig} from '../../../data/tour-config';
-import {Select} from 'primeng/select';
 import {MessageService} from 'primeng/api';
+import { SelectTourComponent } from '../admin/concerts/select-tour/select-tour.component';
+import { ConcertsService } from '../../../services/concerts.service';
+import { ProblemDetailsDto } from '../../../modules/lpshows-api/v3';
 
 @Component({
   selector: 'app-tour-map-page',
@@ -20,13 +21,14 @@ import {MessageService} from 'primeng/api';
     Card,
     Divider,
     FormsModule,
-    Select
+    SelectTourComponent
   ],
   templateUrl: './tour-map-page.component.html',
   styleUrl: './tour-map-page.component.css'
 })
 export class TourMapPageComponent {
   private messageService = inject(MessageService);
+  private concertsService = inject(ConcertsService);
 
   // Apple Maps
   private mapKit: MapKit | undefined;
@@ -35,7 +37,6 @@ export class TourMapPageComponent {
   // default filter that is used when loading the list
   defaultFilter: ConcertFilter = {
     onlyFuture: false,
-    tour: tourConfigs.find(t => t.value == "FROM ZERO WORLD TOUR 2026"),
     dateFrom: DateTime.fromISO("0000-01-01T00:00:00.000Z"),
     dateTo: DateTime.fromISO("3000-12-31T23:59:59.999Z"),
   };
@@ -43,16 +44,11 @@ export class TourMapPageComponent {
   // Filter that is used for loading the list
   currentFilter: ConcertFilter = this.defaultFilter;
 
-  availableTours$: TourConfig[] = tourConfigs;
-
   // true, if the pins on the map are being loaded from the server
   isLoadingPins$ = true;
 
 
-  constructor(private concertsService: LegacyConcertsService) {
-    this.availableTours$ = [...tourConfigs];
-    this.availableTours$.push({ label: "All shows", value: null});
-    this.availableTours$.push({ label: "Not part of a tour", value: ""});
+  constructor() {
   }
 
 
@@ -98,47 +94,44 @@ export class TourMapPageComponent {
   }
 
 
-  private reloadPins() {
+  private async reloadPins() {
     this.isLoadingPins$ = true;
 
-    this.concertsService.getFilteredConcerts(this.currentFilter, true)
-      .subscribe({
-        next: results => {
-          this.isLoadingPins$ = false;
+    try {
+      let response = await this.concertsService.getFilteredConcerts(this.currentFilter);
+      let results = response.concerts ?? [];
 
-          let annotations = results.map(r => {
-            if (r.venueLongitude != undefined && r.venueLongitude != 0 && r.venueLatitude != undefined && r.venueLatitude != 0) {
-              let markerColor = "#b306d1";
-              if (r.showType != defaultShowType && r.showType != undefined) {
-                markerColor = "#eb4b4b";
-              }
+      let annotations = results.map(r => {
+        if (r.venue.longitude != undefined && r.venue.longitude != 0 && r.venue.latitude != undefined && r.venue.latitude != 0) {
+          let markerColor = "#b306d1";
+          /*if (r.concertType != defaultShowType && r.concertType != undefined) {
+            markerColor = "#eb4b4b";
+          }*/
 
-              return this.makeMarker(r.venueLatitude, r.venueLongitude, r.locationShort ?? r.city ?? undefined, markerColor);
-            }
-
-            return null;
-          }).filter(m => m != null);
-
-          this.appleMap?.annotations.forEach(annotation => {
-            console.debug("Removing annotation", annotation);
-            this.appleMap?.removeAnnotation(annotation);
-            console.debug("Removed annotation");
-          });
-
-          console.debug("Showing the new annotations", annotations.length, annotations);
-          this.appleMap?.showItems(annotations);
-
-          this.isLoadingPins$ = false;
-        },
-        error: err => {
-          this.isLoadingPins$ = false;
-          this.messageService.add({
-            severity: "danger",
-            summary: "Failed to load the concert locations",
-            text: err.message,
-          });
+          return this.makeMarker(r.venue.latitude, r.venue.longitude, `${r.venue.city.name}, ${r.venue.city.country.name}`, markerColor);
         }
+
+        return null;
+      }).filter(m => m != null);
+
+      this.appleMap?.annotations.forEach(annotation => {
+        console.debug("Removing annotation", annotation);
+        this.appleMap?.removeAnnotation(annotation);
+        console.debug("Removed annotation");
       });
+
+      console.debug("Showing the new annotations", annotations.length, annotations);
+      this.appleMap?.showItems(annotations);
+    } catch (e) {
+      let problemDetails: ProblemDetailsDto = e as ProblemDetailsDto;
+      this.messageService.add({
+        severity: "error",
+        summary: "Failed to load the concert locations",
+        detail: problemDetails.detail,
+      });
+    } finally {
+      this.isLoadingPins$ = false;
+    }
   }
 
 

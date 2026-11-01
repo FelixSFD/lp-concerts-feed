@@ -119,7 +119,7 @@ export class ConcertFilterComponent implements OnInit {
       queryParams: {
         dateFrom: filter.dateFrom?.toISODate() ?? null,
         dateTo: filter.dateTo?.toISODate() ?? null,
-        tourId: filter.tourNew?.id ?? null,
+        tourId: filter.tour?.id ?? null,
       },
       queryParamsHandling: 'merge'
     };
@@ -130,7 +130,7 @@ export class ConcertFilterComponent implements OnInit {
 
   private calculateActiveFilterCount() {
     let count = 0;
-    if (this.filterForm.value.tour != this.defaultFilter?.tourNew) {
+    if (this.filterForm.value.tour != this.defaultFilter?.tour) {
       console.debug("Tour filter is active");
       count++;
     }
@@ -152,7 +152,7 @@ export class ConcertFilterComponent implements OnInit {
   private setDefaultFilters() {
     console.debug("setDefaultFilters: ", this.defaultFilter);
     this.filterForm.controls.showPastConcerts.setValue(!this.defaultFilter?.onlyFuture);
-    this.filterForm.controls.tour.setValue(this.defaultFilter?.tourNew ?? null);
+    this.filterForm.controls.tour.setValue(this.defaultFilter?.tour ?? null);
     this.filterForm.controls.dateFrom.setValue(this.defaultFilter?.dateFrom?.toJSDate() ?? null);
     this.filterForm.controls.dateTo.setValue(this.defaultFilter?.dateTo?.toJSDate() ?? null);
   }
@@ -161,7 +161,7 @@ export class ConcertFilterComponent implements OnInit {
   private readFilterFromForm() {
     let concertFilter = new ConcertFilter();
     concertFilter.orderBy = this.defaultFilter?.orderBy;
-    concertFilter.tourNew = this.filterForm.value.tour ?? null;
+    concertFilter.tour = this.filterForm.value.tour ?? null;
 
     let filterDateFrom = this.filterForm.value.dateFrom;
     if (filterDateFrom != null) {
