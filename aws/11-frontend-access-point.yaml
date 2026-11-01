@@ -13,6 +13,9 @@ Parameters:
   FrontendBucketRegions:
     Description: "Comma-delimited list of all regions that have a copy of the frontend bucket"
     Type: CommaDelimitedList
+  FrontendCloudFrontDistribution:
+    Description: ID of the FrontendCloudFrontDistribution that uses the MRAP
+    Type: String
 
 
 Resources:
@@ -37,7 +40,29 @@ Resources:
             - '-'
             - - !Sub ${BaseProductName}-web-frontend-bucket
               - !Select [3, !Ref FrontendBucketRegions]
-
+  
+  FrontendMrapPolicy:
+    Type: AWS::S3::MultiRegionAccessPointPolicy
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      MrapName: !Ref MultiRegionAccessPoint4
+      Policy:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowCloudFrontDistribution
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action:
+              - s3:GetObject
+            Resource: !Sub
+              - 'arn:${AWS::Partition}:s3::${AWS::AccountId}:accesspoint/${MrapAlias}/object/*'
+              - MrapAlias: !GetAtt MultiRegionAccessPoint4.Alias
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub
+                  'arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${FrontendCloudFrontDistribution}'
 
 Outputs:
   FrontendMultiRegionAccessPoint4:

@@ -50,14 +50,15 @@ Resources:
         SigningBehavior: always
         SigningProtocol: sigv4
   
-  MrapOAC:
+  FrontendMrapOAC:
     Type: AWS::CloudFront::OriginAccessControl
     Properties:
       OriginAccessControlConfig:
-        Name: !Sub "${BaseProductName}-s3-mrap-oac"
+        Name: !Sub "${AWS::StackName}-frontend-mrap-oac"
+        Description: !Sub "OAC for ${AWS::StackName} frontend MRAP"
         OriginAccessControlOriginType: s3
         SigningBehavior: always
-        SigningProtocol: sigv4
+        SigningProtocol: sigv4a
   
   StaticFilesBucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -307,10 +308,12 @@ Resources:
       DistributionConfig:
         Origins:
           - Id: FrontendMrapOrigin
-            DomainName: { 'Fn::ImportValue': !Sub '${BaseProductName}-frontend-s3-mrap4-domain' }
+            DomainName:
+              Fn::ImportValue: !Sub '${BaseProductName}-frontend-s3-mrap4-domain'
             CustomOriginConfig:
               HTTPSPort: 443
               OriginProtocolPolicy: https-only
+            OriginAccessControlId: !Ref FrontendMrapOAC
           - Id: StaticFilesOrigin
             DomainName: !GetAtt StaticFilesBucket.RegionalDomainName
             OriginPath: /frontend_distribution
@@ -360,9 +363,6 @@ Resources:
           CachePolicyId: !Ref DefaultCachePolicy
           OriginRequestPolicyId: !Ref CORSOriginRequestPolicy
           ResponseHeadersPolicyId: !Ref CORSResponseHeadersPolicy
-          LambdaFunctionAssociations:
-            - EventType: origin-request
-              LambdaFunctionARN: !Ref SignS3MrapLambdaArn
           Compress: true
         Enabled: true
         HttpVersion: http2and3
