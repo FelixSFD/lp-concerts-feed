@@ -1,6 +1,4 @@
-import {Component, ElementRef, inject, OnInit, ViewChild} from '@angular/core';
-import {LegacyConcertsService} from '../../../services/legacy-concerts.service';
-import {defaultShowType, listOfTours} from '../../../app.config';
+import {Component, ElementRef, inject, ViewChild} from '@angular/core';
 import {ConcertFilter} from '../../../data/concert-filter';
 
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -13,6 +11,7 @@ import {MessageService} from 'primeng/api';
 import { SelectTourComponent } from '../admin/concerts/select-tour/select-tour.component';
 import { ConcertsService } from '../../../services/concerts.service';
 import { ProblemDetailsDto } from '../../../modules/lpshows-api/v3';
+import { defaultShowTypeId } from '../../../app.config';
 
 @Component({
   selector: 'app-tour-map-page',
@@ -104,9 +103,9 @@ export class TourMapPageComponent {
       let annotations = results.map(r => {
         if (r.venue.longitude != undefined && r.venue.longitude != 0 && r.venue.latitude != undefined && r.venue.latitude != 0) {
           let markerColor = "#b306d1";
-          /*if (r.concertType != defaultShowType && r.concertType != undefined) {
+          if (r.concertType.id != defaultShowTypeId) {
             markerColor = "#eb4b4b";
-          }*/
+          }
 
           return this.makeMarker(r.venue.latitude, r.venue.longitude, `${r.venue.city.name}, ${r.venue.city.country.name}`, markerColor);
         }
@@ -141,6 +140,4 @@ export class TourMapPageComponent {
       title: title
     });
   }
-
-  protected readonly listOfTours = listOfTours;
 }
