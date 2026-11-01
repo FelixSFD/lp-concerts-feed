@@ -1,5 +1,6 @@
 using System.Configuration;
 using System.Text.Json.Serialization;
+using AppleDeveloperToken;
 using Common.Server.ClientIp;
 using Common.Server.ExceptionHandling;
 using Common.Utils.Cache;
@@ -23,6 +24,7 @@ using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
 using Prometheus;
 using Server.Api.Cache;
+using Server.Api.Config;
 using Server.Api.ExceptionHandling;
 using Server.Api.HealthChecks;
 using Service.Setlists;
@@ -259,6 +261,14 @@ builder.Services.AddScoped<IWikiMediaRepository, WikiMediaRepository>(b => new W
 builder.Services.AddScoped<TourdataWikitextParser>();
 builder.Services.AddScoped<LinkinpediaImportConcertService>();
 builder.Services.AddConcertImageUploadService();
+builder.Services.AddSingleton<TokenGenerator>(b =>
+{
+    var config = b.GetRequiredService<IConfiguration>();
+    var privateKey = config.GetAppleMusicPrivateKey() ?? throw new ConfigurationErrorsException("Apple Music private key not configured!");
+    var teamId = config.GetAppleMusicTeamId() ?? throw new ConfigurationErrorsException("Apple Music team ID not configured!");
+    var keyId = config.GetAppleMusicKeyId() ?? throw new ConfigurationErrorsException("Apple Music key ID not configured!");
+    return new TokenGenerator(privateKey, teamId, keyId);
+});
 
 // Register authentication schemes, and specify the default authentication scheme
 builder.Services

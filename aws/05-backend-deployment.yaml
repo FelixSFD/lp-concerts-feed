@@ -2018,13 +2018,13 @@ Resources:
     Properties:
       Handler: Lambda.AppleMusic::Lambda.AppleMusic.Function::FunctionHandler
       Role: !GetAtt AppleMusicLambdaExecutionRole.Arn
-      Description: .NET function to run the Entity Framework DB Migrations for Setlist data
+      Description: (DEPRECATED!)
       CodeUri: ../lambda_packages/Lambda.AppleMusic.zip
       Runtime: dotnet10
       Architectures:
         - arm64
       Tracing: Active
-      MemorySize: 1024
+      MemorySize: 128
       Environment:
         Variables:
           APPLE_MUSIC_PRIVATE_KEY: !Ref AppleMusicApiPrivateKey

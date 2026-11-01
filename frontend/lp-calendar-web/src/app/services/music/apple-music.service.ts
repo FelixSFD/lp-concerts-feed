@@ -1,8 +1,10 @@
 import {Injectable} from '@angular/core';
 import {firstValueFrom} from 'rxjs';
-import {AppleMusicService as AppleMusicApiClient} from '../../modules/lpshows-api/api/apple-music.service';
 import {AppleMusicSong} from '../../data/music/apple/apple-music-song';
 import Songs = MusicKit.Songs;
+import { AppleMusicApi } from '../../modules/lpshows-api/v3';
+import { environment } from '../../../environments/environment';
+import { addAuthentication } from '../../auth/auth.config';
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +13,10 @@ export class AppleMusicService {
   private music: MusicKit.MusicKitInstance | null = null;
   private initPromise: Promise<void> | null = null;
 
-  constructor(private apiClient: AppleMusicApiClient) { }
+  constructor(private apiClient: AppleMusicApi) {
+    apiClient.configuration.basePath = environment.apiBaseUrl;
+    addAuthentication(this.apiClient);
+  }
 
   async init(): Promise<void> {
     if (this.initPromise) {
