@@ -10,6 +10,16 @@ namespace Database.Tours.Filters;
 public class ConcertFilter : IQueryFilter<ConcertDo>
 {
     /// <summary>
+    /// Search for exact tour ID
+    /// </summary>
+    public string? TourId { get; set; }
+    
+    /// <summary>
+    /// Search for exact tour leg ID. Should be used together with TourId.
+    /// </summary>
+    public string? TourLegId { get; set; }
+    
+    /// <summary>
     /// Search for country (in any country-related field)
     /// </summary>
     public string? Country { get; set; }
@@ -46,6 +56,16 @@ public class ConcertFilter : IQueryFilter<ConcertDo>
     
     public IQueryable<ConcertDo> ApplyTo(IQueryable<ConcertDo> query)
     {
+        // filter for tour
+        if (!string.IsNullOrEmpty(TourId))
+        {
+            query = query.Where(c => c.TourId == TourId);
+        }
+        if (!string.IsNullOrEmpty(TourLegId))
+        {
+            query = query.Where(c => c.TourLegId == TourLegId);
+        }
+        
         // filter for date range
         if (Before.HasValue)
         {

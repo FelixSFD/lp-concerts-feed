@@ -198,6 +198,8 @@ public class ConcertService(IConcertRepository concertRepository, IConcertTypeRe
         var timeFilter = new TimeOnly(12, 0);
         var concertFilter = new ConcertFilter
         {
+            TourId = filter.TourId,
+            TourLegId = filter.TourLegId,
             CountryCode = filter.CountryCode,
             Country = filter.Country,
             City = filter.City,
