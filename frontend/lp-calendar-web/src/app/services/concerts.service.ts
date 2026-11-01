@@ -97,7 +97,26 @@ export class ConcertsService {
   }
 
   getFilteredConcerts(filter: ConcertFilter, limit: number = 100, skip: number = 0, cached: boolean = true): Promise<ConcertListResponseDto> {
-    return firstValueFrom(this.concertsApi.getConcerts(getRequestIdParameter(cached), filter.countryCode, filter.country, filter.city, filter.venue, filter.customTitle, undefined, undefined, limit, skip, filter.orderBy));
+    let dateFrom = filter.dateFrom?.toFormat("yyyy-MM-dd") ?? undefined;
+    if (dateFrom == "0000-01-01") {
+      dateFrom = undefined;
+    }
+
+    let dateTo = filter.dateTo?.toFormat("yyyy-MM-dd") ?? undefined;
+
+    return firstValueFrom(this.concertsApi.getConcerts(getRequestIdParameter(cached),
+      filter.countryCode,
+      filter.country,
+      filter.city,
+      filter.venue,
+      filter.customTitle,
+      dateTo,
+      dateFrom,
+      filter.tour?.id ?? undefined,
+      undefined,
+      limit,
+      skip,
+      filter.orderBy));
   }
 
   /**

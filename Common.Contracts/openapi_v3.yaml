@@ -69,6 +69,8 @@ paths:
         - $ref: "#/components/parameters/CustomConcertTitle"
         - $ref: "#/components/parameters/Before"
         - $ref: "#/components/parameters/After"
+        - $ref: "#/components/parameters/TourId"
+        - $ref: "#/components/parameters/TourLegId"
         - name: Limit
           in: query
           schema:
@@ -4035,6 +4037,18 @@ components:
       schema:
         type: string
         format: date
+    TourId:
+      description: filter by exact ID of a tour
+      name: tourId
+      in: query
+      schema:
+        type: string
+    TourLegId:
+      description: filter by exact ID of a tour leg. Should be used together with tourId.
+      name: tourLegId
+      in: query
+      schema:
+        type: string
     Username:
       description: filter by username
       name: username

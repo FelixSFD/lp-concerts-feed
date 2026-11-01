@@ -59,9 +59,6 @@ export class ConcertListComponent implements OnInit {
   // indicates if more entries are available to load
   hasMore$ = signal(false);
 
-  // property to indicate if all concerts or only future should be displayed
-  showHistoricConcerts$ = signal(false);
-
   // property to show whether the concert is currently being deleted
   concertDeleting$ = signal(false);
 
@@ -77,7 +74,7 @@ export class ConcertListComponent implements OnInit {
   defaultFilter: ConcertFilter = {
     onlyFuture: true,
     tour: null,
-    dateFrom: DateTime.now().set({hour: 0, minute: 0, second: 0, millisecond: 0}),
+    dateFrom: null,
     dateTo: null,
     orderBy: ["-date"]
   };
@@ -181,11 +178,6 @@ export class ConcertListComponent implements OnInit {
     }
   }
 
-  onShowHistoricSwitchChanged() {
-    this.reloadConcertList(true);
-    console.log("Show historic: " + this.showHistoricConcerts$())
-  }
-
   onDeleteConcertClicked(event: Event, concertId: string | null) {
     this.confirmationService.confirm({
       target: event.target as EventTarget,
@@ -203,8 +195,8 @@ export class ConcertListComponent implements OnInit {
         severity: 'danger'
       },
 
-      accept: () => {
-        this.onDeleteConcertConfirm(concertId);
+      accept: async () => {
+        await this.onDeleteConcertConfirm(concertId);
       }
     });
   }
@@ -222,7 +214,7 @@ export class ConcertListComponent implements OnInit {
     try {
       await this.toursService.deleteConcert(id);
       console.debug("DELETE concert request finished");
-      this.reloadConcertList(false);
+      await this.reloadConcertList(false);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       console.warn("Failed to delete concert:", err);
@@ -236,17 +228,17 @@ export class ConcertListComponent implements OnInit {
     }
   }
 
-  onFilterChanged(filter: ConcertFilter) {
+  async onFilterChanged(filter: ConcertFilter) {
     console.debug("filterEvent: ", filter);
     this.currentFilter = filter;
     this.currentFilter.orderBy = [this.sortOrder$() === 'desc' ? '-date' : 'date'];
-    this.reloadConcertList(true);
+    await this.reloadConcertList(true);
   }
 
   toggleDateSort() {
     this.sortOrder$.update(order => (order === 'desc' ? 'asc' : 'desc'));
     this.currentFilter.orderBy = [this.sortOrder$() === 'desc' ? '-date' : 'date'];
-    this.reloadConcertList(true);
+    this.reloadConcertList(true).then();
     this.setSortOrderToUrl(this.sortOrder$());
   }
 

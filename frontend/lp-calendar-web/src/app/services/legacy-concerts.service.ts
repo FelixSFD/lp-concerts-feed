@@ -33,10 +33,10 @@ export class LegacyConcertsService {
     console.debug("Getting filtered concerts", filter, cached);
     if (!cached) {
       // disable caching
-      return this.concertsApiClient.getConcerts(filter?.tour?.value ?? undefined, filter?.dateFrom?.toISO() ?? undefined, filter?.dateTo?.toISO() ?? undefined, Guid.create().toString(), "body", false);
+      return this.concertsApiClient.getConcerts(undefined, filter?.dateFrom?.toISO() ?? undefined, filter?.dateTo?.toISO() ?? undefined, Guid.create().toString(), "body", false);
     }
 
-    return this.concertsApiClient.getConcerts(filter?.tour?.value ?? undefined, filter?.dateFrom?.toISO() ?? undefined, filter?.dateTo?.toISO() ?? undefined, undefined, "body", false);
+    return this.concertsApiClient.getConcerts(undefined, filter?.dateFrom?.toISO() ?? undefined, filter?.dateTo?.toISO() ?? undefined, undefined, "body", false);
   }
 
 

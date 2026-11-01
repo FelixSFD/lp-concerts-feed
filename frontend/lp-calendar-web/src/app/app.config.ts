@@ -93,6 +93,7 @@ export const appConfig: ApplicationConfig = {
 
 export const listOfShowTypes: string[] = ["Linkin Park Show", "Festival", "Other performance"];
 export const defaultShowType: string = listOfShowTypes[0];
+export const defaultShowTypeId: number = 1;
 export const tourConfigs: TourConfig[] = [
   {
     label: "FROM ZERO WORLD TOUR 2024",

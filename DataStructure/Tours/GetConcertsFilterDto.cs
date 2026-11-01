@@ -5,6 +5,16 @@ namespace LPCalendar.DataStructure.Tours;
 public class GetConcertsFilterDto : BaseFilterQuery
 {
     /// <summary>
+    /// Search for exact tour ID
+    /// </summary>
+    public string? TourId { get; set; }
+    
+    /// <summary>
+    /// Search for exact tour leg ID. Should be used together with TourId.
+    /// </summary>
+    public string? TourLegId { get; set; }
+    
+    /// <summary>
     /// Filter for a country by its 3-letter ISO-code
     /// </summary>
     public string? CountryCode { get; set; }
