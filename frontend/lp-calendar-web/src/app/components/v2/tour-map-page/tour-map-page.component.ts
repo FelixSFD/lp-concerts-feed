@@ -46,7 +46,7 @@ export class TourMapPageComponent {
   currentFilter: ConcertFilter = this.defaultFilter;
 
   // true, if the pins on the map are being loaded from the server
-  isLoadingPins$ = true;
+  isLoadingPins$ = signal(false);
 
   // status of the download (fetched results / total expected results)
   downloadStatus = signal<number>(0);
@@ -56,8 +56,8 @@ export class TourMapPageComponent {
   }
 
 
-  onTourSelected(event: any) {
-    this.reloadPins();
+  async onTourSelected(event: any) {
+    await this.reloadPins();
   }
 
 
@@ -66,9 +66,9 @@ export class TourMapPageComponent {
     if (!mapElement) return;
     if (!this.appleMaps) {
       console.debug('MapKit not initialized yet!');
-      this.initAppleMaps().then(() => {
+      this.initAppleMaps().then(async () => {
         this.appleMap = this.makeMap(mapElement.nativeElement);
-        this.reloadPins();
+        await this.reloadPins();
       });
       return;
     }
@@ -78,7 +78,7 @@ export class TourMapPageComponent {
     this.appleMap.showsUserLocationControl = true;
     this.appleMap.showsUserLocation = true;
 
-    this.reloadPins();
+    this.reloadPins().then();
   }
 
 
@@ -99,7 +99,7 @@ export class TourMapPageComponent {
 
 
   private async reloadPins() {
-    this.isLoadingPins$ = true;
+    this.isLoadingPins$.set(true);
     this.downloadStatus.set(0);
 
     try {
@@ -156,7 +156,7 @@ export class TourMapPageComponent {
         detail: problemDetails.detail,
       });
     } finally {
-      this.isLoadingPins$ = false;
+      this.isLoadingPins$.set(false);
     }
   }
 
