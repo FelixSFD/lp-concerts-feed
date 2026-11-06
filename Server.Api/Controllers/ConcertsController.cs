@@ -1,4 +1,5 @@
 using Common.Contracts.Generated.Models;
+using Common.Server;
 using Common.Server.Auth;
 using Common.Utils.Cache;
 using LPCalendar.DataStructure;
@@ -181,6 +182,7 @@ public class ConcertsController(
     [HttpGet("upcoming/bookmarked")]
     [Authorize]
     [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
+    [ResponseCache(NoStore = true)]
     public async Task<ActionResult<ConcertDetailsDto[]>> GetUpcomingBookmarkedConcertsAsync([FromQuery] int? limit,
         CancellationToken cancellationToken)
     {
@@ -197,6 +199,7 @@ public class ConcertsController(
     [HttpGet("upcoming/attending")]
     [Authorize]
     [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
+    [ResponseCache(NoStore = true)]
     public async Task<ActionResult<ConcertDetailsDto[]>> GetUpcomingAttendingConcertsAsync([FromQuery] int? limit,
         CancellationToken cancellationToken)
     {
@@ -456,6 +459,10 @@ public class ConcertsController(
             CurrentUserStatus = status.UserStatus?.ToDto() ??
                                 GetConcertBookmarkCountsResponseDto.CurrentUserStatusEnum.None,
         };
+        
+        // disable caching if user is authenticated
+        HttpContext.DisableCacheIfAuthenticated();
+
         return Ok(response);
     }
 

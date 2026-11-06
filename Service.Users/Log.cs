@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Service.Users;
 
-public static partial class Log
+internal static partial class Log
 {
     [LoggerMessage(LogLevel.Information, "Creating new user with username '{username}'...")]
     public static partial void CreatingNewUserWithUsername(ILogger logger, string username);
