@@ -1,6 +1,6 @@
 namespace Server.Api;
 
-public static partial class Log
+internal static partial class Log
 {
     [LoggerMessage(LogLevel.Debug, "Generating Apple Music developer token...")]
     public static partial void GeneratingAppleMusicDeveloperToken(ILogger logger);

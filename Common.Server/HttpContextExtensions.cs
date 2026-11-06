@@ -1,5 +1,7 @@
-﻿using Common.Server.ClientIp;
+﻿using Common.Server.Auth;
+using Common.Server.ClientIp;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace Common.Server;
 
@@ -23,5 +25,18 @@ public static class HttpContextExtensions
             throw new ArgumentNullException(nameof(clientIpFinder), "The IClientIpFinder was not registered.");
         
         return clientIpFinder.GetClientIp(request);
+    }
+
+    /// <summary>
+    /// Disable caching if the request is authenticated. This only applies to external caches!
+    /// </summary>
+    /// <param name="context">HTTP-context</param>
+    public static void DisableCacheIfAuthenticated(this HttpContext context)
+    {
+        if (!context.IsAuthenticated()) return;
+        
+        context.Response.Headers.CacheControl = "no-cache";
+        var logger = context.RequestServices.GetService(typeof(ILogger<HttpContext>)) as ILogger<HttpContext>;
+        Log.DisabledCacheForAuthenticatedRequest(logger);
     }
 }
