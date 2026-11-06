@@ -180,7 +180,6 @@ public class ConcertsController(
     /// <returns></returns>
     [HttpGet("upcoming/bookmarked")]
     [Authorize]
-    [CustomResponseCache(Duration = CacheExpiration.Medium)]
     [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
     public async Task<ActionResult<ConcertDetailsDto[]>> GetUpcomingBookmarkedConcertsAsync([FromQuery] int? limit,
         CancellationToken cancellationToken)
@@ -197,7 +196,6 @@ public class ConcertsController(
     /// <returns></returns>
     [HttpGet("upcoming/attending")]
     [Authorize]
-    [CustomResponseCache(Duration = CacheExpiration.Medium)]
     [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
     public async Task<ActionResult<ConcertDetailsDto[]>> GetUpcomingAttendingConcertsAsync([FromQuery] int? limit,
         CancellationToken cancellationToken)
