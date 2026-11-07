@@ -2504,6 +2504,24 @@ paths:
       security:
         - Bearer: [ ]
   
+  /v3/Users/{userId}/stats/concerts:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Returns statistics about the concerts a user has attended
+      operationId: GetUserConcertStats
+      responses:
+        "200":
+          description: Statistics about the concerts a user has attended
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserConcertStatsResponse'
+  
   /v3/Setlists:
     parameters:
       - $ref: "#/components/parameters/X-LP-Request-Id"
@@ -5171,6 +5189,29 @@ components:
           items:
             type: string
             example: 'USA'
+    
+    # Statistics
+    UserConcertStatsResponse:
+      type: object
+      description: Response form server with some general statistics about the concerts a user has attended
+      properties: 
+        numberOfConcerts:
+          type: number
+          description: Number of concerts a user has attended
+        numberOfCities:
+          type: number
+          description: Number of cities a user has attended concerts in
+        numberOfCountries:
+          type: number
+          description: Number of countries a user has attended concerts in
+        numberOfVenues:
+          type: number
+          description: Number of venues a user has attended concerts at
+        concerts:
+          type: array
+          description: List of concerts a user has attended
+          items:
+            $ref: "#/components/schemas/RawConcert"
     
     # Schemas from v2
     GetConcertBookmarkCountsResponse:

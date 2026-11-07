@@ -1,12 +1,15 @@
 using System.Security.Claims;
 using Common.Contracts.Generated.Models;
+using Common.Server.Auth;
 using LPCalendar.DataStructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Server.Api.Auth;
 using Server.Api.Cache;
+using Service.Tours;
 using Service.Users;
+using Service.Users.Exceptions;
 
 namespace Server.Api.Controllers;
 
@@ -17,7 +20,7 @@ namespace Server.Api.Controllers;
 /// <param name="logger"></param>
 [ApiController]
 [Route("v3/[controller]")]
-public class UsersController(UserService userService, ILogger<UsersController> logger) : ControllerBase
+public class UsersController(UserService userService, UserStatsService userStatsService, ILogger<UsersController> logger) : ControllerBase
 {
     /// <summary>
     /// Returns a list of users that can be filtered and sorted
@@ -96,6 +99,20 @@ public class UsersController(UserService userService, ILogger<UsersController> l
     }
     
     /// <summary>
+    /// Returns some general statistics about the concerts a user has attended
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("{userId}/stats/concerts")]
+    public async Task<ActionResult<UserDto>> GetUserConcertStats([FromRoute] string userId, CancellationToken cancellationToken)
+    {
+        userId = ResolveUserId(userId) ?? throw new UserNotFoundException(userId);
+        var stats = await userStatsService.GetAttendedConcerts(userId, cancellationToken);
+        return Ok(stats.ToDto());
+    }
+    
+    /// <summary>
     /// Suggests some usernames for the current user. These are based on album names for now.
     /// </summary>
     /// <param name="cancellationToken"></param>
@@ -106,5 +123,31 @@ public class UsersController(UserService userService, ILogger<UsersController> l
     {
         var names = await userService.GetSuggestedUserNamesAsync(cancellationToken);
         return Ok(names);
+    }
+    
+    /// <summary>
+    /// Returns the input user ID, but if it's "me", the current user ID is returned. If the input is "me" and the user is not authenticated, null is returned.
+    /// </summary>
+    /// <param name="userIdParameter"></param>
+    /// <returns></returns>
+    private string? ResolveUserId(string? userIdParameter)
+    {
+        if (!"me".Equals(userIdParameter, StringComparison.CurrentCultureIgnoreCase))
+        {
+            return userIdParameter;
+        }
+
+        var currentUserId = HttpContext.GetUserId();
+        if (currentUserId != null)
+        {
+            Log.ResolvedParameterMeToUserId(logger, currentUserId);
+        }
+        else
+        {
+            Log.ResolvedParameterMeToUserIdNotAuthenticated(logger);
+        }
+        
+        return currentUserId;
+
     }
 }

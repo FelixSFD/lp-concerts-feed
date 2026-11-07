@@ -6,6 +6,7 @@ using LPCalendar.DataStructure.Setlists.Parameters;
 using LPCalendar.DataStructure.Tours;
 using LPCalendar.DataStructure.Tours.Locations;
 using Service.Tours.DataStructure;
+using Service.Tours.DataStructure.Stats;
 using Service.Users.DataStructure;
 
 namespace Server.Api;
@@ -1511,6 +1512,27 @@ internal static class DtoMapper
         {
             ConcertId = bo.ConcertId,
             LinkinpediaUrl = bo.LinkinpediaUrl,
+        };
+    }
+
+    #endregion
+
+    #region UserConcertStats
+
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bo">BusinessObject to map</param>
+    /// <returns>the mapped DTO</returns>
+    public static UserConcertStatsResponseDto ToDto(this UserConcertStatsBo bo)
+    {
+        return new UserConcertStatsResponseDto
+        {
+            Concerts = bo.Concerts.Select(ToDto).ToList(),
+            NumberOfCities = bo.NumberOfCities,
+            NumberOfCountries = bo.NumberOfCountries,
+            NumberOfVenues = bo.NumberOfVenues,
+            NumberOfConcerts = bo.NumberOfConcerts,
         };
     }
 
