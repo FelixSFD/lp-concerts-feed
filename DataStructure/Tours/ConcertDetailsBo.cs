@@ -98,4 +98,19 @@ public class ConcertDetailsBo
     /// Either the <see cref="MainStageTime"/> or if it is null, the <see cref="PostedStartTime"/> instead.
     /// </summary>
     public DateTimeOffset ComputedStartTime => MainStageTime ?? PostedStartTime;
+    
+    /// <summary>
+    /// Time when this concert was created
+    /// </summary>
+    public DateTimeOffset CreatedAt { get; set; }
+
+    /// <summary>
+    /// Time when this concert was last updated
+    /// </summary>
+    public DateTimeOffset? UpdatedAt { get; set; }
+    
+    /// <summary>
+    /// Time when this concert was last changed
+    /// </summary>
+    public DateTimeOffset? LastChange => UpdatedAt;
 }

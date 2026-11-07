@@ -5,6 +5,7 @@ using LPCalendar.DataStructure;
 
 namespace Lambda.ListConcerts.Syncing;
 
+[Obsolete]
 public class ConcertSyncEngine(IConcertRepository repository) : ISyncEngine<ConcertModel, string>
 {
     private ConcertModel[] _addedOrChangedConcerts = [];

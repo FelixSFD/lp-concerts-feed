@@ -122,4 +122,22 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
         return query.Where(c => c.Bookmarks.Any(b => b.UserId == userId && b.Status == status))
             .ToAsyncEnumerable();
     }
+
+    /// <inheritdoc/>
+    public IAsyncEnumerable<ConcertDo> GetByIds(IEnumerable<string> ids)
+    {
+        return DbSet
+            .Where(c => ids.Contains(c.Id))
+            .ToAsyncEnumerable();
+    }
+
+    public IAsyncEnumerable<ConcertDo> GetChangedAfter(DateTimeOffset timestamp)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IAsyncEnumerable<ConcertDo> GetDeletedAfter(DateTimeOffset timestamp)
+    {
+        throw new NotImplementedException();
+    }
 }
