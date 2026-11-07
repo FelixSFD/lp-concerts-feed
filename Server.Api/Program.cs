@@ -255,6 +255,7 @@ builder.Services.AddScoped<VenueService>();
 builder.Services.AddScoped<TourService>();
 builder.Services.AddScoped<ConcertService>();
 builder.Services.AddConcertSyncEngine();
+builder.Services.AddLocationSyncEngines();
 builder.Services.AddSetlistsService();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddHttpClient();

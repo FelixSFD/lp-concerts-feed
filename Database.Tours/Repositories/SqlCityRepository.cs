@@ -55,4 +55,24 @@ public class SqlCityRepository(ToursDbContext dbContext) : SqlRepositoryBase<Cit
     {
         return await DbSet.FindAsync(cityId, countryCode);
     }
+
+    /// <inheritdoc/>
+    public IAsyncEnumerable<CityDo> GetChangedAfter(DateTimeOffset timestamp)
+    {
+        var query = DbSet.AsQueryable();
+        query = IncludeAllReferences(query);
+        return query
+            .Where(c => c.UpdatedAt > timestamp || c.CreatedAt > timestamp)
+            .ToAsyncEnumerable();
+    }
+
+    /// <inheritdoc/>
+    public IAsyncEnumerable<CityDo> GetDeletedAfter(DateTimeOffset timestamp)
+    {
+        var query = DbSet.AsQueryable();
+        query = IncludeAllReferences(query);
+        return query
+            .Where(c => c.CreatedAt <= timestamp && c.DeletedAt > timestamp)
+            .ToAsyncEnumerable();
+    }
 }

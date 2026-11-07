@@ -3,6 +3,6 @@ using Database.Tours.DataObjects;
 
 namespace Database.Tours.Repositories;
 
-public interface ICountryRepository : ISingleKeyRepositoryBase<CountryDo, string>, IRepositoryBase<CountryDo>
+public interface ICountryRepository : ISingleKeyRepositoryBase<CountryDo, string>, IRepositoryBase<CountryDo>, ITimestampedRepository<CountryDo>, ISoftDeletableRepository<CountryDo>
 {
 }

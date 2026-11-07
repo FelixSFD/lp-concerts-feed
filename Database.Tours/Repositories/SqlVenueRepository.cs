@@ -32,4 +32,24 @@ public class SqlVenueRepository(ToursDbContext dbContext) : SingleKeySqlReposito
             .Include(v => v.City)
             .Include(v => v.PreviousNames);
     }
+
+    /// <inheritdoc/>
+    public IAsyncEnumerable<VenueDo> GetChangedAfter(DateTimeOffset timestamp)
+    {
+        var query = DbSet.AsQueryable();
+        query = DefaultQueryConfiguration(query);
+        return query
+            .Where(v => v.UpdatedAt > timestamp || v.CreatedAt > timestamp)
+            .ToAsyncEnumerable();
+    }
+
+    /// <inheritdoc/>
+    public IAsyncEnumerable<VenueDo> GetDeletedAfter(DateTimeOffset timestamp)
+    {
+        var query = DbSet.AsQueryable();
+        query = DefaultQueryConfiguration(query);
+        return query
+            .Where(v => v.CreatedAt <= timestamp && v.DeletedAt > timestamp)
+            .ToAsyncEnumerable();
+    }
 }

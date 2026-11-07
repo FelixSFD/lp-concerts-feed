@@ -162,7 +162,7 @@ public class VenueServiceTest
             .GetByPrimaryKeyWithoutReferencesAsync(Arg.Is<uint>(c => c == mockVenue.Id));
         _venueRepository
             .Received(1)
-            .Delete(Arg.Is<VenueDo>(c => c.Id == mockVenue.Id));
+            .Update(Arg.Is<VenueDo>(c => c.Id == mockVenue.Id && c.DeletedAt != null));
         await _venueRepository
             .Received(1)
             .SaveChangesAsync();

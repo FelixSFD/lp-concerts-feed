@@ -23,4 +23,24 @@ public class CountryBo
     /// Name of the country in its native language
     /// </summary>
     public required string NativeName { get; set; }
+
+    /// <summary>
+    /// Time when this country was created
+    /// </summary>
+    public DateTimeOffset CreatedAt { get; set; }
+
+    /// <summary>
+    /// Time when this country was last updated
+    /// </summary>
+    public DateTimeOffset? UpdatedAt { get; set; }
+
+    /// <summary>
+    /// Time when this country was deleted
+    /// </summary>
+    public DateTimeOffset? DeletedAt { get; set; }
+
+    /// <summary>
+    /// Time when this country was last changed
+    /// </summary>
+    public DateTimeOffset? LastChange => UpdatedAt;
 }

@@ -211,7 +211,7 @@ public class LocationServiceTest
             .GetByPrimaryKeyAsync(Arg.Is(countryGer.IsoCode));
         _countryRepository
             .Received(1)
-            .Delete(Arg.Is<CountryDo>(c => c.IsoCode == countryGer.IsoCode));
+            .Update(Arg.Is<CountryDo>(c => c.IsoCode == countryGer.IsoCode && c.DeletedAt != null));
         await _countryRepository
             .Received(1)
             .SaveChangesAsync();
@@ -727,7 +727,7 @@ public class LocationServiceTest
             .GetByPrimaryKeyAsync(Arg.Is(countryGer.IsoCode), Arg.Is(testCity.Id));
         _cityRepository
             .Received(1)
-            .Delete(Arg.Is<CityDo>(c => c.CountryCode == countryGer.IsoCode && c.Id == testCity.Id));
+            .Update(Arg.Is<CityDo>(c => c.CountryCode == countryGer.IsoCode && c.Id == testCity.Id && c.DeletedAt != null));
         await _cityRepository
             .Received(1)
             .SaveChangesAsync();

@@ -1,6 +1,8 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.Contracts.Generated.Models;
+using Common.Utils;
 using Common.Utils.Cache;
 using LPCalendar.DataStructure.Tours.Locations;
 using Microsoft.AspNetCore.Http;
@@ -10,6 +12,12 @@ using Microsoft.Extensions.Logging;
 using Server.Api.Auth;
 using Server.Api.Cache;
 using Service.Tours;
+using Service.Tours.Syncing;
+using CreateCityRequestDto = LPCalendar.DataStructure.Tours.Locations.CreateCityRequestDto;
+using CreateStateRequestDto = LPCalendar.DataStructure.Tours.Locations.CreateStateRequestDto;
+using UpdateCityRequestDto = LPCalendar.DataStructure.Tours.Locations.UpdateCityRequestDto;
+using UpdateCountryRequestDto = LPCalendar.DataStructure.Tours.Locations.UpdateCountryRequestDto;
+using UpdateStateRequestDto = LPCalendar.DataStructure.Tours.Locations.UpdateStateRequestDto;
 
 namespace Server.Api.Controllers;
 
@@ -17,12 +25,35 @@ namespace Server.Api.Controllers;
 /// Controller to manage countries and cities
 /// </summary>
 /// <param name="locationService"></param>
+/// <param name="syncEngine"></param>
+/// <param name="httpContextAccessor"></param>
 /// <param name="logger"></param>
 [ApiController]
 [Route("v3/countries")]
-public class CountriesController(LocationService locationService, IHttpContextAccessor httpContextAccessor, ILogger<CountriesController> logger) : ControllerBase
+public class CountriesController(LocationService locationService, ISyncEngine<CountryBo, string> syncEngine, IHttpContextAccessor httpContextAccessor, ILogger<CountriesController> logger) : ControllerBase
 {
     #region Countries
+
+    /// <summary>
+    /// Syncs countries that were changed or deleted since the last sync time.
+    /// </summary>
+    /// <param name="lastSync">Time of the last sync. Can be the time of the latest change to improve caching</param>
+    /// <param name="cancellationToken">Token to cancel the request</param>
+    /// <returns></returns>
+    [HttpGet("sync")]
+    [OutputCache(PolicyName = CachePolicyNames.VeryLong, Tags = [CacheTags.CountriesAll])]
+    [CustomResponseCache(Duration = CacheExpiration.Medium)]
+    public async Task<ActionResult<SyncCountriesResponseDto>> SyncCountryChanges(DateTime lastSync, CancellationToken cancellationToken)
+    {
+        var result = await syncEngine.ChangesSince(lastSync.ToDateTimeOffset(TimeZoneInfo.Utc), cancellationToken);
+        var response = new SyncCountriesResponseDto
+        {
+            SyncTime = result.LatestChange,
+            Updated = result.ChangedObjects.Select(c => c.ToDto()).ToList(),
+            DeletedCountryCodes = result.DeletedIds
+        };
+        return Ok(response);
+    }
 
     /// <summary>
     /// Creates a new country

@@ -100,7 +100,8 @@ public class LocationService(
             throw new CountryNotFoundException(isoCode);
         }
         
-        countryRepository.Delete(country);
+        country.DeletedAt = DateTimeOffset.UtcNow;
+        countryRepository.Update(country);
         await countryRepository.SaveChangesAsync();
         logger.LogInformation("Country '{countryName}' ({isoCode}) was deleted successfully!", country.Name, isoCode);
     }
@@ -348,7 +349,8 @@ public class LocationService(
             throw new CityNotFoundException(cityId);
         }
         
-        cityRepository.Delete(city);
+        city.DeletedAt = DateTimeOffset.UtcNow;
+        cityRepository.Update(city);
         await cityRepository.SaveChangesAsync();
         logger.LogInformation("City '{cityName}' ({isoCode} - {cityId}) was deleted successfully!", city.Name, city.CountryCode, city.Id);
     }

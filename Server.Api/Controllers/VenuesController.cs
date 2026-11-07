@@ -1,4 +1,5 @@
 using Common.Contracts.Generated.Models;
+using Common.Utils;
 using Common.Utils.Cache;
 using LPCalendar.DataStructure.Tours.Locations;
 using Microsoft.AspNetCore.Mvc;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.OutputCaching;
 using Server.Api.Auth;
 using Server.Api.Cache;
 using Service.Tours;
+using Service.Tours.Syncing;
 using AddVenueNameRequestDto = LPCalendar.DataStructure.Tours.Locations.AddVenueNameRequestDto;
 using UpdateVenueNameRequestDto = LPCalendar.DataStructure.Tours.Locations.UpdateVenueNameRequestDto;
 
@@ -15,11 +17,32 @@ namespace Server.Api.Controllers;
 /// Controller to manage venues
 /// </summary>
 /// <param name="service">Service that manages venues</param>
+/// <param name="syncEngine">Sync engine for venues</param>
 /// <param name="logger">Logger</param>
 [ApiController]
 [Route("v3/[controller]")]
-public class VenuesController(VenueService service, ILogger<VenuesController> logger) : ControllerBase
+public class VenuesController(VenueService service, ISyncEngine<VenueWithDetailsBo, uint> syncEngine, ILogger<VenuesController> logger) : ControllerBase
 {
+    /// <summary>
+    /// Syncs venues that were changed or deleted since the last sync time.
+    /// </summary>
+    /// <param name="lastSync">Time of the last sync. Can be the time of the latest change to improve caching</param>
+    /// <param name="cancellationToken">Token to cancel the request</param>
+    /// <returns></returns>
+    [HttpGet("sync")]
+    [OutputCache(PolicyName = CachePolicyNames.VeryLong, Tags = [CacheTags.VenuesAll])]
+    [CustomResponseCache(Duration = CacheExpiration.Medium)]
+    public async Task<ActionResult<SyncVenuesResponseDto>> SyncVenueChanges(DateTime lastSync, CancellationToken cancellationToken)
+    {
+        var result = await syncEngine.ChangesSince(lastSync.ToDateTimeOffset(TimeZoneInfo.Utc), cancellationToken);
+        var response = new SyncVenuesResponseDto
+        {
+            SyncTime = result.LatestChange,
+            Updated = result.ChangedObjects.Select(v => v.ToDto()).ToList(),
+            DeletedVenueIds = result.DeletedIds.Select(id => (long)id).ToList()
+        };
+        return Ok(response);
+    }
     /// <summary>
     /// Creates a new venue
     /// </summary>

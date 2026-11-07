@@ -5,7 +5,7 @@ using Common.Database.DataObjects;
 namespace Database.Tours.DataObjects;
 
 [Table("Country")]
-public class CountryDo : BaseDo, ITimestampedDataObject
+public class CountryDo : BaseDo, ITimestampedDataObject, IDeletableDataObject
 {
     /// <summary>
     /// The 3-letter ISO code for this country
@@ -37,4 +37,8 @@ public class CountryDo : BaseDo, ITimestampedDataObject
     /// <inheritdoc/>
     [Column("UpdatedAt")]
     public DateTimeOffset? UpdatedAt { get; set; }
+
+    /// <inheritdoc/>
+    [Column("DeletedAt")]
+    public DateTimeOffset? DeletedAt { get; set; }
 }

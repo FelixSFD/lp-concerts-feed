@@ -52,4 +52,24 @@ public class VenueBo
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public decimal? Longitude { get; set; }
+
+    /// <summary>
+    /// Time when this venue was created
+    /// </summary>
+    public DateTimeOffset CreatedAt { get; set; }
+
+    /// <summary>
+    /// Time when this venue was last updated
+    /// </summary>
+    public DateTimeOffset? UpdatedAt { get; set; }
+
+    /// <summary>
+    /// Time when this venue was deleted
+    /// </summary>
+    public DateTimeOffset? DeletedAt { get; set; }
+
+    /// <summary>
+    /// Time when this venue was last changed
+    /// </summary>
+    public DateTimeOffset? LastChange => UpdatedAt;
 }

@@ -4,7 +4,7 @@ using Database.Tours.DataObjects;
 
 namespace Database.Tours.Repositories;
 
-public interface ICityRepository : IRepositoryBase<CityDo>
+public interface ICityRepository : IRepositoryBase<CityDo>, ITimestampedRepository<CityDo>, ISoftDeletableRepository<CityDo>
 {
     /// <summary>
     /// Returns a city by its primary key

@@ -9,4 +9,20 @@ public class SqlCountryRepository(ToursDbContext dbContext) : SingleKeySqlReposi
     {
         return Task.FromResult(dataObject);
     }
+
+    /// <inheritdoc/>
+    public IAsyncEnumerable<CountryDo> GetChangedAfter(DateTimeOffset timestamp)
+    {
+        return DbSet
+            .Where(c => c.UpdatedAt > timestamp || c.CreatedAt > timestamp)
+            .ToAsyncEnumerable();
+    }
+
+    /// <inheritdoc/>
+    public IAsyncEnumerable<CountryDo> GetDeletedAfter(DateTimeOffset timestamp)
+    {
+        return DbSet
+            .Where(c => c.CreatedAt <= timestamp && c.DeletedAt > timestamp)
+            .ToAsyncEnumerable();
+    }
 }
