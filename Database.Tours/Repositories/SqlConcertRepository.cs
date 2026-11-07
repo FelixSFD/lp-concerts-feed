@@ -133,11 +133,19 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
 
     public IAsyncEnumerable<ConcertDo> GetChangedAfter(DateTimeOffset timestamp)
     {
-        throw new NotImplementedException();
+        var query = DbSet.AsQueryable();
+        query = IncludeAllReferences(query);
+        return query
+            .Where(c => c.UpdatedAt > timestamp || c.CreatedAt > timestamp)
+            .ToAsyncEnumerable();
     }
 
     public IAsyncEnumerable<ConcertDo> GetDeletedAfter(DateTimeOffset timestamp)
     {
-        throw new NotImplementedException();
+        var query = DbSet.AsQueryable();
+        query = IncludeAllReferences(query);
+        return query
+            .Where(c => c.CreatedAt <= timestamp && c.DeletedAt > timestamp)
+            .ToAsyncEnumerable();
     }
 }
