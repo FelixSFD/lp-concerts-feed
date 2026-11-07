@@ -124,6 +124,17 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
     }
 
     /// <inheritdoc/>
+    public IAsyncEnumerable<ConcertDo> GetAttendedConcertsForAsync(string userId, CancellationToken cancellationToken = default)
+    {
+        var query = DbSet.AsQueryable();
+        //query = IncludeAllReferences(query);
+        return query
+            .Where(c => c.PostedStartTime < DateTime.UtcNow)
+            .Where(c => c.Bookmarks.Any(b => b.UserId == userId && b.Status == UserConcertBookmarkDo.BookmarkStatus.Attending))
+            .ToAsyncEnumerable();
+    }
+
+    /// <inheritdoc/>
     public IAsyncEnumerable<ConcertDo> GetByIds(IEnumerable<string> ids)
     {
         return DbSet
