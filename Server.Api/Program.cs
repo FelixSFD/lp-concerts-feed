@@ -24,6 +24,7 @@ using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
 using Prometheus;
 using Server.Api.Cache;
+using Server.Api.Cache.Policies;
 using Server.Api.Config;
 using Server.Api.ExceptionHandling;
 using Server.Api.HealthChecks;
@@ -139,6 +140,10 @@ builder.Services.AddOutputCache(options =>
     {
         policy.Cache()
             .Expire(TimeSpan.FromSeconds(CacheExpiration.Maximum));
+    });
+    options.AddPolicy(CachePolicyNames.UserStatsDynamic, policy =>
+    {
+        policy.AddPolicy<UserStatsOutputCachePolicy>();
     });
 });
 

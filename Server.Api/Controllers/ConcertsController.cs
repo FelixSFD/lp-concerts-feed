@@ -15,6 +15,7 @@ using Service.Setlists;
 using Service.Tours;
 using Service.Tours.Exceptions;
 using Service.Tours.Syncing;
+using Service.Users.Exceptions;
 
 namespace Server.Api.Controllers;
 
@@ -461,6 +462,9 @@ public class ConcertsController(
 
         await concertService.SetBookmarkForUserAtConcertAsync(currentUserId, concertId, request.Status.ToBo(),
             cancellationToken);
+        
+        await EvictUserStatsCacheAsync(currentUserId, cancellationToken);
+        
         return NoContent();
     }
 
@@ -533,6 +537,19 @@ public class ConcertsController(
         catch (Exception e)
         {
             logger.LogWarning(e, "Failed to evict concerts cache!");
+        }
+    }
+    
+    private async Task EvictUserStatsCacheAsync(string userId, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await outputCacheStore.EvictByTagAsync(CacheTags.UserStats(userId), cancellationToken);
+            Log.EvictedStatisticsCacheForUser(logger, userId);
+        }
+        catch (Exception e)
+        {
+            Log.FailedToEvictStatisticsCacheForUser(logger, userId, e);
         }
     }
 }

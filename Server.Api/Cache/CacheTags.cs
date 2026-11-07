@@ -61,4 +61,11 @@ public static class CacheTags
     /// Tag for all mashups
     /// </summary>
     public const string MashupsAll = "mashups-all";
+    
+    /// <summary>
+    /// Cache-Tag for the user stats
+    /// </summary>
+    /// <param name="userId">ID of the user</param>
+    /// <returns></returns>
+    public static string UserStats(string userId) => $"user-{userId}-stats";
 }

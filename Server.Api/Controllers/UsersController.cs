@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Common.Contracts.Generated.Models;
 using Common.Server.Auth;
+using Common.Utils.Cache;
 using LPCalendar.DataStructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -123,6 +124,8 @@ public class UsersController(UserService userService, UserStatsService userStats
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpGet("{userId}/stats/concerts")]
+    [OutputCache(PolicyName = CachePolicyNames.UserStatsDynamic, Duration = CacheExpiration.Maximum)]
+    [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<UserDto>> GetUserConcertStats([FromRoute] string userId, CancellationToken cancellationToken)
     {
         var stats = await userStatsService.GetAttendedConcerts(userId, cancellationToken);
