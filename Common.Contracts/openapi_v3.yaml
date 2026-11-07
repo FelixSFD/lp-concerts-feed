@@ -2504,6 +2504,38 @@ paths:
       security:
         - Bearer: [ ]
   
+  /v3/Users/me/stats/concerts:
+    get:
+      summary: Returns statistics about the concerts the current user has attended
+      operationId: GetCurrentUserConcertStats
+      responses:
+        "200":
+          description: Statistics about the concerts a user has attended
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserConcertStatsResponse'
+        401:
+          description: "Unauthorized: Credentials are missing or not valid"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        403:
+          description: "Forbidden: User doesn't have the required permissions"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      security:
+        - Bearer: [ ]
+  
   /v3/Users/{userId}/stats/concerts:
     parameters:
       - name: userId

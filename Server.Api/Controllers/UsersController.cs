@@ -101,13 +101,30 @@ public class UsersController(UserService userService, UserStatsService userStats
     /// <summary>
     /// Returns some general statistics about the concerts a user has attended
     /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("me/stats/concerts")]
+    [Authorize]
+    public async Task<ActionResult<UserDto>> GetCurrentUserConcertStats(CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+        
+        return await GetUserConcertStats(userId, cancellationToken);
+    }
+    
+    /// <summary>
+    /// Returns some general statistics about the concerts a user has attended
+    /// </summary>
     /// <param name="userId"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpGet("{userId}/stats/concerts")]
     public async Task<ActionResult<UserDto>> GetUserConcertStats([FromRoute] string userId, CancellationToken cancellationToken)
     {
-        userId = ResolveUserId(userId) ?? throw new UserNotFoundException(userId);
         var stats = await userStatsService.GetAttendedConcerts(userId, cancellationToken);
         return Ok(stats.ToDto());
     }
