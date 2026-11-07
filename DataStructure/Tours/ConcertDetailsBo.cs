@@ -108,9 +108,4 @@ public class ConcertDetailsBo
     /// Time when this concert was last updated
     /// </summary>
     public DateTimeOffset? UpdatedAt { get; set; }
-    
-    /// <summary>
-    /// Time when this concert was last changed
-    /// </summary>
-    public DateTimeOffset? LastChange => UpdatedAt;
 }

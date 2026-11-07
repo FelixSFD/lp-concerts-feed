@@ -6,15 +6,15 @@ using Microsoft.Extensions.Logging;
 
 namespace Service.Tours.Syncing;
 
-internal class ConcertSyncEngine(IConcertRepository repository, ILogger<ConcertSyncEngine> logger) : ISyncEngine<ConcertDetailsBo, string>
+internal class ConcertSyncEngine(IConcertRepository repository, ILogger<ConcertSyncEngine> logger) : ISyncEngine<RawConcertBo, string>
 {
-    private ConcertDetailsBo[] _addedOrChangedConcerts = [];
-    private ConcertDetailsBo[] _deletedConcerts = [];
+    private RawConcertBo[] _addedOrChangedConcerts = [];
+    private RawConcertBo[] _deletedConcerts = [];
 
     private async Task LoadChangedConcertsSince(DateTimeOffset lastChange, CancellationToken cancellationToken = default)
     {
         _addedOrChangedConcerts = await repository.GetChangedAfter(lastChange)
-            .Select(DoMapper.ToBoWithDetails)
+            .Select(DoMapper.ToBo)
             .ToArrayAsync(cancellationToken);
     }
 
@@ -22,12 +22,12 @@ internal class ConcertSyncEngine(IConcertRepository repository, ILogger<ConcertS
     private async Task LoadDeletedConcertsSince(DateTimeOffset lastChange, CancellationToken cancellationToken = default)
     {
         _deletedConcerts = await repository.GetDeletedAfter(lastChange)
-            .Select(DoMapper.ToBoWithDetails)
+            .Select(DoMapper.ToBo)
             .ToArrayAsync(cancellationToken);
     }
 
 
-    public async Task<SyncResult<ConcertDetailsBo, string>> ChangesSince(DateTimeOffset lastSync, CancellationToken cancellationToken = default)
+    public async Task<SyncResult<RawConcertBo, string>> ChangesSince(DateTimeOffset lastSync, CancellationToken cancellationToken = default)
     {
         Log.StartConcertSync(logger, lastSync);
         Stopwatch? stopwatch = null;
@@ -40,7 +40,7 @@ internal class ConcertSyncEngine(IConcertRepository repository, ILogger<ConcertS
         var taskLoadDeleted = LoadDeletedConcertsSince(lastSync, cancellationToken);
         await Task.WhenAll(taskLoadChanged, taskLoadDeleted);
 
-        var result = new SyncResult<ConcertDetailsBo, string>
+        var result = new SyncResult<RawConcertBo, string>
         {
             LatestChange = DateTimeOffset.MinValue
         };

@@ -12,6 +12,6 @@ public static class ConcertSyncEngineServiceRegistrationExtensions
     /// <returns></returns>
     public static IServiceCollection AddConcertSyncEngine(this IServiceCollection services)
     {
-        return services.AddScoped<ISyncEngine<ConcertDetailsBo, string>, ConcertSyncEngine>();
+        return services.AddScoped<ISyncEngine<RawConcertBo, string>, ConcertSyncEngine>();
     }
 }

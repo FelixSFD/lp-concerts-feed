@@ -4471,9 +4471,10 @@ components:
         id:
           type: string
         concertTypeId:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         tourId:
           type: string
         tourLegId:
@@ -5081,7 +5082,7 @@ components:
           type: array
           description: Concerts that were updated since the last sync
           items:
-            $ref: "#/components/schemas/ConcertDetails"
+            $ref: "#/components/schemas/RawConcert"
         deletedConcertIds:
           type: array
           description: List of all IDs that were deleted since the last sync

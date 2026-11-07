@@ -37,7 +37,7 @@ public class ConcertsController(
     LinkinpediaImportService linkinpediaImportService,
     IOutputCacheStore outputCacheStore,
     IConcertImageUploadService concertImageUploadService,
-    ISyncEngine<ConcertDetailsBo, string> concertSyncEngine,
+    ISyncEngine<RawConcertBo, string> concertSyncEngine,
     ILogger<ConcertsController> logger) : ControllerBase
 {
     /// <summary>

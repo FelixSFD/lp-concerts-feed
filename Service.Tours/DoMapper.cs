@@ -530,6 +530,7 @@ internal static class DoMapper
             ScheduleImageFile = dataObject.ScheduleImageFile,
             DeletedAt = dataObject.DeletedAt,
             Status = dataObject.Status.ToDto(),
+            LinkinpediaUrl = dataObject.LinkinpediaUrl,
         };
     }
     

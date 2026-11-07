@@ -393,6 +393,30 @@ internal static class DtoMapper
         };
     }
     
+    public static RawConcertDto ToDto(this RawConcertBo bo)
+    {
+        return new RawConcertDto
+        {
+            Id = bo.Id,
+            ConcertTypeId = bo.ConcertTypeId,
+            TourId = bo.TourId,
+            TourLegId = bo.TourLegId,
+            CustomTitle = bo.CustomTitle,
+            VenueId = bo.VenueId,
+            PostedStartTime = bo.PostedStartTime,
+            TimeIsPlaceholder = bo.TimeIsPlaceholder,
+            MainStageTime = bo.MainStageTime,
+            DoorsTime = bo.DoorsTime,
+            LpuEarlyEntryTime = bo.LpuEarlyEntryTime,
+            LpuEarlyEntryConfirmed = bo.LpuEarlyEntryConfirmed,
+            ExpectedSetDurationMinutes = bo.ExpectedSetDurationMinutes.ToString(),
+            ScheduleImageFile = bo.ScheduleImageFile,
+            DeletedAt = bo.DeletedAt,
+            Status = bo.Status.ToDto(),
+            LinkinpediaUrl = bo.LinkinpediaUrl,
+        };
+    }
+    
     public static ConcertStatusValueDto ToDto(this ConcertDto.ConcertStatusValue data)
     {
         return data switch
