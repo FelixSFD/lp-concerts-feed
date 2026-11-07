@@ -394,6 +394,22 @@ internal static class DtoMapper
         };
     }
     
+    public static ConcertDetailsShortDto ToShortDto(this ConcertDetailsBo bo)
+    {
+        return new ConcertDetailsShortDto
+        {
+            Id = bo.Id,
+            ConcertType = bo.ConcertType.ToDto(),
+            TourName = bo.Tour?.Name,
+            TourLegName = bo.TourLeg?.Name,
+            CustomTitle = bo.CustomTitle,
+            ConcertDate = DateOnly.FromDateTime(bo.PostedStartTime.Date),
+            VenueName = bo.Venue.CurrentName,
+            CityName = bo.Venue.City.Name,
+            CountryName = bo.Venue.City.Country.Name,
+        };
+    }
+    
     public static RawConcertDto ToDto(this RawConcertBo bo)
     {
         return new RawConcertDto
@@ -1528,7 +1544,7 @@ internal static class DtoMapper
     {
         return new UserConcertStatsResponseDto
         {
-            Concerts = bo.Concerts.Select(ToDto).ToList(),
+            Concerts = bo.Concerts.Select(ToShortDto).ToList(),
             NumberOfCities = bo.NumberOfCities,
             NumberOfCountries = bo.NumberOfCountries,
             NumberOfVenues = bo.NumberOfVenues,

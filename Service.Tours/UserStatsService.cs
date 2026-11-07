@@ -49,7 +49,7 @@ public class UserStatsService(IConcertRepository concertRepository, ILogger<User
 
         return new UserConcertStatsBo
         {
-            Concerts = [.. concerts.Select(DoMapper.ToBo)],
+            Concerts = [.. concerts.Select(DoMapper.ToBoWithDetails)],
             NumberOfCities = numberOfCities,
             NumberOfCountries = numberOfCountries,
             NumberOfVenues = numberOfVenues,

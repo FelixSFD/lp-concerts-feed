@@ -10,7 +10,7 @@ public class UserConcertStatsBo
     /// <summary>
     /// All concerts the user has attended
     /// </summary>
-    public required RawConcertBo[] Concerts { get; set; }
+    public required ConcertDetailsBo[] Concerts { get; set; }
 
     /// <summary>
     /// The number of concerts the user has attended

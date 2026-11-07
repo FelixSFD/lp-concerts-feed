@@ -4322,6 +4322,44 @@ components:
         linkinpediaUrl:
           type: string
           description: URL to the concert page on Linkinpedia
+    
+    ConcertDetailsShort:
+      required:
+        - id
+        - concertType
+        - venueName
+        - concertDate
+      type: object
+      properties:
+        id:
+          type: string
+        concertType:
+          $ref: "#/components/schemas/ConcertType"
+        tourName:
+          type: string
+          description: Name of the tour
+          nullable: true
+        tourLegName:
+          type: string
+          description: Name of the tour leg
+          nullable: true
+        customTitle:
+          type: string
+          nullable: true
+        venueName:
+          type: string
+          description: Name of the venue
+          nullable: false
+        cityName:
+          type: string
+          description: Name of the city
+        countryName:
+          type: string
+          description: Name of the country
+        concertDate:
+          type: string
+          format: date
+    
     ConcertStatusValue:
       type: string
       enum: 
@@ -5243,7 +5281,7 @@ components:
           type: array
           description: List of concerts a user has attended
           items:
-            $ref: "#/components/schemas/RawConcert"
+            $ref: "#/components/schemas/ConcertDetailsShort"
     
     # Schemas from v2
     GetConcertBookmarkCountsResponse:
