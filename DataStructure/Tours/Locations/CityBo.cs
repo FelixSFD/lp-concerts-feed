@@ -29,4 +29,24 @@ public class CityBo
     /// name of this city in its native language
     /// </summary>
     public required string NativeName { get; set; }
+
+    /// <summary>
+    /// Time when this city was created
+    /// </summary>
+    public DateTimeOffset CreatedAt { get; set; }
+
+    /// <summary>
+    /// Time when this city was last updated
+    /// </summary>
+    public DateTimeOffset? UpdatedAt { get; set; }
+
+    /// <summary>
+    /// Time when this city was deleted
+    /// </summary>
+    public DateTimeOffset? DeletedAt { get; set; }
+
+    /// <summary>
+    /// Time when this city was last changed
+    /// </summary>
+    public DateTimeOffset? LastChange => UpdatedAt;
 }

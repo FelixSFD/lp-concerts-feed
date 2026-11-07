@@ -1,8 +1,10 @@
 using Common.Contracts.Generated.Models;
 using Common.Server;
 using Common.Server.Auth;
+using Common.Utils;
 using Common.Utils.Cache;
 using LPCalendar.DataStructure;
+using LPCalendar.DataStructure.Responses;
 using LPCalendar.DataStructure.Tours;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +14,7 @@ using Server.Api.Cache;
 using Service.Setlists;
 using Service.Tours;
 using Service.Tours.Exceptions;
+using Service.Tours.Syncing;
 
 namespace Server.Api.Controllers;
 
@@ -34,6 +37,7 @@ public class ConcertsController(
     LinkinpediaImportService linkinpediaImportService,
     IOutputCacheStore outputCacheStore,
     IConcertImageUploadService concertImageUploadService,
+    ISyncEngine<RawConcertBo, string> concertSyncEngine,
     ILogger<ConcertsController> logger) : ControllerBase
 {
     /// <summary>
@@ -413,6 +417,27 @@ public class ConcertsController(
             result.NotImportedCount, result.ImportedWithoutSetlistCount, result.ImportedWithSetlistCount);
 
         return Ok(result);
+    }
+    
+    /// <summary>
+    /// Syncs concerts that were changed or deleted since the last sync time.
+    /// </summary>
+    /// <param name="lastSync">Time of the last sync. Can be the time of the latest change to improve caching</param>
+    /// <param name="cancellationToken">Token to cancel the request</param>
+    /// <returns></returns>
+    [HttpGet("sync")]
+    [OutputCache(PolicyName = CachePolicyNames.VeryLong, Tags = [CacheTags.ConcertsAll])]
+    [CustomResponseCache(Duration = CacheExpiration.Medium)]
+    public async Task<ActionResult<SyncConcertsResponse>> SyncConcertChanges(DateTime lastSync, CancellationToken cancellationToken)
+    {
+        var result = await concertSyncEngine.ChangesSince(lastSync.ToDateTimeOffset(TimeZoneInfo.Utc), cancellationToken);
+        var response = new SyncConcertsResponseDto
+        {
+            SyncTime = result.LatestChange,
+            Updated = [.. result.ChangedObjects.Select(DtoMapper.ToDto)],
+            DeletedConcertIds = result.DeletedIds,
+        };
+        return Ok(response);
     }
 
     /// <summary>

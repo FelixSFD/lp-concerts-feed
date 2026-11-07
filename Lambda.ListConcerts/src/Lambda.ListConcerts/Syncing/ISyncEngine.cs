@@ -2,6 +2,7 @@ using LPCalendar.DataStructure;
 
 namespace Lambda.ListConcerts.Syncing;
 
+[Obsolete]
 public interface ISyncEngine<TObj, TIdentifier>
 {
     [Obsolete("Use ChangesSince for better caching")]

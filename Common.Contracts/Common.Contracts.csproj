@@ -17,6 +17,10 @@
         </None>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Generated\" />
+    </ItemGroup>
+
     <!-- Run the OpenAPI generator before build -->
     <Target Name="GenerateApi" BeforeTargets="BeforeBuild" Condition="'$(SkipGeneratingModelClasses)' != 'true'">
         <Exec Command="./generate-dotnet-api.sh" />

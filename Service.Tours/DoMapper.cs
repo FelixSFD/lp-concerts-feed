@@ -20,6 +20,9 @@ internal static class DoMapper
             IsoCode = dataObject.IsoCode,
             Name = dataObject.Name,
             NativeName = dataObject.NativeName,
+            CreatedAt = dataObject.CreatedAt,
+            UpdatedAt = dataObject.UpdatedAt,
+            DeletedAt = dataObject.DeletedAt
         };
     }
     
@@ -35,6 +38,9 @@ internal static class DoMapper
             IsoCode = bo.IsoCode,
             Name = bo.Name,
             NativeName = bo.NativeName,
+            CreatedAt = bo.CreatedAt,
+            UpdatedAt = bo.UpdatedAt,
+            DeletedAt = bo.DeletedAt
         };
     }
     
@@ -175,7 +181,10 @@ internal static class DoMapper
             Name = dataObject.Name,
             NativeName = dataObject.NativeName,
             Country = dataObject.Country.ToBo(),
-            State = dataObject.State?.ToBo()
+            State = dataObject.State?.ToBo(),
+            CreatedAt = dataObject.CreatedAt,
+            UpdatedAt = dataObject.UpdatedAt,
+            DeletedAt = dataObject.DeletedAt
         };
     }
     
@@ -193,6 +202,9 @@ internal static class DoMapper
             StateCode = dataObject.StateCode,
             Name = dataObject.Name,
             NativeName = dataObject.NativeName,
+            CreatedAt = dataObject.CreatedAt,
+            UpdatedAt = dataObject.UpdatedAt,
+            DeletedAt = dataObject.DeletedAt
         };
     }
     
@@ -232,6 +244,9 @@ internal static class DoMapper
             TimeZone = dataObject.TimeZone,
             Latitude = dataObject.Latitude,
             Longitude = dataObject.Longitude,
+            CreatedAt = dataObject.CreatedAt,
+            UpdatedAt = dataObject.UpdatedAt,
+            DeletedAt = dataObject.DeletedAt
         };
     }
     
@@ -253,6 +268,9 @@ internal static class DoMapper
             Latitude = dataObject.Latitude,
             Longitude = dataObject.Longitude,
             City = dataObject.City.ToDtoWithCountry(),
+            CreatedAt = dataObject.CreatedAt,
+            UpdatedAt = dataObject.UpdatedAt,
+            DeletedAt = dataObject.DeletedAt
         };
     }
     
@@ -275,6 +293,9 @@ internal static class DoMapper
             Longitude = dataObject.Longitude,
             City = dataObject.City.ToDtoWithCountry(),
             VenueNames = dataObject.PreviousNames.Select(ToBo).ToArray(),
+            CreatedAt = dataObject.CreatedAt,
+            UpdatedAt = dataObject.UpdatedAt,
+            DeletedAt = dataObject.DeletedAt
         };
     }
 
@@ -509,6 +530,9 @@ internal static class DoMapper
             ScheduleImageFile = dataObject.ScheduleImageFile,
             DeletedAt = dataObject.DeletedAt,
             Status = dataObject.Status.ToDto(),
+            LinkinpediaUrl = dataObject.LinkinpediaUrl,
+            CreatedAt = dataObject.CreatedAt,
+            UpdatedAt = dataObject.UpdatedAt,
         };
     }
     
@@ -540,6 +564,8 @@ internal static class DoMapper
             DeletedAt = dataObject.DeletedAt,
             Status = dataObject.Status.ToDto(),
             LinkinpediaUrl = dataObject.LinkinpediaUrl,
+            CreatedAt = dataObject.CreatedAt,
+            UpdatedAt = dataObject.UpdatedAt,
         };
     }
 

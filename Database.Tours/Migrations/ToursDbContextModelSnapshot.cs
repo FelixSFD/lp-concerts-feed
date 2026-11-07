@@ -37,6 +37,10 @@ namespace Database.Tours.Migrations
                         .HasColumnName("CreatedAt")
                         .HasDefaultValueSql("NOW()");
 
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("DeletedAt");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(63)
@@ -223,6 +227,10 @@ namespace Database.Tours.Migrations
                         .HasColumnType("datetime")
                         .HasColumnName("CreatedAt")
                         .HasDefaultValueSql("NOW()");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("DeletedAt");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -432,6 +440,10 @@ namespace Database.Tours.Migrations
                         .HasMaxLength(127)
                         .HasColumnType("varchar(127)")
                         .HasColumnName("CurrentName");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("DeletedAt");
 
                     b.Property<decimal>("Latitude")
                         .HasPrecision(12, 9)

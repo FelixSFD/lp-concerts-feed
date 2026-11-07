@@ -3,6 +3,6 @@ using Database.Tours.DataObjects;
 
 namespace Database.Tours.Repositories;
 
-public interface IVenueRepository : ISingleKeyRepositoryBase<VenueDo, uint>, IRepositoryBase<VenueDo>
+public interface IVenueRepository : ISingleKeyRepositoryBase<VenueDo, uint>, IRepositoryBase<VenueDo>, ITimestampedRepository<VenueDo>, ISoftDeletableRepository<VenueDo>
 {
 }

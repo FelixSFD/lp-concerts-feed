@@ -7,7 +7,7 @@ namespace Database.Tours.DataObjects;
 
 [Table("City")]
 [PrimaryKey(nameof(Id), nameof(CountryCode))]
-public class CityDo : BaseDo, ITimestampedDataObject
+public class CityDo : BaseDo, ITimestampedDataObject, IDeletableDataObject
 {
     /// <summary>
     /// City-ID. This is part of the composite key
@@ -62,4 +62,8 @@ public class CityDo : BaseDo, ITimestampedDataObject
     /// <inheritdoc/>
     [Column("UpdatedAt")]
     public DateTimeOffset? UpdatedAt { get; set; }
+
+    /// <inheritdoc/>
+    [Column("DeletedAt")]
+    public DateTimeOffset? DeletedAt { get; set; }
 }

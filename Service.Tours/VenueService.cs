@@ -104,7 +104,8 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
     {
         logger.LogDebug("Deleting venue with ID: {venueId}", venueId);
         var venue = await venueRepository.GetByPrimaryKeyWithoutReferencesAsync(venueId) ?? throw new VenueNotFoundException(venueId);
-        venueRepository.Delete(venue);
+        venue.DeletedAt = DateTimeOffset.UtcNow;
+        venueRepository.Update(venue);
         await venueRepository.SaveChangesAsync();
         logger.LogDebug("Deleted venue with ID: {venueId}", venueId);
     }

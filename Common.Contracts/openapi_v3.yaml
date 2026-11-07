@@ -704,6 +704,28 @@ paths:
         requestParameters:
           integration.request.path.concertId: method.request.path.concertId
   
+  /v3/Concerts/sync:
+    get:
+      operationId: SyncConcertChanges
+      summary: API to get all changes since your last sync. Make sure to set the correct lastSync-time.
+      tags:
+        - Concerts
+      parameters:
+        - in: query
+          name: lastSync
+          description: Time when the last sync was performed by the client
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: A JSON object with the information of the concerts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SyncConcertsResponse"
+  
   /v2/concerts/{id}/bookmarks/count:
     parameters:
       - $ref: "#/components/parameters/X-LP-Request-Id"
@@ -960,6 +982,31 @@ paths:
         type: HTTP_PROXY
         httpMethod: GET
         uri: https://api.dev.lpshows.felixsfd.de/v3/countries
+  /v3/countries/sync:
+    get:
+      operationId: SyncCountryChanges
+      summary: API to get all country changes since your last sync. Make sure to set the correct lastSync-time.
+      tags:
+        - Countries
+      parameters:
+        - in: query
+          name: lastSync
+          description: Time when the last sync was performed by the client
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: A JSON object with the information of the countries
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SyncCountriesResponse"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/countries/sync
   /v3/countries/{countryCode}:
     parameters:
       - $ref: "#/components/parameters/X-LP-Request-Id"
@@ -1580,6 +1627,32 @@ paths:
         requestParameters:
           integration.request.path.concertId: method.request.path.countryCode
   
+  /v3/Cities/sync:
+    get:
+      operationId: SyncCityChanges
+      summary: API to get all city changes since your last sync. Make sure to set the correct lastSync-time.
+      tags:
+        - Cities
+      parameters:
+        - in: query
+          name: lastSync
+          description: Time when the last sync was performed by the client
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: A JSON object with the information of the cities
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SyncCitiesResponse"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Cities/sync
+  
   /v3/Tours:
     parameters:
       - $ref: "#/components/parameters/X-LP-Request-Id"
@@ -1906,6 +1979,32 @@ paths:
         uri: https://api.dev.lpshows.felixsfd.de/v3/venues
       security:
         - Bearer: []
+  
+  /v3/Venues/sync:
+    get:
+      operationId: SyncVenueChanges
+      summary: API to get all venue changes since your last sync. Make sure to set the correct lastSync-time.
+      tags:
+        - Venues
+      parameters:
+        - in: query
+          name: lastSync
+          description: Time when the last sync was performed by the client
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: A JSON object with the information of the venues
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SyncVenuesResponse"
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Venues/sync
   /v3/Venues/{venueId}:
     parameters:
       - $ref: "#/components/parameters/X-LP-Request-Id"
@@ -4372,9 +4471,10 @@ components:
         id:
           type: string
         concertTypeId:
-          pattern: ^-?(?:0|[1-9]\d*)$
-          type: string
-          format: uint32
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
         tourId:
           type: string
         tourLegId:
@@ -4966,6 +5066,111 @@ components:
             - Attending
           default: None
           nullable: false
+    
+    # Syncing Concerts
+    SyncConcertsResponse:
+      type: object
+      description: Response with all the Concerts that were changed since the last sync
+      properties:
+        syncTime:
+          type: string
+          format: date-time
+          description: Time when the this sync was done
+          nullable: false
+          example: '2024-09-05T22:00:00Z'
+        updated:
+          type: array
+          description: Concerts that were updated since the last sync
+          items:
+            $ref: "#/components/schemas/RawConcert"
+        deletedConcertIds:
+          type: array
+          description: List of all IDs that were deleted since the last sync
+          items:
+            type: string
+
+    # Syncing Venues
+    SyncVenuesResponse:
+      type: object
+      description: Response with all the Venues that were changed since the last sync
+      properties:
+        syncTime:
+          type: string
+          format: date-time
+          description: Time when this sync was done
+          nullable: false
+          example: '2024-09-05T22:00:00Z'
+        updated:
+          type: array
+          description: Venues that were updated since the last sync
+          items:
+            $ref: "#/components/schemas/VenueWithDetails"
+        deletedVenueIds:
+          type: array
+          description: List of all venue IDs that were deleted since the last sync
+          items:
+            type: integer
+            format: int64
+
+    # City Identifier
+    CityIdentifier:
+      type: object
+      description: Identifier for a city within a country
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: ID of the city
+          example: 1
+        countryCode:
+          type: string
+          description: 3-letter ISO-code of the country
+          example: 'USA'
+
+    # Syncing Cities
+    SyncCitiesResponse:
+      type: object
+      description: Response with all the Cities that were changed since the last sync
+      properties:
+        syncTime:
+          type: string
+          format: date-time
+          description: Time when this sync was done
+          nullable: false
+          example: '2024-09-05T22:00:00Z'
+        updated:
+          type: array
+          description: Cities that were updated since the last sync
+          items:
+            $ref: "#/components/schemas/CityWithCountry"
+        deletedCityIds:
+          type: array
+          description: List of all city IDs that were deleted since the last sync
+          items:
+            $ref: "#/components/schemas/CityIdentifier"
+
+    # Syncing Countries
+    SyncCountriesResponse:
+      type: object
+      description: Response with all the Countries that were changed since the last sync
+      properties:
+        syncTime:
+          type: string
+          format: date-time
+          description: Time when this sync was done
+          nullable: false
+          example: '2024-09-05T22:00:00Z'
+        updated:
+          type: array
+          description: Countries that were updated since the last sync
+          items:
+            $ref: "#/components/schemas/Country"
+        deletedCountryCodes:
+          type: array
+          description: List of all country codes that were deleted since the last sync
+          items:
+            type: string
+            example: 'USA'
     
     # Schemas from v2
     GetConcertBookmarkCountsResponse:

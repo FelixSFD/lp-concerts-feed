@@ -534,7 +534,471 @@ public class SqlConcertRepositoryTest : ToursDbIntegrationTestsBase
         Assert.Empty(retrievedConcerts);
         
         retrievedConcerts = await concertRepo.GetUpcomingBookmarkedConcertsForAsync("test-user", UserConcertBookmarkDo.BookmarkStatus.Bookmarked).ToArrayAsync();
-        var retrievedConcert = Assert.Single(retrievedConcerts);
+        Assert.Single(retrievedConcerts);
+    }
+
+    [Fact]
+    public async Task GetChangedAfter_ReturnsConcertsCreatedAfterTimestamp()
+    {
+        var (tour, leg, concertType, venue) = await SeedBaseDataAsync();
+        var threshold = new DateTimeOffset(2026, 6, 1, 12, 0, 0, TimeSpan.Zero);
+
+        var concertCreatedAfter = await AddDummyConcertAsync(
+            "concert-created-after",
+            venue.Id,
+            concertType.Id,
+            tour.Id,
+            leg.Id,
+            createdAt: threshold.AddHours(2),
+            updatedAt: null);
+
+        await AddDummyConcertAsync(
+            "concert-created-before",
+            venue.Id,
+            concertType.Id,
+            tour.Id,
+            leg.Id,
+            createdAt: threshold.AddHours(-2),
+            updatedAt: null);
+
+        var concertRepo = new SqlConcertRepository(DbContext);
+        var results = await concertRepo.GetChangedAfter(threshold).ToListAsync();
+
+        var result = Assert.Single(results);
+        Assert.Equal(concertCreatedAfter.Id, result.Id);
+    }
+
+    [Fact]
+    public async Task GetChangedAfter_ReturnsConcertsUpdatedAfterTimestamp()
+    {
+        var (tour, leg, concertType, venue) = await SeedBaseDataAsync();
+        var threshold = new DateTimeOffset(2026, 6, 1, 12, 0, 0, TimeSpan.Zero);
+
+        var concertUpdatedAfter = await AddDummyConcertAsync(
+            "concert-updated-after",
+            venue.Id,
+            concertType.Id,
+            tour.Id,
+            leg.Id,
+            createdAt: threshold.AddHours(-5),
+            updatedAt: threshold.AddHours(1));
+
+        await AddDummyConcertAsync(
+            "concert-updated-before",
+            venue.Id,
+            concertType.Id,
+            tour.Id,
+            leg.Id,
+            createdAt: threshold.AddHours(-5),
+            updatedAt: threshold.AddHours(-1));
+
+        await AddDummyConcertAsync(
+            "concert-not-updated",
+            venue.Id,
+            concertType.Id,
+            tour.Id,
+            leg.Id,
+            createdAt: threshold.AddHours(-5),
+            updatedAt: null);
+
+        var concertRepo = new SqlConcertRepository(DbContext);
+        var results = await concertRepo.GetChangedAfter(threshold).ToListAsync();
+
+        var result = Assert.Single(results);
+        Assert.Equal(concertUpdatedAfter.Id, result.Id);
+    }
+
+    [Fact]
+    public async Task GetChangedAfter_ReturnsDeletedConcertsIfChangedAfterTimestamp()
+    {
+        var (tour, leg, concertType, venue) = await SeedBaseDataAsync();
+        var threshold = new DateTimeOffset(2026, 6, 1, 12, 0, 0, TimeSpan.Zero);
+
+        var deletedAndUpdatedAfter = await AddDummyConcertAsync(
+            "concert-del-updated-after",
+            venue.Id,
+            concertType.Id,
+            tour.Id,
+            leg.Id,
+            createdAt: threshold.AddHours(-5),
+            updatedAt: threshold.AddHours(1),
+            deletedAt: threshold.AddHours(2));
+
+        var deletedAndCreatedAfter = await AddDummyConcertAsync(
+            "concert-del-created-after",
+            venue.Id,
+            concertType.Id,
+            tour.Id,
+            leg.Id,
+            createdAt: threshold.AddHours(1),
+            updatedAt: null,
+            deletedAt: threshold.AddHours(2));
+
+        var deletedBefore = await AddDummyConcertAsync(
+            "concert-del-before",
+            venue.Id,
+            concertType.Id,
+            tour.Id,
+            leg.Id,
+            createdAt: threshold.AddHours(-5),
+            updatedAt: threshold.AddHours(-3),
+            deletedAt: threshold.AddHours(-1));
+
+        var concertRepo = new SqlConcertRepository(DbContext);
+        var results = await concertRepo.GetChangedAfter(threshold).ToListAsync();
+
+        Assert.Equal(2, results.Count);
+        Assert.Contains(results, c => c.Id == deletedAndUpdatedAfter.Id);
+        Assert.Contains(results, c => c.Id == deletedAndCreatedAfter.Id);
+        Assert.DoesNotContain(results, c => c.Id == deletedBefore.Id);
+    }
+
+    [Fact]
+    public async Task GetChangedAfter_BoundaryAndEdgeCases()
+    {
+        var (tour, leg, concertType, venue) = await SeedBaseDataAsync();
+        var threshold = new DateTimeOffset(2026, 6, 1, 12, 0, 0, TimeSpan.Zero);
+
+        // Created exactly at threshold -> excluded (strict >)
+        await AddDummyConcertAsync(
+            "created-exact-threshold",
+            venue.Id,
+            concertType.Id,
+            tour.Id,
+            leg.Id,
+            createdAt: threshold,
+            updatedAt: null);
+
+        // Updated exactly at threshold -> excluded (strict >)
+        await AddDummyConcertAsync(
+            "updated-exact-threshold",
+            venue.Id,
+            concertType.Id,
+            tour.Id,
+            leg.Id,
+            createdAt: threshold.AddHours(-2),
+            updatedAt: threshold);
+
+        // Created 1 second after threshold -> included
+        var createdJustAfter = await AddDummyConcertAsync(
+            "created-just-after",
+            venue.Id,
+            concertType.Id,
+            tour.Id,
+            leg.Id,
+            createdAt: threshold.AddSeconds(1),
+            updatedAt: null);
+
+        // Updated 1 second after threshold -> included
+        var updatedJustAfter = await AddDummyConcertAsync(
+            "updated-just-after",
+            venue.Id,
+            concertType.Id,
+            tour.Id,
+            leg.Id,
+            createdAt: threshold.AddHours(-2),
+            updatedAt: threshold.AddSeconds(1));
+
+        var concertRepo = new SqlConcertRepository(DbContext);
+
+        // Test boundary matches
+        var results = await concertRepo.GetChangedAfter(threshold).ToListAsync();
+        Assert.Equal(2, results.Count);
+        Assert.Contains(results, c => c.Id == createdJustAfter.Id);
+        Assert.Contains(results, c => c.Id == updatedJustAfter.Id);
+
+        // Future threshold -> returns empty
+        var futureResults = await concertRepo.GetChangedAfter(threshold.AddDays(10)).ToListAsync();
+        Assert.Empty(futureResults);
+    }
+
+    [Fact]
+    public async Task GetChangedAfter_IncludesAllReferences()
+    {
+        var (tour, leg, concertType, venue) = await SeedBaseDataAsync();
+        var threshold = new DateTimeOffset(2026, 6, 1, 12, 0, 0, TimeSpan.Zero);
+
+        var concert = await AddDummyConcertAsync(
+            "concert-refs",
+            venue.Id,
+            concertType.Id,
+            tour.Id,
+            leg.Id,
+            createdAt: threshold.AddHours(1));
+
+        var concertRepo = new SqlConcertRepository(DbContext);
+        var results = await concertRepo.GetChangedAfter(threshold).ToListAsync();
+
+        var retrieved = Assert.Single(results);
+        Assert.Equal(concert.Id, retrieved.Id);
+        Assert.NotNull(retrieved.Tour);
+        Assert.Equal(tour.Id, retrieved.Tour.Id);
+        Assert.NotNull(retrieved.TourLeg);
+        Assert.Equal(leg.Id, retrieved.TourLeg.Id);
+        Assert.NotNull(retrieved.Type);
+        Assert.Equal(concertType.Id, retrieved.Type.Id);
+        Assert.NotNull(retrieved.Venue);
+        Assert.Equal(venue.Id, retrieved.Venue.Id);
+        Assert.NotNull(retrieved.Venue.City);
+        Assert.NotNull(retrieved.Venue.State);
+        Assert.NotNull(retrieved.Venue.Country);
+    }
+
+    [Fact]
+    public async Task GetDeletedAfter_ReturnsConcertsDeletedAfterTimestamp()
+    {
+        var (tour, leg, concertType, venue) = await SeedBaseDataAsync();
+        var threshold = new DateTimeOffset(2026, 6, 1, 12, 0, 0, TimeSpan.Zero);
+
+        var deletedAfter = await AddDummyConcertAsync(
+            "del-after",
+            venue.Id,
+            concertType.Id,
+            tour.Id,
+            leg.Id,
+            createdAt: threshold.AddHours(-3),
+            deletedAt: threshold.AddHours(1));
+
+        await AddDummyConcertAsync(
+            "not-del",
+            venue.Id,
+            concertType.Id,
+            tour.Id,
+            leg.Id,
+            createdAt: threshold.AddHours(-3),
+            deletedAt: null);
+
+        await AddDummyConcertAsync(
+            "del-before",
+            venue.Id,
+            concertType.Id,
+            tour.Id,
+            leg.Id,
+            createdAt: threshold.AddHours(-3),
+            deletedAt: threshold.AddHours(-1));
+
+        var concertRepo = new SqlConcertRepository(DbContext);
+        var results = await concertRepo.GetDeletedAfter(threshold).ToListAsync();
+
+        var result = Assert.Single(results);
+        Assert.Equal(deletedAfter.Id, result.Id);
+    }
+
+    [Fact]
+    public async Task GetDeletedAfter_ExcludesConcertsCreatedAfterTimestamp()
+    {
+        var (tour, leg, concertType, venue) = await SeedBaseDataAsync();
+        var threshold = new DateTimeOffset(2026, 6, 1, 12, 0, 0, TimeSpan.Zero);
+
+        // Created after threshold and deleted after threshold -> excluded (CreatedAt <= timestamp is false)
+        await AddDummyConcertAsync(
+            "created-after-del-after",
+            venue.Id,
+            concertType.Id,
+            tour.Id,
+            leg.Id,
+            createdAt: threshold.AddHours(1),
+            deletedAt: threshold.AddHours(2));
+
+        // Created before threshold and deleted after threshold -> included
+        var createdBeforeDelAfter = await AddDummyConcertAsync(
+            "created-before-del-after",
+            venue.Id,
+            concertType.Id,
+            tour.Id,
+            leg.Id,
+            createdAt: threshold.AddHours(-1),
+            deletedAt: threshold.AddHours(2));
+
+        var concertRepo = new SqlConcertRepository(DbContext);
+        var results = await concertRepo.GetDeletedAfter(threshold).ToListAsync();
+
+        var result = Assert.Single(results);
+        Assert.Equal(createdBeforeDelAfter.Id, result.Id);
+    }
+
+    [Fact]
+    public async Task GetDeletedAfter_BoundaryAndEdgeCases()
+    {
+        var (tour, leg, concertType, venue) = await SeedBaseDataAsync();
+        var threshold = new DateTimeOffset(2026, 6, 1, 12, 0, 0, TimeSpan.Zero);
+
+        // Created exactly at threshold, deleted after threshold -> included (CreatedAt <= threshold)
+        var createdExactThreshold = await AddDummyConcertAsync(
+            "created-exact-del-after",
+            venue.Id,
+            concertType.Id,
+            tour.Id,
+            leg.Id,
+            createdAt: threshold,
+            deletedAt: threshold.AddHours(1));
+
+        // Created before threshold, deleted exactly at threshold -> excluded (strict DeletedAt > threshold)
+        await AddDummyConcertAsync(
+            "created-before-del-exact",
+            venue.Id,
+            concertType.Id,
+            tour.Id,
+            leg.Id,
+            createdAt: threshold.AddHours(-1),
+            deletedAt: threshold);
+
+        // Created before threshold, deleted 1 second after threshold -> included
+        var delJustAfter = await AddDummyConcertAsync(
+            "del-just-after",
+            venue.Id,
+            concertType.Id,
+            tour.Id,
+            leg.Id,
+            createdAt: threshold.AddHours(-1),
+            deletedAt: threshold.AddSeconds(1));
+
+        var concertRepo = new SqlConcertRepository(DbContext);
+
+        // Test boundary matches
+        var results = await concertRepo.GetDeletedAfter(threshold).ToListAsync();
+        Assert.Equal(2, results.Count);
+        Assert.Contains(results, c => c.Id == createdExactThreshold.Id);
+        Assert.Contains(results, c => c.Id == delJustAfter.Id);
+
+        // Future threshold -> returns empty
+        var futureResults = await concertRepo.GetDeletedAfter(threshold.AddDays(10)).ToListAsync();
+        Assert.Empty(futureResults);
+    }
+
+    [Fact]
+    public async Task GetDeletedAfter_IncludesAllReferences()
+    {
+        var (tour, leg, concertType, venue) = await SeedBaseDataAsync();
+        var threshold = new DateTimeOffset(2026, 6, 1, 12, 0, 0, TimeSpan.Zero);
+
+        var concert = await AddDummyConcertAsync(
+            "del-refs",
+            venue.Id,
+            concertType.Id,
+            tour.Id,
+            leg.Id,
+            createdAt: threshold.AddHours(-2),
+            deletedAt: threshold.AddHours(1));
+
+        var concertRepo = new SqlConcertRepository(DbContext);
+        var results = await concertRepo.GetDeletedAfter(threshold).ToListAsync();
+
+        var retrieved = Assert.Single(results);
+        Assert.Equal(concert.Id, retrieved.Id);
+        Assert.NotNull(retrieved.Tour);
+        Assert.Equal(tour.Id, retrieved.Tour.Id);
+        Assert.NotNull(retrieved.TourLeg);
+        Assert.Equal(leg.Id, retrieved.TourLeg.Id);
+        Assert.NotNull(retrieved.Type);
+        Assert.Equal(concertType.Id, retrieved.Type.Id);
+        Assert.NotNull(retrieved.Venue);
+        Assert.Equal(venue.Id, retrieved.Venue.Id);
+        Assert.NotNull(retrieved.Venue.City);
+        Assert.NotNull(retrieved.Venue.State);
+        Assert.NotNull(retrieved.Venue.Country);
+    }
+
+    private async Task<(TourDo Tour, TourLegDo TourLeg, ConcertTypeDo ConcertType, VenueDo Venue)> SeedBaseDataAsync()
+    {
+        var concertTypeRepo = new SqlConcertTypeRepository(DbContext);
+        var venueRepo = new SqlVenueRepository(DbContext);
+        var tourRepo = new SqlTourRepository(DbContext);
+        var countryRepo = new SqlCountryRepository(DbContext);
+
+        var tour = new TourDo
+        {
+            Id = "fz-world-tour",
+            Name = "From Zero World Tour",
+            Legs = []
+        };
+
+        var tourLegEu = new TourLegDo
+        {
+            TourId = tour.Id,
+            Name = "European Tour",
+            Id = "eu-1"
+        };
+        tour.Legs.Add(tourLegEu);
+        tourRepo.Add(tour);
+
+        var concertType = new ConcertTypeDo
+        {
+            Name = "Linkin Park Show"
+        };
+        concertTypeRepo.Add(concertType);
+
+        var countryGer = new CountryDo
+        {
+            IsoCode = "GER",
+            Name = "Germany",
+            NativeName = "Deutschland"
+        };
+        countryRepo.Add(countryGer);
+
+        var stateBy = new StateDo
+        {
+            CountryCode = countryGer.IsoCode,
+            Code = "BY",
+            Name = "Bavaria",
+            NativeName = "Bayern",
+            Country = countryGer
+        };
+        var cityAux = new CityDo
+        {
+            CountryCode = countryGer.IsoCode,
+            StateCode = stateBy.Code,
+            Name = "Augsburg",
+            NativeName = "Augschburg",
+            State = stateBy,
+            Country = countryGer
+        };
+        var venue = new VenueDo
+        {
+            Id = 1,
+            CountryCode = countryGer.IsoCode,
+            StateCode = stateBy.Code,
+            Country = countryGer,
+            State = stateBy,
+            City = cityAux,
+            TimeZone = "Europe/Berlin",
+            CurrentName = "WWK Arena"
+        };
+        venueRepo.Add(venue);
+
+        await DbContext.SaveChangesAsync();
+
+        return (tour, tourLegEu, concertType, venue);
+    }
+
+    private async Task<ConcertDo> AddDummyConcertAsync(
+        string id,
+        uint venueId,
+        uint concertTypeId,
+        string? tourId = null,
+        string? tourLegId = null,
+        DateTimeOffset? createdAt = null,
+        DateTimeOffset? updatedAt = null,
+        DateTimeOffset? deletedAt = null)
+    {
+        var concertRepo = new SqlConcertRepository(DbContext);
+        var concert = new ConcertDo
+        {
+            Id = id,
+            TourId = tourId,
+            TourLegId = tourLegId,
+            ConcertTypeId = concertTypeId,
+            VenueId = venueId,
+            PostedStartTime = new DateTime(2026, 6, 11, 20, 0, 0, DateTimeKind.Utc),
+            Status = ConcertDo.ConcertStatus.Planned,
+            CreatedAt = createdAt ?? DateTimeOffset.UtcNow,
+            UpdatedAt = updatedAt,
+            DeletedAt = deletedAt
+        };
+
+        concertRepo.Add(concert);
+        await concertRepo.SaveChangesAsync();
+        return concert;
     }
 
 

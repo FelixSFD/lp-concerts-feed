@@ -9,7 +9,7 @@ namespace Database.Tours.DataObjects;
 /// A venue where a concert was played
 /// </summary>
 [Table("Venue")]
-public class VenueDo : BaseDo, ITimestampedDataObject
+public class VenueDo : BaseDo, ITimestampedDataObject, IDeletableDataObject
 {
     /// <summary>
     /// Unique ID of this venue
@@ -84,4 +84,8 @@ public class VenueDo : BaseDo, ITimestampedDataObject
     /// <inheritdoc/>
     [Column("UpdatedAt")]
     public DateTimeOffset? UpdatedAt { get; set; }
+
+    /// <inheritdoc/>
+    [Column("DeletedAt")]
+    public DateTimeOffset? DeletedAt { get; set; }
 }

@@ -173,6 +173,34 @@ internal static class DtoMapper
     /// </summary>
     /// <param name="bo">BusinessObject to map</param>
     /// <returns>the mapped DTO</returns>
+    public static CityIdentifierDto ToDto(this CityIdentifierBo bo)
+    {
+        return new CityIdentifierDto
+        {
+            Id = bo.Id,
+            CountryCode = bo.CountryCode
+        };
+    }
+
+    /// <summary>
+    /// Maps the DTO to a BusinessObject
+    /// </summary>
+    /// <param name="dto">DTO to map</param>
+    /// <returns>the mapped BusinessObject</returns>
+    public static CityIdentifierBo ToBo(this CityIdentifierDto dto)
+    {
+        return new CityIdentifierBo
+        {
+            Id = (uint)(dto.Id ?? 0),
+            CountryCode = dto.CountryCode ?? string.Empty
+        };
+    }
+
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bo">BusinessObject to map</param>
+    /// <returns>the mapped DTO</returns>
     public static CityWithCountryDto ToDto(this CityWithCountryBo bo)
     {
         return new CityWithCountryDto
@@ -351,6 +379,30 @@ internal static class DtoMapper
             TourLeg = bo.TourLeg?.ToDto(),
             CustomTitle = bo.CustomTitle,
             Venue = bo.Venue.ToDto(),
+            PostedStartTime = bo.PostedStartTime,
+            TimeIsPlaceholder = bo.TimeIsPlaceholder,
+            MainStageTime = bo.MainStageTime,
+            DoorsTime = bo.DoorsTime,
+            LpuEarlyEntryTime = bo.LpuEarlyEntryTime,
+            LpuEarlyEntryConfirmed = bo.LpuEarlyEntryConfirmed,
+            ExpectedSetDurationMinutes = bo.ExpectedSetDurationMinutes.ToString(),
+            ScheduleImageFile = bo.ScheduleImageFile,
+            DeletedAt = bo.DeletedAt,
+            Status = bo.Status.ToDto(),
+            LinkinpediaUrl = bo.LinkinpediaUrl,
+        };
+    }
+    
+    public static RawConcertDto ToDto(this RawConcertBo bo)
+    {
+        return new RawConcertDto
+        {
+            Id = bo.Id,
+            ConcertTypeId = bo.ConcertTypeId,
+            TourId = bo.TourId,
+            TourLegId = bo.TourLegId,
+            CustomTitle = bo.CustomTitle,
+            VenueId = bo.VenueId,
             PostedStartTime = bo.PostedStartTime,
             TimeIsPlaceholder = bo.TimeIsPlaceholder,
             MainStageTime = bo.MainStageTime,

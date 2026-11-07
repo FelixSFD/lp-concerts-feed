@@ -77,12 +77,32 @@ public class RawConcertBo
     public string? ScheduleImageFile { get; set; }
     
     /// <summary>
+    /// Time when this concert was created
+    /// </summary>
+    public DateTimeOffset CreatedAt { get; set; }
+    
+    /// <summary>
+    /// Time when this concert was updated
+    /// </summary>
+    public DateTimeOffset? UpdatedAt { get; set; }
+    
+    /// <summary>
     /// Time when this concert was deleted
     /// </summary>
     public DateTimeOffset? DeletedAt { get; set; }
+    
+    /// <summary>
+    /// Time when this concert was last changed
+    /// </summary>
+    public DateTimeOffset? LastChange => UpdatedAt ?? CreatedAt;
 
     /// <summary>
     /// Status of this concert
     /// </summary>
     public ConcertDto.ConcertStatusValue Status { get; set; }
+    
+    /// <summary>
+    /// URL to the concert page on Linkinpedia.
+    /// </summary>
+    public string? LinkinpediaUrl { get; set; }
 }

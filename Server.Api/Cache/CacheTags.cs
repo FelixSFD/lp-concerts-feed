@@ -23,6 +23,11 @@ public static class CacheTags
     public const string CountriesAll = "countries-all";
 
     /// <summary>
+    /// Tag for all cities
+    /// </summary>
+    public const string CitiesAll = "cities-all";
+
+    /// <summary>
     /// Tag for all states
     /// </summary>
     public const string StatesAll = "states-all";

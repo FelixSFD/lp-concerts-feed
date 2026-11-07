@@ -1,0 +1,42 @@
+using Microsoft.Extensions.Logging;
+
+namespace Service.Tours;
+
+public static partial class Log
+{
+    [LoggerMessage(10000, LogLevel.Debug, "Start syncing concerts with last sync date: {lastSync}")]
+    public static partial void StartConcertSync(ILogger logger, DateTimeOffset? lastSync);
+    
+    [LoggerMessage(10001, LogLevel.Information, "Finished syncing concerts with last sync date: {lastSync}; Updated: {updated}; Deleted: {deleted}; Duration: {duration}")]
+    public static partial void FinishedConcertSync(ILogger logger, DateTimeOffset? lastSync, int updated, int deleted, TimeSpan duration);
+    
+    [LoggerMessage(10002, LogLevel.Information, "Finished syncing concerts with last sync date: {lastSync}; Updated: {updated}; Deleted: {deleted}; Duration: not measured")]
+    public static partial void FinishedConcertSync(ILogger logger, DateTimeOffset? lastSync, int updated, int deleted);
+    
+    [LoggerMessage(10010, LogLevel.Debug, "Start syncing venues with last sync date: {lastSync}")]
+    public static partial void StartVenueSync(ILogger logger, DateTimeOffset? lastSync);
+    
+    [LoggerMessage(10011, LogLevel.Information, "Finished syncing venues with last sync date: {lastSync}; Updated: {updated}; Deleted: {deleted}; Duration: {duration}")]
+    public static partial void FinishedVenueSync(ILogger logger, DateTimeOffset? lastSync, int updated, int deleted, TimeSpan duration);
+    
+    [LoggerMessage(10012, LogLevel.Information, "Finished syncing venues with last sync date: {lastSync}; Updated: {updated}; Deleted: {deleted}; Duration: not measured")]
+    public static partial void FinishedVenueSync(ILogger logger, DateTimeOffset? lastSync, int updated, int deleted);
+
+    [LoggerMessage(10020, LogLevel.Debug, "Start syncing cities with last sync date: {lastSync}")]
+    public static partial void StartCitySync(ILogger logger, DateTimeOffset? lastSync);
+    
+    [LoggerMessage(10021, LogLevel.Information, "Finished syncing cities with last sync date: {lastSync}; Updated: {updated}; Deleted: {deleted}; Duration: {duration}")]
+    public static partial void FinishedCitySync(ILogger logger, DateTimeOffset? lastSync, int updated, int deleted, TimeSpan duration);
+    
+    [LoggerMessage(10022, LogLevel.Information, "Finished syncing cities with last sync date: {lastSync}; Updated: {updated}; Deleted: {deleted}; Duration: not measured")]
+    public static partial void FinishedCitySync(ILogger logger, DateTimeOffset? lastSync, int updated, int deleted);
+
+    [LoggerMessage(10030, LogLevel.Debug, "Start syncing countries with last sync date: {lastSync}")]
+    public static partial void StartCountrySync(ILogger logger, DateTimeOffset? lastSync);
+    
+    [LoggerMessage(10031, LogLevel.Information, "Finished syncing countries with last sync date: {lastSync}; Updated: {updated}; Deleted: {deleted}; Duration: {duration}")]
+    public static partial void FinishedCountrySync(ILogger logger, DateTimeOffset? lastSync, int updated, int deleted, TimeSpan duration);
+    
+    [LoggerMessage(10032, LogLevel.Information, "Finished syncing countries with last sync date: {lastSync}; Updated: {updated}; Deleted: {deleted}; Duration: not measured")]
+    public static partial void FinishedCountrySync(ILogger logger, DateTimeOffset? lastSync, int updated, int deleted);
+}

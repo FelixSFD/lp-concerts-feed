@@ -8,7 +8,7 @@ namespace Database.Tours.Repositories;
 /// <summary>
 /// Repository to manage concerts
 /// </summary>
-public interface IConcertRepository : ISingleKeyRepositoryBase<ConcertDo, string>, IRepositoryBase<ConcertDo>
+public interface IConcertRepository : ISingleKeyRepositoryBase<ConcertDo, string>, IRepositoryBase<ConcertDo>, ITimestampedRepository<ConcertDo>, ISoftDeletableRepository<ConcertDo>
 {
     /// <summary>
     /// Returns a filtered list of concerts with pagination and sorting
@@ -60,4 +60,11 @@ public interface IConcertRepository : ISingleKeyRepositoryBase<ConcertDo, string
 
     IAsyncEnumerable<ConcertDo> GetUpcomingBookmarkedConcertsForAsync(string userId,
         UserConcertBookmarkDo.BookmarkStatus status, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Returns all <see name="ConcertDo" /> that match the IDs
+    /// </summary>
+    /// <param name="ids">Primary keys of all entries that should be returned</param>
+    /// <returns></returns>
+    public IAsyncEnumerable<ConcertDo> GetByIds(IEnumerable<string> ids);
 }

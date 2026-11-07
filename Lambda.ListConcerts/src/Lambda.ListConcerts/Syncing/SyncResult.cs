@@ -5,6 +5,7 @@ namespace Lambda.ListConcerts.Syncing;
 /// </summary>
 /// <typeparam name="TObj">Type of the objects that are synced</typeparam>
 /// <typeparam name="TIdentifier">Type if the ID in the <typeparamref name="TObj"/></typeparam>
+[Obsolete]
 public class SyncResult<TObj, TIdentifier>
 {
     /// <summary>
