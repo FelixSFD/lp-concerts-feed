@@ -709,7 +709,7 @@ paths:
       operationId: SyncConcertChanges
       summary: API to get all changes since your last sync. Make sure to set the correct lastSync-time.
       tags:
-        - concerts
+        - Concerts
       parameters:
         - in: query
           name: lastSync
