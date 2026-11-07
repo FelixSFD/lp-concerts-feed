@@ -2,13 +2,11 @@ namespace Service.Tours.Syncing;
 
 public interface ISyncEngine<TObj, TIdentifier>
 {
-    [Obsolete("Use ChangesSince for better caching")]
-    Task<SyncResult<TObj, TIdentifier>> SyncWith(TIdentifier[] knownIds, DateTimeOffset lastSync);
-    
     /// <summary>
     /// Returns all changes since the last sync.
     /// </summary>
-    /// <param name="lastSync"></param>
+    /// <param name="lastSync">Date when the client last synced with the server</param>
+    /// <param name="cancellationToken">Token to cancel the operation</param>
     /// <returns></returns>
-    Task<SyncResult<TObj, TIdentifier>> ChangesSince(DateTimeOffset lastSync);
+    Task<SyncResult<TObj, TIdentifier>> ChangesSince(DateTimeOffset lastSync, CancellationToken cancellationToken = default);
 }

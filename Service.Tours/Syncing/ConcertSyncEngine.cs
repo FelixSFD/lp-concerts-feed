@@ -1,34 +1,43 @@
+using System.Diagnostics;
 using Common.Utils;
 using Database.Tours.Repositories;
 using LPCalendar.DataStructure.Tours;
+using Microsoft.Extensions.Logging;
 
 namespace Service.Tours.Syncing;
 
-public class ConcertSyncEngine(IConcertRepository repository) : ISyncEngine<ConcertDetailsBo, string>
+internal class ConcertSyncEngine(IConcertRepository repository, ILogger<ConcertSyncEngine> logger) : ISyncEngine<ConcertDetailsBo, string>
 {
     private ConcertDetailsBo[] _addedOrChangedConcerts = [];
     private ConcertDetailsBo[] _deletedConcerts = [];
 
-    private async Task LoadChangedConcertsSince(DateTimeOffset lastChange)
+    private async Task LoadChangedConcertsSince(DateTimeOffset lastChange, CancellationToken cancellationToken = default)
     {
         _addedOrChangedConcerts = await repository.GetChangedAfter(lastChange)
             .Select(DoMapper.ToBoWithDetails)
-            .ToArrayAsync();
+            .ToArrayAsync(cancellationToken);
     }
 
 
-    private async Task LoadDeletedConcertsSince(DateTimeOffset lastChange)
+    private async Task LoadDeletedConcertsSince(DateTimeOffset lastChange, CancellationToken cancellationToken = default)
     {
         _deletedConcerts = await repository.GetDeletedAfter(lastChange)
             .Select(DoMapper.ToBoWithDetails)
-            .ToArrayAsync();
+            .ToArrayAsync(cancellationToken);
     }
 
 
-    public async Task<SyncResult<ConcertDetailsBo, string>> ChangesSince(DateTimeOffset lastSync)
+    public async Task<SyncResult<ConcertDetailsBo, string>> ChangesSince(DateTimeOffset lastSync, CancellationToken cancellationToken = default)
     {
-        var taskLoadChanged = LoadChangedConcertsSince(lastSync);
-        var taskLoadDeleted = LoadDeletedConcertsSince(lastSync);
+        Log.StartConcertSync(logger, lastSync);
+        Stopwatch? stopwatch = null;
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            stopwatch = Stopwatch.StartNew();
+        }
+        
+        var taskLoadChanged = LoadChangedConcertsSince(lastSync, cancellationToken);
+        var taskLoadDeleted = LoadDeletedConcertsSince(lastSync, cancellationToken);
         await Task.WhenAll(taskLoadChanged, taskLoadDeleted);
 
         var result = new SyncResult<ConcertDetailsBo, string>
@@ -50,7 +59,7 @@ public class ConcertSyncEngine(IConcertRepository repository) : ISyncEngine<Conc
         }
 
         // Find deleted
-        DateTimeOffset latestDelete = DateTimeOffset.MinValue;
+        var latestDelete = DateTimeOffset.MinValue;
         foreach (var deletedConcert in _deletedConcerts.Where(dc => dc.DeletedAt != null))
         {
             result.DeletedIds.Add(deletedConcert.Id);
@@ -69,55 +78,16 @@ public class ConcertSyncEngine(IConcertRepository repository) : ISyncEngine<Conc
         {
             result.LatestChange = lastSync.RoundingUpToSecond();
         }
-
-        return result;
-    }
-
-
-    public async Task<SyncResult<ConcertDetailsBo, string>> SyncWith(string[] knownIds, DateTimeOffset lastSync)
-    {
-        await LoadChangedConcertsSince(lastSync);
-
-        var result = new SyncResult<ConcertDetailsBo, string>
+        
+        if (stopwatch != null)
         {
-            LatestChange = DateTimeOffset.MinValue
-        };
-
-        // Find changed or added
-        foreach (var addedOrChangedConcert in _addedOrChangedConcerts)
+            Log.FinishedConcertSync(logger, lastSync, result.ChangedObjects.Count, result.DeletedIds.Count, stopwatch.Elapsed);
+        }
+        else
         {
-            if (knownIds.Contains(addedOrChangedConcert.Id))
-            {
-                // Concert already known. It must have been changed
-                result.ChangedObjects.Add(addedOrChangedConcert);
-            }
-            else
-            {
-                // Concert previously unknown. It needs to be added
-                result.AddedObjects.Add(addedOrChangedConcert);
-            }
-
-            if ((addedOrChangedConcert.LastChange != null && addedOrChangedConcert.LastChange > result.LatestChange) ||
-                (lastSync <= DateTimeOffset.UnixEpoch && addedOrChangedConcert.LastChange == null))
-            {
-                result.LatestChange = addedOrChangedConcert.LastChange ?? DateTimeOffset.MinValue;
-            }
+            Log.FinishedConcertSync(logger, lastSync, result.ChangedObjects.Count, result.DeletedIds.Count);
         }
 
-        // find deleted
-        // those that are in the changed objects don't need to be queried
-        // those that were added are not in this list anyway
-        var toCheckIfStillExist = knownIds
-            .Where(id => result.ChangedObjects.All(c => c.Id != id))
-            .ToArray();
-        var foundIds = await repository.GetByIds(toCheckIfStillExist)
-            .Select(c => c.Id)
-            .ToHashSetAsync();
-        result.DeletedIds = toCheckIfStillExist
-            .Where(id => !foundIds.Contains(id))
-            .ToList();
-
-        // Build the result object
         return result;
     }
 }

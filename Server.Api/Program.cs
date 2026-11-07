@@ -30,6 +30,7 @@ using Server.Api.HealthChecks;
 using Service.Setlists;
 using Service.Tours;
 using Service.Tours.Importer;
+using Service.Tours.Syncing;
 using Service.Users;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -253,6 +254,7 @@ builder.Services.AddScoped<LocationService>();
 builder.Services.AddScoped<VenueService>();
 builder.Services.AddScoped<TourService>();
 builder.Services.AddScoped<ConcertService>();
+builder.Services.AddConcertSyncEngine();
 builder.Services.AddSetlistsService();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddHttpClient();
