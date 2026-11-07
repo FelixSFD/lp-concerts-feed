@@ -74,6 +74,11 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
             .Include(c => c.Tour)
             .Include(c => c.TourLeg);
     
+    private static IQueryable<ConcertDo> IncludeCountry(IQueryable<ConcertDo> queryable) =>
+        queryable.Include(c => c.Venue)
+            .Include(c => c.Venue.City)
+            .Include(c => c.Venue.Country);
+    
     /// <inheritdoc/>
     protected override IQueryable<ConcertDo> DefaultQueryConfiguration(IQueryable<ConcertDo> queryable) => IncludeAllReferences(queryable);
     
@@ -126,8 +131,11 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
     /// <inheritdoc/>
     public IAsyncEnumerable<ConcertDo> GetAttendedConcertsForAsync(string userId, CancellationToken cancellationToken = default)
     {
-        var query = DbSet.AsQueryable();
-        //query = IncludeAllReferences(query);
+        var query = DbSet
+            .AsQueryable();
+        query = IncludeCountry(query);
+        query = query.Include(c => c.Type);
+        
         return query
             .Where(c => c.PostedStartTime < DateTime.UtcNow)
             .Where(c => c.Bookmarks.Any(b => b.UserId == userId && b.Status == UserConcertBookmarkDo.BookmarkStatus.Attending))
