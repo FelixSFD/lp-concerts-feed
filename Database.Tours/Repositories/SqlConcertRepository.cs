@@ -131,6 +131,7 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
             .ToAsyncEnumerable();
     }
 
+    /// <inheritdoc/>
     public IAsyncEnumerable<ConcertDo> GetChangedAfter(DateTimeOffset timestamp)
     {
         var query = DbSet.AsQueryable();
@@ -140,6 +141,7 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
             .ToAsyncEnumerable();
     }
 
+    /// <inheritdoc/>
     public IAsyncEnumerable<ConcertDo> GetDeletedAfter(DateTimeOffset timestamp)
     {
         var query = DbSet.AsQueryable();
