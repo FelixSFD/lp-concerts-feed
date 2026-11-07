@@ -531,6 +531,8 @@ internal static class DoMapper
             DeletedAt = dataObject.DeletedAt,
             Status = dataObject.Status.ToDto(),
             LinkinpediaUrl = dataObject.LinkinpediaUrl,
+            CreatedAt = dataObject.CreatedAt,
+            UpdatedAt = dataObject.UpdatedAt,
         };
     }
     

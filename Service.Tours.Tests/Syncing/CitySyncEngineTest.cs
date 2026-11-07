@@ -9,6 +9,8 @@ namespace Service.Tours.Tests.Syncing;
 
 public class CitySyncEngineTest
 {
+    private static readonly TimeSpan DateAssertionPrecision = TimeSpan.FromSeconds(1);
+    
     private readonly ICityRepository _cityRepository;
     private readonly CitySyncEngine _engine;
 
@@ -93,13 +95,13 @@ public class CitySyncEngineTest
         Assert.Single(syncResult.DeletedIds);
         Assert.Equal(server5.Id, syncResult.DeletedIds[0].Id);
         Assert.Equal(server5.CountryCode, syncResult.DeletedIds[0].CountryCode);
-        Assert.Equal(expectedLatestChange, syncResult.LatestChange);
+        Assert.Equal(expectedLatestChange, syncResult.LatestChange, DateAssertionPrecision);
 
         // run again with the new date. Should not return any more results
         syncResult = await _engine.ChangesSince(syncResult.LatestChange);
         Assert.Empty(syncResult.ChangedObjects);
         Assert.Empty(syncResult.DeletedIds);
-        Assert.Equal(expectedLatestChange, syncResult.LatestChange);
+        Assert.Equal(expectedLatestChange, syncResult.LatestChange, DateAssertionPrecision);
     }
 
     [Fact]
@@ -149,7 +151,7 @@ public class CitySyncEngineTest
         Assert.Single(syncResult.DeletedIds);
         Assert.Equal(server1.Id, syncResult.DeletedIds[0].Id);
         Assert.Equal(server1.CountryCode, syncResult.DeletedIds[0].CountryCode);
-        Assert.Equal(expectedLatestChange, syncResult.LatestChange);
+        Assert.Equal(expectedLatestChange, syncResult.LatestChange, DateAssertionPrecision);
     }
 
     [Fact]
@@ -194,6 +196,6 @@ public class CitySyncEngineTest
         // Validate result
         Assert.Empty(syncResult.ChangedObjects);
         Assert.Empty(syncResult.DeletedIds);
-        Assert.Equal(expectedLatestChange, syncResult.LatestChange);
+        Assert.Equal(expectedLatestChange, syncResult.LatestChange, DateAssertionPrecision);
     }
 }

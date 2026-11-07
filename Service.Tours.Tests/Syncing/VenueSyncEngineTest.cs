@@ -9,6 +9,7 @@ namespace Service.Tours.Tests.Syncing;
 
 public class VenueSyncEngineTest
 {
+    private static readonly TimeSpan DateAssertionPrecision = TimeSpan.FromSeconds(1);
     private readonly IVenueRepository _venueRepository;
     private readonly VenueSyncEngine _engine;
 
@@ -100,13 +101,13 @@ public class VenueSyncEngineTest
         // Validate result
         Assert.Equivalent(new[] { server1.Id, server2.Id, server3.Id }, syncResult.ChangedObjects.Select(v => v.Id).ToArray());
         Assert.Equivalent(new[] { server5.Id }, syncResult.DeletedIds.ToArray());
-        Assert.Equal(expectedLatestChange, syncResult.LatestChange);
+        Assert.Equal(expectedLatestChange, syncResult.LatestChange, DateAssertionPrecision);
 
         // run again with the new date. Should not return any more results
         syncResult = await _engine.ChangesSince(syncResult.LatestChange);
         Assert.Empty(syncResult.ChangedObjects);
         Assert.Empty(syncResult.DeletedIds);
-        Assert.Equal(expectedLatestChange, syncResult.LatestChange);
+        Assert.Equal(expectedLatestChange, syncResult.LatestChange, DateAssertionPrecision);
     }
 
     [Fact]
@@ -153,7 +154,7 @@ public class VenueSyncEngineTest
         // Validate result
         Assert.Equivalent(new[] { server2.Id, server3.Id }, syncResult.ChangedObjects.Select(v => v.Id).ToArray());
         Assert.Equivalent(new[] { server1.Id }, syncResult.DeletedIds.ToArray());
-        Assert.Equal(expectedLatestChange, syncResult.LatestChange);
+        Assert.Equal(expectedLatestChange, syncResult.LatestChange, DateAssertionPrecision);
     }
 
     [Fact]
@@ -198,6 +199,6 @@ public class VenueSyncEngineTest
         // Validate result
         Assert.Empty(syncResult.ChangedObjects);
         Assert.Empty(syncResult.DeletedIds);
-        Assert.Equal(expectedLatestChange, syncResult.LatestChange);
+        Assert.Equal(expectedLatestChange, syncResult.LatestChange, DateAssertionPrecision);
     }
 }

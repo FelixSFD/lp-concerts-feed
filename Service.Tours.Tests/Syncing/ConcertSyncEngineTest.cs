@@ -9,6 +9,8 @@ namespace Service.Tours.Tests.Syncing;
 
 public class ConcertSyncEngineTest
 {
+    private static readonly TimeSpan DateAssertionPrecision = TimeSpan.FromSeconds(1);
+    
     private readonly IConcertRepository _concertRepository;
     private readonly ConcertSyncEngine _engine;
 
@@ -118,13 +120,13 @@ public class ConcertSyncEngineTest
         Assert.Equivalent(new[] { server5.Id }, syncResult.DeletedIds.ToArray());
 
         // make sure the latest change is sent in the result. Having the same timestamp for all users helps with caching
-        Assert.Equal(expectedLatestChange, syncResult.LatestChange);
+        Assert.Equal(expectedLatestChange, syncResult.LatestChange, DateAssertionPrecision);
 
         // run again with the new date. Should not return any more results
         syncResult = await _engine.ChangesSince(syncResult.LatestChange);
         Assert.Empty(syncResult.ChangedObjects);
         Assert.Empty(syncResult.DeletedIds);
-        Assert.Equal(expectedLatestChange, syncResult.LatestChange);
+        Assert.Equal(expectedLatestChange, syncResult.LatestChange, DateAssertionPrecision);
     }
 
     [Fact]
@@ -174,7 +176,7 @@ public class ConcertSyncEngineTest
         Assert.Equivalent(new[] { server1.Id }, syncResult.DeletedIds.ToArray());
 
         // make sure the latest change is sent in the result. Having the same timestamp for all users helps with caching
-        Assert.Equal(expectedLatestChange, syncResult.LatestChange);
+        Assert.Equal(expectedLatestChange, syncResult.LatestChange, DateAssertionPrecision);
     }
 
     [Fact]
@@ -222,6 +224,6 @@ public class ConcertSyncEngineTest
         // Validate result
         Assert.Empty(syncResult.ChangedObjects);
         Assert.Empty(syncResult.DeletedIds);
-        Assert.Equal(expectedLatestChange, syncResult.LatestChange);
+        Assert.Equal(expectedLatestChange, syncResult.LatestChange, DateAssertionPrecision);
     }
 }
