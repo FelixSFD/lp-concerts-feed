@@ -1,3 +1,5 @@
+using Database.Setlists.DataObjects;
+using Database.Setlists.Repositories;
 using Database.Tours.DataObjects;
 using Database.Tours.Repositories;
 using Microsoft.Extensions.Logging;
@@ -8,13 +10,15 @@ namespace Service.Tours.Tests;
 public class UserStatsServiceTest
 {
     private readonly IConcertRepository _concertRepository;
+    private readonly ISongRepository _songRepository;
     private readonly UserStatsService _userStatsService;
 
     public UserStatsServiceTest()
     {
         var logger = Substitute.For<ILogger<UserStatsService>>();
         _concertRepository = Substitute.For<IConcertRepository>();
-        _userStatsService = new UserStatsService(_concertRepository, logger);
+        _songRepository = Substitute.For<ISongRepository>();
+        _userStatsService = new UserStatsService(_concertRepository, _songRepository, logger);
     }
 
 
@@ -60,6 +64,49 @@ public class UserStatsServiceTest
         Assert.Equal(0, attendedConcertsStats.NumberOfCities);
         Assert.Equal(0, attendedConcertsStats.NumberOfCountries);
         Assert.Equal(0, attendedConcertsStats.NumberOfVenues);
+    }
+
+
+    [Fact]
+    public async Task GetSongsUserHasSeenLiveAsync()
+    {
+        var userId = Guid.NewGuid().ToString();
+        var mockConcert1 = CreateMockConcert();
+        var mockConcert2 = CreateMockConcert();
+        
+        ConcertDo[] mockAttendedConcerts = [mockConcert1, mockConcert2];
+
+        var song1 = new SongDo
+        {
+            Id = 1,
+            Title = "Song 1",
+        };
+        var song2 = new SongDo
+        {
+            Id = 2,
+            Title = "Song 2",
+        };
+
+        var mockResult = new Dictionary<SongDo, uint>
+        {
+            [song1] = 2,
+            [song2] = 1
+        };
+
+        // setup mocks
+        _concertRepository
+            .GetAttendedConcertsForAsync(userId)
+            .Returns(mockAttendedConcerts.ToAsyncEnumerable());
+        _songRepository
+            .GetSongsPlayedAtConcertsAsync(Arg.Is<IEnumerable<string>>(ids =>
+                ids.SequenceEqual(mockAttendedConcerts.Select(c => c.Id))))
+            .Returns(mockResult);
+        
+        var songsUserHasSeenLive = await _userStatsService.GetSongsUserHasSeenLiveAsync(userId);
+        Assert.NotNull(songsUserHasSeenLive);
+        Assert.Equal(2, songsUserHasSeenLive.Length);
+        Assert.Contains(songsUserHasSeenLive, s => s.SongName == song1.Title && s.PlayCount == 2);
+        Assert.Contains(songsUserHasSeenLive, s => s.SongName == song2.Title && s.PlayCount == 1);
     }
     
     

@@ -1,4 +1,7 @@
+using Database.Setlists.DataObjects;
+using Database.Setlists.Repositories;
 using Database.Tours.Repositories;
+using LPCalendar.DataStructure.Setlists;
 using Microsoft.Extensions.Logging;
 using Service.Tours.DataStructure.Stats;
 
@@ -7,8 +10,14 @@ namespace Service.Tours;
 /// <summary>
 /// Service to calculate personalized statistics for users
 /// </summary>
-public class UserStatsService(IConcertRepository concertRepository, ILogger<UserStatsService> logger)
+public class UserStatsService(IConcertRepository concertRepository, ISongRepository songRepository, ILogger<UserStatsService> logger)
 {
+    /// <summary>
+    /// Returns statistics about the concerts a user has attended
+    /// </summary>
+    /// <param name="userId">ID of the user</param>
+    /// <param name="cancellationToken">Token to cancel the operation</param>
+    /// <returns></returns>
     public async Task<UserConcertStatsBo> GetAttendedConcerts(string userId, CancellationToken cancellationToken = default)
     {
         Log.StartGeneratingAttendedConcertsStats(logger, userId);
@@ -54,6 +63,35 @@ public class UserStatsService(IConcertRepository concertRepository, ILogger<User
             NumberOfCountries = numberOfCountries,
             NumberOfVenues = numberOfVenues,
             NumberOfConcerts = numberOfConcerts,
+        };
+    }
+    
+    /// <summary>
+    /// Calculates how many times a user has seen each song live, based on the concerts they have attended.
+    /// </summary>
+    /// <param name="userId">ID of the user</param>
+    /// <param name="cancellationToken">Token to cancel the operation</param>
+    /// <returns>List of song names and play count</returns>
+    public async Task<UserSongStatBo[]> GetSongsUserHasSeenLiveAsync(string userId, CancellationToken cancellationToken = default)
+    {
+        var concertIds = await concertRepository
+            .GetAttendedConcertsForAsync(userId, cancellationToken)
+            .Select(c => c.Id)
+            .Distinct()
+            .ToArrayAsync(cancellationToken);
+        
+        var songsPlayed = await songRepository.GetSongsPlayedAtConcertsAsync(concertIds, cancellationToken);
+        return [.. songsPlayed.Select(GetSongStatFromDictEntry)];
+    }
+    
+    private static UserSongStatBo GetSongStatFromDictEntry(KeyValuePair<SongDo, uint> kv)
+    {
+        var song = kv.Key;
+        var count = kv.Value;
+        return new UserSongStatBo
+        {
+            SongName = song.Title,
+            PlayCount = count,
         };
     }
 }
