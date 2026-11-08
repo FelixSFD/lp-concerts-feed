@@ -2,4 +2,14 @@
   <ng-template #title>
     Profile of {{ username() }}
   </ng-template>
+
+  @if (concertStats()) {
+    <p>
+      Attended <b>{{ concertStats()?.numberOfConcerts }} concerts</b> in <b>{{ concertStats()?.numberOfCities }} cities</b> and <b>{{ concertStats()?.numberOfCountries }} countries</b>
+    </p>
+  }
+
+  @if (songStats()) {
+    <p>Seen <b>{{ songStats()?.numberOfSongs }} different songs</b> live</p>
+  }
 </p-card>

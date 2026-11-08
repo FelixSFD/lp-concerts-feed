@@ -1,15 +1,17 @@
 import { Component, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ProblemDetailsDto, PublicUserDto } from '../../../../modules/lpshows-api/v3';
+import {
+  ProblemDetailsDto,
+  PublicUserDto,
+  UserConcertStatsResponseDto,
+  UserSongStatsResponseDto
+} from '../../../../modules/lpshows-api/v3';
 import { Card } from 'primeng/card';
-import { Tag } from 'primeng/tag';
-import { Tooltip } from 'primeng/tooltip';
+import { UserStatsService } from '../../../../services/user-stats.service';
 
 @Component({
   imports: [
     Card,
-    Tag,
-    Tooltip
   ],
   selector: 'app-user-profile-page',
   styleUrl: './user-profile-page.component.css',
@@ -17,8 +19,12 @@ import { Tooltip } from 'primeng/tooltip';
 })
 export class UserProfilePageComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly userStatsService = inject(UserStatsService);
   protected username = signal<string>("");
   protected resolverError = signal<ProblemDetailsDto | null>(null);
+
+  protected songStats = signal<UserSongStatsResponseDto | null>(null);
+  protected concertStats = signal<UserConcertStatsResponseDto | null>(null);
 
   private user = signal<PublicUserDto | null>(null);
   private userUpdatedEffect = effect(() => {
@@ -28,6 +34,8 @@ export class UserProfilePageComponent {
     }
 
     console.debug("User updated:", user);
+    this.reloadSongStats(user.id).then();
+    this.reloadConcertStats(user.id).then();
     this.username.set(user.username);
   });
 
@@ -44,5 +52,17 @@ export class UserProfilePageComponent {
 
       this.user.set(user);
     });
+  }
+
+  async reloadSongStats(userId: string) {
+    let stats = await this.userStatsService.getSongStats(userId);
+    console.debug("User song stats:", stats);
+    this.songStats.set(stats);
+  }
+
+  async reloadConcertStats(userId: string) {
+    let stats = await this.userStatsService.getConcertStats(userId);
+    console.debug("User concert stats:", stats);
+    this.concertStats.set(stats);
   }
 }
