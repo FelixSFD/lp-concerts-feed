@@ -2554,6 +2554,56 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserConcertStatsResponse'
   
+  /v3/Users/me/stats/songs:
+    get:
+      summary: Returns statistics about the songs the current user has seen live
+      operationId: GetCurrentUserSongStats
+      responses:
+        "200":
+          description: Statistics about the songs a user has seen live
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSongStatsResponse'
+        401:
+          description: "Unauthorized: Credentials are missing or not valid"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        403:
+          description: "Forbidden: User doesn't have the required permissions"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      security:
+        - Bearer: [ ]
+  
+  /v3/Users/{userId}/stats/songs:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Returns statistics about the songs a user has seen live
+      operationId: GetUserSongStats
+      responses:
+        "200":
+          description: Statistics about the songs a user has seen live
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSongStatsResponse'
+  
   /v3/Setlists:
     parameters:
       - $ref: "#/components/parameters/X-LP-Request-Id"
@@ -5282,6 +5332,35 @@ components:
           description: List of concerts a user has attended
           items:
             $ref: "#/components/schemas/ConcertDetailsShort"
+    
+    UserSongStatsResponse:
+      type: object
+      description: Response form server with some general statistics about the songs a user has seen live
+      required: 
+        - numberOfSongs
+        - songs
+      properties:
+        numberOfSongs:
+          type: number
+          description: Number of songs a user has seen live
+        songs:
+          type: array
+          description: List of songs a user has seen live
+          items:
+            type: object
+            description: Information about a song and how many times the user has seen it live
+            required: 
+              - songTitle
+              - playCount
+            properties:
+              songTitle:
+                type: string
+                description: Title of the song
+                nullable: false
+              playCount:
+                type: number
+                description: Number of times the user has seen this song live
+                nullable: false
     
     # Schemas from v2
     GetConcertBookmarkCountsResponse:

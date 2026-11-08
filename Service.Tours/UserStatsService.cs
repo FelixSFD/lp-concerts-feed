@@ -74,14 +74,20 @@ public class UserStatsService(IConcertRepository concertRepository, ISongReposit
     /// <returns>List of song names and play count</returns>
     public async Task<UserSongStatBo[]> GetSongsUserHasSeenLiveAsync(string userId, CancellationToken cancellationToken = default)
     {
+        Log.StartGeneratingAttendedSongStats(logger, userId);
+        
         var concertIds = await concertRepository
             .GetAttendedConcertsForAsync(userId, cancellationToken)
             .Select(c => c.Id)
             .Distinct()
             .ToArrayAsync(cancellationToken);
         
+        Log.LoadedConcertsUserAttended(logger, userId);
+        
         var songsPlayed = await songRepository.GetSongsPlayedAtConcertsAsync(concertIds, cancellationToken);
-        return [.. songsPlayed.Select(GetSongStatFromDictEntry)];
+        var stats = songsPlayed.Select(GetSongStatFromDictEntry).ToArray();
+        Log.FinishedGeneratingAttendedSongStats(logger, userId, stats.Length);
+        return stats;
     }
     
     private static UserSongStatBo GetSongStatFromDictEntry(KeyValuePair<SongDo, uint> kv)

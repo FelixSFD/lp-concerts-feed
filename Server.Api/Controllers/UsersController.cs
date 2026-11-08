@@ -106,7 +106,7 @@ public class UsersController(UserService userService, UserStatsService userStats
     /// <returns></returns>
     [HttpGet("me/stats/concerts")]
     [Authorize]
-    public async Task<ActionResult<UserDto>> GetCurrentUserConcertStats(CancellationToken cancellationToken)
+    public async Task<ActionResult<UserConcertStatsResponseDto>> GetCurrentUserConcertStats(CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
         if (userId == null)
@@ -126,10 +126,47 @@ public class UsersController(UserService userService, UserStatsService userStats
     [HttpGet("{userId}/stats/concerts")]
     [OutputCache(PolicyName = CachePolicyNames.UserStatsDynamic, Duration = CacheExpiration.Maximum)]
     [CustomResponseCache(Duration = CacheExpiration.Default)]
-    public async Task<ActionResult<UserDto>> GetUserConcertStats([FromRoute] string userId, CancellationToken cancellationToken)
+    public async Task<ActionResult<UserConcertStatsResponseDto>> GetUserConcertStats([FromRoute] string userId, CancellationToken cancellationToken)
     {
         var stats = await userStatsService.GetAttendedConcerts(userId, cancellationToken);
         return Ok(stats.ToDto());
+    }
+    
+    /// <summary>
+    /// Returns some statistics about the songs the current user has seen live
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("me/stats/songs")]
+    [Authorize]
+    public async Task<ActionResult<UserSongStatsResponseDto>> GetCurrentUserSongStats(CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+        
+        return await GetUserSongStats(userId, cancellationToken);
+    }
+    
+    /// <summary>
+    /// Returns some statistics about the songs a user has seen live
+    /// </summary>
+    /// <param name="userId">ID of the user</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("{userId}/stats/songs")]
+    [OutputCache(PolicyName = CachePolicyNames.UserStatsDynamic, Duration = CacheExpiration.Maximum, Tags = [CacheTags.SetlistsAll])]
+    [CustomResponseCache(Duration = CacheExpiration.Default)]
+    public async Task<ActionResult<UserSongStatsResponseDto>> GetUserSongStats([FromRoute] string userId, CancellationToken cancellationToken)
+    {
+        var stats = await userStatsService.GetSongsUserHasSeenLiveAsync(userId, cancellationToken);
+        var responseDto = stats
+            .OrderByDescending(s => s.PlayCount)
+            .ThenBy(s => s.SongName)
+            .ToDto();
+        return Ok(responseDto);
     }
     
     /// <summary>

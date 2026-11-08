@@ -48,4 +48,10 @@ public static partial class Log
     
     [LoggerMessage(10042, LogLevel.Debug, "Loaded concerts the user '{userId}' has attended so far")]
     public static partial void LoadedConcertsUserAttended(ILogger logger, string userId);
+    
+    [LoggerMessage(10045, LogLevel.Debug, "Generating song stats for user: {userId}")]
+    public static partial void StartGeneratingAttendedSongStats(ILogger logger, string userId);
+    
+    [LoggerMessage(10046, LogLevel.Debug, "Generated Song stats for user: {userId}; Number of songs seen live: {numberOfSongs}")]
+    public static partial void FinishedGeneratingAttendedSongStats(ILogger logger, string userId, int numberOfSongs);
 }

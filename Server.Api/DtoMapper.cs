@@ -1551,6 +1551,35 @@ internal static class DtoMapper
             NumberOfConcerts = bo.NumberOfConcerts,
         };
     }
+    
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bos">BusinessObjects to map</param>
+    /// <returns>the mapped DTO</returns>
+    public static UserSongStatsResponseDto ToDto(this IEnumerable<UserSongStatBo> bos)
+    {
+        var songs = bos.Select(ToDto).ToList();
+        return new UserSongStatsResponseDto
+        {
+            NumberOfSongs = songs.Count,
+            Songs = songs,
+        };
+    }
+    
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bo">BusinessObjects to map</param>
+    /// <returns>the mapped DTO</returns>
+    private static UserSongStatsResponseSongsInnerDto ToDto(this UserSongStatBo bo)
+    {
+        return new UserSongStatsResponseSongsInnerDto
+        {
+            SongTitle = bo.SongName,
+            PlayCount = bo.PlayCount,
+        };
+    }
 
     #endregion
 }
