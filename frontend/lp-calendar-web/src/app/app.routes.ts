@@ -99,7 +99,13 @@ export const routes: Routes = [
   {
     path: 'profile',
     loadComponent: () =>
-      import("./components/v2/user-profile/user-profile-page.component").then(m => m.UserProfilePageComponent),
+      import("./components/v2/user-profile/edit-user-profile-page.component").then(m => m.EditUserProfilePageComponent),
+    title: baseTitle + 'Edit User Profile',
+  },
+  {
+    path: 'users/:userId',
+    loadComponent: () =>
+      import("./components/v2/user-profile/user-profile-page/user-profile-page.component").then(m => m.UserProfilePageComponent),
     title: baseTitle + 'User Profile',
   },
   {

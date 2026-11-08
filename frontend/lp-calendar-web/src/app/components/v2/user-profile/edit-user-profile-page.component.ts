@@ -25,10 +25,10 @@ import { Select } from 'primeng/select';
     FloatLabel,
     Select
   ],
-  templateUrl: './user-profile-page.component.html',
-  styleUrl: './user-profile-page.component.css'
+  templateUrl: './edit-user-profile-page.component.html',
+  styleUrl: './edit-user-profile-page.component.css'
 })
-export class UserProfilePageComponent implements OnInit {
+export class EditUserProfilePageComponent implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly oidcSecurityService = inject(OidcSecurityService);
   private usersService = inject(UsersService);
