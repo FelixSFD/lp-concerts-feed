@@ -2508,6 +2508,8 @@ paths:
     get:
       summary: Returns statistics about the concerts the current user has attended
       operationId: GetCurrentUserConcertStats
+      tags:
+        - Users
       responses:
         "200":
           description: Statistics about the concerts a user has attended
@@ -2546,6 +2548,8 @@ paths:
     get:
       summary: Returns statistics about the concerts a user has attended
       operationId: GetUserConcertStats
+      tags:
+        - Users
       responses:
         "200":
           description: Statistics about the concerts a user has attended
@@ -2558,6 +2562,8 @@ paths:
     get:
       summary: Returns statistics about the songs the current user has seen live
       operationId: GetCurrentUserSongStats
+      tags:
+        - Users
       responses:
         "200":
           description: Statistics about the songs a user has seen live
@@ -2596,6 +2602,8 @@ paths:
     get:
       summary: Returns statistics about the songs a user has seen live
       operationId: GetUserSongStats
+      tags:
+        - Users
       responses:
         "200":
           description: Statistics about the songs a user has seen live
