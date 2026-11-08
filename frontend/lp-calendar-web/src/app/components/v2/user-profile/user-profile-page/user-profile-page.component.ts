@@ -19,6 +19,13 @@ import { DataView } from 'primeng/dataview';
 import { AppleMusicArtworkComponent } from '../../music/apple-music-artwork/apple-music-artwork.component';
 import { AppleMusicService } from '../../../../services/music/apple-music.service';
 import { NgTemplateOutlet } from '@angular/common';
+import {
+  ScrollArea,
+  ScrollAreaContent,
+  ScrollAreaHandle,
+  ScrollAreaScrollbar,
+  ScrollAreaViewport
+} from 'primeng/scrollarea';
 
 @Component({
   imports: [
@@ -32,6 +39,11 @@ import { NgTemplateOutlet } from '@angular/common';
     DataView,
     AppleMusicArtworkComponent,
     NgTemplateOutlet,
+    ScrollArea,
+    ScrollAreaContent,
+    ScrollAreaViewport,
+    ScrollAreaScrollbar,
+    ScrollAreaHandle,
   ],
   selector: 'app-user-profile-page',
   styleUrl: './user-profile-page.component.css',
