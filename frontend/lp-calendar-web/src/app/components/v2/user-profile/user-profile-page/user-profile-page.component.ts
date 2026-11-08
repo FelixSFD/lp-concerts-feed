@@ -10,6 +10,7 @@ import {
 import { Card } from 'primeng/card';
 import { UserStatsService } from '../../../../services/user-stats.service';
 import { ConcertMapComponent, ConcertMapPin } from '../../concert-map/concert-map.component';
+import { defaultShowTypeId } from '../../../../app.config';
 
 @Component({
   imports: [
@@ -73,8 +74,13 @@ export class UserProfilePageComponent {
   }
 
   private makePinForConcert(concert: ConcertDetailsShortDto): ConcertMapPin {
+    let markerColor = "#c969e0";
+    if (concert.concertType.id != defaultShowTypeId) {
+      markerColor = "#eb4b4b";
+    }
     return {
       label: `${concert.cityName}, ${concert.countryName}`,
+      color: markerColor,
       latitude: concert.venueLatitude ?? 0,
       longitude: concert.venueLongitude ?? 0,
     }
