@@ -21,7 +21,8 @@ export const publicUserResolver: ResolveFn<PublicUserDto | ProblemDetailsDto> = 
   const userId = route.paramMap.get('userId')!;
   return usersApi.getPublicUserById(userId).pipe(
     catchError((err) => {
-      let errorResponse: ProblemDetailsDto = err.error;
+      console.error("Error loading public user:", err);
+      let errorResponse = err as ProblemDetailsDto;
       console.error('Failed to load user:', errorResponse);
       return of(errorResponse);
     }),

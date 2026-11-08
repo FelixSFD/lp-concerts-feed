@@ -1,0 +1,4 @@
+.p-message-enter-active,
+.p-message-leave-active {
+  animation: none !important;
+}

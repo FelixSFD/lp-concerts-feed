@@ -11,11 +11,13 @@ import { Card } from 'primeng/card';
 import { UserStatsService } from '../../../../services/user-stats.service';
 import { ConcertMapComponent, ConcertMapPin } from '../../concert-map/concert-map.component';
 import { defaultShowTypeId } from '../../../../app.config';
+import { Message } from 'primeng/message';
 
 @Component({
   imports: [
     Card,
     ConcertMapComponent,
+    Message,
   ],
   selector: 'app-user-profile-page',
   styleUrl: './user-profile-page.component.css',
@@ -61,16 +63,24 @@ export class UserProfilePageComponent {
   }
 
   async reloadSongStats(userId: string) {
-    let stats = await this.userStatsService.getSongStats(userId);
-    console.debug("User song stats:", stats);
-    this.songStats.set(stats);
+    try {
+      let stats = await this.userStatsService.getSongStats(userId);
+      console.debug("User song stats:", stats);
+      this.songStats.set(stats);
+    } catch (e) {
+      console.error("Failed to load user song stats:", e);
+    }
   }
 
   async reloadConcertStats(userId: string) {
-    let stats = await this.userStatsService.getConcertStats(userId);
-    console.debug("User concert stats:", stats);
-    this.concertStats.set(stats);
-    this.concertPins.set(stats.concerts?.map(c => this.makePinForConcert(c)) ?? []);
+    try {
+      let stats = await this.userStatsService.getConcertStats(userId);
+      console.debug("User concert stats:", stats);
+      this.concertStats.set(stats);
+      this.concertPins.set(stats.concerts?.map(c => this.makePinForConcert(c)) ?? []);
+    } catch (e) {
+      console.error("Failed to load user concert stats:", e);
+    }
   }
 
   private makePinForConcert(concert: ConcertDetailsShortDto): ConcertMapPin {

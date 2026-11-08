@@ -1,23 +1,29 @@
-<p-card>
-  <ng-template #title>
-    Profile of {{ username() }}
-  </ng-template>
+@if (resolverError()) {
+  <p-message severity="error" icon="pi pi-exclamation-triangle">
+    This user profile does not exist.
+  </p-message>
+} @else {
+  <p-card>
+    <ng-template #title>
+      Profile of {{ username() }}
+    </ng-template>
 
-  @if (concertStats()) {
-    <p>
-      Attended <b>{{ concertStats()?.numberOfConcerts }} concerts</b> in <b>{{ concertStats()?.numberOfCities }} cities</b> and <b>{{ concertStats()?.numberOfCountries }} countries</b>
-    </p>
-  }
+    @if (concertStats()) {
+      <p>
+        Attended <b>{{ concertStats()?.numberOfConcerts }} concerts</b> in <b>{{ concertStats()?.numberOfCities }} cities</b> and <b>{{ concertStats()?.numberOfCountries }} countries</b>
+      </p>
+    }
 
-  @if (songStats()) {
-    <p>Seen <b>{{ songStats()?.numberOfSongs }} different songs</b> live</p>
-  }
-</p-card>
+    @if (songStats()) {
+      <p>Seen <b>{{ songStats()?.numberOfSongs }} different songs</b> live</p>
+    }
+  </p-card>
 
-<p-card class="mt-3">
-  <ng-template #subtitle>
-    Concerts {{ username() }} has attended
-  </ng-template>
+  <p-card class="mt-3">
+    <ng-template #subtitle>
+      Concerts {{ username() }} has attended
+    </ng-template>
 
-  <app-concert-map [pins]="concertPins" />
-</p-card>
+    <app-concert-map [pins]="concertPins" />
+  </p-card>
+}
