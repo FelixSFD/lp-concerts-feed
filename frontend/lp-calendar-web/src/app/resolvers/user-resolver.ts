@@ -1,11 +1,12 @@
 import {ResolveFn} from '@angular/router';
 import {inject} from '@angular/core';
-import {ErrorResponseDto, UserDto, UsersService} from '../modules/lpshows-api';
-import {catchError, of} from 'rxjs';
+import {ErrorResponseDto, UserDto, UsersService as UsersLegacyApi} from '../modules/lpshows-api';
+import { catchError, firstValueFrom, of } from 'rxjs';
 import { ProblemDetailsDto, PublicUserDto, UsersApi } from '../modules/lpshows-api/v3';
+import { UsersService } from '../services/users.service';
 
 export const userResolver: ResolveFn<UserDto | ErrorResponseDto> = (route) => {
-  const usersService = inject(UsersService);
+  const usersService = inject(UsersLegacyApi);
   const userId = route.paramMap.get('id')!;
   return usersService.getUserById(userId).pipe(
     catchError((err) => {
@@ -16,15 +17,21 @@ export const userResolver: ResolveFn<UserDto | ErrorResponseDto> = (route) => {
   );
 };
 
-export const publicUserResolver: ResolveFn<PublicUserDto | ProblemDetailsDto> = (route) => {
-  const usersApi = inject(UsersApi);
-  const userId = route.paramMap.get('userId')!;
-  return usersApi.getPublicUserById(userId).pipe(
-    catchError((err) => {
-      console.error("Error loading public user:", err);
-      let errorResponse = err as ProblemDetailsDto;
-      console.error('Failed to load user:', errorResponse);
-      return of(errorResponse);
-    }),
-  );
+export const publicUserResolver: ResolveFn<PublicUserDto | ProblemDetailsDto> = async (route) => {
+  try {
+    const usersService = inject(UsersService);
+    let userId = route.paramMap.get('userId')!;
+    if (userId == "me") {
+      console.debug("Loading current user");
+      const currentUser = await usersService.getCurrentUser();
+      userId = currentUser.id;
+      console.debug("Loaded current user ID:", userId);
+    }
+
+    return await usersService.getPublicProfileById(userId);
+  } catch (err) {
+    let errorResponse = err as ProblemDetailsDto;
+    console.error('Failed to load public user:', errorResponse);
+    return errorResponse;
+  }
 };

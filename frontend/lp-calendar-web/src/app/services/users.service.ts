@@ -79,4 +79,14 @@ export class UsersService {
       this.usersApi.getSuggestedUserNames()
     );
   }
+
+  /**
+   * Returns public information about a user.
+   * @param userId ID of the user
+   */
+  getPublicProfileById(userId: string) {
+    return firstValueFrom(
+      this.usersApi.getPublicUserById(userId)
+    );
+  }
 }
