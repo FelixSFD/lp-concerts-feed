@@ -96,7 +96,10 @@ public class UserStatsService(IConcertRepository concertRepository, ISongReposit
         var count = kv.Value;
         return new UserSongStatBo
         {
+            SongId = song.Id,
             SongName = song.Title,
+            AlbumName = song.Album?.Title,
+            AppleMusicId = song.AppleMusicId,
             PlayCount = count,
         };
     }

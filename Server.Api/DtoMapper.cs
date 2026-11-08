@@ -1593,7 +1593,10 @@ internal static class DtoMapper
     {
         return new UserSongStatsResponseSongsInnerDto
         {
+            SongId = bo.SongId,
             SongTitle = bo.SongName,
+            AlbumName = bo.AlbumName,
+            AppleMusicId = bo.AppleMusicId,
             PlayCount = bo.PlayCount,
         };
     }

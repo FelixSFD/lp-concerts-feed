@@ -5416,13 +5416,26 @@ components:
             type: object
             description: Information about a song and how many times the user has seen it live
             required: 
+              - songId
               - songTitle
               - playCount
             properties:
+              songId:
+                type: number
+                description: ID of the song
+                nullable: false
               songTitle:
                 type: string
                 description: Title of the song
                 nullable: false
+              albumName:
+                type: string
+                description: Name of the song
+                nullable: true
+              appleMusicId:
+                type: string
+                description: Unique ID for the Song on Apple Music
+                nullable: true
               playCount:
                 type: number
                 description: Number of times the user has seen this song live
