@@ -2504,6 +2504,36 @@ paths:
       security:
         - Bearer: [ ]
   
+  /v3/Users/{userId}/public:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - Users
+      summary: Returns public information of the user with the given ID
+      operationId: GetPublicUserById
+      responses:
+        200:
+          description: Public information about the user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicUser"
+        404:
+          description: "Not Found: This user does not exist"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  
   /v3/Users/me/stats/concerts:
     get:
       summary: Returns statistics about the concerts the current user has attended
@@ -5129,6 +5159,24 @@ components:
           type: string
           format: date-time
           description: Date and time when the user was last updated
+    
+    PublicUser:
+      description: Public information about a user
+      type: object
+      required:
+        - id
+        - username
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the user
+        username:
+          type: string
+          description: Username of the user
+        originCountryCode:
+          type: string
+          description: ISO code of the country where this user is from. Can be null if the user has not specified their country
+          nullable: true
     
     UpdateUserProfile:
       description: Information about a user to be updated

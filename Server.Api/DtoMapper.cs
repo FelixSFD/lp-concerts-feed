@@ -539,6 +539,21 @@ internal static class DtoMapper
             UpdatedAt = bo.UpdatedAt,
         };
     }
+    
+    /// <summary>
+    /// Maps the BusinessObject to a DTO, but only includes information that is publicly available (e.g., no email address)
+    /// </summary>
+    /// <param name="bo">BusinessObject to map</param>
+    /// <returns>the mapped DTO</returns>
+    public static PublicUserDto ToPublicDto(this UserBo bo)
+    {
+        return new PublicUserDto
+        {
+            Id = bo.Id,
+            Username = bo.Username,
+            OriginCountryCode = bo.OriginCountryCode,
+        };
+    }
 
     #endregion
 

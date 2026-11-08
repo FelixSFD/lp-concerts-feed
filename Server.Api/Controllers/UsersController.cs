@@ -100,6 +100,21 @@ public class UsersController(UserService userService, UserStatsService userStats
     }
     
     /// <summary>
+    /// Returns publicly available information about a user by their ID. This does not require authentication.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("{userId}/public")]
+    [OutputCache(PolicyName = CachePolicyNames.Long, Tags = [CacheTags.UsersAll])]
+    public async Task<ActionResult<PublicUserDto>> GetPublicUserById([FromRoute] string userId, CancellationToken cancellationToken)
+    {
+        userId = ResolveUserId(userId)!;
+        var user = await userService.GetUserById(userId, cancellationToken);
+        return Ok(user.ToPublicDto());
+    }
+    
+    /// <summary>
     /// Returns some general statistics about the concerts a user has attended
     /// </summary>
     /// <param name="cancellationToken"></param>
