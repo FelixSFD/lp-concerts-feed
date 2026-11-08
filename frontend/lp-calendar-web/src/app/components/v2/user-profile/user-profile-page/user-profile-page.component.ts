@@ -5,8 +5,9 @@ import {
   ProblemDetailsDto,
   PublicUserDto,
   UserConcertStatsResponseDto,
-  UserSongStatsResponseDto
+  UserSongStatsResponseDto, UserSongStatsResponseSongsInnerDto
 } from '../../../../modules/lpshows-api/v3';
+import Artwork = MusicKit.Artwork;
 import { Card } from 'primeng/card';
 import { UserStatsService } from '../../../../services/user-stats.service';
 import { ConcertMapComponent, ConcertMapPin } from '../../concert-map/concert-map.component';
@@ -14,6 +15,10 @@ import { defaultShowTypeId } from '../../../../app.config';
 import { Message } from 'primeng/message';
 import { UsersService } from '../../../../services/users.service';
 import { ButtonDirective, ButtonIcon, ButtonLabel } from 'primeng/button';
+import { DataView } from 'primeng/dataview';
+import { AppleMusicArtworkComponent } from '../../music/apple-music-artwork/apple-music-artwork.component';
+import { AppleMusicService } from '../../../../services/music/apple-music.service';
+import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
   imports: [
@@ -24,6 +29,9 @@ import { ButtonDirective, ButtonIcon, ButtonLabel } from 'primeng/button';
     ButtonIcon,
     ButtonLabel,
     RouterLink,
+    DataView,
+    AppleMusicArtworkComponent,
+    NgTemplateOutlet,
   ],
   selector: 'app-user-profile-page',
   styleUrl: './user-profile-page.component.css',
@@ -33,6 +41,7 @@ export class UserProfilePageComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly usersService = inject(UsersService);
   private readonly userStatsService = inject(UserStatsService);
+  private readonly appleMusicService = inject(AppleMusicService);
   protected username = signal<string>("");
   protected isOwnProfile = signal<boolean>(false);
   protected resolverError = signal<ProblemDetailsDto | null>(null);
@@ -41,6 +50,9 @@ export class UserProfilePageComponent {
   protected concertStats = signal<UserConcertStatsResponseDto | null>(null);
 
   protected concertPins = signal<ConcertMapPin[]>([]);
+
+  // map that stores the artwork for an Apple Music Song ID
+  songArtworks$ = signal<Map<string, Artwork>>(new Map<string, Artwork>());
 
   private user = signal<PublicUserDto | null>(null);
   private userUpdatedEffect = effect(() => {
@@ -59,6 +71,13 @@ export class UserProfilePageComponent {
     let currentProfilePageId = this.user()?.id;
     this.isOwnProfile.set(currentUserId == currentProfilePageId);
   });
+
+  /*private songStatsUpdatedEffect = effect(() => {
+    this.loadThumbnails(this.songStats()?.songs ?? []).then();
+    console.debug("Song stats updated");
+  });*/
+
+  private isLoadingThumbnails: boolean = false;
 
   constructor() {
     this.route.data.subscribe(data => {
@@ -80,6 +99,7 @@ export class UserProfilePageComponent {
       let stats = await this.userStatsService.getSongStats(userId);
       console.debug("User song stats:", stats);
       this.songStats.set(stats);
+      await this.loadThumbnails(stats.songs ?? []);
     } catch (e) {
       console.error("Failed to load user song stats:", e);
     }
@@ -108,6 +128,37 @@ export class UserProfilePageComponent {
       latitude: concert.venueLatitude ?? 0,
       longitude: concert.venueLongitude ?? 0,
       alwaysShowSubtitle: true,
+    }
+  }
+
+  private async loadThumbnails(songs: UserSongStatsResponseSongsInnerDto[]) {
+    if (this.isLoadingThumbnails) {
+      return;
+    }
+
+    this.isLoadingThumbnails = true;
+
+    try {
+      const appleMusicIds = songs
+        .filter(entry => entry.appleMusicId != null)
+        .map(entry => entry.appleMusicId!);
+
+      const foundAppleMusicSongs = appleMusicIds && appleMusicIds.length > 0 ? await this.appleMusicService.getSongsById(appleMusicIds) : [];
+      const artworks = new Map<string, Artwork>(this.songArtworks$());
+      for (const song of songs ?? []) {
+        if (song.appleMusicId == null) {
+          continue;
+        }
+        const foundSong = foundAppleMusicSongs.find(ams => ams.id == song.appleMusicId);
+        if (foundSong?.attributes?.artwork) {
+          artworks.set(song.appleMusicId, foundSong.attributes.artwork);
+        }
+      }
+      this.songArtworks$.set(artworks);
+    } catch (err) {
+      console.error("Could not load thumbnails", err);
+    } finally {
+      this.isLoadingThumbnails = false;
     }
   }
 }

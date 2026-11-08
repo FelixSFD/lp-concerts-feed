@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import { Injectable } from '@angular/core';
 import {firstValueFrom} from 'rxjs';
 import {AppleMusicSong} from '../../data/music/apple/apple-music-song';
 import Songs = MusicKit.Songs;
