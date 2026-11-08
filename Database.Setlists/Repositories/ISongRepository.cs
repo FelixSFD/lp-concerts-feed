@@ -18,4 +18,7 @@ public interface ISongRepository : ISingleKeyRepositoryBase<SongDo, uint>, IRepo
     /// <param name="title">Title of the song</param>
     /// <returns>all songs that were found</returns>
     public IAsyncEnumerable<SongDo> GetSongsByTitle(string title);
+    
+    public Task<IDictionary<SongDo, uint>> GetSongsPlayedAtConcertsAsync(IEnumerable<string> concertIds,
+        CancellationToken cancellationToken = default);
 }
