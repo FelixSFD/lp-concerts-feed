@@ -36,6 +36,7 @@ public class SqlSongRepository(SetlistsDbContext dbContext)
             .ToAsyncEnumerable();
     }
 
+    /// <inheritdoc/>
     public async Task<IDictionary<SongDo, uint>> GetSongsPlayedAtConcertsAsync(IEnumerable<string> concertIds,
         CancellationToken cancellationToken = default)
     {
