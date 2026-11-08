@@ -1,5 +1,5 @@
 import { Component, effect, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   ConcertDetailsShortDto,
   ProblemDetailsDto,
@@ -12,12 +12,18 @@ import { UserStatsService } from '../../../../services/user-stats.service';
 import { ConcertMapComponent, ConcertMapPin } from '../../concert-map/concert-map.component';
 import { defaultShowTypeId } from '../../../../app.config';
 import { Message } from 'primeng/message';
+import { UsersService } from '../../../../services/users.service';
+import { ButtonDirective, ButtonIcon, ButtonLabel } from 'primeng/button';
 
 @Component({
   imports: [
     Card,
     ConcertMapComponent,
     Message,
+    ButtonDirective,
+    ButtonIcon,
+    ButtonLabel,
+    RouterLink,
   ],
   selector: 'app-user-profile-page',
   styleUrl: './user-profile-page.component.css',
@@ -25,8 +31,10 @@ import { Message } from 'primeng/message';
 })
 export class UserProfilePageComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly usersService = inject(UsersService);
   private readonly userStatsService = inject(UserStatsService);
   protected username = signal<string>("");
+  protected isOwnProfile = signal<boolean>(false);
   protected resolverError = signal<ProblemDetailsDto | null>(null);
 
   protected songStats = signal<UserSongStatsResponseDto | null>(null);
@@ -45,6 +53,11 @@ export class UserProfilePageComponent {
     this.reloadSongStats(user.id).then();
     this.reloadConcertStats(user.id).then();
     this.username.set(user.username);
+  });
+  private isOwnProfileEffect = effect(() => {
+    let currentUserId = this.usersService.currentUser()?.id;
+    let currentProfilePageId = this.user()?.id;
+    this.isOwnProfile.set(currentUserId == currentProfilePageId);
   });
 
   constructor() {

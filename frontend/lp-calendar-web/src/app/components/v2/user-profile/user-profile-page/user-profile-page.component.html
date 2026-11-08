@@ -5,7 +5,16 @@
 } @else {
   <p-card>
     <ng-template #title>
-      Profile of {{ username() }}
+      <div class="flex justify-content-between align-items-center">
+        <span>Profile of {{ username() }}</span>
+
+        @if (isOwnProfile()) {
+          <button pButton variant="outlined" size="small" [routerLink]="['/profile']">
+            <i class="pi pi-pencil" pButtonIcon></i>
+            <span pButtonLabel>Edit</span>
+          </button>
+        }
+      </div>
     </ng-template>
 
     @if (concertStats()) {
