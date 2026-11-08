@@ -13,3 +13,11 @@
     <p>Seen <b>{{ songStats()?.numberOfSongs }} different songs</b> live</p>
   }
 </p-card>
+
+<p-card class="mt-3">
+  <ng-template #subtitle>
+    Concerts {{ username() }} has attended
+  </ng-template>
+
+  <app-concert-map [pins]="concertPins" />
+</p-card>
