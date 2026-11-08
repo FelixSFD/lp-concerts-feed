@@ -80,6 +80,7 @@ export class UserProfilePageComponent {
     }
     return {
       label: `${concert.cityName}, ${concert.countryName}`,
+      subtitle: `${concert.venueName}`,
       color: markerColor,
       latitude: concert.venueLatitude ?? 0,
       longitude: concert.venueLongitude ?? 0,
