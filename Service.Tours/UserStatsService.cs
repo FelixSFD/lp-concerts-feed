@@ -45,7 +45,7 @@ public class UserStatsService(IConcertRepository concertRepository, ISongReposit
             .Select(v => v.Key.Id)
             .Distinct()
             .Count();
-        var numberOfCities = byVenue
+        var numberOfCities = byCity
             .Select(c => c.Key.Id)
             .Distinct()
             .Count();
