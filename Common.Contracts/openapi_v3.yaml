@@ -4438,6 +4438,16 @@ components:
           type: string
           description: Name of the venue
           nullable: false
+        venueLatitude:
+          type: number
+          description: Latitude of the venue
+          nullable: true
+          format: double
+        venueLongitude:
+          type: number
+          description: Longitude of the venue
+          nullable: true
+          format: double
         cityName:
           type: string
           description: Name of the city

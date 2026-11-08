@@ -405,6 +405,8 @@ internal static class DtoMapper
             CustomTitle = bo.CustomTitle,
             ConcertDate = DateOnly.FromDateTime(bo.PostedStartTime.Date),
             VenueName = bo.Venue.CurrentName,
+            VenueLatitude = bo.Venue.Latitude,
+            VenueLongitude = bo.Venue.Longitude,
             CityName = bo.Venue.City.Name,
             CountryName = bo.Venue.City.Country.Name,
         };
