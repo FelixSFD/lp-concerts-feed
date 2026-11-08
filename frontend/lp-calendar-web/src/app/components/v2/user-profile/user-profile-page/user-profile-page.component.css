@@ -2,3 +2,16 @@
 .p-message-leave-active {
   animation: none !important;
 }
+
+
+.cover-art-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 7px;
+  background: var(--p-content-hover-background);
+  color: var(--p-surface-400);
+  font-size: 1.1rem;
+}
