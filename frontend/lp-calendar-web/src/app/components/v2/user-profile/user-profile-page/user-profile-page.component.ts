@@ -84,6 +84,7 @@ export class UserProfilePageComponent {
       color: markerColor,
       latitude: concert.venueLatitude ?? 0,
       longitude: concert.venueLongitude ?? 0,
+      alwaysShowSubtitle: true,
     }
   }
 }

@@ -101,7 +101,7 @@ export class ConcertMapComponent implements OnInit, OnDestroy {
       if (p.longitude != undefined && p.longitude != 0 && p.latitude != undefined && p.latitude != 0) {
         let markerColor = p.color ?? "#c969e0";
 
-        return this.makeMarker(p.latitude, p.longitude, p.label, p.subtitle, markerColor);
+        return this.makeMarker(p.latitude, p.longitude, p.label, p.subtitle, markerColor, p.alwaysShowSubtitle ?? false);
       }
 
       return null;
@@ -117,11 +117,12 @@ export class ConcertMapComponent implements OnInit, OnDestroy {
     this.appleMap?.showItems(annotations);
   }
 
-  private makeMarker(lat: number, lon: number, title: string | undefined, subtitle: string | undefined, color: string): MarkerAnnotation {
+  private makeMarker(lat: number, lon: number, title: string | undefined, subtitle: string | undefined, color: string, alwaysShowSubtitle: boolean): MarkerAnnotation {
     return new this.mapKit!.MarkerAnnotation(new this.mapKit!.Coordinate(lat, lon), {
       color: color,
       title: title,
       subtitle: subtitle,
+      subtitleVisibility: alwaysShowSubtitle ? this.mapKit!.FeatureVisibility.Visible : this.mapKit!.FeatureVisibility.Adaptive,
     });
   }
 
@@ -141,4 +142,10 @@ export class ConcertMapPin {
   public subtitle?: string;
   public latitude!: number;
   public longitude!: number;
+
+  /**
+   * Set this to true to always show the subtitle.
+   * If set to false, the subtitle will only be shown when the marker is selected.
+   */
+  public alwaysShowSubtitle?: boolean = false;
 }
