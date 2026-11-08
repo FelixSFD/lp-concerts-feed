@@ -1,16 +1,12 @@
 import {
-  ChangeDetectionStrategy,
-  Component,
+  Component, effect,
   ElementRef, Input,
-  OnChanges,
-  OnDestroy, OnInit, signal,
-  SimpleChanges,
+  OnDestroy, signal,
   ViewChild
 } from '@angular/core';
 import { load, MapKit, MarkerAnnotation } from '@apple/mapkit-loader';
 import {Map as AppleMap} from 'apple-mapkit/mapkit';
 import { environment } from '../../../../environments/environment';
-import { defaultShowTypeId } from '../../../app.config';
 
 @Component({
   imports: [],
@@ -18,7 +14,7 @@ import { defaultShowTypeId } from '../../../app.config';
   styleUrl: './concert-map.component.css',
   templateUrl: './concert-map.component.html',
 })
-export class ConcertMapComponent implements OnInit, OnDestroy {
+export class ConcertMapComponent implements OnDestroy {
   // Apple Maps
   private mapKit: MapKit | undefined;
   private mapKitPromise: Promise<MapKit> | null = null;
@@ -28,9 +24,9 @@ export class ConcertMapComponent implements OnInit, OnDestroy {
   @Input("pins")
   public pins = signal<ConcertMapPin[]>([]);
 
-  ngOnInit() {
+  private pinsChangedEffect = effect(() => {
     this.fillMapData(this.pins());
-  }
+  });
 
   ngOnDestroy(): void {
     if (this.appleMap) {
@@ -97,6 +93,7 @@ export class ConcertMapComponent implements OnInit, OnDestroy {
   }
 
   private fillMapData(pins: ConcertMapPin[]) {
+    console.debug("Filling map data with pin count", pins.length);
     let annotations = pins.map(p => {
       if (p.longitude != undefined && p.longitude != 0 && p.latitude != undefined && p.latitude != 0) {
         let markerColor = p.color ?? "#c969e0";
