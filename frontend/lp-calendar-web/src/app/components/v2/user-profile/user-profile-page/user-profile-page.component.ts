@@ -120,9 +120,11 @@ export class UserProfilePageComponent {
   async reloadConcertStats(userId: string) {
     try {
       let stats = await this.userStatsService.getConcertStats(userId);
+      let sortedConcerts = stats.concerts?.sort((a, b) => b.concertDate.localeCompare(a.concertDate)) ?? [];
+      stats.concerts = sortedConcerts;
       console.debug("User concert stats:", stats);
       this.concertStats.set(stats);
-      this.concertPins.set(stats.concerts?.map(c => this.makePinForConcert(c)) ?? []);
+      this.concertPins.set(sortedConcerts.map(c => this.makePinForConcert(c)) ?? []);
     } catch (e) {
       console.error("Failed to load user concert stats:", e);
     }

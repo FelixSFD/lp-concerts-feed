@@ -79,6 +79,46 @@
     </p-scrollarea>
   </p-card>
 
+  <p-card class="mt-3 max-w-30rem h-30rem">
+    <ng-template #subtitle>
+      Concerts
+    </ng-template>
+
+    <p-scrollarea class="h-26rem" [mask]="true">
+      <p-scrollarea-viewport>
+        <p-scrollarea-content class="space-y-2">
+          <p-dataview #dv [value]="concertStats()?.concerts" layout="list">
+            <ng-template #list let-items>
+              <div class="grid grid-cols-12 gap-4 grid-nogutter">
+                @for (item of items; track item.id; let first = $first) {
+                  <div class="col-12">
+                    <div class="flex sm:flex-row sm:items-center pl-2 gap-4 align-items-center justify-content-between">
+                      <div class="font-medium text-surface-900 dark:text-surface-0 white-space-nowrap">
+                        <a [routerLink]="['/concerts', item.id]" target="_blank">{{ item.concertDate }}</a>
+                      </div>
+                      <div class="font-medium text-surface-900 dark:text-surface-0 align-content-end text-right">
+                        <div class="font-italic">
+                          {{ item.venueName }}
+                        </div>
+                        <div>
+                          {{ item.cityName }}, {{ item.countryName }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </ng-template>
+          </p-dataview>
+        </p-scrollarea-content>
+      </p-scrollarea-viewport>
+
+      <p-scrollarea-scrollbar orientation="vertical">
+        <p-scrollarea-handle />
+      </p-scrollarea-scrollbar>
+    </p-scrollarea>
+  </p-card>
+
   <p-card class="mt-3">
     <ng-template #subtitle>
       Concerts {{ username() }} has attended
