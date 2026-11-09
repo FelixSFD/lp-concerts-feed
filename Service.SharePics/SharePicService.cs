@@ -16,11 +16,22 @@ public class SharePicService(IGotenbergClient gotenbergClient, string templateBa
             .FirstOrDefault(f => Path.GetFileName(f).Equals("index.html", StringComparison.OrdinalIgnoreCase))
             ?? throw new FileNotFoundException("No index.html file found in template directory", templateDir);
         
+        var additionalFiles = templateFiles
+            .Where(f => !Path.GetFileName(f).Equals("index.html", StringComparison.OrdinalIgnoreCase))
+            .Select(f => 
+                new GotenbergResourceFile
+                {
+                    FileName = Path.GetRelativePath(templateDir, f),
+                    FileContent = File.ReadAllBytes(f),
+                }
+            )
+            .ToArray();
+        
         Log.FoundTemplate(logger, templateId, templateDir);
         
         var templateHtml = await File.ReadAllTextAsync(indexFileName, cancellationToken);
         var filledTemplate = FillTemplate(templateHtml, data);
-        return await gotenbergClient.ConvertHtmlToPngAsync(filledTemplate, cancellationToken);
+        return await gotenbergClient.ConvertHtmlToPngAsync(filledTemplate, additionalFiles, cancellationToken);
     }
     
     private string FillTemplate(string templateHtml, IDictionary<string, object> data)

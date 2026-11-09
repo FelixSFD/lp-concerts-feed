@@ -6,7 +6,7 @@ public static partial class Log
 {
     [LoggerMessage(
         EventId = 20001,
-        Level = LogLevel.Debug,
+        Level = LogLevel.Trace,
         Message = "Sending HTML to Gotenberg for conversion to PNG image:\n{html}"
     )]
     public static partial void SendingHtmlToGotenberg(ILogger logger, string html);
@@ -31,4 +31,11 @@ public static partial class Log
         Message = "Found template '{templateId}'  in directory: {templateDir}"
     )]
     public static partial void FoundTemplate(ILogger logger, string templateId, string templateDir);
+    
+    [LoggerMessage(
+        EventId = 20005,
+        Level = LogLevel.Debug,
+        Message = "Adding additional file to Gotenberg request: {fileName} ({fileSize} bytes)"
+    )]
+    public static partial void GotenbergAddAdditionalFile(ILogger logger, string fileName, int fileSize);
 }
