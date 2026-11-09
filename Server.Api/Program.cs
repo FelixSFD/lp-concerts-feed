@@ -265,7 +265,10 @@ builder.Services.AddConcertSyncEngine();
 builder.Services.AddLocationSyncEngines();
 builder.Services.AddSetlistsService();
 builder.Services.AddScoped<UserService>();
-builder.Services.AddSharePicService(builder.Configuration.GetValue<string>("SharePics:Gotenberg:BaseUrl") ?? throw new ConfigurationErrorsException("SharePics:GotenbergBaseUrl is missing!"));
+builder.Services.AddSharePicService(
+    builder.Configuration.GetValue<string>("SharePics:Gotenberg:BaseUrl") ?? throw new ConfigurationErrorsException("SharePics:GotenbergBaseUrl is missing!"),
+    builder.Configuration.GetValue<string>("SharePics:TemplateBaseDir") ?? throw new ConfigurationErrorsException("SharePics:Templates:BaseDir is missing!")
+);
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IWikiMediaRepository, WikiMediaRepository>(b => new WikiMediaRepository(b.GetRequiredService<HttpClient>(),
     LinkinpediaImportService.LinkinpediaRestApiBaseUrl, LinkinpediaImportService.LinkinpediaActionApiBaseUrl, b.GetRequiredService<ILogger<WikiMediaRepository>>()));
