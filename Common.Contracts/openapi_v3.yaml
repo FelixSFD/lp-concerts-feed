@@ -4224,7 +4224,37 @@ paths:
         uri: https://api.dev.lpshows.felixsfd.de/v3/Mashups/{mashupId}
         requestParameters:
           integration.request.path.mashupId: method.request.path.mashupId
-
+  
+  /v3/sharePics/{templateId}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+      - name: templateId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - SharePics
+      summary: Generates a share pic based on a template
+      operationId: GetSharePicTemplateById
+      responses:
+        "200":
+          description: Generated picture
+          content:
+            image/png:
+              schema: 
+                type: object
+        "404":
+          description: "Template not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  
 components:
   parameters:
     X-LP-Request-Id:

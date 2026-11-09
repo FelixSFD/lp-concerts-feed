@@ -29,6 +29,7 @@ using Server.Api.Config;
 using Server.Api.ExceptionHandling;
 using Server.Api.HealthChecks;
 using Service.Setlists;
+using Service.SharePics;
 using Service.Tours;
 using Service.Tours.Importer;
 using Service.Tours.Syncing;
@@ -264,6 +265,7 @@ builder.Services.AddConcertSyncEngine();
 builder.Services.AddLocationSyncEngines();
 builder.Services.AddSetlistsService();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddSharePicService(builder.Configuration.GetValue<string>("SharePics:Gotenberg:BaseUrl") ?? throw new ConfigurationErrorsException("SharePics:GotenbergBaseUrl is missing!"));
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IWikiMediaRepository, WikiMediaRepository>(b => new WikiMediaRepository(b.GetRequiredService<HttpClient>(),
     LinkinpediaImportService.LinkinpediaRestApiBaseUrl, LinkinpediaImportService.LinkinpediaActionApiBaseUrl, b.GetRequiredService<ILogger<WikiMediaRepository>>()));
