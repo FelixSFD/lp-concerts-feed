@@ -10,8 +10,7 @@ public class SharePicController(SharePicService sharePicService) : ControllerBas
     [HttpPost("{templateId}")]
     public async Task<FileResult> GenerateSharePicAsync([FromRoute] string templateId, [FromBody] Dictionary<string, object> data, CancellationToken cancellationToken)
     {
-        var templateDir = Path.Combine(AppContext.BaseDirectory, "Templates", templateId);
-        var imageBytes = await sharePicService.GenerateSharePicAsync(templateDir, data, cancellationToken);
+        var imageBytes = await sharePicService.GenerateSharePicAsync(templateId, data, cancellationToken);
         return File(imageBytes, "image/png");
     }
 }
