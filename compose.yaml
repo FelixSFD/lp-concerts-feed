@@ -1,0 +1,11 @@
+﻿services:
+  server.api:
+    image: server.api
+    build:
+      context: .
+      dockerfile: Server.Api/Dockerfile
+
+  gotenberg:
+    image: gotenberg/gotenberg:9
+    ports:
+      - "5122:3000"
