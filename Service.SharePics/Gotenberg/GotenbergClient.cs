@@ -8,7 +8,7 @@ public class GotenbergClient(
     ILogger<GotenbergClient> logger
 ) : IGotenbergClient
 {
-    public async Task<byte[]> ConvertHtmlToPngAsync(string html, GotenbergResourceFile[] additionalFiles, CancellationToken cancellationToken = default)
+    public async Task<byte[]> ConvertHtmlToPngAsync(string html, GotenbergResourceFile[] additionalFiles, uint? width = null, uint? height = null, CancellationToken cancellationToken = default)
     {
         using var form = new MultipartFormDataContent();
 
@@ -20,11 +20,28 @@ public class GotenbergClient(
 
         form.Add(htmlContent, "files", "index.html");
 
+        // Add additional files
         foreach (var additionalFile in additionalFiles)
         {
             Log.GotenbergAddAdditionalFile(logger, additionalFile.FileName, additionalFile.FileContent.Length);
             var fileContent = new StreamContent(new MemoryStream(additionalFile.FileContent));
             form.Add(fileContent, "files", additionalFile.FileName);
+        }
+        
+        // add additional parameters
+        if (width.HasValue)
+        {
+            form.Add(new StringContent(width.Value.ToString()), "width");
+        }
+
+        if (height.HasValue)
+        {
+            form.Add(new StringContent(height.Value.ToString()), "height");
+        }
+        
+        if (width.HasValue || height.HasValue)
+        {
+            form.Add(new StringContent("true"), "clip");
         }
         
         Log.SendingHtmlToGotenberg(logger, html);

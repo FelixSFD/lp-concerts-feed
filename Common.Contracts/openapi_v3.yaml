@@ -4233,6 +4233,18 @@ paths:
         required: true
         schema:
           type: string
+      - name: width
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: uint32
+      - name: height
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: uint32
     post:
       tags:
         - SharePics

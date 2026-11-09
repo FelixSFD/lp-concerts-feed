@@ -8,7 +8,9 @@ public interface IGotenbergClient
     /// </summary>
     /// <param name="html"></param>
     /// <param name="additionalFiles"></param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<byte[]> ConvertHtmlToPngAsync(string html, GotenbergResourceFile[] additionalFiles, CancellationToken cancellationToken = default);
+    Task<byte[]> ConvertHtmlToPngAsync(string html, GotenbergResourceFile[] additionalFiles, uint? width = null, uint? height = null, CancellationToken cancellationToken = default);
 }

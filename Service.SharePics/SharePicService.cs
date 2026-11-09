@@ -6,7 +6,7 @@ namespace Service.SharePics;
 
 public class SharePicService(IGotenbergClient gotenbergClient, string templateBaseDir, ILogger<SharePicService> logger)
 {
-    public async Task<byte[]> GenerateSharePicAsync(string templateId, IDictionary<string, object> data, CancellationToken cancellationToken = default)
+    public async Task<byte[]> GenerateSharePicAsync(string templateId, IDictionary<string, object> data, uint? width = null, uint? height = null, CancellationToken cancellationToken = default)
     {
         Log.LookingForTemplateDirectory(logger, templateId);
         
@@ -31,7 +31,7 @@ public class SharePicService(IGotenbergClient gotenbergClient, string templateBa
         
         var templateHtml = await File.ReadAllTextAsync(indexFileName, cancellationToken);
         var filledTemplate = FillTemplate(templateHtml, data);
-        return await gotenbergClient.ConvertHtmlToPngAsync(filledTemplate, additionalFiles, cancellationToken);
+        return await gotenbergClient.ConvertHtmlToPngAsync(filledTemplate, additionalFiles, width, height, cancellationToken);
     }
     
     private string FillTemplate(string templateHtml, IDictionary<string, object> data)
