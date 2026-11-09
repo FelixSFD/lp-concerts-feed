@@ -29,13 +29,16 @@ public class GotenbergClient(
         }
         
         // add additional parameters
+        uint deviceScaleFactor = 2;
         if (width.HasValue)
         {
+            width *= deviceScaleFactor;
             form.Add(new StringContent(width.Value.ToString()), "width");
         }
 
         if (height.HasValue)
         {
+            height *= deviceScaleFactor;
             form.Add(new StringContent(height.Value.ToString()), "height");
         }
         
@@ -43,6 +46,8 @@ public class GotenbergClient(
         {
             form.Add(new StringContent("true"), "clip");
         }
+        
+        form.Add(new StringContent(deviceScaleFactor.ToString()), "deviceScaleFactor");
         
         Log.SendingHtmlToGotenberg(logger, html);
 
