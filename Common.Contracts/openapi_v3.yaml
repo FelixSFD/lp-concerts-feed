@@ -4233,11 +4233,18 @@ paths:
         required: true
         schema:
           type: string
-    get:
+    post:
       tags:
         - SharePics
       summary: Generates a share pic based on a template
       operationId: GetSharePicTemplateById
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
       responses:
         "200":
           description: Generated picture

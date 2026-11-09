@@ -1,5 +1,5 @@
-﻿using System.Text;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
+using Scriban;
 using Service.SharePics.Gotenberg;
 
 namespace Service.SharePics;
@@ -19,6 +19,13 @@ public class SharePicService(IGotenbergClient gotenbergClient, string templateBa
         Log.FoundTemplate(logger, templateId, templateDir);
         
         var templateHtml = await File.ReadAllTextAsync(indexFileName, cancellationToken);
-        return await gotenbergClient.ConvertHtmlToPngAsync(templateHtml, cancellationToken);
+        var filledTemplate = FillTemplate(templateHtml, data);
+        return await gotenbergClient.ConvertHtmlToPngAsync(filledTemplate, cancellationToken);
+    }
+    
+    private string FillTemplate(string templateHtml, IDictionary<string, object> data)
+    {
+        var template = Template.Parse(templateHtml);
+        return template.Render(data);
     }
 }
