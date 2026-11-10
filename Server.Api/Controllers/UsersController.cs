@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Server.Api.Auth;
 using Server.Api.Cache;
+using Service.SharePics;
 using Service.Tours;
 using Service.Users;
 using Service.Users.Exceptions;
@@ -21,7 +22,7 @@ namespace Server.Api.Controllers;
 /// <param name="logger"></param>
 [ApiController]
 [Route("v3/[controller]")]
-public class UsersController(UserService userService, UserStatsService userStatsService, ILogger<UsersController> logger) : ControllerBase
+public class UsersController(UserService userService, UserStatsService userStatsService, SharePicService sharePicService, ILogger<UsersController> logger) : ControllerBase
 {
     /// <summary>
     /// Returns a list of users that can be filtered and sorted
@@ -145,6 +146,37 @@ public class UsersController(UserService userService, UserStatsService userStats
     {
         var stats = await userStatsService.GetAttendedConcerts(userId, cancellationToken);
         return Ok(stats.ToDto());
+    }
+    
+    /// <summary>
+    /// Returns some general statistics about the concerts a user has attended as a shareable picture
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("{userId}/stats/concerts/share")]
+    [OutputCache(PolicyName = CachePolicyNames.UserStatsDynamic, Duration = CacheExpiration.Maximum)]
+    [CustomResponseCache(Duration = CacheExpiration.Default)]
+    public async Task<FileContentResult> GetUserConcertStatsSharePicAsync([FromRoute] string userId, CancellationToken cancellationToken)
+    {
+        var userInfoTask = userService.GetUserById(userId, cancellationToken);
+        var concertStatsTask = userStatsService.GetAttendedConcerts(userId, cancellationToken);
+        var songStatsTask = userStatsService.GetSongsUserHasSeenLiveAsync(userId, cancellationToken);
+        
+        var concertStats = await concertStatsTask;
+        var songStats = await songStatsTask;
+        var userInfo = await userInfoTask;
+        
+        var data = new Dictionary<string, object>
+        {
+            { "username", userInfo.Username },
+            { "concerts", concertStats.NumberOfConcerts },
+            { "cities", concertStats.NumberOfCities },
+            { "countries", concertStats.NumberOfCountries },
+            { "songs", songStats.Length },
+        };
+        var image = await sharePicService.GenerateSharePicAsync("user-stats-general", data, 390, 110, cancellationToken: cancellationToken);
+        return File(image, "image/png");
     }
     
     /// <summary>

@@ -2588,6 +2588,26 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserConcertStatsResponse'
   
+  /v3/Users/{userId}/stats/concerts/share:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Returns statistics about the concerts a user has attended
+      operationId: GetUserConcertStatsSharePic
+      tags:
+        - Users
+      responses:
+        "200":
+          description: Statistics about the concerts a user has attended in a shareable image
+          content:
+            image/png:
+              schema:
+                type: object
+  
   /v3/Users/me/stats/songs:
     get:
       summary: Returns statistics about the songs the current user has seen live
