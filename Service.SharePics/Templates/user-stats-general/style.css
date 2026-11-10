@@ -7,9 +7,10 @@ article {
 }
 
 article footer {
-    height: 0.8rem;
     font-size: 0.7rem;
     line-height: 0.2rem;
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
 }
 
 .stat-segment {
