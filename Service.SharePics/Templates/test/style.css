@@ -1,3 +1,5 @@
+@import url("https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css");
+
 body {
-    background: darkviolet;
+    background: var(--pico-color-purple-650);
 }
