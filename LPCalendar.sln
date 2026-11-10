@@ -181,6 +181,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{616F89AC-A43D-48BF-9CBE-04DD046F612A}"
 	ProjectSection(SolutionItems) = preProject
 		compose.yaml = compose.yaml
+		compose.override.yaml = compose.override.yaml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service.SharePics", "Service.SharePics\Service.SharePics.csproj", "{E8432C92-7184-4715-9A61-D1D0A154166E}"

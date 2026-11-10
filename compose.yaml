@@ -1,11 +1,8 @@
 ﻿services:
-  server.api:
-    image: server.api
-    build:
-      context: .
-      dockerfile: Server.Api/Dockerfile
+  # Hosts the API (v3)
+  api-server:
+    image: ${API_IMAGE:-server.api}
 
+  # Generates images from HTML
   gotenberg:
     image: gotenberg/gotenberg:9
-    ports:
-      - "5122:3000"
