@@ -24,3 +24,7 @@ article footer {
     font-weight: bold;
     max-lines: 1;
 }
+
+.app-icon {
+    margin-right: 0.4rem;
+}
