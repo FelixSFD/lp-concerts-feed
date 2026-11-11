@@ -35,7 +35,7 @@ jobs:
       - name: Deploy .env file to server
         uses: appleboy/scp-action@v1
         with:
-          host: ${{ secrets.BACKEND_SSH_HOST }}
+          host: ${{ vars.BACKEND_SSH_HOST }}
           username: ${{ secrets.BACKEND_SSH_USERNAME }}
           key: ${{ secrets.BACKEND_SSH_PRIVATE_KEY }}
           port: ${{ secrets.BACKEND_SSH_PORT }}
