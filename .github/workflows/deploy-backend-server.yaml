@@ -34,6 +34,7 @@ jobs:
           envkey_CONCERT_IMAGE_BUCKET_NAME: ${{ vars.CONCERT_IMAGE_BUCKET_NAME }}
           envkey_TRAEFIK_ROUTER_API_SERVER: ${{ vars.TRAEFIK_ROUTER_API_SERVER }}
           envkey_API_IMAGE: "ghcr.io/felixsfd/lpshows-api-server:${{ vars.SERVER_IMAGE_TAG }}"
+          envkey_API_HOSTNAME: "api.${{ vars.ROOT_DOMAIN }}"
       - name: Deploy .env file to server
         uses: appleboy/scp-action@v1
         with:
