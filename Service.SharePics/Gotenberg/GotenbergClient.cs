@@ -8,7 +8,7 @@ public class GotenbergClient(
     ILogger<GotenbergClient> logger
 ) : IGotenbergClient
 {
-    public async Task<byte[]> ConvertHtmlToPngAsync(string html, GotenbergResourceFile[] additionalFiles, uint? width = null, uint? height = null, CancellationToken cancellationToken = default)
+    public async Task<byte[]> ConvertHtmlToPngAsync(string html, GotenbergResourceFile[] additionalFiles, GotenbergOutputConfig outputConfig, CancellationToken cancellationToken = default)
     {
         using var form = new MultipartFormDataContent();
 
@@ -30,6 +30,8 @@ public class GotenbergClient(
         
         // add additional parameters
         uint deviceScaleFactor = 2;
+        var width = outputConfig.Width;
+        var height = outputConfig.Height;
         if (width.HasValue)
         {
             width *= deviceScaleFactor;
@@ -42,9 +44,11 @@ public class GotenbergClient(
             form.Add(new StringContent(height.Value.ToString()), "height");
         }
         
-        if (width.HasValue || height.HasValue)
+        form.Add(new StringContent("true"), "clip");
+        
+        if (!string.IsNullOrWhiteSpace(outputConfig.ElementSelector))
         {
-            form.Add(new StringContent("true"), "clip");
+            form.Add(new StringContent(outputConfig.ElementSelector), "selector");
         }
         
         form.Add(new StringContent(deviceScaleFactor.ToString()), "deviceScaleFactor");

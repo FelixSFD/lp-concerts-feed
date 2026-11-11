@@ -8,9 +8,8 @@ public interface IGotenbergClient
     /// </summary>
     /// <param name="html"></param>
     /// <param name="additionalFiles"></param>
-    /// <param name="width"></param>
-    /// <param name="height"></param>
+    /// <param name="outputConfig">Configures how the screenshot will be taken</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<byte[]> ConvertHtmlToPngAsync(string html, GotenbergResourceFile[] additionalFiles, uint? width = null, uint? height = null, CancellationToken cancellationToken = default);
+    Task<byte[]> ConvertHtmlToPngAsync(string html, GotenbergResourceFile[] additionalFiles, GotenbergOutputConfig outputConfig, CancellationToken cancellationToken = default);
 }

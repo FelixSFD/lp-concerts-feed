@@ -35,7 +35,12 @@ public partial class SharePicService(IGotenbergClient gotenbergClient, string te
         var templateHtml = await File.ReadAllTextAsync(indexFileName, cancellationToken);
         templateHtml = RewriteAssetPaths(templateHtml);
         var filledTemplate = FillTemplate(templateHtml, data);
-        return await gotenbergClient.ConvertHtmlToPngAsync(filledTemplate, additionalFiles, width, height, cancellationToken);
+        var outputConfig = new GotenbergOutputConfig
+        {
+            Width = width,
+            Height = height,
+        };
+        return await gotenbergClient.ConvertHtmlToPngAsync(filledTemplate, additionalFiles, outputConfig, cancellationToken);
     }
     
     private string FillTemplate(string templateHtml, IDictionary<string, object> data)
