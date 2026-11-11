@@ -19,9 +19,6 @@ jobs:
       name: ${{ inputs.environment || 'test' }}
     steps:
       - uses: actions/checkout@v7
-        name: Sparse checkout
-        with:
-          sparse-checkout: "Service.SharePic/Templates"
       - name: Deploy SharePic templates
         uses: burnett01/rsync-deployments@v9
         with:
