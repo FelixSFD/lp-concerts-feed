@@ -1,0 +1,36 @@
+﻿# Override values for actual deployment on a server
+# This assumes that some networks and services (like traefik) are already running on the server and that this deployment is part of a larger system.
+
+services:
+  api-server:
+    restart: unless-stopped
+    #healthcheck:
+    #  disable: true
+    networks:
+      - default
+      - database
+      - monitoring
+      - proxy
+    volumes:
+      - ./appsettings.Production.json:/app/appsettings.Production.json:ro
+      - ./.aws_config:/app/.aws_config
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - AWS_PROFILE=${AWS_PROFILE}
+      - AWS_CONFIG_FILE=${AWS_CONFIG_FILE}
+      - App_ConnectionStrings__lpdb=${LPDB_CONNECTION_STRING}
+      - App_EnableSwaggerUI=${USE_SWAGGERUI}
+      - App_ConcertImageUpload__BucketName=${CONCERT_IMAGE_BUCKET_NAME}
+      - App_Cognito__AppClientId=${AWS_COGNITO_CLIENT_ID}
+      - App_Cognito__UserPoolId=${AWS_COGNITO_USER_POOL_ID}
+      - App_Cognito__AWSRegion=${AWS_COGNITO_REGION}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}.entrypoints=websecure"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}.rule=(Host(`${API_HOSTNAME}`))"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}.tls=true"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}.tls.certresolver=http_resolver"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}.service=${TRAEFIK_SERVICE_API_SERVER}"
+      - "traefik.http.services.${TRAEFIK_SERVICE_API_SERVER}.loadbalancer.server.port=8080"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}.middlewares=default@file,warp-cloudfront@file"
