@@ -18,6 +18,16 @@ jobs:
     environment: 
       name: ${{ inputs.environment || 'test' }}
     steps:
+      - name: Deploy SharePic templates
+        uses: burnett01/rsync-deployments@v9
+        with:
+          switches: -avzr --delete-after
+          path: Service.SharePics/Templates/
+          remote_path: ${{ secrets.BACKEND_SERVER_STACK_PATH }}/templates # ex: /var/www/html/
+          remote_host: ${{ vars.BACKEND_SSH_HOST }} # ex: example.com
+          remote_port: ${{ secrets.BACKEND_SSH_PORT }} # ex: 22
+          remote_user: ${{ secrets.BACKEND_SSH_USERNAME }} # ex: ubuntu
+          remote_password: ${{ secrets.BACKEND_SSH_PASSWORD }}
       - name: Execute remote SSH commands using password
         uses: appleboy/ssh-action@v1
         with:
