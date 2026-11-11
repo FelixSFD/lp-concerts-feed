@@ -24,7 +24,7 @@ jobs:
         with:
           file_name: .env
           envkey_DEPLOYMENT_ENVIRONMENT: ${{ inputs.environment || 'test' }}
-          envkey_LPDB_CONNECTION_STRING: ${{ secrets.SETLISTS_CONNECTION_STRING_WRITE }}
+          envkey_LPDB_CONNECTION_STRING: ${{ secrets.API_SERVER_DB_CONNECTION_STRING }}
           envkey_USE_SWAGGERUI: true
           envkey_AWS_COGNITO_CLIENT_ID: ${{ vars.COGNITO_CLIENT_ID }}
           envkey_AWS_COGNITO_USER_POOL_ID: ${{ vars.COGNITO_USER_POOL_ID }}
