@@ -62,5 +62,5 @@ jobs:
           port: ${{ secrets.BACKEND_SSH_PORT }}
           script: |
             cd ${{ secrets.BACKEND_SERVER_STACK_PATH }}
-            docker compose pull
-            docker compose up -d
+            docker compose -f compose.yaml -f compose.deployment.yaml pull
+            docker compose -f compose.yaml -f compose.deployment.yaml up -d
