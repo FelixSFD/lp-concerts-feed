@@ -27,7 +27,7 @@ jobs:
           remote_host: ${{ vars.BACKEND_SSH_HOST }} # ex: example.com
           remote_port: ${{ secrets.BACKEND_SSH_PORT }} # ex: 22
           remote_user: ${{ secrets.BACKEND_SSH_USERNAME }} # ex: ubuntu
-          remote_password: ${{ secrets.BACKEND_SSH_PASSWORD }}
+          remote_key: ${{ secrets.BACKEND_SSH_PRIVATE_KEY }}
       - name: Execute remote SSH commands using password
         uses: appleboy/ssh-action@v1
         with:
