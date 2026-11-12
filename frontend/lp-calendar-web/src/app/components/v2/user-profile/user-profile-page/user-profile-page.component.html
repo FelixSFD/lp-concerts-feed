@@ -14,7 +14,16 @@
   <p-card>
     <ng-template #title>
       <div class="flex justify-content-between align-items-center">
-        <span>Profile of {{ username() }}</span>
+        <div>
+          Profile of {{ username() }}
+
+          <p-tag
+            value="BETA"
+            severity="secondary"
+            pTooltip="This is an early version of this feature and might not work perfectly"
+            tooltipPosition="bottom"
+          />
+        </div>
 
         @if (isOwnProfile()) {
           <button pButton variant="outlined" size="small" [routerLink]="['/profile']">

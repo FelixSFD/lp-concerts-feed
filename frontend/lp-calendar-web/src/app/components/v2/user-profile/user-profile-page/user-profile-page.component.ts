@@ -26,6 +26,8 @@ import {
   ScrollAreaScrollbar,
   ScrollAreaViewport
 } from 'primeng/scrollarea';
+import { Tag } from 'primeng/tag';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   imports: [
@@ -44,6 +46,8 @@ import {
     ScrollAreaViewport,
     ScrollAreaScrollbar,
     ScrollAreaHandle,
+    Tag,
+    Tooltip,
   ],
   selector: 'app-user-profile-page',
   styleUrl: './user-profile-page.component.css',
