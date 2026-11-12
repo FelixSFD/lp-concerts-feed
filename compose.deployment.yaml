@@ -1,6 +1,15 @@
 ﻿# Override values for actual deployment on a server
 # This assumes that some networks and services (like traefik) are already running on the server and that this deployment is part of a larger system.
 
+# these networks are expected to be created outside of this compose file, for example by a traefik deployment or other services.
+networks:
+  monitoring:
+    external: true
+  database:
+    external: true
+  proxy:
+    external: true
+
 services:
   api-server:
     restart: unless-stopped
