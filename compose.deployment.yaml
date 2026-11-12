@@ -37,7 +37,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}.entrypoints=websecure"
-      - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}.rule=(Host(`${API_HOSTNAME}`))"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}.rule=(Host(`${API_HOSTNAME_INTERNAL}`))"
       - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}.tls=true"
       - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}.tls.certresolver=http_resolver"
       - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}.service=${TRAEFIK_SERVICE_API_SERVER}"
