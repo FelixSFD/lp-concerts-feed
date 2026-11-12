@@ -36,94 +36,110 @@
     }
   </p-card>
 
-  <p-card class="mt-3 max-w-30rem h-30rem">
-    <ng-template #subtitle>
-      Songs {{ username() }} has seen live
-    </ng-template>
-
-    <p-scrollarea class="h-26rem" [mask]="true">
-      <p-scrollarea-viewport>
-        <p-scrollarea-content class="space-y-2">
-          <p-dataview #dv [value]="songStats()?.songs" layout="list">
-            <ng-template #list let-items>
-              <div class="grid grid-cols-12 gap-4 grid-nogutter">
-                @for (item of items; track item.id; let first = $first) {
-                  <div class="col-12">
-                    <div class="flex sm:flex-row sm:items-center pl-2 gap-4 align-items-center justify-content-between">
-                      <div class="md:w-40 relative align-content-center">
-                        <ng-container
-                          [ngTemplateOutlet]="albumArtwork"
-                          [ngTemplateOutletContext]="{appleMusicArtwork: songArtworks$().get(item.appleMusicId)}"
-                        />
-                      </div>
-
-                      <div class="font-medium text-surface-900 dark:text-surface-0">
-                        {{ item.songTitle }}
-                      </div>
-
-                      <div class="font-medium text-surface-900 dark:text-surface-0 ml-auto">
-                        {{ item.playCount }} {{ item.playCount == 1 ? "time" : "times" }}
-                      </div>
-                    </div>
-                  </div>
-                }
-              </div>
+  <div class="grid mt-3">
+    <!-- Left side: Song and Concert list -->
+    <div class="col-12 xl:col-4">
+      <div class="grid">
+        <!-- Songs -->
+        <div class="col-12 md:col-6 lg:col-6 xl:col-12">
+          <p-card class="h-30rem">
+            <ng-template #subtitle>
+              Songs {{ username() }} has seen live
             </ng-template>
-          </p-dataview>
-        </p-scrollarea-content>
-      </p-scrollarea-viewport>
 
-      <p-scrollarea-scrollbar orientation="vertical">
-        <p-scrollarea-handle />
-      </p-scrollarea-scrollbar>
-    </p-scrollarea>
-  </p-card>
+            <p-scrollarea class="h-26rem" [mask]="true">
+              <p-scrollarea-viewport>
+                <p-scrollarea-content class="space-y-2">
+                  <p-dataview #dv [value]="songStats()?.songs" layout="list">
+                    <ng-template #list let-items>
+                      <div class="grid grid-cols-12 gap-4 grid-nogutter">
+                        @for (item of items; track item.id; let first = $first) {
+                          <div class="col-12">
+                            <div class="flex sm:flex-row sm:items-center pl-2 gap-4 align-items-center justify-content-between">
+                              <div class="md:w-40 relative align-content-center">
+                                <ng-container
+                                  [ngTemplateOutlet]="albumArtwork"
+                                  [ngTemplateOutletContext]="{appleMusicArtwork: songArtworks$().get(item.appleMusicId)}"
+                                />
+                              </div>
 
-  <p-card class="mt-3 max-w-30rem h-30rem">
-    <ng-template #subtitle>
-      Concerts
-    </ng-template>
+                              <div class="font-medium text-surface-900 dark:text-surface-0">
+                                {{ item.songTitle }}
+                              </div>
 
-    <p-scrollarea class="h-26rem" [mask]="true">
-      <p-scrollarea-viewport>
-        <p-scrollarea-content class="space-y-2">
-          <p-dataview #dv [value]="concertStats()?.concerts" layout="list">
-            <ng-template #list let-items>
-              <div class="grid grid-cols-12 gap-4 grid-nogutter">
-                @for (item of items; track item.id; let first = $first) {
-                  <div class="col-12">
-                    <div class="flex sm:flex-row sm:items-center pl-2 gap-4 align-items-center justify-content-between">
-                      <div class="font-medium text-surface-900 dark:text-surface-0 white-space-nowrap">
-                        <a [routerLink]="['/concerts', item.id]" target="_blank">{{ item.concertDate }}</a>
+                              <div class="font-medium text-surface-900 dark:text-surface-0 ml-auto">
+                                {{ item.playCount }} {{ item.playCount == 1 ? "time" : "times" }}
+                              </div>
+                            </div>
+                          </div>
+                        }
                       </div>
-                      <div class="font-medium text-surface-900 dark:text-surface-0 align-content-end text-right">
-                        <div class="font-italic">
-                          {{ item.venueName }}
-                        </div>
-                        <div>
-                          {{ item.cityName }}, {{ item.countryName }}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                }
-              </div>
+                    </ng-template>
+                  </p-dataview>
+                </p-scrollarea-content>
+              </p-scrollarea-viewport>
+
+              <p-scrollarea-scrollbar orientation="vertical">
+                <p-scrollarea-handle />
+              </p-scrollarea-scrollbar>
+            </p-scrollarea>
+          </p-card>
+        </div>
+
+        <!-- Concerts -->
+        <div class="col-12 md:col-6 lg:col-6 xl:col-12">
+          <p-card class="h-30rem">
+            <ng-template #subtitle>
+              Concerts
             </ng-template>
-          </p-dataview>
-        </p-scrollarea-content>
-      </p-scrollarea-viewport>
 
-      <p-scrollarea-scrollbar orientation="vertical">
-        <p-scrollarea-handle />
-      </p-scrollarea-scrollbar>
-    </p-scrollarea>
-  </p-card>
+            <p-scrollarea class="h-26rem" [mask]="true">
+              <p-scrollarea-viewport>
+                <p-scrollarea-content class="space-y-2">
+                  <p-dataview #dv [value]="concertStats()?.concerts" layout="list">
+                    <ng-template #list let-items>
+                      <div class="grid grid-cols-12 gap-4 grid-nogutter">
+                        @for (item of items; track item.id; let first = $first) {
+                          <div class="col-12">
+                            <div class="flex sm:flex-row sm:items-center pl-2 gap-4 align-items-center justify-content-between">
+                              <div class="font-medium text-surface-900 dark:text-surface-0 white-space-nowrap">
+                                <a [routerLink]="['/concerts', item.id]" target="_blank">{{ item.concertDate }}</a>
+                              </div>
+                              <div class="font-medium text-surface-900 dark:text-surface-0 align-content-end text-right">
+                                <div class="font-italic">
+                                  {{ item.venueName }}
+                                </div>
+                                <div>
+                                  {{ item.cityName }}, {{ item.countryName }}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    </ng-template>
+                  </p-dataview>
+                </p-scrollarea-content>
+              </p-scrollarea-viewport>
 
-  <p-card class="mt-3">
-    <ng-template #subtitle>
-      Concerts {{ username() }} has attended
-    </ng-template>
+              <p-scrollarea-scrollbar orientation="vertical">
+                <p-scrollarea-handle />
+              </p-scrollarea-scrollbar>
+            </p-scrollarea>
+          </p-card>
+        </div>
+      </div>
+    </div>
 
-    <app-concert-map [pins]="concertPins" />
-  </p-card>
+    <!-- Right side: Map -->
+    <div class="col-12 xl:col-8">
+      <p-card class="h-full">
+        <ng-template #subtitle>
+          Concerts {{ username() }} has attended
+        </ng-template>
+
+        <app-concert-map [pins]="concertPins" />
+      </p-card>
+    </div>
+  </div>
 }
