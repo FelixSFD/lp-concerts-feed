@@ -188,6 +188,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service.SharePics", "Service.SharePics\Service.SharePics.csproj", "{E8432C92-7184-4715-9A61-D1D0A154166E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Jobs", "Common.Jobs\Common.Jobs.csproj", "{9C70BA3B-04AD-4176-8199-3FAE75355079}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -490,5 +492,9 @@ Global
 		{E8432C92-7184-4715-9A61-D1D0A154166E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E8432C92-7184-4715-9A61-D1D0A154166E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E8432C92-7184-4715-9A61-D1D0A154166E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C70BA3B-04AD-4176-8199-3FAE75355079}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C70BA3B-04AD-4176-8199-3FAE75355079}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C70BA3B-04AD-4176-8199-3FAE75355079}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C70BA3B-04AD-4176-8199-3FAE75355079}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

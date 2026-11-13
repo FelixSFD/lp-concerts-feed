@@ -1,6 +1,7 @@
 using System.Configuration;
 using System.Text.Json.Serialization;
 using AppleDeveloperToken;
+using Common.Jobs;
 using Common.Server.ClientIp;
 using Common.Server.ExceptionHandling;
 using Common.Utils.Cache;
@@ -23,6 +24,7 @@ using OpenTelemetry.Exporter;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
 using Prometheus;
+using Quartz;
 using Server.Api.Cache;
 using Server.Api.Cache.Policies;
 using Server.Api.Config;
@@ -284,6 +286,18 @@ builder.Services.AddSingleton<TokenGenerator>(b =>
     return new TokenGenerator(privateKey, teamId, keyId);
 });
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("QuartzDashboard", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.RequireRole("Admin");
+    });
+});
+
+// Register hangfire
+builder.Services.AddJobServices(builder.Configuration.GetValue<string>("Quartz:ConnectionString") ?? throw new ConfigurationErrorsException("Quartz:ConnectionString is missing!"));
+
 // Register authentication schemes, and specify the default authentication scheme
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -379,6 +393,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseOutputCache();
+
+app.MapQuartzDashboard().AllowAnonymous().DisableAntiforgery();
 
 app.MapControllers();
 app.MapHealthChecks("/health");
