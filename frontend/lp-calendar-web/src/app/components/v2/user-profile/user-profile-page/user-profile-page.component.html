@@ -147,7 +147,11 @@
           Concerts {{ username() }} has attended
         </ng-template>
 
-        <app-concert-map [pins]="concertPins" />
+        <div class="map-card-content">
+          <div class="map-card-content-inner">
+            <app-concert-map [pins]="concertPins" />
+          </div>
+        </div>
       </p-card>
     </div>
   </div>

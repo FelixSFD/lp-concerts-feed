@@ -15,3 +15,16 @@
   color: var(--p-surface-400);
   font-size: 1.1rem;
 }
+
+
+.map-card-content {
+  display: flex;
+  flex-direction: column;
+  height: 57rem; /* Height of slightly less than two cards on the left */
+}
+
+.map-card-content-inner {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
