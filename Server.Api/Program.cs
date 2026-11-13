@@ -367,6 +367,9 @@ using (var scope = app.Services.CreateScope())
     await usersDb.Database.MigrateAsync();
 }
 
+// Register jobs
+await app.RegisterScheduledJobs();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("EnableSwaggerUI"))
 {

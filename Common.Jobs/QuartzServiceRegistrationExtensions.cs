@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Common.Jobs.Jobs;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using MySql.Data.MySqlClient;
 using Quartz;
 
 namespace Common.Jobs;
@@ -19,24 +22,36 @@ public static class QuartzServiceRegistrationExtensions
             {
                 options.InstanceName = "LPshows";
                 options.GenerateInstanceId = true;
+                options.DefaultTimeZone = TimeZoneInfo.Utc;
             });
             
             q.UsePersistentStore(store =>
             {
-                store.UseMySqlConnector(connectionString).ConfigureStore(options =>
-                {
-                    options.TablePrefix = "QRTZ_";
-                });
-
+                store.UseMySql(connectionString);
                 store.UseClustering();
+                store.ProvisionSchema();
             });
-            
-            services.AddQuartzDashboard(options =>
-            {
-                options.DashboardPath = "/quartz";
-                options.ReadOnly = true;
-            });
+
+            // add the jobs from attributes
+            q.AddDeclaredJobs();
         });
+        
+        services.AddQuartzHostedService(options =>
+        {
+            options.WaitForJobsToComplete = true;
+        });
+        
+        services.AddQuartzDashboard(options =>
+        {
+            options.DashboardPath = "/quartz";
+            options.ReadOnly = true;
+        });
+        
         return services;
+    }
+
+    public static async Task<IApplicationBuilder> RegisterScheduledJobs(this IApplicationBuilder app)
+    {
+        return app;
     }
 }

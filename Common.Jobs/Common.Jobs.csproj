@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="MySql.Data" Version="26.10.0" />
       <PackageReference Include="Quartz" Version="4.7.3" />
       <PackageReference Include="Quartz.Dashboard" Version="4.7.3" />
     </ItemGroup>
