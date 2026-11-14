@@ -3,6 +3,7 @@ namespace Service.SharePics.DataStructure.Templates;
 public class UserStatsGeneralTemplate : SharePicTemplate
 {
     public override string TemplateId => "user-stats-general";
+    public override string MainElementSelector => "#main-card";
     
     /// <summary>
     /// Name of the user

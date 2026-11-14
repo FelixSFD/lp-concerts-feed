@@ -3,7 +3,8 @@ namespace Service.SharePics.DataStructure.Templates;
 public class ProfileBannerTemplate : SharePicTemplate
 {
     public override string TemplateId => "user-banner";
-    
+    public override string MainElementSelector => "body";
+
     /// <summary>
     /// Name of the user
     /// </summary>

@@ -11,11 +11,11 @@ public partial class SharePicService(IGotenbergClient gotenbergClient, string te
     public async Task<byte[]> GenerateSharePicAsync(SharePicTemplate template,
         uint? width = null, uint? height = null, CancellationToken cancellationToken = default)
     {
-        return await GenerateSharePicAsync(template.TemplateId, template.GetParameterValues(), width, height,
+        return await GenerateSharePicAsync(template.TemplateId, template.GetParameterValues(), width, height, template.MainElementSelector,
             cancellationToken);
     }
     
-    public async Task<byte[]> GenerateSharePicAsync(string templateId, IDictionary<string, object> data, uint? width = null, uint? height = null, CancellationToken cancellationToken = default)
+    public async Task<byte[]> GenerateSharePicAsync(string templateId, IDictionary<string, object> data, uint? width = null, uint? height = null, string? elementSelector = null, CancellationToken cancellationToken = default)
     {
         Log.LookingForTemplateDirectory(logger, templateId);
         
@@ -48,6 +48,12 @@ public partial class SharePicService(IGotenbergClient gotenbergClient, string te
             Width = width,
             Height = height,
         };
+
+        if (!string.IsNullOrWhiteSpace(elementSelector))
+        {
+            outputConfig.ElementSelector = elementSelector;
+        }
+        
         return await gotenbergClient.ConvertHtmlToPngAsync(filledTemplate, additionalFiles, outputConfig, cancellationToken);
     }
     

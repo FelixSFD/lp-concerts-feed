@@ -17,14 +17,14 @@
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<main class="">
+<main>
     <!-- TODO: proper layout -->
     <article id="main-card" class="pico-background-purple-600">
         <div class="grid card-header">
             <p class="pico-color-zinc-100">{{ username }}'s Linkin Park journey</p>
         </div>
 
-        <div class="grid">
+        <div class="stats-content">
             <div class="stat-segment">
                 <div class="stat-segment-value">{{ concerts | array.size }}</div>
                 <div class="stat-segment-label">concerts</div>
@@ -53,7 +53,7 @@
             <span>First concert: {{ first_concert.date | date.to_string '%Y-%m-%d' }} - {{ first_concert.location }}</span>
             <span>Latest concert: {{ last_concert.date | date.to_string '%Y-%m-%d' }} - {{ last_concert.location }}</span>
         </div>
-
+        
         <footer data-theme="dark">
             <img class="app-icon" src="../_base/app_icon.png" alt="Icon" width="24" height="24" />
             Generate your own summary on lpshows.live

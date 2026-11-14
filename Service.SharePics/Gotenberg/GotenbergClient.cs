@@ -34,13 +34,13 @@ public class GotenbergClient(
         var height = outputConfig.Height;
         if (width.HasValue)
         {
-            width *= deviceScaleFactor;
+            width /= deviceScaleFactor;
             form.Add(new StringContent(width.Value.ToString()), "width");
         }
 
         if (height.HasValue)
         {
-            height *= deviceScaleFactor;
+            height /= deviceScaleFactor;
             form.Add(new StringContent(height.Value.ToString()), "height");
         }
         

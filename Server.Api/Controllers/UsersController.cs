@@ -183,7 +183,7 @@ public class UsersController(UserService userService, UserStatsService userStats
             Cities = concertStats.NumberOfCities,
             Songs = songStats.Length,
         };
-        var image = await sharePicService.GenerateSharePicAsync(template, 385, 120, cancellationToken: cancellationToken);
+        var image = await sharePicService.GenerateSharePicAsync(template, 1080, 1350, cancellationToken: cancellationToken);
         return File(image, "image/png");
     }
     
