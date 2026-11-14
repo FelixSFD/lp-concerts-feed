@@ -55,6 +55,19 @@ article footer {
     display: grid;
     grid-gap: 0.4rem;
     grid-template-columns: repeat(2, 1fr);
+    max-height: 20rem;
+}
+
+.concerts-list {
+    text-fit: shrink consistent;
+    text-wrap: nowrap;
+    max-height: 18rem;
+    font-size: small;
+}
+
+.hidden-concerts-text {
+    text-align: center;
+    font-style: italic;
 }
 
 .lists-container .stats-header {

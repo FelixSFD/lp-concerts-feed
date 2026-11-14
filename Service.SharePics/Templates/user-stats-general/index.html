@@ -52,8 +52,17 @@
             <div>
                 <b class="stats-header">Attended concerts</b>
 
-                <p>First concert: {{ first_concert.date | date.to_string '%Y-%m-%d' }} - {{ first_concert.location }}</p>
-                <p>Latest concert: {{ last_concert.date | date.to_string '%Y-%m-%d' }} - {{ last_concert.location }}</p>
+                <div class="concerts-list">
+                    {{ concerts_offset = (12 - (concerts | array.size)) * -1 }}
+                    <b>{{ first_concert.date | date.to_string '%Y-%m-%d' }}</b> - {{ first_concert.location }}
+                    {{ if (concerts | array.size) > 15 }}
+                    <div class="hidden-concerts-text">{{ concerts_offset - 1 }} more concerts</div>
+                    {{ end }}
+                    {{~ for concert in (concerts | array.sort "date" | array.offset concerts_offset) ~}}
+                    <b>{{ concert.date | date.to_string '%Y-%m-%d' }}</b> - {{ concert.location }}
+                    <br />
+                    {{~ end ~}}
+                </div>
             </div>
             
             <!-- Songs -->
