@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Quartz;
 using Service.SharePics;
+using Service.SharePics.Storage;
 using Service.Tours;
 using Service.Users;
 
@@ -8,7 +9,7 @@ namespace Common.Jobs.Jobs;
 
 [QuartzJob(Name = "UpdateProfileBanners", Group = "LPshows")]
 [CronTrigger("0 * * * * ?")]
-public sealed class UpdateProfileBannersJob(UserService userService, UserStatsService userStatsService, SharePicService sharePicService, ILogger<UpdateProfileBannersJob> logger) : IJob
+public sealed class UpdateProfileBannersJob(UserService userService, UserStatsService userStatsService, SharePicService sharePicService, ISharePicStore sharePicStore, ILogger<UpdateProfileBannersJob> logger) : IJob
 {
     public async ValueTask Execute(IJobExecutionContext context, CancellationToken cancellationToken = default)
     {
@@ -32,7 +33,9 @@ public sealed class UpdateProfileBannersJob(UserService userService, UserStatsSe
                 { "songs", songStats.Length },
             };
             var image = await sharePicService.GenerateSharePicAsync("user-stats-general", data, 390, 110, cancellationToken: cancellationToken);
-            await File.WriteAllBytesAsync($"test-{user.Id}.png", image, cancellationToken);
+            var memoryStream = new MemoryStream(image);
+            await sharePicStore.StorePermanentAsync(memoryStream, $"test-{user.Id}.png", cancellationToken);
+            //await File.WriteAllBytesAsync($"test-{user.Id}.png", image, cancellationToken);
         }
     }
 }

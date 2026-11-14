@@ -295,7 +295,14 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
-// Register hangfire
+// Register share pic store
+builder.Services.AddSharePicStoreS3(opt =>
+{
+    opt.BucketName = builder.Configuration.GetValue<string>("SharePics:BucketName") ??
+                     throw new ConfigurationErrorsException("SharePics:BucketName is missing!");
+});
+
+// Register Quartz
 builder.Services.AddJobServices(builder.Configuration.GetValue<string>("Quartz:ConnectionString") ?? throw new ConfigurationErrorsException("Quartz:ConnectionString is missing!"));
 
 // Register authentication schemes, and specify the default authentication scheme

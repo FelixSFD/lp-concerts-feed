@@ -1390,6 +1390,46 @@ Resources:
                 - !Ref ConcertImagesBucket
                 - /*
   
+  # Bucket for share images
+  SharePicsBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: !Sub ${BaseProductName}-share-pics
+      #PublicAccessBlockConfiguration:
+      #  BlockPublicAcls: false
+      #  BlockPublicPolicy: false
+      #  IgnorePublicAcls: false
+      #  RestrictPublicBuckets: false
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: ObjectWriter
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - GET
+            AllowedOrigins:
+              - '*'
+            Id: concertImgCorsRuleGet
+            MaxAge: 3600
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - PUT
+              - POST
+            AllowedOrigins:
+              - '*'
+            Id: concertImgCorsRulePut
+            MaxAge: 3600
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "storage"
+  
   # Event queues
   AuditLogQueue:
     Type: AWS::SQS::Queue
