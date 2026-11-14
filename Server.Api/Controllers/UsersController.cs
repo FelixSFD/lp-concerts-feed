@@ -6,8 +6,10 @@ using LPCalendar.DataStructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.AspNetCore.RateLimiting;
 using Server.Api.Auth;
 using Server.Api.Cache;
+using Server.Api.RateLimiting;
 using Service.SharePics;
 using Service.SharePics.DataStructure.Templates;
 using Service.Tours;
@@ -156,8 +158,9 @@ public class UsersController(UserService userService, UserStatsService userStats
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpGet("{userId}/stats/concerts/share")]
-    //[OutputCache(PolicyName = CachePolicyNames.UserStatsDynamic, Duration = CacheExpiration.Maximum)]
-    //[CustomResponseCache(Duration = CacheExpiration.Default)]
+    [OutputCache(PolicyName = CachePolicyNames.UserStatsDynamic, Duration = CacheExpiration.Maximum)]
+    [CustomResponseCache(Duration = CacheExpiration.Default)]
+    [EnableRateLimiting(RateLimitingPolicyNames.FixedLowLimit)]
     public async Task<FileContentResult> GetUserConcertStatsSharePicAsync([FromRoute] string userId, CancellationToken cancellationToken)
     {
         var userInfoTask = userService.GetUserById(userId, cancellationToken);
