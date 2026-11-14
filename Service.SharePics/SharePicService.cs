@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Prometheus;
 using Scriban;
@@ -32,6 +33,15 @@ public partial class SharePicService(IGotenbergClient gotenbergClient, string te
             LabelNames = ["templateId", "userId", "username"]
         });
     
+    private static readonly Histogram PicGenerateDuration = Metrics.CreateHistogram(
+        "lpshows_share_pic_generate_duration", 
+        "Duration of the generation of share-pics in milliseconds",
+        new HistogramConfiguration
+        {
+            LabelNames = ["templateId", "userId", "username"],
+            Buckets = [.. Histogram.PowersOfTenDividedBuckets(1, 4, 20).Skip(15).Take(30)]
+        });
+    
     /// <summary>
     /// Turns a template into a picture
     /// </summary>
@@ -43,10 +53,12 @@ public partial class SharePicService(IGotenbergClient gotenbergClient, string te
     public async Task<byte[]> GenerateSharePicAsync(SharePicTemplate template,
         uint? width = null, uint? height = null, CancellationToken cancellationToken = default)
     {
+        var stopwatch = Stopwatch.StartNew();
         var pic = await GenerateSharePicAsync(template.TemplateId, template.GetParameterValues(), width, height, template.MainElementSelector,
             cancellationToken);
         
-        RegisterGeneratedTemplateMetrics(template, pic.Length);
+        stopwatch.Stop();
+        RegisterGeneratedTemplateMetrics(template, pic.Length, stopwatch.Elapsed);
         
         return pic;
     }
@@ -143,7 +155,8 @@ public partial class SharePicService(IGotenbergClient gotenbergClient, string te
     /// </summary>
     /// <param name="template"></param>
     /// <param name="fileSize"></param>
-    private static void RegisterGeneratedTemplateMetrics(SharePicTemplate template, int fileSize)
+    /// <param name="duration">How long the call took</param>
+    private static void RegisterGeneratedTemplateMetrics(SharePicTemplate template, int fileSize, TimeSpan duration)
     {
         string[] labelValues;
         if (template is UserTemplateBase userTemplate)
@@ -157,6 +170,7 @@ public partial class SharePicService(IGotenbergClient gotenbergClient, string te
         
         PicsGeneratedCounter.WithLabels(labelValues).Inc();
         PicsGeneratedBytesCounter.WithLabels(labelValues).Inc(fileSize);
+        PicGenerateDuration.WithLabels(labelValues).Observe(duration.TotalMilliseconds);
     }
 
     [GeneratedRegex("""(?<attribute>src|href)="(?<path>[^"]+)""", RegexOptions.IgnoreCase)]
