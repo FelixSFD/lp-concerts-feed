@@ -19,6 +19,7 @@
 <body>
 {{ first_concert = concerts | array.sort "date" | array.first }}
 {{ last_concert = concerts | array.sort "date" | array.last }}
+{{ max_concerts_displayed = 15 }}
 <main>
     <article id="main-card" class="pico-background-purple-600">
         <div class="grid card-header">
@@ -53,10 +54,15 @@
                 <b class="stats-header">Attended concerts</b>
 
                 <div class="concerts-list">
-                    {{ concerts_offset = (12 - (concerts | array.size)) * -1 }}
+                    {{ concerts_offset = ((max_concerts_displayed - 2) - (concerts | array.size)) * -1 }}
+                    {{ if concerts_offset < 1 }}
+                    {{ concerts_offset = 1 }}
+                    {{ end }}
                     <b>{{ first_concert.date | date.to_string '%Y-%m-%d' }}</b> - {{ first_concert.location }}
-                    {{ if (concerts | array.size) > 15 }}
+                    {{ if (concerts | array.size) > max_concerts_displayed }}
                     <div class="hidden-concerts-text">{{ concerts_offset - 1 }} more concerts</div>
+                    {{ else }}
+                    <br />
                     {{ end }}
                     {{~ for concert in (concerts | array.sort "date" | array.offset concerts_offset) ~}}
                     <b>{{ concert.date | date.to_string '%Y-%m-%d' }}</b> - {{ concert.location }}
