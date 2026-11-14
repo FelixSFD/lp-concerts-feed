@@ -14,7 +14,6 @@ using Service.SharePics;
 using Service.SharePics.DataStructure.Templates;
 using Service.Tours;
 using Service.Users;
-using Service.Users.Exceptions;
 
 namespace Server.Api.Controllers;
 
@@ -161,7 +160,7 @@ public class UsersController(UserService userService, UserStatsService userStats
     [OutputCache(PolicyName = CachePolicyNames.UserStatsDynamic, Duration = CacheExpiration.Maximum)]
     [CustomResponseCache(Duration = CacheExpiration.Default)]
     [EnableRateLimiting(RateLimitingPolicyNames.FixedLowLimit)]
-    public async Task<FileContentResult> GetUserConcertStatsSharePicAsync([FromRoute] string userId, CancellationToken cancellationToken)
+    public async Task<ActionResult<GetUserConcertStatsSharePicResponseDto>> GetUserConcertStatsSharePicAsync([FromRoute] string userId, CancellationToken cancellationToken)
     {
         var userInfoTask = userService.GetUserById(userId, cancellationToken);
         var concertStatsTask = userStatsService.GetAttendedConcerts(userId, cancellationToken);
@@ -187,8 +186,14 @@ public class UsersController(UserService userService, UserStatsService userStats
             Cities = concertStats.NumberOfCities,
             Songs = songStats.Length,
         };
-        var image = await sharePicService.GenerateSharePicAsync(template, 1080, 1350, cancellationToken: cancellationToken);
-        return File(image, "image/png");
+        var imageKey = await sharePicService.GenerateStoredSharePicAsync(template, 1080, 1350, cancellationToken: cancellationToken);
+        var config = HttpContext.RequestServices.GetRequiredService<IConfiguration>();
+        var url = $"{config.GetValue<string>("SharePics:ShareImageBaseUrl")}/{imageKey}";
+        var response = new GetUserConcertStatsSharePicResponseDto
+        {
+            Url = url
+        };
+        return Created(url, response);
     }
     
     /// <summary>

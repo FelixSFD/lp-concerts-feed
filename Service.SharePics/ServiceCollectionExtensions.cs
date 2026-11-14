@@ -27,8 +27,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<SharePicService>(builder =>
         {
             var gotenbergClient = builder.GetRequiredService<IGotenbergClient>();
+            var store = builder.GetRequiredService<ISharePicStore>();
             var logger = builder.GetRequiredService<ILogger<SharePicService>>();
-            return new SharePicService(gotenbergClient, templateBaseDir, logger);
+            return new SharePicService(gotenbergClient, templateBaseDir, store, logger);
         });
         return services;
     }

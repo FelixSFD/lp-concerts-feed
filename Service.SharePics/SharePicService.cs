@@ -6,6 +6,7 @@ using Scriban;
 using Service.SharePics.DataStructure;
 using Service.SharePics.DataStructure.Templates;
 using Service.SharePics.Gotenberg;
+using Service.SharePics.Storage;
 
 namespace Service.SharePics;
 
@@ -15,7 +16,7 @@ namespace Service.SharePics;
 /// <param name="gotenbergClient">Client to connect to Gotenberg, which generates the images from HTML</param>
 /// <param name="templateBaseDir">Directory where the template files are located</param>
 /// <param name="logger"></param>
-public partial class SharePicService(IGotenbergClient gotenbergClient, string templateBaseDir, ILogger<SharePicService> logger)
+public partial class SharePicService(IGotenbergClient gotenbergClient, string templateBaseDir, ISharePicStore sharePicStore, ILogger<SharePicService> logger)
 {
     private static readonly Counter PicsGeneratedCounter = Metrics.CreateCounter(
         "lpshows_share_pic_generated_count", 
@@ -61,6 +62,24 @@ public partial class SharePicService(IGotenbergClient gotenbergClient, string te
         RegisterGeneratedTemplateMetrics(template, pic.Length, stopwatch.Elapsed);
         
         return pic;
+    }
+    
+    /// <summary>
+    /// Turns a template into a picture and saves it temporarily in the <see cref="sharePicStore"/>
+    /// </summary>
+    /// <param name="template">Template to use, including the parameter values</param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    /// <param name="cancellationToken">Token to cancel the request</param>
+    /// <returns>Key/Path of the stored file</returns>
+    public async Task<string> GenerateStoredSharePicAsync(SharePicTemplate template,
+        uint? width = null, uint? height = null, CancellationToken cancellationToken = default)
+    {
+        var pic = await GenerateSharePicAsync(template, width, height, cancellationToken);
+        var key = $"temp/{template.TemplateId}/{Guid.NewGuid()}.png";
+        await sharePicStore.StoreTemporaryAsync(new MemoryStream(pic), key, cancellationToken);
+        
+        return key;
     }
     
     public async Task<byte[]> GenerateSharePicAsync(string templateId, IDictionary<string, object> data, uint? width = null, uint? height = null, string? elementSelector = null, CancellationToken cancellationToken = default)

@@ -3,10 +3,12 @@ import { UserConcertStatsResponseDto, UsersApi, UserSongStatsResponseDto } from 
 import { environment } from '../../environments/environment';
 import { addAuthentication } from '../auth/auth.config';
 import { firstValueFrom } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 @Service()
 export class UserStatsService {
   private usersApi = inject(UsersApi);
+  private http = inject(HttpClient);
 
   constructor() {
     this.usersApi.configuration.basePath = environment.apiBaseUrl;
@@ -33,10 +35,19 @@ export class UserStatsService {
     );
   }
 
+  /**
+   * Returns a shareable image of a user's concert stats
+   * @param userId ID of the user
+   */
   async getUserConcertStatsSharePic(userId: string): Promise<File> {
-    let blob = await firstValueFrom(
+    let response = await firstValueFrom(
       this.usersApi.getUserConcertStatsSharePic(userId)
-    ) as Blob;
+    );
+
+    let url = response.url;
+    console.debug("Created share-pic at URL: ", url);
+    let blob = await firstValueFrom(this.http.get(url, { responseType: "blob" }));
+
     return new File([blob], "stats.png", {
       type: blob.type,
     });
