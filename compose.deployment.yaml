@@ -35,6 +35,7 @@ services:
       - App_Cognito__UserPoolId=${AWS_COGNITO_USER_POOL_ID}
       - App_Cognito__UserPoolId=${AWS_COGNITO_USER_POOL_ID}
       - App_SharePics__BucketName=${SHARE_PICS_S3_BUCKET_NAME}
+      - App_Quartz__ConnectionString=${QUARTZ_CONNECTION_STRING}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}.entrypoints=websecure"
