@@ -13,8 +13,9 @@ public static class QuartzServiceRegistrationExtensions
     /// </summary>
     /// <param name="services"></param>
     /// <param name="connectionString">Connection string to the DB that stores the job data</param>
+    /// <param name="dashboardReadonly">true, if the dashboard is readonly</param>
     /// <returns></returns>
-    public static IServiceCollection AddJobServices(this IServiceCollection services, string connectionString)
+    public static IServiceCollection AddJobServices(this IServiceCollection services, string connectionString, bool dashboardReadonly = true)
     {
         services.AddQuartz(q =>
         {
@@ -44,7 +45,7 @@ public static class QuartzServiceRegistrationExtensions
         services.AddQuartzDashboard(options =>
         {
             options.DashboardPath = "/quartz";
-            options.ReadOnly = true;
+            options.ReadOnly = dashboardReadonly;
         });
         
         return services;

@@ -307,7 +307,8 @@ builder.Services.AddSharePicStoreS3(opt =>
 builder.Services.AddRateLimitPolicies();
 
 // Register Quartz
-builder.Services.AddJobServices(builder.Configuration.GetValue<string>("Quartz:ConnectionString") ?? throw new ConfigurationErrorsException("Quartz:ConnectionString is missing!"));
+builder.Services.AddJobServices(builder.Configuration.GetValue<string>("Quartz:ConnectionString") ?? throw new ConfigurationErrorsException("Quartz:ConnectionString is missing!"), 
+    builder.Configuration.GetValue("Quartz:Dashboard:Readonly", true));
 
 // Register authentication schemes, and specify the default authentication scheme
 builder.Services
@@ -410,7 +411,10 @@ app.UseOutputCache();
 
 app.UseRateLimiter();
 
-app.MapQuartzDashboard().AllowAnonymous().DisableAntiforgery();
+if (app.Configuration.GetValue("Quartz:Dashboard:Enabled", false))
+{
+    app.MapQuartzDashboard().AllowAnonymous().DisableAntiforgery();
+}
 
 app.MapControllers();
 app.MapHealthChecks("/health");
