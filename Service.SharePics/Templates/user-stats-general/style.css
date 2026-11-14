@@ -4,6 +4,10 @@
     height: 100vh;
 }
 
+article {
+    border-radius: 0 !important;
+}
+
 article footer {
     position: absolute;
     bottom: 1rem;
@@ -12,6 +16,7 @@ article footer {
     line-height: 0.3rem;
     padding-top: 0.3rem;
     padding-bottom: 0.3rem;
+    border-radius: 0 !important;
 }
 
 .card-header {
@@ -20,7 +25,6 @@ article footer {
 }
 
 .stats-content {
-    border: 1px solid greenyellow;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -28,7 +32,6 @@ article footer {
 }
 
 .stat-segment {
-    border: 1px solid red;
     text-align: center;
     width: 15rem;
     height: 8rem;
@@ -51,7 +54,6 @@ article footer {
 
 .lists-container {
     margin-top: 1rem;
-    border: 1px solid greenyellow;
     display: grid;
     grid-gap: 0.4rem;
     grid-template-columns: repeat(2, 1fr);
