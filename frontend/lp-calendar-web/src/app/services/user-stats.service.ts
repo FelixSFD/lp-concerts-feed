@@ -32,4 +32,11 @@ export class UserStatsService {
       this.usersApi.getUserSongStats(userId)
     );
   }
+
+  async getUserConcertStatsSharePic(userId: string): Promise<File> {
+    let responseObj = await firstValueFrom(
+      this.usersApi.getUserConcertStatsSharePic(userId)
+    ) as Blob;
+    return new File([responseObj], "stats.png");
+  }
 }

@@ -14,7 +14,7 @@ import { ConcertMapComponent, ConcertMapPin } from '../../concert-map/concert-ma
 import { defaultShowTypeId } from '../../../../app.config';
 import { Message } from 'primeng/message';
 import { UsersService } from '../../../../services/users.service';
-import { ButtonDirective, ButtonIcon, ButtonLabel } from 'primeng/button';
+import { Button, ButtonDirective, ButtonIcon, ButtonLabel } from 'primeng/button';
 import { DataView } from 'primeng/dataview';
 import { AppleMusicArtworkComponent } from '../../music/apple-music-artwork/apple-music-artwork.component';
 import { AppleMusicService } from '../../../../services/music/apple-music.service';
@@ -48,6 +48,7 @@ import { Tooltip } from 'primeng/tooltip';
     ScrollAreaHandle,
     Tag,
     Tooltip,
+    Button,
   ],
   selector: 'app-user-profile-page',
   styleUrl: './user-profile-page.component.css',
@@ -108,6 +109,25 @@ export class UserProfilePageComponent {
 
       this.user.set(user);
     });
+  }
+
+  async onShareStatsClicked() {
+    console.debug("Share stats clicked");
+    try {
+      let response = await this.userStatsService.getUserConcertStatsSharePic(this.user()?.id!);
+      console.debug("response:", response);
+      let shareData = {
+        title: `${this.user()?.username}'s Linkin Park journey`,
+        files: [response],
+      };
+      if (navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        console.warn("navigator.canShare() returned false");
+      }
+    } catch (e) {
+      console.error("Failed to share profile stats:", e);
+    }
   }
 
   async reloadSongStats(userId: string) {

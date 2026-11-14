@@ -46,6 +46,17 @@
   </p-card>
 
   <div class="grid mt-3">
+    <div class="col-12">
+      <div class="flex justify-content-center flex-wrap">
+        <div class="align-items-center justify-content-center">
+          <button pButton raised (click)="onShareStatsClicked()">
+            <i class="pi pi-upload" pButtonIcon></i>
+            <span pButtonLabel>Share</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Left side: Song and Concert list -->
     <div class="col-12 xl:col-4">
       <div class="grid">
@@ -62,7 +73,7 @@
                   <p-dataview #dv [value]="songStats()?.songs" layout="list">
                     <ng-template #list let-items>
                       <div class="grid grid-cols-12 gap-4 grid-nogutter">
-                        @for (item of items; track item.id; let first = $first) {
+                        @for (item of items; track item.songId; let first = $first) {
                           <div class="col-12">
                             <div class="flex sm:flex-row sm:items-center pl-2 gap-4 align-items-center justify-content-between">
                               <div class="md:w-40 relative align-content-center">
