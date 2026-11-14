@@ -1,18 +1,5 @@
 namespace Service.SharePics.DataStructure.Templates;
 
-public abstract class UserTemplateBase : SharePicTemplate
-{
-    /// <summary>
-    /// Name of the user
-    /// </summary>
-    public required string Username { get; set; }
-    
-    /// <summary>
-    /// ID of the user
-    /// </summary>
-    public required string UserId { get; set; }
-}
-
 public class UserTemplate : UserTemplateBase
 {
     public override string TemplateId => "user-stats-general";

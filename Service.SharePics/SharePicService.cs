@@ -8,6 +8,12 @@ using Service.SharePics.Gotenberg;
 
 namespace Service.SharePics;
 
+/// <summary>
+/// Service to generate shareable pictures with stats
+/// </summary>
+/// <param name="gotenbergClient">Client to connect to Gotenberg, which generates the images from HTML</param>
+/// <param name="templateBaseDir">Directory where the template files are located</param>
+/// <param name="logger"></param>
 public partial class SharePicService(IGotenbergClient gotenbergClient, string templateBaseDir, ILogger<SharePicService> logger)
 {
     private static readonly Counter PicsGeneratedCounter = Metrics.CreateCounter(
@@ -26,6 +32,14 @@ public partial class SharePicService(IGotenbergClient gotenbergClient, string te
             LabelNames = ["templateId", "userId", "username"]
         });
     
+    /// <summary>
+    /// Turns a template into a picture
+    /// </summary>
+    /// <param name="template">Template to use, including the parameter values</param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    /// <param name="cancellationToken">Token to cancel the request</param>
+    /// <returns>Bytes of the generated file</returns>
     public async Task<byte[]> GenerateSharePicAsync(SharePicTemplate template,
         uint? width = null, uint? height = null, CancellationToken cancellationToken = default)
     {
@@ -79,7 +93,7 @@ public partial class SharePicService(IGotenbergClient gotenbergClient, string te
         return await gotenbergClient.ConvertHtmlToPngAsync(filledTemplate, additionalFiles, outputConfig, cancellationToken);
     }
     
-    private string FillTemplate(string templateHtml, IDictionary<string, object> data)
+    private static string FillTemplate(string templateHtml, IDictionary<string, object> data)
     {
         var template = Template.Parse(templateHtml);
         return template.Render(data);
@@ -124,6 +138,11 @@ public partial class SharePicService(IGotenbergClient gotenbergClient, string te
         });
     }
 
+    /// <summary>
+    /// Pushes the values of a generated image to the metrics
+    /// </summary>
+    /// <param name="template"></param>
+    /// <param name="fileSize"></param>
     private static void RegisterGeneratedTemplateMetrics(SharePicTemplate template, int fileSize)
     {
         string[] labelValues;

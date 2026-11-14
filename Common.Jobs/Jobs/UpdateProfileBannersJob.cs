@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Quartz;
 using Service.SharePics;
@@ -14,18 +15,22 @@ public sealed class UpdateProfileBannersJob(UserService userService, UserStatsSe
 {
     public async ValueTask Execute(IJobExecutionContext context, CancellationToken cancellationToken = default)
     {
-        logger.LogInformation("Executing UpdateProfileBannersJob");
+        Log.StartJob(logger, nameof(UpdateProfileBannersJob));
+        var stopwatch = Stopwatch.StartNew();
         
         var allUsers = userService.GetAllUsers(cancellationToken);
         await foreach (var user in allUsers)
         {
             try
             {
+                Log.FetchingStatsFor(logger, user.Username, user.Id);
                 var concertStatsTask = userStatsService.GetAttendedConcerts(user.Id, cancellationToken);
                 var songStatsTask = userStatsService.GetSongsUserHasSeenLiveAsync(user.Id, cancellationToken);
 
                 var concertStats = await concertStatsTask;
                 var songStats = await songStatsTask;
+                
+                Log.FetchedStatsFor(logger, user.Username, user.Id);
 
                 var template = new ProfileBannerTemplate
                 {
@@ -45,14 +50,22 @@ public sealed class UpdateProfileBannersJob(UserService userService, UserStatsSe
                 };
                 var image = await sharePicService.GenerateSharePicAsync(template, 390, 110,
                     cancellationToken: cancellationToken);
+                
+                Log.GeneratedProfileBannerFor(logger, user.Username, user.Id);
+                
                 var memoryStream = new MemoryStream(image);
                 await sharePicStore.StorePermanentAsync(memoryStream, $"profile/{user.Id}/banner.png",
                     cancellationToken);
+                
+                Log.StoredProfileBannerFor(logger, user.Username, user.Id, image.Length);
             }
             catch (Exception e)
             {
-                logger.LogError(e, "Failed to generate profile banner for user: {username} (ID: {userId})", user.Username, user.Id);
+                Log.FailedToGenerateProfileBannerFor(logger, user.Username, user.Id, e);
             }
         }
+        
+        stopwatch.Stop();
+        Log.FinishedJob(logger, nameof(UpdateProfileBannersJob), stopwatch.Elapsed.TotalSeconds, context.NextFireTimeUtc);
     }
 }
