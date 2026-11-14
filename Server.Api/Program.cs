@@ -30,6 +30,7 @@ using Server.Api.Cache.Policies;
 using Server.Api.Config;
 using Server.Api.ExceptionHandling;
 using Server.Api.HealthChecks;
+using Server.Api.RateLimiting;
 using Service.Setlists;
 using Service.SharePics;
 using Service.Tours;
@@ -302,6 +303,9 @@ builder.Services.AddSharePicStoreS3(opt =>
                      throw new ConfigurationErrorsException("SharePics:BucketName is missing!");
 });
 
+// Configure rate limiting
+builder.Services.AddRateLimitPolicies();
+
 // Register Quartz
 builder.Services.AddJobServices(builder.Configuration.GetValue<string>("Quartz:ConnectionString") ?? throw new ConfigurationErrorsException("Quartz:ConnectionString is missing!"));
 
@@ -403,6 +407,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseOutputCache();
+
+app.UseRateLimiter();
 
 app.MapQuartzDashboard().AllowAnonymous().DisableAntiforgery();
 
