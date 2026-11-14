@@ -20,8 +20,9 @@ article footer {
 }
 
 .card-header {
-    font-size: 0.9rem;
+    font-size: 1.5rem;
     line-height: 0.7rem;
+    text-align: center;
 }
 
 .stats-content {
