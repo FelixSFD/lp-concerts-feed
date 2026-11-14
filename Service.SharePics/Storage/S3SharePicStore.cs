@@ -11,13 +11,14 @@ public class S3SharePicStore(IAmazonS3 s3Client, S3SharePicStoreOptions options,
 {
     public async Task StorePermanentAsync(Stream fileStream, string fileKey, CancellationToken cancellationToken = default)
     {
-        logger.LogDebug("Storing object '{objectKey}' permanently in bucket '{bucketName}'...", fileKey, options.BucketName);
+        Log.StoringObjectPermanently(logger, fileKey, options.BucketName);
         await StoreObjectAsync(fileStream, fileKey, cancellationToken);
+        Log.StoredObjectPermanently(logger, fileKey, options.BucketName);
     }
 
     public async Task StoreTemporaryAsync(Stream fileStream, string fileKey, CancellationToken cancellationToken = default)
     {
-        logger.LogDebug("Storing object '{objectKey}' temporarily in bucket '{bucketName}'...", fileKey, options.BucketName);
+        Log.StoringObjectTemporarily(logger, fileKey, options.BucketName);
         var tags = new List<Tag>
         {
             new()
@@ -27,6 +28,7 @@ public class S3SharePicStore(IAmazonS3 s3Client, S3SharePicStoreOptions options,
             }
         };
         await StoreObjectAsync(fileStream, fileKey, tags, cancellationToken);
+        Log.StoredObjectTemporarily(logger, fileKey, options.BucketName);
     }
 
     private async Task StoreObjectAsync(Stream fileStream, string fileKey, CancellationToken cancellationToken)
@@ -41,7 +43,7 @@ public class S3SharePicStore(IAmazonS3 s3Client, S3SharePicStoreOptions options,
         if (!string.IsNullOrWhiteSpace(options.KeyPrefix))
         {
             fileKey = options.KeyPrefix + fileKey;
-            logger.LogDebug("Added prefix to file key. Full key is now: {fileKey}", fileKey);
+            Log.AddedPrefixToObjectKey(logger, fileKey);
         }
 
         var putRequest = new PutObjectRequest
@@ -52,8 +54,6 @@ public class S3SharePicStore(IAmazonS3 s3Client, S3SharePicStoreOptions options,
             InputStream = fileStream,
         };
         await s3Client.PutObjectAsync(putRequest, cancellationToken);
-        
-        logger.LogDebug("Successfully stored '{objectKey}' in bucket '{bucketName}'.", fileKey, options.BucketName);
     }
 }
 

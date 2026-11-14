@@ -38,4 +38,39 @@ public static partial class Log
         Message = "Adding additional file to Gotenberg request: {fileName} ({fileSize} bytes)"
     )]
     public static partial void GotenbergAddAdditionalFile(ILogger logger, string fileName, int fileSize);
+    
+    [LoggerMessage(
+        EventId = 20080,
+        Level = LogLevel.Debug,
+        Message = "Storing object '{objectKey}' permanently in bucket '{bucketName}'..."
+    )]
+    public static partial void StoringObjectPermanently(ILogger logger, string objectKey, string bucketName);
+    
+    [LoggerMessage(
+        EventId = 20081,
+        Level = LogLevel.Debug,
+        Message = "Stored object '{objectKey}' permanently in bucket '{bucketName}'."
+    )]
+    public static partial void StoredObjectPermanently(ILogger logger, string objectKey, string bucketName);
+    
+    [LoggerMessage(
+        EventId = 20082,
+        Level = LogLevel.Debug,
+        Message = "Storing object '{objectKey}' temporarily in bucket '{bucketName}'..."
+    )]
+    public static partial void StoringObjectTemporarily(ILogger logger, string objectKey, string bucketName);
+    
+    [LoggerMessage(
+        EventId = 20083,
+        Level = LogLevel.Debug,
+        Message = "Stored object '{objectKey}' temporarily in bucket '{bucketName}'."
+    )]
+    public static partial void StoredObjectTemporarily(ILogger logger, string objectKey, string bucketName);
+    
+    [LoggerMessage(
+        EventId = 20084,
+        Level = LogLevel.Debug,
+        Message = "Added prefix to object key. Full key is now: {objectKey}"
+    )]
+    public static partial void AddedPrefixToObjectKey(ILogger logger, string objectKey);
 }
