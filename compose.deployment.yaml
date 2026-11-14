@@ -33,7 +33,8 @@ services:
       - App_ConcertImageUpload__BucketName=${CONCERT_IMAGE_BUCKET_NAME}
       - App_Cognito__AppClientId=${AWS_COGNITO_CLIENT_ID}
       - App_Cognito__UserPoolId=${AWS_COGNITO_USER_POOL_ID}
-      - App_Cognito__AWSRegion=${AWS_COGNITO_REGION}
+      - App_Cognito__UserPoolId=${AWS_COGNITO_USER_POOL_ID}
+      - App_SharePics__BucketName=${SHARE_PICS_S3_BUCKET_NAME}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}.entrypoints=websecure"
