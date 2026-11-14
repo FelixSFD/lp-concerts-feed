@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Quartz;
 using Service.SharePics;
+using Service.SharePics.DataStructure.Templates;
 using Service.SharePics.Storage;
 using Service.Tours;
 using Service.Users;
@@ -26,15 +27,22 @@ public sealed class UpdateProfileBannersJob(UserService userService, UserStatsSe
                 var concertStats = await concertStatsTask;
                 var songStats = await songStatsTask;
 
-                var data = new Dictionary<string, object>
+                var template = new ProfileBannerTemplate
                 {
-                    { "username", user.Username },
-                    { "concerts", concertStats.NumberOfConcerts },
-                    { "cities", concertStats.NumberOfCities },
-                    { "countries", concertStats.NumberOfCountries },
-                    { "songs", songStats.Length },
+                    Username = user.Username,
+                    Concerts =
+                    [
+                        .. concertStats.Concerts.Select(c => new ProfileBannerTemplate.Concert
+                        {
+                            Location = $"{c.Venue.City.Name}, {c.Venue.City.Country.Name}",
+                            Date = c.PostedStartTime.Date,
+                        })
+                    ],
+                    Countries = concertStats.NumberOfCountries,
+                    Cities = concertStats.NumberOfCities,
+                    Songs = songStats.Length,
                 };
-                var image = await sharePicService.GenerateSharePicAsync("user-stats-general", data, 390, 110,
+                var image = await sharePicService.GenerateSharePicAsync(template, 390, 110,
                     cancellationToken: cancellationToken);
                 var memoryStream = new MemoryStream(image);
                 await sharePicStore.StorePermanentAsync(memoryStream, $"profile/{user.Id}/banner.png",

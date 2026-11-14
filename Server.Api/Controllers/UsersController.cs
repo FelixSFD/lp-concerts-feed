@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.OutputCaching;
 using Server.Api.Auth;
 using Server.Api.Cache;
 using Service.SharePics;
+using Service.SharePics.DataStructure.Templates;
 using Service.Tours;
 using Service.Users;
 using Service.Users.Exceptions;
@@ -155,8 +156,8 @@ public class UsersController(UserService userService, UserStatsService userStats
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpGet("{userId}/stats/concerts/share")]
-    [OutputCache(PolicyName = CachePolicyNames.UserStatsDynamic, Duration = CacheExpiration.Maximum)]
-    [CustomResponseCache(Duration = CacheExpiration.Default)]
+    //[OutputCache(PolicyName = CachePolicyNames.UserStatsDynamic, Duration = CacheExpiration.Maximum)]
+    //[CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<FileContentResult> GetUserConcertStatsSharePicAsync([FromRoute] string userId, CancellationToken cancellationToken)
     {
         var userInfoTask = userService.GetUserById(userId, cancellationToken);
@@ -166,16 +167,23 @@ public class UsersController(UserService userService, UserStatsService userStats
         var concertStats = await concertStatsTask;
         var songStats = await songStatsTask;
         var userInfo = await userInfoTask;
-        
-        var data = new Dictionary<string, object>
+
+        var template = new UserStatsGeneralTemplate
         {
-            { "username", userInfo.Username },
-            { "concerts", concertStats.NumberOfConcerts },
-            { "cities", concertStats.NumberOfCities },
-            { "countries", concertStats.NumberOfCountries },
-            { "songs", songStats.Length },
+            Username = userInfo.Username,
+            Concerts =
+            [
+                .. concertStats.Concerts.Select(c => new UserStatsGeneralTemplate.Concert
+                {
+                    Location = $"{c.Venue.City.Name}, {c.Venue.City.Country.Name}",
+                    Date = c.PostedStartTime.Date,
+                })
+            ],
+            Countries = concertStats.NumberOfCountries,
+            Cities = concertStats.NumberOfCities,
+            Songs = songStats.Length,
         };
-        var image = await sharePicService.GenerateSharePicAsync("user-stats-general", data, 390, 110, cancellationToken: cancellationToken);
+        var image = await sharePicService.GenerateSharePicAsync(template, 385, 120, cancellationToken: cancellationToken);
         return File(image, "image/png");
     }
     

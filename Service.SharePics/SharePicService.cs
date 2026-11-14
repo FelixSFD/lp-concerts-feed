@@ -1,12 +1,20 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Scriban;
+using Service.SharePics.DataStructure;
 using Service.SharePics.Gotenberg;
 
 namespace Service.SharePics;
 
 public partial class SharePicService(IGotenbergClient gotenbergClient, string templateBaseDir, ILogger<SharePicService> logger)
 {
+    public async Task<byte[]> GenerateSharePicAsync(SharePicTemplate template,
+        uint? width = null, uint? height = null, CancellationToken cancellationToken = default)
+    {
+        return await GenerateSharePicAsync(template.TemplateId, template.GetParameterValues(), width, height,
+            cancellationToken);
+    }
+    
     public async Task<byte[]> GenerateSharePicAsync(string templateId, IDictionary<string, object> data, uint? width = null, uint? height = null, CancellationToken cancellationToken = default)
     {
         Log.LookingForTemplateDirectory(logger, templateId);

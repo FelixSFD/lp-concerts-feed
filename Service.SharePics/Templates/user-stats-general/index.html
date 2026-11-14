@@ -13,20 +13,20 @@
             rel="stylesheet"
             href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.colors.min.css"
     />
-    
+
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<main class="pico-background-slate-650">
+<main class="">
     <!-- TODO: proper layout -->
     <article id="main-card" class="pico-background-purple-600">
-        <div class="grid">
+        <div class="grid card-header">
             <p class="pico-color-zinc-100">{{ username }}'s Linkin Park journey</p>
         </div>
-        
+
         <div class="grid">
             <div class="stat-segment">
-                <div class="stat-segment-value">{{ concerts }}</div>
+                <div class="stat-segment-value">{{ concerts | array.size }}</div>
                 <div class="stat-segment-label">concerts</div>
             </div>
 
@@ -45,7 +45,15 @@
                 <div class="stat-segment-label">different songs</div>
             </div>
         </div>
-        
+
+        <div class="grid concerts-grid">
+            {{ first_concert = concerts | array.sort "date" | array.first }}
+            {{ last_concert = concerts | array.sort "date" | array.last }}
+
+            <span>First concert: {{ first_concert.date | date.to_string '%Y-%m-%d' }} - {{ first_concert.location }}</span>
+            <span>Latest concert: {{ last_concert.date | date.to_string '%Y-%m-%d' }} - {{ last_concert.location }}</span>
+        </div>
+
         <footer data-theme="dark">
             <img class="app-icon" src="../_base/app_icon.png" alt="Icon" width="24" height="24" />
             Generate your own summary on lpshows.live
