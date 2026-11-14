@@ -1389,6 +1389,18 @@ Resources:
               - - 'arn:aws:s3:::'
                 - !Ref ConcertImagesBucket
                 - /*
+          - Effect: Allow
+            Action:
+              - 's3:GetObject'
+              - 's3:PutObject'
+              - 's3:PutObjectAcl'
+              - 's3:DeleteObject'
+              - 's3:AbortMultipartUpload'
+            Resource: !Join
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref SharePicsBucket
+                - /*
   
   # Bucket for share images
   SharePicsBucket:
