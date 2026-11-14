@@ -2105,6 +2105,16 @@ Outputs:
     Value: !GetAtt ConcertImagesBucket.RegionalDomainName
     Export:
       Name: !Sub '${BaseProductName}-concert-image-s3-regional-domain'
+  SharePicBucketExport:
+    Description: 'Bucket that stores share pics'
+    Value: !GetAtt SharePicsBucket.RegionalDomainName
+    Export:
+      Name: !Sub '${BaseProductName}-share-pics-s3-regional-domain'
+  SharePicsBucketNameExport:
+    Description: Name of the SharePics S3 bucket
+    Value: !Ref SharePicsBucket
+    Export:
+      Name: !Sub '${BaseProductName}-share-pics-bucket-name'
   CognitoUserPoolDomainExport:
     Description: 'Internal domain name of the Cognito userpool'
     Value: !Sub "${BaseProductName}-${AWS::AccountId}.auth.${AWS::Region}.amazoncognito.com"
