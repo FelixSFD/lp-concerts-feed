@@ -32,6 +32,7 @@ jobs:
           envkey_AWS_CONFIG_FILE: "/app/.aws_config"
           envkey_AWS_PROFILE: ${{ vars.AWS_PROFILE }}
           envkey_CONCERT_IMAGE_BUCKET_NAME: ${{ vars.CONCERT_IMAGE_BUCKET_NAME }}
+          envkey_SHARE_PICS_S3_BUCKET_NAME: ${{ vars.SHARE_PICS_S3_BUCKET_NAME }}
           envkey_TRAEFIK_ROUTER_API_SERVER: ${{ vars.TRAEFIK_ROUTER_API_SERVER }}
           envkey_TRAEFIK_SERVICE_API_SERVER: ${{ vars.TRAEFIK_ROUTER_API_SERVER }}
           envkey_API_IMAGE: "ghcr.io/felixsfd/lpshows-api-server:${{ vars.SERVER_IMAGE_TAG }}"
