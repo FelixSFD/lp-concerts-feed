@@ -1,14 +1,22 @@
 namespace Service.SharePics.DataStructure.Templates;
 
-public class UserStatsGeneralTemplate : SharePicTemplate
+public abstract class UserTemplateBase : SharePicTemplate
 {
-    public override string TemplateId => "user-stats-general";
-    public override string MainElementSelector => "#main-card";
-    
     /// <summary>
     /// Name of the user
     /// </summary>
     public required string Username { get; set; }
+    
+    /// <summary>
+    /// ID of the user
+    /// </summary>
+    public required string UserId { get; set; }
+}
+
+public class UserTemplate : UserTemplateBase
+{
+    public override string TemplateId => "user-stats-general";
+    public override string MainElementSelector => "#main-card";
 
     public int Cities { get; set; }
     public int Countries { get; set; }

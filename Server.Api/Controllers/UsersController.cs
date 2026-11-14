@@ -171,12 +171,13 @@ public class UsersController(UserService userService, UserStatsService userStats
         var songStats = await songStatsTask;
         var userInfo = await userInfoTask;
 
-        var template = new UserStatsGeneralTemplate
+        var template = new UserTemplate
         {
+            UserId = userInfo.Id,
             Username = userInfo.Username,
             Concerts =
             [
-                .. concertStats.Concerts.Select(c => new UserStatsGeneralTemplate.Concert
+                .. concertStats.Concerts.Select(c => new UserTemplate.Concert
                 {
                     Location = $"{c.Venue.City.Name}, {c.Venue.City.Country.Name}",
                     Date = c.PostedStartTime.Date,

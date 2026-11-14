@@ -1,18 +1,40 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
+using Prometheus;
 using Scriban;
 using Service.SharePics.DataStructure;
+using Service.SharePics.DataStructure.Templates;
 using Service.SharePics.Gotenberg;
 
 namespace Service.SharePics;
 
 public partial class SharePicService(IGotenbergClient gotenbergClient, string templateBaseDir, ILogger<SharePicService> logger)
 {
+    private static readonly Counter PicsGeneratedCounter = Metrics.CreateCounter(
+        "lpshows_share_pic_generated_count", 
+        "Counts the number of share-pics that were generated. Labels userId and username are only set if the template is showing user-data",
+        new CounterConfiguration
+        {
+            LabelNames = ["templateId", "userId", "username"]
+        });
+    
+    private static readonly Counter PicsGeneratedBytesCounter = Metrics.CreateCounter(
+        "lpshows_share_pic_generated_bytes", 
+        "Counts the bytes of share-pics that were generated. Labels userId and username are only set if the template is showing user-data",
+        new CounterConfiguration
+        {
+            LabelNames = ["templateId", "userId", "username"]
+        });
+    
     public async Task<byte[]> GenerateSharePicAsync(SharePicTemplate template,
         uint? width = null, uint? height = null, CancellationToken cancellationToken = default)
     {
-        return await GenerateSharePicAsync(template.TemplateId, template.GetParameterValues(), width, height, template.MainElementSelector,
+        var pic = await GenerateSharePicAsync(template.TemplateId, template.GetParameterValues(), width, height, template.MainElementSelector,
             cancellationToken);
+        
+        RegisterGeneratedTemplateMetrics(template, pic.Length);
+        
+        return pic;
     }
     
     public async Task<byte[]> GenerateSharePicAsync(string templateId, IDictionary<string, object> data, uint? width = null, uint? height = null, string? elementSelector = null, CancellationToken cancellationToken = default)
@@ -100,6 +122,22 @@ public partial class SharePicService(IGotenbergClient gotenbergClient, string te
 
             return $"{match.Groups["attribute"].Value}=\"{fileName}\"";
         });
+    }
+
+    private static void RegisterGeneratedTemplateMetrics(SharePicTemplate template, int fileSize)
+    {
+        string[] labelValues;
+        if (template is UserTemplateBase userTemplate)
+        {
+            labelValues = [userTemplate.TemplateId, userTemplate.UserId, userTemplate.Username];
+        }
+        else
+        {
+            labelValues = [template.TemplateId, "", ""];
+        }
+        
+        PicsGeneratedCounter.WithLabels(labelValues).Inc();
+        PicsGeneratedBytesCounter.WithLabels(labelValues).Inc(fileSize);
     }
 
     [GeneratedRegex("""(?<attribute>src|href)="(?<path>[^"]+)""", RegexOptions.IgnoreCase)]

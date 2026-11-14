@@ -29,6 +29,7 @@ public sealed class UpdateProfileBannersJob(UserService userService, UserStatsSe
 
                 var template = new ProfileBannerTemplate
                 {
+                    UserId = user.Id,
                     Username = user.Username,
                     Concerts =
                     [
