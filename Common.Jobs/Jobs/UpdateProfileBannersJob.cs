@@ -34,7 +34,7 @@ public sealed class UpdateProfileBannersJob(UserService userService, UserStatsSe
             };
             var image = await sharePicService.GenerateSharePicAsync("user-stats-general", data, 390, 110, cancellationToken: cancellationToken);
             var memoryStream = new MemoryStream(image);
-            await sharePicStore.StorePermanentAsync(memoryStream, $"test-{user.Id}.png", cancellationToken);
+            await sharePicStore.StorePermanentAsync(memoryStream, $"{user.Id}/banner.png", cancellationToken);
             //await File.WriteAllBytesAsync($"test-{user.Id}.png", image, cancellationToken);
         }
     }

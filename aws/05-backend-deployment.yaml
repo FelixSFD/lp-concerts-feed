@@ -1395,14 +1395,28 @@ Resources:
     Type: "AWS::S3::Bucket"
     Properties:
       BucketName: !Sub ${BaseProductName}-share-pics
-      #PublicAccessBlockConfiguration:
-      #  BlockPublicAcls: false
-      #  BlockPublicPolicy: false
-      #  IgnorePublicAcls: false
-      #  RestrictPublicBuckets: false
       OwnershipControls:
         Rules:
           - ObjectOwnership: ObjectWriter
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          # Delete non-current objects after 3 days
+          - Id: DeleteNonCurrentObjectsAfter3Days
+            Status: Enabled
+            ExpiredObjectDeleteMarker: true
+            NoncurrentVersionExpiration:
+              NoncurrentDays: 3
+          # Delete temporary objects after 2 days
+          - Id: DeleteTempObjectsAfter2Days
+            Status: Enabled
+            TagFilters:
+              - Key: temporary
+                Value: true
+            ExpirationInDays: 2
+            NoncurrentVersionExpiration:
+              NoncurrentDays: 2
       CorsConfiguration:
         CorsRules:
           - AllowedHeaders:
