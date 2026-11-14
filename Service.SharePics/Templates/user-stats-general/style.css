@@ -31,12 +31,17 @@ article footer {
     border: 1px solid red;
     text-align: center;
     width: 15rem;
-    height: 10rem;
+    height: 8rem;
 }
 
 .stat-segment .stat-segment-value {
-    font-size: 5rem;
+    font-size: 4rem;
     font-weight: bold;
+    max-lines: 1;
+}
+
+.stat-segment .stat-segment-label {
+    font-size: 1.5rem;
     max-lines: 1;
 }
 
@@ -44,8 +49,18 @@ article footer {
     margin-right: 0.4rem;
 }
 
+.lists-container {
+    margin-top: 1rem;
+    border: 1px solid greenyellow;
+    display: grid;
+    grid-gap: 0.4rem;
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.lists-container .stats-header {
+    font-size: larger;
+}
+
 .concerts-grid {
     font-size: 0.6rem;
-    margin-top: 1rem;
-    margin-bottom: -0.5rem;
 }
