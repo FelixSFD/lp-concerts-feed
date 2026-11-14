@@ -28,6 +28,7 @@ import {
 } from 'primeng/scrollarea';
 import { Tag } from 'primeng/tag';
 import { Tooltip } from 'primeng/tooltip';
+import { AuthService } from '../../../../auth/auth.service';
 
 @Component({
   imports: [
@@ -58,6 +59,7 @@ export class UserProfilePageComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly usersService = inject(UsersService);
   private readonly userStatsService = inject(UserStatsService);
+  private readonly authService = inject(AuthService);
   private readonly appleMusicService = inject(AppleMusicService);
   protected username = signal<string>("");
   protected isOwnProfile = signal<boolean>(false);
@@ -67,6 +69,8 @@ export class UserProfilePageComponent {
   protected concertStats = signal<UserConcertStatsResponseDto | null>(null);
 
   protected concertPins = signal<ConcertMapPin[]>([]);
+
+  protected showShareButton = signal<boolean>(false);
 
   // map that stores the artwork for an Apple Music Song ID
   songArtworks$ = signal<Map<string, Artwork>>(new Map<string, Artwork>());
@@ -109,6 +113,10 @@ export class UserProfilePageComponent {
 
       this.user.set(user);
     });
+
+    this.authService.canManageSetlists.subscribe((canManage) => {
+      this.showShareButton.set(canManage);
+    });
   }
 
   async onShareStatsClicked() {
@@ -117,10 +125,9 @@ export class UserProfilePageComponent {
       let response = await this.userStatsService.getUserConcertStatsSharePic(this.user()?.id!);
       console.debug("response:", response);
       let shareData = {
-        title: `${this.user()?.username}'s Linkin Park journey`,
         files: [response],
       };
-      if (navigator.canShare(shareData)) {
+      if (navigator.share) {
         await navigator.share(shareData);
       } else {
         console.warn("navigator.canShare() returned false");

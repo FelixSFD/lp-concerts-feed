@@ -34,9 +34,11 @@ export class UserStatsService {
   }
 
   async getUserConcertStatsSharePic(userId: string): Promise<File> {
-    let responseObj = await firstValueFrom(
+    let blob = await firstValueFrom(
       this.usersApi.getUserConcertStatsSharePic(userId)
     ) as Blob;
-    return new File([responseObj], "stats.png");
+    return new File([blob], "stats.png", {
+      type: blob.type,
+    });
   }
 }

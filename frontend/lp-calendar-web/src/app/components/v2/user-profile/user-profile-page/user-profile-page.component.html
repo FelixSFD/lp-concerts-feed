@@ -46,16 +46,19 @@
   </p-card>
 
   <div class="grid mt-3">
-    <div class="col-12">
-      <div class="flex justify-content-center flex-wrap">
-        <div class="align-items-center justify-content-center">
-          <button pButton raised (click)="onShareStatsClicked()">
-            <i class="pi pi-upload" pButtonIcon></i>
-            <span pButtonLabel>Share</span>
-          </button>
+    @if (showShareButton()) {
+      <!-- Share-Button -->
+      <div class="col-12">
+        <div class="flex justify-content-center flex-wrap">
+          <div class="align-items-center justify-content-center">
+            <button pButton raised (click)="onShareStatsClicked()">
+              <i class="pi pi-upload" pButtonIcon></i>
+              <span pButtonLabel>Share</span>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    }
 
     <!-- Left side: Song and Concert list -->
     <div class="col-12 xl:col-4">
