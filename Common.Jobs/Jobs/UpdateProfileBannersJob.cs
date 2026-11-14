@@ -18,24 +18,32 @@ public sealed class UpdateProfileBannersJob(UserService userService, UserStatsSe
         var allUsers = userService.GetAllUsers(cancellationToken);
         await foreach (var user in allUsers)
         {
-            var concertStatsTask = userStatsService.GetAttendedConcerts(user.Id, cancellationToken);
-            var songStatsTask = userStatsService.GetSongsUserHasSeenLiveAsync(user.Id, cancellationToken);
-        
-            var concertStats = await concertStatsTask;
-            var songStats = await songStatsTask;
-        
-            var data = new Dictionary<string, object>
+            try
             {
-                { "username", user.Username },
-                { "concerts", concertStats.NumberOfConcerts },
-                { "cities", concertStats.NumberOfCities },
-                { "countries", concertStats.NumberOfCountries },
-                { "songs", songStats.Length },
-            };
-            var image = await sharePicService.GenerateSharePicAsync("user-stats-general", data, 390, 110, cancellationToken: cancellationToken);
-            var memoryStream = new MemoryStream(image);
-            await sharePicStore.StorePermanentAsync(memoryStream, $"{user.Id}/banner.png", cancellationToken);
-            //await File.WriteAllBytesAsync($"test-{user.Id}.png", image, cancellationToken);
+                var concertStatsTask = userStatsService.GetAttendedConcerts(user.Id, cancellationToken);
+                var songStatsTask = userStatsService.GetSongsUserHasSeenLiveAsync(user.Id, cancellationToken);
+
+                var concertStats = await concertStatsTask;
+                var songStats = await songStatsTask;
+
+                var data = new Dictionary<string, object>
+                {
+                    { "username", user.Username },
+                    { "concerts", concertStats.NumberOfConcerts },
+                    { "cities", concertStats.NumberOfCities },
+                    { "countries", concertStats.NumberOfCountries },
+                    { "songs", songStats.Length },
+                };
+                var image = await sharePicService.GenerateSharePicAsync("user-stats-general", data, 390, 110,
+                    cancellationToken: cancellationToken);
+                var memoryStream = new MemoryStream(image);
+                await sharePicStore.StorePermanentAsync(memoryStream, $"profile/{user.Id}/banner.png",
+                    cancellationToken);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, "Failed to generate profile banner for user: {username} (ID: {userId})", user.Username, user.Id);
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 using Amazon.S3;
+using Amazon.S3.Model;
 using Microsoft.Extensions.Logging;
 
 namespace Service.SharePics.Storage;
@@ -10,24 +11,64 @@ public class S3SharePicStore(IAmazonS3 s3Client, S3SharePicStoreOptions options,
 {
     public async Task StorePermanentAsync(Stream fileStream, string fileKey, CancellationToken cancellationToken = default)
     {
+        logger.LogDebug("Storing object '{objectKey}' permanently in bucket '{bucketName}'...", fileKey, options.BucketName);
+        await StoreObjectAsync(fileStream, fileKey, cancellationToken);
+    }
+
+    public async Task StoreTemporaryAsync(Stream fileStream, string fileKey, CancellationToken cancellationToken = default)
+    {
+        logger.LogDebug("Storing object '{objectKey}' temporarily in bucket '{bucketName}'...", fileKey, options.BucketName);
+        var tags = new List<Tag>
+        {
+            new()
+            {
+                Key = "temporary",
+                Value = "true"
+            }
+        };
+        await StoreObjectAsync(fileStream, fileKey, tags, cancellationToken);
+    }
+
+    private async Task StoreObjectAsync(Stream fileStream, string fileKey, CancellationToken cancellationToken)
+    {
+        var tags = new List<Tag>();
+        await StoreObjectAsync(fileStream, fileKey, tags, cancellationToken);
+    }
+    
+    private async Task StoreObjectAsync(Stream fileStream, string fileKey, List<Tag> tags,
+        CancellationToken cancellationToken)
+    {
         if (!string.IsNullOrWhiteSpace(options.KeyPrefix))
         {
             fileKey = options.KeyPrefix + fileKey;
+            logger.LogDebug("Added prefix to file key. Full key is now: {fileKey}", fileKey);
         }
-        
-        logger.LogDebug("Storing object '{objectKey}' permanently in bucket '{bucketName}'...", fileKey, options.BucketName);
-        var additionalProperties = new Dictionary<string, object>();
-        await s3Client.UploadObjectFromStreamAsync(options.BucketName, fileKey, fileStream, additionalProperties,
-            cancellationToken);
+
+        var putRequest = new PutObjectRequest
+        {
+            BucketName = options.BucketName,
+            Key = fileKey,
+            TagSet = tags,
+            InputStream = fileStream,
+        };
+        await s3Client.PutObjectAsync(putRequest, cancellationToken);
         
         logger.LogDebug("Successfully stored '{objectKey}' in bucket '{bucketName}'.", fileKey, options.BucketName);
     }
 }
 
-
+/// <summary>
+/// Options to configure the <see cref="S3SharePicStore"/>
+/// </summary>
 public class S3SharePicStoreOptions
 {
+    /// <summary>
+    /// Name of the S3 bucket
+    /// </summary>
     public required string BucketName { get; set; }
 
+    /// <summary>
+    /// Prefix to add to every file
+    /// </summary>
     public string? KeyPrefix { get; set; }
 }
