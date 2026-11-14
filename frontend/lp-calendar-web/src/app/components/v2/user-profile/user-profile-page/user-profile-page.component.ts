@@ -29,6 +29,7 @@ import {
 import { Tag } from 'primeng/tag';
 import { Tooltip } from 'primeng/tooltip';
 import { AuthService } from '../../../../auth/auth.service';
+import { MatomoTracker } from 'ngx-matomo-client';
 
 @Component({
   imports: [
@@ -61,6 +62,8 @@ export class UserProfilePageComponent {
   private readonly userStatsService = inject(UserStatsService);
   private readonly authService = inject(AuthService);
   private readonly appleMusicService = inject(AppleMusicService);
+  private readonly tracker = inject(MatomoTracker);
+
   protected username = signal<string>("");
   protected isOwnProfile = signal<boolean>(false);
   protected resolverError = signal<ProblemDetailsDto | null>(null);
@@ -129,6 +132,7 @@ export class UserProfilePageComponent {
       };
       if (navigator.share) {
         await navigator.share(shareData);
+        this.tracker.trackEvent('share', 'user_stats', this.user()?.username);
       } else {
         console.warn("navigator.canShare() returned false");
       }
