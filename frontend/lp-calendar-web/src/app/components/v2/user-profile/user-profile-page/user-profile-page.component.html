@@ -55,7 +55,7 @@
       <div class="col-12">
         <div class="flex justify-content-center flex-wrap">
           <div class="align-items-center justify-content-center">
-            <button pButton raised (click)="onShareStatsClicked()">
+            <button pButton raised (click)="onShareStatsClicked()" [disabled]="isSharing()">
               <i class="pi pi-upload" pButtonIcon></i>
               <span pButtonLabel>Share</span>
             </button>

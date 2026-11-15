@@ -80,6 +80,8 @@ export class UserProfilePageComponent {
   protected isLoadingConcertStats = signal<boolean>(false);
   protected isLoadingSongStats = signal<boolean>(false);
 
+  protected isSharing = signal<boolean>(false);
+
   // map that stores the artwork for an Apple Music Song ID
   songArtworks$ = signal<Map<string, Artwork>>(new Map<string, Artwork>());
 
@@ -129,6 +131,7 @@ export class UserProfilePageComponent {
 
   async onShareStatsClicked() {
     console.debug("Share stats clicked");
+    this.isSharing.set(true);
     try {
       let response = await this.userStatsService.getUserConcertStatsSharePic(this.user()?.id!);
       console.debug("response:", response);
@@ -143,6 +146,8 @@ export class UserProfilePageComponent {
       }
     } catch (e) {
       console.error("Failed to share profile stats:", e);
+    } finally {
+      this.isSharing.set(false);
     }
   }
 
