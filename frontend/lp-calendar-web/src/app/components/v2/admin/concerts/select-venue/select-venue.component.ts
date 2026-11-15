@@ -18,7 +18,7 @@ import { LocationsService } from '../../../../../services/locations.service';
 import { CityWithCountryDto, CountryDto, VenueDto } from '../../../../../modules/lpshows-api/v3';
 import { ButtonDirective } from 'primeng/button';
 import { RouterLink } from '@angular/router';
-import { forkJoin, Observable, tap } from 'rxjs';
+import { forkJoin, observable, Observable, tap } from 'rxjs';
 
 @Component({
   selector: 'app-select-venue',
@@ -94,7 +94,7 @@ export class SelectVenueComponent implements ControlValueAccessor, OnInit {
   ngOnInit() {
     this.loadCountries();
     this.loadVenues().then();
-    this.loadCities();
+    this.loadCities().then();
   }
 
   loadCountries() {
@@ -130,33 +130,30 @@ export class SelectVenueComponent implements ControlValueAccessor, OnInit {
     }
   }
 
-  loadCities() {
+  async loadCities() {
     this.loadingCities.set(true);
     const countryCode = this.selectedCountry()?.isoCode;
-    const request$ = countryCode
-      ? this.locationsService.getCitiesIn(countryCode)
-      : this.locationsService.getCities();
+    try {
+      let cities = await (countryCode
+        ? this.locationsService.getCitiesIn(countryCode)
+        : this.locationsService.getCities());
 
-    request$.subscribe({
-      next: (cities) => {
-        this.cities.set(cities ?? []);
-        this.loadingCities.set(false);
+      this.cities.set(cities ?? []);
 
-        const venue = this.value();
-        const currentCity = this.selectedCity();
+      const venue = this.value();
+      const currentCity = this.selectedCity();
 
-        if (venue?.cityId != null) {
-          this.selectedCity.set(this.cities().find((c) => String(c.id) === String(venue.cityId)) ?? null);
-        } else if (currentCity && !this.cities().some((c) => String(c.id) === String(currentCity.id))) {
-          this.selectedCity.set(null);
-        }
-      },
-      error: (err) => {
-        console.error('Failed to load cities', err);
-        this.cities.set([]);
-        this.loadingCities.set(false);
-      },
-    });
+      if (venue?.cityId != null) {
+        this.selectedCity.set(this.cities().find((c) => String(c.id) === String(venue.cityId)) ?? null);
+      } else if (currentCity && !this.cities().some((c) => String(c.id) === String(currentCity.id))) {
+        this.selectedCity.set(null);
+      }
+    } catch (err) {
+      console.error('Failed to load cities', err);
+      this.cities.set([]);
+    } finally {
+      this.loadingCities.set(false);
+    }
   }
 
   reloadAvailableOptions(): Observable<any> {
@@ -190,7 +187,7 @@ export class SelectVenueComponent implements ControlValueAccessor, OnInit {
 
   onCountryChange(country: CountryDto | null) {
     this.selectedCountry.set(country);
-    this.loadCities();
+    this.loadCities().then();
 
     const currentVenue = this.value();
     if (currentVenue) {
@@ -271,7 +268,7 @@ export class SelectVenueComponent implements ControlValueAccessor, OnInit {
     if (venue) {
       if (venue.countryCode && this.selectedCountry()?.isoCode !== venue.countryCode) {
         this.selectedCountry.set(this.countries().find((c) => c.isoCode === venue.countryCode) ?? null);
-        this.loadCities();
+        this.loadCities().then();
       } else if (venue.cityId != null) {
         this.selectedCity.set(this.cities().find((c) => String(c.id) === String(venue.cityId)) ?? null);
       }

@@ -7,7 +7,7 @@ import {environment} from '../../environments/environment';
 import {TimeZoneResponseDto, TimezoneService} from '../modules/lpshows-api';
 import {
   AddVenueNameRequestDto,
-  CitiesApi,
+  CitiesApi, CityListResponseDto,
   CityWithCountryDto,
   ConcertListResponseDto,
   CountriesApi,
@@ -124,12 +124,25 @@ export class LocationsService {
     return this.countriesApi.deleteState(countryCode, stateCode);
   }
 
-  getCities(): Observable<CityWithCountryDto[]> {
-    return this.citiesApi.getCities(undefined, undefined, "1000", undefined, ["country.name", "name"]); // TODO: filter and sorting?
+  async getCities(): Promise<CityWithCountryDto[]> {
+    let filter: VenueFilter = {
+      orderBy: ["country.name", "name"],
+    };
+    let all = await this.getFilteredCities(filter, 1000, 0, true);
+    return all.cities ?? [];
   }
 
-  getCitiesIn(countryCode: string): Observable<CityWithCountryDto[]> {
-    return this.countriesApi.getCitiesInCountry(countryCode);
+  getFilteredCities(filter: VenueFilter, limit: number = 100, skip: number = 0, cached: boolean = true): Promise<CityListResponseDto> {
+    return firstValueFrom(this.citiesApi.getCities(getRequestIdParameter(cached),
+      filter.countryCode,
+      limit,
+      skip,
+      filter.orderBy)
+    );
+  }
+
+  getCitiesIn(countryCode: string): Promise<CityWithCountryDto[]> {
+    return firstValueFrom(this.countriesApi.getCitiesInCountry(countryCode));
   }
 
   createCity(countryCode: string, city: CreateCityRequestDto): Observable<CityWithCountryDto> {

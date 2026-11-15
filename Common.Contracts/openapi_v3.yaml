@@ -1576,7 +1576,7 @@ paths:
     get:
       tags:
         - Cities
-      summary: Returns a list of all cities
+      summary: Returns a paginated list of cities
       operationId: GetCities
       parameters:
         - name: CountryCode
@@ -1587,13 +1587,13 @@ paths:
           in: query
           schema:
             pattern: ^-?(?:0|[1-9]\d*)$
-            type: string
+            type: number
             format: uint32
         - name: Skip
           in: query
           schema:
             pattern: ^-?(?:0|[1-9]\d*)$
-            type: string
+            type: number
             format: uint32
         - name: OrderBy
           in: query
@@ -1607,19 +1607,13 @@ paths:
           content:
             text/plain:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CityWithCountry"
+                $ref: "#/components/schemas/CityListResponse"
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CityWithCountry"
+                $ref: "#/components/schemas/CityListResponse"
             text/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CityWithCountry"
+                $ref: "#/components/schemas/CityListResponse"
       x-amazon-apigateway-integration:
         type: HTTP_PROXY
         httpMethod: GET
@@ -5319,6 +5313,17 @@ components:
           description: List of venues
           items:
             $ref: "#/components/schemas/Venue"
+    
+    CityListResponse:
+      type: object
+      properties:
+        metadata:
+          $ref: "#/components/schemas/PaginationResponseMetadata"
+        cities:
+          type: array
+          description: List of cities
+          items:
+            $ref: "#/components/schemas/CityWithCountry"
     
     UserListResponse:
       type: object

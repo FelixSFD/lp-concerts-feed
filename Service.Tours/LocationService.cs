@@ -1,5 +1,6 @@
 using Common.Database;
 using Common.Database.Repositories;
+using Common.Utils.Pagination;
 using Database.Tours.Filters;
 using Database.Tours.Repositories;
 using LPCalendar.DataStructure.Tours.Locations;
@@ -323,14 +324,20 @@ public class LocationService(
     /// <param name="filter">Filter for the list of cities</param>
     /// <param name="cancellationToken">token to cancel the query</param>
     /// <returns>async enumerable of the cities that were found</returns>
-    public IAsyncEnumerable<CityWithCountryBo> GetCitiesAsync(CitiesFilter filter, CancellationToken cancellationToken)
+    public async Task<AsyncPaginationResult<CityWithCountryBo>> GetCitiesAsync(CitiesFilter filter, CancellationToken cancellationToken)
     {
         logger.LogDebug("Requesting list of cities...");
         var paginationParams = new PaginationParams(filter.Skip, filter.Limit);
-        
-        return cityRepository
-            .GetCities(cancellationToken, null, filter.OrderBy.Select(SortDescriptor.FromString), paginationParams)
-            .Select(DoMapper.ToDtoWithCountry);
+        var cityFilter = new CityFilter();
+        var paginatedResult = await cityRepository.GetCitiesAsync(cancellationToken, cityFilter,
+            filter.OrderBy.Select(SortDescriptor.FromString), paginationParams);
+        return new AsyncPaginationResult<CityWithCountryBo>
+        {
+            TotalResults = paginatedResult.TotalCount,
+            Limit = (int)filter.Limit,
+            Offset = (int)filter.Skip,
+            Results = paginatedResult.Results.Select(DoMapper.ToDtoWithCountry),
+        };
     }
     
     /// <summary>

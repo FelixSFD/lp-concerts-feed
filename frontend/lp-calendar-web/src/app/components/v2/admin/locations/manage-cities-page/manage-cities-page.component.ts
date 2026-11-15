@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { LocationsService } from '../../../../../services/locations.service';
-import { CityWithCountryDto, CountryDto } from '../../../../../modules/lpshows-api/v3';
+import { CityWithCountryDto, CountryDto, ProblemDetailsDto } from '../../../../../modules/lpshows-api/v3';
 import { ErrorResponseDto } from '../../../../../modules/lpshows-api';
 import { Button } from 'primeng/button';
 import { ButtonGroup } from 'primeng/buttongroup';
@@ -50,7 +50,7 @@ export class ManageCitiesPageComponent {
   globalSearchText$ = signal("");
 
   ngOnInit() {
-    this.reloadList(false);
+    this.reloadList(false).then();
   }
 
 
@@ -84,8 +84,8 @@ export class ManageCitiesPageComponent {
     if (city) {
       this.locationsService.deleteCity(city.countryCode, Number(city.id))
         .subscribe({
-          next: () => {
-            this.reloadList(false);
+          next: async () => {
+            await this.reloadList(false);
             this.isDeletingCity$.set(false);
           },
           error: err => {
@@ -102,19 +102,17 @@ export class ManageCitiesPageComponent {
   }
 
 
-  private reloadList(cache: boolean) {
-    this.locationsService.getCities().subscribe({
-      next: cities => {
-        this.cities$.set(cities);
-      },
-      error: err => {
-        let errorResponse: ErrorResponseDto = err.error;
-        this.messageService.add({
-          severity: "error",
-          summary: "Could not load cities!",
-          text: errorResponse.message,
-        });
-      }
-    })
+  private async reloadList(cache: boolean) {
+    try {
+      let cities = await this.locationsService.getCities();
+      this.cities$.set(cities);
+    } catch (e) {
+      let problemDetails: ProblemDetailsDto = e as ProblemDetailsDto;
+      this.messageService.add({
+        severity: "error",
+        summary: "Failed to load the cities",
+        detail: problemDetails.detail,
+      });
+    }
   }
 }

@@ -1,8 +1,10 @@
 using System.Linq.Expressions;
 using Common.Database;
+using Common.Database.DataObjects;
 using Common.Database.MySql.Repositories;
 using Common.Database.Repositories;
 using Database.Tours.DataObjects;
+using Database.Tours.Filters;
 using Microsoft.EntityFrameworkCore;
 
 namespace Database.Tours.Repositories;
@@ -49,6 +51,13 @@ public class SqlCityRepository(ToursDbContext dbContext) : SqlRepositoryBase<Cit
     {
         paginationParams ??= new PaginationParams(0, 100);
         return InternalFindAsync(c => countryCode == null || c.CountryCode == countryCode, IncludeAllReferences, orderBy, paginationParams);
+    }
+
+    public async Task<PaginatedQueryResult<CityDo>> GetCitiesAsync(CancellationToken token, CityFilter? filter = null, IEnumerable<SortDescriptor>? orderBy = null,
+        IPaginationParams? paginationParams = null, bool includeDeleted = false)
+    {
+        paginationParams ??= new PaginationParams(0, 100);
+        return await InternalFindPaginatedAsync(filter, IncludeAllReferences, orderBy, paginationParams, includeDeleted, token);
     }
 
     public async Task<CityDo?> GetByPrimaryKeyWithoutReferencesAsync(string countryCode, uint cityId)
