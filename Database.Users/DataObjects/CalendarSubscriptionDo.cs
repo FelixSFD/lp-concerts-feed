@@ -44,4 +44,9 @@ public class CalendarSubscriptionDo : BaseDo, ITimestampedDataObject
     /// <inheritdoc/>
     [Column("UpdatedAt")]
     public DateTimeOffset? UpdatedAt { get; set; }
+    
+    /// <summary>
+    /// User who manages this subscription
+    /// </summary>
+    public virtual UserDo? User { get; set; }
 }

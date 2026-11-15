@@ -35,6 +35,11 @@ public class UserDo : BaseDo, ITimestampedDataObject
     [MaxLength(3)]
     [Column("OriginCountryCode")]
     public string? OriginCountryCode { get; set; }
+    
+    /// <summary>
+    /// Calendar subscriptions, the user manages
+    /// </summary>
+    public virtual IEnumerable<CalendarSubscriptionDo> CalendarSubscriptions { get; set; }
 
     /// <inheritdoc/>
     public DateTimeOffset CreatedAt { get; set; }
