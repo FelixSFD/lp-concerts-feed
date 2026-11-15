@@ -1,6 +1,11 @@
+using Common.Database;
+using Common.Database.Repositories;
+using Common.Utils.Pagination;
 using Database.Tours.DataObjects;
 using Database.Tours.Extensions;
+using Database.Tours.Filters;
 using Database.Tours.Repositories;
+using LPCalendar.DataStructure.Tours;
 using LPCalendar.DataStructure.Tours.Locations;
 using Microsoft.Extensions.Logging;
 using Service.Tours.Exceptions;
@@ -64,14 +69,29 @@ public class VenueService(IVenueRepository venueRepository, ILogger<VenueService
     /// <summary>
     /// Returns a list of all venues
     /// </summary>
+    /// <param name="filter"></param>
     /// <param name="cancellationToken">Token to cancel the search</param>
     /// <returns>List of all venues</returns>
-    public IAsyncEnumerable<VenueBo> GetAllVenuesAsync(CancellationToken cancellationToken = default)
+    public async Task<AsyncPaginationResult<VenueBo>> GetAllVenuesAsync(GetVenuesFilterDto filter, CancellationToken cancellationToken = default)
     {
-        logger.LogDebug("Searching for all venues...");
-        return venueRepository
-            .FindAsync(cancellationToken: cancellationToken)
-            .Select(DoMapper.ToBo);
+        logger.LogDebug("Getting venues... Fetching starting with result {offset} and take {limit}", filter.Skip, filter.Limit);
+        var paginationParams = new PaginationParams(filter.Skip, filter.Limit);
+        var venueFilter = new VenueFilter
+        {
+            Venue = filter.Venue,
+            CountryCode = filter.CountryCode,
+        };
+
+        var paginatedResult = await venueRepository
+            .FindPaginatedAsync(venueFilter, filter.OrderBy.Select(SortDescriptor.FromString), paginationParams, cancellationToken: cancellationToken);
+        logger.LogDebug("Query would return {count} concerts. A maximum of {limit} will be returned", paginatedResult.TotalCount, filter.Limit);
+        return new AsyncPaginationResult<VenueBo>
+        {
+            TotalResults = paginatedResult.TotalCount,
+            Limit = (int)filter.Limit,
+            Offset = (int)filter.Skip,
+            Results = paginatedResult.Results.Select(DoMapper.ToBo),
+        };
     }
 
     /// <summary>
