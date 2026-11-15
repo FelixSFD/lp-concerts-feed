@@ -16,8 +16,45 @@ namespace Database.Users.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.9")
+                .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
+
+            modelBuilder.Entity("Database.Users.DataObjects.CalendarSubscriptionDo", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(63)
+                        .HasColumnType("varchar(63)")
+                        .HasColumnName("Id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasColumnName("CreatedAt")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<bool>("IncludeDoorsTime")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("IncludeDoorsTime");
+
+                    b.Property<bool>("IncludeLpStageTime")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("IncludeLpStageTime");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("UpdatedAt");
+
+                    b.Property<string>("UserId")
+                        .HasMaxLength(63)
+                        .HasColumnType("varchar(63)")
+                        .HasColumnName("UserId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("CalendarSubscription");
+                });
 
             modelBuilder.Entity("Database.Users.DataObjects.UserDo", b =>
                 {
@@ -51,6 +88,20 @@ namespace Database.Users.Migrations
                         .IsUnique();
 
                     b.ToTable("User");
+                });
+
+            modelBuilder.Entity("Database.Users.DataObjects.CalendarSubscriptionDo", b =>
+                {
+                    b.HasOne("Database.Users.DataObjects.UserDo", "User")
+                        .WithMany("CalendarSubscriptions")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Database.Users.DataObjects.UserDo", b =>
+                {
+                    b.Navigation("CalendarSubscriptions");
                 });
 #pragma warning restore 612, 618
         }

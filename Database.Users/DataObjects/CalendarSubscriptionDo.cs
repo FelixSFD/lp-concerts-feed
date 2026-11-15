@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Common.Database.DataObjects;
+using Microsoft.EntityFrameworkCore;
 
 namespace Database.Users.DataObjects;
 
@@ -8,6 +9,8 @@ namespace Database.Users.DataObjects;
 /// Represents a calendar subscription (for the concerts iCal).
 /// It contains all settings to control what will be included in the feed.
 /// </summary>
+[Table("CalendarSubscription")]
+[PrimaryKey(nameof(Id))]
 public class CalendarSubscriptionDo : BaseDo, ITimestampedDataObject
 {
     /// <summary>
