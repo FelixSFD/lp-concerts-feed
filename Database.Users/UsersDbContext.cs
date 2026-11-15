@@ -11,6 +11,7 @@ namespace Database.Users;
 public class UsersDbContext(DbContextOptions<UsersDbContext> options) : DbContext(options)
 {
     public DbSet<UserDo> Users { get; set; }
+    public DbSet<CalendarSubscriptionDo> CalendarSubscriptions { get; set; }
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
