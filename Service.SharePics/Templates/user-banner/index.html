@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Stats</title>
+
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    />
+
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.colors.min.css"
+    />
+    
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<main class="">
+    <!-- TODO: proper layout -->
+    <article id="main-card" class="pico-background-purple-600">
+        <div class="grid card-header">
+            <p class="pico-color-zinc-100">{{ username }}'s Linkin Park journey</p>
+        </div>
+        
+        <div class="grid">
+            <div class="stat-segment">
+                <div class="stat-segment-value">{{ concerts | array.size }}</div>
+                <div class="stat-segment-label">concerts</div>
+            </div>
+
+            <div class="stat-segment">
+                <div class="stat-segment-value">{{ cities }}</div>
+                <div class="stat-segment-label">cities</div>
+            </div>
+
+            <div class="stat-segment">
+                <div class="stat-segment-value">{{ countries }}</div>
+                <div class="stat-segment-label">countries</div>
+            </div>
+
+            <div class="stat-segment">
+                <div class="stat-segment-value">{{ songs }}</div>
+                <div class="stat-segment-label">different songs</div>
+            </div>
+        </div>
+        
+        <div class="grid concerts-grid">
+            {{ first_concert = concerts | array.sort "date" | array.first }}
+            {{ last_concert = concerts | array.sort "date" | array.last }}
+
+            <span>First concert: {{ first_concert.date | date.to_string '%Y-%m-%d' }} - {{ first_concert.location }}</span>
+            <span>Latest concert: {{ last_concert.date | date.to_string '%Y-%m-%d' }} - {{ last_concert.location }}</span>
+        </div>
+        
+        <footer data-theme="dark">
+            <img class="app-icon" src="../_base/app_icon.png" alt="Icon" width="16" height="16" />
+            View more details or get your own stats on lpshows.live
+        </footer>
+    </article>
+</main>
+</body>
+</html>

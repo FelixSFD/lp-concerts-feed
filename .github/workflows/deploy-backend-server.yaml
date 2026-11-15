@@ -18,6 +18,46 @@ jobs:
     environment: 
       name: ${{ inputs.environment || 'test' }}
     steps:
+      - uses: actions/checkout@v7
+      - name: Make envfile
+        uses: SpicyPizza/create-envfile@v2.0
+        with:
+          file_name: .env
+          envkey_DEPLOYMENT_ENVIRONMENT: ${{ inputs.environment || 'test' }}
+          envkey_LPDB_CONNECTION_STRING: ${{ secrets.API_SERVER_DB_CONNECTION_STRING }}
+          envkey_QUARTZ_CONNECTION_STRING: ${{ secrets.API_SERVER_DB_CONNECTION_STRING }}
+          envkey_USE_SWAGGERUI: true
+          envkey_AWS_COGNITO_CLIENT_ID: ${{ vars.COGNITO_CLIENT_ID }}
+          envkey_AWS_COGNITO_USER_POOL_ID: ${{ vars.COGNITO_USER_POOL_ID }}
+          envkey_AWS_COGNITO_REGION: ${{ vars.FRONTEND_PRIMARY_REGION }}
+          envkey_AWS_CONFIG_FILE: "/app/.aws_config"
+          envkey_AWS_PROFILE: ${{ vars.AWS_PROFILE }}
+          envkey_CONCERT_IMAGE_BUCKET_NAME: ${{ vars.CONCERT_IMAGE_BUCKET_NAME }}
+          envkey_SHARE_PICS_BASE_URL: "${{ vars.IMAGE_BASE_URL }}/share"
+          envkey_SHARE_PICS_S3_BUCKET_NAME: ${{ vars.SHARE_PICS_S3_BUCKET_NAME }}
+          envkey_TRAEFIK_ROUTER_API_SERVER: ${{ vars.TRAEFIK_ROUTER_API_SERVER }}
+          envkey_TRAEFIK_SERVICE_API_SERVER: ${{ vars.TRAEFIK_ROUTER_API_SERVER }}
+          envkey_API_IMAGE: "ghcr.io/felixsfd/lpshows-api-server:${{ vars.SERVER_IMAGE_TAG }}"
+          envkey_API_HOSTNAME_INTERNAL: ${{ secrets.BACKEND_SERVER_INTERNAL_HOST }}
+      - name: Deploy .env file to server
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ vars.BACKEND_SSH_HOST }}
+          username: ${{ secrets.BACKEND_SSH_USERNAME }}
+          key: ${{ secrets.BACKEND_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.BACKEND_SSH_PORT }}
+          source: ".env,compose.yaml,compose.deployment.yaml"
+          target: ${{ secrets.BACKEND_SERVER_STACK_PATH }}
+      - name: Deploy SharePic templates
+        uses: burnett01/rsync-deployments@v9
+        with:
+          switches: -avzr --delete-after
+          path: Service.SharePics/Templates/
+          remote_path: ${{ secrets.BACKEND_SERVER_STACK_PATH }}/templates # ex: /var/www/html/
+          remote_host: ${{ vars.BACKEND_SSH_HOST }} # ex: example.com
+          remote_port: ${{ secrets.BACKEND_SSH_PORT }} # ex: 22
+          remote_user: ${{ secrets.BACKEND_SSH_USERNAME }} # ex: ubuntu
+          remote_key: ${{ secrets.BACKEND_SSH_PRIVATE_KEY }}
       - name: Execute remote SSH commands using password
         uses: appleboy/ssh-action@v1
         with:
@@ -27,5 +67,5 @@ jobs:
           port: ${{ secrets.BACKEND_SSH_PORT }}
           script: |
             cd ${{ secrets.BACKEND_SERVER_STACK_PATH }}
-            docker compose pull
-            docker compose up -d
+            docker compose -f compose.yaml -f compose.deployment.yaml pull
+            docker compose -f compose.yaml -f compose.deployment.yaml up -d

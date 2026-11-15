@@ -18,4 +18,13 @@ public interface ISongRepository : ISingleKeyRepositoryBase<SongDo, uint>, IRepo
     /// <param name="title">Title of the song</param>
     /// <returns>all songs that were found</returns>
     public IAsyncEnumerable<SongDo> GetSongsByTitle(string title);
+    
+    /// <summary>
+    /// Returns a dictionary of songs that were played at the given concerts, along with the number of times they were played.
+    /// </summary>
+    /// <param name="concertIds">IDs of the concerts to check</param>
+    /// <param name="cancellationToken">Token to cancel the operation</param>
+    /// <returns></returns>
+    public Task<IDictionary<SongDo, uint>> GetSongsPlayedAtConcertsAsync(IEnumerable<string> concertIds,
+        CancellationToken cancellationToken = default);
 }

@@ -114,6 +114,28 @@ public class UserService(IUserRepository userRepository, IAlbumRepository albumR
         };
     }
     
+    public async IAsyncEnumerable<UserBo> GetAllUsers(CancellationToken cancellationToken = default)
+    {
+        var filter = new GetUsersFilterDto
+        {
+            Limit = 10,
+            Skip = 0,
+        };
+
+        AsyncPaginationResult<UserBo> currentPage;
+
+        do
+        {
+            currentPage = await GetUsersPaginatedAsync(filter, cancellationToken);
+            await foreach (var result in currentPage.Results.WithCancellation(cancellationToken))
+            {
+                yield return result;
+            }
+
+            filter.Skip += filter.Limit;
+        } while (await currentPage.Results.AnyAsync(cancellationToken));
+    }
+    
     /// <summary>
     /// Returns a list of suggested random usernames based on album titles.
     /// </summary>

@@ -39,4 +39,19 @@ public static partial class Log
     
     [LoggerMessage(10032, LogLevel.Information, "Finished syncing countries with last sync date: {lastSync}; Updated: {updated}; Deleted: {deleted}; Duration: not measured")]
     public static partial void FinishedCountrySync(ILogger logger, DateTimeOffset? lastSync, int updated, int deleted);
+    
+    [LoggerMessage(10040, LogLevel.Debug, "Generating AttendedConcerts stats for user: {userId}")]
+    public static partial void StartGeneratingAttendedConcertsStats(ILogger logger, string userId);
+    
+    [LoggerMessage(10041, LogLevel.Debug, "Generated AttendedConcerts stats for user: {userId}; Concerts: {numberOfConcerts}; Venues: {numberOfVenues}; Cities: {numberOfCities}; Countries: {numberOfCountries}")]
+    public static partial void FinishedGeneratingAttendedConcertsStats(ILogger logger, string userId, int numberOfConcerts, int numberOfVenues, int numberOfCities, int numberOfCountries);
+    
+    [LoggerMessage(10042, LogLevel.Debug, "Loaded concerts the user '{userId}' has attended so far")]
+    public static partial void LoadedConcertsUserAttended(ILogger logger, string userId);
+    
+    [LoggerMessage(10045, LogLevel.Debug, "Generating song stats for user: {userId}")]
+    public static partial void StartGeneratingAttendedSongStats(ILogger logger, string userId);
+    
+    [LoggerMessage(10046, LogLevel.Debug, "Generated Song stats for user: {userId}; Number of songs seen live: {numberOfSongs}")]
+    public static partial void FinishedGeneratingAttendedSongStats(ILogger logger, string userId, int numberOfSongs);
 }

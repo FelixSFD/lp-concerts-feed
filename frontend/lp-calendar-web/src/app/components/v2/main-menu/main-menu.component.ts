@@ -176,7 +176,7 @@ export class MainMenuComponent implements OnInit, OnChanges {
       id: 'account',
       label: this.username ?? 'Account',
       items: [
-        { id: 'your-profile', label: 'Your Profile', icon: 'pi pi-user', routerLink: '/profile' },
+        { id: 'your-profile', label: 'Your Profile', icon: 'pi pi-user', routerLink: '/users/me' },
         {
           id: 'logout',
           label: 'Logout',

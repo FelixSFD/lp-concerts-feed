@@ -6,6 +6,7 @@ using LPCalendar.DataStructure.Setlists.Parameters;
 using LPCalendar.DataStructure.Tours;
 using LPCalendar.DataStructure.Tours.Locations;
 using Service.Tours.DataStructure;
+using Service.Tours.DataStructure.Stats;
 using Service.Users.DataStructure;
 
 namespace Server.Api;
@@ -393,6 +394,24 @@ internal static class DtoMapper
         };
     }
     
+    public static ConcertDetailsShortDto ToShortDto(this ConcertDetailsBo bo)
+    {
+        return new ConcertDetailsShortDto
+        {
+            Id = bo.Id,
+            ConcertType = bo.ConcertType.ToDto(),
+            TourName = bo.Tour?.Name,
+            TourLegName = bo.TourLeg?.Name,
+            CustomTitle = bo.CustomTitle,
+            ConcertDate = DateOnly.FromDateTime(bo.PostedStartTime.Date),
+            VenueName = bo.Venue.CurrentName,
+            VenueLatitude = bo.Venue.Latitude,
+            VenueLongitude = bo.Venue.Longitude,
+            CityName = bo.Venue.City.Name,
+            CountryName = bo.Venue.City.Country.Name,
+        };
+    }
+    
     public static RawConcertDto ToDto(this RawConcertBo bo)
     {
         return new RawConcertDto
@@ -520,6 +539,21 @@ internal static class DtoMapper
             OriginCountryCode = bo.OriginCountryCode,
             CreatedAt = bo.CreatedAt,
             UpdatedAt = bo.UpdatedAt,
+        };
+    }
+    
+    /// <summary>
+    /// Maps the BusinessObject to a DTO, but only includes information that is publicly available (e.g., no email address)
+    /// </summary>
+    /// <param name="bo">BusinessObject to map</param>
+    /// <returns>the mapped DTO</returns>
+    public static PublicUserDto ToPublicDto(this UserBo bo)
+    {
+        return new PublicUserDto
+        {
+            Id = bo.Id,
+            Username = bo.Username,
+            OriginCountryCode = bo.OriginCountryCode,
         };
     }
 
@@ -1511,6 +1545,59 @@ internal static class DtoMapper
         {
             ConcertId = bo.ConcertId,
             LinkinpediaUrl = bo.LinkinpediaUrl,
+        };
+    }
+
+    #endregion
+
+    #region UserConcertStats
+
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bo">BusinessObject to map</param>
+    /// <returns>the mapped DTO</returns>
+    public static UserConcertStatsResponseDto ToDto(this UserConcertStatsBo bo)
+    {
+        return new UserConcertStatsResponseDto
+        {
+            Concerts = bo.Concerts.Select(ToShortDto).ToList(),
+            NumberOfCities = bo.NumberOfCities,
+            NumberOfCountries = bo.NumberOfCountries,
+            NumberOfVenues = bo.NumberOfVenues,
+            NumberOfConcerts = bo.NumberOfConcerts,
+        };
+    }
+    
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bos">BusinessObjects to map</param>
+    /// <returns>the mapped DTO</returns>
+    public static UserSongStatsResponseDto ToDto(this IEnumerable<UserSongStatBo> bos)
+    {
+        var songs = bos.Select(ToDto).ToList();
+        return new UserSongStatsResponseDto
+        {
+            NumberOfSongs = songs.Count,
+            Songs = songs,
+        };
+    }
+    
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bo">BusinessObjects to map</param>
+    /// <returns>the mapped DTO</returns>
+    private static UserSongStatsResponseSongsInnerDto ToDto(this UserSongStatBo bo)
+    {
+        return new UserSongStatsResponseSongsInnerDto
+        {
+            SongId = bo.SongId,
+            SongTitle = bo.SongName,
+            AlbumName = bo.AlbumName,
+            AppleMusicId = bo.AppleMusicId,
+            PlayCount = bo.PlayCount,
         };
     }
 

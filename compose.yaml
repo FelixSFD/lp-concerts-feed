@@ -1,0 +1,8 @@
+﻿services:
+  # Hosts the API (v3)
+  api-server:
+    image: ${API_IMAGE:-server.api}
+
+  # Generates images from HTML
+  gotenberg:
+    image: gotenberg/gotenberg:9

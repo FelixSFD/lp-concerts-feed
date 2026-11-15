@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Stats</title>
+
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    />
+
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.colors.min.css"
+    />
+
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+{{ first_concert = concerts | array.sort "date" | array.first }}
+{{ last_concert = concerts | array.sort "date" | array.last }}
+{{ max_concerts_displayed = 15 }}
+<main>
+    <article id="main-card" class="pico-background-purple-600">
+        <div class="grid card-header">
+            <p class="pico-color-zinc-100">{{ username }}'s Linkin Park journey</p>
+        </div>
+
+        <div class="stats-content">
+            <div class="stat-segment">
+                <div class="stat-segment-value">{{ concerts | array.size }}</div>
+                <div class="stat-segment-label">concerts</div>
+            </div>
+
+            <div class="stat-segment">
+                <div class="stat-segment-value">{{ cities }}</div>
+                <div class="stat-segment-label">cities</div>
+            </div>
+
+            <div class="stat-segment">
+                <div class="stat-segment-value">{{ countries }}</div>
+                <div class="stat-segment-label">countries</div>
+            </div>
+
+            <div class="stat-segment">
+                <div class="stat-segment-value">{{ songs }}</div>
+                <div class="stat-segment-label">different songs</div>
+            </div>
+        </div>
+
+        <div class="lists-container">
+            <!-- Concerts -->
+            <div>
+                <b class="stats-header">Attended concerts</b>
+
+                <div class="concerts-list">
+                    {{ concerts_offset = ((max_concerts_displayed - 2) - (concerts | array.size)) * -1 }}
+                    {{ if concerts_offset < 1 }}
+                    {{ concerts_offset = 1 }}
+                    {{ end }}
+                    <b>{{ first_concert.date | date.to_string '%Y-%m-%d' }}</b> - {{ first_concert.location }}
+                    {{ if (concerts | array.size) > max_concerts_displayed }}
+                    <div class="hidden-concerts-text">{{ concerts_offset - 1 }} more concerts</div>
+                    {{ else }}
+                    <br />
+                    {{ end }}
+                    {{~ for concert in (concerts | array.sort "date" | array.offset concerts_offset) ~}}
+                    <b>{{ concert.date | date.to_string '%Y-%m-%d' }}</b> - {{ concert.location }}
+                    <br />
+                    {{~ end ~}}
+                </div>
+            </div>
+            
+            <!-- Songs -->
+            <div>
+                <b class="stats-header">Rarest songs</b>
+                <p class="pico-color-zinc-50">coming soon...</p>
+            </div>
+        </div>
+        
+        <footer data-theme="dark">
+            <img class="app-icon" src="../_base/app_icon.png" alt="Icon" width="24" height="24" />
+            Generate your own summary on lpshows.live
+        </footer>
+    </article>
+</main>
+</body>
+</html>

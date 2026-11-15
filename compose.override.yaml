@@ -1,0 +1,11 @@
+﻿# Override values for local development environment
+
+services:
+  api-server:
+    build:
+      context: .
+      dockerfile: Server.Api/Dockerfile
+      
+  gotenberg:
+    ports:
+      - "5122:3000"

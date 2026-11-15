@@ -3,7 +3,7 @@ import {inject} from '@angular/core';
 import {AuthService} from './auth/auth.service';
 import {map} from 'rxjs';
 import { concertResolver, legacyConcertResolver } from './resolvers/legacy-concert-resolver';
-import {userResolver} from './resolvers/user-resolver';
+import { publicUserResolver, userResolver } from './resolvers/user-resolver';
 import {albumResolver} from './resolvers/album-resolver';
 import {songResolver} from './resolvers/song-resolver';
 import { countryResolver } from './resolvers/country-resolver';
@@ -99,8 +99,17 @@ export const routes: Routes = [
   {
     path: 'profile',
     loadComponent: () =>
-      import("./components/v2/user-profile/user-profile-page.component").then(m => m.UserProfilePageComponent),
+      import("./components/v2/user-profile/edit-user-profile-page.component").then(m => m.EditUserProfilePageComponent),
+    title: baseTitle + 'Edit User Profile',
+  },
+  {
+    path: 'users/:userId',
+    loadComponent: () =>
+      import("./components/v2/user-profile/user-profile-page/user-profile-page.component").then(m => m.UserProfilePageComponent),
     title: baseTitle + 'User Profile',
+    resolve: {
+      user: publicUserResolver,
+    },
   },
   {
     path: 'concerts',

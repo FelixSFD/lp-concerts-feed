@@ -2504,6 +2504,164 @@ paths:
       security:
         - Bearer: [ ]
   
+  /v3/Users/{userId}/public:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - Users
+      summary: Returns public information of the user with the given ID
+      operationId: GetPublicUserById
+      responses:
+        200:
+          description: Public information about the user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicUser"
+        404:
+          description: "Not Found: This user does not exist"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  
+  /v3/Users/me/stats/concerts:
+    get:
+      summary: Returns statistics about the concerts the current user has attended
+      operationId: GetCurrentUserConcertStats
+      tags:
+        - Users
+      responses:
+        "200":
+          description: Statistics about the concerts a user has attended
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserConcertStatsResponse'
+        401:
+          description: "Unauthorized: Credentials are missing or not valid"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        403:
+          description: "Forbidden: User doesn't have the required permissions"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      security:
+        - Bearer: [ ]
+  
+  /v3/Users/{userId}/stats/concerts:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Returns statistics about the concerts a user has attended
+      operationId: GetUserConcertStats
+      tags:
+        - Users
+      responses:
+        "200":
+          description: Statistics about the concerts a user has attended
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserConcertStatsResponse'
+  
+  /v3/Users/{userId}/stats/concerts/share:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Returns statistics about the concerts a user has attended
+      operationId: GetUserConcertStatsSharePic
+      tags:
+        - Users
+      responses:
+        "201":
+          description: Successfully created the image. Result contains a temporary URL for download
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/GetUserConcertStatsSharePicResponse'
+  
+  /v3/Users/me/stats/songs:
+    get:
+      summary: Returns statistics about the songs the current user has seen live
+      operationId: GetCurrentUserSongStats
+      tags:
+        - Users
+      responses:
+        "200":
+          description: Statistics about the songs a user has seen live
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSongStatsResponse'
+        401:
+          description: "Unauthorized: Credentials are missing or not valid"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        403:
+          description: "Forbidden: User doesn't have the required permissions"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      security:
+        - Bearer: [ ]
+  
+  /v3/Users/{userId}/stats/songs:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Returns statistics about the songs a user has seen live
+      operationId: GetUserSongStats
+      tags:
+        - Users
+      responses:
+        "200":
+          description: Statistics about the songs a user has seen live
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSongStatsResponse'
+  
   /v3/Setlists:
     parameters:
       - $ref: "#/components/parameters/X-LP-Request-Id"
@@ -4086,7 +4244,56 @@ paths:
         uri: https://api.dev.lpshows.felixsfd.de/v3/Mashups/{mashupId}
         requestParameters:
           integration.request.path.mashupId: method.request.path.mashupId
-
+  
+  /v3/sharePics/{templateId}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+      - name: templateId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: width
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: uint32
+      - name: height
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: uint32
+    post:
+      tags:
+        - SharePics
+      summary: Generates a share pic based on a template
+      operationId: GetSharePicTemplateById
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: Generated picture
+          content:
+            image/png:
+              schema: 
+                type: object
+        "404":
+          description: "Template not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  
 components:
   parameters:
     X-LP-Request-Id:
@@ -4272,6 +4479,54 @@ components:
         linkinpediaUrl:
           type: string
           description: URL to the concert page on Linkinpedia
+    
+    ConcertDetailsShort:
+      required:
+        - id
+        - concertType
+        - venueName
+        - concertDate
+      type: object
+      properties:
+        id:
+          type: string
+        concertType:
+          $ref: "#/components/schemas/ConcertType"
+        tourName:
+          type: string
+          description: Name of the tour
+          nullable: true
+        tourLegName:
+          type: string
+          description: Name of the tour leg
+          nullable: true
+        customTitle:
+          type: string
+          nullable: true
+        venueName:
+          type: string
+          description: Name of the venue
+          nullable: false
+        venueLatitude:
+          type: number
+          description: Latitude of the venue
+          nullable: true
+          format: double
+        venueLongitude:
+          type: number
+          description: Longitude of the venue
+          nullable: true
+          format: double
+        cityName:
+          type: string
+          description: Name of the city
+        countryName:
+          type: string
+          description: Name of the country
+        concertDate:
+          type: string
+          format: date
+    
     ConcertStatusValue:
       type: string
       enum: 
@@ -4984,6 +5239,24 @@ components:
           format: date-time
           description: Date and time when the user was last updated
     
+    PublicUser:
+      description: Public information about a user
+      type: object
+      required:
+        - id
+        - username
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the user
+        username:
+          type: string
+          description: Username of the user
+        originCountryCode:
+          type: string
+          description: ISO code of the country where this user is from. Can be null if the user has not specified their country
+          nullable: true
+    
     UpdateUserProfile:
       description: Information about a user to be updated
       type: object
@@ -5171,6 +5444,81 @@ components:
           items:
             type: string
             example: 'USA'
+    
+    # Statistics
+    UserConcertStatsResponse:
+      type: object
+      description: Response form server with some general statistics about the concerts a user has attended
+      properties: 
+        numberOfConcerts:
+          type: number
+          description: Number of concerts a user has attended
+        numberOfCities:
+          type: number
+          description: Number of cities a user has attended concerts in
+        numberOfCountries:
+          type: number
+          description: Number of countries a user has attended concerts in
+        numberOfVenues:
+          type: number
+          description: Number of venues a user has attended concerts at
+        concerts:
+          type: array
+          description: List of concerts a user has attended
+          items:
+            $ref: "#/components/schemas/ConcertDetailsShort"
+    
+    UserSongStatsResponse:
+      type: object
+      description: Response form server with some general statistics about the songs a user has seen live
+      required: 
+        - numberOfSongs
+        - songs
+      properties:
+        numberOfSongs:
+          type: number
+          description: Number of songs a user has seen live
+        songs:
+          type: array
+          description: List of songs a user has seen live
+          items:
+            type: object
+            description: Information about a song and how many times the user has seen it live
+            required: 
+              - songId
+              - songTitle
+              - playCount
+            properties:
+              songId:
+                type: number
+                description: ID of the song
+                nullable: false
+              songTitle:
+                type: string
+                description: Title of the song
+                nullable: false
+              albumName:
+                type: string
+                description: Name of the song
+                nullable: true
+              appleMusicId:
+                type: string
+                description: Unique ID for the Song on Apple Music
+                nullable: true
+              playCount:
+                type: number
+                description: Number of times the user has seen this song live
+                nullable: false
+    
+    GetUserConcertStatsSharePicResponse:
+      type: object
+      description: Response after creating a share-pic for a user
+      required: 
+        - url
+      properties: 
+        url:
+          type: string
+          description: URL to the generated image file. The URL will not be valid forever
     
     # Schemas from v2
     GetConcertBookmarkCountsResponse:

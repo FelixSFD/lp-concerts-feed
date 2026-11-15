@@ -8,4 +8,6 @@ public static class CachePolicyNames
     public const string Long = "Long";
     public const string VeryLong = "VeryLong";
     public const string BasicallyForever = "BasicallyForever";
+    
+    public const string UserStatsDynamic = "UserStatsDynamic";
 }

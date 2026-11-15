@@ -1,0 +1,82 @@
+#main-card {
+    margin: -1rem 0 -1rem 0;
+    width: 100vh;
+    height: 100vh;
+}
+
+article {
+    border-radius: 0 !important;
+}
+
+article footer {
+    position: absolute;
+    bottom: 1rem;
+    width: 100vh;
+    font-size: 0.5rem;
+    line-height: 0.3rem;
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
+    border-radius: 0 !important;
+}
+
+.card-header {
+    font-size: 1.5rem;
+    line-height: 0.7rem;
+    text-align: center;
+}
+
+.stats-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    justify-items: center;
+}
+
+.stat-segment {
+    text-align: center;
+    width: 15rem;
+    height: 8rem;
+}
+
+.stat-segment .stat-segment-value {
+    font-size: 4rem;
+    font-weight: bold;
+    max-lines: 1;
+}
+
+.stat-segment .stat-segment-label {
+    font-size: 1.5rem;
+    max-lines: 1;
+}
+
+.app-icon {
+    margin-right: 0.4rem;
+}
+
+.lists-container {
+    margin-top: 1rem;
+    display: grid;
+    grid-gap: 0.4rem;
+    grid-template-columns: repeat(2, 1fr);
+    max-height: 20rem;
+}
+
+.concerts-list {
+    text-fit: shrink consistent;
+    text-wrap: nowrap;
+    max-height: 18rem;
+    font-size: small;
+}
+
+.hidden-concerts-text {
+    text-align: center;
+    font-style: italic;
+}
+
+.lists-container .stats-header {
+    font-size: larger;
+}
+
+.concerts-grid {
+    font-size: 0.6rem;
+}

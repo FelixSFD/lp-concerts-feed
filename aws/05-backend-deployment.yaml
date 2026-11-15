@@ -1389,6 +1389,75 @@ Resources:
               - - 'arn:aws:s3:::'
                 - !Ref ConcertImagesBucket
                 - /*
+          - Effect: Allow
+            Action:
+              - 's3:GetObject'
+              - 's3:PutObject'
+              - 's3:PutObjectAcl'
+              - 's3:PutObjectTagging'
+              - 's3:GetObjectVersionTagging'
+              - 's3:DeleteObjectTagging'
+              - 's3:DeleteObject'
+              - 's3:AbortMultipartUpload'
+            Resource: !Join
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref SharePicsBucket
+                - /*
+  
+  # Bucket for share images
+  SharePicsBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: !Sub ${BaseProductName}-share-pics
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: ObjectWriter
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          # Delete non-current objects after 3 days
+          - Id: DeleteNonCurrentObjectsAfter3Days
+            Status: Enabled
+            ExpiredObjectDeleteMarker: true
+            NoncurrentVersionExpiration:
+              NoncurrentDays: 3
+          # Delete temporary objects after 2 days
+          - Id: DeleteTempObjectsAfter2Days
+            Status: Enabled
+            TagFilters:
+              - Key: temporary
+                Value: true
+            ExpirationInDays: 2
+            NoncurrentVersionExpiration:
+              NoncurrentDays: 2
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - GET
+            AllowedOrigins:
+              - '*'
+            Id: concertImgCorsRuleGet
+            MaxAge: 3600
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - PUT
+              - POST
+            AllowedOrigins:
+              - '*'
+            Id: concertImgCorsRulePut
+            MaxAge: 3600
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "storage"
   
   # Event queues
   AuditLogQueue:
@@ -2051,6 +2120,16 @@ Outputs:
     Value: !GetAtt ConcertImagesBucket.RegionalDomainName
     Export:
       Name: !Sub '${BaseProductName}-concert-image-s3-regional-domain'
+  SharePicBucketExport:
+    Description: 'Bucket that stores share pics'
+    Value: !GetAtt SharePicsBucket.RegionalDomainName
+    Export:
+      Name: !Sub '${BaseProductName}-share-pics-s3-regional-domain'
+  SharePicsBucketNameExport:
+    Description: Name of the SharePics S3 bucket
+    Value: !Ref SharePicsBucket
+    Export:
+      Name: !Sub '${BaseProductName}-share-pics-bucket-name'
   CognitoUserPoolDomainExport:
     Description: 'Internal domain name of the Cognito userpool'
     Value: !Sub "${BaseProductName}-${AWS::AccountId}.auth.${AWS::Region}.amazoncognito.com"

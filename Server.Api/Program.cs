@@ -1,6 +1,7 @@
 using System.Configuration;
 using System.Text.Json.Serialization;
 using AppleDeveloperToken;
+using Common.Jobs;
 using Common.Server.ClientIp;
 using Common.Server.ExceptionHandling;
 using Common.Utils.Cache;
@@ -23,11 +24,15 @@ using OpenTelemetry.Exporter;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
 using Prometheus;
+using Quartz;
 using Server.Api.Cache;
+using Server.Api.Cache.Policies;
 using Server.Api.Config;
 using Server.Api.ExceptionHandling;
 using Server.Api.HealthChecks;
+using Server.Api.RateLimiting;
 using Service.Setlists;
+using Service.SharePics;
 using Service.Tours;
 using Service.Tours.Importer;
 using Service.Tours.Syncing;
@@ -139,6 +144,10 @@ builder.Services.AddOutputCache(options =>
     {
         policy.Cache()
             .Expire(TimeSpan.FromSeconds(CacheExpiration.Maximum));
+    });
+    options.AddPolicy(CachePolicyNames.UserStatsDynamic, policy =>
+    {
+        policy.AddPolicy<UserStatsOutputCachePolicy>();
     });
 });
 
@@ -254,10 +263,15 @@ builder.Services.AddScoped<LocationService>();
 builder.Services.AddScoped<VenueService>();
 builder.Services.AddScoped<TourService>();
 builder.Services.AddScoped<ConcertService>();
+builder.Services.AddScoped<UserStatsService>();
 builder.Services.AddConcertSyncEngine();
 builder.Services.AddLocationSyncEngines();
 builder.Services.AddSetlistsService();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddSharePicService(
+    builder.Configuration.GetValue<string>("SharePics:Gotenberg:BaseUrl") ?? throw new ConfigurationErrorsException("SharePics:GotenbergBaseUrl is missing!"),
+    builder.Configuration.GetValue<string>("SharePics:TemplateBaseDir") ?? throw new ConfigurationErrorsException("SharePics:Templates:BaseDir is missing!")
+);
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IWikiMediaRepository, WikiMediaRepository>(b => new WikiMediaRepository(b.GetRequiredService<HttpClient>(),
     LinkinpediaImportService.LinkinpediaRestApiBaseUrl, LinkinpediaImportService.LinkinpediaActionApiBaseUrl, b.GetRequiredService<ILogger<WikiMediaRepository>>()));
@@ -272,6 +286,29 @@ builder.Services.AddSingleton<TokenGenerator>(b =>
     var keyId = config.GetAppleMusicKeyId() ?? throw new ConfigurationErrorsException("Apple Music key ID not configured!");
     return new TokenGenerator(privateKey, teamId, keyId);
 });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("QuartzDashboard", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.RequireRole("Admin");
+    });
+});
+
+// Register share pic store
+builder.Services.AddSharePicStoreS3(opt =>
+{
+    opt.BucketName = builder.Configuration.GetValue<string>("SharePics:BucketName") ??
+                     throw new ConfigurationErrorsException("SharePics:BucketName is missing!");
+});
+
+// Configure rate limiting
+builder.Services.AddRateLimitPolicies();
+
+// Register Quartz
+builder.Services.AddJobServices(builder.Configuration.GetValue<string>("Quartz:ConnectionString") ?? throw new ConfigurationErrorsException("Quartz:ConnectionString is missing!"), 
+    builder.Configuration.GetValue("Quartz:Dashboard:Readonly", true));
 
 // Register authentication schemes, and specify the default authentication scheme
 builder.Services
@@ -342,6 +379,9 @@ using (var scope = app.Services.CreateScope())
     await usersDb.Database.MigrateAsync();
 }
 
+// Register jobs
+await app.RegisterScheduledJobs();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("EnableSwaggerUI"))
 {
@@ -368,6 +408,13 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseOutputCache();
+
+app.UseRateLimiter();
+
+if (app.Configuration.GetValue("Quartz:Dashboard:Enabled", false))
+{
+    app.MapQuartzDashboard().AllowAnonymous().DisableAntiforgery();
+}
 
 app.MapControllers();
 app.MapHealthChecks("/health");

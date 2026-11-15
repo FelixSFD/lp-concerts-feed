@@ -60,6 +60,37 @@ Resources:
         SigningBehavior: always
         SigningProtocol: sigv4a
   
+  SharePicBucketOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub "${BaseProductName}-share-pics-oac"
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+  
+  SharePicBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !ImportValue
+        Fn::Sub: '${BaseProductName}-share-pics-bucket-name'
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource:
+              Fn::Sub:
+                - 'arn:${AWS::Partition}:s3:::${BucketName}/*'
+                - BucketName:
+                    Fn::ImportValue:
+                      Fn::Sub: '${BaseProductName}-share-pics-bucket-name'
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${ConcertImagesCloudFrontDistribution}"
+  
   StaticFilesBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
@@ -384,6 +415,10 @@ Resources:
           - Id: ImageBucketOrigin
             DomainName: { 'Fn::ImportValue': !Sub '${BaseProductName}-concert-image-s3-regional-domain' }
             S3OriginConfig: { }
+          - Id: ShareBucketOrigin
+            DomainName: { 'Fn::ImportValue': !Sub '${BaseProductName}-share-pics-s3-regional-domain' }
+            S3OriginConfig: { }
+            OriginAccessControlId: !Ref SharePicBucketOAC
           - Id: StaticFilesOrigin
             DomainName: !GetAtt StaticFilesBucket.RegionalDomainName
             OriginPath: /img_distribution
@@ -392,6 +427,21 @@ Resources:
         Aliases: # info about CNAMEs (alternate domain names), if any, for this distribution
           - !Sub 'img.${RootDomain}'
         CacheBehaviors:
+          - PathPattern: /share/*
+            TargetOriginId: ShareBucketOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachePolicyId: !Ref ExtraLongCachePolicy
+            OriginRequestPolicyId: !Ref CORSOriginRequestPolicy
+            ResponseHeadersPolicyId: !Ref CORSResponseHeadersPolicy
+            Compress: true
           - PathPattern: /robots.txt
             TargetOriginId: StaticFilesOrigin
             ViewerProtocolPolicy: redirect-to-https

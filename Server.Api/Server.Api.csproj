@@ -14,7 +14,7 @@
         <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="10.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.10" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.3"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.14">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -33,10 +33,12 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Common.Contracts\Common.Contracts.csproj" />
+      <ProjectReference Include="..\Common.Jobs\Common.Jobs.csproj" />
       <ProjectReference Include="..\Common.Server\Common.Server.csproj" />
       <ProjectReference Include="..\Common.Utils\Common.Utils.csproj" />
       <ProjectReference Include="..\DataStructure\DataStructure.csproj" />
       <ProjectReference Include="..\Service.Setlists\Service.Setlists.csproj" />
+      <ProjectReference Include="..\Service.SharePics\Service.SharePics.csproj" />
       <ProjectReference Include="..\Service.Tours\Service.Tours.csproj" />
       <ProjectReference Include="..\Service.Users\Service.Users.csproj" />
     </ItemGroup>

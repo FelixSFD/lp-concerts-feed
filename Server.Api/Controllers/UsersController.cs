@@ -1,11 +1,18 @@
 using System.Security.Claims;
 using Common.Contracts.Generated.Models;
+using Common.Server.Auth;
+using Common.Utils.Cache;
 using LPCalendar.DataStructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.AspNetCore.RateLimiting;
 using Server.Api.Auth;
 using Server.Api.Cache;
+using Server.Api.RateLimiting;
+using Service.SharePics;
+using Service.SharePics.DataStructure.Templates;
+using Service.Tours;
 using Service.Users;
 
 namespace Server.Api.Controllers;
@@ -17,7 +24,7 @@ namespace Server.Api.Controllers;
 /// <param name="logger"></param>
 [ApiController]
 [Route("v3/[controller]")]
-public class UsersController(UserService userService, ILogger<UsersController> logger) : ControllerBase
+public class UsersController(UserService userService, UserStatsService userStatsService, SharePicService sharePicService, ILogger<UsersController> logger) : ControllerBase
 {
     /// <summary>
     /// Returns a list of users that can be filtered and sorted
@@ -96,6 +103,137 @@ public class UsersController(UserService userService, ILogger<UsersController> l
     }
     
     /// <summary>
+    /// Returns publicly available information about a user by their ID. This does not require authentication.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("{userId}/public")]
+    [OutputCache(PolicyName = CachePolicyNames.Long, Tags = [CacheTags.UsersAll])]
+    public async Task<ActionResult<PublicUserDto>> GetPublicUserById([FromRoute] string userId, CancellationToken cancellationToken)
+    {
+        userId = ResolveUserId(userId)!;
+        var user = await userService.GetUserById(userId, cancellationToken);
+        return Ok(user.ToPublicDto());
+    }
+    
+    /// <summary>
+    /// Returns some general statistics about the concerts a user has attended
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("me/stats/concerts")]
+    [Authorize]
+    public async Task<ActionResult<UserConcertStatsResponseDto>> GetCurrentUserConcertStats(CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+        
+        return await GetUserConcertStats(userId, cancellationToken);
+    }
+    
+    /// <summary>
+    /// Returns some general statistics about the concerts a user has attended
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("{userId}/stats/concerts")]
+    [OutputCache(PolicyName = CachePolicyNames.UserStatsDynamic, Duration = CacheExpiration.Maximum)]
+    [CustomResponseCache(Duration = CacheExpiration.Default)]
+    public async Task<ActionResult<UserConcertStatsResponseDto>> GetUserConcertStats([FromRoute] string userId, CancellationToken cancellationToken)
+    {
+        var stats = await userStatsService.GetAttendedConcerts(userId, cancellationToken);
+        return Ok(stats.ToDto());
+    }
+    
+    /// <summary>
+    /// Returns some general statistics about the concerts a user has attended as a shareable picture
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("{userId}/stats/concerts/share")]
+    [OutputCache(PolicyName = CachePolicyNames.UserStatsDynamic, Duration = CacheExpiration.Maximum)]
+    [CustomResponseCache(Duration = CacheExpiration.Default)]
+    [EnableRateLimiting(RateLimitingPolicyNames.FixedLowLimit)]
+    public async Task<ActionResult<GetUserConcertStatsSharePicResponseDto>> GetUserConcertStatsSharePicAsync([FromRoute] string userId, CancellationToken cancellationToken)
+    {
+        var userInfoTask = userService.GetUserById(userId, cancellationToken);
+        var concertStatsTask = userStatsService.GetAttendedConcerts(userId, cancellationToken);
+        var songStatsTask = userStatsService.GetSongsUserHasSeenLiveAsync(userId, cancellationToken);
+        
+        var concertStats = await concertStatsTask;
+        var songStats = await songStatsTask;
+        var userInfo = await userInfoTask;
+
+        var template = new UserTemplate
+        {
+            UserId = userInfo.Id,
+            Username = userInfo.Username,
+            Concerts =
+            [
+                .. concertStats.Concerts.Select(c => new UserTemplate.Concert
+                {
+                    Location = $"{c.Venue.City.Name}, {c.Venue.City.Country.Name}",
+                    Date = c.PostedStartTime.Date,
+                })
+            ],
+            Countries = concertStats.NumberOfCountries,
+            Cities = concertStats.NumberOfCities,
+            Songs = songStats.Length,
+        };
+        var imageKey = await sharePicService.GenerateStoredSharePicAsync(template, 1080, 1350, cancellationToken: cancellationToken);
+        var config = HttpContext.RequestServices.GetRequiredService<IConfiguration>();
+        var url = $"{config.GetValue<string>("SharePics:ShareImageBaseUrl")}/{imageKey}";
+        var response = new GetUserConcertStatsSharePicResponseDto
+        {
+            Url = url
+        };
+        return Created(url, response);
+    }
+    
+    /// <summary>
+    /// Returns some statistics about the songs the current user has seen live
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("me/stats/songs")]
+    [Authorize]
+    public async Task<ActionResult<UserSongStatsResponseDto>> GetCurrentUserSongStats(CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+        
+        return await GetUserSongStats(userId, cancellationToken);
+    }
+    
+    /// <summary>
+    /// Returns some statistics about the songs a user has seen live
+    /// </summary>
+    /// <param name="userId">ID of the user</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("{userId}/stats/songs")]
+    [OutputCache(PolicyName = CachePolicyNames.UserStatsDynamic, Duration = CacheExpiration.Maximum, Tags = [CacheTags.SetlistsAll])]
+    [CustomResponseCache(Duration = CacheExpiration.Default)]
+    public async Task<ActionResult<UserSongStatsResponseDto>> GetUserSongStats([FromRoute] string userId, CancellationToken cancellationToken)
+    {
+        var stats = await userStatsService.GetSongsUserHasSeenLiveAsync(userId, cancellationToken);
+        var responseDto = stats
+            .OrderByDescending(s => s.PlayCount)
+            .ThenBy(s => s.SongName)
+            .ToDto();
+        return Ok(responseDto);
+    }
+    
+    /// <summary>
     /// Suggests some usernames for the current user. These are based on album names for now.
     /// </summary>
     /// <param name="cancellationToken"></param>
@@ -106,5 +244,31 @@ public class UsersController(UserService userService, ILogger<UsersController> l
     {
         var names = await userService.GetSuggestedUserNamesAsync(cancellationToken);
         return Ok(names);
+    }
+    
+    /// <summary>
+    /// Returns the input user ID, but if it's "me", the current user ID is returned. If the input is "me" and the user is not authenticated, null is returned.
+    /// </summary>
+    /// <param name="userIdParameter"></param>
+    /// <returns></returns>
+    private string? ResolveUserId(string? userIdParameter)
+    {
+        if (!"me".Equals(userIdParameter, StringComparison.CurrentCultureIgnoreCase))
+        {
+            return userIdParameter;
+        }
+
+        var currentUserId = HttpContext.GetUserId();
+        if (currentUserId != null)
+        {
+            Log.ResolvedParameterMeToUserId(logger, currentUserId);
+        }
+        else
+        {
+            Log.ResolvedParameterMeToUserIdNotAuthenticated(logger);
+        }
+        
+        return currentUserId;
+
     }
 }
