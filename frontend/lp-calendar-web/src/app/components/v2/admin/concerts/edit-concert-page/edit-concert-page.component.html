@@ -4,6 +4,14 @@
   <ng-template #title>
     <div class="flex flex-row justify-content-between align-items-center">
       <span>{{ currentConcertTitle ? 'Edit ' + currentConcertTitle : 'Edit concert' }}</span>
+
+      <p-button
+        severity="info"
+        variant="outlined"
+        icon="pi pi-eye"
+        label="View"
+        [routerLink]="['/concerts', currentConcertId]"
+      />
     </div>
   </ng-template>
 
