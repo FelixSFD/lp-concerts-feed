@@ -124,11 +124,11 @@ export class LocationsService {
     return this.countriesApi.deleteState(countryCode, stateCode);
   }
 
-  async getCities(): Promise<CityWithCountryDto[]> {
+  async getCities(cached: boolean = true): Promise<CityWithCountryDto[]> {
     let filter: VenueFilter = {
       orderBy: ["country.name", "name"],
     };
-    let all = await this.getFilteredCities(filter, 1000, 0, true);
+    let all = await this.getFilteredCities(filter, 1000, 0, cached);
     return all.cities ?? [];
   }
 

@@ -102,9 +102,9 @@ export class ManageCitiesPageComponent {
   }
 
 
-  private async reloadList(cache: boolean) {
+  private async reloadList(cached: boolean) {
     try {
-      let cities = await this.locationsService.getCities();
+      let cities = await this.locationsService.getCities(cached);
       this.cities$.set(cities);
     } catch (e) {
       let problemDetails: ProblemDetailsDto = e as ProblemDetailsDto;
