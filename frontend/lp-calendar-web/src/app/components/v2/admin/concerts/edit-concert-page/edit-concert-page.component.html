@@ -15,33 +15,35 @@
     </div>
   </ng-template>
 
-  <p-button
-    severity="secondary"
-    variant="outlined"
-    icon="pi pi-arrow-left"
-    label="Concert list"
-    [routerLink]="['../']"
-  />
+  <div class="flex gap-2">
+    <p-button
+      severity="secondary"
+      variant="outlined"
+      icon="pi pi-arrow-left"
+      label="Concert list"
+      [routerLink]="['../']"
+    />
 
-  <p-button
-    label="Previous show"
-    icon="pi pi-arrow-left"
-    variant="text"
-    severity="secondary"
-    [disabled]="previousConcertId() == null"
-    [routerLink]="previousConcertId() ? ['../', previousConcertId()] : null"
-    ariaLabel="Previous show"
-  />
-  <p-button
-    label="Next show"
-    icon="pi pi-arrow-right"
-    iconPos="right"
-    variant="text"
-    severity="secondary"
-    [disabled]="nextConcertId() == null"
-    [routerLink]="nextConcertId() ? ['../', nextConcertId()] : null"
-    ariaLabel="Next show"
-  />
+    <p-button
+      label="Previous show"
+      icon="pi pi-arrow-left"
+      variant="text"
+      severity="secondary"
+      [disabled]="previousConcertId() == null"
+      [routerLink]="previousConcertId() ? ['../', previousConcertId()] : null"
+      ariaLabel="Previous show"
+    />
+    <p-button
+      label="Next show"
+      icon="pi pi-arrow-right"
+      iconPos="right"
+      variant="text"
+      severity="secondary"
+      [disabled]="nextConcertId() == null"
+      [routerLink]="nextConcertId() ? ['../', nextConcertId()] : null"
+      ariaLabel="Next show"
+    />
+  </div>
 
   <app-concert-form
     [is-saving]="isSaving()"
