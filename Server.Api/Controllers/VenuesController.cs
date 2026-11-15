@@ -1,6 +1,7 @@
 using Common.Contracts.Generated.Models;
 using Common.Utils;
 using Common.Utils.Cache;
+using LPCalendar.DataStructure.Tours;
 using LPCalendar.DataStructure.Tours.Locations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
@@ -95,21 +96,33 @@ public class VenuesController(VenueService service, ISyncEngine<VenueWithDetails
     /// <summary>
     /// Returns an unfiltered list of all venues
     /// </summary>
+    /// <param name="filter">Filter</param>
     /// <param name="cancellationToken">Token to cancel the request</param>
     /// <returns>list of all venues</returns>
     [HttpGet]
     [AuthorizeRoles(RoleNames.ManageLocations, RoleNames.AddConcerts)]
     [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.VenuesAll])]
     [CustomResponseCache(Duration = CacheExpiration.Default)]
-    public async Task<ActionResult<VenueDto[]>> GetAllVenues(CancellationToken cancellationToken)
+    public async Task<ActionResult<VenueDto[]>> GetVenues([FromQuery] GetVenuesFilterDto filter, CancellationToken cancellationToken)
     {
-        logger.LogDebug("Requested to get all venues.");
-        var venues = await service
-            .GetAllVenuesAsync(cancellationToken)
+        logger.LogDebug("Requested to get list of venues.");
+        var paginatedResult = await service.GetAllVenuesAsync(filter, cancellationToken);
+        var venues = await paginatedResult.Results
             .Select(DtoMapper.ToDto)
-            .ToArrayAsync(cancellationToken);
-        logger.LogDebug("Found {count} venues", venues.Length);
-        return Ok(venues);
+            .ToListAsync(cancellationToken);
+        logger.LogDebug("Retrieved {count} venues. The query could return up to {total} venues",
+            venues.Count, paginatedResult.TotalResults);
+
+        var response = new VenueListResponseDto
+        {
+            Venues = venues,
+            Metadata = new PaginationResponseMetadataDto
+            {
+                Offset = (int)filter.Skip,
+                TotalElements = paginatedResult.TotalResults,
+            }
+        };
+        return Ok(response);
     }
     
     /// <summary>

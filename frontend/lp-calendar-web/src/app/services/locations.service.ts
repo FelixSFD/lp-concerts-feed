@@ -1,22 +1,36 @@
 import { Injectable } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import { map, Observable, of, switchMap } from 'rxjs';
+import { firstValueFrom, map, Observable, of, switchMap } from 'rxjs';
 import {OsmCity} from '../data/osm/osm-city';
 import {Coordinates} from '../data/location/coordinates';
 import {environment} from '../../environments/environment';
 import {TimeZoneResponseDto, TimezoneService} from '../modules/lpshows-api';
 import {
   AddVenueNameRequestDto,
-  CitiesApi,
+  CitiesApi, CityListResponseDto,
   CityWithCountryDto,
+  ConcertListResponseDto,
   CountriesApi,
-  CountryDto, CreateCityRequestDto,
-  CreateCountryRequestDto, CreateStateRequestDto, CreateVenueRequestDto,
-  StateDto, StateWithCountryDto, UpdateCityRequestDto,
-  UpdateCountryRequestDto, UpdateStateRequestDto, UpdateVenueNameRequestDto, UpdateVenueRequestDto, VenueDto, VenuesApi, VenueWithDetailsDto
+  CountryDto,
+  CreateCityRequestDto,
+  CreateCountryRequestDto,
+  CreateStateRequestDto,
+  CreateVenueRequestDto,
+  StateDto,
+  StateWithCountryDto,
+  UpdateCityRequestDto,
+  UpdateCountryRequestDto,
+  UpdateStateRequestDto,
+  UpdateVenueNameRequestDto,
+  UpdateVenueRequestDto,
+  VenueDto, VenueListResponseDto,
+  VenuesApi,
+  VenueWithDetailsDto
 } from '../modules/lpshows-api/v3';
 import { addAuthentication } from '../auth/auth.config';
 import { getRequestIdParameter } from '../helper/cache-parameter-helper';
+import { ConcertFilter } from '../data/concert-filter';
+import { VenueFilter } from '../data/venue-filter';
 
 /**
  * Service to retrieve location data like coordinates and timezones
@@ -110,12 +124,25 @@ export class LocationsService {
     return this.countriesApi.deleteState(countryCode, stateCode);
   }
 
-  getCities(): Observable<CityWithCountryDto[]> {
-    return this.citiesApi.getCities(undefined, undefined, "1000", undefined, ["country.name", "name"]); // TODO: filter and sorting?
+  async getCities(cached: boolean = true): Promise<CityWithCountryDto[]> {
+    let filter: VenueFilter = {
+      orderBy: ["country.name", "name"],
+    };
+    let all = await this.getFilteredCities(filter, 1000, 0, cached);
+    return all.cities ?? [];
   }
 
-  getCitiesIn(countryCode: string): Observable<CityWithCountryDto[]> {
-    return this.countriesApi.getCitiesInCountry(countryCode);
+  getFilteredCities(filter: VenueFilter, limit: number = 100, skip: number = 0, cached: boolean = true): Promise<CityListResponseDto> {
+    return firstValueFrom(this.citiesApi.getCities(getRequestIdParameter(cached),
+      filter.countryCode,
+      limit,
+      skip,
+      filter.orderBy)
+    );
+  }
+
+  getCitiesIn(countryCode: string): Promise<CityWithCountryDto[]> {
+    return firstValueFrom(this.countriesApi.getCitiesInCountry(countryCode));
   }
 
   createCity(countryCode: string, city: CreateCityRequestDto): Observable<CityWithCountryDto> {
@@ -137,8 +164,19 @@ export class LocationsService {
   /**
    * Returns a list of all venues
    */
-  getVenues(): Observable<VenueDto[]> {
-    return this.venuesApi.getAllVenues();
+  async getVenues(): Promise<VenueDto[]> {
+    let all = await this.getFilteredVenues({}, 10000);
+    return all.venues ?? [];
+  }
+
+  getFilteredVenues(filter: VenueFilter, limit: number = 100, skip: number = 0, cached: boolean = true): Promise<VenueListResponseDto> {
+    return firstValueFrom(this.venuesApi.getVenues(getRequestIdParameter(cached),
+      filter.countryCode,
+      filter.venue,
+      limit,
+      skip,
+      filter.orderBy)
+    );
   }
 
   getVenue(venueId: number, cached: boolean = true): Observable<VenueDto> {

@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Common.Database.MySql.Repositories;
 using Database.Tours.DataObjects;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +7,13 @@ namespace Database.Tours.Repositories;
 
 public class SqlVenueRepository(ToursDbContext dbContext) : SingleKeySqlRepositoryBase<VenueDo, uint>(dbContext, dbContext.Venues), IVenueRepository
 {
+    protected override IReadOnlyDictionary<string, LambdaExpression> SortExpressions { get; } = new Dictionary<string, LambdaExpression>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["venue"] = (Expression<Func<VenueDo, string>>)(v => v.CurrentName),
+        ["city"] = (Expression<Func<VenueDo, string>>)(v => v.City.Name),
+        ["countryCode"] = (Expression<Func<VenueDo, string>>)(v => v.CountryCode),
+    };
+    
     protected override async Task<VenueDo> LoadReferences(VenueDo dataObject)
     {
         await Context.Entry(dataObject)

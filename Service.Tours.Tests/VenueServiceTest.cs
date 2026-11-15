@@ -1,8 +1,10 @@
 ﻿using Common.Database;
+using Common.Database.DataObjects;
 using Common.Database.Filter;
 using Common.Database.Repositories;
 using Database.Tours.DataObjects;
 using Database.Tours.Repositories;
+using LPCalendar.DataStructure.Tours;
 using LPCalendar.DataStructure.Tours.Locations;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -231,20 +233,25 @@ public class VenueServiceTest
         
         // setup mocks
         _venueRepository
-            .FindAsync(Arg.Any<IQueryFilter<VenueDo>>(), Arg.Any<IEnumerable<SortDescriptor>>(), Arg.Any<PaginationParams>(), Arg.Is<bool>(b => b == false), Arg.Any<CancellationToken>())
-            .Returns(mockVenues.ToAsyncEnumerable());
+            .FindPaginatedAsync(Arg.Any<IQueryFilter<VenueDo>>(), Arg.Any<IEnumerable<SortDescriptor>>(), Arg.Any<PaginationParams>(), Arg.Is<bool>(b => b == false), Arg.Any<CancellationToken>())
+            .Returns(new PaginatedQueryResult<VenueDo>
+            {
+                Results = mockVenues.ToAsyncEnumerable(),
+                TotalCount = mockVenues.Length
+            });
         
         // call the service
-        var venues = await _service.GetAllVenuesAsync().ToArrayAsync();
+        var filter = new GetVenuesFilterDto();
+        var venues = await (await _service.GetAllVenuesAsync(filter)).Results.ToArrayAsync();
         Assert.Equal(2, venues.Length);
         
         AssertVenueDtoAgainstDo(mockVenue1, venues[0]);
         AssertVenueDtoAgainstDo(mockVenue2, venues[1]);
         
         // validate mock calls
-        _venueRepository
+        await _venueRepository
             .Received(1)
-            .FindAsync(Arg.Any<IQueryFilter<VenueDo>>(), Arg.Any<IEnumerable<SortDescriptor>>(), Arg.Any<PaginationParams>(), Arg.Is<bool>(b => b == false), Arg.Any<CancellationToken>());
+            .FindPaginatedAsync(Arg.Any<IQueryFilter<VenueDo>>(), Arg.Any<IEnumerable<SortDescriptor>>(), Arg.Any<PaginationParams>(), Arg.Is<bool>(b => b == false), Arg.Any<CancellationToken>());
     }
     
     [Fact]
@@ -254,17 +261,22 @@ public class VenueServiceTest
         
         // setup mocks
         _venueRepository
-            .FindAsync(Arg.Any<IQueryFilter<VenueDo>>(), Arg.Any<IEnumerable<SortDescriptor>>(), Arg.Any<PaginationParams>(), Arg.Is<bool>(b => b == false), Arg.Any<CancellationToken>())
-            .Returns(mockVenues.ToAsyncEnumerable());
+            .FindPaginatedAsync(Arg.Any<IQueryFilter<VenueDo>>(), Arg.Any<IEnumerable<SortDescriptor>>(), Arg.Any<PaginationParams>(), Arg.Is<bool>(b => b == false), Arg.Any<CancellationToken>())
+            .Returns(new PaginatedQueryResult<VenueDo>
+            {
+                Results = mockVenues.ToAsyncEnumerable(),
+                TotalCount = mockVenues.Length
+            });
         
         // call the service
-        var venues = await _service.GetAllVenuesAsync().ToArrayAsync();
+        var filter = new GetVenuesFilterDto();
+        var venues = await (await _service.GetAllVenuesAsync(filter)).Results.ToArrayAsync();
         Assert.Empty(venues);
         
         // validate mock calls
-        _venueRepository
+        await _venueRepository
             .Received(1)
-            .FindAsync(Arg.Any<IQueryFilter<VenueDo>>(), Arg.Any<IEnumerable<SortDescriptor>>(),
+            .FindPaginatedAsync(Arg.Any<IQueryFilter<VenueDo>>(), Arg.Any<IEnumerable<SortDescriptor>>(),
                 Arg.Any<PaginationParams>(), Arg.Is<bool>(b => b == false), Arg.Any<CancellationToken>());
     }
     

@@ -48,10 +48,23 @@ public class CitiesController(LocationService locationService, ISyncEngine<CityW
     [HttpGet]
     public async Task<ActionResult<CityWithCountryDto[]>> GetCities(CancellationToken cancellationToken, [FromQuery] CitiesFilter filter)
     {
-        var cities = await locationService.GetCitiesAsync(filter, cancellationToken)
+        logger.LogDebug("Requested to get list of cities.");
+        var paginatedResult = await locationService.GetCitiesAsync(filter, cancellationToken);
+        var cities = await paginatedResult.Results
             .Select(DtoMapper.ToDto)
-            .ToArrayAsync(cancellationToken);
-        logger.LogDebug("Retrieved {count} city details.", cities.Length);
-        return Ok(cities);
+            .ToListAsync(cancellationToken);
+        logger.LogDebug("Retrieved {count} venues. The query could return up to {total} venues",
+            cities.Count, paginatedResult.TotalResults);
+
+        var response = new CityListResponseDto
+        {
+            Cities = cities,
+            Metadata = new PaginationResponseMetadataDto
+            {
+                Offset = (int)filter.Skip,
+                TotalElements = paginatedResult.TotalResults,
+            }
+        };
+        return Ok(response);
     }
 }

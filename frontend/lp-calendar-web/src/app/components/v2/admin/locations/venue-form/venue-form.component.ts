@@ -120,24 +120,25 @@ export class VenueFormComponent {
   });
 
   constructor() {
-    this.venueForm.controls.countryCode.valueChanges.subscribe((countryCode) => {
+    this.venueForm.controls.countryCode.valueChanges.subscribe(async (countryCode) => {
       if (countryCode == null) {
         this.citiesInCountry$.set([]);
         console.debug("Country code is null, clearing cities in country");
         return;
       }
 
-      this.locationsService.getCitiesIn(countryCode)
-        .subscribe({
-          next: (cities) => {
-            this.citiesInCountry$.set(cities);
-            console.debug("Cities in selected country:", cities);
-          },
-          error: (error) => {
-            console.error(error);
-          }
-        });
+      await this.loadCities(countryCode);
     });
+  }
+
+  private async loadCities(countryCode: string) {
+    try {
+      let cities = await this.locationsService.getCitiesIn(countryCode);
+      this.citiesInCountry$.set(cities);
+      console.debug("Cities in selected country:", cities);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   private async initAppleMaps() {

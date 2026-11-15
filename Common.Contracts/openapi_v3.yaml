@@ -1576,7 +1576,7 @@ paths:
     get:
       tags:
         - Cities
-      summary: Returns a list of all cities
+      summary: Returns a paginated list of cities
       operationId: GetCities
       parameters:
         - name: CountryCode
@@ -1587,13 +1587,13 @@ paths:
           in: query
           schema:
             pattern: ^-?(?:0|[1-9]\d*)$
-            type: string
+            type: number
             format: uint32
         - name: Skip
           in: query
           schema:
             pattern: ^-?(?:0|[1-9]\d*)$
-            type: string
+            type: number
             format: uint32
         - name: OrderBy
           in: query
@@ -1607,19 +1607,13 @@ paths:
           content:
             text/plain:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CityWithCountry"
+                $ref: "#/components/schemas/CityListResponse"
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CityWithCountry"
+                $ref: "#/components/schemas/CityListResponse"
             text/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CityWithCountry"
+                $ref: "#/components/schemas/CityListResponse"
       x-amazon-apigateway-integration:
         type: HTTP_PROXY
         httpMethod: GET
@@ -1948,26 +1942,41 @@ paths:
       tags:
         - Venues
       summary: Returns an unfiltered list of all venues
-      operationId: GetAllVenues
+      operationId: GetVenues
+      parameters:
+        - $ref: "#/components/parameters/CountryCode"
+        - $ref: "#/components/parameters/Venue"
+        - name: Limit
+          in: query
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: number
+            format: uint32
+        - name: Skip
+          in: query
+          schema:
+            pattern: ^-?(?:0|[1-9]\d*)$
+            type: number
+            format: uint32
+        - name: OrderBy
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
       responses:
         "200":
-          description: list of all venues
+          description: paginated list of all venues
           content:
             text/plain:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Venue"
+                $ref: "#/components/schemas/ConcertListResponse"
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Venue"
+                $ref: "#/components/schemas/ConcertListResponse"
             text/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Venue"
+                $ref: "#/components/schemas/ConcertListResponse"
         "401":
           description: "Unauthorized: Credentials are missing or not valid"
         "403":
@@ -5293,6 +5302,28 @@ components:
           description: List of concerts
           items:
             $ref: "#/components/schemas/ConcertDetails"
+    
+    VenueListResponse:
+      type: object
+      properties:
+        metadata:
+          $ref: "#/components/schemas/PaginationResponseMetadata"
+        venues:
+          type: array
+          description: List of venues
+          items:
+            $ref: "#/components/schemas/Venue"
+    
+    CityListResponse:
+      type: object
+      properties:
+        metadata:
+          $ref: "#/components/schemas/PaginationResponseMetadata"
+        cities:
+          type: array
+          description: List of cities
+          items:
+            $ref: "#/components/schemas/CityWithCountry"
     
     UserListResponse:
       type: object
