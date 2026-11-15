@@ -1976,19 +1976,13 @@ paths:
           content:
             text/plain:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/VenueListResponse"
+                $ref: "#/components/schemas/ConcertListResponse"
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/VenueListResponse"
+                $ref: "#/components/schemas/ConcertListResponse"
             text/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/VenueListResponse"
+                $ref: "#/components/schemas/ConcertListResponse"
         "401":
           description: "Unauthorized: Credentials are missing or not valid"
         "403":

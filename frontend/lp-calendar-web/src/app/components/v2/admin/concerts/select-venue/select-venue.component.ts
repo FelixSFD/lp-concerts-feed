@@ -93,7 +93,7 @@ export class SelectVenueComponent implements ControlValueAccessor, OnInit {
 
   ngOnInit() {
     this.loadCountries();
-    this.loadVenues();
+    this.loadVenues().then();
     this.loadCities();
   }
 
@@ -116,23 +116,18 @@ export class SelectVenueComponent implements ControlValueAccessor, OnInit {
     });
   }
 
-  loadVenues() {
+  async loadVenues() {
     this.loadingVenues.set(true);
-    this.locationsService.getVenues().subscribe({
-      next: (venues) => {
-        this.venues.set(venues ?? []);
-        this.loadingVenues.set(false);
-        const currentValue = this.value();
-        if (currentValue) {
-          this.syncCountryAndCityFromVenue(currentValue);
-        }
-      },
-      error: (err) => {
-        console.error('Failed to load venues', err);
-        this.venues.set([]);
-        this.loadingVenues.set(false);
-      },
-    });
+
+    try {
+      let venues = await this.locationsService.getVenues();
+      this.venues.set(venues ?? []);
+    } catch (e) {
+      console.error('Failed to load venues', e);
+      this.venues.set([]);
+    } finally {
+      this.loadingVenues.set(false);
+    }
   }
 
   loadCities() {

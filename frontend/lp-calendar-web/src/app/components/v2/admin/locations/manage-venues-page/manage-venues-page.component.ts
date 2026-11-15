@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { LocationsService } from '../../../../../services/locations.service';
-import { CountryDto, VenueDto, VenueWithCityDto } from '../../../../../modules/lpshows-api/v3';
+import { CountryDto, ProblemDetailsDto, VenueDto, VenueWithCityDto } from '../../../../../modules/lpshows-api/v3';
 import { ErrorResponseDto } from '../../../../../modules/lpshows-api';
 import { Button } from 'primeng/button';
 import { ButtonGroup } from 'primeng/buttongroup';
@@ -52,7 +52,7 @@ export class ManageVenuesPageComponent {
   globalSearchText$ = signal("");
 
   ngOnInit() {
-    this.reloadList(false);
+    this.reloadList(false).then();
   }
 
 
@@ -86,15 +86,15 @@ export class ManageVenuesPageComponent {
     if (venue) {
       this.locationsService.deleteVenue(Number(venue.id))
         .subscribe({
-          next: () => {
-            this.reloadList(false);
+          next: async () => {
+            await this.reloadList(false);
             this.isDeletingVenue$.set(false);
           },
           error: err => {
             let errorResponse: ErrorResponseDto = err.error;
             this.messageService.add({
               severity: "danger",
-              summary: "Could not load delete venue!",
+              summary: "Could not delete venue!",
               text: errorResponse.message,
             });
             this.isDeletingVenue$.set(false);
@@ -104,19 +104,17 @@ export class ManageVenuesPageComponent {
   }
 
 
-  private reloadList(cache: boolean) {
-    this.locationsService.getVenues().subscribe({
-      next: venues => {
-        this.venues$.set(venues);
-      },
-      error: err => {
-        let errorResponse: ErrorResponseDto = err.error;
-        this.messageService.add({
-          severity: "error",
-          summary: "Could not load venues!",
-          text: errorResponse.message,
-        });
-      }
-    })
+  private async reloadList(cache: boolean) {
+    try {
+      let venues = await this.locationsService.getVenues();
+      this.venues$.set(venues);
+    } catch (e) {
+      let problemDetails: ProblemDetailsDto = e as ProblemDetailsDto;
+      this.messageService.add({
+        severity: "error",
+        summary: "Failed to load the venues",
+        detail: problemDetails.detail,
+      });
+    }
   }
 }

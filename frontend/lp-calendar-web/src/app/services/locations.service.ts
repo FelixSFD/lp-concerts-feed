@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import { map, Observable, of, switchMap } from 'rxjs';
+import { firstValueFrom, map, Observable, of, switchMap } from 'rxjs';
 import {OsmCity} from '../data/osm/osm-city';
 import {Coordinates} from '../data/location/coordinates';
 import {environment} from '../../environments/environment';
@@ -9,14 +9,28 @@ import {
   AddVenueNameRequestDto,
   CitiesApi,
   CityWithCountryDto,
+  ConcertListResponseDto,
   CountriesApi,
-  CountryDto, CreateCityRequestDto,
-  CreateCountryRequestDto, CreateStateRequestDto, CreateVenueRequestDto,
-  StateDto, StateWithCountryDto, UpdateCityRequestDto,
-  UpdateCountryRequestDto, UpdateStateRequestDto, UpdateVenueNameRequestDto, UpdateVenueRequestDto, VenueDto, VenuesApi, VenueWithDetailsDto
+  CountryDto,
+  CreateCityRequestDto,
+  CreateCountryRequestDto,
+  CreateStateRequestDto,
+  CreateVenueRequestDto,
+  StateDto,
+  StateWithCountryDto,
+  UpdateCityRequestDto,
+  UpdateCountryRequestDto,
+  UpdateStateRequestDto,
+  UpdateVenueNameRequestDto,
+  UpdateVenueRequestDto,
+  VenueDto, VenueListResponseDto,
+  VenuesApi,
+  VenueWithDetailsDto
 } from '../modules/lpshows-api/v3';
 import { addAuthentication } from '../auth/auth.config';
 import { getRequestIdParameter } from '../helper/cache-parameter-helper';
+import { ConcertFilter } from '../data/concert-filter';
+import { VenueFilter } from '../data/venue-filter';
 
 /**
  * Service to retrieve location data like coordinates and timezones
@@ -137,8 +151,19 @@ export class LocationsService {
   /**
    * Returns a list of all venues
    */
-  getVenues(): Observable<VenueDto[]> {
-    return this.venuesApi.getAllVenues();
+  async getVenues(): Promise<VenueDto[]> {
+    let all = await this.getFilteredVenues({}, 10000);
+    return all.venues ?? [];
+  }
+
+  getFilteredVenues(filter: VenueFilter, limit: number = 100, skip: number = 0, cached: boolean = true): Promise<VenueListResponseDto> {
+    return firstValueFrom(this.venuesApi.getVenues(getRequestIdParameter(cached),
+      filter.countryCode,
+      filter.venue,
+      limit,
+      skip,
+      filter.orderBy)
+    );
   }
 
   getVenue(venueId: number, cached: boolean = true): Observable<VenueDto> {
