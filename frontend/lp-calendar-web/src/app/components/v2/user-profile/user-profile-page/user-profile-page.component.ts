@@ -30,6 +30,7 @@ import { Tag } from 'primeng/tag';
 import { Tooltip } from 'primeng/tooltip';
 import { AuthService } from '../../../../auth/auth.service';
 import { MatomoTracker } from 'ngx-matomo-client';
+import { Skeleton } from 'primeng/skeleton';
 
 @Component({
   imports: [
@@ -51,6 +52,7 @@ import { MatomoTracker } from 'ngx-matomo-client';
     Tag,
     Tooltip,
     Button,
+    Skeleton,
   ],
   selector: 'app-user-profile-page',
   styleUrl: './user-profile-page.component.css',
@@ -74,6 +76,9 @@ export class UserProfilePageComponent {
   protected concertPins = signal<ConcertMapPin[]>([]);
 
   protected showShareButton = signal<boolean>(false);
+
+  protected isLoadingConcertStats = signal<boolean>(false);
+  protected isLoadingSongStats = signal<boolean>(false);
 
   // map that stores the artwork for an Apple Music Song ID
   songArtworks$ = signal<Map<string, Artwork>>(new Map<string, Artwork>());
@@ -143,17 +148,21 @@ export class UserProfilePageComponent {
 
   async reloadSongStats(userId: string) {
     try {
+      this.isLoadingSongStats.set(true);
       let stats = await this.userStatsService.getSongStats(userId);
       console.debug("User song stats:", stats);
       this.songStats.set(stats);
       await this.loadThumbnails(stats.songs ?? []);
     } catch (e) {
       console.error("Failed to load user song stats:", e);
+    } finally {
+      this.isLoadingSongStats.set(false);
     }
   }
 
   async reloadConcertStats(userId: string) {
     try {
+      this.isLoadingConcertStats.set(true);
       let stats = await this.userStatsService.getConcertStats(userId);
       let sortedConcerts = stats.concerts?.sort((a, b) => b.concertDate.localeCompare(a.concertDate)) ?? [];
       stats.concerts = sortedConcerts;
@@ -162,6 +171,8 @@ export class UserProfilePageComponent {
       this.concertPins.set(sortedConcerts.map(c => this.makePinForConcert(c)) ?? []);
     } catch (e) {
       console.error("Failed to load user concert stats:", e);
+    } finally {
+      this.isLoadingConcertStats.set(false);
     }
   }
 
