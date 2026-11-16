@@ -29,7 +29,7 @@ public class GotenbergClient(
         }
         
         // add additional parameters
-        uint deviceScaleFactor = 2;
+        var deviceScaleFactor = outputConfig.DeviceScaleFactor;
         var width = outputConfig.Width;
         var height = outputConfig.Height;
         if (width.HasValue)

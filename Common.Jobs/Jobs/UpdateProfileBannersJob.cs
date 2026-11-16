@@ -48,7 +48,7 @@ public sealed class UpdateProfileBannersJob(UserService userService, UserStatsSe
                     Cities = concertStats.NumberOfCities,
                     Songs = songStats.Length,
                 };
-                var image = await sharePicService.GenerateSharePicAsync(template, 390, 110,
+                var image = await sharePicService.GenerateSharePicAsync(template, 390 * 2, 110 * 2, 2,
                     cancellationToken: cancellationToken);
                 
                 Log.GeneratedProfileBannerFor(logger, user.Username, user.Id);
