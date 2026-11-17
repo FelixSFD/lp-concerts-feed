@@ -10,7 +10,8 @@ using Service.Users;
 namespace Common.Jobs.Jobs;
 
 [QuartzJob(Name = "UpdateProfileBanners", Group = "LPshows")]
-[CronTrigger("0 15 6 ? * *")]
+[CronTrigger("0 15 4 ? * *", Name = "UpdateProfileBanners-nightly")]
+[DisallowConcurrentExecution]
 public sealed class UpdateProfileBannersJob(UserService userService, UserStatsService userStatsService, SharePicService sharePicService, ISharePicStore sharePicStore, ILogger<UpdateProfileBannersJob> logger) : IJob
 {
     public async ValueTask Execute(IJobExecutionContext context, CancellationToken cancellationToken = default)
