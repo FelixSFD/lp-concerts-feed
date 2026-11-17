@@ -39,7 +39,7 @@ services:
       - App_SharePics__ShareImageBaseUrl=${SHARE_PICS_BASE_URL}
       - App_Quartz__ConnectionString=${QUARTZ_CONNECTION_STRING}
       # can set Readonly to false because auth is enabled for /quartz
-      - App_Quartz__Readonly=false
+      - App_Quartz__Dashboard__Readonly=false
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}.entrypoints=websecure"
