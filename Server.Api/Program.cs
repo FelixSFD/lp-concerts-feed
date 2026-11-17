@@ -420,4 +420,6 @@ app.MapControllers();
 app.MapHealthChecks("/health");
 app.MapMetrics();
 
+app.MapStaticAssets();
+
 app.Run();
