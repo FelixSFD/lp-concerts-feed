@@ -22,6 +22,7 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
         ["type"] = (Expression<Func<ConcertDo, string>>)(c => c.Type.Name),
         ["customTitle"] = (Expression<Func<ConcertDo, string>>)(c => c.CustomTitle!),
         ["status"] = (Expression<Func<ConcertDo, ConcertDo.ConcertStatus>>)(c => c.Status),
+        ["lastUpdated"] = (Expression<Func<ConcertDo, DateTimeOffset?>>)(c => c.UpdatedAt ?? c.CreatedAt),
     };
     
     protected override async Task<ConcertDo> LoadReferences(ConcertDo dataObject)
