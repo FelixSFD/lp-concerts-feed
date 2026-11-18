@@ -115,9 +115,34 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
     }
 
     /// <inheritdoc/>
-    public IAsyncEnumerable<ConcertDo> FindAllWithReferencesAsync(CancellationToken token)
+    public async IAsyncEnumerable<ConcertDo> FindAllWithReferencesAsync([EnumeratorCancellation] CancellationToken token)
     {
-        return FindDeletableAsync(concert => true, IncludeAllReferences);
+        const uint pageSize = 100;
+        uint skip = 0;
+        var orderBy = new[] { new SortDescriptor("date") };
+
+        while (true)
+        {
+            token.ThrowIfCancellationRequested();
+            var pageCount = 0;
+            var page = FindDeletableAsync(
+                concert => concert.DeletedAt == null,
+                IncludeAllReferences,
+                orderBy,
+                new PaginationParams(skip, pageSize));
+
+            await foreach (var concert in page.WithCancellation(token))
+            {
+                token.ThrowIfCancellationRequested();
+                pageCount++;
+                yield return concert;
+            }
+
+            if (pageCount == 0)
+                yield break;
+
+            skip = checked(skip + (uint)pageCount);
+        }
     }
 
     public IAsyncEnumerable<ConcertDo> GetUpcomingBookmarkedConcertsForAsync(string userId,

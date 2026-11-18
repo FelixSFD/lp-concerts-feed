@@ -52,10 +52,11 @@ public interface IConcertRepository : ISingleKeyRepositoryBase<ConcertDo, string
     IAsyncEnumerable<ConcertDo> GetConcertsByWikiPageId(string wikiPageId);
     
     /// <summary>
-    /// Starts a query that returns all concerts with their references. The query can be filtered.
+    /// Returns non-deleted concerts with their references in ascending posted start time order,
+    /// fetching them in pages. The order of concerts with identical start times is unspecified.
     /// </summary>
-    /// <param name="token"></param>
-    /// <returns></returns>
+    /// <param name="token">Token used to cancel asynchronous enumeration.</param>
+    /// <returns>The non-deleted concerts and their references.</returns>
     IAsyncEnumerable<ConcertDo> FindAllWithReferencesAsync(CancellationToken token);
 
     IAsyncEnumerable<ConcertDo> GetUpcomingBookmarkedConcertsForAsync(string userId,
