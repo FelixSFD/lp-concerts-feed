@@ -52,10 +52,10 @@ public partial class SharePicService(IGotenbergClient gotenbergClient, string te
     /// <param name="cancellationToken">Token to cancel the request</param>
     /// <returns>Bytes of the generated file</returns>
     public async Task<byte[]> GenerateSharePicAsync(SharePicTemplate template,
-        uint? width = null, uint? height = null, CancellationToken cancellationToken = default)
+        uint? width = null, uint? height = null, ushort deviceScaleFactor = 1, CancellationToken cancellationToken = default)
     {
         var stopwatch = Stopwatch.StartNew();
-        var pic = await GenerateSharePicAsync(template.TemplateId, template.GetParameterValues(), width, height, template.MainElementSelector,
+        var pic = await GenerateSharePicAsync(template.TemplateId, template.GetParameterValues(), width, height, deviceScaleFactor, template.MainElementSelector,
             cancellationToken);
         
         stopwatch.Stop();
@@ -73,16 +73,16 @@ public partial class SharePicService(IGotenbergClient gotenbergClient, string te
     /// <param name="cancellationToken">Token to cancel the request</param>
     /// <returns>Key/Path of the stored file</returns>
     public async Task<string> GenerateStoredSharePicAsync(SharePicTemplate template,
-        uint? width = null, uint? height = null, CancellationToken cancellationToken = default)
+        uint? width = null, uint? height = null, ushort deviceScaleFactor = 1, CancellationToken cancellationToken = default)
     {
-        var pic = await GenerateSharePicAsync(template, width, height, cancellationToken);
+        var pic = await GenerateSharePicAsync(template, width, height, deviceScaleFactor, cancellationToken);
         var key = $"temp/{template.TemplateId}/{Guid.NewGuid()}.png";
         await sharePicStore.StoreTemporaryAsync(new MemoryStream(pic), key, cancellationToken);
         
         return key;
     }
     
-    public async Task<byte[]> GenerateSharePicAsync(string templateId, IDictionary<string, object> data, uint? width = null, uint? height = null, string? elementSelector = null, CancellationToken cancellationToken = default)
+    public async Task<byte[]> GenerateSharePicAsync(string templateId, IDictionary<string, object> data, uint? width = null, uint? height = null, ushort deviceScaleFactor = 1, string? elementSelector = null, CancellationToken cancellationToken = default)
     {
         Log.LookingForTemplateDirectory(logger, templateId);
         

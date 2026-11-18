@@ -17,6 +17,11 @@ public class GotenbergOutputConfig
     public uint? Height { get; set; }
 
     /// <summary>
+    /// Set scale factor for the output. Use 2 for high resolution
+    /// </summary>
+    public ushort DeviceScaleFactor { get; set; } = 1;
+
+    /// <summary>
     /// CSS selector of the element to screenshot. If not specified, the whole page will be screenshotted.
     /// Default is "body", which means the whole page will be screenshotted.
     /// </summary>

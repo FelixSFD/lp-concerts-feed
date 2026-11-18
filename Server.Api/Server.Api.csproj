@@ -49,4 +49,9 @@
       </AssemblyAttribute>
     </ItemGroup>
 
+    <PropertyGroup>
+        <!-- to fix the Quartz Dashboard -->
+        <RequiresAspNetWebAssets>true</RequiresAspNetWebAssets>
+    </PropertyGroup>
+
 </Project>

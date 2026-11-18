@@ -186,7 +186,7 @@ public class UsersController(UserService userService, UserStatsService userStats
             Cities = concertStats.NumberOfCities,
             Songs = songStats.Length,
         };
-        var imageKey = await sharePicService.GenerateStoredSharePicAsync(template, 1080, 1350, cancellationToken: cancellationToken);
+        var imageKey = await sharePicService.GenerateStoredSharePicAsync(template, 675, 675, 2, cancellationToken: cancellationToken);
         var config = HttpContext.RequestServices.GetRequiredService<IConfiguration>();
         var url = $"{config.GetValue<string>("SharePics:ShareImageBaseUrl")}/{imageKey}";
         var response = new GetUserConcertStatsSharePicResponseDto
