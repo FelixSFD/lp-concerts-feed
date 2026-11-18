@@ -10,7 +10,7 @@ import {
 } from 'angular-auth-oidc-client';
 import {provideHttpClient, withInterceptors} from '@angular/common/http';
 import {provideAnimations} from '@angular/platform-browser/animations';
-import {provideMatomo, withRouter} from 'ngx-matomo-client';
+import {provideMatomo, withPageUrlProvider, withRouter} from 'ngx-matomo-client';
 import {environment} from '../environments/environment';
 import {NgcCookieConsentConfig, provideNgcCookieConsent} from 'ngx-cookieconsent';
 import {BASE_PATH} from './modules/lpshows-api';
@@ -22,6 +22,7 @@ import {TourConfig} from './data/tour-config';
 import {definePreset} from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 import { apiErrorInterceptor } from './helper/api-error.interceptor';
+import { sanitizeCalendarSubscriptionUrl } from './helper/calendar-subscription-privacy';
 
 const cookieConfig:NgcCookieConsentConfig = {
   "cookie": {
@@ -72,6 +73,7 @@ export const appConfig: ApplicationConfig = {
       withRouter({
         delay: 1000
       }),
+      withPageUrlProvider(event => Promise.resolve(sanitizeCalendarSubscriptionUrl(event.urlAfterRedirects))),
     ),
     provideNgcCookieConsent(cookieConfig),
     providePrimeNG({

@@ -1,0 +1,57 @@
+<p-confirmdialog />
+<h1>Manage calendar subscription</h1>
+<a routerLink="/calendar-subscriptions">Back to calendar subscriptions</a>
+
+@if (authError()) {
+  <p role="alert">{{ authError() }}</p>
+  <p-button label="Log in" (onClick)="login()" />
+} @else if (!ready() || loading()) {
+  <p>Loading subscription...</p>
+} @else if (error()) {
+  <p role="alert">{{ error() }}</p>
+  @if (!authenticated().isAuthenticated) {
+    <p>If this subscription belongs to an account, log in with that account and try again.</p>
+    <p-button label="Log in" (onClick)="login()" />
+  }
+  <p-button label="Try again" severity="secondary" (onClick)="reload()" />
+} @else if (subscription(); as current) {
+  <div class="mt-3">
+    <p-card header="Subscription settings">
+      <p>Created {{ current.createdAt | date:'medium' }}@if (current.updatedAt) { · Updated {{ current.updatedAt | date:'medium' }} }</p>
+      <form [formGroup]="form()" (ngSubmit)="save()">
+        <div class="flex align-items-center mb-3">
+          <p-toggleswitch inputId="edit-doors" formControlName="includeDoorsTime" />
+          <label for="edit-doors" class="ml-2">Doors time</label>
+        </div>
+        <div class="flex align-items-center mb-3">
+          <p-toggleswitch inputId="edit-stage" formControlName="includeLpStageTime" />
+          <label for="edit-stage" class="ml-2">Linkin Park stage time</label>
+        </div>
+        <p-button type="submit" label="Save changes" [disabled]="busy()" [loading]="busy()" />
+      </form>
+      <div class="mt-3">
+        <p-button label="Delete subscription" severity="danger" [disabled]="busy()" (onClick)="delete($event)" />
+      </div>
+    </p-card>
+  </div>
+
+  <div class="mt-3">
+    <p-card header="Management link">
+      @if (!current.userId) {
+        <p><strong>Keep this link private.</strong> Anyone with it can view, change, delete, or claim this subscription. Save it to manage the subscription later.</p>
+        @if (authenticated().isAuthenticated) {
+          <p>Claim this subscription to associate it with your account. Only your account will be able to manage it afterward.</p>
+          <p-button label="Claim subscription" [disabled]="busy()" (onClick)="claim($event)" />
+        } @else {
+          <p>An account is recommended so you can find and manage your subscriptions later.</p>
+          <p-button label="Log in or create an account" severity="secondary" (onClick)="login()" />
+        }
+      } @else {
+        <p>This subscription is associated with an account. Only its owner can manage it.</p>
+      }
+      <p><label for="management-link">Direct management link</label></p>
+      <input #linkInput id="management-link" type="text" readonly [value]="managementLink()" class="w-full" (focus)="linkInput.select()" />
+      <p-button class="mt-2" label="Copy link" severity="secondary" (onClick)="copyLink()" />
+    </p-card>
+  </div>
+}

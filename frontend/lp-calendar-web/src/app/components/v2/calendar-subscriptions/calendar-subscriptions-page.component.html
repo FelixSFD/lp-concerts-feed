@@ -1,0 +1,48 @@
+<h1>Calendar subscriptions</h1>
+
+@if (authError()) {
+  <p role="alert">{{ authError() }}</p>
+  <p-button label="Log in" (onClick)="login()" />
+}
+<p-card header="Create a subscription">
+  @if (ready() && !authenticated().isAuthenticated) {
+    <p>Creating an account is recommended so you can find and manage your subscriptions later, but it is not required.</p>
+    <p-button label="Log in or create an account" severity="secondary" (onClick)="login()" />
+  }
+  <form [formGroup]="form()" (ngSubmit)="create()" class="mt-3">
+    <div class="flex align-items-center mb-3">
+      <p-toggleswitch inputId="new-doors" formControlName="includeDoorsTime" />
+      <label for="new-doors" class="ml-2">Doors time</label>
+    </div>
+    <div class="flex align-items-center mb-3">
+      <p-toggleswitch inputId="new-stage" formControlName="includeLpStageTime" />
+      <label for="new-stage" class="ml-2">Linkin Park stage time</label>
+    </div>
+    <p-button type="submit" label="Create subscription" [loading]="creating()" [disabled]="!ready() || creating()" />
+  </form>
+</p-card>
+
+@if (ready() && authenticated().isAuthenticated) {
+  <div class="mt-4">
+    <p-card header="Your subscriptions">
+      @if (loading()) {
+        <p>Loading subscriptions...</p>
+      } @else if (listError()) {
+        <p role="alert">Could not load subscriptions. {{ listError() }}</p>
+        <p-button label="Try again" (onClick)="retry()" />
+      } @else if (subscriptions().length === 0) {
+        <p>You do not have any subscriptions yet.</p>
+      } @else {
+        @for (subscription of subscriptions(); track subscription.id) {
+          <div class="mb-3">
+            <a [routerLink]="['/calendar-subscriptions', subscription.id]">Manage subscription created {{ subscription.createdAt | date:'medium' }}</a>
+            <div>Doors: {{ subscription.includeDoorsTime ? 'On' : 'Off' }} · Linkin Park stage time: {{ subscription.includeLpStageTime ? 'On' : 'Off' }}</div>
+            @if (subscription.updatedAt) {
+              <div>Updated {{ subscription.updatedAt | date:'medium' }}</div>
+            }
+          </div>
+        }
+      }
+    </p-card>
+  </div>
+}

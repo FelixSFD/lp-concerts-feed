@@ -8,7 +8,7 @@ import {
   OnInit,
   signal
 } from '@angular/core';
-import { EventType, Router, RouterOutlet } from '@angular/router';
+import { EventType, NavigationStart, Router, RouterOutlet } from '@angular/router';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { DateTime } from 'luxon';
 import {
@@ -33,6 +33,8 @@ import { Dialog } from 'primeng/dialog';
 import {
   CompleteUserProfileComponent
 } from './components/v2/user-profile/complete-user-profile/complete-user-profile.component';
+import { CalendarSubscriptionNavigationService } from './services/calendar-subscription-navigation.service';
+import { sanitizeCalendarSubscriptionUrl } from './helper/calendar-subscription-privacy';
 
 @Component({
   selector: 'app-root',
@@ -51,6 +53,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private readonly clockService = inject(ClockService);
   private readonly router = inject(Router);
   private readonly usersService = inject(UsersService);
+  private readonly subscriptionNavigation = inject(CalendarSubscriptionNavigationService);
 
   //keep refs to subscriptions to be able to unsubscribe later
   private popupOpenSubscription!: Subscription;
@@ -105,8 +108,15 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initCookieConsent();
+    this.tracker.setCustomUrl(sanitizeCalendarSubscriptionUrl(window.location.href));
+    if (document.referrer) {
+      this.tracker.setReferrerUrl(sanitizeCalendarSubscriptionUrl(document.referrer));
+    }
 
     this.router.events.subscribe((ev) => {
+      if (ev instanceof NavigationStart) {
+        this.tracker.setCustomUrl(sanitizeCalendarSubscriptionUrl(ev.url));
+      }
       let currentIndex = this.progressValues.indexOf(ev.type);
       if (currentIndex > -1) {
         console.debug("Current index: ",currentIndex);
@@ -121,10 +131,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.authStateService.isAuthenticated$.subscribe(isAuthenticated => {
       console.debug('Authenticated:', isAuthenticated);
       this.isAuthenticated$ = isAuthenticated;
-
-      this.authStateService.accessToken$.subscribe(at => {
-        console.debug("ACCESS_TOKEN: " + at);
-      });
     });
 
     // Manage dark/light-mode

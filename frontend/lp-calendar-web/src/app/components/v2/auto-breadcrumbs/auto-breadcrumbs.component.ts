@@ -40,7 +40,6 @@ export class BreadcrumbService {
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event) => {
         let allBc = this.buildBreadcrumb(this.activatedRoute);
-        console.log("All Breadcrumbs: ", allBc);
         this.breadcrumbs = allBc;
       });
   }
@@ -50,16 +49,11 @@ export class BreadcrumbService {
     if (nextUrlPart.startsWith('/')) {
       nextUrlPart = nextUrlPart.substring(0, nextUrlPart.length - 1);
     }
-    console.debug("nextUrlPart: ", nextUrlPart);
-
-    if (nextUrlPart.length == 0) {
-      console.debug("nextUrlPart was empty. Skipping this part.");
-    } else {
+    if (nextUrlPart.length > 0) {
       if (nextUrlPart != '/') {
         url = url + "/" + nextUrlPart;
       }
 
-      console.debug("Building Breadcrumb", currentAR.snapshot, url);
       if (currentAR.snapshot.data['breadcrumb']) {
         breadcrumbs.push({
           label: currentAR.snapshot.data['breadcrumb'],
