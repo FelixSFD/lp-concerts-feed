@@ -47,6 +47,12 @@ public class CalendarSubscriptionDo : BaseDo, ITimestampedDataObject
     /// <inheritdoc/>
     [Column("UpdatedAt")]
     public DateTimeOffset? UpdatedAt { get; set; }
+
+    /// <summary>
+    /// Time when the iCal file for this subscription was generated the last time.
+    /// </summary>
+    [Column("LastGeneratedAt")]
+    public DateTimeOffset? LastGeneratedAt { get; set; }
     
     /// <summary>
     /// User who manages this subscription

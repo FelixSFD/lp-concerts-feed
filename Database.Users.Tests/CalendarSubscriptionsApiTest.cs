@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NSubstitute;
+using Quartz;
 using Microsoft.Extensions.Options;
 using Server.Api.Controllers;
 using Service.Users;
@@ -42,6 +44,10 @@ public class CalendarSubscriptionsApiTest : UsersDbIntegrationTestsBase
         builder.Services.AddScoped<ICalendarSubscriptionRepository, SqlCalendarSubscriptionRepository>();
         builder.Services.AddScoped<IUserRepository, SqlUserRepository>();
         builder.Services.AddScoped<CalendarSubscriptionService>();
+        var scheduler = Substitute.For<IScheduler>();
+        var schedulerFactory = Substitute.For<ISchedulerFactory>();
+        schedulerFactory.GetScheduler(Arg.Any<CancellationToken>()).Returns(scheduler);
+        builder.Services.AddSingleton(schedulerFactory);
         builder.Services.AddAuthentication("Bearer").AddScheme<AuthenticationSchemeOptions, TestBearerHandler>("Bearer", _ => { });
         builder.Services.AddAuthorization();
         builder.Services.AddControllers().AddApplicationPart(typeof(CalendarSubscriptionsController).Assembly);
@@ -118,6 +124,7 @@ public class CalendarSubscriptionsApiTest : UsersDbIntegrationTestsBase
             return await client.SendAsync(request);
         }
     }
+
 
     /// <summary>Collects HTTP middleware log messages for assertions.</summary>
     private sealed class HttpLogCollector : ILoggerProvider

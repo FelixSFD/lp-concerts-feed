@@ -40,6 +40,10 @@ namespace Database.Users.Migrations
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("IncludeLpStageTime");
 
+                    b.Property<DateTimeOffset?>("LastGeneratedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("LastGeneratedAt");
+
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("datetime")
                         .HasColumnName("UpdatedAt");

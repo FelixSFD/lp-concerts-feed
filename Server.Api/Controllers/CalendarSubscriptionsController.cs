@@ -3,6 +3,9 @@ using Common.Server.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Quartz;
+using Common.Jobs.Jobs;
 using Server.Api.Auth;
 using Server.Api.Models;
 using Service.Users;
@@ -20,7 +23,10 @@ namespace Server.Api.Controllers;
 [OptionalBearerAuthentication]
 [HttpLogging(HttpLoggingFields.None)]
 [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-public class CalendarSubscriptionsController(CalendarSubscriptionService service) : ControllerBase
+public class CalendarSubscriptionsController(
+    CalendarSubscriptionService service,
+    ISchedulerFactory schedulerFactory,
+    ILogger<CalendarSubscriptionsController> logger) : ControllerBase
 {
     /// <summary>Creates an anonymous or owned subscription.</summary>
     /// <param name="request">Required calendar settings.</param>
@@ -32,6 +38,7 @@ public class CalendarSubscriptionsController(CalendarSubscriptionService service
         try
         {
             var subscription = await service.CreateAsync(HttpContext.GetUserId(), request.IncludeDoorsTime!.Value, request.IncludeLpStageTime!.Value, cancellationToken);
+            await TriggerCalendarGenerationAsync(subscription.Id, cancellationToken);
             return CreatedAtAction(nameof(GetCalendarSubscription), new { subscriptionId = subscription.Id }, subscription.ToDto());
         }
         catch (MissingUserProfileException exception)
@@ -69,9 +76,16 @@ public class CalendarSubscriptionsController(CalendarSubscriptionService service
     /// <param name="cancellationToken">Token used to cancel the operation.</param>
     /// <returns>No content on success, or not found if the subscription is missing or inaccessible.</returns>
     [HttpPut("{subscriptionId:guid}")]
-    public async Task<IActionResult> UpdateCalendarSubscription(Guid subscriptionId, [FromBody] CalendarSubscriptionSettingsRequest request, CancellationToken cancellationToken) =>
-        await service.UpdateAsync(subscriptionId.ToString(), HttpContext.GetUserId(), request.IncludeDoorsTime!.Value, request.IncludeLpStageTime!.Value, cancellationToken)
-            ? NoContent() : NotFound();
+    public async Task<IActionResult> UpdateCalendarSubscription(Guid subscriptionId, [FromBody] CalendarSubscriptionSettingsRequest request, CancellationToken cancellationToken)
+    {
+        var wasUpdated = await service.UpdateAsync(subscriptionId.ToString(), HttpContext.GetUserId(), request.IncludeDoorsTime!.Value,
+            request.IncludeLpStageTime!.Value, cancellationToken);
+        if (!wasUpdated)
+            return NotFound();
+
+        await TriggerCalendarGenerationAsync(subscriptionId.ToString(), cancellationToken);
+        return NoContent();
+    }
 
     /// <summary>Deletes a subscription.</summary>
     /// <param name="subscriptionId">UUID of the subscription.</param>
@@ -100,6 +114,24 @@ public class CalendarSubscriptionsController(CalendarSubscriptionService service
         catch (MissingUserProfileException exception)
         {
             return BadRequest(new ProblemDetails { Status = StatusCodes.Status400BadRequest, Title = exception.Message });
+        }
+    }
+
+    private async Task TriggerCalendarGenerationAsync(string subscriptionId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var scheduler = await schedulerFactory.GetScheduler(cancellationToken);
+            await scheduler.TriggerJob(
+                new JobKey(CalendarSubscriptionJobConstants.GenerateSingleJobName, CalendarSubscriptionJobConstants.GroupName),
+                new JobDataMap { [CalendarSubscriptionJobConstants.SubscriptionIdJobDataKey] = subscriptionId },
+                cancellationToken);
+        }
+        catch (Exception exception)
+        {
+            logger.LogWarning(exception,
+                "Failed to trigger calendar generation job for subscription '{subscriptionId}'. It will be picked up by the hourly job.",
+                subscriptionId);
         }
     }
 }

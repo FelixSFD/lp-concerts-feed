@@ -77,4 +77,12 @@ public interface IConcertRepository : ISingleKeyRepositoryBase<ConcertDo, string
     /// <param name="ids">Primary keys of all entries that should be returned</param>
     /// <returns></returns>
     public IAsyncEnumerable<ConcertDo> GetByIds(IEnumerable<string> ids);
+
+    /// <summary>
+    /// Returns the latest change timestamp across all concerts.
+    /// This includes creations, updates and soft deletes.
+    /// </summary>
+    /// <param name="cancellationToken">Token to cancel the operation.</param>
+    /// <returns>The latest change time, or null when no concerts exist.</returns>
+    Task<DateTimeOffset?> GetLatestChangeAsync(CancellationToken cancellationToken = default);
 }

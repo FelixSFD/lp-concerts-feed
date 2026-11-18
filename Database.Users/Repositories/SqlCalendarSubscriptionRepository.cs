@@ -54,6 +54,18 @@ public class SqlCalendarSubscriptionRepository(UsersDbContext dbContext)
     }
 
     /// <inheritdoc />
+    public Task<CalendarSubscriptionDo[]> GetAllAsync(CancellationToken cancellationToken = default) =>
+        dbContext.CalendarSubscriptions.AsNoTracking()
+            .OrderBy(s => s.CreatedAt).ThenBy(s => s.Id)
+            .ToArrayAsync(cancellationToken);
+
+    /// <inheritdoc />
+    public async Task<bool> MarkGeneratedAsync(string id, DateTimeOffset generatedAt, CancellationToken cancellationToken = default) =>
+        await dbContext.CalendarSubscriptions.Where(s => s.Id == id)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(s => s.LastGeneratedAt, generatedAt), cancellationToken) > 0;
+
+    /// <inheritdoc />
     protected override Task<CalendarSubscriptionDo> LoadReferences(CalendarSubscriptionDo dataObject)
     {
         return Task.FromResult(dataObject);

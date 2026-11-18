@@ -178,6 +178,16 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
     }
 
     /// <inheritdoc/>
+    public async Task<DateTimeOffset?> GetLatestChangeAsync(CancellationToken cancellationToken = default)
+    {
+        var createdAt = await DbSet.MaxAsync(c => (DateTimeOffset?)c.CreatedAt, cancellationToken);
+        var updatedAt = await DbSet.MaxAsync(c => c.UpdatedAt, cancellationToken);
+        var deletedAt = await DbSet.MaxAsync(c => c.DeletedAt, cancellationToken);
+
+        return new[] { createdAt, updatedAt, deletedAt }.Max();
+    }
+
+    /// <inheritdoc/>
     public IAsyncEnumerable<ConcertDo> GetChangedAfter(DateTimeOffset timestamp)
     {
         var query = DbSet.AsQueryable();

@@ -45,4 +45,16 @@ public interface ICalendarSubscriptionRepository : ISingleKeyRepositoryBase<Cale
     /// <param name="cancellationToken">Token used to cancel the operation.</param>
     /// <returns>True if ownership was assigned; false if the subscription is missing or already owned.</returns>
     Task<bool> ClaimAsync(string id, string userId, CancellationToken cancellationToken = default);
+
+    /// <summary>Lists all subscriptions ordered by creation time and ID.</summary>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>All subscriptions.</returns>
+    Task<CalendarSubscriptionDo[]> GetAllAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>Sets the point in time when the subscription's iCal file was generated.</summary>
+    /// <param name="id">Subscription ID.</param>
+    /// <param name="generatedAt">Generation time in UTC.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>True if the subscription exists and was updated; otherwise false.</returns>
+    Task<bool> MarkGeneratedAsync(string id, DateTimeOffset generatedAt, CancellationToken cancellationToken = default);
 }

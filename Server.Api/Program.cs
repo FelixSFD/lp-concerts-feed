@@ -1,5 +1,6 @@
 using System.Configuration;
 using System.Text.Json.Serialization;
+using Amazon.S3;
 using AppleDeveloperToken;
 using Common.Jobs;
 using Common.Server.ClientIp;
@@ -32,6 +33,7 @@ using Server.Api.ExceptionHandling;
 using Server.Api.HealthChecks;
 using Server.Api.RateLimiting;
 using Service.Setlists;
+using Service.Calendar;
 using Service.SharePics;
 using Service.Tours;
 using Service.Tours.Importer;
@@ -270,6 +272,9 @@ builder.Services.AddLocationSyncEngines();
 builder.Services.AddSetlistsService();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<CalendarSubscriptionService>();
+builder.Services.AddScoped<CalendarGenerationService>();
+builder.Services.AddScoped<CalendarSubscriptionGenerationCoordinator>();
+builder.Services.AddAWSService<IAmazonS3>();
 builder.Services.AddSharePicService(
     builder.Configuration.GetValue<string>("SharePics:Gotenberg:BaseUrl") ?? throw new ConfigurationErrorsException("SharePics:GotenbergBaseUrl is missing!"),
     builder.Configuration.GetValue<string>("SharePics:TemplateBaseDir") ?? throw new ConfigurationErrorsException("SharePics:Templates:BaseDir is missing!")
