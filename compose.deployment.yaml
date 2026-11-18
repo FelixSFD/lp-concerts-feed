@@ -38,6 +38,8 @@ services:
       - App_SharePics__BucketName=${SHARE_PICS_S3_BUCKET_NAME}
       - App_SharePics__ShareImageBaseUrl=${SHARE_PICS_BASE_URL}
       - App_Quartz__ConnectionString=${QUARTZ_CONNECTION_STRING}
+      # can set Readonly to false because auth is enabled for /quartz
+      - App_Quartz__Dashboard__Readonly=false
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}.entrypoints=websecure"
@@ -45,6 +47,14 @@ services:
       - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}.tls=true"
       - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}.tls.certresolver=http_resolver"
       - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}.service=${TRAEFIK_SERVICE_API_SERVER}"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}.middlewares=default@file,warp-cloudfront@file"
       - "traefik.http.services.${TRAEFIK_SERVICE_API_SERVER}.loadbalancer.server.port=8080"
       - "traefik.docker.network=proxy"
-      - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}.middlewares=default@file,warp-cloudfront@file"
+      # Special rules for the Quartz dashboard
+      - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}-quartz.entrypoints=websecure"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}-quartz.rule=(Host(`${API_HOSTNAME_INTERNAL}`) && PathPrefix(`/quartz`))"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}-quartz.tls=true"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}-quartz.tls.certresolver=http_resolver"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}-quartz.service=${TRAEFIK_SERVICE_API_SERVER}-quartz"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_API_SERVER}-quartz.middlewares=default@file,warp-cloudfront@file,traefikAuth@file"
+      - "traefik.http.services.${TRAEFIK_SERVICE_API_SERVER}-quartz.loadbalancer.server.port=8080"
