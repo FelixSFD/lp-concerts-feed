@@ -25,23 +25,60 @@
 @if (ready() && authenticated().isAuthenticated) {
   <div class="mt-4">
     <p-card header="Your subscriptions">
-      @if (loading()) {
-        <p>Loading subscriptions...</p>
-      } @else if (listError()) {
+      @if (listError()) {
         <p role="alert">Could not load subscriptions. {{ listError() }}</p>
         <p-button label="Try again" (onClick)="retry()" />
-      } @else if (subscriptions().length === 0) {
-        <p>You do not have any subscriptions yet.</p>
       } @else {
-        @for (subscription of subscriptions(); track subscription.id) {
-          <div class="mb-3">
-            <a [routerLink]="['/calendar-subscriptions', subscription.id]">Manage subscription created {{ subscription.createdAt | date:'medium' }}</a>
-            <div>Doors: {{ subscription.includeDoorsTime ? 'On' : 'Off' }} · Linkin Park stage time: {{ subscription.includeLpStageTime ? 'On' : 'Off' }}</div>
-            @if (subscription.updatedAt) {
-              <div>Updated {{ subscription.updatedAt | date:'medium' }}</div>
-            }
-          </div>
-        }
+        <p-table [value]="subscriptions()" dataKey="id" [loading]="loading()" stripedRows rowHover
+          [paginator]="true" [rows]="25" [rowsPerPageOptions]="[10, 25, 50, 100]"
+          [scrollable]="true" [tableStyle]="{ 'min-width': '45rem' }">
+          <ng-template #header>
+            <tr>
+              <th scope="col">Created</th>
+              <th scope="col">Updated</th>
+              <th scope="col">Doors time</th>
+              <th scope="col">Linkin Park stage time</th>
+              <th scope="col"><span class="sr-only">Actions</span></th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-subscription>
+            <tr>
+              <td>{{ subscription.createdAt | date:'medium' }}</td>
+              <td>{{ subscription.updatedAt ? (subscription.updatedAt | date:'medium') : 'Never' }}</td>
+              <td>
+                <i class="pi" [class.pi-check-circle]="subscription.includeDoorsTime"
+                  [class.pi-minus-circle]="!subscription.includeDoorsTime"
+                  [class.text-green-500]="subscription.includeDoorsTime"
+                  [class.text-color-secondary]="!subscription.includeDoorsTime" aria-hidden="true"></i>
+                &nbsp;
+                <span class="sr-only">{{ subscription.includeDoorsTime ? 'included' : 'not included' }}</span>
+              </td>
+              <td>
+                <i class="pi" [class.pi-check-circle]="subscription.includeLpStageTime"
+                  [class.pi-minus-circle]="!subscription.includeLpStageTime"
+                  [class.text-green-500]="subscription.includeLpStageTime"
+                  [class.text-color-secondary]="!subscription.includeLpStageTime" aria-hidden="true"></i>
+                &nbsp;
+                <span class="sr-only">{{ subscription.includeLpStageTime ? 'included' : 'not included' }}</span>
+              </td>
+              <td>
+                <p-button label="Manage" icon="pi pi-pencil" variant="outlined" size="small"
+                  [routerLink]="['/calendar-subscriptions', subscription.id]" />
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template #emptymessage>
+            <tr>
+              <td colspan="5" class="text-center text-secondary">
+                @if (loading()) {
+                  Loading subscriptions...
+                } @else {
+                  You do not have any subscriptions yet.
+                }
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
       }
     </p-card>
   </div>

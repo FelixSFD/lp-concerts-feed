@@ -7,6 +7,7 @@ import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { MessageService } from 'primeng/api';
+import { TableModule } from 'primeng/table';
 import { ToggleSwitch } from 'primeng/toggleswitch';
 import { AuthService } from '../../../auth/auth.service';
 import { CalendarSubscriptionDto } from '../../../modules/lpshows-api/v3';
@@ -16,7 +17,7 @@ import { subscriptionErrorMessage } from './calendar-subscription-errors';
 
 @Component({
   selector: 'app-calendar-subscriptions-page',
-  imports: [Button, Card, DatePipe, ReactiveFormsModule, RouterLink, ToggleSwitch],
+  imports: [Button, Card, DatePipe, ReactiveFormsModule, RouterLink, TableModule, ToggleSwitch],
   templateUrl: './calendar-subscriptions-page.component.html',
 })
 export class CalendarSubscriptionsPageComponent {
