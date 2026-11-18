@@ -15,6 +15,7 @@ import { CalendarSubscriptionNavigationService } from '../../../services/calenda
 import { CalendarSubscriptionsService } from '../../../services/calendar-subscriptions.service';
 import { subscriptionErrorMessage } from './calendar-subscription-errors';
 
+/** Creates calendar subscriptions and displays the authenticated user's subscriptions. */
 @Component({
   selector: 'app-calendar-subscriptions-page',
   imports: [Button, Card, DatePipe, ReactiveFormsModule, RouterLink, TableModule, ToggleSwitch],

@@ -1,5 +1,9 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
+/**
+ * Returns a user-facing subscription error without distinguishing inaccessible subscriptions from missing ones.
+ * @param error Error returned by a subscription API request.
+ */
 export function subscriptionErrorMessage(error: unknown): string {
   if (error instanceof HttpErrorResponse) {
     if (error.status === 404) return 'This subscription was not found or is not accessible to your account.';

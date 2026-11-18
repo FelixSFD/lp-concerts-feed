@@ -8,6 +8,7 @@ import { AuthService } from '../auth/auth.service';
 const returnKey = 'calendar-subscription-login-return';
 const managementPath = /^\/calendar-subscriptions\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+/** Restores a subscription management page after login without sending its secret URL to the identity provider. */
 @Injectable({ providedIn: 'root' })
 export class CalendarSubscriptionNavigationService {
   private readonly oidc = inject(OidcSecurityService);
@@ -26,6 +27,7 @@ export class CalendarSubscriptionNavigationService {
     }
   });
 
+  /** Starts login, preserving a valid management path in session storage for the return. */
   login(): void {
     const path = this.router.url.split(/[?#]/, 1)[0];
     if (managementPath.test(path)) {

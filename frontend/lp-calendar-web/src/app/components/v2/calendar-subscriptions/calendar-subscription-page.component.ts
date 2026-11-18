@@ -15,6 +15,7 @@ import { CalendarSubscriptionNavigationService } from '../../../services/calenda
 import { CalendarSubscriptionsService } from '../../../services/calendar-subscriptions.service';
 import { subscriptionErrorMessage } from './calendar-subscription-errors';
 
+/** Manages the subscription addressed by the current route, subject to API authorization. */
 @Component({
   selector: 'app-calendar-subscription-page',
   imports: [Button, Card, ConfirmDialog, DatePipe, ReactiveFormsModule, RouterLink, ToggleSwitch],
