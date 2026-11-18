@@ -69,13 +69,18 @@ public sealed class CalendarSubscriptionGenerationCoordinator(
         }, cancellationToken);
 
         var serializedCalendar = new CalendarSerializer().SerializeToString(calendar);
-        var key = $"subs/{subscription.Id}.ical";
+        var key = $"{subscription.Id}/subscription.ical";
         await s3Client.PutObjectAsync(new PutObjectRequest
         {
             BucketName = _calendarCacheBucketName,
             Key = key,
             ContentBody = serializedCalendar,
-            ContentType = "text/calendar"
+            ContentType = "text/calendar",
+            Headers =
+            {
+                CacheControl = "public, max-age=14400",
+                ContentDisposition = "inline; filename=LinkinPark_concerts.ical"
+            },
         }, cancellationToken);
 
         await subscriptions.MarkGeneratedAsync(subscription.Id, DateTimeOffset.UtcNow, cancellationToken);
