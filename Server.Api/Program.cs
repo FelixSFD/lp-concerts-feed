@@ -257,6 +257,7 @@ builder.Services.AddScoped<ITourRepository, SqlTourRepository>();
 builder.Services.AddScoped<IConcertTypeRepository, SqlConcertTypeRepository>();
 builder.Services.AddScoped<IConcertRepository, SqlConcertRepository>();
 builder.Services.AddScoped<IUserRepository, SqlUserRepository>();
+builder.Services.AddScoped<ICalendarSubscriptionRepository, SqlCalendarSubscriptionRepository>();
 builder.Services.AddScoped<IUserConcertBookmarkRepository, SqlUserConcertBookmarkRepository>();
 builder.Services.AddScoped<IAlbumRepository, SqlAlbumRepository>();
 builder.Services.AddScoped<LocationService>();
@@ -268,6 +269,7 @@ builder.Services.AddConcertSyncEngine();
 builder.Services.AddLocationSyncEngines();
 builder.Services.AddSetlistsService();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<CalendarSubscriptionService>();
 builder.Services.AddSharePicService(
     builder.Configuration.GetValue<string>("SharePics:Gotenberg:BaseUrl") ?? throw new ConfigurationErrorsException("SharePics:GotenbergBaseUrl is missing!"),
     builder.Configuration.GetValue<string>("SharePics:TemplateBaseDir") ?? throw new ConfigurationErrorsException("SharePics:Templates:BaseDir is missing!")

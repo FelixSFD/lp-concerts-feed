@@ -7,6 +7,143 @@ servers:
   - url: /
   - url: http://localhost:5133
 paths:
+  /v3/CalendarSubscriptions:
+    post:
+      tags: [CalendarSubscriptions]
+      operationId: CreateCalendarSubscription
+      summary: Create a calendar subscription
+      description: An authenticated caller owns the subscription and must have a local user profile. An anonymous subscription is managed by anyone who knows its UUID; keep it secret. Request URLs and responses may be recorded by server, proxy, or client logs and must be protected.
+      security:
+        - {}
+        - Bearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CalendarSubscriptionSettings'
+      responses:
+        "201":
+          description: The created subscription
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CalendarSubscription'
+        "400":
+          description: Invalid settings or the authenticated user has no local profile
+        "401":
+          description: Invalid credentials
+  /v3/CalendarSubscriptions/mine:
+    get:
+      tags: [CalendarSubscriptions]
+      operationId: GetMyCalendarSubscriptions
+      summary: List the current user's subscriptions
+      security:
+        - Bearer: []
+      responses:
+        "200":
+          description: The caller's subscriptions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CalendarSubscription'
+        "401":
+          description: Authentication required
+  /v3/CalendarSubscriptions/{subscriptionId}:
+    parameters:
+      - name: subscriptionId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [CalendarSubscriptions]
+      operationId: GetCalendarSubscription
+      summary: Get a subscription by ID
+      description: Unowned subscriptions can be accessed by anyone with the UUID; owned subscriptions only by their owner.
+      security:
+        - {}
+        - Bearer: []
+      responses:
+        "200":
+          description: Subscription settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CalendarSubscription'
+        "401":
+          description: Invalid credentials
+        "404":
+          description: Subscription not found or inaccessible
+    put:
+      tags: [CalendarSubscriptions]
+      operationId: UpdateCalendarSubscription
+      summary: Replace the settings of a subscription
+      description: Only the owner may update an owned subscription; possession of the UUID is sufficient for an unowned subscription.
+      security:
+        - {}
+        - Bearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CalendarSubscriptionSettings'
+      responses:
+        "204":
+          description: Settings updated
+        "400":
+          description: Invalid settings
+        "401":
+          description: Invalid credentials
+        "404":
+          description: Subscription not found or inaccessible
+    delete:
+      tags: [CalendarSubscriptions]
+      operationId: DeleteCalendarSubscription
+      summary: Delete a subscription
+      description: Only the owner may delete an owned subscription; possession of the UUID is sufficient for an unowned subscription.
+      security:
+        - {}
+        - Bearer: []
+      responses:
+        "204":
+          description: Subscription deleted
+        "401":
+          description: Invalid credentials
+        "404":
+          description: Subscription not found or inaccessible
+  /v3/CalendarSubscriptions/{subscriptionId}/claim:
+    post:
+      tags: [CalendarSubscriptions]
+      operationId: ClaimCalendarSubscription
+      summary: Claim an unowned subscription for the authenticated user
+      description: Requires an existing local user profile. Claiming a subscription already owned by the caller succeeds without changing it.
+      security:
+        - Bearer: []
+      parameters:
+        - name: subscriptionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The claimed subscription
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CalendarSubscription'
+        "400":
+          description: The authenticated user has no local profile
+        "401":
+          description: Authentication required
+        "404":
+          description: Subscription not found or owned by another user
   /v3/apple-music/token:
     get:
       operationId: GetAppleMusicDeveloperToken
@@ -5266,6 +5403,39 @@ components:
           description: ISO code of the country where this user is from. Can be null if the user has not specified their country
           nullable: true
     
+    CalendarSubscriptionSettings:
+      type: object
+      required: [includeDoorsTime, includeLpStageTime]
+      properties:
+        includeDoorsTime:
+          type: boolean
+        includeLpStageTime:
+          type: boolean
+
+    CalendarSubscription:
+      type: object
+      required: [id, includeDoorsTime, includeLpStageTime, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Secret management capability for an unowned subscription.
+        userId:
+          type: string
+          nullable: true
+          description: Owner's user ID, or null for an unowned subscription.
+        includeDoorsTime:
+          type: boolean
+        includeLpStageTime:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+
     UpdateUserProfile:
       description: Information about a user to be updated
       type: object
