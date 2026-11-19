@@ -548,6 +548,7 @@ public class LinkinpediaImportConcertServiceTest
         _concertRepository.GetConcertsByWikiPageId(Arg.Is<string>(p => p == page1.WikiPageId)).Received(1);
         _concertRepository.GetConcertsByWikiPageId(Arg.Is<string>(p => p == page2.WikiPageId)).Received(1);
         _concertRepository.GetConcertsByWikiPageId(Arg.Any<string>()).DidNotReceive();
+        _concertRepository.Received(1).FindAllWithReferencesAsync(Arg.Any<CancellationToken>());
     }
     
     [Fact]
@@ -587,7 +588,7 @@ public class LinkinpediaImportConcertServiceTest
         var page2 = new LinkinpediaConcertListEntryBo
         {
             WikiPageId = "Live:20240922",
-            ShowType = "main",
+            ShowType = "cancelled",
             Country = "Germany",
             City = "Hamburg",
             DateString = "2024-09-22",
@@ -640,14 +641,78 @@ public class LinkinpediaImportConcertServiceTest
         var status1 = result.First(r => r.WikiPageId == page1.WikiPageId);
         Assert.Equal(page1.WikiPageId, status1.WikiPageId);
         Assert.Equal(ConcertImportStatusBo.Status.NotImported, status1.ImportStatus);
+        Assert.Equal("main", status1.ShowType);
         
         var status2 = result.First(r => r.WikiPageId == page2.WikiPageId);
         Assert.Equal(page2.WikiPageId, status2.WikiPageId);
         Assert.Equal(ConcertImportStatusBo.Status.Imported, status2.ImportStatus);
+        Assert.Equal("cancelled", status2.ShowType);
+        Assert.NotNull(status2.Concert);
         
         // verify mock calls
         _concertRepository.GetConcertsByWikiPageId(Arg.Any<string>()).DidNotReceive();
         _concertRepository.FindAllWithReferencesAsync(Arg.Any<CancellationToken>())
             .Received(1);
+    }
+
+    [Theory]
+    [InlineData("Live:20240917", "TV")]
+    [InlineData("Live:20171018", "cancelled")]
+    [InlineData("Live:20171018", " CANCELLED ")]
+    [InlineData("Live:20110820", "festival")]
+    [InlineData("Live:20040901", "concert")]
+    [InlineData("Live:unknown", "")]
+    public async Task GetImportStatusList_ReturnsRawShowType(string pageId, string showType)
+    {
+        var entry = new LinkinpediaConcertListEntryBo
+        {
+            WikiPageId = pageId, ShowType = showType, DateString = "2024-09-17",
+            Country = "", State = "", Province = "", UkCountry = "", City = "", Venue = "", Tour = "", TourLeg = ""
+        };
+        _concertRepository.FindAllWithReferencesAsync(Arg.Any<CancellationToken>())
+            .Returns(AsyncEnumerable.Empty<ConcertDo>());
+        _wikiMediaRepository
+            .RunCargoQueryAsync<LinkinpediaConcertListEntryBo>(Arg.Any<string[]>(), Arg.Any<string[]>(), Arg.Any<CargoQueryWhereClause[]>(), Arg.Any<string[]>(), Arg.Is(100), Arg.Any<CancellationToken>())
+            .Returns(new[] { new CargoQueryResponseItemDto<LinkinpediaConcertListEntryBo> { Value = entry } }.ToAsyncEnumerable());
+
+        var result = Assert.Single(await _sut.GetImportStatusList().ToArrayAsync());
+
+        Assert.Equal(showType, result.ShowType);
+        Assert.Equal(ConcertImportStatusBo.Status.NotImported, result.ImportStatus);
+        _wikiMediaRepository.Received(1).RunCargoQueryAsync<LinkinpediaConcertListEntryBo>(
+            Arg.Any<string[]>(), Arg.Is<string[]>(fields => fields.Contains("ShowType")),
+            Arg.Any<CargoQueryWhereClause[]>(), Arg.Any<string[]>(), Arg.Is(100), Arg.Any<CancellationToken>());
+        await _wikiMediaRepository.DidNotReceive().GetWikiPageAsync(Arg.Any<string>());
+    }
+
+    [Theory]
+    [InlineData("TV", "Other", ConcertDto.ConcertStatusValue.Planned)]
+    [InlineData("festival", "Festival", ConcertDto.ConcertStatusValue.Planned)]
+    [InlineData("concert", "Linkin Park Show", ConcertDto.ConcertStatusValue.Planned)]
+    [InlineData(" CANCELLED ", "Other", ConcertDto.ConcertStatusValue.Cancelled)]
+    [InlineData("", "Other", ConcertDto.ConcertStatusValue.Planned)]
+    public async Task GetConcertImportPlan_MapsShowTypeAndCancellation(string showType, string expectedType, ConcertDto.ConcertStatusValue expectedStatus)
+    {
+        const string pageId = "Live:20240917";
+        _wikiMediaRepository.GetWikiPageAsync(pageId).Returns(new WikiPageDto
+        {
+            Id = 1, Title = pageId, Source = "{{Tourdate\n| ShowType = " + showType + "\n| Year = 2024\n}}"
+        });
+        _countryRepository.QueryAsync(Arg.Any<CancellationToken>()).Returns(AsyncEnumerable.Empty<CountryDo>());
+        _stateRepository.QueryAsync(Arg.Any<CancellationToken>()).Returns(AsyncEnumerable.Empty<StateDo>());
+        _cityRepository.QueryAsync(Arg.Any<CancellationToken>()).Returns(AsyncEnumerable.Empty<CityDo>());
+        _venueRepository.QueryAsync(Arg.Any<CancellationToken>()).Returns(AsyncEnumerable.Empty<VenueDo>());
+        _tourRepository.QueryAsync(Arg.Any<CancellationToken>()).Returns(AsyncEnumerable.Empty<TourDo>());
+        _concertTypeRepository.QueryAsync(Arg.Any<CancellationToken>()).Returns(new[]
+        {
+            new ConcertTypeDo { Id = 1, Name = "Linkin Park Show" },
+            new ConcertTypeDo { Id = 2, Name = "Festival" },
+            new ConcertTypeDo { Id = 3, Name = "Other" }
+        }.ToAsyncEnumerable());
+
+        var result = await _sut.GetConcertImportPlan(pageId);
+
+        Assert.Equal(expectedType, result.ConcertType?.Name);
+        Assert.Equal(expectedStatus, result.ConcertStatus);
     }
 }

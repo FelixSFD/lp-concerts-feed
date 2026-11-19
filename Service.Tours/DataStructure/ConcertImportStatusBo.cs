@@ -13,6 +13,11 @@ public class ConcertImportStatusBo
     /// Generated title based on info from Linkinpedia. This is just for informational purposes and will not be used for the import.
     /// </summary>
     public string? ConcertTitle { get; set; }
+
+    /// <summary>
+    /// Original show type from Linkinpedia, if provided.
+    /// </summary>
+    public string? ShowType { get; set; }
     
     /// <summary>
     /// If imported, this contains the concert details

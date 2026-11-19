@@ -181,7 +181,7 @@
       [rowsPerPageOptions]="[25, 50, 100, 200, 500]"
       [loading]="isLoadingImportStats$()"
       [paginator]="true"
-      [globalFilterFields]="['wikiPageId', 'importStatus', 'concertTitle']"
+      [globalFilterFields]="['wikiPageId', 'importStatus', 'concertTitle', 'showType']"
       [tableStyle]="{ 'min-width': '75rem' }"
       [scrollable]="true"
       sortField="wikiPageId"
@@ -211,6 +211,10 @@
             Import status
             <p-sort-icon field="importStatus" />
           </th>
+          <th scope="col" pSortableColumn="showType">
+            Show type
+            <p-sort-icon field="showType" />
+          </th>
           <th scope="col" pFrozenColumn></th>
         </tr>
       </ng-template>
@@ -219,6 +223,7 @@
           <td pFrozenColumn><a [href]="'https://linkinpedia.com/wiki/' + concert.wikiPageId" class="link" target="_blank">{{ concert.wikiPageId }} <i class="pi pi-external-link"></i></a></td>
           <td>{{ concert.concertTitle }}</td>
           <td><ng-container [ngTemplateOutlet]="importStatusBadge" [ngTemplateOutletContext]="{ status: concert.importStatus }" /></td>
+          <td>{{ concert.showType || '—' }}</td>
           <td pFrozenColumn>
             @if (concert.importStatus == LinkinpediaImportConcertStatusDto.ImportStatusEnum.NotImported) {
               <a
@@ -246,7 +251,7 @@
       </ng-template>
       <ng-template #emptymessage>
         <tr>
-          <td colspan="8">No wiki pages found.</td>
+          <td colspan="5">No wiki pages found.</td>
         </tr>
       </ng-template>
     </p-table>
