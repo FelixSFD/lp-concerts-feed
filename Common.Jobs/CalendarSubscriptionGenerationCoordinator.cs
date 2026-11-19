@@ -95,7 +95,7 @@ public sealed class CalendarSubscriptionGenerationCoordinator(
             ContentType = "text/calendar",
             Headers =
             {
-                CacheControl = "public, max-age=14400",
+                CacheControl = "public, max-age=3600", // 1 hour
                 ContentDisposition = "inline; filename=LinkinPark_concerts.ical"
             },
         }, cancellationToken);
