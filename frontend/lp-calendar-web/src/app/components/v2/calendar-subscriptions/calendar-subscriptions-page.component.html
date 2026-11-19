@@ -64,6 +64,8 @@
               <td>
                 <p-button label="Manage" icon="pi pi-pencil" variant="outlined" size="small"
                   [routerLink]="['/calendar-subscriptions', subscription.id]" />
+                <p-button label="Install feed" icon="pi pi-calendar-plus" variant="outlined" size="small"
+                  styleClass="ml-2" (onClick)="installFeed(subscription.id)" />
               </td>
             </tr>
           </ng-template>

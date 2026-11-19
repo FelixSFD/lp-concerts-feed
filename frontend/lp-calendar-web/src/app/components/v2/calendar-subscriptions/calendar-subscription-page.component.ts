@@ -14,6 +14,7 @@ import { CalendarSubscriptionDto } from '../../../modules/lpshows-api/v3';
 import { CalendarSubscriptionNavigationService } from '../../../services/calendar-subscription-navigation.service';
 import { CalendarSubscriptionsService } from '../../../services/calendar-subscriptions.service';
 import { subscriptionErrorMessage } from './calendar-subscription-errors';
+import { openCalendarSubscriptionFeed } from './calendar-subscription-feed';
 
 /** Manages the subscription addressed by the current route, subject to API authorization. */
 @Component({
@@ -155,6 +156,10 @@ export class CalendarSubscriptionPageComponent {
 
   protected login(): void {
     this.navigation.login();
+  }
+
+  protected installFeed(subscriptionId: string): void {
+    openCalendarSubscriptionFeed(subscriptionId);
   }
 
   protected reload(): void {
