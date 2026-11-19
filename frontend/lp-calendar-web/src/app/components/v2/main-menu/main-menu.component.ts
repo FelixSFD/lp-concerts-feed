@@ -104,7 +104,6 @@ export class MainMenuComponent implements OnInit, OnChanges {
     const items: MenuItem[] = [
       { id: 'home', label: 'Home', routerLink: '/home' },
       { id: 'concerts', label: 'Concerts', routerLink: '/concerts' },
-      { id: 'calendar-subscriptions', label: 'Calendar subscriptions', routerLink: '/calendar-subscriptions' },
       { id: 'map', label: 'Map', routerLink: '/map' },
       { id: 'about', label: 'About', routerLink: '/about' },
     ];
@@ -178,6 +177,7 @@ export class MainMenuComponent implements OnInit, OnChanges {
       label: this.username ?? 'Account',
       items: [
         { id: 'your-profile', label: 'Your Profile', icon: 'pi pi-user', routerLink: '/users/me' },
+        { id: 'calendar-subscriptions', label: 'Your calendars', icon: 'pi pi-calendar', routerLink: '/calendar-subscriptions' },
         {
           id: 'logout',
           label: 'Logout',
