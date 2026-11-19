@@ -272,7 +272,12 @@ builder.Services.AddLocationSyncEngines();
 builder.Services.AddSetlistsService();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<CalendarSubscriptionService>();
-builder.Services.AddScoped<CalendarGenerationService>();
+builder.Services.AddCalendarGeneration((services, opt) =>
+{
+    var frontendBaseUrl = services.GetRequiredService<IConfiguration>().GetValue<string>("Frontend:BaseUrl") ?? throw new ConfigurationErrorsException("Frontend:BaseUrl is missing!");
+    opt.FrontendBaseUrl = frontendBaseUrl;
+    return opt;
+});
 builder.Services.AddScoped<CalendarSubscriptionGenerationCoordinator>();
 builder.Services.AddAWSService<IAmazonS3>();
 builder.Services.AddSharePicService(

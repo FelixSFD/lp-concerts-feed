@@ -50,7 +50,7 @@ internal sealed class CalendarEventMapper
         var startUtc = concert.MainStageTime!.Value;
         var calendarEvent = CreateCommonEvent(concert, "stage");
         calendarEvent.Summary = StageTitle(concert);
-        calendarEvent.Description = $"Stage time for Linkin Park at {concert.Venue.CurrentName}.\nType of show: {concert.Type.Name}{AppHint(concert)}";
+        calendarEvent.Description = $"Stage time for Linkin Park at {concert.Venue.CurrentName}.\nType of show: {concert.Type.Name}{ManageSubscriptionHint(concert.Id, concert)}";
         calendarEvent.Location = Location(concert, true);
         calendarEvent.Start = ToLocal(startUtc, zone);
         calendarEvent.End = ToLocal(startUtc.AddMinutes(concert.ExpectedSetDurationMinutes), zone);
@@ -61,7 +61,7 @@ internal sealed class CalendarEventMapper
     {
         var calendarEvent = CreateCommonEvent(concert, "doors");
         calendarEvent.Summary = $"Doors open: Linkin Park in {concert.Venue.City.Name}";
-        calendarEvent.Description = $"Doors open at {concert.Venue.CurrentName} for the Linkin Park concert{AppHint(concert)}";
+        calendarEvent.Description = $"Doors open at {concert.Venue.CurrentName} for the Linkin Park concert{ManageSubscriptionHint(concert.Id, concert)}";
         calendarEvent.Location = Location(concert, true);
         calendarEvent.Start = ToLocal(concert.DoorsTime!.Value, zone);
         calendarEvent.End = nextStart;
@@ -74,8 +74,8 @@ internal sealed class CalendarEventMapper
         var startUtc = concert.MainStageTime ?? concert.PostedStartTime;
         calendarEvent.Summary = ConcertTitle(concert);
         calendarEvent.Description = concert.Tour is not null
-            ? $"Concert of the Linkin Park {concert.Tour.Name}{AppHint(concert)}"
-            : $"Linkin Park Concert at {concert.Venue.CurrentName}\nThis show is not part of a tour.{AppHint(concert)}";
+            ? $"Concert of the Linkin Park {concert.Tour.Name}{ManageSubscriptionHint(concert.Id, concert)}"
+            : $"Linkin Park Concert at {concert.Venue.CurrentName}\nThis show is not part of a tour.{ManageSubscriptionHint(concert.Id, concert)}";
         calendarEvent.Location = Location(concert, concert.Tour is not null);
         calendarEvent.Start = ToLocal(startUtc, zone);
         calendarEvent.End = ToLocal(startUtc.AddHours(concert.MainStageTime.HasValue ? 2 : 3), zone);
@@ -127,4 +127,8 @@ internal sealed class CalendarEventMapper
     private string AppHint(ConcertDo concert) =>
         _siteBaseUri is null ? string.Empty :
             $"\n\nTry our new FREE app: {new Uri(_siteBaseUri, $"app?mtm_kwd={Uri.EscapeDataString(concert.Id)}&mtm_campaign=ical-feed")}";
+    
+    private string ManageSubscriptionHint(string subscriptionId, ConcertDo concert) =>
+        _siteBaseUri is null ? string.Empty :
+            $"\n\nChange the settings of this calendar: {new Uri(_siteBaseUri, $"calendar-subscriptions/{subscriptionId}?mtm_kwd={Uri.EscapeDataString(concert.Id)}&mtm_campaign=ical-feed")}";
 }
