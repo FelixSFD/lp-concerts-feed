@@ -144,6 +144,10 @@ export class ManageConcertsPageComponent implements OnInit {
     return ConcertTitleGenerator.getTitleFor(concert);
   }
 
+  protected onRefreshImportStatusClicked() {
+    this.reloadConcertImportStats();
+  }
+
   protected async onConcertTableLazyLoad(event: TableLazyLoadEvent) {
     console.debug("onConcertTableLazyLoad", event);
     this.lazyLoad$.next(event);

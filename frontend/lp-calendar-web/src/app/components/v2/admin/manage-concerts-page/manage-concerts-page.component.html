@@ -189,6 +189,7 @@
     >
       <ng-template #caption>
         <div class="flex">
+          <button pButton variant="outlined" (click)="onRefreshImportStatusClicked()" [disabled]="isLoadingImportStats$()"><i class="pi pi-refresh"></i> reload list</button>
           <p-iconfield iconPosition="left" class="ml-auto">
             <p-inputicon>
               <i class="pi pi-search"></i>
