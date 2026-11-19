@@ -19,7 +19,7 @@
     <p-card header="Subscription settings">
       <p>Created {{ current.createdAt | date:'medium' }}@if (current.updatedAt) { · Updated {{ current.updatedAt | date:'medium' }} }</p>
       <div class="mb-3">
-        <p-button label="Install feed" icon="pi pi-calendar-plus" variant="outlined" (onClick)="installFeed(current.id)" />
+        <app-calendar-subscription-feed-button [subscriptionId]="current.id" />
       </div>
       <form [formGroup]="form()" (ngSubmit)="save()">
         <div class="flex align-items-center mb-3">

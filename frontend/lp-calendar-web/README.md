@@ -2,6 +2,10 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.7.
 
+## Calendar subscription feeds
+
+The `calendarSubscriptionFeedBaseUrl` environment setting provides the HTTPS base URL for subscription feeds, without a query string or fragment. The application uses `webcal://` URLs both to open feeds and to copy links for manual setup.
+
 ## Development server
 
 To start a local development server, run:

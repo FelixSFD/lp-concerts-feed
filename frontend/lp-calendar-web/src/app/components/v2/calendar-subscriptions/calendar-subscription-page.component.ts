@@ -14,12 +14,12 @@ import { CalendarSubscriptionDto } from '../../../modules/lpshows-api/v3';
 import { CalendarSubscriptionNavigationService } from '../../../services/calendar-subscription-navigation.service';
 import { CalendarSubscriptionsService } from '../../../services/calendar-subscriptions.service';
 import { subscriptionErrorMessage } from './calendar-subscription-errors';
-import { openCalendarSubscriptionFeed } from './calendar-subscription-feed';
+import { CalendarSubscriptionFeedButtonComponent } from './calendar-subscription-feed-button.component';
 
 /** Manages the subscription addressed by the current route, subject to API authorization. */
 @Component({
   selector: 'app-calendar-subscription-page',
-  imports: [Button, Card, ConfirmDialog, DatePipe, ReactiveFormsModule, RouterLink, ToggleSwitch],
+  imports: [Button, CalendarSubscriptionFeedButtonComponent, Card, ConfirmDialog, DatePipe, ReactiveFormsModule, RouterLink, ToggleSwitch],
   templateUrl: './calendar-subscription-page.component.html',
 })
 export class CalendarSubscriptionPageComponent {
@@ -156,10 +156,6 @@ export class CalendarSubscriptionPageComponent {
 
   protected login(): void {
     this.navigation.login();
-  }
-
-  protected installFeed(subscriptionId: string): void {
-    openCalendarSubscriptionFeed(subscriptionId);
   }
 
   protected reload(): void {
