@@ -100,6 +100,28 @@ Resources:
               StringEquals:
                 AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${ConcertImagesCloudFrontDistribution}"
   
+  IcalBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !ImportValue
+        Fn::Sub: '${BaseProductName}-ical-subscriptions-bucket-name'
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource:
+              Fn::Sub:
+                - 'arn:${AWS::Partition}:s3:::${BucketName}/*'
+                - BucketName:
+                    Fn::ImportValue:
+                      Fn::Sub: '${BaseProductName}-ical-subscriptions-bucket-name'
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CalendarFeedCloudFrontDistribution}"
+  
   StaticFilesBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
@@ -131,6 +153,14 @@ Resources:
             Condition:
               StringEquals:
                 AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${ConcertImagesCloudFrontDistribution}"
+          - Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub "${StaticFilesBucket.Arn}/*"
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CalendarFeedCloudFrontDistribution}"
   
   # CORS Cloudfront
   CORSOriginRequestPolicy:
