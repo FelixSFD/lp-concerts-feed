@@ -211,9 +211,9 @@
             Import status
             <p-sort-icon field="importStatus" />
 
-            <p-column-filter field="importStatus" matchMode="equals" [showMenu]="false">
+            <p-column-filter field="importStatus" matchMode="equals" [showMenu]="false" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
               <ng-template #filter let-value let-filter="filterCallback">
-                <p-select [ngModel]="value" [options]="statusOptions()" (onChange)="filter($event.value || null)" placeholder="Any" optionLabel="label" optionValue="value" size="small" style="min-width: 12rem" appendTo="body">
+                <p-select [ngModel]="value" [options]="statusOptions()" showClear (onChange)="filter($event.value || null)" placeholder="Any" optionLabel="label" optionValue="value" size="small" style="min-width: 12rem" appendTo="body">
                   <ng-template #item let-option>
                     <p-badge [value]="option.label" [severity]="option.severity" />
                   </ng-template>
