@@ -13,6 +13,19 @@ namespace Common.Jobs.Tests;
 public class CalendarSubscriptionGenerationCoordinatorTests
 {
     [Fact]
+    public void Constructor_Throws_WhenCalendarSubscriptionsBucketNameIsMissing()
+    {
+        var concerts = Substitute.For<IConcertRepository>();
+        var config = new ConfigurationBuilder().Build();
+
+        var exception = Assert.Throws<InvalidOperationException>(() => new CalendarSubscriptionGenerationCoordinator(
+            Substitute.For<ICalendarSubscriptionRepository>(), concerts, new CalendarGenerationService(concerts),
+            Substitute.For<IAmazonS3>(), config, NullLogger<CalendarSubscriptionGenerationCoordinator>.Instance));
+
+        Assert.Equal("CalendarSubscriptions:BucketName is missing!", exception.Message);
+    }
+
+    [Fact]
     public async Task GenerateSingleSubscriptionAsync_GeneratesAndUploadsCalendar_WhenSubscriptionIsOutdated()
     {
         var subscriptions = Substitute.For<ICalendarSubscriptionRepository>();
@@ -79,7 +92,7 @@ public class CalendarSubscriptionGenerationCoordinatorTests
     {
         var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
         {
-            ["CalendarCache:BucketName"] = "ical-cache-bucket",
+            ["CalendarSubscriptions:BucketName"] = "ical-cache-bucket",
             ["Quartz:ConnectionString"] = "server=unused;uid=unused;pwd=unused;database=unused"
         }).Build();
 

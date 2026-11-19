@@ -22,8 +22,8 @@ public sealed class CalendarSubscriptionGenerationCoordinator(
     IConfiguration configuration,
     ILogger<CalendarSubscriptionGenerationCoordinator> logger)
 {
-    private readonly string _calendarCacheBucketName = configuration.GetValue<string>("CalendarCache:BucketName")
-                                                      ?? throw new InvalidOperationException("CalendarCache:BucketName is missing!");
+    private readonly string _calendarCacheBucketName = configuration.GetValue<string>("CalendarSubscriptions:BucketName")
+                                                      ?? throw new InvalidOperationException("CalendarSubscriptions:BucketName is missing!");
 
     /// <summary>
     /// Generates calendar files for all subscriptions that are outdated.

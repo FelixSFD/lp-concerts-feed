@@ -31,6 +31,7 @@ services:
       - App_ConnectionStrings__lpdb=${LPDB_CONNECTION_STRING}
       - App_EnableSwaggerUI=${USE_SWAGGERUI}
       - App_ConcertImageUpload__BucketName=${CONCERT_IMAGE_BUCKET_NAME}
+      - App_CalendarSubscriptions__BucketName=${ICAL_SUBSCRIPTIONS_BUCKET_NAME}
       - App_Cognito__AWSRegion=${AWS_COGNITO_REGION}
       - App_Cognito__AppClientId=${AWS_COGNITO_CLIENT_ID}
       - App_Cognito__UserPoolId=${AWS_COGNITO_USER_POOL_ID}
