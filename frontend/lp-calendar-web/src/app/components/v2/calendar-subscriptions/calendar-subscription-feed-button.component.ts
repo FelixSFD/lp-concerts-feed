@@ -2,6 +2,7 @@ import { Component, inject, input, signal } from '@angular/core';
 import { MenuItem, MessageService } from 'primeng/api';
 import { SplitButton } from 'primeng/splitbutton';
 import { calendarSubscriptionFeedUrl } from './calendar-subscription-feed';
+import { MatomoTracker } from 'ngx-matomo-client';
 
 /** Provides actions to open or copy a subscription's iCal feed. */
 @Component({
@@ -13,6 +14,8 @@ import { calendarSubscriptionFeedUrl } from './calendar-subscription-feed';
   `,
 })
 export class CalendarSubscriptionFeedButtonComponent {
+  private readonly tracker = inject(MatomoTracker);
+
   readonly subscriptionId = input.required<string>();
   readonly size = input<'small' | undefined>();
   private readonly messages = inject(MessageService);
@@ -22,11 +25,14 @@ export class CalendarSubscriptionFeedButtonComponent {
   ]);
 
   protected openFeed(): void {
-    window.open(calendarSubscriptionFeedUrl(this.subscriptionId()));
+    const calendarUrl = calendarSubscriptionFeedUrl(this.subscriptionId());
+    this.tracker.trackEvent("ical_sub", "subscribed direct", calendarUrl);
+    window.open(calendarUrl);
   }
 
   private async copyFeedLink(): Promise<void> {
     const url = calendarSubscriptionFeedUrl(this.subscriptionId());
+    this.tracker.trackEvent("ical_sub", "copied link", url);
     try {
       await navigator.clipboard.writeText(url);
       this.messages.add({ severity: 'success', summary: 'Feed link copied' });
