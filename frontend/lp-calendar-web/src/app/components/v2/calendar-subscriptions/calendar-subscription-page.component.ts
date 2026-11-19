@@ -8,6 +8,11 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { ConfirmDialog } from 'primeng/confirmdialog';
+import { Divider } from 'primeng/divider';
+import { InputGroup } from 'primeng/inputgroup';
+import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import { InputText } from 'primeng/inputtext';
+import { Message } from 'primeng/message';
 import { ToggleSwitch } from 'primeng/toggleswitch';
 import { AuthService } from '../../../auth/auth.service';
 import { CalendarSubscriptionDto } from '../../../modules/lpshows-api/v3';
@@ -19,7 +24,10 @@ import { CalendarSubscriptionFeedButtonComponent } from './calendar-subscription
 /** Manages the subscription addressed by the current route, subject to API authorization. */
 @Component({
   selector: 'app-calendar-subscription-page',
-  imports: [Button, CalendarSubscriptionFeedButtonComponent, Card, ConfirmDialog, DatePipe, ReactiveFormsModule, RouterLink, ToggleSwitch],
+  imports: [
+    Button, CalendarSubscriptionFeedButtonComponent, Card, ConfirmDialog, DatePipe, Divider, InputGroup,
+    InputGroupAddon, InputText, Message, ReactiveFormsModule, RouterLink, ToggleSwitch,
+  ],
   templateUrl: './calendar-subscription-page.component.html',
 })
 export class CalendarSubscriptionPageComponent {
