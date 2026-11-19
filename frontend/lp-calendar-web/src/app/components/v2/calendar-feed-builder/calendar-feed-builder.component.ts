@@ -1,53 +1,33 @@
-import {Component, EventEmitter, inject, OnInit, Output} from '@angular/core';
-import {environment} from '../../../../environments/environment';
-import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {Component, DestroyRef, EventEmitter, inject, OnInit, Output, signal} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {FormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {ToggleSwitch} from 'primeng/toggleswitch';
+import {CalendarSubscriptionSettingsDto} from '../../../modules/lpshows-api/v3';
 
+/** Collects the event-time settings for a calendar subscription. */
 @Component({
   selector: 'app-calendar-feed-builder',
   imports: [
     ReactiveFormsModule,
     ToggleSwitch,
-    FormsModule,
   ],
   templateUrl: './calendar-feed-builder.component.html',
   styleUrl: './calendar-feed-builder.component.css'
 })
 export class CalendarFeedBuilderComponent implements OnInit {
-  @Output("feed-url")
-  feedUrl = new EventEmitter<string>();
+  @Output() settingsChange = new EventEmitter<CalendarSubscriptionSettingsDto>();
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
+  protected readonly feedBuilderForm = signal(this.formBuilder.nonNullable.group({
+    includeDoorsTime: false,
+    includeLpStageTime: true,
+  }));
 
-
-  private formBuilder = inject(FormBuilder);
-
-  feedBuilderForm = this.formBuilder.group({
-    doorsTimeSwitch: new FormControl(false, []),
-    lpStageTimeSwitch: new FormControl(true, []),
-  });
-
-
+  /** Emits the initial settings and subsequent changes. */
   ngOnInit() {
-    this.onSelectionChanged();
-    this.feedBuilderForm.valueChanges.subscribe(() => {
-      this.onSelectionChanged();
-    })
-  }
-
-
-  onSelectionChanged() {
-    let url = environment.apiBaseUrlLatest + "/feed/ical"
-
-    let eventCategories: string[] = [];
-    if (this.feedBuilderForm.value.doorsTimeSwitch)
-      eventCategories.push("Doors");
-
-    if (this.feedBuilderForm.value.lpStageTimeSwitch)
-      eventCategories.push("LinkinPark");
-
-    if (eventCategories.length > 0) {
-      url += "?event_categories=" + eventCategories.join(",");
-    }
-
-    this.feedUrl.emit(url);
+    this.settingsChange.emit(this.feedBuilderForm().getRawValue());
+    this.feedBuilderForm().valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.settingsChange.emit(this.feedBuilderForm().getRawValue());
+    });
   }
 }

@@ -2,16 +2,18 @@ import { inject, Injectable } from '@angular/core';
 import { CalendarSubscriptionDto, CalendarSubscriptionSettingsDto, CalendarSubscriptionsApi } from '../modules/lpshows-api/v3';
 import { environment } from '../../environments/environment';
 import { map, Observable } from 'rxjs';
-import { addAuthentication } from '../auth/auth.config';
+import { AuthService } from '../auth/auth.service';
 
 /** Provides access to calendar subscription management through the v3 API. */
 @Injectable({ providedIn: 'root' })
 export class CalendarSubscriptionsService {
   private readonly api = inject(CalendarSubscriptionsApi);
+  private readonly auth = inject(AuthService);
 
   constructor() {
     this.api.configuration.basePath = environment.apiBaseUrl;
-    addAuthentication(this.api);
+    // The service may be constructed before authentication initialization completes.
+    this.api.configuration.credentials['Bearer'] = () => this.auth.accessToken ?? undefined;
   }
 
   /**

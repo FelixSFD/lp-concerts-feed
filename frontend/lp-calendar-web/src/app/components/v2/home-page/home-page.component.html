@@ -52,16 +52,25 @@
       </ng-template>
       <ng-template #title>Subscribe to calendar feed</ng-template>
       <p>
-        You can build your <b>custom calendar subscription</b>. This will generate a feed that your calendar app can subscribe to, so you'll always see the Linkin Park shows in your calendar.
+        You can build your <b>custom calendar subscription</b>. After creating it, you can add its feed to your calendar app and manage its settings.
       </p>
       <p-divider />
 
-      <app-calendar-feed-builder (feed-url)="onFeedUrlUpdated($event)" />
+      <app-calendar-feed-builder (settingsChange)="calendarSettings.set($event)" />
+      @if (calendarAuthError()) {
+        <p role="alert">{{ calendarAuthError() }}</p>
+        <p-button label="Log in" severity="secondary" (onClick)="login()" />
+      }
 
       <ng-template #footer>
         <p-divider />
         <div class="flex gap-4 mt-1 align-content-end justify-content-end">
-          <p-splitbutton label="Add to calendar" icon="pi pi-calendar-plus" (onClick)="subscribeBtnClicked()" [model]="iCalButtonItems$" size="small" />
+          @if (calendarManagementId(); as subscriptionId) {
+            <p-button label="Manage calendar" icon="pi pi-calendar" [routerLink]="['/calendar-subscriptions', subscriptionId]" size="small" />
+          } @else {
+            <p-button label="Create calendar" icon="pi pi-calendar-plus" (onClick)="createCalendar()"
+                      [loading]="creatingCalendar()" [disabled]="!calendarReady() || creatingCalendar()" size="small" />
+          }
         </div>
       </ng-template>
     </p-card>
