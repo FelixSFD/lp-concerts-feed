@@ -1,5 +1,6 @@
 using Amazon.S3;
 using Amazon.S3.Model;
+using Database.Tours.DataObjects;
 using Database.Tours.Repositories;
 using Database.Users.DataObjects;
 using Database.Users.Repositories;
@@ -32,6 +33,9 @@ public class CalendarSubscriptionGenerationCoordinatorTests
         var concerts = Substitute.For<IConcertRepository>();
         var s3 = Substitute.For<IAmazonS3>();
         var service = CreateCoordinator(subscriptions, concerts, s3);
+        PutObjectRequest? uploaded = null;
+        s3.PutObjectAsync(Arg.Do<PutObjectRequest>(request => uploaded = request), Arg.Any<CancellationToken>())
+            .Returns(new PutObjectResponse());
 
         var subscription = new CalendarSubscriptionDo
         {
@@ -43,6 +47,20 @@ public class CalendarSubscriptionGenerationCoordinatorTests
 
         subscriptions.GetByPrimaryKeyAsync(subscription.Id, Arg.Any<CancellationToken>()).Returns(subscription);
         concerts.GetLatestChangeAsync(Arg.Any<CancellationToken>()).Returns(DateTimeOffset.UtcNow);
+        var country = new CountryDo { IsoCode = "DEU", Name = "Germany", NativeName = "Deutschland" };
+        var concert = new ConcertDo
+        {
+            Id = "show-1",
+            Venue = new VenueDo
+            {
+                CountryCode = "DEU", CurrentName = "Arena", TimeZone = "Europe/Berlin", Country = country,
+                City = new CityDo { CountryCode = "DEU", Name = "Munich", NativeName = "München", Country = country }
+            },
+            Type = new ConcertTypeDo { Name = "Linkin Park Show" },
+            PostedStartTime = new DateTime(2026, 6, 11, 18, 0, 0),
+            DoorsTime = new DateTime(2026, 6, 11, 17, 30, 0)
+        };
+        concerts.FindAllWithReferencesAsync(Arg.Any<CancellationToken>()).Returns(_ => new[] { concert }.ToAsyncEnumerable());
         subscriptions.MarkGeneratedAsync(subscription.Id, Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>()).Returns(true);
 
         await service.GenerateSingleSubscriptionAsync(subscription.Id, CancellationToken.None);
@@ -55,6 +73,9 @@ public class CalendarSubscriptionGenerationCoordinatorTests
                 request.Headers.ContentDisposition == "inline; filename=LinkinPark_concerts.ical" &&
                 request.Headers.CacheControl == "public, max-age=3600"),
             Arg.Any<CancellationToken>());
+        var calendar = Assert.IsType<Ical.Net.Calendar>(Ical.Net.Calendar.Load(Assert.IsType<PutObjectRequest>(uploaded).ContentBody));
+        Assert.Contains("https://example.test/calendar-subscriptions/sub-1?mtm_kwd=show-1&mtm_campaign=ical-feed",
+            Assert.Single(calendar.Events).Description);
         await subscriptions.Received(1).MarkGeneratedAsync(subscription.Id, Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>());
     }
 
@@ -96,7 +117,7 @@ public class CalendarSubscriptionGenerationCoordinatorTests
             ["Quartz:ConnectionString"] = "server=unused;uid=unused;pwd=unused;database=unused"
         }).Build();
 
-        var calendarService = new CalendarGenerationService(concerts);
+        var calendarService = new CalendarGenerationService(concerts, new Uri("https://example.test/"));
         return new CalendarSubscriptionGenerationCoordinator(
             subscriptions,
             concerts,

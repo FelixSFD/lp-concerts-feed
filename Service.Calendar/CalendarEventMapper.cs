@@ -11,10 +11,12 @@ namespace Service.Calendar;
 internal sealed class CalendarEventMapper
 {
     private readonly Uri? _siteBaseUri;
+    private readonly string? _subscriptionId;
 
-    /// <summary>Creates a mapper with an optional concert site base URI.</summary>
+    /// <summary>Creates a mapper with an optional concert site base URI and subscription ID.</summary>
     /// <param name="siteBaseUri">HTTP(S) site base URI, without a query or fragment.</param>
-    public CalendarEventMapper(Uri? siteBaseUri)
+    /// <param name="subscriptionId">Subscription ID used for the management link, if available.</param>
+    public CalendarEventMapper(Uri? siteBaseUri, string? subscriptionId)
     {
         if (siteBaseUri is not null &&
             (!siteBaseUri.IsAbsoluteUri || (siteBaseUri.Scheme != Uri.UriSchemeHttp && siteBaseUri.Scheme != Uri.UriSchemeHttps)
@@ -22,6 +24,7 @@ internal sealed class CalendarEventMapper
             throw new ArgumentException("The concert site base URI must be an absolute HTTP(S) URI without a query or fragment.", nameof(siteBaseUri));
 
         _siteBaseUri = siteBaseUri is null ? null : new Uri(siteBaseUri.AbsoluteUri.TrimEnd('/') + "/");
+        _subscriptionId = subscriptionId;
     }
 
     /// <summary>Produces the selected detailed events or the legacy full-concert fallback.</summary>
@@ -50,7 +53,7 @@ internal sealed class CalendarEventMapper
         var startUtc = concert.MainStageTime!.Value;
         var calendarEvent = CreateCommonEvent(concert, "stage");
         calendarEvent.Summary = StageTitle(concert);
-        calendarEvent.Description = $"Stage time for Linkin Park at {concert.Venue.CurrentName}.\nType of show: {concert.Type.Name}{ManageSubscriptionHint(concert.Id, concert)}";
+        calendarEvent.Description = $"Stage time for Linkin Park at {concert.Venue.CurrentName}.\nType of show: {concert.Type.Name}{ManageSubscriptionHint(concert)}";
         calendarEvent.Location = Location(concert, true);
         calendarEvent.Start = ToLocal(startUtc, zone);
         calendarEvent.End = ToLocal(startUtc.AddMinutes(concert.ExpectedSetDurationMinutes), zone);
@@ -61,7 +64,7 @@ internal sealed class CalendarEventMapper
     {
         var calendarEvent = CreateCommonEvent(concert, "doors");
         calendarEvent.Summary = $"Doors open: Linkin Park in {concert.Venue.City.Name}";
-        calendarEvent.Description = $"Doors open at {concert.Venue.CurrentName} for the Linkin Park concert{ManageSubscriptionHint(concert.Id, concert)}";
+        calendarEvent.Description = $"Doors open at {concert.Venue.CurrentName} for the Linkin Park concert{ManageSubscriptionHint(concert)}";
         calendarEvent.Location = Location(concert, true);
         calendarEvent.Start = ToLocal(concert.DoorsTime!.Value, zone);
         calendarEvent.End = nextStart;
@@ -74,8 +77,8 @@ internal sealed class CalendarEventMapper
         var startUtc = concert.MainStageTime ?? concert.PostedStartTime;
         calendarEvent.Summary = ConcertTitle(concert);
         calendarEvent.Description = concert.Tour is not null
-            ? $"Concert of the Linkin Park {concert.Tour.Name}{ManageSubscriptionHint(concert.Id, concert)}"
-            : $"Linkin Park Concert at {concert.Venue.CurrentName}\nThis show is not part of a tour.{ManageSubscriptionHint(concert.Id, concert)}";
+            ? $"Concert of the Linkin Park {concert.Tour.Name}{ManageSubscriptionHint(concert)}"
+            : $"Linkin Park Concert at {concert.Venue.CurrentName}\nThis show is not part of a tour.{ManageSubscriptionHint(concert)}";
         calendarEvent.Location = Location(concert, concert.Tour is not null);
         calendarEvent.Start = ToLocal(startUtc, zone);
         calendarEvent.End = ToLocal(startUtc.AddHours(concert.MainStageTime.HasValue ? 2 : 3), zone);
@@ -128,7 +131,7 @@ internal sealed class CalendarEventMapper
         _siteBaseUri is null ? string.Empty :
             $"\n\nTry our new FREE app: {new Uri(_siteBaseUri, $"app?mtm_kwd={Uri.EscapeDataString(concert.Id)}&mtm_campaign=ical-feed")}";
     
-    private string ManageSubscriptionHint(string subscriptionId, ConcertDo concert) =>
-        _siteBaseUri is null ? string.Empty :
-            $"\n\nChange the settings of this calendar: {new Uri(_siteBaseUri, $"calendar-subscriptions/{subscriptionId}?mtm_kwd={Uri.EscapeDataString(concert.Id)}&mtm_campaign=ical-feed")}";
+    private string ManageSubscriptionHint(ConcertDo concert) =>
+        _siteBaseUri is null || _subscriptionId is null ? string.Empty :
+            $"\n\nChange the settings of this calendar: {new Uri(_siteBaseUri, $"calendar-subscriptions/{Uri.EscapeDataString(_subscriptionId)}?mtm_kwd={Uri.EscapeDataString(concert.Id)}&mtm_campaign=ical-feed").AbsoluteUri}";
 }

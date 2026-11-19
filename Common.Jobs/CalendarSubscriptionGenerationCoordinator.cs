@@ -83,7 +83,7 @@ public sealed class CalendarSubscriptionGenerationCoordinator(
         {
             IncludeDoorsTime = subscription.IncludeDoorsTime,
             IncludeLpStageTime = subscription.IncludeLpStageTime
-        }, cancellationToken);
+        }, cancellationToken, subscription.Id);
 
         var serializedCalendar = new CalendarSerializer().SerializeToString(calendar);
         var key = $"{subscription.Id}/LinkinPark.ical";

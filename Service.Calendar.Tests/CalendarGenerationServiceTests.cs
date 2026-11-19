@@ -73,7 +73,7 @@ public class CalendarGenerationServiceTests
         concert.Status = ConcertDo.ConcertStatus.Cancelled;
         concert.UpdatedAt = new DateTimeOffset(2026, 1, 3, 10, 0, 0, TimeSpan.FromHours(2));
         var calendar = await CreateService([concert], new Uri("https://example.test/")).GenerateCalendarAsync(
-            new CalendarGenerationSettingsBo { IncludeDoorsTime = true, IncludeLpStageTime = true });
+            new CalendarGenerationSettingsBo { IncludeDoorsTime = true, IncludeLpStageTime = true }, subscriptionId: "sub-1");
         var doors = Assert.IsType<Ical.Net.CalendarComponents.CalendarEvent>(calendar.Events[0]);
         var stage = Assert.IsType<Ical.Net.CalendarComponents.CalendarEvent>(calendar.Events[1]);
 
@@ -81,7 +81,7 @@ public class CalendarGenerationServiceTests
         Assert.Equal("From Zero: Munich (Stage Time)", stage.Summary);
         Assert.Equal("Arena, Munich, Bavaria, Germany", stage.Location);
         Assert.Contains("Type of show: Linkin Park Show", stage.Description);
-        Assert.Contains("https://example.test/app?mtm_kwd=show-1&mtm_campaign=ical-feed", stage.Description);
+        Assert.Contains("https://example.test/calendar-subscriptions/sub-1?mtm_kwd=show-1&mtm_campaign=ical-feed", stage.Description);
         Assert.Equal("https://example.test/concert/show-1", stage.Url!.AbsoluteUri);
         Assert.Equal(48.1, stage.GeographicLocation!.Latitude);
         Assert.Equal(11.5, stage.GeographicLocation.Longitude);
@@ -89,6 +89,35 @@ public class CalendarGenerationServiceTests
         Assert.Equal(new DateTime(2026, 1, 3, 8, 0, 0), stage.LastModified!.Value);
         Assert.True(stage.LastModified.IsUtc);
         Assert.Contains("LAST-MODIFIED:20260103T080000Z", new CalendarSerializer().SerializeToString(calendar));
+    }
+
+    [Theory]
+    [InlineData(true, true, true)]
+    [InlineData(false, false, true)]
+    [InlineData(false, false, false)]
+    public async Task ManagementLinksUseSubscriptionIdForEveryEvent(bool doors, bool stage, bool hasTour)
+    {
+        var concert = MakeConcert("show /1");
+        if (!hasTour) concert.Tour = null;
+        var calendar = await CreateService([concert], new Uri("https://example.test/base/")).GenerateCalendarAsync(
+            new CalendarGenerationSettingsBo { IncludeDoorsTime = doors, IncludeLpStageTime = stage },
+            subscriptionId: "sub /1");
+
+        Assert.Equal(doors && stage ? 2 : 1, calendar.Events.Count);
+        Assert.All(calendar.Events, e => Assert.Contains(
+            "https://example.test/base/calendar-subscriptions/sub%20%2F1?mtm_kwd=show%20%2F1&mtm_campaign=ical-feed",
+            e.Description));
+    }
+
+    [Fact]
+    public async Task ManagementLinkRequiresBothSiteUriAndSubscriptionId()
+    {
+        var concert = MakeConcert();
+        var withoutId = await CreateService([concert], new Uri("https://example.test/")).GenerateCalendarAsync(new CalendarGenerationSettingsBo());
+        var withoutSite = await CreateService(concert).GenerateCalendarAsync(new CalendarGenerationSettingsBo(), subscriptionId: "sub-1");
+
+        Assert.DoesNotContain("calendar-subscriptions/", Assert.Single(withoutId.Events).Description);
+        Assert.DoesNotContain("calendar-subscriptions/", Assert.Single(withoutSite.Events).Description);
     }
 
     [Fact]

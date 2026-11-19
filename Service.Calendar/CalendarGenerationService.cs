@@ -16,15 +16,16 @@ public sealed class CalendarGenerationService(IConcertRepository concerts, Uri? 
     /// </summary>
     /// <param name="settings">The subscription's calendar generation settings.</param>
     /// <param name="cancellationToken">Token used to cancel retrieval and generation.</param>
+    /// <param name="subscriptionId">Optional subscription ID used for the management link.</param>
     /// <returns>The generated calendar, without serializing or storing it.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="settings"/> is null.</exception>
     /// <exception cref="ArgumentException">The configured concert site URI is invalid.</exception>
     /// <exception cref="TimeZoneNotFoundException">A concert's venue timezone cannot be resolved.</exception>
-    public async Task<IcalCalendar> GenerateCalendarAsync(CalendarGenerationSettingsBo settings, CancellationToken cancellationToken = default)
+    public async Task<IcalCalendar> GenerateCalendarAsync(CalendarGenerationSettingsBo settings, CancellationToken cancellationToken = default, string? subscriptionId = null)
     {
         ArgumentNullException.ThrowIfNull(settings);
         cancellationToken.ThrowIfCancellationRequested();
-        var eventMapper = new CalendarEventMapper(concertSiteBaseUri);
+        var eventMapper = new CalendarEventMapper(concertSiteBaseUri, subscriptionId);
         var calendar = new IcalCalendar();
         var earliestByTimeZone = new Dictionary<string, DateTime>(StringComparer.Ordinal);
         
