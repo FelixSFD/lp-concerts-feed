@@ -19,3 +19,11 @@
 - The backend should be well tested
   - Repository classes should use DbIntegratedTests
   - Service classes should be tested with unit tests. The repositories must be mocked for that
+
+# Logging instructions
+
+- use the `ILogger` interface for logging in the backend. The logger is injected into the classes that need it, and it can be used to log messages at different levels (e.g., Information, Warning, Error)
+- Prefer logging using a static partial `Log` class that configures the message using the `LoggerMessageAttribute`. Each project has its own `Log` class that is located in the root of the project. The `Log` class should be used for logging in the project, and it should be used instead of calling the `ILogger` methods directly. This allows for better performance and reduces the amount of memory allocations when logging messages.
+  - assign event ID to each log message. The event ID should be unique within the whole solution and should be used to identify the log message in the logs. The event ID should be a positive integer, and it should be assigned in a sequential manner, starting from 1. The event ID should be assigned to the log message using the `EventId` property of the `LoggerMessageAttribute`. The event ID should be used to identify the log message in the logs, and it should be used to filter the logs when searching for specific log messages.
+  - each project should have its own block of event IDs. The event IDs should be assigned in a sequential manner, starting from 1, and they should be unique within the whole solution. The event IDs should be assigned to the log message using the `EventId` property of the `LoggerMessageAttribute`. The event ID should be used to identify the log message in the logs, and it should be used to filter the logs when searching for specific log messages.
+  - don't change existing event IDs if you can avoid it
