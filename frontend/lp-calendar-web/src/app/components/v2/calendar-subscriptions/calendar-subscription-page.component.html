@@ -18,12 +18,15 @@
     <p-button label="Try again" severity="secondary" (onClick)="reload()" />
   } @else if (subscription(); as current) {
     <p-card header="Subscription settings">
-      <p class="text-color-secondary mt-0">
-        Created {{ current.createdAt | date:'medium' }}@if (current.updatedAt) { · Updated {{ current.updatedAt | date:'medium' }} }
-      </p>
       <div class="mb-4">
-        <p>Install this feed in your calendar app to keep your concert calendar up to date.</p>
+        <p class="mt-0">Click "Install feed" to add this subscription to your calendar app.</p>
         <app-calendar-subscription-feed-button [subscriptionId]="current.id" />
+        <p>How to use with different calendar applications:</p>
+        <ul class="pl-4">
+          <li><a class="link" href="https://support.google.com/calendar/answer/37100?hl=en" target="_blank" rel="noopener noreferrer">Google Calendar</a></li>
+          <li><a class="link" href="https://support.apple.com/en-us/102301" target="_blank" rel="noopener noreferrer">Apple Calendar</a></li>
+          <li><a class="link" href="https://support.microsoft.com/en-us/outlook/import-or-subscribe-to-a-calendar-in-outlook-com-or-outlook-on-the-web" target="_blank" rel="noopener noreferrer">Outlook on the web</a></li>
+        </ul>
       </div>
       <p-divider />
       <form [formGroup]="form()" (ngSubmit)="save()">

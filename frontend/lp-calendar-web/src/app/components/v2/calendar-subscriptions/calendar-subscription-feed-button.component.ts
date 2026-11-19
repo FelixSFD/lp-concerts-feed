@@ -8,7 +8,7 @@ import { calendarSubscriptionFeedUrl } from './calendar-subscription-feed';
   selector: 'app-calendar-subscription-feed-button',
   imports: [SplitButton],
   template: `
-    <p-splitbutton label="Install feed" icon="pi pi-calendar-plus" [size]="size()" [outlined]="true"
+    <p-splitbutton label="Install feed" icon="pi pi-calendar-plus" [size]="size()" [outlined]="false"
       expandAriaLabel="Feed options" [model]="items()" appendTo="body" (onClick)="openFeed()" />
   `,
 })

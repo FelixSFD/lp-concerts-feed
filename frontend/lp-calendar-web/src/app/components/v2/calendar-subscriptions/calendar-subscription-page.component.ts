@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import { Component, computed, DestroyRef, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
@@ -25,7 +24,7 @@ import { CalendarSubscriptionFeedButtonComponent } from './calendar-subscription
 @Component({
   selector: 'app-calendar-subscription-page',
   imports: [
-    Button, CalendarSubscriptionFeedButtonComponent, Card, ConfirmDialog, DatePipe, Divider, InputGroup,
+    Button, CalendarSubscriptionFeedButtonComponent, Card, ConfirmDialog, Divider, InputGroup,
     InputGroupAddon, InputText, Message, ReactiveFormsModule, RouterLink, ToggleSwitch,
   ],
   templateUrl: './calendar-subscription-page.component.html',
