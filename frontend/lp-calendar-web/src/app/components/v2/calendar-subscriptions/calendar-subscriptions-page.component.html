@@ -17,6 +17,7 @@
                  [scrollable]="true" [tableStyle]="{ 'min-width': '45rem' }">
           <ng-template #header>
             <tr>
+              <th scope="col" style="width: 1%; white-space: nowrap"></th> <!-- Install feed -->
               <th scope="col">Linkin Park stage time</th>
               <th scope="col">Doors time</th>
               <th scope="col" pTooltip="Time then the calendar feed was last updated. It might take up to a few hours until changes are reflected in your calendar">Last updated at</th>
@@ -25,34 +26,36 @@
           </ng-template>
           <ng-template #body let-subscription>
             <tr>
-              <td>
+              <td style="width: 1%; white-space: nowrap">
+                <app-calendar-subscription-feed-button class="ml-2" size="small"
+                                                       [subscriptionId]="subscription.id" />
+              </td>
+              <td class="text-center lg:text-left">
                 <i class="pi" [class.pi-check-circle]="subscription.includeLpStageTime"
                    [class.pi-minus-circle]="!subscription.includeLpStageTime"
                    [class.text-green-500]="subscription.includeLpStageTime"
-                   [class.text-color-secondary]="!subscription.includeLpStageTime" aria-hidden="true"></i>
-                &nbsp;
-                <span class="sr-only">{{ subscription.includeLpStageTime ? 'included' : 'not included' }}</span>
+                   [class.text-color-secondary]="!subscription.includeLpStageTime" role="img"
+                   [attr.aria-label]="subscription.includeLpStageTime ? 'included' : 'not included'"></i>
+                <span class="hidden lg:inline" aria-hidden="true">&nbsp;{{ subscription.includeLpStageTime ? 'included' : 'not included' }}</span>
               </td>
-              <td>
+              <td class="text-center lg:text-left">
                 <i class="pi" [class.pi-check-circle]="subscription.includeDoorsTime"
                    [class.pi-minus-circle]="!subscription.includeDoorsTime"
                    [class.text-green-500]="subscription.includeDoorsTime"
-                   [class.text-color-secondary]="!subscription.includeDoorsTime" aria-hidden="true"></i>
-                &nbsp;
-                <span class="sr-only">{{ subscription.includeDoorsTime ? 'included' : 'not included' }}</span>
+                   [class.text-color-secondary]="!subscription.includeDoorsTime" role="img"
+                   [attr.aria-label]="subscription.includeDoorsTime ? 'included' : 'not included'"></i>
+                <span class="hidden lg:inline" aria-hidden="true">&nbsp;{{ subscription.includeDoorsTime ? 'included' : 'not included' }}</span>
               </td>
               <td>{{ subscription.generatedAt ? (subscription.generatedAt | date:'medium') : 'not yet' }}</td>
               <td>
                 <p-button label="Manage" icon="pi pi-pencil" variant="outlined" size="small"
                           [routerLink]="['/calendar-subscriptions', subscription.id]" />
-                <app-calendar-subscription-feed-button class="ml-2" size="small"
-                                                       [subscriptionId]="subscription.id" />
               </td>
             </tr>
           </ng-template>
           <ng-template #emptymessage>
             <tr>
-              <td colspan="5" class="text-center text-secondary">
+              <td colspan="6" class="text-center text-secondary">
                 @if (loading()) {
                   Loading subscriptions...
                 } @else {
