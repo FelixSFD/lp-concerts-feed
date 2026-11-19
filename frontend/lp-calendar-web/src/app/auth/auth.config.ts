@@ -52,8 +52,8 @@ export const authRoutePatterns: RegExp[] = [
 
 
 function addAuthenticationInternal(configuration: Configuration) {
-  let authService = inject(AuthService);
-  configuration.credentials["Bearer"] = authService.accessToken;
+  const authService = inject(AuthService);
+  configuration.credentials["Bearer"] = () => authService.accessToken ?? undefined;
 }
 
 /**
