@@ -129,9 +129,7 @@ public class CalendarSubscriptionsController(
         }
         catch (Exception exception)
         {
-            logger.LogWarning(exception,
-                "Failed to trigger calendar generation job for subscription '{subscriptionId}'. It will be picked up by the hourly job.",
-                subscriptionId);
+            Log.FailedToTriggerCalendarGenerationJob(logger, subscriptionId, exception);
         }
     }
 }

@@ -48,7 +48,7 @@ public sealed class CalendarSubscriptionGenerationCoordinator(
         var subscription = await subscriptions.GetByPrimaryKeyAsync(subscriptionId, cancellationToken);
         if (subscription is null)
         {
-            logger.LogWarning("Skipping generation for missing subscription '{subscriptionId}'.", subscriptionId);
+            Log.SkippingGenerationForMissingSubscription(logger, subscriptionId);
             return;
         }
 
@@ -84,8 +84,7 @@ public sealed class CalendarSubscriptionGenerationCoordinator(
         }, cancellationToken);
 
         await subscriptions.MarkGeneratedAsync(subscription.Id, DateTimeOffset.UtcNow, cancellationToken);
-        logger.LogInformation("Generated and stored calendar for subscription '{subscriptionId}' as '{key}'.",
-            subscription.Id, key);
+        Log.GeneratedAndStoredSubscriptionCalendar(logger, subscription.Id, key);
     }
 
     private static bool NeedsGeneration(DateTimeOffset? lastGeneratedAt, DateTimeOffset? latestConcertChange)

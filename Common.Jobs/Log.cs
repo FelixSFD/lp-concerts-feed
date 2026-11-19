@@ -52,4 +52,25 @@ public static partial class Log
         Message = "Successfully stored profile banner for user: {username} (ID: {userId}); Size: {bytes} bytes"
     )]
     public static partial void StoredProfileBannerFor(ILogger logger, string username, string userId, int bytes);
+
+    [LoggerMessage(
+        EventId = 90008,
+        Level = LogLevel.Warning,
+        Message = "Skipping generation for missing subscription '{subscriptionId}'."
+    )]
+    public static partial void SkippingGenerationForMissingSubscription(ILogger logger, string subscriptionId);
+
+    [LoggerMessage(
+        EventId = 90009,
+        Level = LogLevel.Information,
+        Message = "Generated and stored calendar for subscription '{subscriptionId}' as '{key}'."
+    )]
+    public static partial void GeneratedAndStoredSubscriptionCalendar(ILogger logger, string subscriptionId, string key);
+
+    [LoggerMessage(
+        EventId = 90010,
+        Level = LogLevel.Warning,
+        Message = "Job '{job}' is missing required job data '{jobDataKey}'."
+    )]
+    public static partial void JobMissingRequiredData(ILogger logger, string job, string jobDataKey);
 }

@@ -18,7 +18,7 @@ public sealed class GenerateSubscriptionCalendarJob(
         var subscriptionId = context.MergedJobDataMap.GetString(CalendarSubscriptionJobConstants.SubscriptionIdJobDataKey);
         if (string.IsNullOrWhiteSpace(subscriptionId))
         {
-            logger.LogWarning("Job '{job}' is missing required job data '{jobDataKey}'.", nameof(GenerateSubscriptionCalendarJob),
+            Log.JobMissingRequiredData(logger, nameof(GenerateSubscriptionCalendarJob),
                 CalendarSubscriptionJobConstants.SubscriptionIdJobDataKey);
             stopwatch.Stop();
             Log.FinishedJob(logger, nameof(GenerateSubscriptionCalendarJob), stopwatch.Elapsed.TotalSeconds,
