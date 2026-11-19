@@ -68,6 +68,15 @@ Resources:
         OriginAccessControlOriginType: s3
         SigningBehavior: always
         SigningProtocol: sigv4
+        
+  IcalBucketOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub "${BaseProductName}-ical-bucket-oac"
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
   
   SharePicBucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -477,7 +486,66 @@ Resources:
         HttpVersion: http2and3
         Comment: !Sub "${AWS::StackName} Image host"
         PriceClass: PriceClass_100
-
+  
+  CalendarFeedCloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "storage"
+      DistributionConfig:
+        Origins:
+          - Id: IcalBucketOrigin
+            DomainName: { 'Fn::ImportValue': !Sub '${BaseProductName}-ical-subscriptions-s3-regional-domain' }
+            S3OriginConfig: { }
+            OriginAccessControlId: !Ref IcalBucketOAC
+          - Id: StaticFilesOrigin
+            DomainName: !GetAtt StaticFilesBucket.RegionalDomainName
+            OriginPath: /ical_distribution
+            S3OriginConfig: { }
+            OriginAccessControlId: !Ref StaticFilesOAC
+        Aliases: # info about CNAMEs (alternate domain names), if any, for this distribution
+          - !Sub 'ical.${RootDomain}'
+        CacheBehaviors:
+          - PathPattern: /robots.txt
+            TargetOriginId: StaticFilesOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachePolicyId: !Ref DefaultCachePolicy
+            Compress: true
+        ViewerCertificate:
+          AcmCertificateArn: !Ref CertificateArn
+          SslSupportMethod: sni-only
+        DefaultCacheBehavior:
+          TargetOriginId: IcalBucketOrigin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachePolicyId: !Ref ExtraLongCachePolicy
+          OriginRequestPolicyId: !Ref CORSOriginRequestPolicy
+          ResponseHeadersPolicyId: !Ref CORSResponseHeadersPolicy
+          Compress: true
+        Enabled: true
+        HttpVersion: http2and3
+        Comment: !Sub "${AWS::StackName} Host for the iCal files that are generated based on subscriptions"
+        PriceClass: PriceClass_100
 
 Outputs:
   CloudFrontExport:
@@ -505,3 +573,8 @@ Outputs:
     Value: !GetAtt ConcertImagesCloudFrontDistribution.DomainName
     Export:
       Name: !Sub '${BaseProductName}-concert-img-cloudfront-domain'
+  IcalCloudFrontDomainExport:
+    Description: 'Domain of CloudFront distribution for the iCal files'
+    Value: !GetAtt CalendarFeedCloudFrontDistribution.DomainName
+    Export:
+      Name: !Sub '${BaseProductName}-ical-cloudfront-domain'
