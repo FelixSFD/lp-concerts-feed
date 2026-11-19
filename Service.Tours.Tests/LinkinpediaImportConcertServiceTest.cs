@@ -1,6 +1,7 @@
 using Common.WikiMedia;
 using Common.WikiMedia.DTOs;
 using Common.WikiMedia.Repositories;
+using Database.Setlists.Repositories;
 using Database.Tours.DataObjects;
 using Database.Tours.Repositories;
 using LPCalendar.DataStructure;
@@ -22,6 +23,7 @@ public class LinkinpediaImportConcertServiceTest
     private readonly ITourRepository _tourRepository;
     private readonly IConcertTypeRepository _concertTypeRepository;
     private readonly IConcertRepository _concertRepository;
+    private readonly ISetlistRepository _setlistRepository;
     private readonly ILogger<LinkinpediaImportConcertService> _logger;
     private readonly LinkinpediaImportConcertService _sut;
 
@@ -36,6 +38,8 @@ public class LinkinpediaImportConcertServiceTest
         _tourRepository = Substitute.For<ITourRepository>();
         _concertTypeRepository = Substitute.For<IConcertTypeRepository>();
         _concertRepository = Substitute.For<IConcertRepository>();
+        _setlistRepository = Substitute.For<ISetlistRepository>();
+        _setlistRepository.GetConcertIdsWithSetlistsAsync(Arg.Any<CancellationToken>()).Returns([]);
         _logger = Substitute.For<ILogger<LinkinpediaImportConcertService>>();
 
         _sut = new LinkinpediaImportConcertService(
@@ -48,6 +52,7 @@ public class LinkinpediaImportConcertServiceTest
             _tourRepository,
             _concertTypeRepository,
             _concertRepository,
+            _setlistRepository,
             _logger
         );
     }
@@ -653,6 +658,40 @@ public class LinkinpediaImportConcertServiceTest
         _concertRepository.GetConcertsByWikiPageId(Arg.Any<string>()).DidNotReceive();
         _concertRepository.FindAllWithReferencesAsync(Arg.Any<CancellationToken>())
             .Received(1);
+    }
+
+    [Fact]
+    public async Task GetImportStatusList_UsesSetlistConcertIdsForImportedStatus()
+    {
+        var pages = new[]
+        {
+            new LinkinpediaConcertListEntryBo { WikiPageId = "Live:with", DateString = "2024-01-01", ShowType = "concert", Country = "", State = "", Province = "", UkCountry = "", City = "", Venue = "", Tour = "", TourLeg = "" },
+            new LinkinpediaConcertListEntryBo { WikiPageId = "Live:without", DateString = "2024-01-02", ShowType = "concert", Country = "", State = "", Province = "", UkCountry = "", City = "", Venue = "", Tour = "", TourLeg = "" },
+            new LinkinpediaConcertListEntryBo { WikiPageId = "Live:not-imported", DateString = "2024-01-03", ShowType = "concert", Country = "", State = "", Province = "", UkCountry = "", City = "", Venue = "", Tour = "", TourLeg = "" }
+        };
+        var country = new CountryDo { IsoCode = "US", Name = "USA", NativeName = "USA" };
+        var city = new CityDo { CountryCode = "US", Name = "City", NativeName = "City", Country = country };
+        var venue = new VenueDo { CountryCode = "US", CurrentName = "Venue", TimeZone = "UTC", City = city, Country = country };
+        var concerts = new[]
+        {
+            new ConcertDo { Id = "with", Type = new ConcertTypeDo { Id = 1, Name = "Show" }, Venue = venue, LinkinpediaUrl = "https://wiki/Live:with" },
+            new ConcertDo { Id = "without", Type = new ConcertTypeDo { Id = 1, Name = "Show" }, Venue = venue, LinkinpediaUrl = "https://wiki/Live:without" }
+        };
+        _concertRepository.FindAllWithReferencesAsync(Arg.Any<CancellationToken>()).Returns(concerts.ToAsyncEnumerable());
+        _setlistRepository.GetConcertIdsWithSetlistsAsync(Arg.Any<CancellationToken>())
+            .Returns(new List<string> { "with", "with", "Live:not-imported" });
+        _wikiMediaRepository
+            .RunCargoQueryAsync<LinkinpediaConcertListEntryBo>(Arg.Any<string[]>(), Arg.Any<string[]>(), Arg.Any<CargoQueryWhereClause[]>(), Arg.Any<string[]>(), Arg.Is(100), Arg.Any<CancellationToken>())
+            .Returns(pages.Select(page => new CargoQueryResponseItemDto<LinkinpediaConcertListEntryBo> { Value = page }).ToAsyncEnumerable());
+        using var cancellation = new CancellationTokenSource();
+
+        var results = await _sut.GetImportStatusList(cancellation.Token).ToArrayAsync(cancellation.Token);
+
+        Assert.Equal(ConcertImportStatusBo.Status.ImportedWithSetlists, results.Single(r => r.WikiPageId == "Live:with").ImportStatus);
+        Assert.Equal(ConcertImportStatusBo.Status.Imported, results.Single(r => r.WikiPageId == "Live:without").ImportStatus);
+        Assert.Equal(ConcertImportStatusBo.Status.NotImported, results.Single(r => r.WikiPageId == "Live:not-imported").ImportStatus);
+        Assert.NotNull(results.Single(r => r.WikiPageId == "Live:with").Concert);
+        await _setlistRepository.Received(1).GetConcertIdsWithSetlistsAsync(cancellation.Token);
     }
 
     [Theory]

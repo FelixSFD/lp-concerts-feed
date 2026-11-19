@@ -1,8 +1,7 @@
 using System.Runtime.CompilerServices;
-using Amazon.Runtime.Internal;
 using Common.WikiMedia;
 using Common.WikiMedia.Repositories;
-using Database.Tours.DataObjects;
+using Database.Setlists.Repositories;
 using Database.Tours.Repositories;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Tours;
@@ -23,6 +22,8 @@ namespace Service.Tours;
 /// <param name="venueRepository"></param>
 /// <param name="tourRepository"></param>
 /// <param name="concertTypeRepository"></param>
+/// <param name="concertRepository"></param>
+/// <param name="setlistRepository"></param>
 /// <param name="logger"></param>
 public class LinkinpediaImportConcertService(
     IWikiMediaRepository wikiMediaRepository,
@@ -34,6 +35,7 @@ public class LinkinpediaImportConcertService(
     ITourRepository tourRepository,
     IConcertTypeRepository concertTypeRepository,
     IConcertRepository concertRepository,
+    ISetlistRepository setlistRepository,
     ILogger<LinkinpediaImportConcertService> logger)
 {
     /// <summary>
@@ -63,6 +65,10 @@ public class LinkinpediaImportConcertService(
             .Where(c => c.LinkinpediaUrl != null)
             .ToDictionaryAsync(c => c.LinkinpediaUrl?.ToString().Split('/').LastOrDefault() ?? "none", c => c, null, cancellationToken);
         logger.LogDebug("Preloaded concerts for {concertCount} wiki pages.", concertByWikiPage.Count);
+
+        // Setlists use a different DbContext, so match their concert IDs in memory.
+        var concertIdsWithSetlists = (await setlistRepository.GetConcertIdsWithSetlistsAsync(cancellationToken))
+            .ToHashSet(StringComparer.Ordinal);
         
         var results = wikiMediaRepository
             .RunCargoQueryAsync<LinkinpediaConcertListEntryBo>(tables, fields, where, orderBy, pageSize: 100, cancellationToken)
@@ -77,7 +83,9 @@ public class LinkinpediaImportConcertService(
                     ConcertTitle = GenerateConcertTitle(concert.DateString, concert.Venue, concert.City, concert.Country),
                     ShowType = concert.ShowType,
                     ImportStatus = concertImported
-                        ? ConcertImportStatusBo.Status.Imported
+                        ? concertIdsWithSetlists.Contains(existingConcert!.Id)
+                            ? ConcertImportStatusBo.Status.ImportedWithSetlists
+                            : ConcertImportStatusBo.Status.Imported
                         : ConcertImportStatusBo.Status.NotImported,
                     Concert = existingConcert?.ToBoWithDetails(),
                 };
