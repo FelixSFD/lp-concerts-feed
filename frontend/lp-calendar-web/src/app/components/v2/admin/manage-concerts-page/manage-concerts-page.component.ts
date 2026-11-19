@@ -32,6 +32,13 @@ import { Badge } from 'primeng/badge';
 import { makeRealArray } from '../../../../helper/array-helper';
 import { debounceTime, Subject } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
+import { Select } from 'primeng/select';
+
+type ImportStatusOption = {
+  label: string;
+  value: LinkinpediaImportConcertStatusDto.ImportStatusEnum;
+  severity: 'success' | 'danger' | 'warn';
+};
 
 @Component({
   selector: 'app-manage-concerts-page',
@@ -53,6 +60,7 @@ import { switchMap } from 'rxjs/operators';
     ButtonDirective,
     Badge,
     NgTemplateOutlet,
+    Select,
   ],
   templateUrl: './manage-concerts-page.component.html',
   styleUrl: './manage-concerts-page.component.css',
@@ -260,4 +268,26 @@ export class ManageConcertsPageComponent implements OnInit {
   protected readonly ConcertStatusValueDto = ConcertStatusValueDto;
   protected readonly ConcertStatus = ConcertStatus;
   protected readonly LinkinpediaImportConcertStatusDto = LinkinpediaImportConcertStatusDto;
+  private readonly importedNoSetlistOption: ImportStatusOption = {
+    label: 'Imported without setlist',
+    value: LinkinpediaImportConcertStatusDto.ImportStatusEnum.ImportedNoSetlist,
+    severity: 'warn',
+  };
+  protected readonly statusOptions = signal<ImportStatusOption[]>([
+    {
+      label: 'Not imported',
+      value: LinkinpediaImportConcertStatusDto.ImportStatusEnum.NotImported,
+      severity: 'danger',
+    },
+    this.importedNoSetlistOption,
+    {
+      label: 'Imported',
+      value: LinkinpediaImportConcertStatusDto.ImportStatusEnum.Imported,
+      severity: 'success',
+    },
+  ]);
+
+  protected getImportStatusOption(status: LinkinpediaImportConcertStatusDto.ImportStatusEnum): ImportStatusOption {
+    return this.statusOptions().find(option => option.value === status) ?? this.importedNoSetlistOption;
+  }
 }

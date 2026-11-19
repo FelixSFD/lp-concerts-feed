@@ -2,8 +2,8 @@
 
 <ng-template #importStatusBadge let-status="status">
   <p-badge
-    [value]="status == LinkinpediaImportConcertStatusDto.ImportStatusEnum.Imported ? 'Imported' : status == LinkinpediaImportConcertStatusDto.ImportStatusEnum.NotImported ? 'Not imported' : 'Imported without setlist'"
-    [severity]="status == LinkinpediaImportConcertStatusDto.ImportStatusEnum.Imported ? 'success' : status == LinkinpediaImportConcertStatusDto.ImportStatusEnum.NotImported ? 'danger' : 'warn'"
+    [value]="getImportStatusOption(status).label"
+    [severity]="getImportStatusOption(status).severity"
   />
 </ng-template>
 
@@ -210,6 +210,19 @@
           <th scope="col" pSortableColumn="importStatus">
             Import status
             <p-sort-icon field="importStatus" />
+
+            <p-column-filter field="importStatus" matchMode="equals" [showMenu]="false">
+              <ng-template #filter let-value let-filter="filterCallback">
+                <p-select [ngModel]="value" [options]="statusOptions()" (onChange)="filter($event.value || null)" placeholder="Any" optionLabel="label" optionValue="value" size="small" style="min-width: 12rem" appendTo="body">
+                  <ng-template #item let-option>
+                    <p-badge [value]="option.label" [severity]="option.severity" />
+                  </ng-template>
+                  <ng-template #selectedItem let-option>
+                    <p-badge [value]="option.label" [severity]="option.severity" />
+                  </ng-template>
+                </p-select>
+              </ng-template>
+            </p-column-filter>
           </th>
           <th scope="col" pSortableColumn="showType">
             Show type
