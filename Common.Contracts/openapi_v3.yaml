@@ -5435,6 +5435,11 @@ components:
           type: string
           format: date-time
           nullable: true
+        generatedAt:
+          description: The time when the calendar was last generated. This is used to determine if the calendar needs to be regenerated.
+          type: string
+          format: date-time
+          nullable: true
 
     UpdateUserProfile:
       description: Information about a user to be updated

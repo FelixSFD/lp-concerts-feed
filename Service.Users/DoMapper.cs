@@ -32,6 +32,7 @@ public static class DoMapper
             dataObject.UserId,
             dataObject.IncludeDoorsTime,
             dataObject.IncludeLpStageTime,
+            dataObject.LastGeneratedAt,
             dataObject.CreatedAt,
             dataObject.UpdatedAt);
     }

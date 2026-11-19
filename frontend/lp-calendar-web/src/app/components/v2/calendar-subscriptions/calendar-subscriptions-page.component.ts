@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, DestroyRef, effect, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
@@ -9,17 +9,19 @@ import { Card } from 'primeng/card';
 import { MessageService } from 'primeng/api';
 import { TableModule } from 'primeng/table';
 import { ToggleSwitch } from 'primeng/toggleswitch';
+import { map } from 'rxjs';
 import { AuthService } from '../../../auth/auth.service';
 import { CalendarSubscriptionDto } from '../../../modules/lpshows-api/v3';
 import { CalendarSubscriptionNavigationService } from '../../../services/calendar-subscription-navigation.service';
 import { CalendarSubscriptionsService } from '../../../services/calendar-subscriptions.service';
 import { subscriptionErrorMessage } from './calendar-subscription-errors';
 import { CalendarSubscriptionFeedButtonComponent } from './calendar-subscription-feed-button.component';
+import { Tooltip } from 'primeng/tooltip';
 
 /** Creates calendar subscriptions and displays the authenticated user's subscriptions. */
 @Component({
   selector: 'app-calendar-subscriptions-page',
-  imports: [Button, CalendarSubscriptionFeedButtonComponent, Card, DatePipe, ReactiveFormsModule, RouterLink, TableModule, ToggleSwitch],
+  imports: [Button, CalendarSubscriptionFeedButtonComponent, Card, DatePipe, ReactiveFormsModule, RouterLink, TableModule, ToggleSwitch, Tooltip],
   templateUrl: './calendar-subscriptions-page.component.html',
 })
 export class CalendarSubscriptionsPageComponent {
@@ -40,6 +42,17 @@ export class CalendarSubscriptionsPageComponent {
     includeLpStageTime: true,
   }));
   protected readonly subscriptions = signal<CalendarSubscriptionDto[]>([]);
+  private readonly formSettings = toSignal(
+    this.form().valueChanges.pipe(map(() => this.form().getRawValue())),
+    { initialValue: this.form().getRawValue() },
+  );
+  protected readonly hasMatchingSubscription = computed(() => {
+    const settings = this.formSettings();
+    return this.subscriptions().some(subscription =>
+      subscription.includeDoorsTime === settings.includeDoorsTime &&
+      subscription.includeLpStageTime === settings.includeLpStageTime,
+    );
+  });
   protected readonly loading = signal(false);
   protected readonly listError = signal('');
   protected readonly creating = signal(false);

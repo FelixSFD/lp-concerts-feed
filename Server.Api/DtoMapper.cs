@@ -573,7 +573,8 @@ internal static class DtoMapper
             IncludeDoorsTime = bo.IncludeDoorsTime,
             IncludeLpStageTime = bo.IncludeLpStageTime,
             CreatedAt = bo.CreatedAt,
-            UpdatedAt = bo.UpdatedAt
+            UpdatedAt = bo.UpdatedAt,
+            GeneratedAt = bo.LastGeneratedAt,
         };
     }
 
