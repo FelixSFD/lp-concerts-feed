@@ -103,6 +103,19 @@ export const routes: Routes = [
     title: baseTitle + 'Edit User Profile',
   },
   {
+    path: 'calendar-subscriptions',
+    loadComponent: () =>
+      import('./components/v2/calendar-subscriptions/calendar-subscriptions-page.component').then(m => m.CalendarSubscriptionsPageComponent),
+    title: baseTitle + 'Calendar subscriptions',
+    data: { breadcrumb: 'Calendar subscriptions' },
+  },
+  {
+    path: 'calendar-subscriptions/:subscriptionId',
+    loadComponent: () =>
+      import('./components/v2/calendar-subscriptions/calendar-subscription-page.component').then(m => m.CalendarSubscriptionPageComponent),
+    title: baseTitle + 'Manage calendar subscription',
+  },
+  {
     path: 'users/:userId',
     loadComponent: () =>
       import("./components/v2/user-profile/user-profile-page/user-profile-page.component").then(m => m.UserProfilePageComponent),

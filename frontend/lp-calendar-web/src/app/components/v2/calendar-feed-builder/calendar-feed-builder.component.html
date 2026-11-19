@@ -1,11 +1,11 @@
-<form #form="ngForm" [formGroup]="feedBuilderForm" class="form">
+<form [formGroup]="feedBuilderForm()" class="form">
   <div class="flex align-items-center mb-2">
-    <p-toggleswitch id="doorsTimeSwitch" name="doorsTimeSwitch" formControlName="doorsTimeSwitch" />
+    <p-toggleswitch inputId="doorsTimeSwitch" formControlName="includeDoorsTime" />
     <label class="form-check-label ml-2" for="doorsTimeSwitch">Doors time</label>
   </div>
 
   <div class="flex align-items-center">
-    <p-toggleswitch id="lpStageTimeSwitch" name="lpStageTimeSwitch" formControlName="lpStageTimeSwitch" />
+    <p-toggleswitch inputId="lpStageTimeSwitch" formControlName="includeLpStageTime" />
     <label class="form-check-label ml-2" for="lpStageTimeSwitch">Linkin Park stage time</label>
   </div>
 </form>

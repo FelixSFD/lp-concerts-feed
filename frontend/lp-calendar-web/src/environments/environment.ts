@@ -4,6 +4,7 @@ export const environment = {
   apiNoCacheBaseUrl: "https://api.test.lpshows.live/v2",
   apiBaseUrl: "https://api.test.lpshows.live",
   apiBaseUrlLatest: "https://api.dev.lpshows.live/latest", // only use this in places where we can't easily change the URL
+  calendarSubscriptionFeedBaseUrl: "https://ical.test.lpshows.live",
   appleMapsToken: "",
   cognitoBaseUrl: "https://cognito-idp.eu-central-1.amazonaws.com/eu-central-1_hHATl9Rpo",
   cognitoClientId: "25ih2ncbb9v1gc087md4ck488m",

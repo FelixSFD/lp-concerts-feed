@@ -18,6 +18,11 @@ public static class DataConstants
     public const int ConcertIdLength = 63;
     
     /// <summary>
+    /// Maximum length of calendar subscription IDs
+    /// </summary>
+    public const int CalendarSubscriptionIdLength = 63;
+    
+    /// <summary>
     /// Length of the field that contains the title of songs, mashups or variants.
     /// </summary>
     public const int TitleFieldLength = 127;

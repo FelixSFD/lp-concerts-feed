@@ -11,6 +11,7 @@ namespace Database.Users;
 public class UsersDbContext(DbContextOptions<UsersDbContext> options) : DbContext(options)
 {
     public DbSet<UserDo> Users { get; set; }
+    public DbSet<CalendarSubscriptionDo> CalendarSubscriptions { get; set; }
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
@@ -21,6 +22,12 @@ public class UsersDbContext(DbContextOptions<UsersDbContext> options) : DbContex
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<CalendarSubscriptionDo>()
+            .HasOne(cs => cs.User)
+            .WithMany(u => u.CalendarSubscriptions)
+            .HasForeignKey(cs => new { cs.UserId })
+            .HasPrincipalKey(u => new { u.Id });
         
         // Set default value for CreatedAt property of ITimestampedDataObject
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())

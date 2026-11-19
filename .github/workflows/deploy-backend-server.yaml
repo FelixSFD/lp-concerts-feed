@@ -33,6 +33,8 @@ jobs:
           envkey_AWS_CONFIG_FILE: "/app/.aws_config"
           envkey_AWS_PROFILE: ${{ vars.AWS_PROFILE }}
           envkey_CONCERT_IMAGE_BUCKET_NAME: ${{ vars.CONCERT_IMAGE_BUCKET_NAME }}
+          envkey_ICAL_SUBSCRIPTIONS_BUCKET_NAME: ${{ vars.ICAL_SUBSCRIPTIONS_BUCKET_NAME }}
+          envkey_FRONTEND_BASE_URL: "https://${{ vars.ROOT_DOMAIN }}"
           envkey_SHARE_PICS_BASE_URL: "${{ vars.IMAGE_BASE_URL }}/share"
           envkey_SHARE_PICS_S3_BUCKET_NAME: ${{ vars.SHARE_PICS_S3_BUCKET_NAME }}
           envkey_TRAEFIK_ROUTER_API_SERVER: ${{ vars.TRAEFIK_ROUTER_API_SERVER }}

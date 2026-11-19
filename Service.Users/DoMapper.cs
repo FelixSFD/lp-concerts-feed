@@ -21,4 +21,19 @@ public static class DoMapper
             UpdatedAt = dataObject.UpdatedAt,
         };
     }
+
+    /// <summary>Maps a calendar subscription data object to its business representation.</summary>
+    /// <param name="dataObject">The subscription to map.</param>
+    /// <returns>The mapped subscription.</returns>
+    public static CalendarSubscriptionBo ToBo(this CalendarSubscriptionDo dataObject)
+    {
+        return new CalendarSubscriptionBo(
+            dataObject.Id,
+            dataObject.UserId,
+            dataObject.IncludeDoorsTime,
+            dataObject.IncludeLpStageTime,
+            dataObject.LastGeneratedAt,
+            dataObject.CreatedAt,
+            dataObject.UpdatedAt);
+    }
 }

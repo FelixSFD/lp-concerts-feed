@@ -559,6 +559,27 @@ internal static class DtoMapper
 
     #endregion
 
+    #region Calendar Subscriptions
+
+    /// <summary>Maps a calendar subscription business object to a DTO.</summary>
+    /// <param name="bo">The subscription to map.</param>
+    /// <returns>The mapped subscription DTO.</returns>
+    public static CalendarSubscriptionDto ToDto(this CalendarSubscriptionBo bo)
+    {
+        return new CalendarSubscriptionDto
+        {
+            Id = Guid.Parse(bo.Id),
+            UserId = bo.UserId,
+            IncludeDoorsTime = bo.IncludeDoorsTime,
+            IncludeLpStageTime = bo.IncludeLpStageTime,
+            CreatedAt = bo.CreatedAt,
+            UpdatedAt = bo.UpdatedAt,
+            GeneratedAt = bo.LastGeneratedAt,
+        };
+    }
+
+    #endregion
+
     #region Concert Bookmarks
 
     /// <summary>

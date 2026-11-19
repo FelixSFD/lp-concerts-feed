@@ -1,5 +1,6 @@
 using System.Configuration;
 using System.Text.Json.Serialization;
+using Amazon.S3;
 using AppleDeveloperToken;
 using Common.Jobs;
 using Common.Server.ClientIp;
@@ -32,6 +33,7 @@ using Server.Api.ExceptionHandling;
 using Server.Api.HealthChecks;
 using Server.Api.RateLimiting;
 using Service.Setlists;
+using Service.Calendar;
 using Service.SharePics;
 using Service.Tours;
 using Service.Tours.Importer;
@@ -257,6 +259,7 @@ builder.Services.AddScoped<ITourRepository, SqlTourRepository>();
 builder.Services.AddScoped<IConcertTypeRepository, SqlConcertTypeRepository>();
 builder.Services.AddScoped<IConcertRepository, SqlConcertRepository>();
 builder.Services.AddScoped<IUserRepository, SqlUserRepository>();
+builder.Services.AddScoped<ICalendarSubscriptionRepository, SqlCalendarSubscriptionRepository>();
 builder.Services.AddScoped<IUserConcertBookmarkRepository, SqlUserConcertBookmarkRepository>();
 builder.Services.AddScoped<IAlbumRepository, SqlAlbumRepository>();
 builder.Services.AddScoped<LocationService>();
@@ -268,6 +271,15 @@ builder.Services.AddConcertSyncEngine();
 builder.Services.AddLocationSyncEngines();
 builder.Services.AddSetlistsService();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<CalendarSubscriptionService>();
+builder.Services.AddCalendarGeneration((services, opt) =>
+{
+    var frontendBaseUrl = services.GetRequiredService<IConfiguration>().GetValue<string>("Frontend:BaseUrl") ?? throw new ConfigurationErrorsException("Frontend:BaseUrl is missing!");
+    opt.FrontendBaseUrl = frontendBaseUrl;
+    return opt;
+});
+builder.Services.AddScoped<CalendarSubscriptionGenerationCoordinator>();
+builder.Services.AddAWSService<IAmazonS3>();
 builder.Services.AddSharePicService(
     builder.Configuration.GetValue<string>("SharePics:Gotenberg:BaseUrl") ?? throw new ConfigurationErrorsException("SharePics:GotenbergBaseUrl is missing!"),
     builder.Configuration.GetValue<string>("SharePics:TemplateBaseDir") ?? throw new ConfigurationErrorsException("SharePics:Templates:BaseDir is missing!")

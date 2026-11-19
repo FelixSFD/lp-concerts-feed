@@ -1,0 +1,83 @@
+<p-confirmdialog />
+<h1>Manage calendar subscription</h1>
+<p-button label="Back to calendar subscriptions" icon="pi pi-arrow-left" severity="secondary"
+          variant="outlined" routerLink="/calendar-subscriptions" />
+
+<div class="mt-4">
+  @if (authError()) {
+    <p role="alert">{{ authError() }}</p>
+    <p-button label="Log in" (onClick)="login()" />
+  } @else if (!ready() || loading()) {
+    <p>Loading subscription...</p>
+  } @else if (error()) {
+    <p role="alert">{{ error() }}</p>
+    @if (!authenticated().isAuthenticated) {
+      <p>If this subscription belongs to an account, log in with that account and try again.</p>
+      <p-button label="Log in" (onClick)="login()" />
+    }
+    <p-button label="Try again" severity="secondary" (onClick)="reload()" />
+  } @else if (subscription(); as current) {
+    <p-card header="Subscription settings">
+      <div class="mb-4">
+        <p class="mt-0">Click "Install feed" to add this subscription to your calendar app.</p>
+        <app-calendar-subscription-feed-button [subscriptionId]="current.id" />
+        <p>How to use with different calendar applications:</p>
+        <ul class="pl-4">
+          <li><a class="link" href="https://support.google.com/calendar/answer/37100?hl=en" target="_blank" rel="noopener noreferrer">Google Calendar</a></li>
+          <li><a class="link" href="https://support.apple.com/en-us/102301" target="_blank" rel="noopener noreferrer">Apple Calendar</a></li>
+          <li><a class="link" href="https://support.microsoft.com/en-us/outlook/import-or-subscribe-to-a-calendar-in-outlook-com-or-outlook-on-the-web" target="_blank" rel="noopener noreferrer">Outlook on the web</a></li>
+        </ul>
+      </div>
+      <p-divider />
+      <form [formGroup]="form()" (ngSubmit)="save()">
+        <h2 class="text-lg mt-0">Calendar details</h2>
+        <p class="text-color-secondary">Choose which times to include in your calendar.</p>
+        <div class="flex align-items-center mb-3">
+          <p-toggleswitch inputId="edit-doors" formControlName="includeDoorsTime" />
+          <label for="edit-doors" class="ml-2">Doors time</label>
+        </div>
+        <div class="flex align-items-center mb-3">
+          <p-toggleswitch inputId="edit-stage" formControlName="includeLpStageTime" />
+          <label for="edit-stage" class="ml-2">Linkin Park stage time</label>
+        </div>
+        <p-button type="submit" label="Save changes" [disabled]="busy()" [loading]="busy()" />
+      </form>
+      <p-divider />
+      <h2 class="text-lg mt-0">Delete subscription</h2>
+      <p class="text-color-secondary">Permanently delete this subscription when you no longer need it.</p>
+      <p-button label="Delete subscription" icon="pi pi-trash" severity="danger" variant="outlined"
+                [disabled]="busy()" (onClick)="delete($event)" />
+    </p-card>
+
+    @if (!current.userId) {
+      <div class="mt-4">
+        <p-card header="Management link">
+          <!-- Auto-sized row prevents wrapped message text from overflowing in Safari. -->
+          <p-message severity="warn" icon="pi pi-exclamation-triangle" style="grid-template-rows: auto">
+            <strong>Keep this link private.</strong> Anyone with it can view, change, delete, or claim this subscription.
+            Save it to manage the subscription later.
+          </p-message>
+          <div class="mt-4">
+            <label for="management-link" class="block mb-2 font-medium">Direct management link</label>
+            <p-inputgroup>
+              <input pInputText #linkInput id="management-link" type="text" readonly [value]="managementLink()"
+                     style="min-width: 0" (focus)="linkInput.select()" />
+              <p-inputgroup-addon>
+                <p-button icon="pi pi-copy" severity="secondary" ariaLabel="Copy management link"
+                          (onClick)="copyLink()" />
+              </p-inputgroup-addon>
+            </p-inputgroup>
+          </div>
+          <p-divider />
+          @if (authenticated().isAuthenticated) {
+            <p>Claim this subscription to associate it with your account. Only your account will be able to manage it afterward.</p>
+            <p-button label="Claim subscription" [disabled]="busy()" (onClick)="claim($event)" />
+          } @else {
+            <p>An account is recommended so you can find and manage your subscriptions later.</p>
+            <p-button label="Log in or create an account" severity="secondary" (onClick)="login()" />
+          }
+        </p-card>
+      </div>
+    }
+  }
+</div>

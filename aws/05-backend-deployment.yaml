@@ -388,6 +388,52 @@ Resources:
         - Key: "Category"
           Value: "storage"
   
+  IcalSubscriptionBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: !Sub ${BaseProductName}-ical-subscriptions
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteNonCurrentVersionsAfter1Day
+            Status: Enabled
+            NoncurrentVersionExpiration:
+              NoncurrentDays: 1
+          - Id: CleanupDeleteMarkers
+            Status: Enabled
+            ExpiredObjectDeleteMarker: true
+      Tags:
+        - Key: "ProductName"
+          Value: "lpcalendar"
+        - Key: "Stage"
+          Value: !Ref BaseProductName
+        - Key: "Category"
+          Value: "storage"
+  
+  IcalSubscriptionBucketWritePolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      Description: Policy that grants write access to the bucket where ical subscriptions are stored
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - 's3:GetObject'
+              - 's3:PutObject'
+              - 's3:PutObjectAcl'
+              - 's3:PutObjectTagging'
+              - 's3:GetObjectVersionTagging'
+              - 's3:DeleteObjectTagging'
+              - 's3:DeleteObject'
+              - 's3:AbortMultipartUpload'
+            Resource: !Join
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref IcalSubscriptionBucket
+                - /*
+  
   # Policy to publish to AuditLogQueue
   AuditLogQueueProducerPolicy:
     Type: AWS::IAM::ManagedPolicy
@@ -2130,6 +2176,16 @@ Outputs:
     Value: !Ref SharePicsBucket
     Export:
       Name: !Sub '${BaseProductName}-share-pics-bucket-name'
+  IcalSubscriptionBucketExport:
+    Description: 'Bucket that stores iCal subscriptions'
+    Value: !GetAtt IcalSubscriptionBucket.RegionalDomainName
+    Export:
+      Name: !Sub '${BaseProductName}-ical-subscriptions-s3-regional-domain'
+  IcalSubscriptionBucketNameExport:
+    Description: Name of the iCal Subscriptions S3 bucket
+    Value: !Ref IcalSubscriptionBucket
+    Export:
+      Name: !Sub '${BaseProductName}-ical-subscriptions-bucket-name'
   CognitoUserPoolDomainExport:
     Description: 'Internal domain name of the Cognito userpool'
     Value: !Sub "${BaseProductName}-${AWS::AccountId}.auth.${AWS::Region}.amazoncognito.com"

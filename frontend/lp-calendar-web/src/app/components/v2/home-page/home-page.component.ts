@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
-import {MatomoTracker} from 'ngx-matomo-client';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {AuthService} from '../../../auth/auth.service';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {ConcertDto} from '../../../modules/lpshows-api';
@@ -8,15 +8,17 @@ import { environment } from "../../../../environments/environment";
 import {Message} from 'primeng/message';
 import {Card} from 'primeng/card';
 import {Button} from 'primeng/button';
-import {SplitButton} from 'primeng/splitbutton';
-import {MenuItem, MessageService} from 'primeng/api';
-import {RouterLink} from '@angular/router';
+import {MessageService} from 'primeng/api';
+import {Router, RouterLink} from '@angular/router';
 import {Divider} from 'primeng/divider';
 import {FormsModule} from '@angular/forms';
 import {CalendarFeedBuilderComponent} from '../calendar-feed-builder/calendar-feed-builder.component';
 import {ConcertCardComponent} from '../concert-card/concert-card.component';
 import { ConcertsService } from '../../../services/concerts.service';
-import { ConcertDetailsDto } from '../../../modules/lpshows-api/v3';
+import { CalendarSubscriptionDto, CalendarSubscriptionSettingsDto, ConcertDetailsDto } from '../../../modules/lpshows-api/v3';
+import { CalendarSubscriptionsService } from '../../../services/calendar-subscriptions.service';
+import { subscriptionErrorMessage } from '../calendar-subscriptions/calendar-subscription-errors';
+import { catchError, of, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-home-page',
@@ -24,12 +26,10 @@ import { ConcertDetailsDto } from '../../../modules/lpshows-api/v3';
     Message,
     Card,
     Button,
-    SplitButton,
     RouterLink,
     Divider,
     FormsModule,
     CalendarFeedBuilderComponent,
-    ConcertCardComponent,
     ConcertCardComponent
   ],
   templateUrl: './home-page.component.html',
@@ -39,12 +39,22 @@ import { ConcertDetailsDto } from '../../../modules/lpshows-api/v3';
 export class HomePageComponent implements OnInit {
   protected readonly environment = environment;
 
-  private readonly tracker = inject(MatomoTracker);
   private readonly authService = inject(AuthService);
   private readonly oidcSecurityService = inject(OidcSecurityService);
   private readonly messageService = inject(MessageService);
   private readonly concertsService = inject(ConcertsService);
+  private readonly subscriptionsService = inject(CalendarSubscriptionsService);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
+  protected readonly calendarReady = computed(() => this.authService.initialized() && !this.authService.initializationError());
+  protected readonly calendarAuthError = this.authService.initializationError;
+  protected readonly creatingCalendar = signal(false);
+  protected readonly calendarManagementId = signal<string | null>(null);
+  protected readonly calendarSettings = signal<CalendarSubscriptionSettingsDto>({
+    includeDoorsTime: false,
+    includeLpStageTime: true,
+  });
   nextConcert: ConcertDetailsDto | null = null;
   nextAttendingConcert: ConcertDto | null = null;
   nextBookmarkedConcert: ConcertDto | null = null;
@@ -57,11 +67,6 @@ export class HomePageComponent implements OnInit {
   currentNewFeatureAlertToken: string = "739e7808-da76-48c8-9c21-a1e13915e7fd";
 
   isLoggedIn$: boolean = false;
-
-  iCalFeedUrl$: string = "";
-
-  iCalButtonItems$: MenuItem[] = [];
-
 
   constructor(private legacyConcertsService: LegacyConcertsService) {
   }
@@ -81,22 +86,6 @@ export class HomePageComponent implements OnInit {
       }
     });
 
-    this.iCalButtonItems$ = [
-      {
-        label: 'Subscribe',
-        icon: 'pi pi-calendar-plus',
-        command: (evt => {
-          this.subscribeBtnClicked()
-        }),
-      },
-      {
-        label: 'Copy link',
-        icon: 'pi pi-copy',
-        command: (evt => {
-          this.copyFeedUrlBtnClicked()
-        }),
-      }
-    ];
   }
 
 
@@ -169,42 +158,49 @@ export class HomePageComponent implements OnInit {
   }
 
 
-  private getCalFeedUrl() {
-    let calendarUrl = this.iCalFeedUrl$;
-    return calendarUrl.replace("https", "webcal");
-  }
+  /** Opens a matching subscription or creates one with the selected settings. */
+  protected createCalendar(): void {
+    if (!this.calendarReady() || this.creatingCalendar() || this.calendarManagementId()) return;
 
+    this.creatingCalendar.set(true);
+    const settings = this.calendarSettings();
+    const subscriptions = this.oidcSecurityService.authenticated().isAuthenticated
+      ? this.subscriptionsService.listMine().pipe(catchError(() => {
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Could not check existing subscriptions',
+            detail: 'A new subscription will be created and may duplicate an existing one.',
+            life: 10000,
+          });
+          return of<CalendarSubscriptionDto[]>([]);
+        }))
+      : of<CalendarSubscriptionDto[]>([]);
 
-  subscribeCustomBtnClicked() {
-    let calendarUrl = this.getCalFeedUrl();
-    this.tracker.trackEvent("ical_sub", "subscribed direct", calendarUrl);
-    window.open(calendarUrl);
-  }
-
-
-  subscribeBtnClicked() {
-    let calendarUrl = environment.apiBaseUrlLatest + "/feed/ical";
-    calendarUrl = calendarUrl.replace("https", "webcal");
-    window.open(calendarUrl);
-  }
-
-
-  copyFeedUrlBtnClicked() {
-    let calendarUrl = this.getCalFeedUrl();
-    this.tracker.trackEvent("ical_sub", "copied link", calendarUrl);
-    navigator.clipboard.writeText(calendarUrl)
-      .then(_ => {
-        console.debug("copied iCal URL: " + calendarUrl);
-        this.messageService.add({
-          severity: "success",
-          summary: "Copied URL to clipboard!",
+    subscriptions.pipe(
+      switchMap(items => {
+        const match = items.find(item =>
+          item.includeDoorsTime === settings.includeDoorsTime &&
+          item.includeLpStageTime === settings.includeLpStageTime);
+        return match ? of(match) : this.subscriptionsService.create(settings);
+      }),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: subscription => {
+        this.calendarManagementId.set(subscription.id);
+        void this.router.navigate(['/calendar-subscriptions', subscription.id]).then(navigated => {
+          this.creatingCalendar.set(false);
+          if (!navigated) {
+            this.messageService.add({ severity: 'error', summary: 'Could not open subscription', detail: 'Use the management link on the card.' });
+          }
+        }).catch(() => {
+          this.creatingCalendar.set(false);
+          this.messageService.add({ severity: 'error', summary: 'Could not open subscription', detail: 'Use the management link on the card.' });
         });
-      });
-  }
-
-
-  onFeedUrlUpdated(newUrl: string) {
-    console.log("New URL: " + newUrl);
-    this.iCalFeedUrl$ = newUrl;
+      },
+      error: error => {
+        this.creatingCalendar.set(false);
+        this.messageService.add({ severity: 'error', summary: 'Could not create subscription', detail: subscriptionErrorMessage(error) });
+      },
+    });
   }
 }

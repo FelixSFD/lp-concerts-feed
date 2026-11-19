@@ -52,10 +52,11 @@ public interface IConcertRepository : ISingleKeyRepositoryBase<ConcertDo, string
     IAsyncEnumerable<ConcertDo> GetConcertsByWikiPageId(string wikiPageId);
     
     /// <summary>
-    /// Starts a query that returns all concerts with their references. The query can be filtered.
+    /// Returns non-deleted concerts with their references in ascending posted start time order,
+    /// fetching them in pages. The order of concerts with identical start times is unspecified.
     /// </summary>
-    /// <param name="token"></param>
-    /// <returns></returns>
+    /// <param name="token">Token used to cancel asynchronous enumeration.</param>
+    /// <returns>The non-deleted concerts and their references.</returns>
     IAsyncEnumerable<ConcertDo> FindAllWithReferencesAsync(CancellationToken token);
 
     IAsyncEnumerable<ConcertDo> GetUpcomingBookmarkedConcertsForAsync(string userId,
@@ -76,4 +77,12 @@ public interface IConcertRepository : ISingleKeyRepositoryBase<ConcertDo, string
     /// <param name="ids">Primary keys of all entries that should be returned</param>
     /// <returns></returns>
     public IAsyncEnumerable<ConcertDo> GetByIds(IEnumerable<string> ids);
+
+    /// <summary>
+    /// Returns the latest change timestamp across all concerts.
+    /// This includes creations, updates and soft deletes.
+    /// </summary>
+    /// <param name="cancellationToken">Token to cancel the operation.</param>
+    /// <returns>The latest change time, or null when no concerts exist.</returns>
+    Task<DateTimeOffset?> GetLatestChangeAsync(CancellationToken cancellationToken = default);
 }

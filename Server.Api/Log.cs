@@ -22,4 +22,7 @@ internal static partial class Log
     
     [LoggerMessage(10107, LogLevel.Warning, "Failed to evict statistics cache for user: {userId}")]
     public static partial void FailedToEvictStatisticsCacheForUser(ILogger logger, string userId, Exception exception);
+
+    [LoggerMessage(10108, LogLevel.Warning, "Failed to trigger calendar generation job for subscription '{subscriptionId}'. It will be picked up by the hourly job.")]
+    public static partial void FailedToTriggerCalendarGenerationJob(ILogger logger, string subscriptionId, Exception exception);
 }

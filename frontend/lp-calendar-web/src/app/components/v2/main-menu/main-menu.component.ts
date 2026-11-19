@@ -177,6 +177,7 @@ export class MainMenuComponent implements OnInit, OnChanges {
       label: this.username ?? 'Account',
       items: [
         { id: 'your-profile', label: 'Your Profile', icon: 'pi pi-user', routerLink: '/users/me' },
+        { id: 'calendar-subscriptions', label: 'Your calendars', icon: 'pi pi-calendar', routerLink: '/calendar-subscriptions' },
         {
           id: 'logout',
           label: 'Logout',

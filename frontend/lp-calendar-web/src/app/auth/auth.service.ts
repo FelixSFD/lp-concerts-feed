@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import {BehaviorSubject, map} from 'rxjs';
 import {OidcSecurityService, UserDataResult, LoginResponse} from 'angular-auth-oidc-client';
 import {User} from '../data/users/user';
@@ -6,6 +6,8 @@ import {UserDto} from '../modules/lpshows-api';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  readonly initialized = signal(false);
+  readonly initializationError = signal<string | null>(null);
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   private userDataSubject = new BehaviorSubject<UserDto | null>(null);
   private accessTokenSubject = new BehaviorSubject<any>(null);
@@ -17,27 +19,37 @@ export class AuthService {
 
   constructor(private oidcSecurityService: OidcSecurityService) {
     // Subscribe once to the OIDC observables and propagate updates
-    this.oidcSecurityService.checkAuth().subscribe((loginResponse: LoginResponse) => {
+    this.oidcSecurityService.checkAuth().subscribe({ next: (loginResponse: LoginResponse) => {
       if (loginResponse.isAuthenticated) {
         this.handleLoginResponse(loginResponse);
+        this.initialized.set(true);
       } else {
         console.debug("Check auth failed. Not authenticated. Try refresh if token is available.");
-        this.oidcSecurityService.getRefreshToken().subscribe(refreshToken => {
-          console.debug("Check refresh token:", refreshToken);
+        this.oidcSecurityService.getRefreshToken().subscribe({ next: refreshToken => {
           if (refreshToken) {
             // attempt a programmatic refresh using the library's refresh token flow
             console.debug("Refresh token found. Try refresh...");
             this.oidcSecurityService.forceRefreshSession().subscribe({
               next: res => {
-                console.debug('refresh succeeded', res);
-                this.handleLoginResponse(res);
+                if (res.isAuthenticated) {
+                  this.handleLoginResponse(res);
+                } else {
+                  this.initializationError.set('Your session could not be restored. Please log in again.');
+                }
+                this.initialized.set(true);
               },
-              error: err => console.warn('refresh failed', err)
+              error: err => {
+                console.warn('refresh failed', err);
+                this.initializationError.set('Your session could not be restored. Please log in again.');
+                this.initialized.set(true);
+              }
             });
+          } else {
+            this.initialized.set(true);
           }
-        });
+        }, error: err => this.authInitializationFailed(err) });
       }
-    });
+    }, error: err => this.authInitializationFailed(err) });
 
     this.oidcSecurityService.userData$.subscribe((result: UserDataResult) => {
       console.debug("userData changed: ", result);
@@ -48,6 +60,12 @@ export class AuthService {
         this.userDataSubject.next(null);
       }
     });
+  }
+
+  private authInitializationFailed(error: unknown): void {
+    console.warn('Authentication initialization failed', error);
+    this.initializationError.set('Authentication could not be initialized. Reload the page or log in again.');
+    this.initialized.set(true);
   }
 
   /**
@@ -126,4 +144,3 @@ export class AuthService {
     return this.isMemberOfOrAdmin("ManageLocations");
   }
 }
-
