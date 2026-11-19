@@ -73,4 +73,11 @@ public static partial class Log
         Message = "Job '{job}' is missing required job data '{jobDataKey}'."
     )]
     public static partial void JobMissingRequiredData(ILogger logger, string job, string jobDataKey);
+    
+    [LoggerMessage(
+        EventId = 90011,
+        Level = LogLevel.Information,
+        Message = "Forcefully generating all subscriptions regardless of their last update time..."
+    )]
+    public static partial void ForceGenerateAllSubscriptionCalendars(ILogger logger);
 }

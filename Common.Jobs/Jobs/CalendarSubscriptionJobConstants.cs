@@ -6,4 +6,5 @@ public static class CalendarSubscriptionJobConstants
     public const string UpdateAllJobName = "UpdateCalendarSubscriptions";
     public const string GenerateSingleJobName = "GenerateSubscriptionCalendar";
     public const string SubscriptionIdJobDataKey = "subscriptionId";
+    public const string ForceAllJobDataKey = "forceAll";
 }

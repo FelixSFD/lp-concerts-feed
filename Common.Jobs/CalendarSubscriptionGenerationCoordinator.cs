@@ -28,9 +28,26 @@ public sealed class CalendarSubscriptionGenerationCoordinator(
     /// <summary>
     /// Generates calendar files for all subscriptions that are outdated.
     /// </summary>
-    public async Task GenerateOutdatedSubscriptionsAsync(CancellationToken cancellationToken)
+    public async Task GenerateOutdatedSubscriptionsAsync(CancellationToken cancellationToken) 
+        => await GenerateOutdatedSubscriptionsAsync(false, cancellationToken);
+
+    /// <summary>
+    /// Generates calendar files for all subscriptions that are outdated.
+    /// </summary>
+    /// <param name="forceAll">If true, all subscriptions will be regenerated regardless of their last update time.</param>
+    /// <param name="cancellationToken">Token used to cancel retrieval and generation.</param>
+    public async Task GenerateOutdatedSubscriptionsAsync(bool forceAll, CancellationToken cancellationToken)
     {
-        var latestConcertChange = await concerts.GetLatestChangeAsync(cancellationToken);
+        DateTimeOffset? latestConcertChange;
+        if (forceAll)
+        {
+            latestConcertChange = DateTimeOffset.UtcNow.AddDays(1); // Force all subscriptions to be regenerated
+        }
+        else
+        {
+            latestConcertChange = await concerts.GetLatestChangeAsync(cancellationToken);
+        }
+
         var allSubscriptions = await subscriptions.GetAllAsync(cancellationToken);
 
         foreach (var subscription in allSubscriptions)
