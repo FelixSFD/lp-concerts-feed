@@ -1,0 +1,18 @@
+:host ::ng-deep .concert-action-group > span > a.p-button {
+  text-decoration: none;
+}
+
+:host ::ng-deep .concert-action-group > span > a.p-button:first-child {
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+}
+
+:host ::ng-deep .concert-action-group > span > a.p-button:nth-child(2) {
+  border-radius: 0;
+  border-inline-end: 0;
+}
+
+:host ::ng-deep .concert-action-group > span > p-button:last-child .p-button {
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+}
