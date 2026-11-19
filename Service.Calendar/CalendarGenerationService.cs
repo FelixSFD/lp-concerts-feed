@@ -27,6 +27,8 @@ public sealed class CalendarGenerationService(IConcertRepository concerts, Uri? 
         var eventMapper = new CalendarEventMapper(concertSiteBaseUri);
         var calendar = new IcalCalendar();
         var earliestByTimeZone = new Dictionary<string, DateTime>(StringComparer.Ordinal);
+        
+        calendar.AddProperty("REFRESH-INTERVAL;VALUE=DURATION", "PT1H");
 
         await foreach (var concert in concerts.FindAllWithReferencesAsync(cancellationToken))
         {
