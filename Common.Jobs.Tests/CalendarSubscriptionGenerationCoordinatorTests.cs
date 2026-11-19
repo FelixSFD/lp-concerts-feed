@@ -50,10 +50,10 @@ public class CalendarSubscriptionGenerationCoordinatorTests
         await s3.Received(1).PutObjectAsync(
             Arg.Is<PutObjectRequest>(request =>
                 request.BucketName == "ical-cache-bucket" &&
-                request.Key == "sub-1/subscription.ical" &&
+                request.Key == "sub-1/LinkinPark.ical" &&
                 request.ContentType == "text/calendar" &&
                 request.Headers.ContentDisposition == "inline; filename=LinkinPark_concerts.ical" &&
-                request.Headers.CacheControl == "public, max-age=14400"),
+                request.Headers.CacheControl == "public, max-age=3600"),
             Arg.Any<CancellationToken>());
         await subscriptions.Received(1).MarkGeneratedAsync(subscription.Id, Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>());
     }

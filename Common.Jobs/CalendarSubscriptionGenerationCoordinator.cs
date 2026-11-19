@@ -86,7 +86,7 @@ public sealed class CalendarSubscriptionGenerationCoordinator(
         }, cancellationToken);
 
         var serializedCalendar = new CalendarSerializer().SerializeToString(calendar);
-        var key = $"{subscription.Id}/subscription.ical";
+        var key = $"{subscription.Id}/LinkinPark.ical";
         await s3Client.PutObjectAsync(new PutObjectRequest
         {
             BucketName = _calendarCacheBucketName,

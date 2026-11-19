@@ -7,6 +7,6 @@ export function calendarSubscriptionFeedUrl(subscriptionId: string): string {
     throw new Error('The calendar subscription feed base URL must be an HTTPS URL without a query or fragment.');
   }
 
-  baseUrl.pathname = `${baseUrl.pathname.replace(/\/+$/, '')}/${encodeURIComponent(subscriptionId)}/subscription.ical`;
+  baseUrl.pathname = `${baseUrl.pathname.replace(/\/+$/, '')}/${encodeURIComponent(subscriptionId)}/LinkinPark.ical`;
   return baseUrl.href.replace(/^https:/, 'webcal:');
 }
