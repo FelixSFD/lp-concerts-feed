@@ -247,7 +247,18 @@
                 target="_blank"
                 style="text-decoration: none;">
                 <i class="pi pi-file-import"></i>
-                Import
+                Import concert
+              </a>
+            } @else if (concert.importStatus == LinkinpediaImportConcertStatusDto.ImportStatusEnum.ImportedNoSetlist) {
+              <a
+                pButton
+                variant="outlined"
+                severity="info"
+                [routerLink]="['/concerts', concert.concert.id, 'import']"
+                target="_blank"
+                style="text-decoration: none;">
+                <i class="pi pi-file-import"></i>
+                Import setlist
               </a>
             } @else {
               <a
