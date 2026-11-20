@@ -29,9 +29,6 @@ Parameters:
   CognitoSslCertificateArn:
     Type: String
     Description: ARN of the SSL Certificate for Cognito. The certificate must be hosted in us-eat-1, which is why we have to pass it as parameter
-  TimeZoneApiKey:
-    Type: String
-    Description: Key for the TimezoneDB API
   SetlistsDbConnectionStringRead:
     Type: String
     Description: Connection string to read from the setlist database
@@ -1960,26 +1957,6 @@ Resources:
         LogFormat: JSON
         ApplicationLogLevel: DEBUG
 
-  
-  GetTimeZoneFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: bootstrap
-      Role: !GetAtt ConcertsReadLambdaExecutionRole.Arn
-      Description: "DEPRECATED: .NET function to search for the timezone at a given location"
-      CodeUri: ../lambda_packages/Lambda.GetTimeZone.zip
-      Runtime: provided.al2023
-      Architectures:
-        - arm64
-      Tracing: Active
-      MemorySize: 128
-      Environment:
-        Variables:
-          TZDB_API_KEY: !Ref TimeZoneApiKey
-      LoggingConfig:
-        LogFormat: JSON
-        ApplicationLogLevel: DEBUG
-
   ConcertStatusUpdaterFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -2189,10 +2166,6 @@ Outputs:
     Value: !GetAtt CognitoAuthorizerUserPoolV3.Arn
     Export:
       Name: !Sub '${BaseProductName}-cognito-authorizer-user-pool'
-  LambdaRefGetTimeZoneFunctionExport:
-    Value: !GetAtt GetTimeZoneFunction.Arn
-    Export:
-      Name: !Sub '${BaseProductName}-lambda-get-time-zone-function'
   LambdaRefUsersReadWriteFunctionExport:
     Value: !GetAtt UsersReadWriteFunction.Arn
     Export:
