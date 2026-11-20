@@ -130,8 +130,26 @@
         <ng-template #body let-generatedAct let-index="rowIndex">
           <tr>
             <td>Act {{ generatedAct.actNumber }}</td>
-            <td>{{ generatedAct.name }}</td>
-            <td>{{ generatedAct.extraNotes }}</td>
+            <td [pEditableColumn]="generatedAct.name" pEditableColumnField="name">
+              <p-cell-editor>
+                <ng-template #input>
+                  <input pInputText type="text" [(ngModel)]="generatedAct.name" fluid pSize="small" />
+                </ng-template>
+                <ng-template #output>
+                  <span class="font-medium">{{ generatedAct.name }}</span>
+                </ng-template>
+              </p-cell-editor>
+            </td>
+            <td [pEditableColumn]="generatedAct.extraNotes" pEditableColumnField="extraNotes">
+              <p-cell-editor>
+                <ng-template #input>
+                  <input pInputText type="text" [(ngModel)]="generatedAct.extraNotes" fluid pSize="small" />
+                </ng-template>
+                <ng-template #output>
+                  <span class="font-medium">{{ generatedAct.extraNotes }}</span>
+                </ng-template>
+              </p-cell-editor>
+            </td>
           </tr>
         </ng-template>
       </p-table>

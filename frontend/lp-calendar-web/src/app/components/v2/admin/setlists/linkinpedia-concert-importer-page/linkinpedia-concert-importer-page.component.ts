@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal, viewChild } from '@angular/core';
-import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
 import { SetlistsService } from '../../../../../services/setlists.service';
 import {
@@ -56,7 +56,8 @@ import { firstValueFrom } from 'rxjs';
     TableModule,
     Tooltip,
     Dialog,
-    ButtonDirective
+    ButtonDirective,
+    FormsModule
   ],
   templateUrl: './linkinpedia-concert-importer-page.component.html',
   styleUrl: './linkinpedia-concert-importer-page.component.css',
