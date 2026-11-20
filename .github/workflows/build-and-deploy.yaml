@@ -352,5 +352,5 @@ jobs:
     - name: Deploy files to primary region ${{ vars.FRONTEND_PRIMARY_REGION }}
       if: success()
       run: | 
-        aws s3 sync ./angular-app s3://${{ vars.BASE_NAME }}-web-frontend-bucket-${{ vars.FRONTEND_PRIMARY_REGION }} --exclude index.html --cache-control max-age=31536000
+        aws s3 co ./angular-app s3://${{ vars.BASE_NAME }}-web-frontend-bucket-${{ vars.FRONTEND_PRIMARY_REGION }} --exclude index.html --cache-control max-age=31536000 --recursive --metadata GitHubBuildNumber=${{github.run_number}}
         aws s3 cp ./angular-app/index.html s3://${{ vars.BASE_NAME }}-web-frontend-bucket-${{ vars.FRONTEND_PRIMARY_REGION }}/index.html --cache-control max-age=120
