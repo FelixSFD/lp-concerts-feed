@@ -38,6 +38,8 @@ import { Tooltip } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { Dialog } from 'primeng/dialog';
 import { firstValueFrom } from 'rxjs';
+import { Inplace } from 'primeng/inplace';
+import { AutoFocus } from 'primeng/autofocus';
 
 @Component({
   selector: 'app-linkinpedia-concert-importer-page',
@@ -57,7 +59,9 @@ import { firstValueFrom } from 'rxjs';
     Tooltip,
     Dialog,
     ButtonDirective,
-    FormsModule
+    FormsModule,
+    Inplace,
+    AutoFocus
   ],
   templateUrl: './linkinpedia-concert-importer-page.component.html',
   styleUrl: './linkinpedia-concert-importer-page.component.css',
