@@ -24,6 +24,7 @@ public class LinkinpediaImportConcertServiceTest
     private readonly IConcertTypeRepository _concertTypeRepository;
     private readonly IConcertRepository _concertRepository;
     private readonly ISetlistRepository _setlistRepository;
+    private readonly TimeProvider _timeProvider;
     private readonly ILogger<LinkinpediaImportConcertService> _logger;
     private readonly LinkinpediaImportConcertService _sut;
 
@@ -40,6 +41,7 @@ public class LinkinpediaImportConcertServiceTest
         _concertRepository = Substitute.For<IConcertRepository>();
         _setlistRepository = Substitute.For<ISetlistRepository>();
         _setlistRepository.GetConcertIdsWithSetlistsAsync(Arg.Any<CancellationToken>()).Returns([]);
+        _timeProvider = Substitute.For<TimeProvider>();
         _logger = Substitute.For<ILogger<LinkinpediaImportConcertService>>();
 
         _sut = new LinkinpediaImportConcertService(
@@ -53,6 +55,7 @@ public class LinkinpediaImportConcertServiceTest
             _concertTypeRepository,
             _concertRepository,
             _setlistRepository,
+            _timeProvider,
             _logger
         );
     }
@@ -733,9 +736,12 @@ public class LinkinpediaImportConcertServiceTest
     public async Task GetConcertImportPlan_MapsShowTypeAndCancellation(string showType, string expectedType, ConcertDto.ConcertStatusValue expectedStatus)
     {
         const string pageId = "Live:20240917";
+        
+        _timeProvider.GetUtcNow().Returns(new DateTime(2024, 9, 5));
+        
         _wikiMediaRepository.GetWikiPageAsync(pageId).Returns(new WikiPageDto
         {
-            Id = 1, Title = pageId, Source = "{{Tourdate\n| ShowType = " + showType + "\n| Year = 2024\n}}"
+            Id = 1, Title = pageId, Source = "{{Tourdate\n| ShowType = " + showType + "\n| Year = 2024\n| Month = September\n| Day = 17\n| Country = USA\n| City = Los Angeles\n| Venue = Staples Center\n}}"
         });
         _countryRepository.QueryAsync(Arg.Any<CancellationToken>()).Returns(AsyncEnumerable.Empty<CountryDo>());
         _stateRepository.QueryAsync(Arg.Any<CancellationToken>()).Returns(AsyncEnumerable.Empty<StateDo>());
@@ -751,6 +757,8 @@ public class LinkinpediaImportConcertServiceTest
 
         var result = await _sut.GetConcertImportPlan(pageId);
 
+        _timeProvider.Received(expectedStatus == ConcertDto.ConcertStatusValue.Cancelled ? 0 : 1).GetUtcNow();
+        
         Assert.Equal(expectedType, result.ConcertType?.Name);
         Assert.Equal(expectedStatus, result.ConcertStatus);
     }

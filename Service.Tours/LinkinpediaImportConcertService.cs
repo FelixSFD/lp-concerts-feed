@@ -36,6 +36,7 @@ public class LinkinpediaImportConcertService(
     IConcertTypeRepository concertTypeRepository,
     IConcertRepository concertRepository,
     ISetlistRepository setlistRepository,
+    TimeProvider timeProvider,
     ILogger<LinkinpediaImportConcertService> logger)
 {
     /// <summary>
@@ -270,6 +271,10 @@ public class LinkinpediaImportConcertService(
         if (IsCancelledShow(tourdate.ShowType))
         {
             concertStatus = ConcertDto.ConcertStatusValue.Cancelled;
+        }
+        else
+        {
+            concertStatus = postedStartTime > timeProvider.GetUtcNow() ? ConcertDto.ConcertStatusValue.Planned : ConcertDto.ConcertStatusValue.Past;
         }
 
         if (concertType == null)
