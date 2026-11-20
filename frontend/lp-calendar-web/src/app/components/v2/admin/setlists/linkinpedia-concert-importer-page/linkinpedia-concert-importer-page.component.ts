@@ -27,7 +27,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DateTime } from 'luxon';
 import { ConcertsService } from '../../../../../services/concerts.service';
 import { Card } from 'primeng/card';
-import { Button } from 'primeng/button';
+import { Button, ButtonDirective } from 'primeng/button';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
@@ -55,7 +55,8 @@ import { firstValueFrom } from 'rxjs';
     Divider,
     TableModule,
     Tooltip,
-    Dialog
+    Dialog,
+    ButtonDirective
   ],
   templateUrl: './linkinpedia-concert-importer-page.component.html',
   styleUrl: './linkinpedia-concert-importer-page.component.css',
@@ -136,6 +137,16 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
 
   async onLoadSourceClicked() {
     await this.startImport();
+  }
+
+
+  protected onOpenLinkinpediaUrlClicked() {
+    let url = this.sourceDataForm.value.linkinpediaUrl?.valueOf();
+    if (url?.length == 0) {
+      return;
+    }
+
+    window.open(url, "_blank");
   }
 
 
@@ -461,4 +472,6 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
       title: previewAct.name,
     };
   }
+
+  protected readonly window = window;
 }
