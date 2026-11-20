@@ -108,7 +108,28 @@
       <td>{{ entryNumber }}</td>
       <ng-container *ngTemplateOutlet="actNumberCol; context: {actNumber: actNumber }" />
       <td>{{ type }}</td>
-      <td>{{ title }}</td>
+      <td>
+        <p-inplace [pt]="{ display: 'w-full' }">
+          <ng-template #display>
+            <span class="w-full text-sm">{{ title }}</span>
+          </ng-template>
+          <ng-template #content let-closeCallback="closeCallback">
+            <p-inputgroup>
+              <input #titleInput pInputText [ngModel]="entry.title" placeholder="Enter title" class="flex-1" fluid [pAutoFocus]="true" />
+              <p-inputgroup-addon>
+                <button pButton text severity="success" (click)="entry.title = titleInput.value; closeCallback($event)">
+                  save
+                </button>
+              </p-inputgroup-addon>
+              <p-inputgroup-addon>
+                <button pButton text severity="danger" (click)="closeCallback($event)">
+                  cancel
+                </button>
+              </p-inputgroup-addon>
+            </p-inputgroup>
+          </ng-template>
+        </p-inplace>
+      </td>
       <td>
         <p-inplace [pt]="{ display: 'w-full' }">
           <ng-template #display>
@@ -117,7 +138,7 @@
           <ng-template #content let-closeCallback="closeCallback">
             <p-inputgroup>
               <!-- important: the parameter "notes" contains the value of the entry property "extraNotes"; For saving, we MUST use the property of the entry object -->
-              <input #notesInput pInputText [ngModel]="entry.extraNotes" placeholder="Enter name" class="flex-1" fluid [pAutoFocus]="true" />
+              <input #notesInput pInputText [ngModel]="entry.extraNotes" placeholder="Enter notes" class="flex-1" fluid [pAutoFocus]="true" />
               <p-inputgroup-addon>
                 <button pButton text severity="success" (click)="entry.extraNotes = notesInput.value; closeCallback($event)">
                   save
