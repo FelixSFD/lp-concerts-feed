@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Service.Setlists.Exceptions;
 using Service.Setlists.Importer.Exceptions;
 using Service.Tours.Exceptions;
+using TimeZoneNotFoundException = Service.TimeZones.Exceptions.TimeZoneNotFoundException;
 
 namespace Server.Api.ExceptionHandling;
 
@@ -78,6 +79,7 @@ public sealed class GlobalExceptionHandler(
         SetlistEntryNotFoundException => (StatusCodes.Status404NotFound, "Resource not found"),
         SetlistActNotFoundException => (StatusCodes.Status404NotFound, "Resource not found"),
         Service.Setlists.Exceptions.ConcertNotFoundException => (StatusCodes.Status404NotFound, "Resource not found"),
+        TimeZoneNotFoundException => (StatusCodes.Status404NotFound, "Resource not found"),
 
         // AppException appException => ((int)appException.StatusCode, "Application Error"),
 
@@ -118,6 +120,7 @@ public sealed class GlobalExceptionHandler(
             or InvalidEntryOrderException
             or InvalidWikiContentException
             or LinkinpediaImportServiceException
+            or TimeZoneNotFoundException
             or BadRequestException
             ? exception.Message
             : null;

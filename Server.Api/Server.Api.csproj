@@ -39,6 +39,7 @@
       <ProjectReference Include="..\DataStructure\DataStructure.csproj" />
       <ProjectReference Include="..\Service.Setlists\Service.Setlists.csproj" />
       <ProjectReference Include="..\Service.SharePics\Service.SharePics.csproj" />
+      <ProjectReference Include="..\Service.TimeZones\Service.TimeZones.csproj" />
       <ProjectReference Include="..\Service.Tours\Service.Tours.csproj" />
       <ProjectReference Include="..\Service.Users\Service.Users.csproj" />
     </ItemGroup>
