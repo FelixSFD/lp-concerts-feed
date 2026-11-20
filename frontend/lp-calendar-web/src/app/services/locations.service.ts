@@ -4,12 +4,10 @@ import { firstValueFrom, map, Observable, of, switchMap } from 'rxjs';
 import {OsmCity} from '../data/osm/osm-city';
 import {Coordinates} from '../data/location/coordinates';
 import {environment} from '../../environments/environment';
-import {TimeZoneResponseDto, TimezoneService} from '../modules/lpshows-api';
 import {
   AddVenueNameRequestDto,
   CitiesApi, CityListResponseDto,
   CityWithCountryDto,
-  ConcertListResponseDto,
   CountriesApi,
   CountryDto,
   CreateCityRequestDto,
@@ -29,7 +27,6 @@ import {
 } from '../modules/lpshows-api/v3';
 import { addAuthentication } from '../auth/auth.config';
 import { getRequestIdParameter } from '../helper/cache-parameter-helper';
-import { ConcertFilter } from '../data/concert-filter';
 import { VenueFilter } from '../data/venue-filter';
 
 /**

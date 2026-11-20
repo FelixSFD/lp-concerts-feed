@@ -1966,26 +1966,19 @@ Resources:
     Properties:
       Handler: bootstrap
       Role: !GetAtt ConcertsReadLambdaExecutionRole.Arn
-      Description: .NET function to search for the timezone at a given location
+      Description: "DEPRECATED: .NET function to search for the timezone at a given location"
       CodeUri: ../lambda_packages/Lambda.GetTimeZone.zip
       Runtime: provided.al2023
       Architectures:
         - arm64
       Tracing: Active
-      MemorySize: 384
+      MemorySize: 128
       Environment:
         Variables:
           TZDB_API_KEY: !Ref TimeZoneApiKey
       LoggingConfig:
         LogFormat: JSON
         ApplicationLogLevel: DEBUG
-      Events:
-        GetTimeZone:
-          Type: Api
-          Properties:
-            RestApiId: !Ref ConcertsApi
-            Path: /timeZone/byCoordinates
-            Method: get
 
   ConcertStatusUpdaterFunction:
     Type: AWS::Serverless::Function

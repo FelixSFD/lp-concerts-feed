@@ -452,16 +452,6 @@ components:
           type: boolean
           description: true if the user wants to receive an alert when a new song was played at a show.
           nullable: false
-
-    # Timezones
-    TimeZoneResponse:
-      type: object
-      properties:
-        timeZoneId:
-          type: string
-          description: Name/ID of the timezone
-          example: Europe/Berlin
-          nullable: false
     
     # Setlists
     Album:
@@ -2015,44 +2005,6 @@ paths:
             - LambdaArn:
                 Fn::ImportValue:
                   Fn::Sub: "${BaseProductName}-lambda-concert-s3-upload-url-function"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-  /timeZone/byCoordinates:
-    get:
-      operationId: GetTimeZoneByCoordinates
-      summary: Returns the timezone for the given coordinates
-      tags:
-        - timezone
-      parameters:
-        - in: query
-          name: lat
-          schema:
-            type: number
-          description: Latitude of the location
-        - in: query
-          name: lon
-          schema:
-            type: number
-          description: Longitude of the location
-      responses:
-        "200":
-          description: A JSON object with the data of the timezone
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/TimeZoneResponse"
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-            - LambdaArn:
-                Fn::ImportValue:
-                  Fn::Sub: "${BaseProductName}-lambda-get-time-zone-function"
         responses:
           default:
             statusCode: "200"
