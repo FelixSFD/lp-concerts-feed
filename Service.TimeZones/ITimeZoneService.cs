@@ -11,5 +11,5 @@ public interface ITimeZoneService
     /// <param name="lat">The latitude of the location.</param>
     /// <param name="lon">The longitude of the location.</param>
     /// <returns>The <see cref="TimeZoneInfo"/> object representing the time zone of the specified location.</returns>
-    TimeZoneInfo GetTimeZoneByCoordinates(double lat, double lon);
+    Task<TimeZoneInfo> GetTimeZoneByCoordinates(double lat, double lon);
 }

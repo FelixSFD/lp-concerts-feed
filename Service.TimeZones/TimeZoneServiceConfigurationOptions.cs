@@ -10,7 +10,12 @@ public class TimeZoneServiceConfigurationOptions
     /// <summary>
     /// Base URL for the API that provides time zone information.
     /// </summary>
-    public string?TimeZoneApiBaseUrl { get; set; }
+    public string? TimeZoneApiBaseUrl { get; set; }
+
+    /// <summary>
+    /// API key for accessing the time zone API.
+    /// </summary>
+    public string? TimeZoneDbApiKey { get; set; }
 }
 
 
@@ -32,7 +37,9 @@ public static class TimeZoneServiceConfigurationExtensions
             var httpClient = serviceProvider.GetRequiredService<HttpClient>();
             var baseUrl = options.TimeZoneApiBaseUrl ?? throw new ArgumentException(
                 $"{nameof(options.TimeZoneApiBaseUrl)} must be provided");
-            return new TimeZoneService(baseUrl, httpClient);
+            var apiKey = options.TimeZoneDbApiKey ?? throw new ArgumentException(
+                $"{nameof(options.TimeZoneDbApiKey)} must be provided");
+            return new TimeZoneService(baseUrl, apiKey, httpClient);
         });
 
         return services;
