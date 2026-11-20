@@ -109,7 +109,7 @@
       <ng-container *ngTemplateOutlet="actNumberCol; context: {actNumber: actNumber }" />
       <td>{{ type }}</td>
       <td>
-        <p-inplace [pt]="{ display: 'w-full' }">
+        <p-inplace [pt]="{ display: 'w-full' }" (onDeactivate)="onSetlistEntryEdited()">
           <ng-template #display>
             <span class="w-full text-sm">{{ title }}</span>
           </ng-template>
@@ -131,7 +131,7 @@
         </p-inplace>
       </td>
       <td>
-        <p-inplace [pt]="{ display: 'w-full' }">
+        <p-inplace [pt]="{ display: 'w-full' }" (onDeactivate)="onSetlistEntryEdited()">
           <ng-template #display>
             <span class="w-full text-sm">{{ notes }}</span>
           </ng-template>
@@ -162,7 +162,14 @@
         <h4>Setlist to import</h4>
       </ng-template>
 
-      <button pButton variant="outlined" (click)="onReplaceMediaWikiLinksClicked()" [disabled]="isReadingSource$()"><i class="pi pi-refresh"></i> replace MediaWiki links</button>
+      <div class="flex flex-wrap align-items-center gap-3">
+        <button pButton variant="outlined" (click)="onReplaceMediaWikiLinksClicked()" [disabled]="isReadingSource$()"><i class="pi pi-refresh"></i> replace MediaWiki links</button>
+        @if (hasMediaWikiLinks$()) {
+          <p-message severity="warn" icon="pi pi-exclamation-triangle" style="animation: none; grid-template-rows: auto; min-width: 0; max-width: 100%">
+            Setlist entries contain MediaWiki links.
+          </p-message>
+        }
+      </div>
 
       <h5>Acts</h5>
 

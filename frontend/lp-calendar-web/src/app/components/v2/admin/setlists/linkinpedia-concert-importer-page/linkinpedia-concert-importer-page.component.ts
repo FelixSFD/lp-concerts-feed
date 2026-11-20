@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, viewChild } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, viewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
 import { SetlistsService } from '../../../../../services/setlists.service';
@@ -40,6 +40,7 @@ import { Dialog } from 'primeng/dialog';
 import { firstValueFrom } from 'rxjs';
 import { Inplace } from 'primeng/inplace';
 import { AutoFocus } from 'primeng/autofocus';
+import { Message } from 'primeng/message';
 import { replaceMediaWikiLinksInString } from '../../../../../helper/string-helper';
 
 @Component({
@@ -62,7 +63,8 @@ import { replaceMediaWikiLinksInString } from '../../../../../helper/string-help
     ButtonDirective,
     FormsModule,
     Inplace,
-    AutoFocus
+    AutoFocus,
+    Message
   ],
   templateUrl: './linkinpedia-concert-importer-page.component.html',
   styleUrl: './linkinpedia-concert-importer-page.component.css',
@@ -95,6 +97,10 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
   });
 
   generatedSetlist$ = signal<ImportSetlistPreviewDto | null>(null);
+  hasMediaWikiLinks$ = computed(() => this.generatedSetlist$()?.entries?.some(entry =>
+    entry.title !== replaceMediaWikiLinksInString(entry.title) ||
+    entry.extraNotes !== replaceMediaWikiLinksInString(entry.extraNotes)
+  ) ?? false);
   private originallyGeneratedSetlist: ImportSetlistPreviewDto | null = null;
 
   // properties for the add song modal
@@ -160,6 +166,10 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
    */
   protected onReplaceMediaWikiLinksClicked() {
     this.replaceMediaWikiLinks();
+  }
+
+  protected onSetlistEntryEdited() {
+    this.generatedSetlist$.update(current => current ? { ...current } : current);
   }
 
   /**
@@ -341,12 +351,14 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
     console.log("use variant: ", variant);
     entryPreview.title += " (" + variant.variantName + ")";
     entryPreview.foundSongVariantId = variant.id;
+    this.onSetlistEntryEdited();
     this.validateEntries();
   }
 
   setNormalVersionBtnClicked(entryPreview: ImportSetlistEntryPreviewDto) {
     entryPreview.title = this.originallyGeneratedSetlist?.entries?.find((e) => e.songNumber == entryPreview.songNumber)?.title ?? "failed to reload title";
     entryPreview.foundSongVariantId = null;
+    this.onSetlistEntryEdited();
     this.validateEntries();
   }
 
