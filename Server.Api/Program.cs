@@ -35,6 +35,7 @@ using Server.Api.RateLimiting;
 using Service.Setlists;
 using Service.Calendar;
 using Service.SharePics;
+using Service.TimeZones;
 using Service.Tours;
 using Service.Tours.Importer;
 using Service.Tours.Syncing;
@@ -284,6 +285,13 @@ builder.Services.AddSharePicService(
     builder.Configuration.GetValue<string>("SharePics:Gotenberg:BaseUrl") ?? throw new ConfigurationErrorsException("SharePics:GotenbergBaseUrl is missing!"),
     builder.Configuration.GetValue<string>("SharePics:TemplateBaseDir") ?? throw new ConfigurationErrorsException("SharePics:Templates:BaseDir is missing!")
 );
+builder.Services.AddTimeZoneService((serviceProvider, opt) =>
+{
+    var config = serviceProvider.GetRequiredService<IConfiguration>();
+    opt.TimeZoneApiBaseUrl = config.GetValue<string>("TimeZoneDb:ApiBaseUrl") ?? throw new ConfigurationErrorsException("TimeZoneDb:ApiBaseUrl is missing!");
+    opt.TimeZoneDbApiKey = config.GetValue<string>("TimeZoneDb:ApiKey") ?? throw new ConfigurationErrorsException("TimeZoneDb:ApiKey is missing!");
+    return opt;
+});
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IWikiMediaRepository, WikiMediaRepository>(b => new WikiMediaRepository(b.GetRequiredService<HttpClient>(),
     LinkinpediaImportService.LinkinpediaRestApiBaseUrl, LinkinpediaImportService.LinkinpediaActionApiBaseUrl, b.GetRequiredService<ILogger<WikiMediaRepository>>()));

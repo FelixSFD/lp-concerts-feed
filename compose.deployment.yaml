@@ -39,6 +39,8 @@ services:
       - App_Cognito__UserPoolId=${AWS_COGNITO_USER_POOL_ID}
       - App_SharePics__BucketName=${SHARE_PICS_S3_BUCKET_NAME}
       - App_SharePics__ShareImageBaseUrl=${SHARE_PICS_BASE_URL}
+      - App_TimeZoneDb__ApiBaseUrl=${TIME_ZONE_DB_BASE_URL}
+      - App_TimeZoneDb__ApiKey=${TIME_ZONE_DB_API_KEY}
       - App_Quartz__ConnectionString=${QUARTZ_CONNECTION_STRING}
       # can set Readonly to false because auth is enabled for /quartz
       - App_Quartz__Dashboard__Readonly=false

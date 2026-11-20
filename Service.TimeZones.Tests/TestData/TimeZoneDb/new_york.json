@@ -1,0 +1,17 @@
+{
+  "status": "OK",
+  "message": "",
+  "countryCode": "US",
+  "countryName": "United States",
+  "regionName": "New Jersey",
+  "cityName": "Jersey City",
+  "zoneName": "America\/New_York",
+  "abbreviation": "EDT",
+  "gmtOffset": -14400,
+  "dst": "1",
+  "zoneStart": 1741503600,
+  "zoneEnd": 1762063200,
+  "nextAbbreviation": "EST",
+  "timestamp": 1746281833,
+  "formatted": "2025-05-03 14:17:13"
+}

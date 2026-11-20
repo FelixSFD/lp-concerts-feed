@@ -54,14 +54,6 @@ Resources:
             IdentitySource: method.request.header.Authorization
 
   # Lambda permissions
-  GetTimeZoneLambdaPermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:InvokeFunction
-      FunctionName: !ImportValue
-        Fn::Sub: "${BaseProductName}-lambda-get-time-zone-function"
-      Principal: apigateway.amazonaws.com
-      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ConcertsApiV2}/*/*/timeZone/byCoordinates
   AddConcertLambdaPermission:
     Type: AWS::Lambda::Permission
     Properties:
