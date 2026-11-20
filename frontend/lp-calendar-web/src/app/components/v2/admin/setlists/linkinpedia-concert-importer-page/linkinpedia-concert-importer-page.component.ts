@@ -40,6 +40,7 @@ import { Dialog } from 'primeng/dialog';
 import { firstValueFrom } from 'rxjs';
 import { Inplace } from 'primeng/inplace';
 import { AutoFocus } from 'primeng/autofocus';
+import { replaceMediaWikiLinksInString } from '../../../../../helper/string-helper';
 
 @Component({
   selector: 'app-linkinpedia-concert-importer-page',
@@ -154,6 +155,32 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
     window.open(url, "_blank");
   }
 
+  /**
+   * Replaces all MediaWiki links in the generated setlist with their corresponding text.
+   */
+  protected onReplaceMediaWikiLinksClicked() {
+    this.replaceMediaWikiLinks();
+  }
+
+  /**
+   * Replaces all MediaWiki links in the generated setlist with their corresponding text.
+   */
+  private replaceMediaWikiLinks() {
+    this.generatedSetlist$.update(current => {
+      let newActs = current?.acts?.map(a => {
+        a.name = replaceMediaWikiLinksInString(a.name ?? undefined);
+        return a;
+      });
+
+      let newEntries = current?.entries?.map(e => {
+        e.title = replaceMediaWikiLinksInString(e.title);
+        e.extraNotes = replaceMediaWikiLinksInString(e.extraNotes);
+        return e;
+      });
+
+      return { ...current, acts: newActs, entries: newEntries };
+    });
+  }
 
   private async startImport() {
     const url = this.sourceDataForm.value.linkinpediaUrl?.valueOf();

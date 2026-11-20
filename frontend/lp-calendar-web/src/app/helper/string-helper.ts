@@ -16,3 +16,15 @@ export class StringHelper {
 export function nullIfEmpty(str: string | null | undefined): string | null {
   return StringHelper.nullIfEmpty(str);
 }
+
+/**
+ * Removes MediaWiki link brackets while preserving null and undefined values.
+ */
+export function replaceMediaWikiLinksInString<T extends string | null | undefined>(input: T): T extends string ? string : T;
+export function replaceMediaWikiLinksInString(input: string | null | undefined): string | null | undefined {
+  if (!input) {
+    return input;
+  }
+
+  return input.replace(/(\[\[)(.*?)(]])/g, "$2");
+}

@@ -24,7 +24,7 @@
 
 <p-card>
   <ng-template #title>
-    Import concert from Linkinpedia
+    Import setlist from Linkinpedia
   </ng-template>
 
   <p-card>
@@ -161,6 +161,8 @@
       <ng-template #title>
         <h4>Setlist to import</h4>
       </ng-template>
+
+      <button pButton variant="outlined" (click)="onReplaceMediaWikiLinksClicked()" [disabled]="isReadingSource$()"><i class="pi pi-refresh"></i> replace MediaWiki links</button>
 
       <h5>Acts</h5>
 
