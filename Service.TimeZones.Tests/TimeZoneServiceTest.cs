@@ -1,6 +1,9 @@
-﻿using System.Net;
+﻿using System.Globalization;
+using System.Net;
 using DotNet.Sdk.Extensions.Testing.HttpMocking.HttpMessageHandlers;
 using DotNet.Sdk.Extensions.Testing.HttpMocking.HttpMessageHandlers.ResponseMocking;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
 
 namespace Service.TimeZones.Tests;
 
@@ -9,6 +12,8 @@ public class TimeZoneServiceTest
 {
     private const string DummyApiKey = "dummy_api_key";
     
+    private readonly ILogger<TimeZoneService> _logger = Substitute.For<ILogger<TimeZoneService>>();
+
     /// <summary>Checks that coordinates are sent to the API and the returned zone is resolved.</summary>
     [Theory]
     [InlineData(40.7128, -74.0060, "America/New_York", "TestData/TimeZoneDb/new_york.json")]
@@ -21,7 +26,7 @@ public class TimeZoneServiceTest
                                          httpRequestMessage.RequestUri != null &&
                                          httpRequestMessage.RequestUri
                                              .PathAndQuery
-                                             .Equals($"/v2.1/get-time-zone?key={DummyApiKey}&by=position&lat={latitude}&lng={longitude}&format=json")
+                                             .Equals($"/v2.1/get-time-zone?key={DummyApiKey}&by=position&lat={latitude.ToString(CultureInfo.InvariantCulture)}&lng={longitude.ToString(CultureInfo.InvariantCulture)}&format=json")
             )
             .RespondWith(_ => new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -36,7 +41,7 @@ public class TimeZoneServiceTest
         // instantiate the http client with the test handler
         var httpClient = new HttpClient(handler);
         
-        var service = new TimeZoneService("https://example.com/v2.1", DummyApiKey, httpClient);
+        var service = new TimeZoneService("https://example.com/v2.1", DummyApiKey, httpClient, _logger);
 
         // Act
         var result = await service.GetTimeZoneByCoordinates(latitude, longitude);

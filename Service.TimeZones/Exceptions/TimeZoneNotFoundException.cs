@@ -12,4 +12,8 @@ public class TimeZoneNotFoundException : Exception
     public TimeZoneNotFoundException(string message) : base(message)
     {
     }
+    
+    public TimeZoneNotFoundException(string message, Exception innerException) : base(message, innerException)
+    {
+    }
 }

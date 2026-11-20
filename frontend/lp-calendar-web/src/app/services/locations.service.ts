@@ -17,7 +17,7 @@ import {
   CreateStateRequestDto,
   CreateVenueRequestDto,
   StateDto,
-  StateWithCountryDto,
+  StateWithCountryDto, TimeZoneDto, TimezonesApi,
   UpdateCityRequestDto,
   UpdateCountryRequestDto,
   UpdateStateRequestDto,
@@ -41,14 +41,16 @@ import { VenueFilter } from '../data/venue-filter';
 export class LocationsService {
   private osmApiBaseUrl = "https://nominatim.openstreetmap.org";
 
-  constructor(private httpClient: HttpClient, private timezoneApiClient: TimezoneService, private countriesApi: CountriesApi, private citiesApi: CitiesApi, private venuesApi: VenuesApi) {
+  constructor(private httpClient: HttpClient, private timezoneApi: TimezonesApi, private countriesApi: CountriesApi, private citiesApi: CitiesApi, private venuesApi: VenuesApi) {
     // Override base URL as CountriesApi uses v3
     countriesApi.configuration.basePath = environment.apiBaseUrl;
     citiesApi.configuration.basePath = environment.apiBaseUrl;
     venuesApi.configuration.basePath = environment.apiBaseUrl;
+    timezoneApi.configuration.basePath = environment.apiBaseUrl;
     addAuthentication(countriesApi);
     addAuthentication(citiesApi);
     addAuthentication(venuesApi);
+    addAuthentication(timezoneApi);
   }
 
   /**
@@ -260,12 +262,12 @@ export class LocationsService {
   }
 
 
-  getTimeZoneForCoordinates(lat: number, lon: number): Observable<TimeZoneResponseDto> {
-    return this.timezoneApiClient.getTimeZoneByCoordinates(lat, lon);
+  getTimeZoneForCoordinates(lat: number, lon: number): Observable<TimeZoneDto> {
+    return this.timezoneApi.getTimeZoneByCoordinates(lat, lon);
   }
 
 
-  getTimeZoneForCity(cityName: string, state: string | null, country: string): Observable<TimeZoneResponseDto | undefined> {
+  getTimeZoneForCity(cityName: string, state: string | null, country: string): Observable<TimeZoneDto | undefined> {
     return this.getCoordinatesFor(cityName, state, country)
       .pipe(
         switchMap(coordinates => {

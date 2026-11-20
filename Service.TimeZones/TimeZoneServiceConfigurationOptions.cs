@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Service.TimeZones;
 
@@ -39,7 +40,7 @@ public static class TimeZoneServiceConfigurationExtensions
                 $"{nameof(options.TimeZoneApiBaseUrl)} must be provided");
             var apiKey = options.TimeZoneDbApiKey ?? throw new ArgumentException(
                 $"{nameof(options.TimeZoneDbApiKey)} must be provided");
-            return new TimeZoneService(baseUrl, apiKey, httpClient);
+            return new TimeZoneService(baseUrl, apiKey, httpClient, serviceProvider.GetRequiredService<ILogger<TimeZoneService>>());
         });
 
         return services;
