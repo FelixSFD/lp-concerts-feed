@@ -500,6 +500,7 @@ internal static class DtoMapper
         {
             WikiPageId = bo.WikiPageId,
             ConcertTitle = bo.ConcertTitle,
+            ShowType = bo.ShowType,
             ImportStatus = bo.ImportStatus.ToDto(),
             Concert = bo.Concert?.ToDto()
         };

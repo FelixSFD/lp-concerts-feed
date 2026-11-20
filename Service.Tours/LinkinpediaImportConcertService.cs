@@ -1,8 +1,7 @@
 using System.Runtime.CompilerServices;
-using Amazon.Runtime.Internal;
 using Common.WikiMedia;
 using Common.WikiMedia.Repositories;
-using Database.Tours.DataObjects;
+using Database.Setlists.Repositories;
 using Database.Tours.Repositories;
 using LPCalendar.DataStructure;
 using LPCalendar.DataStructure.Tours;
@@ -23,6 +22,8 @@ namespace Service.Tours;
 /// <param name="venueRepository"></param>
 /// <param name="tourRepository"></param>
 /// <param name="concertTypeRepository"></param>
+/// <param name="concertRepository"></param>
+/// <param name="setlistRepository"></param>
 /// <param name="logger"></param>
 public class LinkinpediaImportConcertService(
     IWikiMediaRepository wikiMediaRepository,
@@ -34,6 +35,8 @@ public class LinkinpediaImportConcertService(
     ITourRepository tourRepository,
     IConcertTypeRepository concertTypeRepository,
     IConcertRepository concertRepository,
+    ISetlistRepository setlistRepository,
+    TimeProvider timeProvider,
     ILogger<LinkinpediaImportConcertService> logger)
 {
     /// <summary>
@@ -63,6 +66,10 @@ public class LinkinpediaImportConcertService(
             .Where(c => c.LinkinpediaUrl != null)
             .ToDictionaryAsync(c => c.LinkinpediaUrl?.ToString().Split('/').LastOrDefault() ?? "none", c => c, null, cancellationToken);
         logger.LogDebug("Preloaded concerts for {concertCount} wiki pages.", concertByWikiPage.Count);
+
+        // Setlists use a different DbContext, so match their concert IDs in memory.
+        var concertIdsWithSetlists = (await setlistRepository.GetConcertIdsWithSetlistsAsync(cancellationToken))
+            .ToHashSet(StringComparer.Ordinal);
         
         var results = wikiMediaRepository
             .RunCargoQueryAsync<LinkinpediaConcertListEntryBo>(tables, fields, where, orderBy, pageSize: 100, cancellationToken)
@@ -75,8 +82,11 @@ public class LinkinpediaImportConcertService(
                 {
                     WikiPageId = concert.WikiPageId,
                     ConcertTitle = GenerateConcertTitle(concert.DateString, concert.Venue, concert.City, concert.Country),
+                    ShowType = concert.ShowType,
                     ImportStatus = concertImported
-                        ? ConcertImportStatusBo.Status.Imported
+                        ? concertIdsWithSetlists.Contains(existingConcert!.Id)
+                            ? ConcertImportStatusBo.Status.ImportedWithSetlists
+                            : ConcertImportStatusBo.Status.Imported
                         : ConcertImportStatusBo.Status.NotImported,
                     Concert = existingConcert?.ToBoWithDetails(),
                 };
@@ -102,6 +112,10 @@ public class LinkinpediaImportConcertService(
         var partsNotNull = parts.Where(part => !string.IsNullOrWhiteSpace(part)).Cast<string>().ToArray();
         return partsNotNull.Length == 0 ? null : string.Join(", ", partsNotNull);
     }
+
+    // Linkinpedia encodes cancellation as a show type rather than a separate field.
+    private static bool IsCancelledShow(string? showType) =>
+        string.Equals(showType?.Trim(), "cancelled", StringComparison.OrdinalIgnoreCase);
     
     public async Task<ImportConcertPreviewBo> GetConcertImportPlan(string wikiPageId, CancellationToken cancellationToken = default)
     {
@@ -254,9 +268,13 @@ public class LinkinpediaImportConcertService(
             }
         }
 
-        if (tourdate.ShowType == "cancelled")
+        if (IsCancelledShow(tourdate.ShowType))
         {
             concertStatus = ConcertDto.ConcertStatusValue.Cancelled;
+        }
+        else
+        {
+            concertStatus = postedStartTime > timeProvider.GetUtcNow() ? ConcertDto.ConcertStatusValue.Planned : ConcertDto.ConcertStatusValue.Past;
         }
 
         if (concertType == null)

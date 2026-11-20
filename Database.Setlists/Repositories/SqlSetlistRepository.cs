@@ -35,4 +35,13 @@ public class SqlSetlistRepository(SetlistsDbContext dbContext)
             .ThenInclude(entry => entry.PlayedMashup)
             .AsAsyncEnumerable();
     }
+
+    /// <inheritdoc/>
+    public Task<List<string>> GetConcertIdsWithSetlistsAsync(CancellationToken cancellationToken = default)
+    {
+        return DbSet
+            .Select(setlist => setlist.ConcertId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+    }
 }

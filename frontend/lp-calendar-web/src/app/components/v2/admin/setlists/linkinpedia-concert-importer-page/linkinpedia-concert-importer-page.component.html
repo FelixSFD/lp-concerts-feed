@@ -24,7 +24,7 @@
 
 <p-card>
   <ng-template #title>
-    Import concert from Linkinpedia
+    Import setlist from Linkinpedia
   </ng-template>
 
   <p-card>
@@ -66,10 +66,15 @@
 
         <!-- Linkinpedia URL -->
         <div class="col-12">
-          <p-floatlabel variant="on">
-            <input pInputText id="linkinpediaUrl" formControlName="linkinpediaUrl" autocomplete="off" fluid />
-            <label for="concertId">Linkinpedia URL</label>
-          </p-floatlabel>
+          <p-inputgroup>
+            <p-floatlabel variant="on">
+              <input pInputText id="linkinpediaUrl" fluid formControlName="linkinpediaUrl" [invalid]="sourceDataForm.controls.linkinpediaUrl.invalid" />
+              <label for="linkinpediaUrl">Linkinpedia URL</label>
+            </p-floatlabel>
+            <p-inputgroup-addon>
+              <p-button icon="pi pi-external-link" label="Open" severity="info" variant="outlined" (onClick)="onOpenLinkinpediaUrlClicked()" [disabled]="sourceDataForm.controls.linkinpediaUrl.invalid || sourceDataForm.value.linkinpediaUrl == null" />
+            </p-inputgroup-addon>
+          </p-inputgroup>
         </div>
       </div>
     </form>
@@ -96,13 +101,58 @@
                let-actNumber="actNumber"
                let-type="type"
                let-title="title"
-               let-notes="notes">
+               let-notes="notes"
+               let-entry="entry"
+  >
     <tr class="{{ rowClass }}">
       <td>{{ entryNumber }}</td>
       <ng-container *ngTemplateOutlet="actNumberCol; context: {actNumber: actNumber }" />
       <td>{{ type }}</td>
-      <td>{{ title }}</td>
-      <td>{{ notes }}</td>
+      <td>
+        <p-inplace [pt]="{ display: 'w-full' }" (onDeactivate)="onSetlistEntryEdited()">
+          <ng-template #display>
+            <span class="w-full text-sm">{{ title }}</span>
+          </ng-template>
+          <ng-template #content let-closeCallback="closeCallback">
+            <p-inputgroup>
+              <input #titleInput pInputText [ngModel]="entry.title" placeholder="Enter title" class="flex-1" fluid [pAutoFocus]="true" />
+              <p-inputgroup-addon>
+                <button pButton text severity="success" (click)="entry.title = titleInput.value; closeCallback($event)">
+                  save
+                </button>
+              </p-inputgroup-addon>
+              <p-inputgroup-addon>
+                <button pButton text severity="danger" (click)="closeCallback($event)">
+                  cancel
+                </button>
+              </p-inputgroup-addon>
+            </p-inputgroup>
+          </ng-template>
+        </p-inplace>
+      </td>
+      <td>
+        <p-inplace [pt]="{ display: 'w-full' }" (onDeactivate)="onSetlistEntryEdited()">
+          <ng-template #display>
+            <span class="w-full text-sm">{{ notes }}</span>
+          </ng-template>
+          <ng-template #content let-closeCallback="closeCallback">
+            <p-inputgroup>
+              <!-- important: the parameter "notes" contains the value of the entry property "extraNotes"; For saving, we MUST use the property of the entry object -->
+              <input #notesInput pInputText [ngModel]="entry.extraNotes" placeholder="Enter notes" class="flex-1" fluid [pAutoFocus]="true" />
+              <p-inputgroup-addon>
+                <button pButton text severity="success" (click)="entry.extraNotes = notesInput.value; closeCallback($event)">
+                  save
+                </button>
+              </p-inputgroup-addon>
+              <p-inputgroup-addon>
+                <button pButton text severity="danger" (click)="closeCallback($event)">
+                  cancel
+                </button>
+              </p-inputgroup-addon>
+            </p-inputgroup>
+          </ng-template>
+        </p-inplace>
+      </td>
     </tr>
   </ng-template>
 
@@ -111,6 +161,15 @@
       <ng-template #title>
         <h4>Setlist to import</h4>
       </ng-template>
+
+      <div class="flex flex-wrap align-items-center gap-3">
+        <button pButton variant="outlined" (click)="onReplaceMediaWikiLinksClicked()" [disabled]="isReadingSource$()"><i class="pi pi-refresh"></i> replace MediaWiki links</button>
+        @if (hasMediaWikiLinks$()) {
+          <p-message severity="warn" icon="pi pi-exclamation-triangle" style="animation: none; grid-template-rows: auto; min-width: 0; max-width: 100%">
+            Setlist entries contain MediaWiki links.
+          </p-message>
+        }
+      </div>
 
       <h5>Acts</h5>
 
@@ -125,8 +184,26 @@
         <ng-template #body let-generatedAct let-index="rowIndex">
           <tr>
             <td>Act {{ generatedAct.actNumber }}</td>
-            <td>{{ generatedAct.name }}</td>
-            <td>{{ generatedAct.extraNotes }}</td>
+            <td [pEditableColumn]="generatedAct.name" pEditableColumnField="name">
+              <p-cell-editor>
+                <ng-template #input>
+                  <input pInputText type="text" [(ngModel)]="generatedAct.name" fluid pSize="small" />
+                </ng-template>
+                <ng-template #output>
+                  <span class="font-medium">{{ generatedAct.name }}</span>
+                </ng-template>
+              </p-cell-editor>
+            </td>
+            <td [pEditableColumn]="generatedAct.extraNotes" pEditableColumnField="extraNotes">
+              <p-cell-editor>
+                <ng-template #input>
+                  <input pInputText type="text" [(ngModel)]="generatedAct.extraNotes" fluid pSize="small" />
+                </ng-template>
+                <ng-template #output>
+                  <span class="font-medium">{{ generatedAct.extraNotes }}</span>
+                </ng-template>
+              </p-cell-editor>
+            </td>
           </tr>
         </ng-template>
       </p-table>
@@ -146,7 +223,7 @@
         </ng-template>
         <ng-template #body let-generatedEntry let-index="rowIndex">
           @if (generatedEntry.foundSongVariantId) {
-            <ng-container *ngTemplateOutlet="entryRow; context: { rowClass: 'bg-success-subtle', entryNumber: generatedEntry.songNumber, actNumber: generatedEntry.actNumber, type: 'existing Variant', title: generatedEntry.title, notes: generatedEntry.extraNotes }" />
+            <ng-container *ngTemplateOutlet="entryRow; context: { rowClass: 'bg-success-subtle', entry: generatedEntry, entryNumber: generatedEntry.songNumber, actNumber: generatedEntry.actNumber, type: 'existing Variant', title: generatedEntry.title, notes: generatedEntry.extraNotes }" />
             <tr class="bg-secondary-subtle">
               <td colspan="2"></td>
               <td colspan="3">
@@ -154,7 +231,7 @@
               </td>
             </tr>
           } @else if (generatedEntry.foundSongId) {
-            <ng-container *ngTemplateOutlet="entryRow; context: { rowClass: 'bg-success-subtle', entryNumber: generatedEntry.songNumber, actNumber: generatedEntry.actNumber, type: 'existing Song', title: generatedEntry.title, notes: generatedEntry.extraNotes }" />
+            <ng-container *ngTemplateOutlet="entryRow; context: { rowClass: 'bg-success-subtle', entry: generatedEntry, entryNumber: generatedEntry.songNumber, actNumber: generatedEntry.actNumber, type: 'existing Song', title: generatedEntry.title, notes: generatedEntry.extraNotes }" />
             @if (generatedEntry.possibleSongVariants?.length ?? 0 > 0) {
               <tr class="bg-secondary-subtle">
                 <td colspan="2"></td>
@@ -169,11 +246,11 @@
               </tr>
             }
           } @else if ((generatedEntry.foundSongIds?.length ?? 0) >= 2) {
-            <ng-container *ngTemplateOutlet="entryRow; context: { rowClass: 'bg-warning-subtle', entryNumber: generatedEntry.songNumber, actNumber: generatedEntry.actNumber, type: 'select Song', title: generatedEntry.title, notes: generatedEntry.extraNotes }" />
+            <ng-container *ngTemplateOutlet="entryRow; context: { rowClass: 'bg-warning-subtle', entry: generatedEntry, entryNumber: generatedEntry.songNumber, actNumber: generatedEntry.actNumber, type: 'select Song', title: generatedEntry.title, notes: generatedEntry.extraNotes }" />
           } @else if (generatedEntry.foundMashupId) {
-            <ng-container *ngTemplateOutlet="entryRow; context: { rowClass: 'bg-success-subtle', entryNumber: generatedEntry.songNumber, actNumber: generatedEntry.actNumber, type: 'existing Mashup', title: generatedEntry.title, notes: generatedEntry.extraNotes }" />
+            <ng-container *ngTemplateOutlet="entryRow; context: { rowClass: 'bg-success-subtle', entry: generatedEntry, entryNumber: generatedEntry.songNumber, actNumber: generatedEntry.actNumber, type: 'existing Mashup', title: generatedEntry.title, notes: generatedEntry.extraNotes }" />
           } @else {
-            <ng-container *ngTemplateOutlet="entryRow; context: { rowClass: 'bg-danger-subtle', entryNumber: generatedEntry.songNumber, actNumber: generatedEntry.actNumber, type: 'NEW song or mashup', title: generatedEntry.title, notes: generatedEntry.extraNotes }" />
+            <ng-container *ngTemplateOutlet="entryRow; context: { rowClass: 'bg-danger-subtle', entry: generatedEntry, entryNumber: generatedEntry.songNumber, actNumber: generatedEntry.actNumber, type: 'NEW song or mashup', title: generatedEntry.title, notes: generatedEntry.extraNotes }" />
             <tr class="bg-secondary-subtle">
               <td colspan="2"></td>
               <td colspan="3">

@@ -5326,6 +5326,10 @@ components:
         concertTitle:
           type: string
           description: Generated title based on info from Linkinpedia. This is just for informational purposes and will not be used for the import.
+        showType:
+          type: string
+          nullable: true
+          description: The original show type from Linkinpedia, if available.
         concert:
           $ref: "#/components/schemas/ConcertDetails"
         importStatus:

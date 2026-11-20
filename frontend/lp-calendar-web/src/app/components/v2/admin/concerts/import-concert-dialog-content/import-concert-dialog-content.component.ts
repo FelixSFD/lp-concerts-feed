@@ -3,7 +3,7 @@ import {
   AddTourLegRequestDto, ConcertStatusValueDto,
   ConcertTypeDto, CreateCityRequestDto, CreateCountryRequestDto,
   CreateStateRequestDto, CreateTourRequestDto, CreateVenueRequestDto,
-  ImportConcertPreviewDto,
+  ImportConcertPreviewDto, ProblemDetailsDto,
   TourDto, VenueDto
 } from '../../../../../modules/lpshows-api/v3';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -149,9 +149,7 @@ export class ImportConcertDialogContentComponent implements OnInit {
         });
         console.debug("Updated import plan:", this.importPlan());
       },
-      error: (err) => {
-        console.error("Could not create tour:", err);
-      }
+      error: (err: unknown) => this.showCreationError("tour", err)
     });
   }
 
@@ -187,9 +185,7 @@ export class ImportConcertDialogContentComponent implements OnInit {
         });
         console.debug("Updated import plan:", this.importPlan());
       },
-      error: (err) => {
-        console.error("Could not create tour leg:", err);
-      }
+      error: (err: unknown) => this.showCreationError("tour leg", err)
     });
   }
 
@@ -240,9 +236,7 @@ export class ImportConcertDialogContentComponent implements OnInit {
         });
         console.debug("Updated import plan:", this.importPlan());
       },
-      error: (err) => {
-        console.error("Could not create country:", err);
-      }
+      error: (err: unknown) => this.showCreationError("country", err)
     });
   }
 
@@ -301,9 +295,7 @@ export class ImportConcertDialogContentComponent implements OnInit {
         });
         console.debug("Updated import plan:", this.importPlan());
       },
-      error: (err) => {
-        console.error("Could not create state:", err);
-      }
+      error: (err: unknown) => this.showCreationError("state", err)
     });
   }
 
@@ -356,9 +348,7 @@ export class ImportConcertDialogContentComponent implements OnInit {
         });
         console.debug("Updated import plan:", this.importPlan());
       },
-      error: (err) => {
-        console.error("Could not create city:", err);
-      }
+      error: (err: unknown) => this.showCreationError("city", err)
     });
   }
 
@@ -412,9 +402,18 @@ export class ImportConcertDialogContentComponent implements OnInit {
         });
         console.debug("Updated import plan:", this.importPlan());
       },
-      error: (err) => {
-        console.error("Could not create venue:", err);
-      }
+      error: (err: unknown) => this.showCreationError("venue", err)
+    });
+  }
+
+  private showCreationError(entity: string, error: unknown) {
+    const summary = `Could not create ${entity}`;
+    console.error(`${summary}:`, error);
+    const problem = typeof error === 'object' && error !== null ? error as ProblemDetailsDto : null;
+    this.messageService.add({
+      severity: 'error',
+      summary,
+      detail: problem?.detail || problem?.title || 'An unexpected error occurred.',
     });
   }
 

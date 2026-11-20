@@ -7,6 +7,33 @@ namespace Database.Setlists.Tests.Repositories;
 public class SqlSetlistRepositoryTest : SetlistsDbIntegrationTestsBase
 {
     [Fact]
+    public async Task GetConcertIdsWithSetlistsAsync_ReturnsDistinctConcertIds()
+    {
+        var repo = new SqlSetlistRepository(DbContext);
+        Assert.Empty(await repo.GetConcertIdsWithSetlistsAsync());
+
+        var firstId = Guid.NewGuid().ToString();
+        var secondId = Guid.NewGuid().ToString();
+        foreach (var concertId in new[] { firstId, firstId, secondId })
+        {
+            repo.Add(new SetlistDo
+            {
+                ConcertId = concertId,
+                ConcertTitle = "Concert",
+                ConcertType = "Linkin Park",
+                ConcertDate = DateTime.Today
+            });
+        }
+        await repo.SaveChangesAsync();
+
+        var result = await repo.GetConcertIdsWithSetlistsAsync();
+
+        Assert.Equal(2, result.Count);
+        Assert.Contains(firstId, result);
+        Assert.Contains(secondId, result);
+    }
+
+    [Fact]
     public async Task UpdateSetlist()
     {
         var repo = new SqlSetlistRepository(DbContext);

@@ -11,4 +11,11 @@ public interface ISetlistRepository : ISingleKeyRepositoryBase<SetlistDo, uint>,
     /// <param name="concertId">ID of the concert</param>
     /// <returns>Setlist if one was found for the concert</returns>
     public IAsyncEnumerable<SetlistDo> GetByConcertIdAsync(string concertId);
+
+    /// <summary>
+    /// Returns the distinct IDs of concerts that have at least one setlist.
+    /// </summary>
+    /// <param name="cancellationToken">Token to cancel the query.</param>
+    /// <returns>Concert IDs with setlists.</returns>
+    public Task<List<string>> GetConcertIdsWithSetlistsAsync(CancellationToken cancellationToken = default);
 }

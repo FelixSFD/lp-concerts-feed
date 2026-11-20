@@ -392,7 +392,7 @@ public class ConcertsController(
     /// <returns></returns>
     [HttpGet("import")]
     [AuthorizeRoles(RoleNames.AddConcerts)]
-    [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll])]
+    [OutputCache(PolicyName = CachePolicyNames.Medium, Tags = [CacheTags.ConcertsAll, CacheTags.SetlistsAll])]
     public async Task<ActionResult<LinkinpediaImportStatusDto>> GetImportStatus(CancellationToken cancellationToken)
     {
         logger.LogDebug("Getting Linkinpedia import status");

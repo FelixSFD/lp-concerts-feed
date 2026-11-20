@@ -18,7 +18,7 @@ import { ConcertFilter } from '../../../../data/concert-filter';
 import {
   ConcertDetailsDto,
   LinkinpediaImportConcertStatusDto,
-  LinkinpediaImportStatusDto
+  LinkinpediaImportStatusDto, ProblemDetailsDto
 } from '../../../../modules/lpshows-api/v3';
 import { ToursService } from '../../../../services/tours.service';
 import { Divider } from 'primeng/divider';
@@ -32,6 +32,13 @@ import { Badge } from 'primeng/badge';
 import { makeRealArray } from '../../../../helper/array-helper';
 import { debounceTime, Subject } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
+import { Select } from 'primeng/select';
+
+type ImportStatusOption = {
+  label: string;
+  value: LinkinpediaImportConcertStatusDto.ImportStatusEnum;
+  severity: 'success' | 'danger' | 'warn';
+};
 
 @Component({
   selector: 'app-manage-concerts-page',
@@ -53,6 +60,7 @@ import { switchMap } from 'rxjs/operators';
     ButtonDirective,
     Badge,
     NgTemplateOutlet,
+    Select,
   ],
   templateUrl: './manage-concerts-page.component.html',
   styleUrl: './manage-concerts-page.component.css',
@@ -129,11 +137,15 @@ export class ManageConcertsPageComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.reloadConcertImportStats();
+    this.reloadConcertImportStats().then();
   }
 
   getTitle(concert: ConcertDto): string {
     return ConcertTitleGenerator.getTitleFor(concert);
+  }
+
+  protected async onRefreshImportStatusClicked() {
+    await this.reloadConcertImportStats();
   }
 
   protected async onConcertTableLazyLoad(event: TableLazyLoadEvent) {
@@ -200,18 +212,22 @@ export class ManageConcertsPageComponent implements OnInit {
     }
   }
 
-  private reloadConcertImportStats() {
+  private async reloadConcertImportStats() {
     this.isLoadingImportStats$.set(true);
-    this.concertsService.getLinkinpediaImportStatus()
-      .then(stats => {
-        this.concertImportStats$.set(stats);
-      })
-      .catch(err => {
-        console.error('Could not load concert import stats', err);
-      })
-      .finally(() => {
-        this.isLoadingImportStats$.set(false);
+    try {
+      let stats = await this.concertsService.getLinkinpediaImportStatus();
+      this.concertImportStats$.set(stats);
+    } catch (e) {
+      console.error('Could not load concert import stats', e);
+      let errorResponse: ProblemDetailsDto = e as ProblemDetailsDto;
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Could not fetch import status',
+        detail: errorResponse.detail,
       });
+    } finally {
+      this.isLoadingImportStats$.set(false);
+    }
   }
 
   private reloadConcertTable() {
@@ -260,4 +276,26 @@ export class ManageConcertsPageComponent implements OnInit {
   protected readonly ConcertStatusValueDto = ConcertStatusValueDto;
   protected readonly ConcertStatus = ConcertStatus;
   protected readonly LinkinpediaImportConcertStatusDto = LinkinpediaImportConcertStatusDto;
+  private readonly importedNoSetlistOption: ImportStatusOption = {
+    label: 'Imported without setlist',
+    value: LinkinpediaImportConcertStatusDto.ImportStatusEnum.ImportedNoSetlist,
+    severity: 'warn',
+  };
+  protected readonly statusOptions = signal<ImportStatusOption[]>([
+    {
+      label: 'Not imported',
+      value: LinkinpediaImportConcertStatusDto.ImportStatusEnum.NotImported,
+      severity: 'danger',
+    },
+    this.importedNoSetlistOption,
+    {
+      label: 'Imported',
+      value: LinkinpediaImportConcertStatusDto.ImportStatusEnum.Imported,
+      severity: 'success',
+    },
+  ]);
+
+  protected getImportStatusOption(status: LinkinpediaImportConcertStatusDto.ImportStatusEnum): ImportStatusOption {
+    return this.statusOptions().find(option => option.value === status) ?? this.importedNoSetlistOption;
+  }
 }

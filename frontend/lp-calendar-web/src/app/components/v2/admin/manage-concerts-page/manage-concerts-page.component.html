@@ -2,8 +2,8 @@
 
 <ng-template #importStatusBadge let-status="status">
   <p-badge
-    [value]="status == LinkinpediaImportConcertStatusDto.ImportStatusEnum.Imported ? 'Imported' : status == LinkinpediaImportConcertStatusDto.ImportStatusEnum.NotImported ? 'Not imported' : 'Imported without setlist'"
-    [severity]="status == LinkinpediaImportConcertStatusDto.ImportStatusEnum.Imported ? 'success' : status == LinkinpediaImportConcertStatusDto.ImportStatusEnum.NotImported ? 'danger' : 'warn'"
+    [value]="getImportStatusOption(status).label"
+    [severity]="getImportStatusOption(status).severity"
   />
 </ng-template>
 
@@ -153,11 +153,32 @@
         </td>
         <td><ng-container [ngTemplateOutlet]="concertStatusBadge" [ngTemplateOutletContext]="{ status: concert.status }" /></td>
         <td alignFrozen="right" pFrozenColumn>
-          <p-button-group>
-            <p-button label="View" icon="pi pi-eye" variant="outlined" size="small" severity="info" [routerLink]="['/concerts', concert.id]" [disabled]="isDeletingConcert$()" />
-            <p-button label="Edit" icon="pi pi-pencil" variant="outlined" size="small" [routerLink]="[concert.id]" [disabled]="isDeletingConcert$() || !authService.canUpdateConcerts" />
+          <p-buttongroup class="concert-action-group">
+            <a
+              pButton
+              variant="outlined"
+              size="small"
+              severity="info"
+              [routerLink]="isDeletingConcert$() ? null : ['/concerts', concert.id]"
+              [class.p-disabled]="isDeletingConcert$()"
+              [attr.aria-disabled]="isDeletingConcert$() ? 'true' : null"
+            >
+              <i class="pi pi-eye" aria-hidden="true"></i>
+              <span>View</span>
+            </a>
+            <a
+              pButton
+              variant="outlined"
+              size="small"
+              [routerLink]="isDeletingConcert$() || !authService.canUpdateConcerts ? null : [concert.id]"
+              [class.p-disabled]="isDeletingConcert$() || !authService.canUpdateConcerts"
+              [attr.aria-disabled]="isDeletingConcert$() || !authService.canUpdateConcerts ? 'true' : null"
+            >
+              <i class="pi pi-pencil" aria-hidden="true"></i>
+              <span>Edit</span>
+            </a>
             <p-button label="Delete" icon="pi pi-trash" variant="outlined" size="small" severity="danger" (onClick)="onDeleteClicked($event, concert)" [disabled]="isDeletingConcert$() || !authService.canDeleteConcerts" />
-          </p-button-group>
+          </p-buttongroup>
         </td>
       </tr>
     </ng-template>
@@ -181,7 +202,7 @@
       [rowsPerPageOptions]="[25, 50, 100, 200, 500]"
       [loading]="isLoadingImportStats$()"
       [paginator]="true"
-      [globalFilterFields]="['wikiPageId', 'importStatus', 'concertTitle']"
+      [globalFilterFields]="['wikiPageId', 'importStatus', 'concertTitle', 'showType']"
       [tableStyle]="{ 'min-width': '75rem' }"
       [scrollable]="true"
       sortField="wikiPageId"
@@ -189,6 +210,7 @@
     >
       <ng-template #caption>
         <div class="flex">
+          <button pButton variant="outlined" (click)="onRefreshImportStatusClicked()" [disabled]="isLoadingImportStats$()"><i class="pi pi-refresh"></i> reload list</button>
           <p-iconfield iconPosition="left" class="ml-auto">
             <p-inputicon>
               <i class="pi pi-search"></i>
@@ -210,6 +232,23 @@
           <th scope="col" pSortableColumn="importStatus">
             Import status
             <p-sort-icon field="importStatus" />
+
+            <p-column-filter field="importStatus" matchMode="equals" [showMenu]="false" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
+              <ng-template #filter let-value let-filter="filterCallback">
+                <p-select [ngModel]="value" [options]="statusOptions()" showClear (onChange)="filter($event.value || null)" placeholder="Any" optionLabel="label" optionValue="value" size="small" style="min-width: 12rem" appendTo="body">
+                  <ng-template #item let-option>
+                    <p-badge [value]="option.label" [severity]="option.severity" />
+                  </ng-template>
+                  <ng-template #selectedItem let-option>
+                    <p-badge [value]="option.label" [severity]="option.severity" />
+                  </ng-template>
+                </p-select>
+              </ng-template>
+            </p-column-filter>
+          </th>
+          <th scope="col" pSortableColumn="showType">
+            Show type
+            <p-sort-icon field="showType" />
           </th>
           <th scope="col" pFrozenColumn></th>
         </tr>
@@ -219,6 +258,7 @@
           <td pFrozenColumn><a [href]="'https://linkinpedia.com/wiki/' + concert.wikiPageId" class="link" target="_blank">{{ concert.wikiPageId }} <i class="pi pi-external-link"></i></a></td>
           <td>{{ concert.concertTitle }}</td>
           <td><ng-container [ngTemplateOutlet]="importStatusBadge" [ngTemplateOutletContext]="{ status: concert.importStatus }" /></td>
+          <td>{{ concert.showType || '—' }}</td>
           <td pFrozenColumn>
             @if (concert.importStatus == LinkinpediaImportConcertStatusDto.ImportStatusEnum.NotImported) {
               <a
@@ -229,7 +269,18 @@
                 target="_blank"
                 style="text-decoration: none;">
                 <i class="pi pi-file-import"></i>
-                Import
+                Import concert
+              </a>
+            } @else if (concert.importStatus == LinkinpediaImportConcertStatusDto.ImportStatusEnum.ImportedNoSetlist) {
+              <a
+                pButton
+                variant="outlined"
+                severity="info"
+                [routerLink]="['/concerts', concert.concert.id, 'import']"
+                target="_blank"
+                style="text-decoration: none;">
+                <i class="pi pi-file-import"></i>
+                Import setlist
               </a>
             } @else {
               <a
@@ -246,7 +297,7 @@
       </ng-template>
       <ng-template #emptymessage>
         <tr>
-          <td colspan="8">No wiki pages found.</td>
+          <td colspan="5">No wiki pages found.</td>
         </tr>
       </ng-template>
     </p-table>

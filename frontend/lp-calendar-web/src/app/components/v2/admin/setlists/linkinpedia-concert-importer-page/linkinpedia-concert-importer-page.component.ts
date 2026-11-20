@@ -1,5 +1,5 @@
-import { Component, inject, OnInit, signal, viewChild } from '@angular/core';
-import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, computed, inject, OnInit, signal, viewChild } from '@angular/core';
+import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
 import { SetlistsService } from '../../../../../services/setlists.service';
 import {
@@ -27,7 +27,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DateTime } from 'luxon';
 import { ConcertsService } from '../../../../../services/concerts.service';
 import { Card } from 'primeng/card';
-import { Button } from 'primeng/button';
+import { Button, ButtonDirective } from 'primeng/button';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
@@ -38,6 +38,10 @@ import { Tooltip } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { Dialog } from 'primeng/dialog';
 import { firstValueFrom } from 'rxjs';
+import { Inplace } from 'primeng/inplace';
+import { AutoFocus } from 'primeng/autofocus';
+import { Message } from 'primeng/message';
+import { replaceMediaWikiLinksInString } from '../../../../../helper/string-helper';
 
 @Component({
   selector: 'app-linkinpedia-concert-importer-page',
@@ -55,7 +59,12 @@ import { firstValueFrom } from 'rxjs';
     Divider,
     TableModule,
     Tooltip,
-    Dialog
+    Dialog,
+    ButtonDirective,
+    FormsModule,
+    Inplace,
+    AutoFocus,
+    Message
   ],
   templateUrl: './linkinpedia-concert-importer-page.component.html',
   styleUrl: './linkinpedia-concert-importer-page.component.css',
@@ -88,6 +97,10 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
   });
 
   generatedSetlist$ = signal<ImportSetlistPreviewDto | null>(null);
+  hasMediaWikiLinks$ = computed(() => this.generatedSetlist$()?.entries?.some(entry =>
+    entry.title !== replaceMediaWikiLinksInString(entry.title) ||
+    entry.extraNotes !== replaceMediaWikiLinksInString(entry.extraNotes)
+  ) ?? false);
   private originallyGeneratedSetlist: ImportSetlistPreviewDto | null = null;
 
   // properties for the add song modal
@@ -138,6 +151,46 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
     await this.startImport();
   }
 
+
+  protected onOpenLinkinpediaUrlClicked() {
+    let url = this.sourceDataForm.value.linkinpediaUrl?.valueOf();
+    if (url?.length == 0) {
+      return;
+    }
+
+    window.open(url, "_blank");
+  }
+
+  /**
+   * Replaces all MediaWiki links in the generated setlist with their corresponding text.
+   */
+  protected onReplaceMediaWikiLinksClicked() {
+    this.replaceMediaWikiLinks();
+  }
+
+  protected onSetlistEntryEdited() {
+    this.generatedSetlist$.update(current => current ? { ...current } : current);
+  }
+
+  /**
+   * Replaces all MediaWiki links in the generated setlist with their corresponding text.
+   */
+  private replaceMediaWikiLinks() {
+    this.generatedSetlist$.update(current => {
+      let newActs = current?.acts?.map(a => {
+        a.name = replaceMediaWikiLinksInString(a.name ?? undefined);
+        return a;
+      });
+
+      let newEntries = current?.entries?.map(e => {
+        e.title = replaceMediaWikiLinksInString(e.title);
+        e.extraNotes = replaceMediaWikiLinksInString(e.extraNotes);
+        return e;
+      });
+
+      return { ...current, acts: newActs, entries: newEntries };
+    });
+  }
 
   private async startImport() {
     const url = this.sourceDataForm.value.linkinpediaUrl?.valueOf();
@@ -298,12 +351,14 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
     console.log("use variant: ", variant);
     entryPreview.title += " (" + variant.variantName + ")";
     entryPreview.foundSongVariantId = variant.id;
+    this.onSetlistEntryEdited();
     this.validateEntries();
   }
 
   setNormalVersionBtnClicked(entryPreview: ImportSetlistEntryPreviewDto) {
     entryPreview.title = this.originallyGeneratedSetlist?.entries?.find((e) => e.songNumber == entryPreview.songNumber)?.title ?? "failed to reload title";
     entryPreview.foundSongVariantId = null;
+    this.onSetlistEntryEdited();
     this.validateEntries();
   }
 
@@ -461,4 +516,6 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
       title: previewAct.name,
     };
   }
+
+  protected readonly window = window;
 }

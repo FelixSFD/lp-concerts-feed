@@ -10,7 +10,7 @@
 
       <div class="col-12">
         <p-floatlabel variant="on">
-          <p-select formControlName="selectedAlbumId" inputId="selectedAlbumId" [options]="availableAlbums$" optionLabel="title" optionValue="id" editable showClear />
+          <p-select formControlName="selectedAlbumId" inputId="selectedAlbumId" [options]="availableAlbums$" optionLabel="title" optionValue="id" editable showClear appendTo="body" />
           <label for="selectedAlbumId">Album</label>
         </p-floatlabel>
       </div>
@@ -22,7 +22,7 @@
         </p-floatlabel>
 
         <p-floatlabel variant="on" class="w-auto">
-          <p-select formControlName="selectedAppleMusicId" inputId="selectedAppleMusicId" [options]="appleMusicSongsForIsrc$" optionValue="id" fluid editable showClear>
+          <p-select formControlName="selectedAppleMusicId" inputId="selectedAppleMusicId" [options]="appleMusicSongsForIsrc$" optionValue="id" fluid editable showClear appendTo="body">
             <ng-template #selecteditem let-song>
               {{ song.title }} - {{ song.albumName }} ({{ song.id }})
             </ng-template>
@@ -32,7 +32,7 @@
               </div>
             </ng-template>
           </p-select>
-          <label for="selectedAlbumId">Apple Music ID</label>
+          <label for="selectedAppleMusicId">Apple Music ID</label>
         </p-floatlabel>
       </div>
 

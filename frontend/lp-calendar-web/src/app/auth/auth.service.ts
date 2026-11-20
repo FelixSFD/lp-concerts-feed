@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import {BehaviorSubject, map} from 'rxjs';
+import {BehaviorSubject, catchError, map, of, switchMap} from 'rxjs';
 import {OidcSecurityService, UserDataResult, LoginResponse} from 'angular-auth-oidc-client';
 import {User} from '../data/users/user';
 import {UserDto} from '../modules/lpshows-api';
@@ -10,7 +10,7 @@ export class AuthService {
   readonly initializationError = signal<string | null>(null);
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   private userDataSubject = new BehaviorSubject<UserDto | null>(null);
-  private accessTokenSubject = new BehaviorSubject<any>(null);
+  private accessTokenSubject = new BehaviorSubject<string | null>(null);
 
   /** Public observables you can subscribe to anywhere */
   isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
@@ -18,6 +18,18 @@ export class AuthService {
   accessToken$ = this.accessTokenSubject.asObservable();
 
   constructor(private oidcSecurityService: OidcSecurityService) {
+    // The OIDC client emits an authentication state when tokens are renewed or cleared.
+    this.oidcSecurityService.isAuthenticated$.pipe(
+      switchMap(({isAuthenticated}) => isAuthenticated
+        ? this.oidcSecurityService.getAccessToken().pipe(
+          catchError(error => {
+            console.warn('Unable to retrieve the access token', error);
+            return of(null);
+          })
+        )
+        : of(null))
+    ).subscribe(token => this.accessTokenSubject.next(token));
+
     // Subscribe once to the OIDC observables and propagate updates
     this.oidcSecurityService.checkAuth().subscribe({ next: (loginResponse: LoginResponse) => {
       if (loginResponse.isAuthenticated) {
@@ -74,7 +86,6 @@ export class AuthService {
    */
   private handleLoginResponse(loginResponse: LoginResponse) {
     this.isAuthenticatedSubject.next(loginResponse.isAuthenticated);
-    this.accessTokenSubject.next(loginResponse.accessToken);
     this.userDataSubject.next(User.fromClaims(loginResponse.userData));
   }
 
