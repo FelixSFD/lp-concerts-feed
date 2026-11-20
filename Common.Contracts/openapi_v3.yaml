@@ -4440,6 +4440,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
   
+  /v3/timeZones/byCoordinates:
+    get:
+      operationId: GetTimeZoneByCoordinates
+      summary: Returns the timezone for the given coordinates
+      tags:
+        - Timezones
+      parameters:
+        - in: query
+          name: lat
+          schema:
+            type: number
+          description: Latitude of the location
+        - in: query
+          name: lon
+          schema:
+            type: number
+          description: Longitude of the location
+      responses:
+        "200":
+          description: A JSON object with the data of the timezone
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimeZone"
+  
 components:
   parameters:
     X-LP-Request-Id:
@@ -5458,6 +5483,16 @@ components:
           type: string
           description: ISO code of the country where this user is from. Can be null if the user has not specified their country
           nullable: true
+    
+    # Timezones
+    TimeZone:
+      type: object
+      properties:
+        timeZoneId:
+          type: string
+          description: Name/ID of the timezone
+          example: Europe/Berlin
+          nullable: false
     
     # Paginated responses
     PaginationResponseMetadata:
@@ -6737,3 +6772,4 @@ tags:
   - name: Albums
   - name: Songs
   - name: Mashups
+  - name: Timezones
