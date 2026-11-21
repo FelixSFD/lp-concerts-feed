@@ -1,11 +1,10 @@
-
 #!/bin/sh
 
 set -eu
 
 if [ "$#" -ne 2 ]; then
     echo "Usage: $0 <bucket-name> <github-build-number>" >&2
-    echo "Only files tagged with the build number will remain in the bucket. Makre sure the files are properly tagged with the GitHubBuildNumber metadata before running this script."
+    echo "Only files tagged with the build number will remain in the bucket. Makre sure the files are properly tagged with the githubbuildnumber metadata before running this script."
     exit 1
 fi
 
@@ -25,7 +24,7 @@ while IFS= read -r key; do
     METADATA=$(aws s3api head-object \
         --bucket "$BUCKET" \
         --key "$key" \
-        --query 'Metadata.GitHubBuildNumber' \
+        --query 'Metadata.githubbuildnumber' \
         --output text)
 
     if [ "$METADATA" != "$BUILD_NUMBER" ]; then
