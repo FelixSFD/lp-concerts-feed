@@ -357,6 +357,6 @@ jobs:
     - name: Cleanup old frontend builds
       if: success()
       working-directory: .github
-      run: ./cleanup-s3.sh \
+      run: ./cleanup-s3-frontend.sh \
         "${{ vars.BASE_NAME }}-web-frontend-bucket-${{ vars.FRONTEND_PRIMARY_REGION }}" \
         "${{ github.run_number }}"
