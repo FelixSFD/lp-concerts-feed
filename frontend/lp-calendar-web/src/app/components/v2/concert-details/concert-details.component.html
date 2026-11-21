@@ -257,7 +257,7 @@
           variant="text"
           severity="secondary"
           size="small"
-          [routerLink]="['./edit']"
+          [routerLink]="['/admin', 'concerts', viewModel.id]"
         />
         @if (canEditSetlists) {
           <p-split-button
