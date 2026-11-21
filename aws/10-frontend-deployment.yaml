@@ -41,6 +41,13 @@ Resources:
         ErrorDocument: index.html
       VersioningConfiguration:
         Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: CleanupDeletedObjects
+            Status: Enabled
+            ExpiredObjectDeleteMarker: true
+            NoncurrentVersionExpiration:
+              NoncurrentDays: 1
       ReplicationConfiguration: !If
         - IsPrimaryReplicationRegion
         - Role: !GetAtt ReplicationRole.Arn
