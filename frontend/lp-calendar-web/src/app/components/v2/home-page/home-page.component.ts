@@ -7,6 +7,7 @@ import {LegacyConcertsService} from '../../../services/legacy-concerts.service';
 import { environment } from "../../../../environments/environment";
 import {Message} from 'primeng/message';
 import {Card} from 'primeng/card';
+import {Tag} from 'primeng/tag';
 import {Button} from 'primeng/button';
 import {MessageService} from 'primeng/api';
 import {Router, RouterLink} from '@angular/router';
@@ -25,6 +26,7 @@ import { catchError, of, switchMap } from 'rxjs';
   imports: [
     Message,
     Card,
+    Tag,
     Button,
     RouterLink,
     Divider,
@@ -91,6 +93,13 @@ export class HomePageComponent implements OnInit {
 
   login(): void {
     this.oidcSecurityService.authorize();
+  }
+
+
+      /** Scrolls to the calendar feed card — temporary target for the hero CTA. */
+  protected scrollToCalendarFeed(): void {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.getElementById('calendar-feed')?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
   }
 
 

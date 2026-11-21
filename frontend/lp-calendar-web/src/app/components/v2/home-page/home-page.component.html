@@ -1,5 +1,21 @@
-<h1>Linkin Park Concert Calendar</h1>
-<p>Want too keep track of the From Zero World Tour? Subscribe to the iCal-feed that contains all the concerts, so you never miss a show. <a class="link" [routerLink]="['/about']">More information...</a> </p>
+<header class="hero">
+  <div class="hero-body">
+    <p-tag class="hero-badge" value="Fan-made" [rounded]="true" />
+
+    <h1 class="hero-title">Never miss a Linkin Park show.</h1>
+    <p class="hero-sub">
+      A concert calendar built and kept up to date by the community - track
+      every show, setlist and venue in one place.
+    </p>
+
+    <p-button
+      class="hero-cta"
+      label="Add to calendar"
+      icon="pi pi-calendar-plus"
+      (onClick)="scrollToCalendarFeed()"
+    />
+  </div>
+</header>
 
 @if (newFeatureAlertDismissedToken != currentNewFeatureAlertToken && !isLoggedIn$) {
   <p-message class="new-feature-alert" closable (onClose)="onNewFeatureAlertClosed()">
@@ -43,7 +59,7 @@
   }
 
   <!-- Subscribe to iCal Card -->
-  <div class="col-12 xl:col-4 lg:col-5 md:col-6 sm:col-12">
+  <div id="calendar-feed" class="col-12 xl:col-4 lg:col-5 md:col-6 sm:col-12">
     <p-card>
       <ng-template #header>
         <div class="px-3 py-2 border-round-top surface-300">
