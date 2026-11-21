@@ -356,6 +356,7 @@ jobs:
         aws s3 cp ./angular-app/index.html s3://${{ vars.BASE_NAME }}-web-frontend-bucket-${{ vars.FRONTEND_PRIMARY_REGION }}/index.html --cache-control max-age=120 --metadata GitHubBuildNumber=${{github.run_number}}
     - name: Cleanup old frontend builds
       if: success()
-      run: ./scripts/cleanup-s3.sh \
+      working-directory: .github
+      run: ./cleanup-s3.sh \
         "${{ vars.BASE_NAME }}-web-frontend-bucket-${{ vars.FRONTEND_PRIMARY_REGION }}" \
         "${{ github.run_number }}"
