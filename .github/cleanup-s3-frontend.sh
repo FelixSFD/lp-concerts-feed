@@ -9,8 +9,8 @@ if [ "$#" -ne 2 ]; then
     exit 1
 fi
 
-BUCKET="$1"
-BUILD_NUMBER="$2"
+BUCKET=$(printf '%s' "$1" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+BUILD_NUMBER=$(printf '%s' "$2" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
 
 echo "Cleaning up s3://$BUCKET (keeping build $BUILD_NUMBER)"
 
