@@ -2,6 +2,7 @@ using System.Configuration;
 using System.Text.Json.Serialization;
 using Amazon.S3;
 using AppleDeveloperToken;
+using Common.Database;
 using Common.Jobs;
 using Common.Server.ClientIp;
 using Common.Server.ExceptionHandling;
@@ -235,6 +236,7 @@ builder.Services.AddDbContextPool<SetlistsDbContext>(options =>
         dbContextBuilder.EnableRetryOnFailure(10, TimeSpan.FromSeconds(30), null);
         dbContextBuilder.MigrationsAssembly(typeof(SetlistsDbContext).Assembly.FullName);
     });
+    options.AddInterceptors(new EmptyStringToNullInterceptor());
 });
 builder.Services.AddDbContextPool<ToursDbContext>(options =>
 {
@@ -243,6 +245,7 @@ builder.Services.AddDbContextPool<ToursDbContext>(options =>
         dbContextBuilder.EnableRetryOnFailure(10, TimeSpan.FromSeconds(30), null);
         dbContextBuilder.MigrationsAssembly(typeof(ToursDbContext).Assembly.FullName);
     });
+    options.AddInterceptors(new EmptyStringToNullInterceptor());
 });
 builder.Services.AddDbContextPool<UsersDbContext>(options =>
 {
@@ -251,6 +254,7 @@ builder.Services.AddDbContextPool<UsersDbContext>(options =>
         dbContextBuilder.EnableRetryOnFailure(10, TimeSpan.FromSeconds(30), null);
         dbContextBuilder.MigrationsAssembly(typeof(UsersDbContext).Assembly.FullName);
     });
+    options.AddInterceptors(new EmptyStringToNullInterceptor());
 });
 builder.Services.AddScoped<ICountryRepository, SqlCountryRepository>();
 builder.Services.AddScoped<IStateRepository, SqlStateRepository>();

@@ -313,6 +313,7 @@ internal static class DoMapper
         dataObject.Latitude = updateRequest.Latitude ?? 0;
         dataObject.Longitude = updateRequest.Longitude ?? 0;
         dataObject.TimeZone = updateRequest.TimeZone;
+        dataObject.CurrentName = updateRequest.CurrentName;
         return dataObject;
     }
     

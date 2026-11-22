@@ -426,7 +426,7 @@ export const routes: Routes = [
         path: 'venues/:venueId',
         loadComponent: () =>
           import("./components/v2/admin/locations/edit-venue-page/edit-venue-page.component").then(m => m.EditVenuePageComponent),
-        title: baseTitle + 'Edit city',
+        title: baseTitle + 'Edit venue',
         canActivate: [authGuard, manageLocationsGuard],
         resolve: {
           venue: venueDetailsResolver

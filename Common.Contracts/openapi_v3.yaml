@@ -5124,6 +5124,7 @@ components:
         - countryCode
         - cityId
         - timeZoneId
+        - currentName
       type: object
       properties:
         countryCode:
@@ -5139,6 +5140,8 @@ components:
           format: int64
           minimum: 0
           maximum: 4294967295
+        currentName:
+          type: string
         timeZoneId:
           type: string
         latitude:
