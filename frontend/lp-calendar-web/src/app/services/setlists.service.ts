@@ -18,7 +18,7 @@ import {
   UpdateSetlistEntryRequestDto,
   UpdateSetlistHeaderRequestDto, SetlistsApi, AddSongToSetlistResponseDto, AddSongVariantToSetlistResponseDto,
   AddSongMashupToSetlistResponseDto, AddSongExtraToSetlistEntryResponseDto, ActParametersDto, SetlistEntryParametersDto,
-  SongMashupParametersDto, SongVariantParametersDto, SongParametersDto, SetlistEntryDto,
+  SongMashupParametersDto, SongVariantParametersDto, SongParametersDto, SetlistEntryDto, UpdateSetlistActRequestDto,
 } from '../modules/lpshows-api/v3';
 import { firstValueFrom, map, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -146,9 +146,20 @@ export class SetlistsService {
   /**
    * Returns the acts of a setlist
    * @param setlistId The ID of the setlist (number)
+   * @param cached Whether cached values are allowed
    */
-  getActsInSetlist(setlistId: number): Promise<SetlistActDto[]> {
-    return firstValueFrom(this.setlistsApi.getActsInSetlist(setlistId));
+  getActsInSetlist(setlistId: number, cached: boolean = true): Promise<SetlistActDto[]> {
+    return firstValueFrom(this.setlistsApi.getActsInSetlist(setlistId, getRequestIdParameter(cached)));
+  }
+
+  /**
+   * Updates an act in a setlist.
+   * @param setlistId The ID of the setlist
+   * @param actNumber The number of the act
+   * @param request The updated act fields
+   */
+  updateSetlistAct(setlistId: number, actNumber: number, request: UpdateSetlistActRequestDto): Promise<void> {
+    return firstValueFrom(this.setlistsApi.updateSetlistAct(setlistId, actNumber, request));
   }
 
   /**

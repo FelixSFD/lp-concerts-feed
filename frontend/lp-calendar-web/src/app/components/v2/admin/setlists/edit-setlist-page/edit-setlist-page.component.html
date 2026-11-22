@@ -84,6 +84,64 @@
     </p-card>
 
     <p-card class="mt-3">
+      <ng-template #title>Acts</ng-template>
+
+      <p-table [value]="setlistActs()" dataKey="actNumber">
+        <ng-template #header>
+          <tr>
+            <th>Act</th>
+            <th>Title</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-act>
+          <tr>
+            <td>{{ act.actNumber }}</td>
+            <td>
+              @if (editingActNumber() !== null && editingActNumber() === act.actNumber) {
+                <p-inputgroup>
+                  <input pInputText [ngModel]="actTitleDraft()" (ngModelChange)="actTitleDraft.set($event)"
+                         [ngModelOptions]="{ standalone: true }" [disabled]="isSavingAct()"
+                         maxlength="31" class="flex-1" fluid [pAutoFocus]="true"
+                         [attr.aria-label]="'Title for act ' + act.actNumber" />
+                  <p-inputgroup-addon>
+                    <p-button type="button" icon="pi pi-check" severity="success" [text]="true" [loading]="isSavingAct()"
+                              [disabled]="isSavingAct()" [ariaLabel]="'Save act ' + act.actNumber"
+                              (onClick)="saveActEdit()" />
+                  </p-inputgroup-addon>
+                  <p-inputgroup-addon>
+                    <p-button type="button" icon="pi pi-times" severity="danger" [text]="true" [disabled]="isSavingAct()"
+                              [ariaLabel]="'Cancel editing act ' + act.actNumber" (onClick)="cancelActEdit()" />
+                  </p-inputgroup-addon>
+                </p-inputgroup>
+                @if (editedActMissing()) {
+                  <span>Act was not found on refresh.</span>
+                }
+              } @else {
+                <p-inplace [pt]="{ display: 'w-full' }" [disabled]="editingActNumber() !== null || isSavingAct() || act.actNumber == null"
+                           (onActivate)="startActEdit(act)">
+                  <ng-template #display>
+                    <span class="w-full text-sm">{{ act.title || 'Untitled' }}</span>
+                  </ng-template>
+                </p-inplace>
+              }
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template #emptymessage>
+          <tr><td colspan="2">
+            @if (isLoadingActs()) {
+              Loading acts...
+            } @else if (actsLoadFailed()) {
+              Could not load acts.
+            } @else {
+              No acts in this setlist.
+            }
+          </td></tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+
+    <p-card class="mt-3">
       <ng-template #title>
         <div class="flex gap-2">
           <span>Entries</span>

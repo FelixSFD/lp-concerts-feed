@@ -1,4 +1,5 @@
-import { Component, effect, inject, OnInit, signal, viewChild } from '@angular/core';
+import { Component, inject, OnInit, signal, viewChild, viewChildren } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {
   ErrorResponseDto,
@@ -23,8 +24,10 @@ import {FloatLabel} from 'primeng/floatlabel';
 import {InputText} from 'primeng/inputtext';
 import {InputGroup} from 'primeng/inputgroup';
 import {InputGroupAddon} from 'primeng/inputgroupaddon';
+import {Inplace} from 'primeng/inplace';
+import {AutoFocus} from 'primeng/autofocus';
 import { SetlistsService } from '../../../../../services/setlists.service';
-import { ProblemDetailsDto } from '../../../../../modules/lpshows-api/v3';
+import { ProblemDetailsDto, SetlistActDto } from '../../../../../modules/lpshows-api/v3';
 
 @Component({
   selector: 'app-edit-setlist-page',
@@ -44,7 +47,9 @@ import { ProblemDetailsDto } from '../../../../../modules/lpshows-api/v3';
     FloatLabel,
     InputText,
     InputGroup,
-    InputGroupAddon
+    InputGroupAddon,
+    Inplace,
+    AutoFocus
   ],
   templateUrl: './edit-setlist-page.component.html',
   styleUrl: './edit-setlist-page.component.css',
@@ -57,6 +62,9 @@ export class EditSetlistPageComponent implements OnInit {
   private messageService = inject(MessageService);
 
   private addEntryFormComponent = viewChild(AddSetlistEntryFormComponent);
+  private entryForms = viewChildren(AddSetlistEntryFormComponent);
+  private actsRequestVersion = 0;
+  private entriesRequestVersion = 0;
 
   currentSetlistId = signal<number>(0);
 
@@ -84,30 +92,137 @@ export class EditSetlistPageComponent implements OnInit {
   entryDeleting = signal(false);
 
   setlistEntries = signal<SetlistEntry[]>([]);
-
+  setlistActs = signal<SetlistActDto[]>([]);
+  isLoadingActs = signal(true);
+  actsLoadFailed = signal(false);
+  editingActNumber = signal<number | null>(null);
+  actTitleDraft = signal('');
+  isSavingAct = signal(false);
+  editedActMissing = signal(false);
   ngOnInit() {
-    this.activeRoute.params.subscribe(async params => {
-      let setlistId = params['setlistId'];
-      if (setlistId != null && setlistId > 0) {
-        await this.loadSetlist(setlistId);
+    this.activeRoute.params.subscribe(params => {
+      const setlistId = Number(params['setlistId']);
+      if (Number.isInteger(setlistId) && setlistId > 0) {
         this.currentSetlistId.set(setlistId);
+        this.editingActNumber.set(null);
+        this.editedActMissing.set(false);
+        this.setlistActs.set([]);
+        this.setlistEntries.set([]);
+        void this.loadSetlist(setlistId, true);
       }
     });
   }
 
-  private async loadSetlist(setlistId: number) {
-    let setlistResult = await this.setlistService.getCompleteSetlist(setlistId, false);
-
-    if (setlistResult) {
-      this.fillFormFromDto(setlistResult);
+  private async loadSetlist(setlistId: number, includeFormAndEntries: boolean) {
+    const actsVersion = ++this.actsRequestVersion;
+    const entriesVersion = includeFormAndEntries ? ++this.entriesRequestVersion : this.entriesRequestVersion;
+    this.isLoadingActs.set(true);
+    this.actsLoadFailed.set(false);
+    try {
+      const setlistResult = await this.setlistService.getCompleteSetlist(setlistId, false);
+      if (this.currentSetlistId() !== setlistId) {
+        return;
+      }
+      if (actsVersion === this.actsRequestVersion) {
+        const acts = [...(setlistResult.acts ?? [])];
+        const editingAct = this.setlistActs().find(act => act.actNumber === this.editingActNumber());
+        const missing = !!editingAct && !acts.some(act => act.actNumber === editingAct.actNumber);
+        this.editedActMissing.set(missing);
+        if (editingAct && missing) {
+          acts.push(editingAct);
+        }
+        this.setlistActs.set(acts.sort((a, b) => (a.actNumber ?? 0) - (b.actNumber ?? 0)));
+      }
+      if (includeFormAndEntries && entriesVersion === this.entriesRequestVersion) {
+        this.fillFormFromDto(setlistResult);
+        this.setlistEntries.set(setlistResult.entries?.map(SetlistEntry.fromDto) ?? []);
+      }
+    } catch (err: unknown) {
+      if (this.currentSetlistId() !== setlistId ||
+          (actsVersion !== this.actsRequestVersion && (!includeFormAndEntries || entriesVersion !== this.entriesRequestVersion))) {
+        return;
+      }
+      const errorResponse = err instanceof HttpErrorResponse ? err.error as ProblemDetailsDto : undefined;
+      if (actsVersion === this.actsRequestVersion) {
+        this.actsLoadFailed.set(true);
+      }
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Could not refresh setlist',
+        detail: errorResponse?.detail,
+      });
+    } finally {
+      if (this.currentSetlistId() === setlistId && actsVersion === this.actsRequestVersion) {
+        this.isLoadingActs.set(false);
+      }
     }
-
-    const entries: SetlistEntry[] = setlistResult?.entries?.map(SetlistEntry.fromDto) ?? [];
-    this.setlistEntries.set(entries);
   }
 
   private async reloadCurrentSetlist() {
-    await this.loadSetlist(this.currentSetlistId());
+    await Promise.all([
+      this.loadSetlist(this.currentSetlistId(), true),
+      ...this.entryForms().map(form => form.refreshActs()),
+    ]);
+  }
+
+  /** Starts editing an act without changing its saved title. */
+  startActEdit(act: SetlistActDto) {
+    if (act.actNumber == null || this.editingActNumber() != null || this.isSavingAct()) {
+      return;
+    }
+    this.actTitleDraft.set(act.title ?? '');
+    this.editingActNumber.set(act.actNumber);
+  }
+
+  /** Discards the current act title draft. */
+  cancelActEdit() {
+    if (!this.isSavingAct()) {
+      if (this.editedActMissing()) {
+        this.setlistActs.update(acts => acts.filter(act => act.actNumber !== this.editingActNumber()));
+      }
+      this.editingActNumber.set(null);
+      this.editedActMissing.set(false);
+      this.actTitleDraft.set('');
+    }
+  }
+
+  /** Saves the edited title and refreshes the setlist and act selectors. */
+  async saveActEdit() {
+    const actNumber = this.editingActNumber();
+    const setlistId = this.currentSetlistId();
+    const title = this.actTitleDraft();
+    if (actNumber == null || this.isSavingAct() || title.length > 31) {
+      return;
+    }
+
+    this.isSavingAct.set(true);
+    try {
+      await this.setlistService.updateSetlistAct(setlistId, actNumber, { title: title || null });
+      if (this.currentSetlistId() !== setlistId) {
+        return;
+      }
+      this.setlistActs.update(acts => acts.map(act => act.actNumber === actNumber ? { ...act, title: title || null } : act));
+      this.editingActNumber.set(null);
+      this.editedActMissing.set(false);
+      this.actTitleDraft.set('');
+      this.messageService.add({ severity: 'success', summary: 'Act updated successfully' });
+      await Promise.all([
+        this.loadSetlist(setlistId, false),
+        ...this.entryForms().map(form => form.refreshActs()),
+      ]);
+    } catch (err: unknown) {
+      if (this.currentSetlistId() !== setlistId) {
+        return;
+      }
+      const errorResponse = err instanceof HttpErrorResponse ? err.error as ProblemDetailsDto : undefined;
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Could not update act',
+        detail: errorResponse?.detail,
+      });
+    } finally {
+      this.isSavingAct.set(false);
+    }
   }
 
   private fillFormFromDto(setlist: SetlistDto) {
