@@ -203,15 +203,29 @@
   @if (viewModel.setlists && viewModel.setlists.length > 0) {
     @for (setlist of viewModel.setlists; track setlist) {
       <p-card class="section-card">
-        <p class="section-head">
-          <i class="pi pi-list"></i> Setlist: {{ setlist.setName }}
+        <div class="section-head">
+          <i class="pi pi-list"></i> <span>Setlist: {{ setlist.setName }}</span>
           <p-tag
             value="BETA"
             severity="secondary"
             pTooltip="This is an early version of this feature and might not work perfectly"
             tooltipPosition="top"
           />
-        </p>
+          @if (isAuthenticated && canEditSetlists && setlist.id != null) {
+            <button
+              pButton
+              type="button"
+              class="setlist-edit"
+              aria-label="Edit setlist"
+              size="small"
+              variant="text"
+              severity="secondary"
+              [routerLink]="['/admin', 'setlists', setlist.id]"
+            >
+              <i class="pi pi-pencil" aria-hidden="true"></i> Edit
+            </button>
+          }
+        </div>
 
         <app-setlist [setlist]="setlist" />
 
