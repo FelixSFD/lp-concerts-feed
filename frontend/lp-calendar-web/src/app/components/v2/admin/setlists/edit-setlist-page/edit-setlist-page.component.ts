@@ -12,7 +12,7 @@ import {
   AddSetlistEntryFormComponent
 } from '../add-setlist-entry-form/add-setlist-entry-form.component';
 import {SetlistEntryIconsComponent} from '../../../setlists/setlist-entry-icons/setlist-entry-icons.component';
-import {Button} from 'primeng/button';
+import {ButtonDirective} from 'primeng/button';
 import {Card} from 'primeng/card';
 import {Divider} from 'primeng/divider';
 import {TableModule, TableRowReorderEvent} from 'primeng/table';
@@ -37,7 +37,7 @@ import { ProblemDetailsDto, SetlistActDto } from '../../../../../modules/lpshows
     AddSetlistEntryFormComponent,
     SetlistEntryIconsComponent,
     RouterLink,
-    Button,
+    ButtonDirective,
     Card,
     Divider,
     TableModule,

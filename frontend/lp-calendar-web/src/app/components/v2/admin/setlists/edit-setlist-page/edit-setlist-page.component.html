@@ -5,8 +5,11 @@
   <p-divider />
 
   <ng-template #footer>
-    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="dismissAddEntryModal()" />
-    <p-button [label]="isAddingEntry() ? 'Adding...' : 'Add'" (onClick)="onAddEntryConfirm()" [loading]="isAddingEntry()" [disabled]="isAddingEntry()" />
+    <button pButton type="button" text severity="secondary" (click)="dismissAddEntryModal()">Cancel</button>
+    <button pButton type="button" (click)="onAddEntryConfirm()" [disabled]="isAddingEntry()">
+      @if (isAddingEntry()) { <i class="pi pi-spinner pi-spin" aria-hidden="true"></i> }
+      {{ isAddingEntry() ? 'Adding...' : 'Add' }}
+    </button>
   </ng-template>
 </p-dialog>
 
@@ -17,8 +20,11 @@
   <p-divider />
 
   <ng-template #footer>
-    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="dismissEditEntryModal()" />
-    <p-button [label]="isEditingEntry() ? 'Saving...' : 'Save'" (onClick)="onEditEntryConfirm(editEntryForm)" [loading]="isEditingEntry()" [disabled]="isEditingEntry()" />
+    <button pButton type="button" text severity="secondary" (click)="dismissEditEntryModal()">Cancel</button>
+    <button pButton type="button" (click)="onEditEntryConfirm(editEntryForm)" [disabled]="isEditingEntry()">
+      @if (isEditingEntry()) { <i class="pi pi-spinner pi-spin" aria-hidden="true"></i> }
+      {{ isEditingEntry() ? 'Saving...' : 'Save' }}
+    </button>
   </ng-template>
 </p-dialog>
 
@@ -29,7 +35,9 @@
     Edit setlist
   </ng-template>
 
-  <p-button severity="secondary" variant="outlined" icon="pi pi-arrow-left" label="Setlists" [routerLink]="['../']" />
+  <button pButton type="button" severity="secondary" variant="outlined" [routerLink]="['../']">
+    <i class="pi pi-arrow-left" aria-hidden="true"></i> Setlists
+  </button>
 
   <form #form="ngForm" [formGroup]="setlistForm" class="form">
     <p-card class="mt-3">
@@ -44,7 +52,9 @@
             <p-input-group>
               <input pInputText id="concertId" formControlName="concertId" autocomplete="off" fluid />
               <p-inputgroup-addon>
-                <p-button icon="pi pi-external-link" label="Open Details" severity="info" variant="outlined" (onClick)="openConcertDetailsClicked()" />
+                <button pButton type="button" severity="info" variant="outlined" (click)="openConcertDetailsClicked()">
+                  <i class="pi pi-external-link" aria-hidden="true"></i> Open Details
+                </button>
               </p-inputgroup-addon>
             </p-input-group>
 
@@ -66,7 +76,9 @@
             <p-input-group>
               <input pInputText id="linkinpediaUrl" formControlName="linkinpediaUrl" autocomplete="off" fluid />
               <p-inputgroup-addon>
-                <p-button icon="pi pi-external-link" label="Open link" severity="info" variant="outlined" (onClick)="openLinkinpediaUrlClicked()" />
+                <button pButton type="button" severity="info" variant="outlined" (click)="openLinkinpediaUrlClicked()">
+                  <i class="pi pi-external-link" aria-hidden="true"></i> Open link
+                </button>
               </p-inputgroup-addon>
             </p-input-group>
 
@@ -78,7 +90,10 @@
       <ng-template #footer>
         <p-divider />
         <div class="flex gap-4 mt-1 align-content-end justify-content-end">
-          <p-button [label]="isSaving() ? 'Saving...' : 'Save'" [loading]="isSaving()" (onClick)="onSaveClicked()" [disabled]="isSaving() || !setlistForm.valid" />
+          <button pButton type="button" (click)="onSaveClicked()" [disabled]="isSaving() || !setlistForm.valid">
+            @if (isSaving()) { <i class="pi pi-spinner pi-spin" aria-hidden="true"></i> }
+            {{ isSaving() ? 'Saving...' : 'Save' }}
+          </button>
         </div>
       </ng-template>
     </p-card>
@@ -104,13 +119,20 @@
                          maxlength="31" class="flex-1" fluid [pAutoFocus]="true"
                          [attr.aria-label]="'Title for act ' + act.actNumber" />
                   <p-inputgroup-addon>
-                    <p-button type="button" icon="pi pi-check" severity="success" [text]="true" [loading]="isSavingAct()"
-                              [disabled]="isSavingAct()" [ariaLabel]="'Save act ' + act.actNumber"
-                              (onClick)="saveActEdit()" />
+                    <button pButton type="button" iconOnly text severity="success" [disabled]="isSavingAct()"
+                            [attr.aria-label]="'Save act ' + act.actNumber" (click)="saveActEdit()">
+                      @if (isSavingAct()) {
+                        <i class="pi pi-spinner pi-spin" aria-hidden="true"></i>
+                      } @else {
+                        <i class="pi pi-check" aria-hidden="true"></i>
+                      }
+                    </button>
                   </p-inputgroup-addon>
                   <p-inputgroup-addon>
-                    <p-button type="button" icon="pi pi-times" severity="danger" [text]="true" [disabled]="isSavingAct()"
-                              [ariaLabel]="'Cancel editing act ' + act.actNumber" (onClick)="cancelActEdit()" />
+                    <button pButton type="button" iconOnly text severity="danger" [disabled]="isSavingAct()"
+                            [attr.aria-label]="'Cancel editing act ' + act.actNumber" (click)="cancelActEdit()">
+                      <i class="pi pi-times" aria-hidden="true"></i>
+                    </button>
                   </p-inputgroup-addon>
                 </p-inputgroup>
                 @if (editedActMissing()) {
@@ -145,10 +167,10 @@
       <ng-template #title>
         <div class="flex gap-2">
           <span>Entries</span>
-          <p-button label="Add" size="small" (onClick)="onAddEntryClicked()" [disabled]="isSaving()" />
+          <button pButton type="button" size="small" (click)="onAddEntryClicked()" [disabled]="isSaving()">Add</button>
 
           @if (isPendingReorder()) {
-            <p-button label="Save order" severity="success" size="small" (onClick)="onSaveOrderClicked()" [disabled]="isSaving()" />
+            <button pButton type="button" severity="success" size="small" (click)="onSaveOrderClicked()" [disabled]="isSaving()">Save order</button>
           }
         </div>
       </ng-template>
@@ -181,8 +203,8 @@
             <td>{{ entry.extraNotes }}</td>
             <td>
               <p-button-group>
-                <p-button label="Edit" variant="outlined" size="small" (onClick)="onEditEntryClicked(editEntryForm, entry)" />
-                <p-button label="Delete" severity="danger" variant="outlined" size="small" (onClick)="onDeleteEntryClicked($event, entry)" />
+                <button pButton type="button" variant="outlined" size="small" (click)="onEditEntryClicked(editEntryForm, entry)">Edit</button>
+                <button pButton type="button" severity="danger" variant="outlined" size="small" (click)="onDeleteEntryClicked($event, entry)">Delete</button>
               </p-button-group>
             </td>
           </tr>
