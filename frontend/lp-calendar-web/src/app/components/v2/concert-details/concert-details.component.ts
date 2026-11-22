@@ -22,7 +22,7 @@ import {environment} from '../../../../environments/environment';
 import {ConcertBadgesComponent} from '../concert-badges/concert-badges.component';
 import {Card} from 'primeng/card';
 import {SplitButton} from 'primeng/splitbutton';
-import {Button} from 'primeng/button';
+import {Button, ButtonDirective} from 'primeng/button';
 import {MenuItem, MessageService} from 'primeng/api';
 import {Tooltip} from 'primeng/tooltip';
 import {TimeSpanPipe} from '../../../data/time-span-pipe';
@@ -39,6 +39,7 @@ import {ConcertDetailsViewModel} from './concert-details.view-model';
     Card,
     SplitButton,
     Button,
+    ButtonDirective,
     RouterLink,
     Tooltip,
     TimeSpanPipe,

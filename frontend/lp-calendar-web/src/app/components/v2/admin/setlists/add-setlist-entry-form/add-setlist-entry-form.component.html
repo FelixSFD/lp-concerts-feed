@@ -78,7 +78,7 @@
         Act {{ act.actNumber }}: {{ act.title }}
       </ng-template>
       <p-floatlabel variant="on">
-        <p-select inputId="selectedAct" [options]="availableActs$()" formControlName="selectedAct" fluid showClear>
+        <p-select inputId="selectedAct" [options]="availableActs$()" formControlName="selectedAct" fluid showClear (onChange)="onActSelectionChanged()">
           <ng-template #selectedItem let-selectedOption>
             <ng-container *ngTemplateOutlet="actSelectionItem; context: { act: selectedOption }" />
           </ng-template>

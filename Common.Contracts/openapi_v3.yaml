@@ -3058,6 +3058,61 @@ paths:
         requestParameters:
           integration.request.path.setlistId: method.request.path.setlistId
 
+  /v3/Setlists/{setlistId}/acts/{actNumber}:
+    parameters:
+      - $ref: "#/components/parameters/X-LP-Request-Id"
+      - name: setlistId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: uint32
+      - name: actNumber
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: uint32
+    put:
+      tags:
+        - Setlists
+      summary: Updates an act in a setlist
+      operationId: UpdateSetlistAct
+      security:
+        - Bearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSetlistActRequest"
+      responses:
+        "204":
+          description: Act was updated
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Act not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: PUT
+        uri: https://api.dev.lpshows.felixsfd.de/v3/Setlists/{setlistId}/acts/{actNumber}
+        requestParameters:
+          integration.request.path.setlistId: method.request.path.setlistId
+          integration.request.path.actNumber: method.request.path.actNumber
+
   /v3/Setlists/{setlistId}/entries/{entryId}:
     parameters:
       - $ref: "#/components/parameters/X-LP-Request-Id"
@@ -5922,6 +5977,16 @@ components:
           type: string
           description: Title of this act
           nullable: true
+
+    UpdateSetlistActRequest:
+      type: object
+      description: Updated fields of an act in a setlist
+      properties:
+        title:
+          type: string
+          description: Title of the act; null, an empty string, or omission clears the title
+          nullable: true
+          maxLength: 127
     
     SetlistEntrySongExtra:
       type: object

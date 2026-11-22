@@ -1,4 +1,5 @@
 import { Component, effect, inject, Input, OnInit, signal, viewChild } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from "@angular/forms";
 import {SongsService} from '../../../../../services/songs.service';
 import {
@@ -117,11 +118,24 @@ export class AddSetlistEntryFormComponent implements OnInit {
 
   // To work around race conditions (entry loading before the select-fields), the entry can be stored here
   private storedEntry: RawSetlistEntryDto | null = null;
+  private actsRequestVersion = 0;
+  private pendingEntryActNumber: number | null = null;
+  private locallyAddedActs = new Set<SetlistActDto>();
+  private actsSetlistId: number | undefined;
 
   private loadActsEffect = effect(() => {
     let setlistId = this.setlistId();
     if (setlistId != null && setlistId > 0) {
-      this.loadActs(setlistId).then();
+      if (this.actsSetlistId !== setlistId) {
+        if (this.actsSetlistId != null) {
+          this.clearForm();
+        }
+        this.locallyAddedActs.clear();
+        this.pendingEntryActNumber = null;
+        this.availableActs$.set([]);
+        this.actsSetlistId = setlistId;
+      }
+      this.loadActs(setlistId, false).then();
     } else {
       console.warn("No setlist ID provided in AddSetlistEntryFormComponent");
     }
@@ -187,29 +201,67 @@ export class AddSetlistEntryFormComponent implements OnInit {
       });
   }
 
-  private async loadActs(setlistId: number) {
+  private async loadActs(setlistId: number, cached: boolean = true) {
+    const requestVersion = ++this.actsRequestVersion;
     try {
-      const data = await this.setlistsService.getActsInSetlist(setlistId);
-      data.sort((a, b) => (a.actNumber ?? 0) < (b.actNumber ?? 0) ? -1 : 1);
+      const data = await this.setlistsService.getActsInSetlist(setlistId, cached);
+      if (requestVersion !== this.actsRequestVersion || this.setlistId() !== setlistId) {
+        return;
+      }
+      const selectedAct = this.setlistEntryForm.controls.selectedAct.value;
+      for (const localAct of this.locallyAddedActs) {
+        const savedAct = data.find(act => act.actNumber === localAct.actNumber);
+        if (savedAct && savedAct.title === localAct.title) {
+          this.locallyAddedActs.delete(localAct);
+        } else {
+          if (savedAct) {
+            data.splice(data.indexOf(savedAct), 1);
+          }
+          data.push(localAct);
+        }
+      }
+      const selectedNumber = selectedAct?.actNumber ?? this.pendingEntryActNumber;
+      const refreshedSelection = selectedNumber == null ? undefined : data.find(act => act.actNumber === selectedNumber);
+      if (selectedAct && !refreshedSelection) {
+        data.push(selectedAct);
+      }
+      data.sort((a, b) => (a.actNumber ?? 0) - (b.actNumber ?? 0));
       this.availableActs$.set(data);
       console.debug("Loaded acts: ", this.availableActs$());
 
-      if (this.storedEntry) {
-        console.debug("Has a stored entry: ", this.storedEntry);
-        this.setlistEntryForm.controls.selectedAct.setValue(this.availableActs$().find(act => this.storedEntry?.actNumber == act.actNumber) ?? null);
+      if (refreshedSelection) {
+        this.setlistEntryForm.controls.selectedAct.setValue(refreshedSelection);
+        this.pendingEntryActNumber = null;
       }
-    } catch (err: any) {
-      let errorResponse: ProblemDetailsDto = err?.error ?? err;
+    } catch (err: unknown) {
+      if (requestVersion !== this.actsRequestVersion || this.setlistId() !== setlistId) {
+        return;
+      }
+      const errorResponse = err instanceof HttpErrorResponse ? err.error as ProblemDetailsDto : undefined;
       this.messageService.add({
         severity: "error",
         summary: "Could not load acts",
-        detail: errorResponse?.detail ?? errorResponse?.['message'],
+        detail: errorResponse?.detail,
       });
     }
   }
 
+  /** Refreshes act options without discarding the current form selection. */
+  public async refreshActs(): Promise<void> {
+    const setlistId = this.setlistId();
+    if (setlistId != null && setlistId > 0) {
+      await this.loadActs(setlistId, false);
+    }
+  }
+
+  /** Stops restoring an entry's act after the user changes the selection. */
+  public onActSelectionChanged(): void {
+    this.pendingEntryActNumber = null;
+  }
+
   public clearForm() {
     this.setlistEntryForm.reset();
+    this.pendingEntryActNumber = null;
     this.isDeletingSongExtra$.set(false);
     this.isAddingSongExtra$.set(false);
     this.storedEntry = null;
@@ -343,6 +395,7 @@ export class AddSetlistEntryFormComponent implements OnInit {
     }
 
     console.debug("Add new Act", newAct);
+    this.locallyAddedActs.add(newAct);
     const updatedActs = [...this.availableActs$(), newAct];
     updatedActs.sort((a, b) => (a.actNumber ?? 0) < (b.actNumber ?? 0) ? -1 : 1);
     this.availableActs$.set(updatedActs);
@@ -420,7 +473,9 @@ export class AddSetlistEntryFormComponent implements OnInit {
       this.setlistEntryForm.controls.songNumber.setValue(entry.songNumber ?? null);
       this.setlistEntryForm.controls.titleOverride.setValue(entry.title ?? null);
       this.setlistEntryForm.controls.extraNotes.setValue(entry.extraNotes ?? null);
-      this.setlistEntryForm.controls.selectedAct.setValue(this.availableActs$().find(act => act.actNumber == entry.actNumber) ?? null);
+      const entryAct = this.availableActs$().find(act => act.actNumber == entry.actNumber) ?? null;
+      this.setlistEntryForm.controls.selectedAct.setValue(entryAct);
+      this.pendingEntryActNumber = entryAct == null ? entry.actNumber ?? null : null;
       this.setlistEntryForm.controls.selectedSong.setValue(this.availableSongs$().find(s => s.id == (entry.songId ?? 0)) ?? null);
       if (entry.songId) {
         this.loadVariantsOfSelectedSong(entry.songId);

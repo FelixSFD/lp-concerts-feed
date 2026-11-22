@@ -439,6 +439,24 @@ public class SetlistService(
     }
     
     /// <summary>
+    /// Updates the editable fields of an act in a setlist.
+    /// </summary>
+    /// <param name="setlistId">ID of the setlist</param>
+    /// <param name="actNumber">Number of the act within the setlist</param>
+    /// <param name="request">Updated data</param>
+    /// <exception cref="SetlistActNotFoundException">if the act does not exist</exception>
+    public async Task UpdateSetlistActAsync(uint setlistId, uint actNumber, UpdateSetlistActRequestBo request)
+    {
+        var act = await actRepository.GetBy(setlistId, actNumber)
+                  ?? throw new SetlistActNotFoundException(setlistId, actNumber);
+
+        act.Title = StringUtils.NullIfEmpty(request.Title);
+        actRepository.Update(act);
+        await actRepository.SaveChangesAsync();
+        await UpdateSetlistCacheForSetlist(setlistId, DateTimeOffset.Now);
+    }
+
+    /// <summary>
     /// Updates the information of a setlist entry
     /// </summary>
     /// <param name="setlistId">ID of the setlist</param>

@@ -40,6 +40,41 @@ public class SetlistServiceTest
     }
 
     [Theory]
+    [InlineData("New title", "New title")]
+    [InlineData("", null)]
+    [InlineData(null, null)]
+    [InlineData(" ", " ")]
+    public async Task UpdateSetlistActAsync_UpdatesTitle(string? title, string? expectedTitle)
+    {
+        var act = new SetlistActDo { SetlistId = 12, ActNumber = 3, Title = "Old title" };
+        _actRepository.GetBy(12, 3).Returns(act);
+
+        await _setlistService.UpdateSetlistActAsync(12, 3, new UpdateSetlistActRequestBo { Title = title });
+
+        Assert.Equal(expectedTitle, act.Title);
+        Assert.Equal(12u, act.SetlistId);
+        Assert.Equal(3u, act.ActNumber);
+        _actRepository.Received(1).Update(act);
+        await _actRepository.Received(1).SaveChangesAsync();
+        await _setlistRepository.Received(1).GetByPrimaryKeyAsync(12);
+    }
+
+    [Fact]
+    public async Task UpdateSetlistActAsync_ActNotFound_DoesNotSave()
+    {
+        _actRepository.GetBy(12, 3).Returns((SetlistActDo?)null);
+
+        var exception = await Assert.ThrowsAsync<SetlistActNotFoundException>(() =>
+            _setlistService.UpdateSetlistActAsync(12, 3, new UpdateSetlistActRequestBo { Title = "Title" }));
+
+        Assert.Equal(12u, exception.SetlistId);
+        Assert.Equal(3u, exception.ActNumber);
+        _actRepository.DidNotReceive().Update(Arg.Any<SetlistActDo>());
+        await _actRepository.DidNotReceive().SaveChangesAsync();
+        await _setlistRepository.DidNotReceive().GetByPrimaryKeyAsync(Arg.Any<uint>());
+    }
+
+    [Theory]
     [InlineData("testconcert123", "https://lplive.net")]
     [InlineData("1234567890", null)]
     public async Task CreateSetlistAsync(string concertId, string? linkinpediaUrl)

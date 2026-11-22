@@ -276,6 +276,11 @@
   color: var(--p-primary-color);
 }
 
+.setlist-edit {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
 .section-note {
   display: block;
   margin-top: 0.75rem;
