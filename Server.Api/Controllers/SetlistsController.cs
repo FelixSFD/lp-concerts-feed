@@ -102,7 +102,13 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
     public async Task<ActionResult<SetlistActDto[]>> GetActsInSetlist([FromRoute] uint setlistId,
         CancellationToken cancellationToken)
     {
-        return Ok(await setlistService.GetActsWithinSetlistAsync(setlistId).Select(DtoMapper.ToDto).ToArrayAsync(cancellationToken));
+        var sortedActs = await setlistService
+            .GetActsWithinSetlistAsync(setlistId)
+            .Select(DtoMapper.ToDto)
+            .OrderBy(act => act.ActNumber)
+            .ThenBy(act => act.Title)
+            .ToArrayAsync(cancellationToken);
+        return Ok(sortedActs);
     }
 
     /// <summary>
