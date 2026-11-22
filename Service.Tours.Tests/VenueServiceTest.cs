@@ -328,6 +328,7 @@ public class VenueServiceTest
             Latitude = 0.12m,
             Longitude = 89.89m,
             TimeZone = "Europe/London",
+            CurrentName = "New Venue Name",
         };
         await _service.UpdateVenueAsync(updateRequest, mockVenue.Id);
         Assert.NotNull(savedVenueDo);
@@ -338,6 +339,7 @@ public class VenueServiceTest
         Assert.Equal(updateRequest.Latitude, savedVenueDo.Latitude);
         Assert.Equal(updateRequest.Longitude, savedVenueDo.Longitude);
         Assert.Equal(updateRequest.TimeZone, savedVenueDo.TimeZone);
+        Assert.Equal(updateRequest.CurrentName, savedVenueDo.CurrentName);
         
         // verify mock calls
         await _venueRepository

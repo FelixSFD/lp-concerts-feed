@@ -301,6 +301,7 @@ internal static class DtoMapper
             StateCode = dto.StateCode,
             CityId = (uint)dto.CityId,
             TimeZone = dto.TimeZoneId,
+            CurrentName = dto.CurrentName,
             Latitude = dto.Latitude,
             Longitude = dto.Longitude,
         };

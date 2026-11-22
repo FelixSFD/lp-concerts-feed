@@ -27,6 +27,11 @@ public class UpdateVenueRequestBo
     public uint CityId { get; set; }
     
     /// <summary>
+    /// Current name of this venue
+    /// </summary>
+    public required string CurrentName { get; set; }
+    
+    /// <summary>
     /// Time Zone of this venue
     /// </summary>
     public required string TimeZone { get; set; }

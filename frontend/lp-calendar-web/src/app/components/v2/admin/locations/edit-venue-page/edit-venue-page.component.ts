@@ -75,6 +75,7 @@ export class EditVenuePageComponent {
       countryCode: formContent.countryCode,
       cityId: formContent.cityId,
       timeZoneId: formContent.timeZoneId,
+      currentName: formContent.currentName,
       latitude: formContent.latitude,
       longitude: formContent.longitude
     };
