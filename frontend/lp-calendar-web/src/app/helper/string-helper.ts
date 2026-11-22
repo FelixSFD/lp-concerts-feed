@@ -18,7 +18,7 @@ export function nullIfEmpty(str: string | null | undefined): string | null {
 }
 
 /**
- * Removes MediaWiki link brackets while preserving null and undefined values.
+ * Replaces MediaWiki links with their displayed text, or their target when no displayed text is set.
  */
 export function replaceMediaWikiLinksInString<T extends string | null | undefined>(input: T): T extends string ? string : T;
 export function replaceMediaWikiLinksInString(input: string | null | undefined): string | null | undefined {
@@ -26,5 +26,5 @@ export function replaceMediaWikiLinksInString(input: string | null | undefined):
     return input;
   }
 
-  return input.replace(/(\[\[)(.*?)(]])/g, "$2");
+  return input.replace(/\[\[(?:.*?\|)?(.*?)]]/g, "$1");
 }
