@@ -179,6 +179,7 @@ export class LinkinpediaConcertImporterPageComponent implements OnInit {
     this.generatedSetlist$.update(current => {
       let newActs = current?.acts?.map(a => {
         a.name = replaceMediaWikiLinksInString(a.name ?? undefined);
+        a.extraNotes = replaceMediaWikiLinksInString(a.extraNotes ?? undefined);
         return a;
       });
 
