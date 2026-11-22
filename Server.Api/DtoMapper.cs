@@ -1258,6 +1258,11 @@ internal static class DtoMapper
         };
     }
 
+    public static UpdateSetlistActRequestBo ToBo(this UpdateSetlistActRequestDto dto)
+    {
+        return new UpdateSetlistActRequestBo { Title = dto.Title };
+    }
+
     public static UpdateSetlistEntryRequestBo ToBo(this UpdateSetlistEntryRequestDto dto)
     {
         return new UpdateSetlistEntryRequestBo

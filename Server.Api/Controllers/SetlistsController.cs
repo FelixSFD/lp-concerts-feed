@@ -1,4 +1,5 @@
 using Common.Contracts.Generated.Models;
+using Common.Database.DataObjects;
 using Common.Utils.Cache;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
@@ -102,6 +103,29 @@ public class SetlistsController(SetlistService setlistService) : ControllerBase
         CancellationToken cancellationToken)
     {
         return Ok(await setlistService.GetActsWithinSetlistAsync(setlistId).Select(DtoMapper.ToDto).ToArrayAsync(cancellationToken));
+    }
+
+    /// <summary>
+    /// Updates the editable fields of an act in a setlist.
+    /// </summary>
+    /// <param name="setlistId">ID of the setlist</param>
+    /// <param name="actNumber">Number of the act within the setlist</param>
+    /// <param name="request">Updated act fields</param>
+    /// <returns>No content when the act was updated</returns>
+    [HttpPut("{setlistId:int}/acts/{actNumber:int}")]
+    [AuthorizeRoles(RoleNames.ManageSetlists)]
+    [ClearCache(Tags = [CacheTags.SetlistsAll])]
+    public async Task<IActionResult> UpdateSetlistAct([FromRoute] uint setlistId, [FromRoute] uint actNumber,
+        [FromBody] UpdateSetlistActRequestDto request)
+    {
+        if (request.Title is { Length: > DataConstants.TitleFieldLength })
+        {
+            ModelState.AddModelError(nameof(request.Title), $"Title must not exceed {DataConstants.TitleFieldLength} characters.");
+            return ValidationProblem(ModelState);
+        }
+
+        await setlistService.UpdateSetlistActAsync(setlistId, actNumber, request.ToBo());
+        return NoContent();
     }
 
     /// <summary>
