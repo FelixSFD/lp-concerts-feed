@@ -87,6 +87,16 @@ export class ConcertsService {
     return firstValueFrom(this.concertsApi.getUpcomingConcerts(getRequestIdParameter(cached), count));
   }
 
+  /** Returns the current user's next bookmarked concerts. */
+  getUpcomingBookmarkedConcerts(limit: number = 5): Promise<ConcertDetailsDto[]> {
+    return firstValueFrom(this.concertsApi.getUpcomingBookmarkedConcerts(getRequestIdParameter(false), limit));
+  }
+
+  /** Returns the current user's next concerts marked as attending. */
+  getUpcomingAttendingConcerts(limit: number = 5): Promise<ConcertDetailsDto[]> {
+    return firstValueFrom(this.concertsApi.getUpcomingAttendingConcerts(getRequestIdParameter(false), limit));
+  }
+
   /**
    * Returns the details of recent concerts
    * @param count Number of concerts to return (maximum 10)

@@ -12,6 +12,43 @@ body {
   overflow-x: hidden;
 }
 
+.concert-card-title-tag.p-tag {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.45rem;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.6rem 0.95rem;
+  border: 0;
+  border-bottom: 1px solid var(--p-content-border-color);
+  border-radius: var(--p-card-border-radius) var(--p-card-border-radius) 0 0;
+  color: var(--p-primary-color);
+  background: color-mix(in srgb, var(--p-primary-color) 9%, var(--p-content-background));
+}
+
+.concert-card-title-tag .p-tag-label {
+  line-height: 1.2;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.concert-card-title-tag .p-tag-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  font-size: 0.8rem;
+  line-height: 1;
+  margin: 0;
+}
+
+.p-card:has(> .p-card-header .concert-card-title-tag) > .p-card-header {
+  padding: 0;
+}
+
 .account-menu-overlay {
   padding: 0.4rem;
   border-radius: 14px;

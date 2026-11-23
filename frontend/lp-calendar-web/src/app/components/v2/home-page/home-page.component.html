@@ -89,17 +89,18 @@
       @if (isLoadingBookmarkedConcert || nextBookmarkedConcert) {
         <div class="concert-grid-item">
           <app-concert-card cardTitle="The next concert you follow"
-                            [concert]="nextBookmarkedConcert"
+                            titleIcon="pi pi-star-fill"
+                            [concert-details]="nextBookmarkedConcert"
                             [isLoading]="isLoadingBookmarkedConcert"
           />
         </div>
       } @else {
         <p-card class="concert-grid-item">
           <ng-template #header>
-            <div class="px-3 py-2 border-round-top surface-300">The next concert you follow</div>
+            <p-tag class="concert-card-title-tag" value="The next concert you follow" icon="pi pi-star-fill" [rounded]="true" />
           </ng-template>
           <div class="flex flex-column align-items-start gap-3">
-            <p class="m-0 text-500">Save a show to your bookmarks to keep it close.</p>
+            <p class="mt-3 mb-0 text-500">Save a show to your bookmarks to keep it close.</p>
             <p-button label="Browse shows" icon="pi pi-search" size="small" [routerLink]="['/concerts']" />
           </div>
         </p-card>
@@ -108,17 +109,18 @@
       @if (isLoadingAttendingConcert || nextAttendingConcert) {
         <div class="concert-grid-item">
           <app-concert-card cardTitle="The next concert you attend"
-                            [concert]="nextAttendingConcert"
+                            titleIcon="pi pi-check"
+                            [concert-details]="nextAttendingConcert"
                             [isLoading]="isLoadingAttendingConcert"
           />
         </div>
       } @else {
         <p-card class="concert-grid-item">
           <ng-template #header>
-            <div class="px-3 py-2 border-round-top surface-300">The next concert you attend</div>
+            <p-tag class="concert-card-title-tag" value="The next concert you attend" icon="pi pi-check" [rounded]="true" />
           </ng-template>
           <div class="flex flex-column align-items-start gap-3">
-            <p class="m-0 text-500">Mark a show as attending from its details to see it here.</p>
+            <p class="mt-3 mb-0 text-500">Mark a show as attending from its details to see it here.</p>
             <p-button label="Find a show" icon="pi pi-ticket" size="small" [routerLink]="['/concerts']" />
           </div>
         </p-card>
@@ -126,12 +128,14 @@
     }
 
     <a class="concert-grid-item bento-tile all-shows-tile" [routerLink]="['/concerts']">
-      <span class="bento-tile-icon"><i class="pi pi-list"></i></span>
-      <div class="bento-tile-content">
-        <span class="feature-card-kicker">Browse</span>
-        <h3>All Shows</h3>
-        <p>Every upcoming show tracked by the community.</p>
+      <div class="bento-tile-heading">
+        <span class="bento-tile-icon"><i class="pi pi-list"></i></span>
+        <div>
+          <span class="feature-card-kicker">Browse</span>
+          <h3>All Shows</h3>
+        </div>
       </div>
+      <p class="bento-tile-copy">Every upcoming show tracked by the community.</p>
       <span class="bento-tile-action">View all <i class="pi pi-arrow-right"></i></span>
     </a>
   </div>
@@ -183,12 +187,14 @@
 
   <!-- Tour Map Card -->
   <a class="bento-tile map-tile" [routerLink]="['/map']">
-    <span class="bento-tile-icon"><i class="pi pi-map"></i></span>
-    <div class="bento-tile-content">
-      <span class="feature-card-kicker">Locations</span>
-      <h3>World tour map</h3>
-      <p>Find the closest show and see where the tour is heading.</p>
+    <div class="bento-tile-heading">
+      <span class="bento-tile-icon"><i class="pi pi-map"></i></span>
+      <div>
+        <span class="feature-card-kicker">Locations</span>
+        <h3>World tour map</h3>
+      </div>
     </div>
+    <p class="bento-tile-copy">Find the closest show and see where the tour is heading.</p>
     <span class="bento-tile-action">
       Open map <i class="pi pi-arrow-right"></i>
     </span>

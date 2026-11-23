@@ -2,8 +2,6 @@ import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnIni
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {AuthService} from '../../../auth/auth.service';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
-import {ConcertDto} from '../../../modules/lpshows-api';
-import {LegacyConcertsService} from '../../../services/legacy-concerts.service';
 import { environment } from "../../../../environments/environment";
 import {Message} from 'primeng/message';
 import {Card} from 'primeng/card';
@@ -62,8 +60,8 @@ export class HomePageComponent implements OnInit {
     includeLpStageTime: true,
   });
   nextConcert: ConcertDetailsDto | null = null;
-  nextAttendingConcert: ConcertDto | null = null;
-  nextBookmarkedConcert: ConcertDto | null = null;
+  nextAttendingConcert: ConcertDetailsDto | null = null;
+  nextBookmarkedConcert: ConcertDetailsDto | null = null;
 
   isLoadingNextConcert: boolean = false;
   nextConcertLoadFailed: boolean = false;
@@ -75,10 +73,6 @@ export class HomePageComponent implements OnInit {
   currentNewFeatureAlertToken: string = "739e7808-da76-48c8-9c21-a1e13915e7fd";
 
   isLoggedIn$: boolean = false;
-
-  constructor(private legacyConcertsService: LegacyConcertsService) {
-  }
-
 
   ngOnInit() {
     this.loadNextConcert().then();
@@ -140,21 +134,15 @@ export class HomePageComponent implements OnInit {
 
   private loadNextBookmarkedConcert(requestVersion: number) {
     this.isLoadingBookmarkedConcert = true;
-    this.legacyConcertsService.getNextBookmarked().subscribe({
-      next: result => {
-        if (requestVersion !== this.userConcertRequestVersion || !this.isLoggedIn$) return;
-
-        let next = result.at(0);
-        this.nextBookmarkedConcert = next ?? null;
-        this.isLoadingBookmarkedConcert = false;
-      },
-      error: err => {
-        if (requestVersion !== this.userConcertRequestVersion || !this.isLoggedIn$) return;
-
-        // If the request times out, an error will have been emitted.
-        console.log(err);
-        console.error("Next bookmarked concert could not be loaded");
-        this.nextBookmarkedConcert = null;
+    void this.concertsService.getUpcomingBookmarkedConcerts().then(result => {
+      if (requestVersion !== this.userConcertRequestVersion || !this.isLoggedIn$) return;
+      this.nextBookmarkedConcert = result.at(0) ?? null;
+    }).catch(err => {
+      if (requestVersion !== this.userConcertRequestVersion || !this.isLoggedIn$) return;
+      console.error("Next bookmarked concert could not be loaded", err);
+      this.nextBookmarkedConcert = null;
+    }).finally(() => {
+      if (requestVersion === this.userConcertRequestVersion && this.isLoggedIn$) {
         this.isLoadingBookmarkedConcert = false;
       }
     });
@@ -163,21 +151,15 @@ export class HomePageComponent implements OnInit {
 
   private loadNextAttendingConcert(requestVersion: number) {
     this.isLoadingAttendingConcert = true;
-    this.legacyConcertsService.getNextAttending().subscribe({
-      next: result => {
-        if (requestVersion !== this.userConcertRequestVersion || !this.isLoggedIn$) return;
-
-        let next = result.at(0);
-        this.nextAttendingConcert = next ?? null;
-        this.isLoadingAttendingConcert = false;
-      },
-      error: err => {
-        if (requestVersion !== this.userConcertRequestVersion || !this.isLoggedIn$) return;
-
-        // If the request times out, an error will have been emitted.
-        console.log(err);
-        console.error("Next concert you attend could not be loaded");
-        this.nextAttendingConcert = null;
+    void this.concertsService.getUpcomingAttendingConcerts().then(result => {
+      if (requestVersion !== this.userConcertRequestVersion || !this.isLoggedIn$) return;
+      this.nextAttendingConcert = result.at(0) ?? null;
+    }).catch(err => {
+      if (requestVersion !== this.userConcertRequestVersion || !this.isLoggedIn$) return;
+      console.error("Next concert you attend could not be loaded", err);
+      this.nextAttendingConcert = null;
+    }).finally(() => {
+      if (requestVersion === this.userConcertRequestVersion && this.isLoggedIn$) {
         this.isLoadingAttendingConcert = false;
       }
     });
