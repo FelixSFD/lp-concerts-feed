@@ -7,6 +7,14 @@ namespace Database.Tours.Tests.Repositories;
 
 public class SqlConcertRepositoryTest : ToursDbIntegrationTestsBase
 {
+    private static readonly DateTimeOffset TestNow = new(2026, 6, 1, 12, 0, 0, TimeSpan.Zero);
+    private static readonly TimeProvider TestTimeProvider = new FixedTimeProvider(TestNow);
+
+    private sealed class FixedTimeProvider(DateTimeOffset utcNow) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => utcNow;
+    }
+
     [Theory]
     [InlineData(0)]
     [InlineData(100)]
@@ -578,7 +586,7 @@ public class SqlConcertRepositoryTest : ToursDbIntegrationTestsBase
     [Fact]
     public async Task GetUpcomingBookmarkedConcertsForAsync_NothingBookmarked()
     {
-        var concertRepo = new SqlConcertRepository(DbContext);
+        var concertRepo = new SqlConcertRepository(DbContext, TestTimeProvider);
         
         var concertId = "test-concert-1234";
         await CreateSampleConcert(concertId);
@@ -590,7 +598,7 @@ public class SqlConcertRepositoryTest : ToursDbIntegrationTestsBase
     [Fact]
     public async Task GetUpcomingBookmarkedConcertsForAsync_Bookmarked()
     {
-        var concertRepo = new SqlConcertRepository(DbContext);
+        var concertRepo = new SqlConcertRepository(DbContext, TestTimeProvider);
         var concertBookmarkRepo = new SqlUserConcertBookmarkRepository(DbContext);
         
         var concertId = "test-concert-1234";
@@ -613,6 +621,75 @@ public class SqlConcertRepositoryTest : ToursDbIntegrationTestsBase
         
         retrievedConcerts = await concertRepo.GetUpcomingBookmarkedConcertsForAsync("test-user", UserConcertBookmarkDo.BookmarkStatus.Bookmarked).ToArrayAsync();
         Assert.Single(retrievedConcerts);
+    }
+
+    [Theory]
+    [InlineData(UserConcertBookmarkDo.BookmarkStatus.Bookmarked)]
+    [InlineData(UserConcertBookmarkDo.BookmarkStatus.Attending)]
+    public async Task GetUpcomingBookmarkedConcertsForAsync_FiltersByComputedEndTimeAndSortsByPostedStartAscending(
+        UserConcertBookmarkDo.BookmarkStatus status)
+    {
+        var (tour, leg, concertType, venue) = await SeedBaseDataAsync();
+        var concertRepo = new SqlConcertRepository(DbContext, TestTimeProvider);
+        var concertBookmarkRepo = new SqlUserConcertBookmarkRepository(DbContext);
+        var userId = "test-user";
+        var nowUtc = TestNow.UtcDateTime;
+
+        await AddDummyConcertAsync("inc-unk", venue.Id, concertType.Id, tour.Id, leg.Id,
+            postedStartTime: nowUtc.AddMinutes(-60));
+        await AddDummyConcertAsync("exc-unk", venue.Id, concertType.Id, tour.Id, leg.Id,
+            postedStartTime: nowUtc.AddMinutes(-150));
+        await AddDummyConcertAsync("inc-known", venue.Id, concertType.Id, tour.Id, leg.Id,
+            postedStartTime: nowUtc.AddMinutes(240), mainStageTime: nowUtc.AddMinutes(-170), expectedSetDurationMinutes: 180);
+        await AddDummyConcertAsync("exc-known", venue.Id, concertType.Id, tour.Id, leg.Id,
+            postedStartTime: nowUtc.AddMinutes(300), mainStageTime: nowUtc.AddMinutes(-80), expectedSetDurationMinutes: 60);
+        await AddDummyConcertAsync("exc-stage", venue.Id, concertType.Id, tour.Id, leg.Id,
+            postedStartTime: nowUtc.AddMinutes(180), mainStageTime: nowUtc.AddMinutes(-180), expectedSetDurationMinutes: 60);
+        await AddDummyConcertAsync("inc-future-1", venue.Id, concertType.Id, tour.Id, leg.Id,
+            postedStartTime: nowUtc.AddMinutes(30));
+        await AddDummyConcertAsync("inc-future-2", venue.Id, concertType.Id, tour.Id, leg.Id,
+            postedStartTime: nowUtc.AddMinutes(90));
+        await AddDummyConcertAsync("unknown-just-before-end", venue.Id, concertType.Id, tour.Id, leg.Id,
+            postedStartTime: nowUtc.AddMinutes(-120).AddSeconds(1));
+        await AddDummyConcertAsync("unknown-at-end", venue.Id, concertType.Id, tour.Id, leg.Id,
+            postedStartTime: nowUtc.AddMinutes(-120));
+        await AddDummyConcertAsync("known-just-before-end", venue.Id, concertType.Id, tour.Id, leg.Id,
+            postedStartTime: nowUtc.AddMinutes(-60).AddSeconds(1), expectedSetDurationMinutes: 60);
+        await AddDummyConcertAsync("known-at-end", venue.Id, concertType.Id, tour.Id, leg.Id,
+            postedStartTime: nowUtc.AddMinutes(-60), expectedSetDurationMinutes: 60);
+        await AddDummyConcertAsync("other-user-only", venue.Id, concertType.Id, tour.Id, leg.Id,
+            postedStartTime: nowUtc.AddMinutes(10));
+
+        foreach (var concertId in new[] { "inc-unk", "exc-unk", "inc-known", "exc-known", "exc-stage", "inc-future-1", "inc-future-2", "unknown-just-before-end", "unknown-at-end", "known-just-before-end", "known-at-end" })
+        {
+            var concert = await concertRepo.GetByPrimaryKeyAsync(concertId);
+            Assert.NotNull(concert);
+            concertBookmarkRepo.Add(new UserConcertBookmarkDo
+            {
+                UserId = userId,
+                ConcertId = concertId,
+                Concert = concert,
+                Status = status
+            });
+        }
+
+        var concertForOtherUser = await concertRepo.GetByPrimaryKeyAsync("other-user-only");
+        Assert.NotNull(concertForOtherUser);
+        concertBookmarkRepo.Add(new UserConcertBookmarkDo
+        {
+            UserId = "other-user",
+            ConcertId = "other-user-only",
+            Concert = concertForOtherUser,
+            Status = status
+        });
+
+        await concertBookmarkRepo.SaveChangesAsync();
+
+        var retrievedConcerts = await concertRepo
+            .GetUpcomingBookmarkedConcertsForAsync(userId, status)
+            .ToArrayAsync();
+
+        Assert.Equal(["unknown-just-before-end", "inc-unk", "known-just-before-end", "inc-future-1", "inc-future-2", "inc-known"], retrievedConcerts.Select(c => c.Id));
     }
 
     [Fact]
@@ -1055,6 +1132,9 @@ public class SqlConcertRepositoryTest : ToursDbIntegrationTestsBase
         uint concertTypeId,
         string? tourId = null,
         string? tourLegId = null,
+        DateTime? postedStartTime = null,
+        DateTime? mainStageTime = null,
+        uint expectedSetDurationMinutes = 0,
         DateTimeOffset? createdAt = null,
         DateTimeOffset? updatedAt = null,
         DateTimeOffset? deletedAt = null)
@@ -1067,7 +1147,9 @@ public class SqlConcertRepositoryTest : ToursDbIntegrationTestsBase
             TourLegId = tourLegId,
             ConcertTypeId = concertTypeId,
             VenueId = venueId,
-            PostedStartTime = new DateTime(2026, 6, 11, 20, 0, 0, DateTimeKind.Utc),
+            PostedStartTime = postedStartTime ?? new DateTime(2026, 6, 11, 20, 0, 0, DateTimeKind.Utc),
+            MainStageTime = mainStageTime,
+            ExpectedSetDurationMinutes = expectedSetDurationMinutes,
             Status = ConcertDo.ConcertStatus.Planned,
             CreatedAt = createdAt ?? DateTimeOffset.UtcNow,
             UpdatedAt = updatedAt,
@@ -1099,7 +1181,8 @@ public class SqlConcertRepositoryTest : ToursDbIntegrationTestsBase
     }
 
 
-    private async Task CreateSampleConcert(string concertId)
+    private async Task CreateSampleConcert(string concertId, DateTime? postedStartTime = null,
+        DateTime? mainStageTime = null, uint expectedSetDurationMinutes = 0)
     {
         var concertRepo = new SqlConcertRepository(DbContext);
         var concertTypeRepo = new SqlConcertTypeRepository(DbContext);
@@ -1182,10 +1265,11 @@ public class SqlConcertRepositoryTest : ToursDbIntegrationTestsBase
             TourLegId = tourLegEu.Id,
             Type = concertType,
             VenueId = venue.Id,
-            PostedStartTime = new DateTimeOffset(2026, 6, 11, 20, 0, 0, TimeSpan.FromHours(2)).UtcDateTime,
-            DoorsTime = new DateTimeOffset(2026, 6, 11, 17, 30, 0, TimeSpan.FromHours(2)).UtcDateTime,
-            MainStageTime = new DateTimeOffset(2026, 6, 11, 20, 55, 0, TimeSpan.FromHours(2)).UtcDateTime,
-            Status = ConcertDo.ConcertStatus.Past,
+            PostedStartTime = postedStartTime ?? TestNow.UtcDateTime.AddDays(1),
+            DoorsTime = (postedStartTime ?? TestNow.UtcDateTime.AddDays(1)).AddHours(-2.5),
+            MainStageTime = mainStageTime,
+            ExpectedSetDurationMinutes = expectedSetDurationMinutes,
+            Status = ConcertDo.ConcertStatus.Planned,
             LpuEarlyEntryConfirmed = true,
         };
         

@@ -262,6 +262,7 @@ builder.Services.AddScoped<ICityRepository, SqlCityRepository>();
 builder.Services.AddScoped<IVenueRepository, SqlVenueRepository>();
 builder.Services.AddScoped<ITourRepository, SqlTourRepository>();
 builder.Services.AddScoped<IConcertTypeRepository, SqlConcertTypeRepository>();
+builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<IConcertRepository, SqlConcertRepository>();
 builder.Services.AddScoped<IUserRepository, SqlUserRepository>();
 builder.Services.AddScoped<ICalendarSubscriptionRepository, SqlCalendarSubscriptionRepository>();

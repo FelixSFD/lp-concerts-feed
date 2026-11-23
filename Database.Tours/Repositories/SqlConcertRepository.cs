@@ -10,8 +10,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Database.Tours.Repositories;
 
-public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlRepositoryBase<ConcertDo, string>(dbContext, dbContext.Concerts), IConcertRepository
+public class SqlConcertRepository(ToursDbContext dbContext, TimeProvider timeProvider) : SingleKeySqlRepositoryBase<ConcertDo, string>(dbContext, dbContext.Concerts), IConcertRepository
 {
+    /// <summary>Creates a repository using the system clock.</summary>
+    public SqlConcertRepository(ToursDbContext dbContext) : this(dbContext, TimeProvider.System) { }
+
     protected override IReadOnlyDictionary<string, LambdaExpression> SortExpressions { get; } = new Dictionary<string, LambdaExpression>(StringComparer.OrdinalIgnoreCase)
     {
         ["date"] = (Expression<Func<ConcertDo, DateTime>>)(c => c.PostedStartTime),
@@ -149,9 +152,15 @@ public class SqlConcertRepository(ToursDbContext dbContext) : SingleKeySqlReposi
     public IAsyncEnumerable<ConcertDo> GetUpcomingBookmarkedConcertsForAsync(string userId,
         UserConcertBookmarkDo.BookmarkStatus status, CancellationToken cancellationToken = default)
     {
+        var nowUtc = timeProvider.GetUtcNow().UtcDateTime;
         var query = DbSet.AsQueryable();
         query = IncludeAllReferences(query);
-        return query.Where(c => c.Bookmarks.Any(b => b.UserId == userId && b.Status == status))
+        return query
+            .Where(c => c.Bookmarks.Any(b => b.UserId == userId && b.Status == status))
+            .Where(c =>
+                (c.MainStageTime ?? c.PostedStartTime)
+                .AddMinutes(c.ExpectedSetDurationMinutes == 0 ? 120 : (int)c.ExpectedSetDurationMinutes) > nowUtc)
+            .OrderBy(c => c.PostedStartTime)
             .ToAsyncEnumerable();
     }
 
