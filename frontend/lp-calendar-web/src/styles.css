@@ -8,6 +8,8 @@ body,
 
 body {
   background: var(--p-surface-50);
+  margin: 0;
+  overflow-x: hidden;
 }
 
 @media (prefers-color-scheme: dark) {
