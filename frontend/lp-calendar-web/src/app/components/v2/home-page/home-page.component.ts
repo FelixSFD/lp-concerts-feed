@@ -20,6 +20,8 @@ import { CalendarSubscriptionDto, CalendarSubscriptionSettingsDto, ConcertDetail
 import { CalendarSubscriptionsService } from '../../../services/calendar-subscriptions.service';
 import { subscriptionErrorMessage } from '../calendar-subscriptions/calendar-subscription-errors';
 import { catchError, of, switchMap } from 'rxjs';
+import { HeroCountdownComponent } from '../hero-countdown/hero-countdown.component';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-home-page',
@@ -32,7 +34,9 @@ import { catchError, of, switchMap } from 'rxjs';
     Divider,
     FormsModule,
     CalendarFeedBuilderComponent,
-    ConcertCardComponent
+    ConcertCardComponent,
+    HeroCountdownComponent,
+    DatePipe,
   ],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.css',
