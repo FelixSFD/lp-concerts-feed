@@ -12,6 +12,30 @@ body {
   overflow-x: hidden;
 }
 
+.account-menu-overlay {
+  padding: 0.4rem;
+  border-radius: 14px;
+  border: 1px solid var(--p-content-border-color);
+  background: var(--p-content-background);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+}
+
+.account-menu-overlay .p-menu-item-link,
+.account-menu-overlay .p-menu-item-link:hover {
+  padding: 0.6rem 0.85rem;
+  border-radius: 10px;
+  color: var(--p-text-color);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.account-menu-overlay .p-menu-submenu-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--p-surface-500);
+}
+
 @media (prefers-color-scheme: dark) {
   body {
     background: var(--p-surface-950);

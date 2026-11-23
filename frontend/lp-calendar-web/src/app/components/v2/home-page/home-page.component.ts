@@ -66,8 +66,10 @@ export class HomePageComponent implements OnInit {
   nextBookmarkedConcert: ConcertDto | null = null;
 
   isLoadingNextConcert: boolean = false;
+  nextConcertLoadFailed: boolean = false;
   isLoadingAttendingConcert: boolean = false;
   isLoadingBookmarkedConcert: boolean = false;
+  private userConcertRequestVersion = 0;
 
   newFeatureAlertDismissedToken: string | null = localStorage.getItem("alert.new-feature.dismissed-token");
   currentNewFeatureAlertToken: string = "739e7808-da76-48c8-9c21-a1e13915e7fd";
@@ -87,8 +89,15 @@ export class HomePageComponent implements OnInit {
 
       if (isAuthenticated) {
         console.debug("Load user's bookmarks etc.");
-        this.loadNextBookmarkedConcert();
-        this.loadNextAttendingConcert();
+        const requestVersion = ++this.userConcertRequestVersion;
+        this.loadNextBookmarkedConcert(requestVersion);
+        this.loadNextAttendingConcert(requestVersion);
+      } else {
+        this.userConcertRequestVersion++;
+        this.nextBookmarkedConcert = null;
+        this.nextAttendingConcert = null;
+        this.isLoadingBookmarkedConcert = false;
+        this.isLoadingAttendingConcert = false;
       }
     });
 
@@ -115,30 +124,33 @@ export class HomePageComponent implements OnInit {
 
   private async loadNextConcert() {
     this.isLoadingNextConcert = true;
+    this.nextConcertLoadFailed = false;
 
     try {
       this.nextConcert = await this.concertsService.getUpcoming(1).then(c => c.at(0) ?? null);
     } catch (err) {
-      console.warn("Next concert was not found. Maybe there is nothing scheduled.", err);
+      console.warn("Next concert could not be loaded.", err);
       this.nextConcert = null;
+      this.nextConcertLoadFailed = true;
     } finally {
       this.isLoadingNextConcert = false;
     }
   }
 
 
-  private loadNextBookmarkedConcert() {
+  private loadNextBookmarkedConcert(requestVersion: number) {
     this.isLoadingBookmarkedConcert = true;
     this.legacyConcertsService.getNextBookmarked().subscribe({
       next: result => {
-        let next = result.at(0);
-        if (next != undefined) {
-          this.nextBookmarkedConcert = next;
-        }
+        if (requestVersion !== this.userConcertRequestVersion || !this.isLoggedIn$) return;
 
+        let next = result.at(0);
+        this.nextBookmarkedConcert = next ?? null;
         this.isLoadingBookmarkedConcert = false;
       },
       error: err => {
+        if (requestVersion !== this.userConcertRequestVersion || !this.isLoggedIn$) return;
+
         // If the request times out, an error will have been emitted.
         console.log(err);
         console.error("Next bookmarked concert could not be loaded");
@@ -149,18 +161,19 @@ export class HomePageComponent implements OnInit {
   }
 
 
-  private loadNextAttendingConcert() {
+  private loadNextAttendingConcert(requestVersion: number) {
     this.isLoadingAttendingConcert = true;
     this.legacyConcertsService.getNextAttending().subscribe({
       next: result => {
-        let next = result.at(0);
-        if (next != undefined) {
-          this.nextAttendingConcert = next;
-        }
+        if (requestVersion !== this.userConcertRequestVersion || !this.isLoggedIn$) return;
 
+        let next = result.at(0);
+        this.nextAttendingConcert = next ?? null;
         this.isLoadingAttendingConcert = false;
       },
       error: err => {
+        if (requestVersion !== this.userConcertRequestVersion || !this.isLoggedIn$) return;
+
         // If the request times out, an error will have been emitted.
         console.log(err);
         console.error("Next concert you attend could not be loaded");

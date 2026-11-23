@@ -21,7 +21,7 @@
       </span>
 
       @if (isLoggedIn$) {
-        <p-menu #menu [model]="loggedInMenuItems" [popup]="true" />
+        <p-menu #menu [model]="loggedInMenuItems" [popup]="true" appendTo="body" styleClass="account-menu-overlay" />
         <button class="account-btn" type="button" aria-label="Account" (click)="menu.toggle($event)">
           @if (userInitial) { {{ userInitial }} } @else { <i class="pi pi-user"></i> }
         </button>
