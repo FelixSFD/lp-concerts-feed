@@ -448,6 +448,10 @@
   width: min(100%, 24rem);
 }
 
+.calendar-tile .calendar-feed-options {
+  margin-bottom: 1rem;
+}
+
 .calendar-tile > p-button {
   grid-column: 1;
   justify-self: start;
