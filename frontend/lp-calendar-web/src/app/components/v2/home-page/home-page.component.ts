@@ -1,14 +1,21 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {AuthService} from '../../../auth/auth.service';
+import {OidcSecurityService} from 'angular-auth-oidc-client';
 import { environment } from "../../../../environments/environment";
 import {Message} from 'primeng/message';
 import {Card} from 'primeng/card';
 import {Tag} from 'primeng/tag';
 import {Button} from 'primeng/button';
-import {RouterLink} from '@angular/router';
+import {MessageService} from 'primeng/api';
+import {Router, RouterLink} from '@angular/router';
+import {CalendarFeedBuilderComponent} from '../calendar-feed-builder/calendar-feed-builder.component';
 import {ConcertCardComponent} from '../concert-card/concert-card.component';
 import { ConcertsService } from '../../../services/concerts.service';
-import { ConcertDetailsDto } from '../../../modules/lpshows-api/v3';
+import { CalendarSubscriptionDto, CalendarSubscriptionSettingsDto, ConcertDetailsDto } from '../../../modules/lpshows-api/v3';
+import { CalendarSubscriptionsService } from '../../../services/calendar-subscriptions.service';
+import { subscriptionErrorMessage } from '../calendar-subscriptions/calendar-subscription-errors';
+import { catchError, of, switchMap } from 'rxjs';
 import { HeroCountdownComponent } from '../hero-countdown/hero-countdown.component';
 import { DatePipe } from '@angular/common';
 
@@ -20,6 +27,7 @@ import { DatePipe } from '@angular/common';
     Tag,
     Button,
     RouterLink,
+    CalendarFeedBuilderComponent,
     ConcertCardComponent,
     HeroCountdownComponent,
     DatePipe,
@@ -32,7 +40,21 @@ export class HomePageComponent implements OnInit {
   protected readonly environment = environment;
 
   private readonly authService = inject(AuthService);
+  private readonly oidcSecurityService = inject(OidcSecurityService);
+  private readonly messageService = inject(MessageService);
   private readonly concertsService = inject(ConcertsService);
+  private readonly subscriptionsService = inject(CalendarSubscriptionsService);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+
+  protected readonly calendarReady = computed(() => this.authService.initialized() && !this.authService.initializationError());
+  protected readonly calendarAuthError = this.authService.initializationError;
+  protected readonly creatingCalendar = signal(false);
+  protected readonly calendarManagementId = signal<string | null>(null);
+  protected readonly calendarSettings = signal<CalendarSubscriptionSettingsDto>({
+    includeDoorsTime: false,
+    includeLpStageTime: true,
+  });
 
   nextConcert: ConcertDetailsDto | null = null;
   nextAttendingConcert: ConcertDetailsDto | null = null;
@@ -130,6 +152,55 @@ export class HomePageComponent implements OnInit {
     void this.loadOnThisDay();
   }
 
+  protected login(): void {
+    this.oidcSecurityService.authorize();
+  }
+
+  /** Opens a matching subscription or creates one with the selected settings. */
+  protected createCalendar(): void {
+    if (!this.calendarReady() || this.creatingCalendar() || this.calendarManagementId()) return;
+
+    this.creatingCalendar.set(true);
+    const settings = this.calendarSettings();
+    const subscriptions = this.oidcSecurityService.authenticated().isAuthenticated
+      ? this.subscriptionsService.listMine().pipe(catchError(() => {
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Could not check existing subscriptions',
+            detail: 'A new subscription will be created and may duplicate an existing one.',
+            life: 10000,
+          });
+          return of<CalendarSubscriptionDto[]>([]);
+        }))
+      : of<CalendarSubscriptionDto[]>([]);
+
+    subscriptions.pipe(
+      switchMap(items => {
+        const match = items.find(item =>
+          item.includeDoorsTime === settings.includeDoorsTime &&
+          item.includeLpStageTime === settings.includeLpStageTime);
+        return match ? of(match) : this.subscriptionsService.create(settings);
+      }),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: subscription => {
+        this.calendarManagementId.set(subscription.id);
+        void this.router.navigate(['/calendar-subscriptions', subscription.id]).then(navigated => {
+          this.creatingCalendar.set(false);
+          if (!navigated) {
+            this.messageService.add({ severity: 'error', summary: 'Could not open subscription', detail: 'Use the management link on the card.' });
+          }
+        }).catch(() => {
+          this.creatingCalendar.set(false);
+          this.messageService.add({ severity: 'error', summary: 'Could not open subscription', detail: 'Use the management link on the card.' });
+        });
+      },
+      error: error => {
+        this.creatingCalendar.set(false);
+        this.messageService.add({ severity: 'error', summary: 'Could not create subscription', detail: subscriptionErrorMessage(error) });
+      },
+    });
+  }
 
   private loadNextBookmarkedConcert(requestVersion: number) {
     this.isLoadingBookmarkedConcert = true;

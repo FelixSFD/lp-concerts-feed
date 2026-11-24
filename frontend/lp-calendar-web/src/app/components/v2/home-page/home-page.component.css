@@ -5,7 +5,7 @@
 /* --- Hero --- */
 
 .hero {
-  --hero-photo: url("/Linkin-Park-show.jpg");
+  --hero-photo: url("/Linkin-Park-show.webp");
 
   position: relative;
   display: flex;
@@ -253,42 +253,28 @@
   transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
 }
 
+.concert-grid ::ng-deep .user-empty-card .p-card-body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.concert-grid ::ng-deep .user-empty-card .p-card-content,
+.concert-grid ::ng-deep .user-empty-card-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.concert-grid ::ng-deep .user-empty-card-content p-button {
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
 .concert-grid ::ng-deep .p-card:hover {
   transform: translateY(-3px);
   border-color: color-mix(in srgb, var(--p-primary-color) 42%, transparent);
   box-shadow: 0 12px 32px rgb(0 0 0 / 0.08);
-}
-
-:host ::ng-deep .calendar-feature-card.p-card {
-  height: 100%;
-  overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--p-primary-color) 24%, transparent);
-  background:
-    linear-gradient(145deg, color-mix(in srgb, var(--p-primary-color) 9%, transparent), transparent 48%),
-    var(--p-card-background);
-}
-
-.feature-card-heading {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-}
-
-.feature-card-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  color: #fff;
-  background: var(--p-primary-color);
-  box-shadow: 0 8px 24px color-mix(in srgb, var(--p-primary-color) 28%, transparent);
-}
-
-.feature-card-icon i {
-  font-size: 1.05rem;
 }
 
 .feature-card-kicker {
@@ -299,18 +285,6 @@
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-}
-
-.feature-card-heading h3 {
-  margin: 0;
-  font-size: 1.35rem;
-  letter-spacing: -0.02em;
-}
-
-.feature-card-copy {
-  margin: 1rem 0 0;
-  color: var(--p-surface-500);
-  line-height: 1.55;
 }
 
 .explore-section {
@@ -362,17 +336,6 @@
   z-index: 1;
   outline: 2px solid var(--p-primary-color);
   outline-offset: 3px;
-}
-
-.bento-tile-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 12px;
-  color: var(--p-primary-color);
-  background: color-mix(in srgb, var(--p-primary-color) 10%, transparent);
 }
 
 .bento-tile-art {
@@ -470,6 +433,24 @@
 
 .calendar-tile {
   grid-row: span 2;
+}
+
+.calendar-tile .calendar-feed-options,
+.calendar-tile > p-message,
+.calendar-tile > p-button {
+  position: relative;
+  z-index: 1;
+}
+
+.calendar-tile .calendar-feed-options,
+.calendar-tile > p-message {
+  grid-column: 1 / -1;
+  width: min(100%, 24rem);
+}
+
+.calendar-tile > p-button {
+  grid-column: 1;
+  justify-self: start;
 }
 
 .on-this-day-tile {

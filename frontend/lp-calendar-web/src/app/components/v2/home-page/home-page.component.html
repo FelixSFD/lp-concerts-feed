@@ -95,11 +95,11 @@
           />
         </div>
       } @else {
-        <p-card class="concert-grid-item">
+        <p-card class="concert-grid-item user-empty-card">
           <ng-template #header>
             <p-tag class="concert-card-title-tag" value="The next concert you follow" icon="pi pi-star-fill" [rounded]="true" />
           </ng-template>
-          <div class="flex flex-column align-items-start gap-3">
+          <div class="user-empty-card-content flex flex-column align-items-start gap-3">
             <p class="mt-3 mb-0 text-500">Save a show to your bookmarks to keep it close.</p>
             <p-button label="Browse shows" icon="pi pi-search" size="small" [routerLink]="['/concerts']" />
           </div>
@@ -115,11 +115,11 @@
           />
         </div>
       } @else {
-        <p-card class="concert-grid-item">
+        <p-card class="concert-grid-item user-empty-card">
           <ng-template #header>
             <p-tag class="concert-card-title-tag" value="The next concert you attend" icon="pi pi-check" [rounded]="true" />
           </ng-template>
-          <div class="flex flex-column align-items-start gap-3">
+          <div class="user-empty-card-content flex flex-column align-items-start gap-3">
             <p class="mt-3 mb-0 text-500">Mark a show as attending from its details to see it here.</p>
             <p-button label="Find a show" icon="pi pi-ticket" size="small" [routerLink]="['/concerts']" />
           </div>
@@ -161,7 +161,7 @@
 
   <div class="bento-grid">
   <!-- Calendar Feed Card -->
-  <a id="calendar-feed" class="bento-tile calendar-tile" [routerLink]="['/calendar-subscriptions']">
+  <div id="calendar-feed" class="bento-tile calendar-tile">
     <span class="bento-tile-art" aria-hidden="true">
       <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
         <rect x="18" y="28" width="84" height="76" rx="13" fill="var(--g1)"/>
@@ -182,11 +182,33 @@
         <h3>Calendar feed</h3>
       </div>
     </div>
-    <p class="bento-tile-copy">Manage your calendar subscriptions and add a feed to your calendar app.</p>
-    <span class="bento-tile-action">
-      Manage subscriptions <i class="pi pi-arrow-right"></i>
-    </span>
-  </a>
+    <p class="bento-tile-copy">Choose which event times to include, then create a feed for your calendar app.</p>
+    @if (calendarAuthError(); as authError) {
+      <p-message severity="warn" icon="pi pi-exclamation-triangle" class="calendar-auth-message">
+        {{ authError }}
+        <p-button label="Log in" icon="pi pi-sign-in" [text]="true" (onClick)="login()" />
+      </p-message>
+    }
+    <app-calendar-feed-builder
+      class="calendar-feed-options"
+      (settingsChange)="calendarSettings.set($event)"
+    />
+    @if (calendarManagementId(); as subscriptionId) {
+      <p-button
+        label="Manage calendar"
+        icon="pi pi-arrow-right"
+        [routerLink]="['/calendar-subscriptions', subscriptionId]"
+      />
+    } @else {
+      <p-button
+        label="Create calendar"
+        icon="pi pi-arrow-right"
+        [loading]="creatingCalendar()"
+        [disabled]="!calendarReady() || !!calendarAuthError()"
+        (onClick)="createCalendar()"
+      />
+    }
+  </div>
 
   <!-- Tour Map Card -->
   <a class="bento-tile map-tile" [routerLink]="['/map']">

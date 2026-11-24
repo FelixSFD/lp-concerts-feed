@@ -23,7 +23,7 @@
   <button
     type="button"
     class="hc-discord"
-    (click)="sharePopover.toggle($event)"
+    (click)="$event.preventDefault(); $event.stopPropagation(); sharePopover.toggle($event)"
   >
     <i class="pi pi-discord"></i> Share on Discord
   </button>
