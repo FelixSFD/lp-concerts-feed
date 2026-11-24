@@ -472,6 +472,24 @@
   grid-row: span 2;
 }
 
+.calendar-tile .calendar-feed-options,
+.calendar-tile > p-message,
+.calendar-tile > p-button {
+  position: relative;
+  z-index: 1;
+}
+
+.calendar-tile .calendar-feed-options,
+.calendar-tile > p-message {
+  grid-column: 1 / -1;
+  width: min(100%, 24rem);
+}
+
+.calendar-tile > p-button {
+  grid-column: 1;
+  justify-self: start;
+}
+
 .on-this-day-tile {
   grid-template-rows: auto minmax(0, 1fr) auto;
   cursor: pointer;
