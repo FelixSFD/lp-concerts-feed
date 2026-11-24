@@ -97,6 +97,11 @@ export class ConcertsService {
     return firstValueFrom(this.concertsApi.getUpcomingAttendingConcerts(getRequestIdParameter(false), limit));
   }
 
+  /** Returns concerts from any year that occurred on the specified month and day. */
+  getConcertsOnThisDay(month: number, day: number): Promise<ConcertDetailsDto[]> {
+    return firstValueFrom(this.concertsApi.getConcertsOnThisDay(getRequestIdParameter(true), month, day));
+  }
+
   /**
    * Returns the details of recent concerts
    * @param count Number of concerts to return (maximum 10)

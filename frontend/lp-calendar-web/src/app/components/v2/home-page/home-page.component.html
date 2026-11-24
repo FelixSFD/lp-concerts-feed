@@ -150,28 +150,25 @@
   </div>
 
   <div class="bento-grid">
-  <!-- Subscribe to iCal Card -->
-  <div id="calendar-feed" class="bento-calendar">
-    <p-card styleClass="calendar-feature-card">
-      <div class="feature-card-heading">
-        <span class="feature-card-icon"><i class="pi pi-calendar-plus"></i></span>
-        <div>
-          <span class="feature-card-kicker">Stay in sync</span>
-          <h3>Calendar feed</h3>
-        </div>
+  <!-- Calendar Feed Card -->
+  <a id="calendar-feed" class="bento-tile calendar-tile" [routerLink]="['/calendar-subscriptions']">
+    <span class="bento-tile-art" aria-hidden="true"><i class="pi pi-calendar"></i></span>
+    <div class="bento-tile-heading">
+      <span class="bento-tile-icon"><i class="pi pi-calendar-plus"></i></span>
+      <div>
+        <span class="feature-card-kicker">Stay in sync</span>
+        <h3>Calendar feed</h3>
       </div>
-      <p class="feature-card-copy">
-        Create and manage your calendar subscriptions, then add a feed to your calendar app.
-      </p>
-
-      <ng-template #footer>
-        <p-button label="Open calendar feeds" icon="pi pi-calendar-plus" [routerLink]="['/calendar-subscriptions']" size="small" />
-      </ng-template>
-    </p-card>
-  </div>
+    </div>
+    <p class="bento-tile-copy">Manage your calendar subscriptions and add a feed to your calendar app.</p>
+    <span class="bento-tile-action">
+      Manage subscriptions <i class="pi pi-arrow-right"></i>
+    </span>
+  </a>
 
   <!-- Tour Map Card -->
   <a class="bento-tile map-tile" [routerLink]="['/map']">
+    <span class="bento-tile-art" aria-hidden="true"><i class="pi pi-map-marker"></i></span>
     <div class="bento-tile-heading">
       <span class="bento-tile-icon"><i class="pi pi-map"></i></span>
       <div>
@@ -184,5 +181,45 @@
       Open map <i class="pi pi-arrow-right"></i>
     </span>
   </a>
+
+  <div class="bento-tile on-this-day-tile">
+    <span class="bento-tile-art" aria-hidden="true"><i class="pi pi-history"></i></span>
+    <div class="bento-tile-heading">
+      <span class="bento-tile-icon"><i class="pi pi-calendar"></i></span>
+      <div>
+        <span class="feature-card-kicker">{{ today | date:'MMMM d' }} in history</span>
+        <h3>On this day</h3>
+      </div>
+    </div>
+
+    @if (isLoadingOnThisDay) {
+      <p class="on-this-day-state" aria-live="polite">Loading past shows...</p>
+    } @else if (onThisDayLoadFailed) {
+      <div class="on-this-day-state" role="alert">
+        <span>Could not load shows for this date.</span>
+        <p-button label="Try again" variant="text" size="small" (onClick)="retryOnThisDay()" />
+      </div>
+    } @else if (onThisDayConcerts.length === 0) {
+      <p class="on-this-day-state">No shows recorded for this date.</p>
+    } @else {
+      <ul class="on-this-day-list">
+        @for (concert of onThisDayConcerts; track concert.id) {
+          <li>
+            <a class="on-this-day-show" [routerLink]="['/concerts', concert.id]">
+              <span>
+                <strong>{{ concert.venue.currentName }}</strong>
+                <small>{{ concert.venue.city.name }}, {{ concert.venue.city.country.name }}</small>
+              </span>
+              <span class="on-this-day-year">{{ concert.postedStartTime | date:'yyyy' }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+    }
+
+    <a class="bento-tile-action" [routerLink]="['/concerts']">
+      Browse all shows <i class="pi pi-arrow-right"></i>
+    </a>
+  </div>
   </div>
 </section>

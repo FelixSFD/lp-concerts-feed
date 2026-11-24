@@ -37,11 +37,15 @@ export class HomePageComponent implements OnInit {
   nextConcert: ConcertDetailsDto | null = null;
   nextAttendingConcert: ConcertDetailsDto | null = null;
   nextBookmarkedConcert: ConcertDetailsDto | null = null;
+  onThisDayConcerts: ConcertDetailsDto[] = [];
+  readonly today = new Date();
 
   isLoadingNextConcert: boolean = false;
   nextConcertLoadFailed: boolean = false;
   isLoadingAttendingConcert: boolean = false;
   isLoadingBookmarkedConcert: boolean = false;
+  isLoadingOnThisDay: boolean = false;
+  onThisDayLoadFailed: boolean = false;
   private userConcertRequestVersion = 0;
 
   newFeatureAlertDismissedToken: string | null = localStorage.getItem("alert.new-feature.dismissed-token");
@@ -51,6 +55,7 @@ export class HomePageComponent implements OnInit {
 
   ngOnInit() {
     this.loadNextConcert().then();
+    this.loadOnThisDay().then();
 
     this.authService.isAuthenticated$.subscribe(isAuthenticated => {
       console.debug("Home component is authenticated:", isAuthenticated);
@@ -99,6 +104,30 @@ export class HomePageComponent implements OnInit {
     } finally {
       this.isLoadingNextConcert = false;
     }
+  }
+
+  private async loadOnThisDay() {
+    this.isLoadingOnThisDay = true;
+    this.onThisDayLoadFailed = false;
+
+    try {
+      const concerts = await this.concertsService.getConcertsOnThisDay(
+        this.today.getMonth() + 1,
+        this.today.getDate(),
+      );
+      this.onThisDayConcerts = concerts.sort((left, right) =>
+        (right.postedStartTime ?? '').localeCompare(left.postedStartTime ?? ''));
+    } catch (error) {
+      console.error("Concerts for this day could not be loaded", error);
+      this.onThisDayConcerts = [];
+      this.onThisDayLoadFailed = true;
+    } finally {
+      this.isLoadingOnThisDay = false;
+    }
+  }
+
+  protected retryOnThisDay(): void {
+    void this.loadOnThisDay();
   }
 
 
