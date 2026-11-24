@@ -3,7 +3,7 @@
 }
 
 .app-footer {
-  margin: 1rem 0.75rem 0.75rem;
+  margin: 1.5rem 0.75rem 0.75rem;
   border: 1px solid var(--p-content-border-color);
   border-radius: 14px;
   overflow: hidden;

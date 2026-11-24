@@ -1,7 +1,7 @@
 <header class="hero">
   <div class="hero-grid">
     <div class="hero-body">
-      <p-tag class="hero-badge" value="Fan-made" [rounded]="true" />
+      <p-tag class="hero-badge" value="Our Community" [rounded]="true" />
 
       <h1 class="hero-title">Never miss a Linkin Park show.</h1>
       <p class="hero-sub">
@@ -161,26 +161,11 @@
         </div>
       </div>
       <p class="feature-card-copy">
-        Build a custom subscription, then add it to your calendar app and manage every event setting.
+        Create and manage your calendar subscriptions, then add a feed to your calendar app.
       </p>
-      <p-divider />
-
-      <app-calendar-feed-builder (settingsChange)="calendarSettings.set($event)" />
-      @if (calendarAuthError()) {
-        <p role="alert">{{ calendarAuthError() }}</p>
-        <p-button label="Log in" severity="secondary" (onClick)="login()" />
-      }
 
       <ng-template #footer>
-        <p-divider />
-        <div class="flex gap-4 mt-1 align-content-end justify-content-end">
-          @if (calendarManagementId(); as subscriptionId) {
-            <p-button label="Manage calendar" icon="pi pi-calendar" [routerLink]="['/calendar-subscriptions', subscriptionId]" size="small" />
-          } @else {
-            <p-button label="Create calendar" icon="pi pi-calendar-plus" (onClick)="createCalendar()"
-                      [loading]="creatingCalendar()" [disabled]="!calendarReady() || creatingCalendar()" size="small" />
-          }
-        </div>
+        <p-button label="Open calendar feeds" icon="pi pi-calendar-plus" [routerLink]="['/calendar-subscriptions']" size="small" />
       </ng-template>
     </p-card>
   </div>
