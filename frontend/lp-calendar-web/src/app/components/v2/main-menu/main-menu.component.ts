@@ -102,7 +102,7 @@ export class MainMenuComponent implements OnInit, OnChanges {
 
   loadMainMenuItems(): void {
     const items: MenuItem[] = [
-      { id: 'home', label: 'Home', routerLink: '/home' },
+      { id: 'home', label: 'Home', routerLink: '/' },
       { id: 'concerts', label: 'Concerts', routerLink: '/concerts' },
       { id: 'map', label: 'Map', routerLink: '/map' },
       { id: 'about', label: 'About', routerLink: '/about' },
