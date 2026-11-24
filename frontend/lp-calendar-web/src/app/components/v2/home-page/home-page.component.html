@@ -1,5 +1,70 @@
-<h1>Linkin Park Concert Calendar</h1>
-<p>Want too keep track of the From Zero World Tour? Subscribe to the iCal-feed that contains all the concerts, so you never miss a show. <a class="link" [routerLink]="['/about']">More information...</a> </p>
+<header class="hero">
+  <div class="hero-grid">
+    <div class="hero-body">
+      <p-tag class="hero-badge" value="Created By Fans" [rounded]="true" />
+
+      <h1 class="hero-title">Never miss a Linkin Park show.</h1>
+      <p class="hero-sub">
+        A concert calendar built and kept up to date by the community - track
+        every show, setlist and venue in one place.
+      </p>
+
+      <div class="hero-actions">
+        <p-button
+          class="hero-cta"
+          label="Add to calendar"
+          icon="pi pi-calendar-plus"
+          (onClick)="scrollToCalendarFeed()"
+        />
+      </div>
+    </div>
+
+    @if (nextConcert) {
+      <a class="next-show" [routerLink]="['/concerts', nextConcert.id]">
+        <span class="next-show-kicker">Next concert</span>
+        <strong class="next-show-venue">{{ nextConcert.venue.currentName }}</strong>
+        <span class="next-show-location">
+          {{ nextConcert.venue.city.name }},
+          @if (nextConcert.venue.city.state?.name) {
+            {{ nextConcert.venue.city.state?.name }},
+          }
+          {{ nextConcert.venue.city.country.name }}
+        </span>
+        <span class="next-show-date">
+          {{ (nextConcert.mainStageTime ?? nextConcert.postedStartTime) | date:"d MMM yyyy" }}
+        </span>
+        <span class="next-show-time">
+          {{ (nextConcert.mainStageTime ?? nextConcert.postedStartTime) | date:"EEEE · HH:mm" }}
+        </span>
+        @if (nextConcert.mainStageTime ?? nextConcert.postedStartTime; as countdownDate) {
+          <app-hero-countdown [countdownToDate]="countdownDate" />
+        }
+      </a>
+    } @else if (isLoadingNextConcert) {
+      <div class="next-show next-show-loading" aria-label="Loading next concert">
+        <span class="next-show-kicker">Next concert</span>
+        <span class="loading-line loading-line-long"></span>
+        <span class="loading-line"></span>
+      </div>
+    } @else if (nextConcertLoadFailed) {
+      <div class="next-show next-show-empty" role="alert">
+        <span class="next-show-kicker">Next concert</span>
+        <strong class="next-show-empty-title">Could not load upcoming show</strong>
+        <span class="next-show-empty-sub">
+          Please try again later.
+        </span>
+      </div>
+    } @else {
+      <div class="next-show next-show-empty">
+        <span class="next-show-kicker">Next concert</span>
+        <strong class="next-show-empty-title">No show announced yet</strong>
+        <span class="next-show-empty-sub">
+          The next date appears here the moment it is confirmed.
+        </span>
+      </div>
+    }
+  </div>
+</header>
 
 @if (newFeatureAlertDismissedToken != currentNewFeatureAlertToken && !isLoggedIn$) {
   <p-message class="new-feature-alert" closable (onClose)="onNewFeatureAlertClosed()">
@@ -11,112 +76,223 @@
   </p-message>
 }
 
-<div class="grid pt-4">
-  <!-- Next concert -->
-  <div class="col-12 xl:col-4 lg:col-5 md:col-6 sm:col-12">
-    <app-concert-card cardTitle="Next Concert"
-                      [concert-details]="nextConcert"
-                      [isLoading]="isLoadingNextConcert"
-                      notFoundAlertClass="info"
-                      notFoundAlertText="No upcoming concert found."
-    />
+<section class="concert-section" aria-labelledby="upcoming-heading">
+  <div class="section-heading mb-4">
+    <div>
+      <span class="section-kicker">Your concert feed</span>
+      <h2 id="upcoming-heading">Upcoming</h2>
+    </div>
   </div>
 
-  @if (isLoggedIn$) {
-    <div class="col-12 xl:col-4 lg:col-5 md:col-6 sm:col-12">
-      <app-concert-card cardTitle="The next concert you follow"
-                        [concert]="nextBookmarkedConcert"
-                        [isLoading]="isLoadingBookmarkedConcert"
-                        notFoundAlertClass="info"
-                        notFoundAlertText="You have not bookmarked any upcoming concerts. You can bookmark a concert on its detail page."
-      />
-    </div>
-
-    <div class="col-12 xl:col-4 lg:col-5 md:col-6 sm:col-12">
-      <app-concert-card cardTitle="The next concert you attend"
-                        [concert]="nextAttendingConcert"
-                        [isLoading]="isLoadingAttendingConcert"
-                        notFoundAlertClass="info"
-                        notFoundAlertText="You have no upcoming concerts. If you plan to attend a concert, find it on this site and click the 'Ticket'-button."
-      />
-    </div>
-  }
-
-  <!-- Subscribe to iCal Card -->
-  <div class="col-12 xl:col-4 lg:col-5 md:col-6 sm:col-12">
-    <p-card>
-      <ng-template #header>
-        <div class="px-3 py-2 border-round-top surface-300">
-          <span>Calendar feed</span>
+  <div class="concert-grid">
+    @if (isLoggedIn$) {
+      @if (isLoadingBookmarkedConcert || nextBookmarkedConcert) {
+        <div class="concert-grid-item">
+          <app-concert-card cardTitle="The next concert you follow"
+                            titleIcon="pi pi-star-fill"
+                            [concert-details]="nextBookmarkedConcert"
+                            [isLoading]="isLoadingBookmarkedConcert"
+          />
         </div>
-      </ng-template>
-      <ng-template #title>Subscribe to calendar feed</ng-template>
-      <p>
-        You can build your <b>custom calendar subscription</b>. After creating it, you can add its feed to your calendar app and manage its settings.
-      </p>
-      <p-divider />
-
-      <app-calendar-feed-builder (settingsChange)="calendarSettings.set($event)" />
-      @if (calendarAuthError()) {
-        <p role="alert">{{ calendarAuthError() }}</p>
-        <p-button label="Log in" severity="secondary" (onClick)="login()" />
+      } @else {
+        <p-card class="concert-grid-item user-empty-card">
+          <ng-template #header>
+            <p-tag class="concert-card-title-tag" value="The next concert you follow" icon="pi pi-star-fill" [rounded]="true" />
+          </ng-template>
+          <div class="user-empty-card-content flex flex-column align-items-start gap-3">
+            <p class="mt-3 mb-0 text-500">Save a show to your bookmarks to keep it close.</p>
+            <p-button label="Browse shows" icon="pi pi-search" size="small" [routerLink]="['/concerts']" />
+          </div>
+        </p-card>
       }
 
-      <ng-template #footer>
-        <p-divider />
-        <div class="flex gap-4 mt-1 align-content-end justify-content-end">
-          @if (calendarManagementId(); as subscriptionId) {
-            <p-button label="Manage calendar" icon="pi pi-calendar" [routerLink]="['/calendar-subscriptions', subscriptionId]" size="small" />
-          } @else {
-            <p-button label="Create calendar" icon="pi pi-calendar-plus" (onClick)="createCalendar()"
-                      [loading]="creatingCalendar()" [disabled]="!calendarReady() || creatingCalendar()" size="small" />
-          }
+      @if (isLoadingAttendingConcert || nextAttendingConcert) {
+        <div class="concert-grid-item">
+          <app-concert-card cardTitle="The next concert you attend"
+                            titleIcon="pi pi-check"
+                            [concert-details]="nextAttendingConcert"
+                            [isLoading]="isLoadingAttendingConcert"
+          />
         </div>
-      </ng-template>
-    </p-card>
+      } @else {
+        <p-card class="concert-grid-item user-empty-card">
+          <ng-template #header>
+            <p-tag class="concert-card-title-tag" value="The next concert you attend" icon="pi pi-check" [rounded]="true" />
+          </ng-template>
+          <div class="user-empty-card-content flex flex-column align-items-start gap-3">
+            <p class="mt-3 mb-0 text-500">Mark a show as attending from its details to see it here.</p>
+            <p-button label="Find a show" icon="pi pi-ticket" size="small" [routerLink]="['/concerts']" />
+          </div>
+        </p-card>
+      }
+    }
+
+    <a class="concert-grid-item bento-tile all-shows-tile" [routerLink]="['/concerts']">
+      <span class="bento-tile-art" aria-hidden="true">
+        <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
+          <rect x="4" y="62" width="11" height="54" rx="5.5" fill="var(--g1)"/>
+          <rect x="20.5" y="40" width="11" height="76" rx="5.5" fill="var(--g2)"/>
+          <rect x="37" y="72" width="11" height="44" rx="5.5" fill="var(--g1)"/>
+          <rect x="53.5" y="22" width="11" height="94" rx="5.5" fill="var(--g2)"/>
+          <rect x="70" y="52" width="11" height="64" rx="5.5" fill="var(--g1)"/>
+          <rect x="86.5" y="34" width="11" height="82" rx="5.5" fill="var(--g2)"/>
+          <rect x="103" y="66" width="11" height="50" rx="5.5" fill="var(--g1)"/>
+        </svg>
+      </span>
+      <div class="bento-tile-heading">
+        <div>
+          <span class="feature-card-kicker">Browse</span>
+          <h3>All Shows</h3>
+        </div>
+      </div>
+      <p class="bento-tile-copy">Every upcoming show tracked by the community.</p>
+      <span class="bento-tile-action">View all <i class="pi pi-arrow-right"></i></span>
+    </a>
+  </div>
+</section>
+
+<section class="explore-section" aria-labelledby="explore-heading">
+  <div class="section-heading mb-4">
+    <div>
+      <span class="section-kicker">Discover more</span>
+      <h2 id="explore-heading">Explore</h2>
+    </div>
   </div>
 
-  <!-- Concerts list Card -->
-  <div class="col-12 xl:col-4 lg:col-5 md:col-6 sm:col-12">
-    <p-card>
-      <ng-template #header>
-        <div class="px-3 py-2 border-round-top surface-300">
-          <span>Concerts</span>
-        </div>
-      </ng-template>
-      <ng-template #title>View concert list</ng-template>
-      <p>
-        You can check out the list of all concerts we currently track on this website. Please note that this is <b>maintained by fans</b> and is <b>not official information</b>!
-      </p>
-
-      <ng-template #footer>
-        <p-divider />
-        <div class="flex gap-4 mt-1 align-content-end justify-content-end">
-          <p-button [routerLink]="['/concerts']" icon="pi pi-list" label="Check concert list" size="small" />
-        </div>
-      </ng-template>
-    </p-card>
+  <div class="bento-grid">
+  <!-- Calendar Feed Card -->
+  <div id="calendar-feed" class="bento-tile calendar-tile">
+    <span class="bento-tile-art" aria-hidden="true">
+      <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
+        <rect x="18" y="28" width="84" height="76" rx="13" fill="var(--g1)"/>
+        <rect x="40" y="19" width="7" height="20" rx="3.5" fill="var(--g2)"/>
+        <rect x="73" y="19" width="7" height="20" rx="3.5" fill="var(--g2)"/>
+        <rect x="18" y="47" width="84" height="5" fill="var(--g2)"/>
+        <rect x="34" y="63" width="13" height="13" rx="3.5" fill="var(--g2)"/>
+        <circle cx="61" cy="69.5" r="5.5" fill="var(--g2)"/>
+        <circle cx="83" cy="69.5" r="5.5" fill="var(--g2)"/>
+        <circle cx="40" cy="89" r="5.5" fill="var(--g2)"/>
+        <circle cx="61" cy="89" r="5.5" fill="var(--g2)"/>
+        <circle cx="83" cy="89" r="5.5" fill="var(--g2)"/>
+      </svg>
+    </span>
+    <div class="bento-tile-heading">
+      <div>
+        <span class="feature-card-kicker">Stay in sync</span>
+        <h3>Calendar feed</h3>
+      </div>
+    </div>
+    <p class="bento-tile-copy">Choose which event times to include, then create a feed for your calendar app.</p>
+    @if (calendarAuthError(); as authError) {
+      <p-message severity="warn" icon="pi pi-exclamation-triangle" class="calendar-auth-message">
+        {{ authError }}
+        <p-button label="Log in" icon="pi pi-sign-in" [text]="true" (onClick)="login()" />
+      </p-message>
+    }
+    <app-calendar-feed-builder
+      class="calendar-feed-options"
+      (settingsChange)="calendarSettings.set($event)"
+    />
+    @if (calendarManagementId(); as subscriptionId) {
+      <p-button
+        label="Manage calendar"
+        icon="pi pi-arrow-right"
+        [routerLink]="['/calendar-subscriptions', subscriptionId]"
+      />
+    } @else {
+      <p-button
+        label="Create calendar"
+        icon="pi pi-arrow-right"
+        [loading]="creatingCalendar()"
+        [disabled]="!calendarReady() || !!calendarAuthError()"
+        (onClick)="createCalendar()"
+      />
+    }
   </div>
 
   <!-- Tour Map Card -->
-  <div class="col-12 xl:col-4 lg:col-5 md:col-6 sm:col-12">
-    <p-card>
-      <ng-template #header>
-        <div class="px-3 py-2 border-round-top surface-300">
-          <span>Map</span>
-        </div>
-      </ng-template>
-      <ng-template #title>View world tour map</ng-template>
-      <p>
-        On the map, you can find all concerts of the tour to find out, where your closest show is. And what parts of the world have the most shows nearby.
-      </p>
+  <a class="bento-tile map-tile" [routerLink]="['/map']">
+    <span class="bento-tile-art" aria-hidden="true">
+      <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
+        <circle cx="52" cy="68" r="40" fill="var(--g1)"/>
+        <g stroke="var(--g2)" stroke-width="4" fill="none" stroke-linecap="round">
+          <ellipse cx="52" cy="68" rx="17" ry="40"/>
+          <line x1="12" y1="68" x2="92" y2="68"/>
+          <line x1="22" y1="44" x2="82" y2="44"/>
+          <line x1="22" y1="92" x2="82" y2="92"/>
+        </g>
+        <path fill="var(--g2)" fill-rule="evenodd" d="M86 22c-9 0-17 8-17 17 0 12 17 27 17 27s17-15 17-27c0-9-8-17-17-17zM86 32a7 7 0 1 0 0 14 7 7 0 0 0 0-14z"/>
+      </svg>
+    </span>
+    <div class="bento-tile-heading">
+      <div>
+        <span class="feature-card-kicker">Locations</span>
+        <h3>World tour map</h3>
+      </div>
+    </div>
+    <p class="bento-tile-copy">Find the closest show and see where the tour is heading.</p>
+    <span class="bento-tile-action">
+      Open map <i class="pi pi-arrow-right"></i>
+    </span>
+  </a>
 
-      <ng-template #footer>
-        <p-divider />
-        <div class="flex gap-4 mt-1 align-content-end justify-content-end">
-          <p-button [routerLink]="['/map']" icon="pi pi-map" label="View map" size="small" />
-        </div>
-      </ng-template>
-    </p-card>
+  <div class="bento-tile on-this-day-tile">
+    <a
+      class="on-this-day-card-link"
+      [routerLink]="['/concerts']"
+      aria-label="Browse shows played on this day"
+    ></a>
+    <span class="bento-tile-art" aria-hidden="true">
+      <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
+        <circle cx="60" cy="60" r="48" fill="var(--g1)"/>
+        <g stroke="var(--g2)" stroke-width="5" stroke-linecap="round">
+          <line x1="60" y1="23" x2="60" y2="32"/>
+          <line x1="97" y1="60" x2="88" y2="60"/>
+          <line x1="60" y1="97" x2="60" y2="88"/>
+          <line x1="23" y1="60" x2="32" y2="60"/>
+        </g>
+        <g stroke="var(--g2)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M60 60V34"/>
+          <path d="M60 60l17 15"/>
+        </g>
+        <circle cx="60" cy="60" r="4.5" fill="var(--g2)"/>
+      </svg>
+    </span>
+    <div class="bento-tile-heading">
+      <div>
+        <span class="feature-card-kicker">{{ today | date:'MMMM d' }} in history</span>
+        <h3>On this day</h3>
+      </div>
+    </div>
+
+    @if (isLoadingOnThisDay) {
+      <p class="on-this-day-state" aria-live="polite">Loading past shows...</p>
+    } @else if (onThisDayLoadFailed) {
+      <div class="on-this-day-state" role="alert">
+        <span>Could not load shows for this date.</span>
+        <p-button label="Try again" variant="text" size="small" (onClick)="retryOnThisDay()" />
+      </div>
+    } @else if (onThisDayConcerts.length === 0) {
+      <p class="on-this-day-state">No shows recorded for this date.</p>
+    } @else {
+      <ul class="on-this-day-list">
+        @for (concert of onThisDayConcerts; track concert.id) {
+          <li>
+            <a class="on-this-day-show" [routerLink]="['/concerts', concert.id]">
+              <span>
+                <strong>{{ concert.venue.currentName }}</strong>
+                <small>{{ concert.venue.city.name }}, {{ concert.venue.city.country.name }}</small>
+              </span>
+              <span class="on-this-day-year">{{ concert.postedStartTime | date:'yyyy' }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+    }
+
+    <a class="bento-tile-action" [routerLink]="['/concerts']">
+      Browse all shows <i class="pi pi-arrow-right"></i>
+    </a>
   </div>
-</div>
+  </div>
+</section>

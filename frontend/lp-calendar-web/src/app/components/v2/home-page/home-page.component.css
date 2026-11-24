@@ -1,3 +1,570 @@
 .new-feature-alert.p-message-enter-active {
   animation: none !important;
 }
+
+/* --- Hero --- */
+
+.hero {
+  --hero-photo: url("/Linkin-Park-show.webp");
+
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  min-height: clamp(360px, 38vw, 460px);
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  border-radius: 20px;
+  color: #fff;
+  background:
+    linear-gradient(180deg, rgb(8 10 12 / 0.05) 0%, rgb(8 10 12 / 0.35) 45%, rgb(8 10 12 / 0.85) 100%),
+    linear-gradient(90deg, rgb(8 10 12 / 0.45) 0%, transparent 65%),
+    var(--hero-photo) center 28% / cover no-repeat,
+    linear-gradient(135deg, var(--p-primary-800, #1e293b) 0%, var(--p-surface-900, #0f172a) 100%);
+}
+
+.hero-grid {
+  position: relative;
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(17rem, 25rem);
+  align-items: end;
+  gap: clamp(1.25rem, 4vw, 3rem);
+  padding: clamp(1.5rem, 4vw, 2.75rem);
+}
+
+.hero-body {
+  position: relative;
+  max-width: 40rem;
+  padding: 0;
+}
+
+:host ::ng-deep .hero-badge.p-tag {
+  border: 1px solid rgb(255 255 255 / 0.3);
+  background: rgb(255 255 255 / 0.14);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.25rem 0.8rem;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.hero-title {
+  margin: 1rem 0 0;
+  max-width: 20ch;
+  color: #fff;
+  font-size: clamp(1.9rem, 4.2vw, 2.7rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+  text-wrap: balance;
+  text-shadow: 0 1px 16px rgb(0 0 0 / 0.25);
+}
+
+.hero-sub {
+  margin: 0.8rem 0 0;
+  max-width: 46ch;
+  color: rgb(255 255 255 / 0.85);
+  font-size: 0.97rem;
+  line-height: 1.6;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.4rem;
+}
+
+.hero-cta {
+  display: inline-block;
+}
+
+.next-show {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 0;
+  min-height: 13rem;
+  padding: 1.25rem 1.35rem;
+  border: 1px solid rgb(255 255 255 / 0.24);
+  border-radius: 16px;
+  color: #fff;
+  text-align: right;
+  text-decoration: none;
+  background: rgb(8 10 12 / 0.66);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 18px 44px rgb(0 0 0 / 0.18);
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.next-show:hover {
+  transform: translateY(-3px);
+  border-color: rgb(255 255 255 / 0.42);
+  background: rgb(8 10 12 / 0.76);
+}
+
+.next-show-kicker {
+  margin-bottom: 0.55rem;
+  color: rgb(255 255 255 / 0.68);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.next-show-venue {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: clamp(1.25rem, 2.2vw, 1.75rem);
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  text-wrap: balance;
+}
+
+.next-show-location {
+  margin-top: 0.45rem;
+  color: rgb(255 255 255 / 0.78);
+  font-size: 0.82rem;
+}
+
+.next-show-date {
+  margin-top: 0.45rem;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.next-show-time {
+  margin-top: 0.2rem;
+  color: rgb(255 255 255 / 0.72);
+  font-size: 0.82rem;
+}
+
+.next-show app-hero-countdown {
+  margin-top: auto;
+  padding-top: 1.1rem;
+}
+
+
+.next-show-empty-title {
+  margin-top: auto;
+  padding-top: 1.1rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.next-show-empty-sub {
+  margin-top: 0.4rem;
+  max-width: 26ch;
+  color: rgb(255 255 255 / 0.62);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.next-show-loading {
+  min-height: 14rem;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.loading-line {
+  width: 50%;
+  height: 0.72rem;
+  margin-top: 0.55rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.16);
+  animation: loading-pulse 1.4s ease-in-out infinite;
+}
+
+.loading-line-long {
+  width: 82%;
+  height: 1.4rem;
+}
+
+@keyframes loading-pulse {
+  50% { opacity: 0.45; }
+}
+
+#calendar-feed {
+  scroll-margin-top: 5rem;
+}
+
+.concert-section {
+  margin-top: 2.25rem;
+}
+
+.section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 0.75rem;
+  padding: 0 0.25rem;
+}
+
+.section-kicker {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: var(--p-primary-color);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.section-heading h2 {
+  margin: 0;
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+
+.concert-grid {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+  gap: 0.75rem;
+}
+
+.concert-grid-item {
+  width: auto;
+  min-width: 0;
+}
+
+.concert-grid app-concert-card {
+  display: block;
+  height: 100%;
+}
+
+.concert-grid ::ng-deep p-card,
+.concert-grid ::ng-deep .p-card {
+  height: 100%;
+}
+
+.concert-grid ::ng-deep .p-card {
+  overflow: hidden;
+  border: 1px solid var(--p-content-border-color);
+  border-radius: 16px;
+  background: var(--p-card-background);
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.concert-grid ::ng-deep .user-empty-card .p-card-body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.concert-grid ::ng-deep .user-empty-card .p-card-content,
+.concert-grid ::ng-deep .user-empty-card-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.concert-grid ::ng-deep .user-empty-card-content p-button {
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+.concert-grid ::ng-deep .p-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--p-primary-color) 42%, transparent);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.08);
+}
+
+.feature-card-kicker {
+  display: block;
+  margin-bottom: 0.15rem;
+  color: var(--p-surface-500);
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.explore-section {
+  margin-top: 2.25rem;
+}
+
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: minmax(11.5rem, auto);
+  gap: 0.75rem;
+}
+
+.bento-tile {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto 1fr auto;
+  gap: 0.75rem 1rem;
+  min-height: 11.5rem;
+  padding: 1.25rem;
+  overflow: hidden;
+  border: 1px solid var(--p-content-border-color);
+  border-radius: 16px;
+  color: var(--p-text-color);
+  text-decoration: none;
+  background: var(--p-content-background);
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.bento-tile-heading {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  position: relative;
+  z-index: 1;
+  max-width: calc(100% - 6rem);
+}
+
+.bento-tile:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--p-primary-color) 42%, transparent);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.08);
+}
+
+.bento-tile:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 2px solid var(--p-primary-color);
+  outline-offset: 3px;
+}
+
+.bento-tile-art {
+  position: absolute;
+  top: 42%;
+  right: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 5.5rem;
+  aspect-ratio: 1;
+  transform: translateY(-50%);
+  border-radius: 1.75rem;
+  color: color-mix(in srgb, var(--p-primary-color) 20%, var(--p-content-background));
+  background: color-mix(in srgb, var(--p-primary-color) 5%, var(--p-content-background));
+}
+
+.bento-tile-art i {
+  font-size: 3.25rem;
+}
+
+.bento-tile-art svg {
+  width: 3.4rem;
+  height: 3.4rem;
+}
+
+.all-shows-tile .bento-tile-art,
+.calendar-tile .bento-tile-art,
+.on-this-day-tile .bento-tile-art,
+.map-tile .bento-tile-art {
+  --g1: color-mix(in srgb, var(--p-primary-color) 6%, var(--p-content-background));
+  --g2: color-mix(in srgb, var(--p-primary-color) 14%, var(--p-content-background));
+  top: auto;
+  left: auto;
+  right: -1.75rem;
+  bottom: -2rem;
+  width: 10.5rem;
+  height: 10.5rem;
+  transform: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+.all-shows-tile .bento-tile-art svg,
+.calendar-tile .bento-tile-art svg,
+.on-this-day-tile .bento-tile-art svg,
+.map-tile .bento-tile-art svg {
+  width: 100%;
+  height: 100%;
+}
+
+.bento-tile-heading > div {
+  min-width: 0;
+}
+
+.bento-tile-heading h3 {
+  margin: 0.15rem 0 0.4rem;
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+}
+
+.bento-tile-copy {
+  grid-column: 1 / -1;
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  max-width: calc(100% - 6rem);
+  color: var(--p-surface-500);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.bento-tile-action {
+  grid-column: 1;
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  align-self: end;
+  justify-self: start;
+  gap: 0.35rem;
+  color: var(--p-primary-color);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.bento-tile-action i {
+  transition: transform 180ms ease;
+}
+
+.bento-tile:hover .bento-tile-action i {
+  transform: translateX(3px);
+}
+
+.calendar-tile {
+  grid-row: span 2;
+}
+
+.calendar-tile .calendar-feed-options,
+.calendar-tile > p-message,
+.calendar-tile > p-button {
+  position: relative;
+  z-index: 1;
+}
+
+.calendar-tile .calendar-feed-options,
+.calendar-tile > p-message {
+  grid-column: 1 / -1;
+  width: min(100%, 24rem);
+}
+
+.calendar-tile .calendar-feed-options {
+  margin-bottom: 1rem;
+}
+
+.calendar-tile > p-button {
+  grid-column: 1;
+  justify-self: start;
+}
+
+.on-this-day-tile {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  cursor: pointer;
+}
+
+.on-this-day-card-link {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.on-this-day-card-link:focus-visible {
+  outline: 2px solid var(--p-primary-color);
+  outline-offset: 3px;
+}
+
+.on-this-day-tile > :not(.on-this-day-card-link) {
+  pointer-events: none;
+}
+
+.on-this-day-tile a:not(.on-this-day-card-link),
+.on-this-day-tile p-button {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+.on-this-day-list,
+.on-this-day-state {
+  grid-column: 1 / -1;
+  position: relative;
+  z-index: 1;
+  width: calc(100% - 6rem);
+  max-height: 8rem;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+}
+
+.on-this-day-list {
+  list-style: none;
+}
+
+.on-this-day-list li + li {
+  border-top: 1px solid var(--p-content-border-color);
+}
+
+.on-this-day-show {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.4rem 0;
+  color: var(--p-text-color);
+  text-decoration: none;
+}
+
+.on-this-day-show:hover strong {
+  color: var(--p-primary-color);
+}
+
+.on-this-day-show strong,
+.on-this-day-show small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.on-this-day-show small,
+.on-this-day-year,
+.on-this-day-state {
+  color: var(--p-surface-500);
+  font-size: 0.78rem;
+}
+
+.on-this-day-year {
+  flex: 0 0 auto;
+  font-weight: 700;
+}
+
+@media (max-width: 700px) {
+  .hero {
+    border-radius: 16px;
+  }
+
+  .hero-grid {
+    grid-template-columns: 1fr;
+    align-items: end;
+  }
+
+  .next-show {
+    width: 100%;
+  }
+
+  .concert-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bento-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bento-tile {
+    min-height: 10.5rem;
+  }
+
+  .calendar-tile {
+    grid-row: auto;
+  }
+}

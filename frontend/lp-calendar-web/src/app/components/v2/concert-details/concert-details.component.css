@@ -240,7 +240,7 @@
 .action-strip ::ng-deep .p-button {
   color: var(--p-text-color);
   border-color: var(--p-surface-300);
-  border-radius: 8px;
+  border-radius: 10px;
 }
 
 .action-strip ::ng-deep .p-button:enabled:hover {

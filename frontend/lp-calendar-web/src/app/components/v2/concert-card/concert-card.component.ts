@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component, effect,
   inject,
+  input,
   Input,
   OnChanges,
   OnInit,
@@ -19,6 +20,7 @@ import {DatePipe} from '@angular/common';
 import {DateTime} from 'luxon';
 import {Tooltip} from 'primeng/tooltip';
 import {Message} from 'primeng/message';
+import {Tag} from 'primeng/tag';
 import { MessageSeverity } from 'primeng/types/message';
 import { ConcertDetailsDto, VenueDto } from '../../../modules/lpshows-api/v3';
 
@@ -33,7 +35,8 @@ import { ConcertDetailsDto, VenueDto } from '../../../modules/lpshows-api/v3';
     CountdownComponent,
     DatePipe,
     Tooltip,
-    Message
+    Message,
+    Tag
   ],
   templateUrl: './concert-card.component.html',
   styleUrl: './concert-card.component.css',
@@ -44,6 +47,8 @@ export class ConcertCardComponent implements OnInit, OnChanges {
 
   @Input("cardTitle")
   cardTitle: string = "Concert";
+
+  titleIcon = input<string | undefined>();
 
   @Input("concert")
   concert$: ConcertDto | null = null;
