@@ -1,20 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MySql.Data.MySqlClient;
 using Testcontainers.MySql;
 
 namespace Common.Database.Tests;
 
 public abstract class DbIntegrationTestsBase<TTestedDbContext> : IAsyncLifetime where TTestedDbContext : DbContext
 {
-    private readonly MySqlContainer _dbContainer;
+    private readonly MySqlContainer _dbContainer = new MySqlBuilder("mysql:8.0")
+        .Build();
+    
     protected TTestedDbContext DbContext;
 
-    public DbIntegrationTestsBase()
-    {
-        _dbContainer = new MySqlBuilder()
-            .WithImage("mysql:8.0")
-            .Build();
-    }
-    
     /// <summary>
     /// Creates and initializes the <typeparamref name="TTestedDbContext"/>
     /// </summary>
@@ -26,8 +22,15 @@ public abstract class DbIntegrationTestsBase<TTestedDbContext> : IAsyncLifetime 
     {
         await _dbContainer.StartAsync();
         
+        // Test containers are isolated and disposable; avoid the driver's non-thread-safe TLS cache.
+        var connectionString = new MySqlConnectionStringBuilder(_dbContainer.GetConnectionString())
+        {
+            SslMode = MySqlSslMode.Disabled,
+            // MySQL 8 may require RSA key retrieval for caching_sha2_password without TLS.
+            AllowPublicKeyRetrieval = true
+        };
         var optBuilder = new DbContextOptionsBuilder<TTestedDbContext>();
-        optBuilder.UseMySQL(_dbContainer.GetConnectionString());
+        optBuilder.UseMySQL(connectionString.ConnectionString);
         DbContext = CreateDbContext(optBuilder.Options);
 
         await DbContext.Database.EnsureCreatedAsync();
@@ -35,13 +38,8 @@ public abstract class DbIntegrationTestsBase<TTestedDbContext> : IAsyncLifetime 
 
     public async Task DisposeAsync()
     {
-        await DbContext.DisposeAsync();
+        if (DbContext != null) 
+            await DbContext.DisposeAsync();
         await _dbContainer.StopAsync();
-    }
-
-    private async Task RunDbScriptsAsync()
-    {
-        var structureScript = await File.ReadAllTextAsync("DbScripts/0001_InitDb.sql");
-        await DbContext.Database.ExecuteSqlRawAsync(structureScript);
     }
 }
