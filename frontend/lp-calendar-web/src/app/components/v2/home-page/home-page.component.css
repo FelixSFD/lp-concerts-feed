@@ -403,8 +403,8 @@
 .calendar-tile .bento-tile-art,
 .on-this-day-tile .bento-tile-art,
 .map-tile .bento-tile-art {
-  --g1: color-mix(in srgb, var(--p-primary-color) 11%, var(--p-content-background));
-  --g2: color-mix(in srgb, var(--p-primary-color) 24%, var(--p-content-background));
+  --g1: color-mix(in srgb, var(--p-primary-color) 6%, var(--p-content-background));
+  --g2: color-mix(in srgb, var(--p-primary-color) 14%, var(--p-content-background));
   top: auto;
   left: auto;
   right: -1.75rem;
