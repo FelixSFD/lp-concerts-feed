@@ -5,7 +5,7 @@
 /* --- Hero --- */
 
 .hero {
-  --hero-photo: url("/Linkin-Park-show.jpg");
+  --hero-photo: url("/Linkin-Park-show.webp");
 
   position: relative;
   display: flex;
@@ -251,6 +251,24 @@
   border-radius: 16px;
   background: var(--p-card-background);
   transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.concert-grid ::ng-deep .user-empty-card .p-card-body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.concert-grid ::ng-deep .user-empty-card .p-card-content,
+.concert-grid ::ng-deep .user-empty-card-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.concert-grid ::ng-deep .user-empty-card-content p-button {
+  margin-top: auto;
+  padding-top: 1rem;
 }
 
 .concert-grid ::ng-deep .p-card:hover {
