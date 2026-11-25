@@ -5,8 +5,6 @@
 /* --- Hero --- */
 
 .hero {
-  --hero-photo: url("/Linkin-Park-show.webp");
-
   position: relative;
   display: flex;
   align-items: stretch;
@@ -15,15 +13,57 @@
   overflow: hidden;
   border-radius: 20px;
   color: #fff;
+  background: linear-gradient(135deg, var(--p-primary-800, #1e293b) 0%, var(--p-surface-900, #0f172a) 100%);
+}
+
+.hero-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 28%;
+  opacity: 0;
+}
+
+.hero-photo-previous {
+  opacity: 1;
+}
+
+.hero-photo-current {
+  z-index: 1;
+  opacity: 1;
+}
+
+.hero-photo-fade {
+  animation: hero-photo-fade 1.2s ease both;
+}
+
+@keyframes hero-photo-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-photo-fade {
+    animation: none;
+  }
+}
+
+.hero::after {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  content: "";
+  pointer-events: none;
   background:
     linear-gradient(180deg, rgb(8 10 12 / 0.05) 0%, rgb(8 10 12 / 0.35) 45%, rgb(8 10 12 / 0.85) 100%),
-    linear-gradient(90deg, rgb(8 10 12 / 0.45) 0%, transparent 65%),
-    var(--hero-photo) center 28% / cover no-repeat,
-    linear-gradient(135deg, var(--p-primary-800, #1e293b) 0%, var(--p-surface-900, #0f172a) 100%);
+    linear-gradient(90deg, rgb(8 10 12 / 0.45) 0%, transparent 65%);
 }
 
 .hero-grid {
   position: relative;
+  z-index: 3;
   width: 100%;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(17rem, 25rem);

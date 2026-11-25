@@ -39,6 +39,20 @@ import { DatePipe } from '@angular/common';
 export class HomePageComponent implements OnInit {
   protected readonly environment = environment;
 
+  // Keep this list in sync with the images in public/home-images.
+  private readonly heroImages = [
+    '/home-images/Linkin-Park-show.webp',
+    '/home-images/lp-hamburg-2024-2.jpg',
+    '/home-images/lp-hamburg-2024.jpg',
+  ];
+  protected readonly loadedHeroImages = signal([this.heroImages[0]]);
+  protected readonly currentHeroImage = signal(this.heroImages[0]);
+  protected readonly previousHeroImage = signal<string | null>(null);
+  private nextHeroImageIndex = 1;
+  private heroTimer: ReturnType<typeof setTimeout> | undefined;
+  private heroImageLoading = false;
+  private heroSlideshowStarted = false;
+
   private readonly authService = inject(AuthService);
   private readonly oidcSecurityService = inject(OidcSecurityService);
   private readonly messageService = inject(MessageService);
@@ -97,6 +111,53 @@ export class HomePageComponent implements OnInit {
       }
     });
 
+  }
+
+  /** Starts loading later photos only after the initial hero image has finished. */
+  protected onHeroImageReady(path: string, failed = false): void {
+    if (failed) console.warn(`Hero image could not be displayed: ${path}`);
+    if (path === this.heroImages[0] && !this.heroSlideshowStarted) {
+      this.heroSlideshowStarted = true;
+      this.startHeroSlideshow();
+    }
+  }
+
+  private startHeroSlideshow(): void {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const scheduleNext = () => {
+      if (!reducedMotion.matches && !this.heroImageLoading && !this.destroyRef.destroyed) {
+        this.heroTimer = setTimeout(() => {
+          this.heroImageLoading = true;
+          const path = this.heroImages[this.nextHeroImageIndex];
+          this.nextHeroImageIndex = (this.nextHeroImageIndex + 1) % this.heroImages.length;
+          const image = new Image();
+          image.fetchPriority = 'low';
+          image.src = path;
+          void image.decode().then(() => {
+            if (this.destroyRef.destroyed || reducedMotion.matches) return;
+            if (path === this.currentHeroImage()) return;
+            this.loadedHeroImages.update(images => images.includes(path) ? images : [...images, path]);
+            this.previousHeroImage.set(this.currentHeroImage());
+            this.currentHeroImage.set(path);
+          }).catch(error => {
+            console.warn(`Hero image could not be loaded: ${path}`, error);
+          }).finally(() => {
+            this.heroImageLoading = false;
+            scheduleNext();
+          });
+        }, 7000);
+      }
+    };
+    const onMotionChange = () => {
+      clearTimeout(this.heroTimer);
+      if (!reducedMotion.matches) scheduleNext();
+    };
+    reducedMotion.addEventListener('change', onMotionChange);
+    this.destroyRef.onDestroy(() => {
+      clearTimeout(this.heroTimer);
+      reducedMotion.removeEventListener('change', onMotionChange);
+    });
+    scheduleNext();
   }
 
 

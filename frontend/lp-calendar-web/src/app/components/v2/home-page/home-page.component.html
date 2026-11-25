@@ -1,4 +1,17 @@
 <header class="hero">
+  @for (image of loadedHeroImages(); track image) {
+    <img
+      class="hero-photo"
+      [class.hero-photo-current]="image === currentHeroImage()"
+      [class.hero-photo-previous]="image === previousHeroImage()"
+      [class.hero-photo-fade]="image === currentHeroImage() && previousHeroImage() !== null"
+      [src]="image"
+      (load)="onHeroImageReady(image)"
+      (error)="onHeroImageReady(image, true)"
+      alt=""
+      aria-hidden="true"
+    />
+  }
   <div class="hero-grid">
     <div class="hero-body">
       <p-tag class="hero-badge" value="Created By Fans" [rounded]="true" />
