@@ -6,8 +6,6 @@
 
 .app-main {
   flex: 1 0 auto;
-  align-content: start;
-  padding-inline: 0.75rem;
 }
 
 .progress-hidden {
@@ -23,5 +21,14 @@
 .app-header-bar {
   width: 100%;
   box-sizing: border-box;
-  padding: 0.75rem 0.75rem 0;
+  background: var(--p-content-background);
+  border-bottom: 1px solid var(--p-content-border-color);
+}
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .app-header-bar {
+    background: color-mix(in srgb, var(--p-content-background) 60%, transparent);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+  }
 }

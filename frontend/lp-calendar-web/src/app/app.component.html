@@ -9,14 +9,16 @@
 
 <div class="app-shell">
   <div class="sticky top-0 z-5 app-header-bar">
-    <app-main-menu [clock]="currentDateTime$" [isLoggedIn]="isAuthenticated$" />
+    <div class="app-frame">
+      <app-main-menu [clock]="currentDateTime$" [isLoggedIn]="isAuthenticated$" />
+    </div>
     <div [class]="(routerProgress == 1 ? 'progress-hidden' : 'progress-visible')">
       <p-progress-bar [value]="routerProgress * 100" style="height: 2px" showValue="false" role="progressbar"  />
     </div>
   </div>
 
-  <main class="app-main grid justify-content-center m-0 py-3">
-    <div class="w-full sm:w-10 md:w-10 lg:w-8">
+  <main class="app-main py-3">
+    <div class="app-frame">
       <app-auto-breadcrumbs />
 
       <!-- Content -->

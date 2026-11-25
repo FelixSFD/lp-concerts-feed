@@ -12,6 +12,13 @@ body {
   overflow-x: hidden;
 }
 
+.app-frame {
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: clamp(0.75rem, 3vw, 2.5rem);
+  box-sizing: border-box;
+}
+
 .concert-card-title-tag.p-tag {
   display: flex;
   align-items: center;

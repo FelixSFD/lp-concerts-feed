@@ -5,21 +5,11 @@
 
 :host ::ng-deep .p-menubar {
   position: relative;
-  background: var(--p-content-background);
-  border: 1px solid var(--p-content-border-color);
-  border-radius: 14px;
-  padding: 1rem 2rem;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0.875rem 0;
   gap: 1.5rem;
-}
-
-@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  :host ::ng-deep .p-menubar {
-    background: color-mix(in srgb, var(--p-content-background) 60%, transparent);
-    border-color: color-mix(in srgb, var(--p-content-border-color) 70%, transparent);
-    box-shadow: 0 4px 24px rgb(0 0 0 / 0.06);
-    -webkit-backdrop-filter: blur(16px) saturate(1.5);
-    backdrop-filter: blur(16px) saturate(1.5);
-  }
 }
 
 :host ::ng-deep .p-menubar:not(.p-menubar-mobile) .p-menubar-root-list {
@@ -77,7 +67,7 @@
 
 /* Mobile menu */
 :host ::ng-deep .p-menubar.p-menubar-mobile {
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 0;
   gap: 0.375rem;
 }
 
