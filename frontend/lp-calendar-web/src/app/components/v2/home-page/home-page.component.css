@@ -62,14 +62,35 @@
 }
 
 .hero-grid {
+  --hero-padding: clamp(1.5rem, 4vw, 2.75rem);
+
   position: relative;
   z-index: 3;
   width: 100%;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(17rem, 25rem);
+  grid-template-rows: 1fr auto;
   align-items: end;
   gap: clamp(1.25rem, 4vw, 3rem);
-  padding: clamp(1.5rem, 4vw, 2.75rem);
+  row-gap: 0.5rem;
+  padding: var(--hero-padding);
+}
+
+.hero-attribution {
+  grid-column: 1 / -1;
+  min-height: 1.2em;
+  transform: translateY(calc(var(--hero-padding) - 0.5rem));
+  color: #fff;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  text-align: right;
+  overflow-wrap: anywhere;
+  text-shadow: 0 1px 4px #000;
+}
+
+.hero-attribution a {
+  color: inherit;
+  text-decoration: underline;
 }
 
 .hero-body {

@@ -1,11 +1,11 @@
 <header class="hero">
-  @for (image of loadedHeroImages(); track image) {
+  @for (image of loadedHeroImages(); track image.src) {
     <img
       class="hero-photo"
       [class.hero-photo-current]="image === currentHeroImage()"
       [class.hero-photo-previous]="image === previousHeroImage()"
       [class.hero-photo-fade]="image === currentHeroImage() && previousHeroImage() !== null"
-      [src]="image"
+      [src]="image.src"
       (load)="onHeroImageReady(image)"
       (error)="onHeroImageReady(image, true)"
       alt=""
@@ -76,6 +76,17 @@
         </span>
       </div>
     }
+
+    <div class="hero-attribution">
+      @if (currentHeroImage().attribution; as attribution) {
+        Photo by
+        @if (attribution.url) {
+          <a [href]="attribution.url" target="_blank" rel="noopener noreferrer">{{ attribution.text }}</a>
+        } @else {
+          <span>{{ attribution.text }}</span>
+        }
+      }
+    </div>
   </div>
 </header>
 

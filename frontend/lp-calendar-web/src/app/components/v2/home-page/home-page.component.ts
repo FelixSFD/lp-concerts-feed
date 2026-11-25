@@ -19,6 +19,14 @@ import { catchError, of, switchMap } from 'rxjs';
 import { HeroCountdownComponent } from '../hero-countdown/hero-countdown.component';
 import { DatePipe } from '@angular/common';
 
+interface HeroImage {
+  readonly src: string;
+  readonly attribution?: {
+    readonly text: string;
+    readonly url?: string;
+  };
+}
+
 @Component({
   selector: 'app-home-page',
   imports: [
@@ -39,15 +47,16 @@ import { DatePipe } from '@angular/common';
 export class HomePageComponent implements OnInit {
   protected readonly environment = environment;
 
+  // Add attribution as { text: 'Photo: Photographer', url: 'https://...' }; the URL is optional.
   // Keep this list in sync with the images in public/home-images.
-  private readonly heroImages = [
-    '/home-images/Linkin-Park-show.webp',
-    '/home-images/lp-hamburg-2024-2.jpg',
-    '/home-images/lp-hamburg-2024.jpg',
+  private readonly heroImages: readonly HeroImage[] = [
+    { src: '/home-images/Linkin-Park-show.webp', attribution: { text: 'Elina Shelest', url: 'https://www.elinashelest.com' } },
+    { src: '/home-images/lp-hamburg-2024-2.jpg', attribution: { text: 'Jon D. Baker', url: 'https://lplive.net' } },
+    { src: '/home-images/lp-hamburg-2024.jpg', attribution: { text: 'Jon D. Baker', url: 'https://lplive.net' } },
   ];
   protected readonly loadedHeroImages = signal([this.heroImages[0]]);
   protected readonly currentHeroImage = signal(this.heroImages[0]);
-  protected readonly previousHeroImage = signal<string | null>(null);
+  protected readonly previousHeroImage = signal<HeroImage | null>(null);
   private nextHeroImageIndex = 1;
   private heroTimer: ReturnType<typeof setTimeout> | undefined;
   private heroImageLoading = false;
@@ -114,9 +123,9 @@ export class HomePageComponent implements OnInit {
   }
 
   /** Starts loading later photos only after the initial hero image has finished. */
-  protected onHeroImageReady(path: string, failed = false): void {
-    if (failed) console.warn(`Hero image could not be displayed: ${path}`);
-    if (path === this.heroImages[0] && !this.heroSlideshowStarted) {
+  protected onHeroImageReady(image: HeroImage, failed = false): void {
+    if (failed) console.warn(`Hero image could not be displayed: ${image.src}`);
+    if (image === this.heroImages[0] && !this.heroSlideshowStarted) {
       this.heroSlideshowStarted = true;
       this.startHeroSlideshow();
     }
@@ -128,19 +137,19 @@ export class HomePageComponent implements OnInit {
       if (!reducedMotion.matches && !this.heroImageLoading && !this.destroyRef.destroyed) {
         this.heroTimer = setTimeout(() => {
           this.heroImageLoading = true;
-          const path = this.heroImages[this.nextHeroImageIndex];
+          const nextImage = this.heroImages[this.nextHeroImageIndex];
           this.nextHeroImageIndex = (this.nextHeroImageIndex + 1) % this.heroImages.length;
           const image = new Image();
           image.fetchPriority = 'low';
-          image.src = path;
+          image.src = nextImage.src;
           void image.decode().then(() => {
             if (this.destroyRef.destroyed || reducedMotion.matches) return;
-            if (path === this.currentHeroImage()) return;
-            this.loadedHeroImages.update(images => images.includes(path) ? images : [...images, path]);
+            if (nextImage === this.currentHeroImage()) return;
+            this.loadedHeroImages.update(images => images.includes(nextImage) ? images : [...images, nextImage]);
             this.previousHeroImage.set(this.currentHeroImage());
-            this.currentHeroImage.set(path);
+            this.currentHeroImage.set(nextImage);
           }).catch(error => {
-            console.warn(`Hero image could not be loaded: ${path}`, error);
+            console.warn(`Hero image could not be loaded: ${nextImage.src}`, error);
           }).finally(() => {
             this.heroImageLoading = false;
             scheduleNext();
