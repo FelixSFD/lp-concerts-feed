@@ -50,22 +50,22 @@ export class HomePageComponent implements OnInit {
 
   // Attribution supports optional url and PrimeIcons icon (e.g. 'pi-instagram').
   // Keep this list in sync with the images in public/home-images.
-  protected readonly heroImages = signal<readonly HeroImage[]>([
+  protected readonly heroImages: readonly HeroImage[] = [
     { src: '/home-images/Linkin-Park-show.webp', attribution: { text: 'Elina Shelest', url: 'https://www.elinashelest.com' } },
-    { src: '/home-images/lp-ucl25.webp', attribution: { text: 'FelixSFD' } },
-    { src: '/home-images/lp-hamburg-2024-em2.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
     { src: '/home-images/lp-hamburg-2024-encore.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
-    { src: '/home-images/lp-hamburg-2024-mike.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
-    { src: '/home-images/lp-paris-2024-em.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
-    { src: '/home-images/lp-paris-2024-dave.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
-    { src: '/home-images/lp-paris-2024-em-flying.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
-    { src: '/home-images/lp-hamburg-2024-em.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
-    { src: '/home-images/lp-hamburg-2024-colin.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
     { src: '/home-images/lp-paris-2024-joe.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
-    { src: '/home-images/lp-hamburg-2024-2.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
-  ]);
-  protected readonly loadedHeroImages = signal([this.heroImages()[0]]);
-  protected readonly currentHeroImage = signal(this.heroImages()[0]);
+    { src: '/home-images/lp-paris-2024-em.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+    { src: '/home-images/lp-hamburg-2024-colin.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+    { src: '/home-images/lp-paris-2024-dave.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+    { src: '/home-images/lp-ucl25.webp', attribution: { text: 'FelixSFD' } },
+    { src: '/home-images/lp-hamburg-2024-mike.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+    { src: '/home-images/lp-hamburg-2024-em.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+    { src: '/home-images/lp-paris-2024-em-flying.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+    { src: '/home-images/lp-hamburg-2024-em2.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+  ];
+
+  protected readonly loadedHeroImages = signal([this.heroImages[0]]);
+  protected readonly currentHeroImage = signal(this.heroImages[0]);
   protected readonly previousHeroImage = signal<HeroImage | null>(null);
   protected readonly pendingHeroImage = signal<HeroImage | null>(null);
   protected readonly heroImageLoadFailed = signal(false);
@@ -139,7 +139,7 @@ export class HomePageComponent implements OnInit {
   /** Starts loading later photos only after the initial hero image has finished. */
   protected onHeroImageReady(image: HeroImage, failed = false): void {
     if (failed) console.warn(`Hero image could not be displayed: ${image.src}`);
-    if (image === this.heroImages()[0] && !this.heroSlideshowStarted) {
+    if (image === this.heroImages[0] && !this.heroSlideshowStarted) {
       this.heroSlideshowStarted = true;
       this.startHeroSlideshow();
     }
@@ -167,7 +167,7 @@ export class HomePageComponent implements OnInit {
   private scheduleNextHeroImage(): void {
     clearTimeout(this.heroTimer);
     if (this.heroSlideshowStarted && !this.heroReducedMotion?.matches &&
-        !this.pendingHeroImage() && !this.destroyRef.destroyed && this.heroImages().length > 1) {
+        !this.pendingHeroImage() && !this.destroyRef.destroyed && this.heroImages.length > 1) {
       this.heroTimer = setTimeout(() => this.showHeroImage(this.nextHeroImageIndex, true), 7000);
     }
   }
@@ -179,11 +179,11 @@ export class HomePageComponent implements OnInit {
 
   private showHeroImage(index: number, automatic: boolean): void {
     clearTimeout(this.heroTimer);
-    const nextImage = this.heroImages()[index];
+    const nextImage = this.heroImages[index];
     const requestVersion = ++this.heroImageRequestVersion;
     this.heroImageLoadingAutomatically = automatic;
     this.heroImageLoadFailed.set(false);
-    this.nextHeroImageIndex = (index + 1) % this.heroImages().length;
+    this.nextHeroImageIndex = (index + 1) % this.heroImages.length;
 
     if (nextImage === this.currentHeroImage()) {
       this.pendingHeroImage.set(null);

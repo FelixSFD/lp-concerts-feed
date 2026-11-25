@@ -14,12 +14,12 @@
   }
   <div class="hero-grid">
     <div class="hero-carousel-navigation hidden lg:flex" role="group" aria-label="Hero photo navigation">
-      @for (image of heroImages(); track image.src; let index = $index) {
+      @for (image of heroImages; track image.src; let index = $index) {
         <button
           type="button"
           class="hero-carousel-dot"
           [class.hero-carousel-dot-current]="image === currentHeroImage()"
-          [attr.aria-label]="'Show photo ' + (index + 1) + ' of ' + heroImages().length"
+          [attr.aria-label]="'Show photo ' + (index + 1) + ' of ' + heroImages.length"
           [attr.aria-current]="image === currentHeroImage() ? 'true' : null"
           [attr.aria-busy]="image === pendingHeroImage() ? 'true' : null"
           (click)="selectHeroImage(index)"
