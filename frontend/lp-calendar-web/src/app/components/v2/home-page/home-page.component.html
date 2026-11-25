@@ -13,7 +13,7 @@
     />
   }
   <div class="hero-grid">
-    <div class="hero-carousel-navigation" role="group" aria-label="Hero photo navigation">
+    <div class="hero-carousel-navigation hidden lg:flex" role="group" aria-label="Hero photo navigation">
       @for (image of heroImages(); track image.src; let index = $index) {
         <button
           type="button"
