@@ -93,6 +93,11 @@
   text-decoration: underline;
 }
 
+.hero-attribution-icon {
+  margin-inline-end: 0.25rem;
+  font-size: inherit;
+}
+
 .hero-body {
   position: relative;
   max-width: 40rem;

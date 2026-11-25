@@ -81,9 +81,19 @@
       @if (currentHeroImage().attribution; as attribution) {
         Photo by
         @if (attribution.url) {
-          <a [href]="attribution.url" target="_blank" rel="noopener noreferrer">{{ attribution.text }}</a>
+          <a [href]="attribution.url" target="_blank" rel="noopener noreferrer">
+            @if (attribution.icon) {
+              <i class="pi hero-attribution-icon" [class]="attribution.icon" aria-hidden="true"></i>
+            }
+            {{ attribution.text }}
+          </a>
         } @else {
-          <span>{{ attribution.text }}</span>
+          <span>
+            @if (attribution.icon) {
+              <i class="pi hero-attribution-icon" [class]="attribution.icon" aria-hidden="true"></i>
+            }
+            {{ attribution.text }}
+          </span>
         }
       }
     </div>

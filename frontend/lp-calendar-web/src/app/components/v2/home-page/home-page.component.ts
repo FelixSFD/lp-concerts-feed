@@ -24,6 +24,7 @@ interface HeroImage {
   readonly attribution?: {
     readonly text: string;
     readonly url?: string;
+    readonly icon?: string;
   };
 }
 
@@ -47,12 +48,12 @@ interface HeroImage {
 export class HomePageComponent implements OnInit {
   protected readonly environment = environment;
 
-  // Add attribution as { text: 'Photo: Photographer', url: 'https://...' }; the URL is optional.
+  // Attribution supports optional url and PrimeIcons icon (e.g. 'pi-instagram').
   // Keep this list in sync with the images in public/home-images.
   private readonly heroImages: readonly HeroImage[] = [
     { src: '/home-images/Linkin-Park-show.webp', attribution: { text: 'Elina Shelest', url: 'https://www.elinashelest.com' } },
-    { src: '/home-images/lp-hamburg-2024-2.jpg', attribution: { text: 'Jon D. Baker', url: 'https://lplive.net' } },
-    { src: '/home-images/lp-hamburg-2024.jpg', attribution: { text: 'Jon D. Baker', url: 'https://lplive.net' } },
+    { src: '/home-images/lp-hamburg-2024-2.jpg', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+    { src: '/home-images/lp-hamburg-2024.jpg', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
   ];
   protected readonly loadedHeroImages = signal([this.heroImages[0]]);
   protected readonly currentHeroImage = signal(this.heroImages[0]);
