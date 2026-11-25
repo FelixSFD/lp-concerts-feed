@@ -29,7 +29,7 @@
   grid-template-columns: minmax(0, 1fr) minmax(17rem, 25rem);
   align-items: end;
   gap: clamp(1.25rem, 4vw, 3rem);
-  padding: clamp(1.5rem, 4vw, 2.75rem);
+  padding: clamp(1.25rem, 4vw, 2.75rem);
 }
 
 .hero-body {

@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   effect,
-  HostListener,
   inject,
   OnDestroy,
   OnInit,
@@ -72,7 +71,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // Loading progress of the router
   routerProgress: number = 0;
-  scrolled = false;
 
   // display a setup screen for new users (or those that are not in the new DB yet)
   showProfileSetup$ = signal<boolean>(false);
@@ -143,14 +141,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.destroyCookieConsent();
-  }
-
-  @HostListener('window:scroll')
-  onWindowScroll(): void {
-    const scrolled = window.scrollY > 8;
-    if (scrolled !== this.scrolled) {
-      this.scrolled = scrolled;
-    }
   }
 
   onProfileCompleted(): void {
