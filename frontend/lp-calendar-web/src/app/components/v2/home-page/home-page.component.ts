@@ -52,8 +52,17 @@ export class HomePageComponent implements OnInit {
   // Keep this list in sync with the images in public/home-images.
   private readonly heroImages: readonly HeroImage[] = [
     { src: '/home-images/Linkin-Park-show.webp', attribution: { text: 'Elina Shelest', url: 'https://www.elinashelest.com' } },
-    { src: '/home-images/lp-hamburg-2024-2.jpg', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
-    { src: '/home-images/lp-hamburg-2024.jpg', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+    { src: '/home-images/lp-ucl25.webp', attribution: { text: 'FelixSFD' } },
+    { src: '/home-images/lp-hamburg-2024-em2.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+    { src: '/home-images/lp-hamburg-2024-encore.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+    { src: '/home-images/lp-hamburg-2024-mike.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+    { src: '/home-images/lp-paris-2024-em.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+    { src: '/home-images/lp-paris-2024-dave.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+    { src: '/home-images/lp-paris-2024-em-flying.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+    { src: '/home-images/lp-hamburg-2024-em.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+    { src: '/home-images/lp-hamburg-2024-colin.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+    { src: '/home-images/lp-paris-2024-joe.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+    { src: '/home-images/lp-hamburg-2024-2.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
   ];
   protected readonly loadedHeroImages = signal([this.heroImages[0]]);
   protected readonly currentHeroImage = signal(this.heroImages[0]);
