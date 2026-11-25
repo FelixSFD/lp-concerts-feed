@@ -1,0 +1,7 @@
+User-agent: *
+Allow: *
+Disallow: /admin/*
+Disallow: /concerts/add
+Disallow: /calendar-subscriptions
+Disallow: /calendar-subscriptions/*
+
