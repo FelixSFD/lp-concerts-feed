@@ -8,15 +8,6 @@
         A concert calendar built and kept up to date by the community - track
         every show, setlist and venue in one place.
       </p>
-
-      <div class="hero-actions">
-        <p-button
-          class="hero-cta"
-          label="Add to calendar"
-          icon="pi pi-calendar-plus"
-          (onClick)="scrollToCalendarFeed()"
-        />
-      </div>
     </div>
 
     @if (nextConcert) {
@@ -61,6 +52,12 @@
         <span class="next-show-empty-sub">
           The next date appears here the moment it is confirmed.
         </span>
+        <p-button
+          class="next-show-cta"
+          label="Add to calendar"
+          icon="pi pi-calendar-plus"
+          (onClick)="scrollToCalendarFeed()"
+        />
       </div>
     }
   </div>
