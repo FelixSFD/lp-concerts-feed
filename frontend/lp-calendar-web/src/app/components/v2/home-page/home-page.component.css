@@ -638,7 +638,12 @@
     padding-top: 0;
   }
 
-  .upcoming-grid-user,
+  .upcoming-grid-user {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
   .bento-grid {
     grid-template-columns: minmax(0, 1fr);
   }
