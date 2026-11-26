@@ -76,7 +76,6 @@
 <section class="concert-section" aria-labelledby="upcoming-heading">
   <div class="section-heading mb-4">
     <div>
-      <span class="section-kicker">Your concert feed</span>
       <h2 id="upcoming-heading">Upcoming</h2>
     </div>
   </div>
@@ -125,23 +124,8 @@
     }
 
     <a class="concert-grid-item bento-tile all-shows-tile" [routerLink]="['/concerts']">
-      <span class="bento-tile-art" aria-hidden="true">
-        <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
-          <rect x="4" y="62" width="11" height="54" rx="5.5" fill="var(--g1)"/>
-          <rect x="20.5" y="40" width="11" height="76" rx="5.5" fill="var(--g2)"/>
-          <rect x="37" y="72" width="11" height="44" rx="5.5" fill="var(--g1)"/>
-          <rect x="53.5" y="22" width="11" height="94" rx="5.5" fill="var(--g2)"/>
-          <rect x="70" y="52" width="11" height="64" rx="5.5" fill="var(--g1)"/>
-          <rect x="86.5" y="34" width="11" height="82" rx="5.5" fill="var(--g2)"/>
-          <rect x="103" y="66" width="11" height="50" rx="5.5" fill="var(--g1)"/>
-        </svg>
-      </span>
-      <div class="bento-tile-heading">
-        <div>
-          <span class="feature-card-kicker">Browse</span>
-          <h3>All Shows</h3>
-        </div>
-      </div>
+      <i class="pi pi-list bento-tile-icon" aria-hidden="true"></i>
+      <h3 class="bento-tile-title">All Shows</h3>
       <p class="bento-tile-copy">Every upcoming show tracked by the community.</p>
       <span class="bento-tile-action">View all <i class="pi pi-arrow-right"></i></span>
     </a>
@@ -151,7 +135,6 @@
 <section class="explore-section" aria-labelledby="explore-heading">
   <div class="section-heading mb-4">
     <div>
-      <span class="section-kicker">Discover more</span>
       <h2 id="explore-heading">Explore</h2>
     </div>
   </div>
@@ -159,26 +142,8 @@
   <div class="bento-grid">
   <!-- Calendar Feed Card -->
   <div id="calendar-feed" class="bento-tile calendar-tile">
-    <span class="bento-tile-art" aria-hidden="true">
-      <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
-        <rect x="18" y="28" width="84" height="76" rx="13" fill="var(--g1)"/>
-        <rect x="40" y="19" width="7" height="20" rx="3.5" fill="var(--g2)"/>
-        <rect x="73" y="19" width="7" height="20" rx="3.5" fill="var(--g2)"/>
-        <rect x="18" y="47" width="84" height="5" fill="var(--g2)"/>
-        <rect x="34" y="63" width="13" height="13" rx="3.5" fill="var(--g2)"/>
-        <circle cx="61" cy="69.5" r="5.5" fill="var(--g2)"/>
-        <circle cx="83" cy="69.5" r="5.5" fill="var(--g2)"/>
-        <circle cx="40" cy="89" r="5.5" fill="var(--g2)"/>
-        <circle cx="61" cy="89" r="5.5" fill="var(--g2)"/>
-        <circle cx="83" cy="89" r="5.5" fill="var(--g2)"/>
-      </svg>
-    </span>
-    <div class="bento-tile-heading">
-      <div>
-        <span class="feature-card-kicker">Stay in sync</span>
-        <h3>Calendar feed</h3>
-      </div>
-    </div>
+    <i class="pi pi-calendar bento-tile-icon" aria-hidden="true"></i>
+    <h3 class="bento-tile-title">Calendar feed</h3>
     <p class="bento-tile-copy">Choose which event times to include, then create a feed for your calendar app.</p>
     @if (calendarAuthError(); as authError) {
       <p-message severity="warn" icon="pi pi-exclamation-triangle" class="calendar-auth-message">
@@ -209,24 +174,8 @@
 
   <!-- Tour Map Card -->
   <a class="bento-tile map-tile" [routerLink]="['/map']">
-    <span class="bento-tile-art" aria-hidden="true">
-      <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
-        <circle cx="52" cy="68" r="40" fill="var(--g1)"/>
-        <g stroke="var(--g2)" stroke-width="4" fill="none" stroke-linecap="round">
-          <ellipse cx="52" cy="68" rx="17" ry="40"/>
-          <line x1="12" y1="68" x2="92" y2="68"/>
-          <line x1="22" y1="44" x2="82" y2="44"/>
-          <line x1="22" y1="92" x2="82" y2="92"/>
-        </g>
-        <path fill="var(--g2)" fill-rule="evenodd" d="M86 22c-9 0-17 8-17 17 0 12 17 27 17 27s17-15 17-27c0-9-8-17-17-17zM86 32a7 7 0 1 0 0 14 7 7 0 0 0 0-14z"/>
-      </svg>
-    </span>
-    <div class="bento-tile-heading">
-      <div>
-        <span class="feature-card-kicker">Locations</span>
-        <h3>World tour map</h3>
-      </div>
-    </div>
+    <i class="pi pi-globe bento-tile-icon" aria-hidden="true"></i>
+    <h3 class="bento-tile-title">World tour map</h3>
     <p class="bento-tile-copy">Find the closest show and see where the tour is heading.</p>
     <span class="bento-tile-action">
       Open map <i class="pi pi-arrow-right"></i>
@@ -239,28 +188,9 @@
       [routerLink]="['/concerts']"
       aria-label="Browse shows played on this day"
     ></a>
-    <span class="bento-tile-art" aria-hidden="true">
-      <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
-        <circle cx="60" cy="60" r="48" fill="var(--g1)"/>
-        <g stroke="var(--g2)" stroke-width="5" stroke-linecap="round">
-          <line x1="60" y1="23" x2="60" y2="32"/>
-          <line x1="97" y1="60" x2="88" y2="60"/>
-          <line x1="60" y1="97" x2="60" y2="88"/>
-          <line x1="23" y1="60" x2="32" y2="60"/>
-        </g>
-        <g stroke="var(--g2)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M60 60V34"/>
-          <path d="M60 60l17 15"/>
-        </g>
-        <circle cx="60" cy="60" r="4.5" fill="var(--g2)"/>
-      </svg>
-    </span>
-    <div class="bento-tile-heading">
-      <div>
-        <span class="feature-card-kicker">{{ today | date:'MMMM d' }} in history</span>
-        <h3>On this day</h3>
-      </div>
-    </div>
+    <i class="pi pi-history bento-tile-icon" aria-hidden="true"></i>
+    <h3 class="bento-tile-title">On this day</h3>
+    <p class="bento-tile-copy">{{ today | date:'MMMM d' }} in history</p>
 
     @if (isLoadingOnThisDay) {
       <p class="on-this-day-state" aria-live="polite">Loading past shows...</p>

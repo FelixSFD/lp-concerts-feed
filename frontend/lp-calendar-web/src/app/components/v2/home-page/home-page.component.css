@@ -195,17 +195,6 @@
   justify-content: space-between;
   gap: 1rem;
   margin: 0 0 0.75rem;
-  padding: 0 0.25rem;
-}
-
-.section-kicker {
-  display: block;
-  margin-bottom: 0.2rem;
-  color: var(--p-primary-color);
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
 }
 
 .section-heading h2 {
@@ -269,16 +258,6 @@
   box-shadow: 0 12px 32px rgb(0 0 0 / 0.08);
 }
 
-.feature-card-kicker {
-  display: block;
-  margin-bottom: 0.15rem;
-  color: var(--p-surface-500);
-  font-size: 0.64rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
 .explore-section {
   margin-top: 2.25rem;
 }
@@ -292,12 +271,10 @@
 
 .bento-tile {
   position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-rows: auto 1fr auto;
-  gap: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
   min-height: 11.5rem;
-  padding: 1.25rem;
+  padding: clamp(1.25rem, 2.5vw, 2rem);
   overflow: hidden;
   border: 1px solid var(--p-content-border-color);
   border-radius: 16px;
@@ -305,16 +282,6 @@
   text-decoration: none;
   background: var(--p-content-background);
   transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
-}
-
-.bento-tile-heading {
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  position: relative;
-  z-index: 1;
-  max-width: calc(100% - 6rem);
 }
 
 .bento-tile:hover {
@@ -330,84 +297,39 @@
   outline-offset: 3px;
 }
 
-.bento-tile-art {
-  position: absolute;
-  top: 42%;
-  right: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 5.5rem;
-  aspect-ratio: 1;
-  transform: translateY(-50%);
-  border-radius: 1.75rem;
-  color: color-mix(in srgb, var(--p-primary-color) 20%, var(--p-content-background));
-  background: color-mix(in srgb, var(--p-primary-color) 5%, var(--p-content-background));
-}
-
-.bento-tile-art i {
-  font-size: 3.25rem;
-}
-
-.bento-tile-art svg {
-  width: 3.4rem;
-  height: 3.4rem;
-}
-
-.all-shows-tile .bento-tile-art,
-.calendar-tile .bento-tile-art,
-.on-this-day-tile .bento-tile-art,
-.map-tile .bento-tile-art {
-  --g1: color-mix(in srgb, var(--p-primary-color) 6%, var(--p-content-background));
-  --g2: color-mix(in srgb, var(--p-primary-color) 14%, var(--p-content-background));
-  top: auto;
-  left: auto;
-  right: -1.75rem;
-  bottom: -2rem;
-  width: 10.5rem;
-  height: 10.5rem;
-  transform: none;
-  border-radius: 0;
-  background: transparent;
-}
-
-.all-shows-tile .bento-tile-art svg,
-.calendar-tile .bento-tile-art svg,
-.on-this-day-tile .bento-tile-art svg,
-.map-tile .bento-tile-art svg {
-  width: 100%;
-  height: 100%;
-}
-
-.bento-tile-heading > div {
-  min-width: 0;
-}
-
-.bento-tile-heading h3 {
-  margin: 0.15rem 0 0.4rem;
+.bento-tile-icon {
+  position: relative;
+  z-index: 1;
   font-size: 1.35rem;
-  letter-spacing: -0.02em;
+  color: var(--p-text-color);
+}
+
+.bento-tile-title {
+  position: relative;
+  z-index: 1;
+  margin: 1rem 0 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .bento-tile-copy {
-  grid-column: 1 / -1;
   position: relative;
   z-index: 1;
-  margin: 0;
-  max-width: calc(100% - 6rem);
+  margin: 0.4rem 0 0;
   color: var(--p-surface-500);
   font-size: 0.9rem;
   line-height: 1.5;
 }
 
 .bento-tile-action {
-  grid-column: 1;
   position: relative;
   z-index: 1;
   display: inline-flex;
   align-items: center;
-  align-self: end;
-  justify-self: start;
+  align-self: flex-start;
+  margin-top: auto;
+  padding-top: 1rem;
   gap: 0.35rem;
   color: var(--p-primary-color);
   font-size: 0.78rem;
@@ -436,21 +358,17 @@
 
 .calendar-tile .calendar-feed-options,
 .calendar-tile > p-message {
-  grid-column: 1 / -1;
   width: min(100%, 24rem);
-}
-
-.calendar-tile .calendar-feed-options {
-  margin-bottom: 1rem;
+  margin-top: 1rem;
 }
 
 .calendar-tile > p-button {
-  grid-column: 1;
-  justify-self: start;
+  align-self: flex-start;
+  margin-top: auto;
+  padding-top: 1rem;
 }
 
 .on-this-day-tile {
-  grid-template-rows: auto minmax(0, 1fr) auto;
   cursor: pointer;
 }
 
@@ -478,12 +396,11 @@
 
 .on-this-day-list,
 .on-this-day-state {
-  grid-column: 1 / -1;
   position: relative;
   z-index: 1;
-  width: calc(100% - 6rem);
+  width: 100%;
   max-height: 8rem;
-  margin: 0;
+  margin: 1rem 0 0;
   padding: 0;
   overflow-y: auto;
 }
