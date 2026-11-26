@@ -1,4 +1,10 @@
 <footer class="app-footer">
+  <div class="app-footer-photos" aria-hidden="true">
+    @for (photo of stripPhotos; track photo) {
+      <img src="photo-strip-2/{{ photo }}" alt="" loading="lazy" />
+    }
+  </div>
+
   <div class="app-footer-inner app-frame">
     <div class="app-footer-top">
       <div class="app-footer-brand">

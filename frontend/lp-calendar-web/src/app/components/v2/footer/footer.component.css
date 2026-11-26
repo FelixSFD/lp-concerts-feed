@@ -14,8 +14,24 @@
   }
 }
 
+/* Photo strip */
+.app-footer-photos {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(10rem, 1fr);
+  gap: 0.25rem;
+  height: 10rem;
+  overflow: hidden;
+}
+
+.app-footer-photos img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .app-footer-inner {
-  padding-block: 1.75rem 1.25rem;
+  padding-block: var(--app-section-gap);
 }
 
 .app-footer-top {
@@ -32,6 +48,11 @@
 }
 
 @media (max-width: 520px) {
+  .app-footer-photos {
+    grid-auto-columns: 7rem;
+    height: 7rem;
+  }
+
   .app-footer-top {
     grid-template-columns: 1fr;
   }

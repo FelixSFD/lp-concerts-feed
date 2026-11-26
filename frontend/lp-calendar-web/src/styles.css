@@ -12,6 +12,10 @@ body {
   overflow-x: hidden;
 }
 
+:root {
+  --app-section-gap: 2.25rem;
+}
+
 .app-frame {
   max-width: 1280px;
   margin-inline: auto;
@@ -30,8 +34,8 @@ body {
   border: 0;
   border-bottom: 1px solid var(--p-content-border-color);
   border-radius: var(--p-card-border-radius) var(--p-card-border-radius) 0 0;
-  color: var(--p-primary-color);
-  background: color-mix(in srgb, var(--p-primary-color) 9%, var(--p-content-background));
+  color: var(--p-text-color);
+  background: var(--p-content-hover-background);
 }
 
 .concert-card-title-tag .p-tag-label {
