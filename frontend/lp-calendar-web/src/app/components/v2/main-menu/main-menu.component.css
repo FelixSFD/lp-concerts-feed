@@ -5,26 +5,11 @@
 
 :host ::ng-deep .p-menubar {
   position: relative;
-  background: var(--p-content-background);
-  border: 1px solid var(--p-content-border-color);
-  border-radius: 14px;
-  padding: 1rem 2rem;
-  gap: 1.5rem;
-  transition: border-radius 0.2s ease, border-color 0.2s ease;
-}
-
-/* Frosted glass effect */
-@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  :host ::ng-deep .p-menubar {
-    background: color-mix(in srgb, var(--p-content-background) 72%, transparent);
-  }
-}
-
-:host-context(.scrolled) ::ng-deep .p-menubar {
+  background: transparent;
+  border: none;
   border-radius: 0;
-  border-top-color: transparent;
-  border-left-color: transparent;
-  border-right-color: transparent;
+  padding: 0.875rem 0;
+  gap: 1.5rem;
 }
 
 :host ::ng-deep .p-menubar:not(.p-menubar-mobile) .p-menubar-root-list {
@@ -82,7 +67,7 @@
 
 /* Mobile menu */
 :host ::ng-deep .p-menubar.p-menubar-mobile {
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 0;
   gap: 0.375rem;
 }
 
@@ -156,12 +141,6 @@
   border: 1px solid var(--p-content-border-color);
   border-radius: 14px;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
-}
-
-:host-context(.scrolled) ::ng-deep .p-menubar-mobile .p-menubar-root-list {
-  left: 0.5rem;
-  right: 0.5rem;
-  width: auto;
 }
 
 :host ::ng-deep .p-menubar-mobile .p-menubar-item-link {

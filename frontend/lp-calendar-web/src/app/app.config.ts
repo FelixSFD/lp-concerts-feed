@@ -1,5 +1,5 @@
 import {ApplicationConfig, LOCALE_ID, provideZoneChangeDetection} from '@angular/core';
-import {provideRouter} from '@angular/router';
+import {provideRouter, withInMemoryScrolling} from '@angular/router';
 
 import { routes } from './app.routes';
 import { authConfig } from './auth/auth.config';
@@ -60,7 +60,7 @@ export const appConfig: ApplicationConfig = {
       useFactory: () => navigator.language
     },*/
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
+    provideRouter(routes, withInMemoryScrolling({ scrollPositionRestoration: 'enabled' })),
     provideAuth(authConfig),
     { provide: AbstractSecurityStorage, useClass: DefaultLocalStorageService },
     provideHttpClient(withInterceptors([authTokenInterceptor, apiErrorInterceptor])),
