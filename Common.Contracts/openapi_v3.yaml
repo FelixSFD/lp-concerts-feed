@@ -2030,6 +2030,34 @@ paths:
           integration.request.path.legId: method.request.path.legId
       security:
         - Bearer: []
+  
+  /v3/Tours/{tourId}/stats:
+    get:
+      tags:
+        - Tours
+      summary: Returns statistics about a tour
+      operationId: GetTourStats
+      parameters:
+        - name: tourId
+          in: path
+          description: ID of the tour
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: statistics about the tour
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/TourStatsResponse"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TourStatsResponse"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/TourStatsResponse"
+  
   /v3/Venues:
     parameters:
       - $ref: "#/components/parameters/X-LP-Request-Id"
@@ -5749,6 +5777,35 @@ components:
             example: 'USA'
     
     # Statistics
+    SongStats:
+      type: object
+      description: Information about a song and how many times it was played
+      required:
+        - songId
+        - songTitle
+        - playCount
+      properties:
+        songId:
+          type: number
+          description: ID of the song
+          nullable: false
+        songTitle:
+          type: string
+          description: Title of the song
+          nullable: false
+        albumName:
+          type: string
+          description: Name of the song
+          nullable: true
+        appleMusicId:
+          type: string
+          description: Unique ID for the Song on Apple Music
+          nullable: true
+        playCount:
+          type: number
+          description: Number of times the user has seen this song live
+          nullable: false
+    
     UserConcertStatsResponse:
       type: object
       description: Response form server with some general statistics about the concerts a user has attended
@@ -5771,6 +5828,21 @@ components:
           items:
             $ref: "#/components/schemas/ConcertDetailsShort"
     
+    TourStatsResponse:
+      type: object
+      description: Response from the server with statistics about a tour
+      required:
+        - tour
+        - songs
+      properties:
+        tour:
+          $ref: "#/components/schemas/Tour"
+        songs:
+          type: array
+          description: List of songs that were played during this tour
+          items:
+              $ref: "#/components/schemas/SongStats"
+    
     UserSongStatsResponse:
       type: object
       description: Response form server with some general statistics about the songs a user has seen live
@@ -5785,33 +5857,7 @@ components:
           type: array
           description: List of songs a user has seen live
           items:
-            type: object
-            description: Information about a song and how many times the user has seen it live
-            required: 
-              - songId
-              - songTitle
-              - playCount
-            properties:
-              songId:
-                type: number
-                description: ID of the song
-                nullable: false
-              songTitle:
-                type: string
-                description: Title of the song
-                nullable: false
-              albumName:
-                type: string
-                description: Name of the song
-                nullable: true
-              appleMusicId:
-                type: string
-                description: Unique ID for the Song on Apple Music
-                nullable: true
-              playCount:
-                type: number
-                description: Number of times the user has seen this song live
-                nullable: false
+            $ref: "#/components/schemas/SongStats"
     
     GetUserConcertStatsSharePicResponse:
       type: object

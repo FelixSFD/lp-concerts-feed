@@ -1617,9 +1617,26 @@ internal static class DtoMapper
     /// </summary>
     /// <param name="bo">BusinessObjects to map</param>
     /// <returns>the mapped DTO</returns>
-    private static UserSongStatsResponseSongsInnerDto ToDto(this UserSongStatBo bo)
+    private static SongStatsDto ToDto(this UserSongStatBo bo)
     {
-        return new UserSongStatsResponseSongsInnerDto
+        return new SongStatsDto
+        {
+            SongId = bo.SongId,
+            SongTitle = bo.SongName,
+            AlbumName = bo.AlbumName,
+            AppleMusicId = bo.AppleMusicId,
+            PlayCount = bo.PlayCount,
+        };
+    }
+    
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bo">BusinessObjects to map</param>
+    /// <returns>the mapped DTO</returns>
+    public static SongStatsDto ToDto(this SongStatBo bo)
+    {
+        return new SongStatsDto
         {
             SongId = bo.SongId,
             SongTitle = bo.SongName,

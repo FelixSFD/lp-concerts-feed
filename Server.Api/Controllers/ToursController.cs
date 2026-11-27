@@ -2,6 +2,8 @@ using Common.Contracts.Generated.Models;
 using Microsoft.AspNetCore.Mvc;
 using Server.Api.Auth;
 using Service.Tours;
+using Service.Tours.DataStructure.Stats;
+using Service.Tours.Exceptions;
 
 namespace Server.Api.Controllers;
 
@@ -12,7 +14,7 @@ namespace Server.Api.Controllers;
 /// <param name="logger"></param>
 [ApiController]
 [Route("v3/[controller]")]
-public class ToursController(TourService tourService, ILogger<ToursController> logger) : ControllerBase
+public class ToursController(TourService tourService, StatisticsService statisticsService, ILogger<ToursController> logger) : ControllerBase
 {
     /// <summary>
     /// Creates a new tour
@@ -53,6 +55,31 @@ public class ToursController(TourService tourService, ILogger<ToursController> l
     {
         var tour = await tourService.GetTourByIdAsync(tourId);
         return Ok(tour.ToDto());
+    }
+    
+    /// <summary>
+    /// Returns statistics about a tour
+    /// </summary>
+    /// <param name="tourId">ID of the tour</param>
+    /// <returns></returns>
+    [HttpGet("{tourId}/stats")]
+    public async Task<ActionResult<TourStatsResponseDto>> GetTourStatsAsync([FromRoute] string tourId)
+    {
+        // fetch the tour information to ensure it exists
+        var tour = await tourService.GetTourByIdAsync(tourId) ?? throw new TourNotFoundException(tourId);
+        
+        // Scope to load stats for the tour (not personalized)
+        var globalScope = new StatsScope(tourId: tour.Id);
+        var tourSongStats = await statisticsService.GetSongStatsAsync(globalScope);
+        
+        // build the response DTO
+        var responseDto = new TourStatsResponseDto
+        {
+            Tour = tour.ToDto(),
+            Songs = [.. tourSongStats.Select(DtoMapper.ToDto)]
+        };
+        
+        return Ok(responseDto);
     }
     
     /// <summary>
