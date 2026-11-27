@@ -48,7 +48,6 @@ export class HomePageComponent implements OnInit {
   // Attribution supports optional url and PrimeIcons icon (e.g. 'pi-instagram').
   // Keep this list in sync with the images in public/home-images.
   protected readonly heroImages: readonly HeroImage[] = [
-    { src: '/home-images/Linkin-Park-show.webp', attribution: { text: 'Elina Shelest', url: 'https://www.elinashelest.com' } },
     { src: '/home-images/lp-hamburg-2024-encore.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
     { src: '/home-images/lp-paris-2024-joe.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
     { src: '/home-images/lp-paris-2024-em.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
