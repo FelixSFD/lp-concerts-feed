@@ -266,7 +266,6 @@
   padding-top: 1.1rem;
 }
 
-
 .next-show-empty-title {
   margin-top: auto;
   padding-top: 1.1rem;
@@ -310,322 +309,363 @@
   scroll-margin-top: 5rem;
 }
 
-.concert-section {
-  margin-top: 2.25rem;
+/* --- Sections --- */
+
+.concert-section,
+.explore-section,
+.community-section {
+  margin-top: var(--app-section-gap);
 }
 
-.section-heading {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 1rem;
-  margin: 0 0 0.75rem;
-  padding: 0 0.25rem;
-}
-
-.section-kicker {
-  display: block;
-  margin-bottom: 0.2rem;
-  color: var(--p-primary-color);
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.section-heading h2 {
-  margin: 0;
+.section-title {
+  margin: 0 0 1.5rem;
   font-size: clamp(1.5rem, 3vw, 2.1rem);
   letter-spacing: -0.035em;
   line-height: 1;
 }
 
-.concert-grid {
-  margin: 0;
+.upcoming-grid,
+.bento-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.75rem;
 }
 
-.concert-grid-item {
-  width: auto;
-  min-width: 0;
-}
-
-.concert-grid app-concert-card {
-  display: block;
-  height: 100%;
-}
-
-.concert-grid ::ng-deep p-card,
-.concert-grid ::ng-deep .p-card {
-  height: 100%;
-}
-
-.concert-grid ::ng-deep .p-card {
-  overflow: hidden;
-  border: 1px solid var(--p-content-border-color);
-  border-radius: 16px;
-  background: var(--p-card-background);
-  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
-}
-
-.concert-grid ::ng-deep .user-empty-card .p-card-body {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.concert-grid ::ng-deep .user-empty-card .p-card-content,
-.concert-grid ::ng-deep .user-empty-card-content {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-}
-
-.concert-grid ::ng-deep .user-empty-card-content p-button {
-  margin-top: auto;
-  padding-top: 1rem;
-}
-
-.concert-grid ::ng-deep .p-card:hover {
-  transform: translateY(-3px);
-  border-color: color-mix(in srgb, var(--p-primary-color) 42%, transparent);
-  box-shadow: 0 12px 32px rgb(0 0 0 / 0.08);
-}
-
-.feature-card-kicker {
-  display: block;
-  margin-bottom: 0.15rem;
-  color: var(--p-surface-500);
-  font-size: 0.64rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.explore-section {
-  margin-top: 2.25rem;
+.upcoming-grid-user {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .bento-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-auto-rows: minmax(11.5rem, auto);
-  gap: 0.75rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.bento-tile,
+.user-shows ::ng-deep .p-card {
+  border: 1px solid var(--p-content-border-color);
+  border-radius: 16px;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.bento-tile:hover,
+.user-shows ::ng-deep .p-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--p-primary-color) 42%, transparent);
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--p-primary-color) 22%, transparent);
 }
 
 .bento-tile {
   position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-rows: auto 1fr auto;
-  gap: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
   min-height: 11.5rem;
-  padding: 1.25rem;
-  overflow: hidden;
-  border: 1px solid var(--p-content-border-color);
-  border-radius: 16px;
+  padding: clamp(1.25rem, 2.5vw, 2rem);
   color: var(--p-text-color);
   text-decoration: none;
   background: var(--p-content-background);
-  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
-}
-
-.bento-tile-heading {
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  position: relative;
-  z-index: 1;
-  max-width: calc(100% - 6rem);
-}
-
-.bento-tile:hover {
-  transform: translateY(-3px);
-  border-color: color-mix(in srgb, var(--p-primary-color) 42%, transparent);
-  box-shadow: 0 12px 32px rgb(0 0 0 / 0.08);
 }
 
 .bento-tile:focus-visible {
-  position: relative;
   z-index: 1;
   outline: 2px solid var(--p-primary-color);
   outline-offset: 3px;
 }
 
-.bento-tile-art {
-  position: absolute;
-  top: 42%;
-  right: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 5.5rem;
-  aspect-ratio: 1;
-  transform: translateY(-50%);
-  border-radius: 1.75rem;
-  color: color-mix(in srgb, var(--p-primary-color) 20%, var(--p-content-background));
-  background: color-mix(in srgb, var(--p-primary-color) 5%, var(--p-content-background));
-}
-
-.bento-tile-art i {
-  font-size: 3.25rem;
-}
-
-.bento-tile-art svg {
-  width: 3.4rem;
-  height: 3.4rem;
-}
-
-.all-shows-tile .bento-tile-art,
-.calendar-tile .bento-tile-art,
-.on-this-day-tile .bento-tile-art,
-.map-tile .bento-tile-art {
-  --g1: color-mix(in srgb, var(--p-primary-color) 6%, var(--p-content-background));
-  --g2: color-mix(in srgb, var(--p-primary-color) 14%, var(--p-content-background));
-  top: auto;
-  left: auto;
-  right: -1.75rem;
-  bottom: -2rem;
-  width: 10.5rem;
-  height: 10.5rem;
-  transform: none;
-  border-radius: 0;
-  background: transparent;
-}
-
-.all-shows-tile .bento-tile-art svg,
-.calendar-tile .bento-tile-art svg,
-.on-this-day-tile .bento-tile-art svg,
-.map-tile .bento-tile-art svg {
-  width: 100%;
-  height: 100%;
-}
-
-.bento-tile-heading > div {
-  min-width: 0;
-}
-
-.bento-tile-heading h3 {
-  margin: 0.15rem 0 0.4rem;
+.bento-tile-icon {
   font-size: 1.35rem;
-  letter-spacing: -0.02em;
+}
+
+.bento-tile-title {
+  margin: 1rem 0 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .bento-tile-copy {
-  grid-column: 1 / -1;
-  position: relative;
-  z-index: 1;
-  margin: 0;
-  max-width: calc(100% - 6rem);
+  margin: 0.4rem 0 0;
   color: var(--p-surface-500);
   font-size: 0.9rem;
   line-height: 1.5;
 }
 
 .bento-tile-action {
-  grid-column: 1;
-  position: relative;
-  z-index: 1;
   display: inline-flex;
   align-items: center;
-  align-self: end;
-  justify-self: start;
+  align-self: flex-start;
   gap: 0.35rem;
-  color: var(--p-primary-color);
+  margin-top: auto;
+  padding-top: 1rem;
+  color: var(--p-text-color);
   font-size: 0.78rem;
   font-weight: 800;
   text-decoration: none;
+  transition: color 180ms ease;
+}
+
+.bento-tile-action:hover,
+.bento-tile:hover .bento-tile-action {
+  color: var(--p-primary-color);
 }
 
 .bento-tile-action i {
   transition: transform 180ms ease;
 }
 
+.bento-tile-action:hover i,
 .bento-tile:hover .bento-tile-action i {
   transform: translateX(3px);
 }
 
-.calendar-tile {
-  grid-row: span 2;
+.all-shows-tile .bento-tile-title {
+  margin-top: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 
-.calendar-tile .calendar-feed-options,
-.calendar-tile > p-message,
-.calendar-tile > p-button {
+.upcoming-list {
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.upcoming-list li + li {
+  border-top: 1px solid var(--p-content-border-color);
+}
+
+.upcoming-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 0.5rem;
+  border-radius: 12px;
+  color: inherit;
+  text-decoration: none;
+  transition: background 150ms ease;
+}
+
+.upcoming-row:hover,
+.upcoming-row-date {
+  background: var(--p-content-hover-background);
+}
+
+.upcoming-row:hover .upcoming-row-date {
+  background: var(--p-content-background);
+}
+
+.upcoming-row-date {
+  flex: none;
+  display: grid;
+  justify-items: center;
+  width: 3.25rem;
+  padding: 0.35rem 0;
+  border-radius: 10px;
+  line-height: 1.15;
+}
+
+.upcoming-row small,
+.upcoming-empty {
+  color: var(--p-surface-500);
+}
+
+.upcoming-row-date small {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.upcoming-row-date strong {
+  font-size: 1.2rem;
+}
+
+.upcoming-row-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.upcoming-row-info strong {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.upcoming-row-info small {
+  font-size: 0.875rem;
+}
+
+.upcoming-row-arrow {
+  color: var(--p-surface-400);
+  font-size: 0.8rem;
+}
+
+.upcoming-empty {
+  margin: 1.25rem 0 0;
+  font-size: 0.9rem;
+}
+
+.cta-glow {
+  align-self: flex-start;
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+.all-shows-cta {
+  padding-top: 1.5rem;
+}
+
+.cta-glow ::ng-deep .p-button {
+  --cta-from: var(--p-primary-color);
+  --cta-to: var(--p-fuchsia-600);
   position: relative;
-  z-index: 1;
+  isolation: isolate;
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
 }
 
-.calendar-tile .calendar-feed-options,
-.calendar-tile > p-message {
-  grid-column: 1 / -1;
-  width: min(100%, 24rem);
-}
-
-.calendar-tile .calendar-feed-options {
-  margin-bottom: 1rem;
-}
-
-.calendar-tile > p-button {
-  grid-column: 1;
-  justify-self: start;
-}
-
-.on-this-day-tile {
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  cursor: pointer;
-}
-
-.on-this-day-card-link {
+.cta-glow ::ng-deep .p-button::before,
+.cta-glow ::ng-deep .p-button::after {
+  content: "";
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: -1;
+  border-radius: inherit;
+  opacity: 0;
 }
 
-.on-this-day-card-link:focus-visible {
-  outline: 2px solid var(--p-primary-color);
-  outline-offset: 3px;
+.cta-glow ::ng-deep .p-button::before {
+  background: linear-gradient(120deg, var(--cta-from), var(--cta-to));
+  transition: opacity 200ms ease;
 }
 
-.on-this-day-tile > :not(.on-this-day-card-link) {
-  pointer-events: none;
+.cta-glow ::ng-deep .p-button::after {
+  background: linear-gradient(100deg, transparent 40%, rgb(255 255 255 / 0.35) 50%, transparent 60%) no-repeat;
+  background-size: 250% 100%;
+  background-position: 150% 0;
 }
 
-.on-this-day-tile a:not(.on-this-day-card-link),
-.on-this-day-tile p-button {
+.cta-glow ::ng-deep .p-button:not(:disabled):hover {
+  border-color: var(--p-primary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--cta-to) 25%, transparent);
+}
+
+.cta-glow ::ng-deep .p-button:not(:disabled):hover::before {
+  opacity: 1;
+}
+
+.cta-glow ::ng-deep .p-button:not(:disabled):hover::after {
+  opacity: 1;
+  animation: cta-sheen 900ms ease forwards;
+}
+
+@keyframes cta-sheen {
+  from { background-position: 150% 0; }
+  to { background-position: -50% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-glow ::ng-deep .p-button:not(:disabled):hover {
+    transform: none;
+  }
+
+  .cta-glow ::ng-deep .p-button:not(:disabled):hover::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+.user-shows {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-auto-rows: 1fr;
+  gap: 0.75rem;
+}
+
+.user-shows ::ng-deep .p-card {
+  height: 100%;
+  overflow: hidden;
+}
+
+.user-shows ::ng-deep .user-empty-card .p-card-body,
+.user-shows ::ng-deep .user-empty-card .p-card-content,
+.user-empty-card-content {
+  flex: 1;
+}
+
+.user-shows ::ng-deep .user-empty-card .p-card-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-auto-tag {
+  align-self: flex-start;
+  margin-top: 1rem;
+}
+
+.calendar-feed-options,
+.calendar-tile > p-message {
+  width: min(100%, 24rem);
+  margin-top: 1rem;
+}
+
+.on-this-day-tile > .bento-tile-action::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.on-this-day-list,
+.on-this-day-state p-button {
   position: relative;
   z-index: 1;
-  pointer-events: auto;
 }
 
 .on-this-day-list,
 .on-this-day-state {
-  grid-column: 1 / -1;
-  position: relative;
-  z-index: 1;
-  width: calc(100% - 6rem);
-  max-height: 8rem;
-  margin: 0;
-  padding: 0;
-  overflow-y: auto;
+  margin: 1rem 0 0;
 }
 
 .on-this-day-list {
+  max-height: 8rem;
+  padding: 0 0 0 1.25rem;
+  overflow-y: auto;
   list-style: none;
 }
 
-.on-this-day-list li + li {
-  border-top: 1px solid var(--p-content-border-color);
+.on-this-day-list li {
+  position: relative;
+}
+
+/* Timeline line and dot */
+.on-this-day-list li::before,
+.on-this-day-list li::after {
+  content: "";
+  position: absolute;
+}
+
+.on-this-day-list li:not(:last-child)::before {
+  top: 1rem;
+  bottom: -1rem;
+  left: calc(-1rem - 1px);
+  border-left: 2px solid var(--p-content-border-color);
+}
+
+.on-this-day-list li::after {
+  top: 0.75rem;
+  left: -1.25rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--p-surface-400);
 }
 
 .on-this-day-show {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
+  align-items: baseline;
+  gap: 0.75rem;
   padding: 0.4rem 0;
   color: var(--p-text-color);
   text-decoration: none;
@@ -653,6 +693,42 @@
 .on-this-day-year {
   flex: 0 0 auto;
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Lets long venue names end with "..." */
+.on-this-day-show > span:last-child {
+  min-width: 0;
+}
+
+/* --- Community --- */
+
+.community-section {
+  max-width: 44rem;
+  margin-inline: auto;
+  padding-block: 2rem;
+  text-align: center;
+}
+
+.community-section .section-title {
+  margin-bottom: 1rem;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+
+.community-copy {
+  margin: 0;
+  color: var(--p-surface-500);
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.community-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 2rem;
+  margin-top: 0.5rem;
 }
 
 @media (max-width: 700px) {
@@ -669,19 +745,13 @@
     width: 100%;
   }
 
-  .concert-grid {
-    grid-template-columns: 1fr;
+  .upcoming-grid-user {
+    grid-template-columns: minmax(0, 1fr);
   }
+}
 
+@media (max-width: 900px) {
   .bento-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .bento-tile {
-    min-height: 10.5rem;
-  }
-
-  .calendar-tile {
-    grid-row: auto;
+    grid-template-columns: minmax(0, 1fr);
   }
 }

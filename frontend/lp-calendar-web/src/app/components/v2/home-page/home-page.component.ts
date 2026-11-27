@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnIni
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {AuthService} from '../../../auth/auth.service';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
-import { environment } from "../../../../environments/environment";
 import {Message} from 'primeng/message';
 import {Card} from 'primeng/card';
 import {Tag} from 'primeng/tag';
@@ -46,8 +45,6 @@ interface HeroImage {
   changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class HomePageComponent implements OnInit {
-  protected readonly environment = environment;
-
   // Attribution supports optional url and PrimeIcons icon (e.g. 'pi-instagram').
   // Keep this list in sync with the images in public/home-images.
   protected readonly heroImages: readonly HeroImage[] = [
@@ -94,6 +91,7 @@ export class HomePageComponent implements OnInit {
   });
 
   nextConcert: ConcertDetailsDto | null = null;
+  upcomingConcerts: ConcertDetailsDto[] = [];
   nextAttendingConcert: ConcertDetailsDto | null = null;
   nextBookmarkedConcert: ConcertDetailsDto | null = null;
   onThisDayConcerts: ConcertDetailsDto[] = [];
@@ -232,10 +230,12 @@ export class HomePageComponent implements OnInit {
     this.nextConcertLoadFailed = false;
 
     try {
-      this.nextConcert = await this.concertsService.getUpcoming(1).then(c => c.at(0) ?? null);
+      this.upcomingConcerts = await this.concertsService.getUpcoming(3);
+      this.nextConcert = this.upcomingConcerts.at(0) ?? null;
     } catch (err) {
       console.warn("Next concert could not be loaded.", err);
       this.nextConcert = null;
+      this.upcomingConcerts = [];
       this.nextConcertLoadFailed = true;
     } finally {
       this.isLoadingNextConcert = false;
