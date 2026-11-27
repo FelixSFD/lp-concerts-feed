@@ -62,27 +62,38 @@ public class ToursController(TourService tourService, StatisticsService statisti
     /// </summary>
     /// <param name="tourId">ID of the tour</param>
     /// <param name="userId">(optional) ID of the user</param>
+    /// <param name="rarityThreshold">Optional inclusive rarity threshold between 0 and 1.</param>
+    /// <param name="cancellationToken">Token to cancel the operation.</param>
     /// <returns></returns>
     [HttpGet("{tourId}/stats")]
-    public async Task<ActionResult<TourStatsResponseDto>> GetTourStatsAsync([FromRoute] string tourId, [FromQuery] string? userId = null)
+    public async Task<ActionResult<TourStatsResponseDto>> GetTourStatsAsync([FromRoute] string tourId,
+        [FromQuery] string? userId = null, [FromQuery] decimal? rarityThreshold = null, CancellationToken cancellationToken = default)
     {
+        if (rarityThreshold is < 0 or > 1)
+            return BadRequest(new ProblemDetails { Status = StatusCodes.Status400BadRequest, Title = "rarityThreshold must be between 0 and 1." });
+        if (userId is not null && string.IsNullOrWhiteSpace(userId))
+            return BadRequest(new ProblemDetails { Status = StatusCodes.Status400BadRequest, Title = "userId must not be empty." });
+
         // fetch the tour information to ensure it exists
         var tour = await tourService.GetTourByIdAsync(tourId) ?? throw new TourNotFoundException(tourId);
         
         // Scope to load stats for the tour (not personalized)
-        var globalScope = new StatsScope(tourId: tour.Id);
-        var (tourConcertStats, tourSongStats) = await statisticsService.GetConcertAndSongStatsAsync(globalScope);
+        var tourScope = new StatsScope(tourId: tour.Id);
+        var (tourConcertStats, tourSongStats) = await statisticsService.GetConcertAndSongStatsAsync(tourScope, cancellationToken);
+        var tourSongRarity = await statisticsService.GetSongRarityStatsAsync(tourScope, new StatsScope(), rarityThreshold, cancellationToken);
         
         PersonalizedTourStatsDto? personalizedStatsDto = null;
         if (userId is not null)
         {
             // Scope to load stats for the tour and user (personalized)
             var personalizedScope = new StatsScope(tourId: tour.Id, userId: userId);
-            var (personalizedTourConcertStats, personalizedTourSongStats) = await statisticsService.GetConcertAndSongStatsAsync(personalizedScope);
+            var (personalizedTourConcertStats, personalizedTourSongStats) = await statisticsService.GetConcertAndSongStatsAsync(personalizedScope, cancellationToken);
+            var personalizedSongRarity = await statisticsService.GetSongRarityStatsAsync(personalizedScope, tourScope, rarityThreshold, cancellationToken);
             personalizedStatsDto = new PersonalizedTourStatsDto
             {
                 Songs = [.. personalizedTourSongStats.Select(DtoMapper.ToDto)],
                 Concerts = personalizedTourConcertStats.ToDto(),
+                SongRarity = personalizedSongRarity.ToDto(),
             };
         }
         
@@ -92,6 +103,7 @@ public class ToursController(TourService tourService, StatisticsService statisti
             Tour = tour.ToDto(),
             Songs = [.. tourSongStats.Select(DtoMapper.ToDto)],
             Concerts = tourConcertStats.ToDto(),
+            SongRarity = tourSongRarity.ToDto(),
             Personalized = personalizedStatsDto,
         };
         

@@ -2051,6 +2051,15 @@ paths:
           required: false
           schema:
             type: string
+        - name: rarityThreshold
+          in: query
+          description: Optional inclusive threshold for classifying a song as rare, expressed as a fraction between 0 and 1. Without it, isRare is null.
+          required: false
+          schema:
+            type: number
+            format: double
+            minimum: 0
+            maximum: 1
       responses:
         "200":
           description: statistics about the tour
@@ -2064,6 +2073,18 @@ paths:
             text/json:
               schema:
                 $ref: "#/components/schemas/TourStatsResponse"
+        "400":
+          description: Invalid rarity threshold or user ID.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "404":
+          description: The tour does not exist.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
   
   /v3/Venues:
     parameters:
@@ -5784,6 +5805,94 @@ components:
             example: 'USA'
     
     # Statistics
+    ConcertSetlistCoverage:
+      type: object
+      description: Setlist availability among eligible past, non-deleted concerts. A setlist may be empty or incomplete.
+      required: [concertCount, concertsWithSetlists, concertsWithoutSetlists]
+      properties:
+        concertCount:
+          type: integer
+          format: int32
+          minimum: 0
+        concertsWithSetlists:
+          type: integer
+          format: int32
+          minimum: 0
+        concertsWithoutSetlists:
+          type: integer
+          format: int32
+          minimum: 0
+
+    SongRarityStats:
+      type: object
+      description: >-
+        Observed song frequencies relative to a broader reference. Only eligible concerts with a setlist
+        are included in the denominator; missing, empty or incomplete setlists may affect the result.
+        Recording-only entries and mashups are excluded, variants count as the base song and repeats count separately.
+      required: [asOf, selectionCoverage, referenceCoverage, songs]
+      properties:
+        asOf:
+          type: string
+          format: date-time
+          description: Exclusive UTC start-time cutoff shared by both scopes.
+        selectionCoverage:
+          $ref: '#/components/schemas/ConcertSetlistCoverage'
+        referenceCoverage:
+          $ref: '#/components/schemas/ConcertSetlistCoverage'
+        rarityThreshold:
+          type: number
+          format: double
+          nullable: true
+          minimum: 0
+          maximum: 1
+          description: Inclusive classification threshold, or null if not requested.
+        songs:
+          type: array
+          description: Rarity observations for the songs in the selection, keyed by songId.
+          items:
+            $ref: '#/components/schemas/SongRarity'
+
+    SongRarity:
+      type: object
+      description: Observed live plays and the frequency of one song in the reference scope.
+      required: [songId, selectionPlayCount, selectionConcertCount, referencePlayCount, referenceConcertCount]
+      properties:
+        songId:
+          type: integer
+          format: int64
+          minimum: 0
+        selectionPlayCount:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Number of live entries in the selection, including repeats.
+        selectionConcertCount:
+          type: integer
+          format: int32
+          minimum: 0
+          description: Number of selection concerts where the song was observed.
+        referencePlayCount:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Number of live entries in the reference, including repeats.
+        referenceConcertCount:
+          type: integer
+          format: int32
+          minimum: 0
+          description: Number of reference concerts where the song was observed.
+        referenceConcertShare:
+          type: number
+          format: double
+          nullable: true
+          minimum: 0
+          maximum: 1
+          description: Fraction of reference concerts with setlists where the song was observed; null if no reference setlists exist.
+        isRare:
+          type: boolean
+          nullable: true
+          description: Whether the observed share is at or below rarityThreshold; null if no threshold or share is available.
+
     SongStats:
       type: object
       description: Information about a song and how many times it was played
@@ -5842,6 +5951,7 @@ components:
         - tour
         - songs
         - concerts
+        - songRarity
       properties:
         tour:
           $ref: "#/components/schemas/Tour"
@@ -5852,6 +5962,10 @@ components:
               $ref: "#/components/schemas/SongStats"
         concerts:
           $ref: "#/components/schemas/UserConcertStatsResponse"
+        songRarity:
+          description: Songs from this tour compared with all eligible shows.
+          allOf:
+            - $ref: "#/components/schemas/SongRarityStats"
         personalized:
           oneOf:
             - $ref: "#/components/schemas/PersonalizedTourStats"
@@ -5859,6 +5973,7 @@ components:
     PersonalizedTourStats:
       type: object
       description: Personalized statistics for the user, if the user was provided in the request
+      required: [songRarity]
       properties:
         songs:
           type: array
@@ -5867,6 +5982,10 @@ components:
             $ref: "#/components/schemas/SongStats"
         concerts:
           $ref: "#/components/schemas/UserConcertStatsResponse"
+        songRarity:
+          description: Songs observed by the user on this tour compared with all eligible shows on the tour.
+          allOf:
+            - $ref: "#/components/schemas/SongRarityStats"
     
     UserSongStatsResponse:
       type: object

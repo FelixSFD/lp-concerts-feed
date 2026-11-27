@@ -1663,5 +1663,31 @@ internal static class DtoMapper
         };
     }
 
+    /// <summary>Maps song rarity statistics and setlist coverage to the API contract.</summary>
+    public static SongRarityStatsDto ToDto(this SongRarityStatsBo bo) => new()
+    {
+        AsOf = bo.AsOf,
+        SelectionCoverage = bo.SelectionCoverage.ToDto(),
+        ReferenceCoverage = bo.ReferenceCoverage.ToDto(),
+        RarityThreshold = bo.RarityThreshold,
+        Songs = [.. bo.Songs.Select(song => new SongRarityDto
+        {
+            SongId = song.SongId,
+            SelectionPlayCount = song.SelectionPlayCount,
+            SelectionConcertCount = song.SelectionConcertCount,
+            ReferencePlayCount = song.ReferencePlayCount,
+            ReferenceConcertCount = song.ReferenceConcertCount,
+            ReferenceConcertShare = song.ReferenceConcertShare,
+            IsRare = song.IsRare,
+        })],
+    };
+
+    private static ConcertSetlistCoverageDto ToDto(this ConcertSetlistCoverageBo bo) => new()
+    {
+        ConcertCount = bo.ConcertCount,
+        ConcertsWithSetlists = bo.ConcertsWithSetlists,
+        ConcertsWithoutSetlists = bo.ConcertsWithoutSetlists,
+    };
+
     #endregion
 }
