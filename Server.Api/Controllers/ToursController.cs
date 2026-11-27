@@ -1,6 +1,9 @@
 using Common.Contracts.Generated.Models;
+using Common.Utils.Cache;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Server.Api.Auth;
+using Server.Api.Cache;
 using Service.Tours;
 using Service.Tours.DataStructure.Stats;
 using Service.Tours.Exceptions;
@@ -66,6 +69,7 @@ public class ToursController(TourService tourService, StatisticsService statisti
     /// <param name="cancellationToken">Token to cancel the operation.</param>
     /// <returns></returns>
     [HttpGet("{tourId}/stats")]
+    [OutputCache(Duration = CacheExpiration.Maximum, Tags = [CacheTags.AlbumsAll, CacheTags.SongsAll, CacheTags.ConcertsAll, CacheTags.ConcertBookmarksAll, CacheTags.SetlistsAll])]
     public async Task<ActionResult<TourStatsResponseDto>> GetTourStatsAsync([FromRoute] string tourId,
         [FromQuery] string? userId = null, [FromQuery] decimal? rarityThreshold = null, CancellationToken cancellationToken = default)
     {
