@@ -258,7 +258,7 @@
     </div>
 
     <!-- Calendar Feed Card -->
-    <div id="calendar-feed" class="bento-tile calendar-tile">
+    <div id="calendar-feed" class="bento-tile calendar-tile" [class.bento-tile-highlighted]="calendarFeedHighlighted()">
       <i class="pi pi-calendar bento-tile-icon" aria-hidden="true"></i>
       <h3 class="bento-tile-title">Calendar feed</h3>
       <p class="bento-tile-copy">Choose which event times to include, then create a feed for your calendar app.</p>

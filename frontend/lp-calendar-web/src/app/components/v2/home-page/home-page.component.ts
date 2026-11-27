@@ -83,6 +83,8 @@ export class HomePageComponent implements OnInit {
   protected readonly calendarReady = computed(() => this.authService.initialized() && !this.authService.initializationError());
   protected readonly calendarAuthError = this.authService.initializationError;
   protected readonly creatingCalendar = signal(false);
+  protected readonly calendarFeedHighlighted = signal(false);
+  private calendarFeedHighlightTimer: ReturnType<typeof setTimeout> | undefined;
   protected readonly calendarManagementId = signal<string | null>(null);
   protected readonly calendarSettings = signal<CalendarSubscriptionSettingsDto>({
     includeDoorsTime: false,
@@ -108,6 +110,10 @@ export class HomePageComponent implements OnInit {
   currentNewFeatureAlertToken: string = "739e7808-da76-48c8-9c21-a1e13915e7fd";
 
   isLoggedIn$: boolean = false;
+
+  constructor() {
+    this.destroyRef.onDestroy(() => clearTimeout(this.calendarFeedHighlightTimer));
+  }
 
   ngOnInit() {
     this.loadNextConcert().then();
@@ -211,10 +217,20 @@ export class HomePageComponent implements OnInit {
   }
 
 
-      /** Scrolls to the calendar feed card — temporary target for the hero CTA. */
+  /** Scrolls to and briefly highlights the calendar feed card. */
   protected scrollToCalendarFeed(): void {
+    const calendarFeed = document.getElementById('calendar-feed');
+    if (!calendarFeed) return;
+
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    document.getElementById('calendar-feed')?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    calendarFeed.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+
+    // highlight the card for a short time to make it easier to find
+    setTimeout(() => {
+      this.calendarFeedHighlighted.set(true);
+      clearTimeout(this.calendarFeedHighlightTimer);
+      this.calendarFeedHighlightTimer = setTimeout(() => this.calendarFeedHighlighted.set(false), 2500);
+    }, 300);
   }
 
 

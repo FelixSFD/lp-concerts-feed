@@ -347,6 +347,7 @@
 }
 
 .bento-tile:hover,
+.bento-tile.bento-tile-highlighted,
 .user-shows ::ng-deep .p-card:hover {
   transform: translateY(-3px);
   border-color: color-mix(in srgb, var(--p-primary-color) 42%, transparent);
@@ -403,7 +404,8 @@
 }
 
 .bento-tile-action:hover,
-.bento-tile:hover .bento-tile-action {
+.bento-tile:hover .bento-tile-action,
+.bento-tile-highlighted .bento-tile-action {
   color: var(--p-primary-color);
 }
 
@@ -412,7 +414,8 @@
 }
 
 .bento-tile-action:hover i,
-.bento-tile:hover .bento-tile-action i {
+.bento-tile:hover .bento-tile-action i,
+.bento-tile-highlighted .bento-tile-action i {
   transform: translateX(3px);
 }
 
