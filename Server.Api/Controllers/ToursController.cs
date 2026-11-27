@@ -56,14 +56,15 @@ public class ToursController(TourService tourService, StatisticsService statisti
         var tour = await tourService.GetTourByIdAsync(tourId);
         return Ok(tour.ToDto());
     }
-    
+
     /// <summary>
-    /// Returns statistics about a tour
+    /// Returns statistics about a tour. If <paramref name="userId"/> is provided, additional personalized statistics will be included in the response.
     /// </summary>
     /// <param name="tourId">ID of the tour</param>
+    /// <param name="userId">(optional) ID of the user</param>
     /// <returns></returns>
     [HttpGet("{tourId}/stats")]
-    public async Task<ActionResult<TourStatsResponseDto>> GetTourStatsAsync([FromRoute] string tourId)
+    public async Task<ActionResult<TourStatsResponseDto>> GetTourStatsAsync([FromRoute] string tourId, [FromQuery] string? userId = null)
     {
         // fetch the tour information to ensure it exists
         var tour = await tourService.GetTourByIdAsync(tourId) ?? throw new TourNotFoundException(tourId);
@@ -72,12 +73,26 @@ public class ToursController(TourService tourService, StatisticsService statisti
         var globalScope = new StatsScope(tourId: tour.Id);
         var (tourConcertStats, tourSongStats) = await statisticsService.GetConcertAndSongStatsAsync(globalScope);
         
+        TourStatsResponsePersonalizedDto? personalizedStatsDto = null;
+        if (userId is not null)
+        {
+            // Scope to load stats for the tour and user (personalized)
+            var personalizedScope = new StatsScope(tourId: tour.Id, userId: userId);
+            var (personalizedTourConcertStats, personalizedTourSongStats) = await statisticsService.GetConcertAndSongStatsAsync(personalizedScope);
+            personalizedStatsDto = new TourStatsResponsePersonalizedDto
+            {
+                Songs = [.. personalizedTourSongStats.Select(DtoMapper.ToDto)],
+                Concerts = personalizedTourConcertStats.ToDto(),
+            };
+        }
+        
         // build the response DTO
         var responseDto = new TourStatsResponseDto
         {
             Tour = tour.ToDto(),
             Songs = [.. tourSongStats.Select(DtoMapper.ToDto)],
             Concerts = tourConcertStats.ToDto(),
+            Personalized = personalizedStatsDto,
         };
         
         return Ok(responseDto);

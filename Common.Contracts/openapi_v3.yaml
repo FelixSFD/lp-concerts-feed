@@ -2035,13 +2035,20 @@ paths:
     get:
       tags:
         - Tours
-      summary: Returns statistics about a tour
+      summary: 'Returns statistics about a tour.
+      If the query parameter userId is provided, the result will contain additional information with personalized statistics for that user.'
       operationId: GetTourStats
       parameters:
         - name: tourId
           in: path
           description: ID of the tour
           required: true
+          schema:
+            type: string
+        - name: userId
+          in: query
+          description: ID of the user for personalized statistics. If not provided, only general statistics will be returned.
+          required: false
           schema:
             type: string
       responses:
@@ -5845,6 +5852,18 @@ components:
               $ref: "#/components/schemas/SongStats"
         concerts:
           $ref: "#/components/schemas/UserConcertStatsResponse"
+        personalized:
+          type: object
+          description: Personalized statistics for the user, if the user was provided in the request
+          nullable: true
+          properties:
+            songs:
+              type: array
+              description: List of songs that were played during this tour at shows the user attended
+              items:
+                $ref: "#/components/schemas/SongStats"
+            concerts:
+              $ref: "#/components/schemas/UserConcertStatsResponse"
     
     UserSongStatsResponse:
       type: object
