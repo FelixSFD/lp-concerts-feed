@@ -5,6 +5,7 @@ namespace Service.Tours;
 /// <summary>
 /// Service to calculate personalized statistics for users
 /// </summary>
+[Obsolete("Use StatisticsService instead")]
 public class UserStatsService(StatisticsService statisticsService)
 {
     /// <summary>

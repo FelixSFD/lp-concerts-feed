@@ -13,6 +13,7 @@ using Server.Api.RateLimiting;
 using Service.SharePics;
 using Service.SharePics.DataStructure.Templates;
 using Service.Tours;
+using Service.Tours.DataStructure.Stats;
 using Service.Users;
 
 namespace Server.Api.Controllers;
@@ -24,7 +25,7 @@ namespace Server.Api.Controllers;
 /// <param name="logger"></param>
 [ApiController]
 [Route("v3/[controller]")]
-public class UsersController(UserService userService, UserStatsService userStatsService, SharePicService sharePicService, ILogger<UsersController> logger) : ControllerBase
+public class UsersController(UserService userService, UserStatsService userStatsService, StatisticsService statisticsService, SharePicService sharePicService, ILogger<UsersController> logger) : ControllerBase
 {
     /// <summary>
     /// Returns a list of users that can be filtered and sorted
@@ -221,11 +222,12 @@ public class UsersController(UserService userService, UserStatsService userStats
     [CustomResponseCache(Duration = CacheExpiration.Default)]
     public async Task<ActionResult<UserSongStatsResponseDto>> GetUserSongStats([FromRoute] string userId, CancellationToken cancellationToken)
     {
-        var stats = await userStatsService.GetSongsUserHasSeenLiveAsync(userId, cancellationToken);
+        var rarity = await statisticsService.GetSongRarityStatsAsync(new StatsScope(userId: userId), new StatsScope(), null, cancellationToken);
+        var stats = await statisticsService.GetSongStatsAsync(new StatsScope(userId: userId), cancellationToken);
         var responseDto = stats
             .OrderByDescending(s => s.PlayCount)
             .ThenBy(s => s.SongName)
-            .ToDto();
+            .ToDtoWithRarity(rarity);
         return Ok(responseDto);
     }
     

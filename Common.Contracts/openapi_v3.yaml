@@ -6002,7 +6002,7 @@ components:
           type: array
           description: List of songs a user has seen live
           items:
-            $ref: "#/components/schemas/SongStats"
+            $ref: "#/components/schemas/SongStatsWithRarity"
     
     GetUserConcertStatsSharePicResponse:
       type: object

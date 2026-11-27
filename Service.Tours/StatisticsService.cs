@@ -10,6 +10,8 @@ namespace Service.Tours;
 /// <summary>Calculates statistics for global, tour and user concert scopes.</summary>
 public class StatisticsService(IConcertRepository concertRepository, ISongRepository songRepository, ILogger<StatisticsService> logger, TimeProvider? timeProvider = null)
 {
+    public const decimal DefaultRarityThreshold = 0.5m;
+    
     /// <summary>Calculates concert and location statistics for the selected scope.</summary>
     public async Task<ConcertStatsBo> GetConcertStatsAsync(StatsScope scope, CancellationToken cancellationToken = default)
     {
@@ -61,7 +63,7 @@ public class StatisticsService(IConcertRepository concertRepository, ISongReposi
     /// <exception cref="ArgumentException">The selection is not provably contained in the reference.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The threshold is outside the range 0 to 1.</exception>
     public async Task<SongRarityStatsBo> GetSongRarityStatsAsync(
-        StatsScope selection, StatsScope reference, decimal? rarityThreshold = null,
+        StatsScope selection, StatsScope reference, decimal? rarityThreshold = DefaultRarityThreshold,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(selection);
@@ -72,6 +74,8 @@ public class StatisticsService(IConcertRepository concertRepository, ISongReposi
             (reference.TourId is not null && reference.TourId != selection.TourId))
             throw new ArgumentException("The selection must be contained in the reference scope.", nameof(selection));
 
+        rarityThreshold ??= DefaultRarityThreshold;
+        
         cancellationToken.ThrowIfCancellationRequested();
         var asOf = (timeProvider ?? TimeProvider.System).GetUtcNow();
         Log.StartGeneratingSongRarityStats(logger, selection.UserId, selection.TourId, reference.UserId, reference.TourId);

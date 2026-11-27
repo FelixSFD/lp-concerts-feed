@@ -1613,19 +1613,21 @@ internal static class DtoMapper
             NumberOfConcerts = bo.NumberOfConcerts,
         };
     }
-    
+
     /// <summary>
     /// Maps the BusinessObject to a DTO
     /// </summary>
     /// <param name="bos">BusinessObjects to map</param>
+    /// <param name="rarityStatsBo">Rarity statistics to include</param>
     /// <returns>the mapped DTO</returns>
-    public static UserSongStatsResponseDto ToDto(this IEnumerable<UserSongStatBo> bos)
+    public static UserSongStatsResponseDto ToDtoWithRarity(this IEnumerable<SongStatBo> bos, SongRarityStatsBo? rarityStatsBo)
     {
-        var songs = bos.Select(ToDto).ToList();
+        var songRarityDict = rarityStatsBo?.Songs.ToDictionary(r => r.SongId) ?? new Dictionary<uint, SongRarityBo>();
+        var songsWithRarity = bos.Select(s => s.ToDtoWithRarity(songRarityDict.GetValueOrDefault(s.SongId))).ToList();
         return new UserSongStatsResponseDto
         {
-            NumberOfSongs = songs.Count,
-            Songs = songs,
+            NumberOfSongs = songsWithRarity.Count,
+            Songs = songsWithRarity,
         };
     }
     
