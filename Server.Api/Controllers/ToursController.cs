@@ -73,13 +73,13 @@ public class ToursController(TourService tourService, StatisticsService statisti
         var globalScope = new StatsScope(tourId: tour.Id);
         var (tourConcertStats, tourSongStats) = await statisticsService.GetConcertAndSongStatsAsync(globalScope);
         
-        TourStatsResponsePersonalizedDto? personalizedStatsDto = null;
+        PersonalizedTourStatsDto? personalizedStatsDto = null;
         if (userId is not null)
         {
             // Scope to load stats for the tour and user (personalized)
             var personalizedScope = new StatsScope(tourId: tour.Id, userId: userId);
             var (personalizedTourConcertStats, personalizedTourSongStats) = await statisticsService.GetConcertAndSongStatsAsync(personalizedScope);
-            personalizedStatsDto = new TourStatsResponsePersonalizedDto
+            personalizedStatsDto = new PersonalizedTourStatsDto
             {
                 Songs = [.. personalizedTourSongStats.Select(DtoMapper.ToDto)],
                 Concerts = personalizedTourConcertStats.ToDto(),

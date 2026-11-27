@@ -5853,17 +5853,20 @@ components:
         concerts:
           $ref: "#/components/schemas/UserConcertStatsResponse"
         personalized:
-          type: object
-          description: Personalized statistics for the user, if the user was provided in the request
-          nullable: true
-          properties:
-            songs:
-              type: array
-              description: List of songs that were played during this tour at shows the user attended
-              items:
-                $ref: "#/components/schemas/SongStats"
-            concerts:
-              $ref: "#/components/schemas/UserConcertStatsResponse"
+          oneOf:
+            - $ref: "#/components/schemas/PersonalizedTourStats"
+    
+    PersonalizedTourStats:
+      type: object
+      description: Personalized statistics for the user, if the user was provided in the request
+      properties:
+        songs:
+          type: array
+          description: List of songs that were played during this tour at shows the user attended
+          items:
+            $ref: "#/components/schemas/SongStats"
+        concerts:
+          $ref: "#/components/schemas/UserConcertStatsResponse"
     
     UserSongStatsResponse:
       type: object
