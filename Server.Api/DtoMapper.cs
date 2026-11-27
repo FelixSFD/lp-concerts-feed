@@ -1600,6 +1600,23 @@ internal static class DtoMapper
     /// <summary>
     /// Maps the BusinessObject to a DTO
     /// </summary>
+    /// <param name="bo">BusinessObject to map</param>
+    /// <returns>the mapped DTO</returns>
+    public static UserConcertStatsResponseDto ToDto(this ConcertStatsBo bo)
+    {
+        return new UserConcertStatsResponseDto
+        {
+            Concerts = [.. bo.Concerts.Select(ToShortDto)],
+            NumberOfCities = bo.NumberOfCities,
+            NumberOfCountries = bo.NumberOfCountries,
+            NumberOfVenues = bo.NumberOfVenues,
+            NumberOfConcerts = bo.NumberOfConcerts,
+        };
+    }
+    
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
     /// <param name="bos">BusinessObjects to map</param>
     /// <returns>the mapped DTO</returns>
     public static UserSongStatsResponseDto ToDto(this IEnumerable<UserSongStatBo> bos)

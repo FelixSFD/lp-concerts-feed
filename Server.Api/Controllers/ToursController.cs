@@ -70,13 +70,14 @@ public class ToursController(TourService tourService, StatisticsService statisti
         
         // Scope to load stats for the tour (not personalized)
         var globalScope = new StatsScope(tourId: tour.Id);
-        var tourSongStats = await statisticsService.GetSongStatsAsync(globalScope);
+        var (tourConcertStats, tourSongStats) = await statisticsService.GetConcertAndSongStatsAsync(globalScope);
         
         // build the response DTO
         var responseDto = new TourStatsResponseDto
         {
             Tour = tour.ToDto(),
-            Songs = [.. tourSongStats.Select(DtoMapper.ToDto)]
+            Songs = [.. tourSongStats.Select(DtoMapper.ToDto)],
+            Concerts = tourConcertStats.ToDto(),
         };
         
         return Ok(responseDto);

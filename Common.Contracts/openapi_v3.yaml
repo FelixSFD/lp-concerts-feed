@@ -5834,6 +5834,7 @@ components:
       required:
         - tour
         - songs
+        - concerts
       properties:
         tour:
           $ref: "#/components/schemas/Tour"
@@ -5842,6 +5843,8 @@ components:
           description: List of songs that were played during this tour
           items:
               $ref: "#/components/schemas/SongStats"
+        concerts:
+          $ref: "#/components/schemas/UserConcertStatsResponse"
     
     UserSongStatsResponse:
       type: object
