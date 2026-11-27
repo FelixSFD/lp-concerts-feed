@@ -47,6 +47,60 @@ public class StatisticsService(IConcertRepository concertRepository, ISongReposi
         return (concertStats, songStats);
     }
 
+    /// <summary>
+    /// Compares the songs observed in a selection with their frequency in a broader reference scope.
+    /// Both scopes use the same exclusive start-time cutoff. Only concerts with setlists are used
+    /// as the denominator; partial or missing setlists can make the observed counts incomplete.
+    /// Recording-only entries and mashups are excluded, and variants count as their base song.
+    /// </summary>
+    /// <param name="selection">Concerts whose observed songs are returned.</param>
+    /// <param name="reference">A scope containing every concert in the selection.</param>
+    /// <param name="rarityThreshold">Optional inclusive rarity threshold between 0 and 1.</param>
+    /// <param name="cancellationToken">Token to cancel the operation.</param>
+    /// <returns>Song counts, observed reference shares and setlist coverage.</returns>
+    /// <exception cref="ArgumentException">The selection is not provably contained in the reference.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The threshold is outside the range 0 to 1.</exception>
+    public async Task<SongRarityStatsBo> GetSongRarityStatsAsync(
+        StatsScope selection, StatsScope reference, decimal? rarityThreshold = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(selection);
+        ArgumentNullException.ThrowIfNull(reference);
+        if (rarityThreshold is < 0 or > 1)
+            throw new ArgumentOutOfRangeException(nameof(rarityThreshold));
+        if ((reference.UserId is not null && reference.UserId != selection.UserId) ||
+            (reference.TourId is not null && reference.TourId != selection.TourId))
+            throw new ArgumentException("The selection must be contained in the reference scope.", nameof(selection));
+
+        cancellationToken.ThrowIfCancellationRequested();
+        var asOf = (timeProvider ?? TimeProvider.System).GetUtcNow();
+        Log.StartGeneratingSongRarityStats(logger, selection.UserId, selection.TourId, reference.UserId, reference.TourId);
+        var referenceConcerts = await LoadConcertsAsync(reference, cancellationToken);
+        var selectionConcerts = selection == reference
+            ? referenceConcerts
+            : await LoadConcertsAsync(selection, cancellationToken);
+
+        var referenceIds = referenceConcerts.Where(concert => concert.PostedStartTime < asOf.UtcDateTime)
+            .Select(concert => concert.Id).ToHashSet();
+        var selectionIds = selectionConcerts.Where(concert => concert.PostedStartTime < asOf.UtcDateTime)
+            .Select(concert => concert.Id).ToHashSet();
+        if (!selectionIds.IsSubsetOf(referenceIds))
+            throw new ArgumentException("The selected concerts are not contained in the reference results.", nameof(selection));
+
+        SongConcertPlayData data = new([], []);
+        if (referenceIds.Count > 0)
+        {
+            Log.LoadingSongRarityData(logger, referenceIds.Count, reference.UserId, reference.TourId);
+            data = await songRepository.GetSongPlaysByConcertAsync(referenceIds, cancellationToken);
+            Log.LoadedSongRarityData(logger, reference.UserId, reference.TourId, data.ConcertIdsWithSetlists.Count, data.SongPlays.Count);
+        }
+        cancellationToken.ThrowIfCancellationRequested();
+        var stats = SongRarityStatsCalculator.Calculate(selection, reference, asOf, selectionIds, referenceIds, data, rarityThreshold);
+        Log.FinishedGeneratingSongRarityStats(logger, selection.UserId, selection.TourId, reference.UserId, reference.TourId,
+            stats.Songs.Count, stats.ReferenceCoverage.ConcertsWithSetlists, stats.ReferenceCoverage.ConcertCount);
+        return stats;
+    }
+
     private async Task<ConcertDo[]> LoadConcertsAsync(StatsScope scope, CancellationToken cancellationToken)
     {
         var query = scope.UserId is null

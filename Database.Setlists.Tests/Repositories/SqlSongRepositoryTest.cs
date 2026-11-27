@@ -369,6 +369,40 @@ public class SqlSongRepositoryTest : SetlistsDbIntegrationTestsBase
         Assert.Equal(2u, statistics.Single(kv => kv.Key.Id == song2.Id).Value);
         Assert.All(statistics, kv => Assert.Equal("Album", kv.Key.Album?.Title));
         Assert.DoesNotContain(statistics, kv => kv.Key.Id == song3.Id);
+
+        var emptyConcertId = Guid.NewGuid().ToString();
+        var missingConcertId = Guid.NewGuid().ToString();
+        var emptySetlist = new SetlistDo
+        {
+            ConcertId = emptyConcertId, ConcertTitle = "Empty", ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today
+        };
+        var secondSetlist = new SetlistDo
+        {
+            ConcertId = concertId1, ConcertTitle = "Soundcheck", ConcertType = "Linkin Park",
+            ConcertDate = DateTime.Today
+        };
+        setlistRepo.Add(emptySetlist);
+        setlistRepo.Add(secondSetlist);
+        await setlistRepo.SaveChangesAsync();
+        entriesRepo.Add(new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(), Setlist = secondSetlist, SongNumber = 1,
+            PlayedSongId = song1.Id
+        });
+        await entriesRepo.SaveChangesAsync();
+        DbContext.ChangeTracker.Clear();
+
+        var data = await repo.GetSongPlaysByConcertAsync([concertId1, concertId1, concertId2, emptyConcertId, missingConcertId]);
+        Assert.Equal(3, data.ConcertIdsWithSetlists.Count);
+        Assert.Contains(emptyConcertId, data.ConcertIdsWithSetlists);
+        Assert.DoesNotContain(missingConcertId, data.ConcertIdsWithSetlists);
+        Assert.Equal(3, data.SongPlays.Count);
+        Assert.Equal(3u, Assert.Single(data.SongPlays, p => p.Song.Id == song1.Id && p.ConcertId == concertId1).PlayCount);
+        Assert.Equal(1u, Assert.Single(data.SongPlays, p => p.Song.Id == song2.Id && p.ConcertId == concertId1).PlayCount);
+        Assert.Equal(1u, Assert.Single(data.SongPlays, p => p.Song.Id == song2.Id && p.ConcertId == concertId2).PlayCount);
+        Assert.All(data.SongPlays, p => Assert.Equal("Album", p.Song.Album?.Title));
+        Assert.DoesNotContain(data.SongPlays, p => p.Song.Id == song3.Id || p.ConcertId == otherConcertId);
     }
 
     [Fact]
@@ -389,5 +423,18 @@ public class SqlSongRepositoryTest : SetlistsDbIntegrationTestsBase
         var statistics = await repo.GetSongsPlayedAtConcertsAsync(new[] { Guid.NewGuid().ToString() });
 
         Assert.Empty(statistics);
+    }
+
+    [Fact]
+    public async Task GetSongPlaysByConcertAsync_EmptyAndCancelled()
+    {
+        var repo = new SqlSongRepository(DbContext);
+        var empty = await repo.GetSongPlaysByConcertAsync([]);
+        Assert.Empty(empty.ConcertIdsWithSetlists);
+        Assert.Empty(empty.SongPlays);
+
+        using var cancellation = new CancellationTokenSource();
+        await cancellation.CancelAsync();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => repo.GetSongPlaysByConcertAsync([], cancellation.Token));
     }
 }

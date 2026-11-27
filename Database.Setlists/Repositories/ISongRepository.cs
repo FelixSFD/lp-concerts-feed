@@ -29,4 +29,16 @@ public interface ISongRepository : ISingleKeyRepositoryBase<SongDo, uint>, IRepo
     /// <returns></returns>
     public Task<IDictionary<SongDo, uint>> GetSongsPlayedAtConcertsAsync(IEnumerable<string> concertIds,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Returns live song counts per concert and the distinct concert IDs with setlists.
+    /// Repetitions count separately, recording-only entries and mashups are excluded,
+    /// and song variants are attributed to their base song.
+    /// A setlist is counted even when it contains no recognized live song entries.
+    /// </summary>
+    /// <param name="concertIds">Concerts to inspect.</param>
+    /// <param name="cancellationToken">Token to cancel the operation.</param>
+    /// <returns>Per-concert counts and setlist coverage.</returns>
+    Task<SongConcertPlayData> GetSongPlaysByConcertAsync(IEnumerable<string> concertIds,
+        CancellationToken cancellationToken = default);
 }

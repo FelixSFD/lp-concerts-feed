@@ -60,4 +60,16 @@ public static partial class Log
 
     [LoggerMessage(10048, LogLevel.Debug, "Loaded {numberOfSongs} live song counts; User: {userId}; Tour: {tourId}")]
     public static partial void LoadedLiveSongCounts(ILogger logger, int numberOfSongs, string? userId, string? tourId);
+
+    [LoggerMessage(10049, LogLevel.Debug, "Generating song rarity stats; Selection user: {selectionUserId}; Selection tour: {selectionTourId}; Reference user: {referenceUserId}; Reference tour: {referenceTourId}")]
+    public static partial void StartGeneratingSongRarityStats(ILogger logger, string? selectionUserId, string? selectionTourId, string? referenceUserId, string? referenceTourId);
+
+    [LoggerMessage(10050, LogLevel.Debug, "Generated song rarity stats; Selection user: {selectionUserId}; Selection tour: {selectionTourId}; Reference user: {referenceUserId}; Reference tour: {referenceTourId}; Songs: {numberOfSongs}; Reference concerts with setlists: {concertsWithSetlists}; Reference concerts: {referenceConcerts}")]
+    public static partial void FinishedGeneratingSongRarityStats(ILogger logger, string? selectionUserId, string? selectionTourId, string? referenceUserId, string? referenceTourId, int numberOfSongs, int concertsWithSetlists, int referenceConcerts);
+
+    [LoggerMessage(10051, LogLevel.Debug, "Loading song rarity data for {numberOfConcerts} concerts; Reference user: {referenceUserId}; Reference tour: {referenceTourId}")]
+    public static partial void LoadingSongRarityData(ILogger logger, int numberOfConcerts, string? referenceUserId, string? referenceTourId);
+
+    [LoggerMessage(10052, LogLevel.Debug, "Loaded song rarity data; Reference user: {referenceUserId}; Reference tour: {referenceTourId}; Concerts with setlists: {concertsWithSetlists}; Song-concert counts: {numberOfSongConcertCounts}")]
+    public static partial void LoadedSongRarityData(ILogger logger, string? referenceUserId, string? referenceTourId, int concertsWithSetlists, int numberOfSongConcertCounts);
 }

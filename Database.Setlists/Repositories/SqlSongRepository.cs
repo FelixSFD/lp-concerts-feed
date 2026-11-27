@@ -63,4 +63,43 @@ public class SqlSongRepository(SetlistsDbContext dbContext)
                 group => group.First(),
                 group => (uint)group.Count());
     }
+
+    /// <inheritdoc/>
+    public async Task<SongConcertPlayData> GetSongPlaysByConcertAsync(IEnumerable<string> concertIds,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(concertIds);
+        cancellationToken.ThrowIfCancellationRequested();
+        var ids = concertIds.Distinct().ToArray();
+        if (ids.Length == 0)
+            return new SongConcertPlayData([], []);
+
+        // Coverage must be queried independently: an empty or recording-only setlist is still present.
+        var coveredConcertIds = await dbContext.Setlists
+            .AsNoTracking()
+            .IgnoreAutoIncludes()
+            .Where(setlist => ids.Contains(setlist.ConcertId))
+            .Select(setlist => setlist.ConcertId)
+            .Distinct()
+            .ToArrayAsync(cancellationToken);
+
+        var entries = await dbContext.SetlistEntries
+            .AsNoTracking()
+            .IgnoreAutoIncludes()
+            .Where(entry => ids.Contains(entry.Setlist.ConcertId) && !entry.IsPlayedFromRecording)
+            .Include(entry => entry.Setlist)
+            .Include(entry => entry.PlayedSong).ThenInclude(song => song!.Album)
+            .Include(entry => entry.PlayedSongVariant).ThenInclude(variant => variant!.Song)
+                .ThenInclude(song => song.Album)
+            .ToListAsync(cancellationToken);
+
+        var plays = entries
+            .Select(entry => new { entry.Setlist.ConcertId, Song = entry.PlayedSong ?? entry.PlayedSongVariant?.Song })
+            .Where(entry => entry.Song is not null)
+            .GroupBy(entry => (entry.ConcertId, SongId: entry.Song!.Id))
+            .Select(group => new SongConcertPlayCount(group.First().Song!, group.Key.ConcertId, checked((uint)group.Count())))
+            .ToArray();
+
+        return new SongConcertPlayData(coveredConcertIds, plays);
+    }
 }
