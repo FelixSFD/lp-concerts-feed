@@ -81,6 +81,7 @@ public class ToursController(TourService tourService, StatisticsService statisti
         var tourScope = new StatsScope(tourId: tour.Id);
         var (tourConcertStats, tourSongStats) = await statisticsService.GetConcertAndSongStatsAsync(tourScope, cancellationToken);
         var tourSongRarity = await statisticsService.GetSongRarityStatsAsync(tourScope, new StatsScope(), rarityThreshold, cancellationToken);
+        var tourSongRarityDict = tourSongRarity.Songs.ToDictionary(s => s.SongId, s => s);
         
         PersonalizedTourStatsDto? personalizedStatsDto = null;
         if (userId is not null)
@@ -89,11 +90,11 @@ public class ToursController(TourService tourService, StatisticsService statisti
             var personalizedScope = new StatsScope(tourId: tour.Id, userId: userId);
             var (personalizedTourConcertStats, personalizedTourSongStats) = await statisticsService.GetConcertAndSongStatsAsync(personalizedScope, cancellationToken);
             var personalizedSongRarity = await statisticsService.GetSongRarityStatsAsync(personalizedScope, tourScope, rarityThreshold, cancellationToken);
+            var personalizedSongRarityDict = personalizedSongRarity.Songs.ToDictionary(s => s.SongId, s => s);
             personalizedStatsDto = new PersonalizedTourStatsDto
             {
-                Songs = [.. personalizedTourSongStats.Select(DtoMapper.ToDto)],
+                Songs = [.. personalizedTourSongStats.Select(song => song.ToDtoWithRarity(personalizedSongRarityDict.GetValueOrDefault(song.SongId)))],
                 Concerts = personalizedTourConcertStats.ToDto(),
-                SongRarity = personalizedSongRarity.ToDto(),
             };
         }
         
@@ -101,9 +102,8 @@ public class ToursController(TourService tourService, StatisticsService statisti
         var responseDto = new TourStatsResponseDto
         {
             Tour = tour.ToDto(),
-            Songs = [.. tourSongStats.Select(DtoMapper.ToDto)],
             Concerts = tourConcertStats.ToDto(),
-            SongRarity = tourSongRarity.ToDto(),
+            Songs = [.. tourSongStats.Select(song => song.ToDtoWithRarity(tourSongRarityDict.GetValueOrDefault(song.SongId)))],
             Personalized = personalizedStatsDto,
         };
         

@@ -5922,6 +5922,15 @@ components:
           description: Number of times the user has seen this song live
           nullable: false
     
+    SongStatsWithRarity:
+      type: object
+      description: Information about a song and how many times it was played, including rarity information
+      allOf:
+        - $ref: '#/components/schemas/SongStats'
+      properties:
+        rarity:
+          $ref: '#/components/schemas/SongRarity'
+    
     UserConcertStatsResponse:
       type: object
       description: Response form server with some general statistics about the concerts a user has attended
@@ -5959,13 +5968,9 @@ components:
           type: array
           description: List of songs that were played during this tour
           items:
-              $ref: "#/components/schemas/SongStats"
+              $ref: "#/components/schemas/SongStatsWithRarity"
         concerts:
           $ref: "#/components/schemas/UserConcertStatsResponse"
-        songRarity:
-          description: Songs from this tour compared with all eligible shows.
-          allOf:
-            - $ref: "#/components/schemas/SongRarityStats"
         personalized:
           oneOf:
             - $ref: "#/components/schemas/PersonalizedTourStats"
@@ -5979,13 +5984,9 @@ components:
           type: array
           description: List of songs that were played during this tour at shows the user attended
           items:
-            $ref: "#/components/schemas/SongStats"
+            $ref: "#/components/schemas/SongStatsWithRarity"
         concerts:
           $ref: "#/components/schemas/UserConcertStatsResponse"
-        songRarity:
-          description: Songs observed by the user on this tour compared with all eligible shows on the tour.
-          allOf:
-            - $ref: "#/components/schemas/SongRarityStats"
     
     UserSongStatsResponse:
       type: object

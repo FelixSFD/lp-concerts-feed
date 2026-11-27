@@ -1662,6 +1662,25 @@ internal static class DtoMapper
             PlayCount = bo.PlayCount,
         };
     }
+    
+    /// <summary>
+    /// Maps the BusinessObject to a DTO
+    /// </summary>
+    /// <param name="bo">BusinessObjects to map</param>
+    /// <param name="rarityBo">Rarity information to include</param>
+    /// <returns>the mapped DTO</returns>
+    public static SongStatsWithRarityDto ToDtoWithRarity(this SongStatBo bo, SongRarityBo? rarityBo)
+    {
+        return new SongStatsWithRarityDto
+        {
+            SongId = bo.SongId,
+            SongTitle = bo.SongName,
+            AlbumName = bo.AlbumName,
+            AppleMusicId = bo.AppleMusicId,
+            PlayCount = bo.PlayCount,
+            Rarity = rarityBo?.ToDto()
+        };
+    }
 
     /// <summary>Maps song rarity statistics and setlist coverage to the API contract.</summary>
     public static SongRarityStatsDto ToDto(this SongRarityStatsBo bo) => new()
@@ -1670,16 +1689,18 @@ internal static class DtoMapper
         SelectionCoverage = bo.SelectionCoverage.ToDto(),
         ReferenceCoverage = bo.ReferenceCoverage.ToDto(),
         RarityThreshold = bo.RarityThreshold,
-        Songs = [.. bo.Songs.Select(song => new SongRarityDto
-        {
-            SongId = song.SongId,
-            SelectionPlayCount = song.SelectionPlayCount,
-            SelectionConcertCount = song.SelectionConcertCount,
-            ReferencePlayCount = song.ReferencePlayCount,
-            ReferenceConcertCount = song.ReferenceConcertCount,
-            ReferenceConcertShare = song.ReferenceConcertShare,
-            IsRare = song.IsRare,
-        })],
+        Songs = [.. bo.Songs.Select(ToDto)],
+    };
+    
+    private static SongRarityDto ToDto(this SongRarityBo bo) => new()
+    {
+        SongId = bo.SongId,
+        SelectionPlayCount = bo.SelectionPlayCount,
+        SelectionConcertCount = bo.SelectionConcertCount,
+        ReferencePlayCount = bo.ReferencePlayCount,
+        ReferenceConcertCount = bo.ReferenceConcertCount,
+        ReferenceConcertShare = bo.ReferenceConcertShare,
+        IsRare = bo.IsRare,
     };
 
     private static ConcertSetlistCoverageDto ToDto(this ConcertSetlistCoverageBo bo) => new()
