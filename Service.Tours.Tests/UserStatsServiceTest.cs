@@ -15,10 +15,10 @@ public class UserStatsServiceTest
 
     public UserStatsServiceTest()
     {
-        var logger = Substitute.For<ILogger<UserStatsService>>();
+        var logger = Substitute.For<ILogger<StatisticsService>>();
         _concertRepository = Substitute.For<IConcertRepository>();
         _songRepository = Substitute.For<ISongRepository>();
-        _userStatsService = new UserStatsService(new StatisticsService(_concertRepository, _songRepository), logger);
+        _userStatsService = new UserStatsService(new StatisticsService(_concertRepository, _songRepository, logger));
     }
 
 

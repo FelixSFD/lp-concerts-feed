@@ -2,6 +2,7 @@ using Database.Setlists.DataObjects;
 using Database.Setlists.Repositories;
 using Database.Tours.DataObjects;
 using Database.Tours.Repositories;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Service.Tours.DataStructure.Stats;
 
@@ -28,7 +29,7 @@ public class StatisticsServiceTest
         _songs.GetSongsPlayedAtConcertsAsync(Arg.Is<IEnumerable<string>>(ids => ids.SequenceEqual(new[] { "show-a" })))
             .Returns(new Dictionary<SongDo, uint> { [song] = 2 });
 
-        var result = await new StatisticsService(_concerts, _songs).GetSongStatsAsync(new StatsScope(tourId: tourId));
+        var result = await new StatisticsService(_concerts, _songs, NullLogger<StatisticsService>.Instance).GetSongStatsAsync(new StatsScope(tourId: tourId));
 
         var stat = Assert.Single(result);
         Assert.Equal(42u, stat.SongId);
@@ -56,7 +57,7 @@ public class StatisticsServiceTest
         _songs.GetSongsPlayedAtConcertsAsync(Arg.Is<IEnumerable<string>>(ids => ids.SequenceEqual(new[] { "past" })))
             .Returns(new Dictionary<SongDo, uint> { [new SongDo { Id = 1, Title = "Song" }] = 2 });
 
-        var result = await new StatisticsService(_concerts, _songs, new FixedTimeProvider(now))
+        var result = await new StatisticsService(_concerts, _songs, NullLogger<StatisticsService>.Instance, new FixedTimeProvider(now))
             .GetConcertAndSongStatsAsync(new StatsScope(tourId: "tour"));
 
         Assert.Equal(3, result.Concerts.NumberOfConcerts);
@@ -81,7 +82,7 @@ public class StatisticsServiceTest
         _songs.GetSongsPlayedAtConcertsAsync(Arg.Is<IEnumerable<string>>(ids => ids.SequenceEqual(new[] { "a" })), cancellation.Token)
             .Returns(new Dictionary<SongDo, uint> { [song] = 3 });
 
-        var result = await new StatisticsService(_concerts, _songs)
+        var result = await new StatisticsService(_concerts, _songs, NullLogger<StatisticsService>.Instance)
             .GetSongStatsAsync(new StatsScope(userId: "user", tourId: "tour-a"), cancellation.Token);
 
         Assert.Equal(3u, Assert.Single(result).PlayCount);
@@ -93,7 +94,7 @@ public class StatisticsServiceTest
     public async Task EmptySelection_DoesNotQuerySongs()
     {
         _concerts.GetAttendedConcertsForAsync("user").Returns(Array.Empty<ConcertDo>().ToAsyncEnumerable());
-        var result = await new StatisticsService(_concerts, _songs).GetSongStatsAsync(new StatsScope(userId: "user"));
+        var result = await new StatisticsService(_concerts, _songs, NullLogger<StatisticsService>.Instance).GetSongStatsAsync(new StatsScope(userId: "user"));
         Assert.Empty(result);
         await _songs.DidNotReceive().GetSongsPlayedAtConcertsAsync(Arg.Any<IEnumerable<string>>(), Arg.Any<CancellationToken>());
     }
@@ -106,7 +107,7 @@ public class StatisticsServiceTest
         _songs.GetSongsPlayedAtConcertsAsync(Arg.Any<IEnumerable<string>>())
             .Returns(new Dictionary<SongDo, uint> { [new SongDo { Id = 1, Title = "Song" }] = 2 });
 
-        var result = await new StatisticsService(_concerts, _songs).GetConcertAndSongStatsAsync(new StatsScope(userId: "user"));
+        var result = await new StatisticsService(_concerts, _songs, NullLogger<StatisticsService>.Instance).GetConcertAndSongStatsAsync(new StatsScope(userId: "user"));
 
         Assert.Equal(1, result.Concerts.NumberOfConcerts);
         Assert.Equal(2u, Assert.Single(result.Songs).PlayCount);
@@ -129,7 +130,7 @@ public class StatisticsServiceTest
         _concerts.GetConcertsForStatsAsync(null)
             .Returns(new[] { first, sameVenue, otherVenue, otherCity }.ToAsyncEnumerable());
 
-        var result = await new StatisticsService(_concerts, _songs).GetConcertStatsAsync(new StatsScope());
+        var result = await new StatisticsService(_concerts, _songs, NullLogger<StatisticsService>.Instance).GetConcertStatsAsync(new StatsScope());
 
         Assert.Equal(4, result.NumberOfConcerts);
         Assert.Equal(3, result.NumberOfVenues);

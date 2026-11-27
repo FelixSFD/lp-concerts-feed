@@ -40,18 +40,24 @@ public static partial class Log
     [LoggerMessage(10032, LogLevel.Information, "Finished syncing countries with last sync date: {lastSync}; Updated: {updated}; Deleted: {deleted}; Duration: not measured")]
     public static partial void FinishedCountrySync(ILogger logger, DateTimeOffset? lastSync, int updated, int deleted);
     
-    [LoggerMessage(10040, LogLevel.Debug, "Generating AttendedConcerts stats for user: {userId}")]
-    public static partial void StartGeneratingAttendedConcertsStats(ILogger logger, string userId);
+    [LoggerMessage(10040, LogLevel.Debug, "Generating concert stats; User: {userId}; Tour: {tourId}")]
+    public static partial void StartGeneratingConcertStats(ILogger logger, string? userId, string? tourId);
     
-    [LoggerMessage(10041, LogLevel.Debug, "Generated AttendedConcerts stats for user: {userId}; Concerts: {numberOfConcerts}; Venues: {numberOfVenues}; Cities: {numberOfCities}; Countries: {numberOfCountries}")]
-    public static partial void FinishedGeneratingAttendedConcertsStats(ILogger logger, string userId, int numberOfConcerts, int numberOfVenues, int numberOfCities, int numberOfCountries);
+    [LoggerMessage(10041, LogLevel.Debug, "Generated concert stats; User: {userId}; Tour: {tourId}; Concerts: {numberOfConcerts}; Venues: {numberOfVenues}; Cities: {numberOfCities}; Countries: {numberOfCountries}")]
+    public static partial void FinishedGeneratingConcertStats(ILogger logger, string? userId, string? tourId, int numberOfConcerts, int numberOfVenues, int numberOfCities, int numberOfCountries);
     
-    [LoggerMessage(10042, LogLevel.Debug, "Loaded concerts the user '{userId}' has attended so far")]
-    public static partial void LoadedConcertsUserAttended(ILogger logger, string userId);
+    [LoggerMessage(10042, LogLevel.Debug, "Loaded {numberOfConcerts} concerts for stats; User: {userId}; Tour: {tourId}")]
+    public static partial void LoadedConcertsForStats(ILogger logger, int numberOfConcerts, string? userId, string? tourId);
     
-    [LoggerMessage(10045, LogLevel.Debug, "Generating song stats for user: {userId}")]
-    public static partial void StartGeneratingAttendedSongStats(ILogger logger, string userId);
+    [LoggerMessage(10045, LogLevel.Debug, "Generating song stats; User: {userId}; Tour: {tourId}")]
+    public static partial void StartGeneratingSongStats(ILogger logger, string? userId, string? tourId);
     
-    [LoggerMessage(10046, LogLevel.Debug, "Generated Song stats for user: {userId}; Number of songs seen live: {numberOfSongs}")]
-    public static partial void FinishedGeneratingAttendedSongStats(ILogger logger, string userId, int numberOfSongs);
+    [LoggerMessage(10046, LogLevel.Debug, "Generated song stats; User: {userId}; Tour: {tourId}; Number of songs: {numberOfSongs}")]
+    public static partial void FinishedGeneratingSongStats(ILogger logger, string? userId, string? tourId, int numberOfSongs);
+
+    [LoggerMessage(10047, LogLevel.Debug, "Loading live song counts for {numberOfConcerts} concerts; User: {userId}; Tour: {tourId}")]
+    public static partial void LoadingLiveSongCounts(ILogger logger, int numberOfConcerts, string? userId, string? tourId);
+
+    [LoggerMessage(10048, LogLevel.Debug, "Loaded {numberOfSongs} live song counts; User: {userId}; Tour: {tourId}")]
+    public static partial void LoadedLiveSongCounts(ILogger logger, int numberOfSongs, string? userId, string? tourId);
 }

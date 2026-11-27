@@ -1,5 +1,3 @@
-using LPCalendar.DataStructure.Setlists;
-using Microsoft.Extensions.Logging;
 using Service.Tours.DataStructure.Stats;
 
 namespace Service.Tours;
@@ -7,7 +5,7 @@ namespace Service.Tours;
 /// <summary>
 /// Service to calculate personalized statistics for users
 /// </summary>
-public class UserStatsService(StatisticsService statisticsService, ILogger<UserStatsService> logger)
+public class UserStatsService(StatisticsService statisticsService)
 {
     /// <summary>
     /// Returns statistics about the concerts a user has attended
@@ -18,11 +16,7 @@ public class UserStatsService(StatisticsService statisticsService, ILogger<UserS
     public async Task<UserConcertStatsBo> GetAttendedConcerts(string userId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(userId);
-        Log.StartGeneratingAttendedConcertsStats(logger, userId);
-
         var stats = await statisticsService.GetConcertStatsAsync(new StatsScope(userId: userId), cancellationToken);
-        Log.LoadedConcertsUserAttended(logger, userId);
-        Log.FinishedGeneratingAttendedConcertsStats(logger, userId, stats.NumberOfConcerts, stats.NumberOfVenues, stats.NumberOfCities, stats.NumberOfCountries);
 
         return new UserConcertStatsBo
         {
@@ -43,10 +37,7 @@ public class UserStatsService(StatisticsService statisticsService, ILogger<UserS
     public async Task<UserSongStatBo[]> GetSongsUserHasSeenLiveAsync(string userId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(userId);
-        Log.StartGeneratingAttendedSongStats(logger, userId);
-        
         var songs = await statisticsService.GetSongStatsAsync(new StatsScope(userId: userId), cancellationToken);
-        Log.LoadedConcertsUserAttended(logger, userId);
         var stats = songs.Select(song => new UserSongStatBo
         {
             SongId = song.SongId,
@@ -55,7 +46,6 @@ public class UserStatsService(StatisticsService statisticsService, ILogger<UserS
             AppleMusicId = song.AppleMusicId,
             PlayCount = song.PlayCount,
         }).ToArray();
-        Log.FinishedGeneratingAttendedSongStats(logger, userId, stats.Length);
         return stats;
     }
 
@@ -64,13 +54,6 @@ public class UserStatsService(StatisticsService statisticsService, ILogger<UserS
         string userId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(userId);
-        Log.StartGeneratingAttendedConcertsStats(logger, userId);
-        Log.StartGeneratingAttendedSongStats(logger, userId);
-        var stats = await statisticsService.GetConcertAndSongStatsAsync(new StatsScope(userId: userId), cancellationToken);
-        Log.LoadedConcertsUserAttended(logger, userId);
-        Log.FinishedGeneratingAttendedConcertsStats(logger, userId, stats.Concerts.NumberOfConcerts,
-            stats.Concerts.NumberOfVenues, stats.Concerts.NumberOfCities, stats.Concerts.NumberOfCountries);
-        Log.FinishedGeneratingAttendedSongStats(logger, userId, stats.Songs.Length);
-        return stats;
+        return await statisticsService.GetConcertAndSongStatsAsync(new StatsScope(userId: userId), cancellationToken);
     }
 }
