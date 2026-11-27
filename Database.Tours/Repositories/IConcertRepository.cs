@@ -63,13 +63,18 @@ public interface IConcertRepository : ISingleKeyRepositoryBase<ConcertDo, string
         UserConcertBookmarkDo.BookmarkStatus status, CancellationToken cancellationToken = default);
     
     /// <summary>
-    /// Returns all concerts, a given user has attended. This will not return concerts that are happening in the future.
+    /// Returns non-deleted concerts a given user has attended. Future concerts are excluded.
     /// </summary>
     /// <param name="userId">ID of the user</param>
     /// <param name="cancellationToken">Token to cancel the operation</param>
     /// <returns></returns>
     IAsyncEnumerable<ConcertDo> GetAttendedConcertsForAsync(string userId,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Returns all non-deleted concerts, optionally restricted to a tour, with the references needed for statistics.
+    /// </summary>
+    IAsyncEnumerable<ConcertDo> GetConcertsForStatsAsync(string? tourId, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Returns all <see name="ConcertDo" /> that match the IDs

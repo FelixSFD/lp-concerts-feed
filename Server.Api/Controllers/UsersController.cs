@@ -163,11 +163,7 @@ public class UsersController(UserService userService, UserStatsService userStats
     public async Task<ActionResult<GetUserConcertStatsSharePicResponseDto>> GetUserConcertStatsSharePicAsync([FromRoute] string userId, CancellationToken cancellationToken)
     {
         var userInfoTask = userService.GetUserById(userId, cancellationToken);
-        var concertStatsTask = userStatsService.GetAttendedConcerts(userId, cancellationToken);
-        var songStatsTask = userStatsService.GetSongsUserHasSeenLiveAsync(userId, cancellationToken);
-        
-        var concertStats = await concertStatsTask;
-        var songStats = await songStatsTask;
+        var (concertStats, songStats) = await userStatsService.GetConcertAndSongStatsAsync(userId, cancellationToken);
         var userInfo = await userInfoTask;
 
         var template = new UserTemplate

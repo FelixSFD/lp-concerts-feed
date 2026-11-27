@@ -25,11 +25,7 @@ public sealed class UpdateProfileBannersJob(UserService userService, UserStatsSe
             try
             {
                 Log.FetchingStatsFor(logger, user.Username, user.Id);
-                var concertStatsTask = userStatsService.GetAttendedConcerts(user.Id, cancellationToken);
-                var songStatsTask = userStatsService.GetSongsUserHasSeenLiveAsync(user.Id, cancellationToken);
-
-                var concertStats = await concertStatsTask;
-                var songStats = await songStatsTask;
+                var (concertStats, songStats) = await userStatsService.GetConcertAndSongStatsAsync(user.Id, cancellationToken);
                 
                 Log.FetchedStatsFor(logger, user.Username, user.Id);
 

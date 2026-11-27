@@ -215,16 +215,19 @@ public class SqlSongRepositoryTest : SetlistsDbIntegrationTestsBase
         var setlistRepo = new SqlSetlistRepository(DbContext);
         var entriesRepo = new SqlSetlistEntryRepository(DbContext);
 
+        var album = new AlbumDo { Title = "Album" };
         var song1 = new SongDo
         {
             Title = "Song one",
             Isrc = "1111",
+            Album = album,
             LinkinpediaUrl = "https://lplive.net"
         };
         var song2 = new SongDo
         {
             Title = "Song two",
             Isrc = "2222",
+            Album = album,
             LinkinpediaUrl = "https://lplive.net"
         };
         var songVariant = new SongVariantDo
@@ -327,18 +330,44 @@ public class SqlSongRepositoryTest : SetlistsDbIntegrationTestsBase
             IsWorldPremiere = false,
             IsLivePremiere = false
         };
+        var recording = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(), Setlist = setlist1, SongNumber = 3,
+            PlayedSong = song1, IsPlayedFromRecording = true
+        };
+        var recordingOnly = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(), Setlist = setlist2, SongNumber = 2,
+            PlayedSong = song3, IsPlayedFromRecording = true
+        };
+        var variantRecording = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(), Setlist = setlist2, SongNumber = 3,
+            PlayedSongVariant = songVariant, IsPlayedFromRecording = true
+        };
+        var directSong = new SetlistEntryDo
+        {
+            Id = Guid.NewGuid().ToString(), Setlist = setlist1, SongNumber = 4,
+            PlayedSong = song2, IsPlayedFromRecording = false
+        };
 
         entriesRepo.Add(entry1);
         entriesRepo.Add(entry2);
         entriesRepo.Add(entry3);
         entriesRepo.Add(entry4);
+        entriesRepo.Add(recording);
+        entriesRepo.Add(recordingOnly);
+        entriesRepo.Add(variantRecording);
+        entriesRepo.Add(directSong);
         await entriesRepo.SaveChangesAsync();
+        DbContext.ChangeTracker.Clear();
 
         var statistics = await repo.GetSongsPlayedAtConcertsAsync([concertId1, concertId2]);
 
         Assert.Equal(2, statistics.Count);
-        Assert.Equal(2u, statistics[song1]);
-        Assert.Equal(1u, statistics[song2]);
+        Assert.Equal(2u, statistics.Single(kv => kv.Key.Id == song1.Id).Value);
+        Assert.Equal(2u, statistics.Single(kv => kv.Key.Id == song2.Id).Value);
+        Assert.All(statistics, kv => Assert.Equal("Album", kv.Key.Album?.Title));
         Assert.DoesNotContain(statistics, kv => kv.Key.Id == song3.Id);
     }
 

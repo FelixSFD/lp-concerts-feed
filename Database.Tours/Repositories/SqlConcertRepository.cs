@@ -79,10 +79,11 @@ public class SqlConcertRepository(ToursDbContext dbContext, TimeProvider timePro
             .Include(c => c.Tour)
             .Include(c => c.TourLeg);
     
-    private static IQueryable<ConcertDo> IncludeCountry(IQueryable<ConcertDo> queryable) =>
-        queryable.Include(c => c.Venue)
-            .Include(c => c.Venue.City)
-            .Include(c => c.Venue.Country);
+    private static IQueryable<ConcertDo> IncludeVenueDetailsReferences(IQueryable<ConcertDo> queryable) =>
+        IncludeAllReferences(queryable)
+            .Include(c => c.Venue.City.Country)
+            .Include(c => c.Venue.City.State)
+            .Include(c => c.Venue.PreviousNames);
     
     /// <inheritdoc/>
     protected override IQueryable<ConcertDo> DefaultQueryConfiguration(IQueryable<ConcertDo> queryable) => IncludeAllReferences(queryable);
@@ -169,13 +170,25 @@ public class SqlConcertRepository(ToursDbContext dbContext, TimeProvider timePro
     {
         var query = DbSet
             .AsQueryable();
-        query = IncludeCountry(query);
-        query = query.Include(c => c.Type);
+        query = IncludeVenueDetailsReferences(query);
         
         return query
+            .Where(c => c.DeletedAt == null)
             .Where(c => c.PostedStartTime < DateTime.UtcNow)
             .Where(c => c.Bookmarks.Any(b => b.UserId == userId && b.Status == UserConcertBookmarkDo.BookmarkStatus.Attending))
             .ToAsyncEnumerable();
+    }
+
+    /// <inheritdoc/>
+    public async IAsyncEnumerable<ConcertDo> GetConcertsForStatsAsync(string? tourId, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        var query = IncludeVenueDetailsReferences(DbSet.AsQueryable())
+            .Where(c => c.DeletedAt == null);
+        if (tourId is not null)
+            query = query.Where(c => c.TourId == tourId);
+
+        await foreach (var concert in query.AsAsyncEnumerable().WithCancellation(cancellationToken))
+            yield return concert;
     }
 
     /// <inheritdoc/>

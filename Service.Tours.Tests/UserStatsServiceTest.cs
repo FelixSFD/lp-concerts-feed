@@ -18,7 +18,7 @@ public class UserStatsServiceTest
         var logger = Substitute.For<ILogger<UserStatsService>>();
         _concertRepository = Substitute.For<IConcertRepository>();
         _songRepository = Substitute.For<ISongRepository>();
-        _userStatsService = new UserStatsService(_concertRepository, _songRepository, logger);
+        _userStatsService = new UserStatsService(new StatisticsService(_concertRepository, _songRepository), logger);
     }
 
 
@@ -66,6 +66,15 @@ public class UserStatsServiceTest
         Assert.Equal(0, attendedConcertsStats.NumberOfVenues);
     }
 
+    [Fact]
+    public async Task UserStats_RejectMissingUserId()
+    {
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _userStatsService.GetAttendedConcerts(null!));
+        await Assert.ThrowsAsync<ArgumentException>(() => _userStatsService.GetSongsUserHasSeenLiveAsync(" "));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _userStatsService.GetConcertAndSongStatsAsync(null!));
+        _concertRepository.DidNotReceive().GetConcertsForStatsAsync(Arg.Any<string?>(), Arg.Any<CancellationToken>());
+    }
+
 
     [Fact]
     public async Task GetSongsUserHasSeenLiveAsync()
@@ -110,7 +119,7 @@ public class UserStatsServiceTest
     }
     
     
-    private static ConcertDo CreateMockConcert()
+    internal static ConcertDo CreateMockConcert()
     {
         var mockConcertId = Guid.NewGuid().ToString();
         var mockConcertType = new ConcertTypeDo

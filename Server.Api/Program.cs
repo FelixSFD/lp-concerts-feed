@@ -272,6 +272,7 @@ builder.Services.AddScoped<LocationService>();
 builder.Services.AddScoped<VenueService>();
 builder.Services.AddScoped<TourService>();
 builder.Services.AddScoped<ConcertService>();
+builder.Services.AddScoped<StatisticsService>();
 builder.Services.AddScoped<UserStatsService>();
 builder.Services.AddConcertSyncEngine();
 builder.Services.AddLocationSyncEngines();

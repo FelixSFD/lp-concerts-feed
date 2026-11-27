@@ -1,6 +1,3 @@
-using Database.Setlists.DataObjects;
-using Database.Setlists.Repositories;
-using Database.Tours.Repositories;
 using LPCalendar.DataStructure.Setlists;
 using Microsoft.Extensions.Logging;
 using Service.Tours.DataStructure.Stats;
@@ -10,7 +7,7 @@ namespace Service.Tours;
 /// <summary>
 /// Service to calculate personalized statistics for users
 /// </summary>
-public class UserStatsService(IConcertRepository concertRepository, ISongRepository songRepository, ILogger<UserStatsService> logger)
+public class UserStatsService(StatisticsService statisticsService, ILogger<UserStatsService> logger)
 {
     /// <summary>
     /// Returns statistics about the concerts a user has attended
@@ -20,49 +17,20 @@ public class UserStatsService(IConcertRepository concertRepository, ISongReposit
     /// <returns></returns>
     public async Task<UserConcertStatsBo> GetAttendedConcerts(string userId, CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(userId);
         Log.StartGeneratingAttendedConcertsStats(logger, userId);
 
-        var concerts = await concertRepository
-            .GetAttendedConcertsForAsync(userId, cancellationToken)
-            .ToArrayAsync(cancellationToken);
-        
+        var stats = await statisticsService.GetConcertStatsAsync(new StatsScope(userId: userId), cancellationToken);
         Log.LoadedConcertsUserAttended(logger, userId);
-
-        var numberOfConcerts = concerts.Length;
-        var byVenue = concerts
-            .GroupBy(c => c.Venue, c => c)
-            .ToDictionary(g => g.Key, g => g.ToArray());
-        var byCity = byVenue
-            .Select(g => g.Key)
-            .GroupBy(v => v.City, v => v)
-            .ToDictionary(g => g.Key, g => g.ToArray());
-        var byCountry = byCity
-            .Select(c => c.Key)
-            .GroupBy(c => c.CountryCode, c => c)
-            .ToDictionary(g => g.Key, g => g.ToArray());
-
-        var numberOfVenues = byVenue
-            .Select(v => v.Key.Id)
-            .Distinct()
-            .Count();
-        var numberOfCities = byCity
-            .Select(c => c.Key.Id)
-            .Distinct()
-            .Count();
-        var numberOfCountries = byCountry
-            .Select(c => c.Key)
-            .Distinct()
-            .Count();
-        
-        Log.FinishedGeneratingAttendedConcertsStats(logger, userId, numberOfConcerts, numberOfVenues, numberOfCities, numberOfCountries);
+        Log.FinishedGeneratingAttendedConcertsStats(logger, userId, stats.NumberOfConcerts, stats.NumberOfVenues, stats.NumberOfCities, stats.NumberOfCountries);
 
         return new UserConcertStatsBo
         {
-            Concerts = [.. concerts.Select(DoMapper.ToBoWithDetails)],
-            NumberOfCities = numberOfCities,
-            NumberOfCountries = numberOfCountries,
-            NumberOfVenues = numberOfVenues,
-            NumberOfConcerts = numberOfConcerts,
+            Concerts = stats.Concerts,
+            NumberOfCities = stats.NumberOfCities,
+            NumberOfCountries = stats.NumberOfCountries,
+            NumberOfVenues = stats.NumberOfVenues,
+            NumberOfConcerts = stats.NumberOfConcerts,
         };
     }
     
@@ -74,33 +42,35 @@ public class UserStatsService(IConcertRepository concertRepository, ISongReposit
     /// <returns>List of song names and play count</returns>
     public async Task<UserSongStatBo[]> GetSongsUserHasSeenLiveAsync(string userId, CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(userId);
         Log.StartGeneratingAttendedSongStats(logger, userId);
         
-        var concertIds = await concertRepository
-            .GetAttendedConcertsForAsync(userId, cancellationToken)
-            .Select(c => c.Id)
-            .Distinct()
-            .ToArrayAsync(cancellationToken);
-        
+        var songs = await statisticsService.GetSongStatsAsync(new StatsScope(userId: userId), cancellationToken);
         Log.LoadedConcertsUserAttended(logger, userId);
-        
-        var songsPlayed = await songRepository.GetSongsPlayedAtConcertsAsync(concertIds, cancellationToken);
-        var stats = songsPlayed.Select(GetSongStatFromDictEntry).ToArray();
+        var stats = songs.Select(song => new UserSongStatBo
+        {
+            SongId = song.SongId,
+            SongName = song.SongName,
+            AlbumName = song.AlbumName,
+            AppleMusicId = song.AppleMusicId,
+            PlayCount = song.PlayCount,
+        }).ToArray();
         Log.FinishedGeneratingAttendedSongStats(logger, userId, stats.Length);
         return stats;
     }
-    
-    private static UserSongStatBo GetSongStatFromDictEntry(KeyValuePair<SongDo, uint> kv)
+
+    /// <summary>Calculates concert and song statistics using one attended-concert selection.</summary>
+    public async Task<(ConcertStatsBo Concerts, SongStatBo[] Songs)> GetConcertAndSongStatsAsync(
+        string userId, CancellationToken cancellationToken = default)
     {
-        var song = kv.Key;
-        var count = kv.Value;
-        return new UserSongStatBo
-        {
-            SongId = song.Id,
-            SongName = song.Title,
-            AlbumName = song.Album?.Title,
-            AppleMusicId = song.AppleMusicId,
-            PlayCount = count,
-        };
+        ArgumentException.ThrowIfNullOrWhiteSpace(userId);
+        Log.StartGeneratingAttendedConcertsStats(logger, userId);
+        Log.StartGeneratingAttendedSongStats(logger, userId);
+        var stats = await statisticsService.GetConcertAndSongStatsAsync(new StatsScope(userId: userId), cancellationToken);
+        Log.LoadedConcertsUserAttended(logger, userId);
+        Log.FinishedGeneratingAttendedConcertsStats(logger, userId, stats.Concerts.NumberOfConcerts,
+            stats.Concerts.NumberOfVenues, stats.Concerts.NumberOfCities, stats.Concerts.NumberOfCountries);
+        Log.FinishedGeneratingAttendedSongStats(logger, userId, stats.Songs.Length);
+        return stats;
     }
 }

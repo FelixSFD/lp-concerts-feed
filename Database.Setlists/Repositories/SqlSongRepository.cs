@@ -46,18 +46,21 @@ public class SqlSongRepository(SetlistsDbContext dbContext)
             .Where(s => concertIds.Contains(s.ConcertId))
             .Include(s => s.Entries)
             .SelectMany(s => s.Entries)
+            .Where(e => !e.IsPlayedFromRecording)
             .Include(e => e.PlayedSong)
+                .ThenInclude(s => s!.Album)
             .Include(e => e.PlayedSongVariant)
-            .Select(e => e);
+                .ThenInclude(v => v!.Song)
+                .ThenInclude(s => s.Album);
 
         var entries = await query.ToListAsync(cancellationToken);
         return entries
             .Select(entry => entry.PlayedSong ?? entry.PlayedSongVariant?.Song)
             .Where(song => song is not null)
             .Cast<SongDo>()
-            .GroupBy(song => song)
+            .GroupBy(song => song.Id)
             .ToDictionary(
-                group => group.Key,
+                group => group.First(),
                 group => (uint)group.Count());
     }
 }

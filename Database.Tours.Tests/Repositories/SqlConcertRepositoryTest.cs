@@ -15,6 +15,65 @@ public class SqlConcertRepositoryTest : ToursDbIntegrationTestsBase
         public override DateTimeOffset GetUtcNow() => utcNow;
     }
 
+    [Fact]
+    public async Task StatsQueries_SelectCompleteScopesAndLoadReferences()
+    {
+        var country = new CountryDo { IsoCode = "DEU", Name = "Germany", NativeName = "Deutschland" };
+        var city = new CityDo { CountryCode = country.IsoCode, Country = country, Name = "Berlin", NativeName = "Berlin" };
+        var venue = new VenueDo
+        {
+            CountryCode = country.IsoCode, Country = country, City = city,
+            CurrentName = "Arena", TimeZone = "Europe/Berlin",
+            PreviousNames = [new PreviousVenueNameDo { Name = "Old Arena", From = new DateOnly(2000, 1, 1) }]
+        };
+        DbContext.Venues.Add(venue);
+        DbContext.Tours.Add(new TourDo { Id = "stats-tour", Name = "Tour", Legs = [] });
+        await DbContext.SaveChangesAsync();
+
+        for (var i = 0; i < 105; i++)
+            DbContext.Concerts.Add(new ConcertDo
+            {
+                Id = $"stats-{i:D3}", TourId = "stats-tour", VenueId = venue.Id,
+                ConcertTypeId = 1, PostedStartTime = new DateTime(2020, 1, 1)
+            });
+        DbContext.Concerts.AddRange(
+            new ConcertDo { Id = "stats-no-tour", VenueId = venue.Id, ConcertTypeId = 1, PostedStartTime = new DateTime(2020, 1, 1) },
+            new ConcertDo { Id = "stats-future", TourId = "stats-tour", VenueId = venue.Id, ConcertTypeId = 1, PostedStartTime = new DateTime(2100, 1, 1) },
+            new ConcertDo { Id = "stats-deleted", TourId = "stats-tour", VenueId = venue.Id, ConcertTypeId = 1, PostedStartTime = new DateTime(2020, 1, 1), DeletedAt = DateTimeOffset.UtcNow });
+        DbContext.ConcertBookmarks.AddRange(
+            new UserConcertBookmarkDo { UserId = "user", ConcertId = "stats-000", Status = UserConcertBookmarkDo.BookmarkStatus.Attending },
+            new UserConcertBookmarkDo { UserId = "user", ConcertId = "stats-future", Status = UserConcertBookmarkDo.BookmarkStatus.Attending },
+            new UserConcertBookmarkDo { UserId = "user", ConcertId = "stats-deleted", Status = UserConcertBookmarkDo.BookmarkStatus.Attending },
+            new UserConcertBookmarkDo { UserId = "user", ConcertId = "stats-001", Status = UserConcertBookmarkDo.BookmarkStatus.Bookmarked });
+        await DbContext.SaveChangesAsync();
+        DbContext.ChangeTracker.Clear();
+
+        var repository = new SqlConcertRepository(DbContext);
+        var tourConcerts = await repository.GetConcertsForStatsAsync("stats-tour").ToArrayAsync();
+        Assert.Equal(106, tourConcerts.Length);
+        Assert.DoesNotContain(tourConcerts, c => c.Id == "stats-deleted");
+        Assert.All(tourConcerts, c => Assert.Equal("stats-tour", c.TourId));
+        var sample = tourConcerts.First();
+        Assert.Equal("Tour", sample.Tour?.Name);
+        Assert.Equal("Germany", sample.Venue.City.Country.Name);
+        Assert.Equal("Old Arena", Assert.Single(sample.Venue.PreviousNames).Name);
+        Assert.NotNull(sample.Type);
+
+        Assert.Equal(107, (await repository.GetConcertsForStatsAsync(null).ToArrayAsync()).Length);
+        DbContext.ChangeTracker.Clear();
+        var attended = await repository.GetAttendedConcertsForAsync("user").ToArrayAsync();
+        var attendedConcert = Assert.Single(attended);
+        Assert.Equal("stats-000", attendedConcert.Id);
+        Assert.Equal("Tour", attendedConcert.Tour?.Name);
+        Assert.Equal("Germany", attendedConcert.Venue.City.Country.Name);
+        Assert.Equal("Old Arena", Assert.Single(attendedConcert.Venue.PreviousNames).Name);
+
+        using var cancellation = new CancellationTokenSource();
+        await cancellation.CancelAsync();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(
+            async () => await repository.GetConcertsForStatsAsync(null, cancellation.Token).ToArrayAsync());
+    }
+
     [Theory]
     [InlineData(0)]
     [InlineData(100)]

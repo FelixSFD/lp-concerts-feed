@@ -20,7 +20,9 @@ public interface ISongRepository : ISingleKeyRepositoryBase<SongDo, uint>, IRepo
     public IAsyncEnumerable<SongDo> GetSongsByTitle(string title);
     
     /// <summary>
-    /// Returns a dictionary of songs that were played at the given concerts, along with the number of times they were played.
+    /// Returns songs played live at the given concerts and their number of setlist entries.
+    /// Repeated entries count separately, recording-only entries and mashups are excluded,
+    /// and song variants are counted against their base song.
     /// </summary>
     /// <param name="concertIds">IDs of the concerts to check</param>
     /// <param name="cancellationToken">Token to cancel the operation</param>
