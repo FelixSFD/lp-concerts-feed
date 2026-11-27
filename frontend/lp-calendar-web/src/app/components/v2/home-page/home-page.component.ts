@@ -18,6 +18,15 @@ import { catchError, of, switchMap } from 'rxjs';
 import { HeroCountdownComponent } from '../hero-countdown/hero-countdown.component';
 import { DatePipe } from '@angular/common';
 
+interface HeroImage {
+  readonly src: string;
+  readonly attribution?: {
+    readonly text: string;
+    readonly url?: string;
+    readonly icon?: string;
+  };
+}
+
 @Component({
   selector: 'app-home-page',
   imports: [
@@ -36,6 +45,33 @@ import { DatePipe } from '@angular/common';
   changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class HomePageComponent implements OnInit {
+  // Attribution supports optional url and PrimeIcons icon (e.g. 'pi-instagram').
+  // Keep this list in sync with the images in public/home-images.
+  protected readonly heroImages: readonly HeroImage[] = [
+    { src: '/home-images/lp-hamburg-2024-encore.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+    { src: '/home-images/lp-paris-2024-joe.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+    { src: '/home-images/lp-paris-2024-em.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+    { src: '/home-images/lp-hamburg-2024-colin.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+    { src: '/home-images/lp-paris-2024-dave.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+    { src: '/home-images/lp-ucl25.webp', attribution: { text: 'FelixSFD' } },
+    { src: '/home-images/lp-hamburg-2024-mike.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+    { src: '/home-images/lp-hamburg-2024-em.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+    { src: '/home-images/lp-paris-2024-em-flying.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+    { src: '/home-images/lp-hamburg-2024-em2.webp', attribution: { text: 'Jon Barker', url: 'https://www.instagram.com/jondbarker/', icon: 'pi-instagram' } },
+  ];
+
+  protected readonly loadedHeroImages = signal([this.heroImages[0]]);
+  protected readonly currentHeroImage = signal(this.heroImages[0]);
+  protected readonly previousHeroImage = signal<HeroImage | null>(null);
+  protected readonly pendingHeroImage = signal<HeroImage | null>(null);
+  protected readonly heroImageLoadFailed = signal(false);
+  private nextHeroImageIndex = 1;
+  private heroTimer: ReturnType<typeof setTimeout> | undefined;
+  private heroImageRequestVersion = 0;
+  private heroImageLoadingAutomatically = false;
+  private heroSlideshowStarted = false;
+  private heroReducedMotion: MediaQueryList | undefined;
+
   private readonly authService = inject(AuthService);
   private readonly oidcSecurityService = inject(OidcSecurityService);
   private readonly messageService = inject(MessageService);
@@ -47,6 +83,8 @@ export class HomePageComponent implements OnInit {
   protected readonly calendarReady = computed(() => this.authService.initialized() && !this.authService.initializationError());
   protected readonly calendarAuthError = this.authService.initializationError;
   protected readonly creatingCalendar = signal(false);
+  protected readonly calendarFeedHighlighted = signal(false);
+  private calendarFeedHighlightTimer: ReturnType<typeof setTimeout> | undefined;
   protected readonly calendarManagementId = signal<string | null>(null);
   protected readonly calendarSettings = signal<CalendarSubscriptionSettingsDto>({
     includeDoorsTime: false,
@@ -73,6 +111,10 @@ export class HomePageComponent implements OnInit {
 
   isLoggedIn$: boolean = false;
 
+  constructor() {
+    this.destroyRef.onDestroy(() => clearTimeout(this.calendarFeedHighlightTimer));
+  }
+
   ngOnInit() {
     this.loadNextConcert().then();
     this.loadOnThisDay().then();
@@ -97,11 +139,98 @@ export class HomePageComponent implements OnInit {
 
   }
 
+  /** Starts loading later photos only after the initial hero image has finished. */
+  protected onHeroImageReady(image: HeroImage, failed = false): void {
+    if (failed) console.warn(`Hero image could not be displayed: ${image.src}`);
+    if (image === this.heroImages[0] && !this.heroSlideshowStarted) {
+      this.heroSlideshowStarted = true;
+      this.startHeroSlideshow();
+    }
+  }
 
-      /** Scrolls to the calendar feed card — temporary target for the hero CTA. */
+  private startHeroSlideshow(): void {
+    const reducedMotion = this.heroReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onMotionChange = () => {
+      clearTimeout(this.heroTimer);
+      if (reducedMotion.matches && this.heroImageLoadingAutomatically) {
+        this.heroImageRequestVersion++;
+        this.heroImageLoadingAutomatically = false;
+        this.pendingHeroImage.set(null);
+      }
+      if (!reducedMotion.matches) this.scheduleNextHeroImage();
+    };
+    reducedMotion.addEventListener('change', onMotionChange);
+    this.destroyRef.onDestroy(() => {
+      clearTimeout(this.heroTimer);
+      reducedMotion.removeEventListener('change', onMotionChange);
+    });
+    this.scheduleNextHeroImage();
+  }
+
+  private scheduleNextHeroImage(): void {
+    clearTimeout(this.heroTimer);
+    if (this.heroSlideshowStarted && !this.heroReducedMotion?.matches &&
+        !this.pendingHeroImage() && !this.destroyRef.destroyed && this.heroImages.length > 1) {
+      this.heroTimer = setTimeout(() => this.showHeroImage(this.nextHeroImageIndex, true), 7000);
+    }
+  }
+
+  /** Shows the selected photo and restarts the automatic slideshow. */
+  protected selectHeroImage(index: number): void {
+    this.showHeroImage(index, false);
+  }
+
+  private showHeroImage(index: number, automatic: boolean): void {
+    clearTimeout(this.heroTimer);
+    const nextImage = this.heroImages[index];
+    const requestVersion = ++this.heroImageRequestVersion;
+    this.heroImageLoadingAutomatically = automatic;
+    this.heroImageLoadFailed.set(false);
+    this.nextHeroImageIndex = (index + 1) % this.heroImages.length;
+
+    if (nextImage === this.currentHeroImage()) {
+      this.pendingHeroImage.set(null);
+      this.heroImageLoadingAutomatically = false;
+      this.scheduleNextHeroImage();
+      return;
+    }
+
+    this.pendingHeroImage.set(nextImage);
+    const image = new Image();
+    image.fetchPriority = automatic ? 'low' : 'auto';
+    image.src = nextImage.src;
+    void image.decode().then(() => {
+      if (this.destroyRef.destroyed || requestVersion !== this.heroImageRequestVersion) return;
+      this.loadedHeroImages.update(images => images.includes(nextImage) ? images : [...images, nextImage]);
+      this.previousHeroImage.set(this.currentHeroImage());
+      this.currentHeroImage.set(nextImage);
+    }).catch(error => {
+      if (this.destroyRef.destroyed || requestVersion !== this.heroImageRequestVersion) return;
+      console.warn(`Hero image could not be loaded: ${nextImage.src}`, error);
+      if (!automatic) this.heroImageLoadFailed.set(true);
+    }).finally(() => {
+      if (this.destroyRef.destroyed || requestVersion !== this.heroImageRequestVersion) return;
+      this.pendingHeroImage.set(null);
+      this.heroImageLoadingAutomatically = false;
+      this.scheduleNextHeroImage();
+    });
+  }
+
+
+  /** Scrolls to and briefly highlights the calendar feed card. */
   protected scrollToCalendarFeed(): void {
+    const calendarFeed = document.getElementById('calendar-feed');
+    if (!calendarFeed) return;
+
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    document.getElementById('calendar-feed')?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    calendarFeed.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+
+    // highlight the card for a short time to make it easier to find
+    setTimeout(() => {
+      this.calendarFeedHighlighted.set(true);
+      clearTimeout(this.calendarFeedHighlightTimer);
+      this.calendarFeedHighlightTimer = setTimeout(() => this.calendarFeedHighlighted.set(false), 2500);
+    }, 300);
   }
 
 

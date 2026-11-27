@@ -1,5 +1,34 @@
 <header class="hero">
+  @for (image of loadedHeroImages(); track image.src) {
+    <img
+      class="hero-photo"
+      [class.hero-photo-current]="image === currentHeroImage()"
+      [class.hero-photo-previous]="image === previousHeroImage()"
+      [class.hero-photo-fade]="image === currentHeroImage() && previousHeroImage() !== null"
+      [src]="image.src"
+      (load)="onHeroImageReady(image)"
+      (error)="onHeroImageReady(image, true)"
+      alt=""
+      aria-hidden="true"
+    />
+  }
   <div class="hero-grid">
+    <div class="hero-carousel-navigation hidden lg:flex" role="group" aria-label="Hero photo navigation">
+      @for (image of heroImages; track image.src; let index = $index) {
+        <button
+          type="button"
+          class="hero-carousel-dot"
+          [class.hero-carousel-dot-current]="image === currentHeroImage()"
+          [attr.aria-label]="'Show photo ' + (index + 1) + ' of ' + heroImages.length"
+          [attr.aria-current]="image === currentHeroImage() ? 'true' : null"
+          [attr.aria-busy]="image === pendingHeroImage() ? 'true' : null"
+          (click)="selectHeroImage(index)"
+        ></button>
+      }
+      @if (heroImageLoadFailed()) {
+        <span class="hero-carousel-error" role="status">Could not load photo. Please try again.</span>
+      }
+    </div>
     <div class="hero-body">
       <p-tag class="hero-badge" value="Created By Fans" [rounded]="true" />
 
@@ -8,6 +37,15 @@
         A concert calendar built and kept up to date by the community - track
         every show, setlist and venue in one place.
       </p>
+
+      <div class="hero-actions">
+        <p-button
+          class="hero-cta"
+          label="Add to calendar"
+          icon="pi pi-calendar-plus"
+          (onClick)="scrollToCalendarFeed()"
+        />
+      </div>
     </div>
 
     @if (nextConcert) {
@@ -52,14 +90,29 @@
         <span class="next-show-empty-sub">
           The next date appears here the moment it is confirmed.
         </span>
-        <p-button
-          class="next-show-cta"
-          label="Add to calendar"
-          icon="pi pi-calendar-plus"
-          (onClick)="scrollToCalendarFeed()"
-        />
       </div>
     }
+
+    <div class="hero-attribution">
+      @if (currentHeroImage().attribution; as attribution) {
+        Photo by
+        @if (attribution.url) {
+          <a [href]="attribution.url" target="_blank" rel="noopener noreferrer">
+            @if (attribution.icon) {
+              <i class="pi hero-attribution-icon" [class]="attribution.icon" aria-hidden="true"></i>
+            }
+            {{ attribution.text }}
+          </a>
+        } @else {
+          <span>
+            @if (attribution.icon) {
+              <i class="pi hero-attribution-icon" [class]="attribution.icon" aria-hidden="true"></i>
+            }
+            {{ attribution.text }}
+          </span>
+        }
+      }
+    </div>
   </div>
 </header>
 
@@ -205,7 +258,7 @@
     </div>
 
     <!-- Calendar Feed Card -->
-    <div id="calendar-feed" class="bento-tile calendar-tile">
+    <div id="calendar-feed" class="bento-tile calendar-tile" [class.bento-tile-highlighted]="calendarFeedHighlighted()">
       <i class="pi pi-calendar bento-tile-icon" aria-hidden="true"></i>
       <h3 class="bento-tile-title">Calendar feed</h3>
       <p class="bento-tile-copy">Choose which event times to include, then create a feed for your calendar app.</p>
