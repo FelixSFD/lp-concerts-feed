@@ -164,7 +164,8 @@ public class UsersController(UserService userService, UserStatsService userStats
     public async Task<ActionResult<GetUserConcertStatsSharePicResponseDto>> GetUserConcertStatsSharePicAsync([FromRoute] string userId, CancellationToken cancellationToken)
     {
         var userInfoTask = userService.GetUserById(userId, cancellationToken);
-        var (concertStats, songStats) = await userStatsService.GetConcertAndSongStatsAsync(userId, cancellationToken);
+        var scope = new StatsScope(userId: userId);
+        var (concertStats, songStats) = await statisticsService.GetConcertAndSongStatsAsync(scope, cancellationToken);
         var userInfo = await userInfoTask;
 
         var template = new UserTemplate
