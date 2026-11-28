@@ -55,8 +55,6 @@ jobs:
           name: backend-build
       - name: restore
         run: dotnet restore
-      - name: Print all files in Database.Setlists
-        run: ls -R Database.Setlists.Tests
       - name: Test
         env:
           TEST_NAMESPACE: ${{ matrix.namespace }}
