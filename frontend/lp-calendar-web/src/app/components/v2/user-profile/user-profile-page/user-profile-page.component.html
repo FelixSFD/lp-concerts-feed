@@ -6,6 +6,19 @@
   }
 </ng-template>
 
+<p-dialog [(visible)]="showShareImageDialog" [modal]="true" header="Share">
+  <div class="flex flex-col gap-4 justify-content-center">
+    @if (shareImageUrl()) {
+      <img [src]="shareImageUrl()!" alt="Share image" />
+    } @else {
+      <p-progress-spinner>Loading...</p-progress-spinner>
+    }
+  </div>
+  <ng-template #footer>
+    <button type="button" pButton severity="secondary" variant="outlined" (click)="showShareImageDialog.set(false)">Cancel</button>
+  </ng-template>
+</p-dialog>
+
 @if (resolverError()) {
   <p-message severity="error" icon="pi pi-exclamation-triangle">
     This user profile does not exist.

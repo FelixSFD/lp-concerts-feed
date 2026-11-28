@@ -18,7 +18,7 @@ import { Button, ButtonDirective, ButtonIcon, ButtonLabel } from 'primeng/button
 import { DataView } from 'primeng/dataview';
 import { AppleMusicArtworkComponent } from '../../music/apple-music-artwork/apple-music-artwork.component';
 import { AppleMusicService } from '../../../../services/music/apple-music.service';
-import { NgTemplateOutlet } from '@angular/common';
+import { NgOptimizedImage, NgTemplateOutlet } from '@angular/common';
 import {
   ScrollArea,
   ScrollAreaContent,
@@ -31,6 +31,8 @@ import { Tooltip } from 'primeng/tooltip';
 import { AuthService } from '../../../../auth/auth.service';
 import { MatomoTracker } from 'ngx-matomo-client';
 import { Skeleton } from 'primeng/skeleton';
+import { Dialog } from 'primeng/dialog';
+import { ProgressSpinner } from 'primeng/progressspinner';
 
 @Component({
   imports: [
@@ -52,6 +54,8 @@ import { Skeleton } from 'primeng/skeleton';
     Tag,
     Tooltip,
     Skeleton,
+    Dialog,
+    ProgressSpinner,
   ],
   selector: 'app-user-profile-page',
   styleUrl: './user-profile-page.component.css',
@@ -76,6 +80,8 @@ export class UserProfilePageComponent {
   protected concertPins = signal<ConcertMapPin[]>([]);
 
   protected showShareButton = signal<boolean>(false);
+  protected showShareImageDialog = signal<boolean>(false);
+  protected shareImageUrl = signal<string | null>(null);
 
   protected isLoadingConcertStats = signal<boolean>(false);
   protected isLoadingSongStats = signal<boolean>(false);
@@ -132,18 +138,28 @@ export class UserProfilePageComponent {
   async onShareStatsClicked() {
     console.debug("Share stats clicked");
     this.isSharing.set(true);
+    this.showShareImageDialog.set(true);
+
     try {
       let response = await this.userStatsService.getUserConcertStatsSharePic(this.user()?.id!);
       console.debug("response:", response);
       let shareData = {
         files: [response],
       };
+
+      /*
       if (navigator.share) {
         await navigator.share(shareData);
         this.tracker.trackEvent('share', 'user_stats', this.user()?.username);
       } else {
         console.warn("navigator.canShare() returned false");
+      }*/
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.shareImageUrl.set(e.target?.result as string);
       }
+      reader.readAsDataURL(new Blob([await response.bytes()]));
     } catch (e) {
       console.error("Failed to share profile stats:", e);
     } finally {
