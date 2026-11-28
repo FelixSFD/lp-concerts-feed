@@ -51,20 +51,19 @@ jobs:
         with:
           name: backend-build
       - name: Test
-        run: |
-          if [ "${{ matrix.project }}" = "remaining" ]; then
+          run: |
+            if [ "${{ matrix.namespace }}" = "remaining" ]; then
+              FILTER="FullyQualifiedName!~Database."
+            else
+              FILTER="FullyQualifiedName~${{ matrix.namespace }}"
+            fi
+            
             dotnet test \
               --no-build \
               --logger trx \
               --results-directory "TestResults" \
               --settings:"Lambda.GetS3UploadUrl/test/Lambda.GetS3UploadUrl.Tests/test.runsettings" \
-              --filter "FullyQualifiedName!~Database."
-          else
-            dotnet test "${{ matrix.project }}/${{ matrix.project }}.Tests.csproj" \
-              --no-build \
-              --logger trx \
-              --results-directory "TestResults/${{ matrix.project }}"
-          fi
+              --filter "$FILTER"
       - name: Upload test results
         uses: actions/upload-artifact@v7
         if: ${{ always() }}
