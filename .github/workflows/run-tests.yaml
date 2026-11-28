@@ -5,35 +5,88 @@ on:
     branches: [ "**" ]
 
 jobs:
-  test_backend:
+  build_backend:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v5
-      with:
-        dotnet-version: 10.0.x
-    - name: Generate models from OpenAPI
-      working-directory: ./Common.Contracts
-      run: ./generate-dotnet-api.sh
-    - name: Install dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build
-    - name: Test with dotnet
-      # TODO: Fix runsettings
-      run: dotnet test --logger trx --results-directory "TestResults" --settings:"Lambda.GetS3UploadUrl/test/Lambda.GetS3UploadUrl.Tests/test.runsettings"
-    - name: Upload dotnet test results
-      uses: actions/upload-artifact@v7
-      with:
-        name: dotnet-results
-        path: TestResults
-      # Use always() to always run this step to publish test results when there are test failures
-      if: ${{ always() }}
-    - name: Generate test report
-      uses: bibipkins/dotnet-test-reporter@v1.4.0
-      if: ${{ always() }}
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        comment-title: 'Unit Test Results'
-        results-path: ./TestResults/*.trx
+      - uses: actions/checkout@v6
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - name: Generate models from OpenAPI
+        working-directory: ./Common.Contracts
+        run: ./generate-dotnet-api.sh
+      - name: Install dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: backend-build
+          path: |
+            **/bin/**
+            **/obj/**
+          include-hidden-files: true
+          retention-days: 1
+  
+  test_backend:
+    needs: build_backend
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project:
+          - Database.Setlists
+          - Database.Tours
+          - remaining # this makes sure all other projects are tested in a single job, so that we don't have to create a matrix entry for every single project
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - name: Download build artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: backend-build
+      - name: Test
+        run: |
+          if [ "${{ matrix.project }}" = "remaining" ]; then
+            dotnet test \
+              --no-build \
+              --logger trx \
+              --results-directory "TestResults" \
+              --settings:"Lambda.GetS3UploadUrl/test/Lambda.GetS3UploadUrl.Tests/test.runsettings" \
+              --filter "FullyQualifiedName!~Database."
+          else
+            dotnet test "${{ matrix.project }}/${{ matrix.project }}.Tests.csproj" \
+              --no-build \
+              --logger trx \
+              --results-directory "TestResults/${{ matrix.project }}"
+          fi
+      - name: Upload test results
+        uses: actions/upload-artifact@v7
+        if: ${{ always() }}
+        with:
+          name: test-results-${{ matrix.project }}
+          path: TestResults
+          retention-days: 1
+          
+  publish_test_results:
+    needs: test_backend
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all test results
+        uses: actions/download-artifact@v7
+        with:
+          pattern: test-results-*
+          path: TestResults
+          merge-multiple: true
+      - name: Generate test report
+        uses: bibipkins/dotnet-test-reporter@v1.4.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-title: 'Unit Test Results'
+          results-path: './TestResults/**/*.trx'
