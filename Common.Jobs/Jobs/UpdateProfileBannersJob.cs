@@ -5,6 +5,7 @@ using Service.SharePics;
 using Service.SharePics.DataStructure.Templates;
 using Service.SharePics.Storage;
 using Service.Tours;
+using Service.Tours.DataStructure.Stats;
 using Service.Users;
 
 namespace Common.Jobs.Jobs;
@@ -12,7 +13,7 @@ namespace Common.Jobs.Jobs;
 [QuartzJob(Name = "UpdateProfileBanners", Group = "LPshows")]
 [CronTrigger("0 15 4 ? * *", Name = "UpdateProfileBanners-nightly")]
 [DisallowConcurrentExecution]
-public sealed class UpdateProfileBannersJob(UserService userService, UserStatsService userStatsService, SharePicService sharePicService, ISharePicStore sharePicStore, ILogger<UpdateProfileBannersJob> logger) : IJob
+public sealed class UpdateProfileBannersJob(UserService userService, StatisticsService statsService, SharePicService sharePicService, ISharePicStore sharePicStore, ILogger<UpdateProfileBannersJob> logger) : IJob
 {
     public async ValueTask Execute(IJobExecutionContext context, CancellationToken cancellationToken = default)
     {
@@ -25,7 +26,7 @@ public sealed class UpdateProfileBannersJob(UserService userService, UserStatsSe
             try
             {
                 Log.FetchingStatsFor(logger, user.Username, user.Id);
-                var (concertStats, songStats) = await userStatsService.GetConcertAndSongStatsAsync(user.Id, cancellationToken);
+                var (concertStats, songStats) = await statsService.GetConcertAndSongStatsAsync(new StatsScope(user.Id), cancellationToken);
                 
                 Log.FetchedStatsFor(logger, user.Username, user.Id);
 
