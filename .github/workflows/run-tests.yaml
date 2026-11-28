@@ -36,10 +36,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        namespace:
-          - Database.Setlists
-          - Database.Tours
-          - remaining # this makes sure all other projects are tested in a single job, so that we don't have to create a matrix entry for every single project
+        test_filter:
+          - 'FullyQualifiedName~Database.Setlists'
+          - 'FullyQualifiedName~Database.Tours'
+          - 'FullyQualifiedName!~Database.'
     steps:
       - uses: actions/checkout@v6
       - name: Setup .NET
@@ -51,7 +51,7 @@ jobs:
         with:
           name: backend-build
       - name: Print all files in Database.Setlists
-        run: ls -R Database.Setlists
+        run: ls -R Database.Setlists.Tests
       - name: Test
         run: |
           dotnet test LPCalendar.sln \
@@ -59,7 +59,7 @@ jobs:
             --logger trx \
             --results-directory "TestResults" \
             --settings:"Lambda.GetS3UploadUrl/test/Lambda.GetS3UploadUrl.Tests/test.runsettings" \
-            --filter "${{ matrix.namespace == 'remaining' && 'FullyQualifiedName!~Database.' || format('FullyQualifiedName~{0}', matrix.namespace) }}"
+            --filter "${{ matrix.test_filter }}"
       - name: Upload test results
         uses: actions/upload-artifact@v7
         if: ${{ always() }}
