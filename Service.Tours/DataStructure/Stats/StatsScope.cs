@@ -24,5 +24,7 @@ public sealed record StatsScope
 
     /// <summary>The selected tour, or null for all tours and concerts without a tour.</summary>
     public string? TourId { get; }
+    
+    internal string ScopeIdentifier => $"user-{UserId ?? "all"}_tour-{TourId ?? "all"}";
 }
 

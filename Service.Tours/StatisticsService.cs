@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using Database.Setlists.Repositories;
 using Database.Tours.DataObjects;
@@ -14,6 +15,8 @@ public class StatisticsService(IConcertRepository concertRepository, ISongReposi
     private static readonly ActivitySource ActivitySource =
         new("LPshows.Performance");
     private const decimal DefaultRarityThreshold = 0.25m;
+    
+    private IDictionary<string, ConcertDo[]> _concertStatsCache = new ConcurrentDictionary<string, ConcertDo[]>(StringComparer.OrdinalIgnoreCase);
     
     /// <summary>Calculates concert and location statistics for the selected scope.</summary>
     public async Task<ConcertStatsBo> GetConcertStatsAsync(StatsScope scope, CancellationToken cancellationToken = default)
@@ -114,12 +117,27 @@ public class StatisticsService(IConcertRepository concertRepository, ISongReposi
         return stats;
     }
 
+    /// <summary>
+    /// Loads the concerts for the given scope, using a cache to avoid repeated database queries.
+    /// </summary>
+    /// <param name="scope">The scope for which to load concerts.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>An array of concerts for the given scope.</returns>
     private async Task<ConcertDo[]> LoadConcertsAsync(StatsScope scope, CancellationToken cancellationToken)
     {
         using var activity = ActivitySource.StartActivity();
         activity?.SetTag("scope.userId", scope.UserId);
         activity?.SetTag("scope.tourId", scope.TourId);
         
+        // check if the concerts are already cached for this scope
+        if (_concertStatsCache.TryGetValue(scope.ScopeIdentifier, out var cachedConcerts))
+        {
+            activity?.SetTag("cache.hit", true);
+            return cachedConcerts;
+        }
+
+        activity?.SetTag("cache.hit", false);
+
         var query = scope.UserId is null
             ? concertRepository.GetConcertsForStatsAsync(scope.TourId, cancellationToken)
             : concertRepository.GetAttendedConcertsForAsync(scope.UserId, cancellationToken);
@@ -129,6 +147,7 @@ public class StatisticsService(IConcertRepository concertRepository, ISongReposi
 
         var concerts = await query.ToArrayAsync(cancellationToken);
         Log.LoadedConcertsForStats(logger, concerts.Length, scope.UserId, scope.TourId);
+        _concertStatsCache[scope.ScopeIdentifier] = concerts;
         return concerts;
     }
     
