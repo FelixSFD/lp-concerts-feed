@@ -6,12 +6,15 @@
   }
 </ng-template>
 
-<p-dialog [(visible)]="showShareImageDialog" [modal]="true" header="Share">
+<p-dialog [(visible)]="showShareImageDialog" [modal]="true" header="Share your statistics">
   <div class="flex flex-col gap-4 justify-content-center">
     @if (shareImageUrl()) {
       <img [src]="shareImageUrl()!" alt="Share image" />
     } @else {
-      <p-progress-spinner>Loading...</p-progress-spinner>
+      <div>
+        <p-progress-spinner></p-progress-spinner>
+        <p>Preparing image...</p>
+      </div>
     }
   </div>
   <ng-template #footer>
