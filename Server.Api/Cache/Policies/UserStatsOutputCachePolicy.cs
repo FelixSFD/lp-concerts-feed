@@ -33,5 +33,12 @@ internal sealed class UserStatsOutputCachePolicy(ILogger<UserStatsOutputCachePol
     public ValueTask ServeResponseAsync(
         OutputCacheContext context,
         CancellationToken cancellationToken)
-        => ValueTask.CompletedTask;
+    {
+        var response = context.HttpContext.Response;
+
+        // By default, only 200 would be cached, but in this case, we also want to cache 201 responses (created resources)
+        context.AllowCacheStorage = response.StatusCode is StatusCodes.Status201Created or StatusCodes.Status200OK;
+        
+        return ValueTask.CompletedTask;
+    }
 }
