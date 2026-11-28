@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using Common.Utils.Diagnostics;
 using Database.Setlists.Repositories;
 using Database.Tours.DataObjects;
 using Database.Tours.Repositories;
@@ -12,16 +13,19 @@ namespace Service.Tours;
 /// <summary>Calculates statistics for global, tour and user concert scopes.</summary>
 public class StatisticsService(IConcertRepository concertRepository, ISongRepository songRepository, ILogger<StatisticsService> logger, TimeProvider? timeProvider = null)
 {
-    private static readonly ActivitySource ActivitySource =
-        new("LPshows.Performance");
+    private static readonly ActivitySource ActivitySource = ActivitySourceProvider.Default;
     private const decimal DefaultRarityThreshold = 0.25m;
     
-    private IDictionary<string, ConcertDo[]> _concertStatsCache = new ConcurrentDictionary<string, ConcertDo[]>(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<string, ConcertDo[]> _concertStatsCache = new(StringComparer.OrdinalIgnoreCase);
     
     /// <summary>Calculates concert and location statistics for the selected scope.</summary>
     public async Task<ConcertStatsBo> GetConcertStatsAsync(StatsScope scope, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        using var activity = ActivitySource.StartActivity();
+        activity?.SetTag("scope.userId", scope.UserId);
+        activity?.SetTag("scope.tourId", scope.TourId);
+        
         Log.StartGeneratingConcertStats(logger, scope.UserId, scope.TourId);
         var concerts = await LoadConcertsAsync(scope, cancellationToken);
         return CalculateConcertStats(concerts, scope);
@@ -34,6 +38,10 @@ public class StatisticsService(IConcertRepository concertRepository, ISongReposi
     public async Task<SongStatBo[]> GetSongStatsAsync(StatsScope scope, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        using var activity = ActivitySource.StartActivity();
+        activity?.SetTag("scope.userId", scope.UserId);
+        activity?.SetTag("scope.tourId", scope.TourId);
+        
         Log.StartGeneratingSongStats(logger, scope.UserId, scope.TourId);
         var concerts = await LoadConcertsAsync(scope, cancellationToken);
         return await CalculateSongStatsAsync(concerts, scope, cancellationToken);
@@ -47,6 +55,10 @@ public class StatisticsService(IConcertRepository concertRepository, ISongReposi
         StatsScope scope, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        using var activity = ActivitySource.StartActivity();
+        activity?.SetTag("scope.userId", scope.UserId);
+        activity?.SetTag("scope.tourId", scope.TourId);
+        
         Log.StartGeneratingConcertStats(logger, scope.UserId, scope.TourId);
         Log.StartGeneratingSongStats(logger, scope.UserId, scope.TourId);
         var concerts = await LoadConcertsAsync(scope, cancellationToken);

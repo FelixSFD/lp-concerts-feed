@@ -29,6 +29,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Common.Database\Common.Database.csproj" />
       <ProjectReference Include="..\Common.Database.MySql\Common.Database.MySql.csproj" />
+      <ProjectReference Include="..\Common.Telemetry\Common.Telemetry.csproj" />
     </ItemGroup>
 
 </Project>

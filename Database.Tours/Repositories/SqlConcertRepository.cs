@@ -5,6 +5,7 @@ using Common.Database;
 using Common.Database.DataObjects;
 using Common.Database.Repositories;
 using Common.Database.MySql.Repositories;
+using Common.Utils.Diagnostics;
 using Database.Tours.DataObjects;
 using Database.Tours.Filters;
 using Microsoft.EntityFrameworkCore;
@@ -13,8 +14,7 @@ namespace Database.Tours.Repositories;
 
 public class SqlConcertRepository(ToursDbContext dbContext, TimeProvider timeProvider) : SingleKeySqlRepositoryBase<ConcertDo, string>(dbContext, dbContext.Concerts), IConcertRepository
 {
-    private static readonly ActivitySource ActivitySource =
-        new("LPshows.Performance");
+    private static readonly ActivitySource ActivitySource = ActivitySourceProvider.Default;
     
     /// <summary>Creates a repository using the system clock.</summary>
     public SqlConcertRepository(ToursDbContext dbContext) : this(dbContext, TimeProvider.System) { }

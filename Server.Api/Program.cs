@@ -7,6 +7,7 @@ using Common.Jobs;
 using Common.Server.ClientIp;
 using Common.Server.ExceptionHandling;
 using Common.Utils.Cache;
+using Common.Utils.Diagnostics;
 using Common.WikiMedia.Repositories;
 using Database.Setlists;
 using Database.Setlists.Repositories;
@@ -59,7 +60,7 @@ builder.Services.AddOpenTelemetry()
         tracing
             .AddAspNetCoreInstrumentation()
             .AddEntityFrameworkCoreInstrumentation()
-            .AddSource("LPshows.Performance")
+            .AddSource(ActivitySourceProvider.ActivitySourceName)
             .AddOtlpExporter();
     })
     .WithLogging(logging =>

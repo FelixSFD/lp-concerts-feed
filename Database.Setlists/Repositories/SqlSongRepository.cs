@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Common.Database.MySql.Repositories;
+using Common.Utils.Diagnostics;
 using Database.Setlists.DataObjects;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,8 +9,7 @@ namespace Database.Setlists.Repositories;
 public class SqlSongRepository(SetlistsDbContext dbContext)
     : SingleKeySqlRepositoryBase<SongDo, uint>(dbContext, dbContext.Songs), ISongRepository
 {
-    private static readonly ActivitySource ActivitySource =
-        new("LPshows.Performance");
+    private static readonly ActivitySource ActivitySource = ActivitySourceProvider.Default;
     
     /// <inheritdoc/>
     protected override async Task<SongDo> LoadReferences(SongDo dataObject)
