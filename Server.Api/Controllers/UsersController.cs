@@ -192,6 +192,8 @@ public class UsersController(UserService userService, UserStatsService userStats
                     .OrderBy(s => s.ReferenceConcertShare)
                     .ThenByDescending(s => s.ReferencePlayCount)
                     .ThenByDescending(s => s.SelectionPlayCount)
+                    .ThenBy(s => s.SongName)
+                    .Take(5)
                     .Select(s => new UserTemplate.RareSong
                     {
                         Title = s.SongName,
