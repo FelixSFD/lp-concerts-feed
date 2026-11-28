@@ -29,6 +29,7 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Prometheus;
 using Quartz;
+using Quartz.Diagnostics;
 using Server.Api.Cache;
 using Server.Api.Cache.Policies;
 using Server.Api.Config;
@@ -58,7 +59,18 @@ builder.Services.AddOpenTelemetry()
     .WithTracing(tracing =>
     {
         tracing
-            .AddAspNetCoreInstrumentation()
+            .AddAspNetCoreInstrumentation(o =>
+            {
+                o.Filter = httpContext =>
+                {
+                    // exclude OPTIONS
+                    if (httpContext.Request.Method == "OPTIONS")
+                        return false;
+
+                    // Exclude health check endpoint from tracing
+                    return !httpContext.Request.Path.StartsWithSegments("/health");
+                };
+            })
             .AddEntityFrameworkCoreInstrumentation()
             .AddSource(ActivitySourceProvider.ActivitySourceName)
             .AddOtlpExporter();
