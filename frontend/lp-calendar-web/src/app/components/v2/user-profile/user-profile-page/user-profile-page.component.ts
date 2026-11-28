@@ -70,6 +70,7 @@ export class UserProfilePageComponent {
   protected resolverError = signal<ProblemDetailsDto | null>(null);
 
   protected songStats = signal<UserSongStatsResponseDto | null>(null);
+  protected rareSongCount = signal<number>(0);
   protected concertStats = signal<UserConcertStatsResponseDto | null>(null);
 
   protected concertPins = signal<ConcertMapPin[]>([]);
@@ -102,10 +103,10 @@ export class UserProfilePageComponent {
     this.isOwnProfile.set(currentUserId == currentProfilePageId);
   });
 
-  /*private songStatsUpdatedEffect = effect(() => {
-    this.loadThumbnails(this.songStats()?.songs ?? []).then();
+  private songStatsUpdatedEffect = effect(() => {
     console.debug("Song stats updated");
-  });*/
+    this.rareSongCount.set((this.songStats()?.songs ?? []).filter(s => s.rarity?.isRare).length);
+  });
 
   private isLoadingThumbnails: boolean = false;
 

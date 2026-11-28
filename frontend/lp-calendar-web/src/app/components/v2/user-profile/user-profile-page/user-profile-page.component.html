@@ -43,7 +43,7 @@
     }
 
     @if (songStats()) {
-      <p>Seen <b>{{ songStats()?.numberOfSongs }} different songs</b> live. <b>{{ (songStats()?.songs ?? []).filter(s => s.rarity?.isRare).length }}</b> of which are <b>rare</b>.</p>
+      <p>Seen <b>{{ songStats()?.numberOfSongs }} different songs</b> live. @if (rareSongCount() > 0) { <b>{{ rareSongCount() }}</b> of them were <b>rare</b>! }</p>
     } @else if (isLoadingSongStats()) {
       <p-skeleton width="50%" />
     }
