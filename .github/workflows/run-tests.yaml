@@ -99,7 +99,7 @@ jobs:
           path: TestResults
           merge-multiple: true
       - name: Generate test report
-        uses: bibipkins/dotnet-test-reporter@v1.4.0
+        uses: bibipkins/dotnet-test-reporter@v1.6.4
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-title: 'Unit Test Results'
