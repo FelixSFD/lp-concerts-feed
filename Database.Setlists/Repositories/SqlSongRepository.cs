@@ -77,8 +77,8 @@ public class SqlSongRepository(SetlistsDbContext dbContext)
     {
         ArgumentNullException.ThrowIfNull(concertIds);
         cancellationToken.ThrowIfCancellationRequested();
-        var ids = concertIds.Distinct().ToArray();
-        if (ids.Length == 0)
+        var ids = concertIds.Distinct().ToList();
+        if (ids.Count == 0)
             return new SongConcertPlayData([], []);
 
         // Coverage must be queried independently: an empty or recording-only setlist is still present.
