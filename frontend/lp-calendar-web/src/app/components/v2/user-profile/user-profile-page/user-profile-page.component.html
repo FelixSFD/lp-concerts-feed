@@ -6,7 +6,7 @@
   }
 </ng-template>
 
-<p-dialog [(visible)]="showShareImageDialog" [modal]="true" header="Share your statistics">
+<p-dialog [(visible)]="showShareImageDialog" [modal]="true" header="Share your statistics" [dismissableMask]="true" [closeOnEscape]="true">
   <div class="flex flex-col gap-4 justify-content-center">
     @if (shareImageUrl()) {
       <img [src]="shareImageUrl()!" alt="Share image" />
