@@ -36,10 +36,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        test_filter:
-          - 'FullyQualifiedName~Database.Setlists'
-          - 'FullyQualifiedName~Database.Tours'
-          - 'FullyQualifiedName!~Database.'
+        namespace:
+          - Database.Setlists
+          - Database.Tours
+          - remaining # this makes sure all other projects are tested in a single job, so that we don't have to create a matrix entry 
     steps:
       - uses: actions/checkout@v6
       - name: Setup .NET
@@ -61,12 +61,12 @@ jobs:
             --logger trx \
             --results-directory "TestResults" \
             --settings:"Lambda.GetS3UploadUrl/test/Lambda.GetS3UploadUrl.Tests/test.runsettings" \
-            --filter "${{ matrix.test_filter }}"
+            --filter "${{ matrix.namespace == 'remaining' && 'FullyQualifiedName!~Database.' || format('FullyQualifiedName~{0}', matrix.namespace) }}"
       - name: Upload test results
         uses: actions/upload-artifact@v7
         if: ${{ always() }}
         with:
-          name: test-results-${{ matrix.test_filter }}
+          name: test-results-${{ matrix.namespace }}
           path: TestResults
           retention-days: 1
           
