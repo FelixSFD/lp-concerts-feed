@@ -59,6 +59,7 @@ builder.Services.AddOpenTelemetry()
         tracing
             .AddAspNetCoreInstrumentation()
             .AddEntityFrameworkCoreInstrumentation()
+            .AddSource("LPshows.Performance")
             .AddOtlpExporter();
     })
     .WithLogging(logging =>

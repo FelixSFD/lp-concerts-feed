@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Database.Setlists.Repositories;
 using Database.Tours.DataObjects;
 using Database.Tours.Repositories;
@@ -10,6 +11,8 @@ namespace Service.Tours;
 /// <summary>Calculates statistics for global, tour and user concert scopes.</summary>
 public class StatisticsService(IConcertRepository concertRepository, ISongRepository songRepository, ILogger<StatisticsService> logger, TimeProvider? timeProvider = null)
 {
+    private static readonly ActivitySource ActivitySource =
+        new("LPshows.Performance");
     private const decimal DefaultRarityThreshold = 0.25m;
     
     /// <summary>Calculates concert and location statistics for the selected scope.</summary>
@@ -66,6 +69,12 @@ public class StatisticsService(IConcertRepository concertRepository, ISongReposi
         StatsScope selection, StatsScope reference, decimal? rarityThreshold = DefaultRarityThreshold,
         CancellationToken cancellationToken = default)
     {
+        using var activity = ActivitySource.StartActivity();
+        activity?.SetTag("selection.userId", selection.UserId);
+        activity?.SetTag("selection.tourId", selection.TourId);
+        activity?.SetTag("reference.userId", reference.UserId);
+        activity?.SetTag("reference.tourId", reference.TourId);
+        
         ArgumentNullException.ThrowIfNull(selection);
         ArgumentNullException.ThrowIfNull(reference);
         if (rarityThreshold is < 0 or > 1)
@@ -107,6 +116,10 @@ public class StatisticsService(IConcertRepository concertRepository, ISongReposi
 
     private async Task<ConcertDo[]> LoadConcertsAsync(StatsScope scope, CancellationToken cancellationToken)
     {
+        using var activity = ActivitySource.StartActivity();
+        activity?.SetTag("scope.userId", scope.UserId);
+        activity?.SetTag("scope.tourId", scope.TourId);
+        
         var query = scope.UserId is null
             ? concertRepository.GetConcertsForStatsAsync(scope.TourId, cancellationToken)
             : concertRepository.GetAttendedConcertsForAsync(scope.UserId, cancellationToken);
@@ -118,9 +131,14 @@ public class StatisticsService(IConcertRepository concertRepository, ISongReposi
         Log.LoadedConcertsForStats(logger, concerts.Length, scope.UserId, scope.TourId);
         return concerts;
     }
-
+    
     private ConcertStatsBo CalculateConcertStats(ConcertDo[] concerts, StatsScope scope)
     {
+        using var activity = ActivitySource.StartActivity();
+        activity?.SetTag("scope.userId", scope.UserId);
+        activity?.SetTag("scope.tourId", scope.TourId);
+        activity?.SetTag("numberOfConcerts", concerts.Length);
+        
         var stats = ConcertStatsCalculator.Calculate(concerts);
         Log.FinishedGeneratingConcertStats(logger, scope.UserId, scope.TourId, stats.NumberOfConcerts,
             stats.NumberOfVenues, stats.NumberOfCities, stats.NumberOfCountries);
@@ -129,10 +147,14 @@ public class StatisticsService(IConcertRepository concertRepository, ISongReposi
 
     private async Task<SongStatBo[]> CalculateSongStatsAsync(ConcertDo[] concerts, StatsScope scope, CancellationToken cancellationToken)
     {
+        using var activity = ActivitySource.StartActivity();
+        activity?.SetTag("scope.userId", scope.UserId);
+        activity?.SetTag("scope.tourId", scope.TourId);
+        activity?.SetTag("numberOfConcerts", concerts.Length);
+        
         // User selections already apply the same cutoff in the attendance repository.
         var cutoff = (timeProvider ?? TimeProvider.System).GetUtcNow().UtcDateTime;
-        var ids = concerts.Where(concert => scope.UserId is not null || concert.PostedStartTime < cutoff)
-            .Select(concert => concert.Id).Distinct().ToArray();
+        var ids = GetRelevantConcertIds(concerts, scope, cutoff);
         SongStatBo[] stats = [];
         if (ids.Length > 0)
         {
@@ -144,6 +166,18 @@ public class StatisticsService(IConcertRepository concertRepository, ISongReposi
 
         Log.FinishedGeneratingSongStats(logger, scope.UserId, scope.TourId, stats.Length);
         return stats;
+    }
+
+    private static string[] GetRelevantConcertIds(ConcertDo[] concerts, StatsScope scope, DateTime cutoff)
+    {
+        using var activity = ActivitySource.StartActivity();
+        activity?.SetTag("scope.userId", scope.UserId);
+        activity?.SetTag("scope.tourId", scope.TourId);
+        activity?.SetTag("numberOfConcerts", concerts.Length);
+        
+        var ids = concerts.Where(concert => scope.UserId is not null || concert.PostedStartTime < cutoff)
+            .Select(concert => concert.Id).Distinct().ToArray();
+        return ids;
     }
 }
 

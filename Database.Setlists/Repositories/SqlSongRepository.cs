@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Common.Database.MySql.Repositories;
 using Database.Setlists.DataObjects;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,9 @@ namespace Database.Setlists.Repositories;
 public class SqlSongRepository(SetlistsDbContext dbContext)
     : SingleKeySqlRepositoryBase<SongDo, uint>(dbContext, dbContext.Songs), ISongRepository
 {
+    private static readonly ActivitySource ActivitySource =
+        new("LPshows.Performance");
+    
     /// <inheritdoc/>
     protected override async Task<SongDo> LoadReferences(SongDo dataObject)
     {
@@ -40,10 +44,14 @@ public class SqlSongRepository(SetlistsDbContext dbContext)
     public async Task<IDictionary<SongDo, uint>> GetSongsPlayedAtConcertsAsync(IEnumerable<string> concertIds,
         CancellationToken cancellationToken = default)
     {
+        using var activity = ActivitySource.StartActivity();
+        var concertIdList = concertIds.ToList();
+        activity?.SetTag("numberOfConcerts", concertIdList.Count);
+
         var query = dbContext
             .Setlists
             .AsQueryable()
-            .Where(s => concertIds.Contains(s.ConcertId))
+            .Where(s => concertIdList.Contains(s.ConcertId))
             .Include(s => s.Entries)
             .SelectMany(s => s.Entries)
             .Where(e => !e.IsPlayedFromRecording)
@@ -52,7 +60,7 @@ public class SqlSongRepository(SetlistsDbContext dbContext)
             .Include(e => e.PlayedSongVariant)
                 .ThenInclude(v => v!.Song)
                 .ThenInclude(s => s.Album);
-
+        
         var entries = await query.ToListAsync(cancellationToken);
         return entries
             .Select(entry => entry.PlayedSong ?? entry.PlayedSongVariant?.Song)
