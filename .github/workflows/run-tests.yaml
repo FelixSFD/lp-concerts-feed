@@ -36,7 +36,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        project:
+        namespace:
           - Database.Setlists
           - Database.Tours
           - remaining # this makes sure all other projects are tested in a single job, so that we don't have to create a matrix entry for every single project
