@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using Common.Database;
@@ -12,6 +13,9 @@ namespace Database.Tours.Repositories;
 
 public class SqlConcertRepository(ToursDbContext dbContext, TimeProvider timeProvider) : SingleKeySqlRepositoryBase<ConcertDo, string>(dbContext, dbContext.Concerts), IConcertRepository
 {
+    private static readonly ActivitySource ActivitySource =
+        new("LPshows.Performance");
+    
     /// <summary>Creates a repository using the system clock.</summary>
     public SqlConcertRepository(ToursDbContext dbContext) : this(dbContext, TimeProvider.System) { }
 
@@ -168,6 +172,9 @@ public class SqlConcertRepository(ToursDbContext dbContext, TimeProvider timePro
     /// <inheritdoc/>
     public IAsyncEnumerable<ConcertDo> GetAttendedConcertsForAsync(string userId, CancellationToken cancellationToken = default)
     {
+        using var activity = ActivitySource.StartActivity();
+        activity?.SetTag("userId", userId);
+        
         var query = DbSet
             .AsQueryable();
         query = IncludeVenueDetailsReferences(query);
@@ -182,6 +189,9 @@ public class SqlConcertRepository(ToursDbContext dbContext, TimeProvider timePro
     /// <inheritdoc/>
     public async IAsyncEnumerable<ConcertDo> GetConcertsForStatsAsync(string? tourId, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
+        using var activity = ActivitySource.StartActivity();
+        activity?.SetTag("tourId", tourId);
+        
         var query = IncludeVenueDetailsReferences(DbSet.AsQueryable())
             .Where(c => c.DeletedAt == null);
         if (tourId is not null)
