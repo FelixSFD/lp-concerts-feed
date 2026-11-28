@@ -25,6 +25,7 @@ using Microsoft.OpenApi;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Prometheus;
 using Quartz;
 using Server.Api.Cache;
@@ -52,6 +53,13 @@ builder.Services.AddOpenTelemetry()
         r.AddAttributes([
             new KeyValuePair<string, object>("deployment.environment.name", builder.Configuration.GetValue<string>("OpenTelemetry:TelemetryEnvironmentName") ?? "default")
         ]);
+    })
+    .WithTracing(tracing =>
+    {
+        tracing
+            .AddAspNetCoreInstrumentation()
+            .AddEntityFrameworkCoreInstrumentation()
+            .AddOtlpExporter();
     })
     .WithLogging(logging =>
     {
