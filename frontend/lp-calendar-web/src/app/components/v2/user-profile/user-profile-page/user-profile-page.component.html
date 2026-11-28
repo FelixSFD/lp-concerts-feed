@@ -15,7 +15,11 @@
     }
   </div>
   <ng-template #footer>
-    <button type="button" pButton severity="secondary" variant="outlined" (click)="showShareImageDialog.set(false)">Cancel</button>
+    <div class="flex gap-2 justify-content-between">
+      <button type="button" pButton severity="primary" (click)="onShareImageClicked()"><i class="pi pi-link"></i> Share</button>
+      <button type="button" pButton severity="primary" (click)="onCopyImageClicked()"><i class="pi pi-copy"></i> Copy</button>
+      <button type="button" pButton severity="secondary" variant="outlined" (click)="showShareImageDialog.set(false)">Close</button>
+    </div>
   </ng-template>
 </p-dialog>
 

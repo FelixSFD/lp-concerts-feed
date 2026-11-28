@@ -33,6 +33,7 @@ import { MatomoTracker } from 'ngx-matomo-client';
 import { Skeleton } from 'primeng/skeleton';
 import { Dialog } from 'primeng/dialog';
 import { ProgressSpinner } from 'primeng/progressspinner';
+import { MessageService } from 'primeng/api';
 
 @Component({
   imports: [
@@ -68,6 +69,7 @@ export class UserProfilePageComponent {
   private readonly authService = inject(AuthService);
   private readonly appleMusicService = inject(AppleMusicService);
   private readonly tracker = inject(MatomoTracker);
+  private readonly messageService = inject(MessageService);
 
   protected username = signal<string>("");
   protected isOwnProfile = signal<boolean>(false);
@@ -87,6 +89,9 @@ export class UserProfilePageComponent {
   protected isLoadingSongStats = signal<boolean>(false);
 
   protected isSharing = signal<boolean>(false);
+
+  // The file object that will be used for sharing inside the dialog
+  private shareImageFile: File | null = null;
 
   // map that stores the artwork for an Apple Music Song ID
   songArtworks$ = signal<Map<string, Artwork>>(new Map<string, Artwork>());
@@ -143,27 +148,61 @@ export class UserProfilePageComponent {
     try {
       let response = await this.userStatsService.getUserConcertStatsSharePic(this.user()?.id!);
       console.debug("response:", response);
-      let shareData = {
-        files: [response],
-      };
-
-      /*
-      if (navigator.share) {
-        await navigator.share(shareData);
-        this.tracker.trackEvent('share', 'user_stats', this.user()?.username);
-      } else {
-        console.warn("navigator.canShare() returned false");
-      }*/
 
       const reader = new FileReader();
       reader.onload = (e) => {
         this.shareImageUrl.set(e.target?.result as string);
+        this.shareImageFile = response;
       }
       reader.readAsDataURL(new Blob([await response.bytes()]));
     } catch (e) {
       console.error("Failed to share profile stats:", e);
     } finally {
       this.isSharing.set(false);
+    }
+  }
+
+  async onShareImageClicked() {
+    if (this.shareImageFile == null) {
+      console.warn("shareImageFile not found");
+      this.messageService.add({severity: 'error', summary: 'Failed to share image', detail: "Image to share not found"});
+      return;
+    }
+
+    let shareData = {
+      files: [this.shareImageFile],
+    };
+
+    if (navigator.share) {
+      await navigator.share(shareData);
+      this.tracker.trackEvent('share', 'user_stats', this.user()?.username);
+    } else {
+      console.warn("navigator.canShare() returned false");
+      this.messageService.add({severity: 'error', detail: 'Failed to share image'});
+    }
+  }
+
+  async onCopyImageClicked() {
+    if (this.shareImageFile == null) {
+      console.warn("shareImageFile not found");
+      this.messageService.add({severity: 'error', summary: 'Failed to copy image', detail: "Image to copy not found"});
+      return;
+    }
+
+    if (navigator.clipboard) {
+      // copy file to clipboard
+      try {
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            [this.shareImageFile.type]: this.shareImageFile
+          })
+        ]);
+        console.debug("Copied image to clipboard");
+        this.messageService.add({severity: 'success', detail:'Image copied to clipboard'});
+      } catch (e) {
+        console.error("Failed to copy image to clipboard:", e);
+        this.messageService.add({severity: 'error', detail: 'Failed to copy image to clipboard'});
+      }
     }
   }
 
