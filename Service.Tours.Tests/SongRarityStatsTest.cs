@@ -94,13 +94,13 @@ public class SongRarityStatsTest
         _concerts.GetConcertsForStatsAsync("tour").Returns(new[] { tourConcert }.ToAsyncEnumerable());
         var song = new SongDo { Id = 1, Title = "Song" };
         _songs.GetSongPlaysByConcertAsync(Arg.Any<IEnumerable<string>>()).Returns(
-            new SongConcertPlayData(["tour-concert", "outside"], [new(song, "tour-concert", 1), new(song, "outside", 1)]));
+            new SongConcertPlayData(["tour-concert", "outside"], [new SongConcertPlayCount(song, "tour-concert", 1), new SongConcertPlayCount(song, "outside", 1)]));
 
         var result = await CreateService().GetSongRarityStatsAsync(new StatsScope(tourId: "tour"), new StatsScope());
 
         var stat = Assert.Single(result.Songs);
         Assert.Equal(1m, stat.ReferenceConcertShare);
-        Assert.Null(stat.IsRare);
+        Assert.False(stat.IsRare);
         Assert.Equal(1, stat.SelectionConcertCount);
         Assert.Equal(2, stat.ReferenceConcertCount);
     }
