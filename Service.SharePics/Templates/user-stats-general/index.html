@@ -74,7 +74,12 @@
             <!-- Songs -->
             <div>
                 <b class="stats-header">Rarest songs</b>
-                <p class="pico-color-zinc-50">coming soon...</p>
+                <div class="concerts-list">
+                    {{~ for rareSong in (rareSongs) ~}}
+                    <b>{{ rareSong.title }}</b>
+                    <p class="pico-color-zinc-50">Seen {{ rareSong.user_play_count }} out of {{ rareSong.total_play_count }} times</p>
+                    {{~ end ~}}
+                </div>
             </div>
         </div>
         

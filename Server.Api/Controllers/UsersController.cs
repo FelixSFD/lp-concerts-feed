@@ -166,6 +166,7 @@ public class UsersController(UserService userService, UserStatsService userStats
         var userInfoTask = userService.GetUserById(userId, cancellationToken);
         var scope = new StatsScope(userId: userId);
         var (concertStats, songStats) = await statisticsService.GetConcertAndSongStatsAsync(scope, cancellationToken);
+        var songRarityStats = await statisticsService.GetSongRarityStatsAsync(scope, new StatsScope(), null, cancellationToken);
         var userInfo = await userInfoTask;
 
         var template = new UserTemplate
@@ -183,6 +184,21 @@ public class UsersController(UserService userService, UserStatsService userStats
             Countries = concertStats.NumberOfCountries,
             Cities = concertStats.NumberOfCities,
             Songs = songStats.Length,
+            RareSongs =
+            [
+                .. songRarityStats
+                    .Songs
+                    .Where(s => s.IsRare ?? false)
+                    .OrderBy(s => s.ReferenceConcertShare)
+                    .ThenByDescending(s => s.ReferencePlayCount)
+                    .ThenByDescending(s => s.SelectionPlayCount)
+                    .Select(s => new UserTemplate.RareSong
+                    {
+                        Title = s.SongName,
+                        UserPlayCount = s.SelectionPlayCount,
+                        TotalPlayCount = s.ReferencePlayCount,
+                    })
+            ]
         };
         var imageKey = await sharePicService.GenerateStoredSharePicAsync(template, 675, 675, 2, cancellationToken: cancellationToken);
         var config = HttpContext.RequestServices.GetRequiredService<IConfiguration>();
