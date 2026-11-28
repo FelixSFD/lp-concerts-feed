@@ -54,7 +54,7 @@ jobs:
         run: ls -R Database.Setlists.Tests
       - name: Test
         run: |
-          dotnet test LPCalendar.sln \
+          dotnet test \
             --no-build \
             --logger trx \
             --results-directory "TestResults" \
