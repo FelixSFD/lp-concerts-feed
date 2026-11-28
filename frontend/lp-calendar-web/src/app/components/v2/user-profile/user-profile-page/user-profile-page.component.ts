@@ -5,7 +5,7 @@ import {
   ProblemDetailsDto,
   PublicUserDto,
   UserConcertStatsResponseDto,
-  UserSongStatsResponseDto, UserSongStatsResponseSongsInnerDto
+  UserSongStatsResponseDto
 } from '../../../../modules/lpshows-api/v3';
 import Artwork = MusicKit.Artwork;
 import { Card } from 'primeng/card';
@@ -31,6 +31,9 @@ import { Tooltip } from 'primeng/tooltip';
 import { AuthService } from '../../../../auth/auth.service';
 import { MatomoTracker } from 'ngx-matomo-client';
 import { Skeleton } from 'primeng/skeleton';
+import {
+  UserSongStatsResponseSongsInnerDto
+} from '../../../../modules/lpshows-api/v3/model/user-song-stats-response-songs-inner';
 
 @Component({
   imports: [
@@ -51,7 +54,6 @@ import { Skeleton } from 'primeng/skeleton';
     ScrollAreaHandle,
     Tag,
     Tooltip,
-    Button,
     Skeleton,
   ],
   selector: 'app-user-profile-page',
