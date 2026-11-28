@@ -50,6 +50,7 @@ public class SqlSongRepository(SetlistsDbContext dbContext)
 
         var query = dbContext
             .Setlists
+            .AsNoTracking()
             .Where(s => concertIdList.Contains(s.ConcertId))
             .SelectMany(s => s.Entries)
             .Where(e => !e.IsPlayedFromRecording)
@@ -60,7 +61,7 @@ public class SqlSongRepository(SetlistsDbContext dbContext)
                 .ThenInclude(v => v!.Song)
                 .ThenInclude(s => s.Album);
         
-        var entries = await query.AsNoTracking().ToListAsync(cancellationToken);
+        var entries = await query.ToListAsync(cancellationToken);
         return entries
             .Select(entry => entry.PlayedSong ?? entry.PlayedSongVariant?.Song)
             .Where(song => song is not null)

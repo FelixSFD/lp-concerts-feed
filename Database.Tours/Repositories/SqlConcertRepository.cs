@@ -192,7 +192,7 @@ public class SqlConcertRepository(ToursDbContext dbContext, TimeProvider timePro
         using var activity = ActivitySource.StartActivity();
         activity?.SetTag("tourId", tourId);
         
-        var query = IncludeVenueDetailsReferences(DbSet.AsQueryable())
+        var query = IncludeVenueDetailsReferences(DbSet.AsNoTracking())
             .Where(c => c.DeletedAt == null);
         if (tourId is not null)
             query = query.Where(c => c.TourId == tourId);
