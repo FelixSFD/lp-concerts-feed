@@ -3,7 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   ConcertDetailsShortDto,
   ProblemDetailsDto,
-  PublicUserDto,
+  PublicUserDto, SongStatsWithRarityDto,
   UserConcertStatsResponseDto,
   UserSongStatsResponseDto
 } from '../../../../modules/lpshows-api/v3';
@@ -31,9 +31,6 @@ import { Tooltip } from 'primeng/tooltip';
 import { AuthService } from '../../../../auth/auth.service';
 import { MatomoTracker } from 'ngx-matomo-client';
 import { Skeleton } from 'primeng/skeleton';
-import {
-  UserSongStatsResponseSongsInnerDto
-} from '../../../../modules/lpshows-api/v3/model/user-song-stats-response-songs-inner';
 
 @Component({
   imports: [
@@ -198,7 +195,7 @@ export class UserProfilePageComponent {
     }
   }
 
-  private async loadThumbnails(songs: UserSongStatsResponseSongsInnerDto[]) {
+  private async loadThumbnails(songs: SongStatsWithRarityDto[]) {
     if (this.isLoadingThumbnails) {
       return;
     }
