@@ -10,7 +10,7 @@ namespace Service.Tours;
 /// <summary>Calculates statistics for global, tour and user concert scopes.</summary>
 public class StatisticsService(IConcertRepository concertRepository, ISongRepository songRepository, ILogger<StatisticsService> logger, TimeProvider? timeProvider = null)
 {
-    public const decimal DefaultRarityThreshold = 0.5m;
+    private const decimal DefaultRarityThreshold = 0.25m;
     
     /// <summary>Calculates concert and location statistics for the selected scope.</summary>
     public async Task<ConcertStatsBo> GetConcertStatsAsync(StatsScope scope, CancellationToken cancellationToken = default)

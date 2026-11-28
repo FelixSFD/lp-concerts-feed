@@ -98,6 +98,12 @@
                                 {{ item.playCount }} {{ item.playCount == 1 ? "time" : "times" }}
                               </div>
                             </div>
+
+                            @if (item.rarity.isRare) {
+                              <div class="flex sm:flex-row sm:items-center pl-2 gap-4 align-items-center justify-content-end">
+                                <p-tag value="Rare!" severity="warn" [pTooltip]="item.songTitle + ' was only played at ' + item.rarity.referenceConcertCount + ' concerts!'" />
+                              </div>
+                            }
                           </div>
                         }
                       </div>
