@@ -52,7 +52,7 @@ jobs:
           name: backend-build
       - name: Test
         run: |
-          dotnet test \
+          dotnet test LPCalendar.sln \
             --no-build \
             --logger trx \
             --results-directory "TestResults" \
