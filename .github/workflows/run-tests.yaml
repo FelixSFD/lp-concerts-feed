@@ -75,7 +75,7 @@ jobs:
 
           dotnet test \
             --no-build \
-            --logger "trx;logfilename=results_$TEST_NAMESPACE.trx" \
+            --logger "trx" \
             --results-directory "TestResults" \
             --settings:"Lambda.GetS3UploadUrl/test/Lambda.GetS3UploadUrl.Tests/test.runsettings" \
             "${filter_args[@]}"
